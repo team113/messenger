@@ -27,8 +27,8 @@ Feature: Delete dialog with user
     When I go to Bob's page
     And I scroll `UserScrollable` to bottom
     And I pause for 1 seconds
-    And I tap `DeleteDialogButton` button
+    And I tap `DeleteButton` button
     And I tap `Proceed` button
     And I return to previous page
     And I pause for 1 seconds
-    Then I see no dialog with "Bob"
+    Then I see no dialog with Bob

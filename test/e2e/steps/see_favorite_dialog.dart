@@ -20,22 +20,21 @@ import 'package:messenger/domain/model/chat.dart';
 
 import '../configuration.dart';
 import '../parameters/favorite_status.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a dialog [Chat] with the provided name is displayed with
+/// Indicates whether a dialog [Chat]-dialog with the provided name is displayed with
 /// the specified [FavoriteStatus].
 ///
-/// The [Chat] object represents a dialog between users.
-///
 /// Examples:
-/// - Then I see "Bob" dialog as favorite
-/// - Then I see "Bob" dialog as unfavorite
+/// - Then I see Bob dialog with me as favorite
+/// - Then I see Bob dialog with me as unfavorite
 final StepDefinitionGeneric seeDialogAsFavorite =
-    then2<String, FavoriteStatus, CustomWorld>(
-      'I see {string} dialog with me as {favorite}',
-      (name, status, context) async {
+    then2<TestUser, FavoriteStatus, CustomWorld>(
+      'I see {user} dialog with me as {favorite}',
+      (user, status, context) async {
         await context.world.appDriver.waitUntil(() async {
-          final ChatId chatId = context.world.sessions[name]!.dialog!;
+          final ChatId chatId = context.world.sessions[user.name]!.dialog!;
 
           switch (status) {
             case FavoriteStatus.favorite:

@@ -19,10 +19,7 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import '/ui/widget/line_divider.dart';
-import '/ui/page/home/widget/presence_label.dart';
-import '/util/platform_utils.dart';
-import '/ui/widget/widget_button.dart';
+
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -34,12 +31,15 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
+import '/ui/page/home/widget/presence_label.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/line_divider.dart';
 import '/ui/widget/obscured_selection_area.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
@@ -54,7 +54,6 @@ class UserView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      key: const Key('UserView'),
       init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
       tag: id.val,
       global: !Get.isRegistered<UserController>(tag: id.val),
@@ -299,6 +298,7 @@ class UserView extends StatelessWidget {
     final bool favorite =
         c.user?.dialog.value?.chat.value.favoritePosition != null;
     final bool muted = c.user?.dialog.value?.chat.value.muted != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -314,43 +314,46 @@ class UserView extends StatelessWidget {
         //     contact ? SvgIcons.deleteContact16 : SvgIcons.addContact16,
         //   ),
         // ),
+        // ActionButton(
+        //   text: favorite
+        //       ? 'btn_delete_from_favorites'.l10n
+        //       : 'btn_add_to_favorites'.l10n,
+        //   onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
+        //   trailing: SvgIcon(
+        //     favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
+        //   ),
+        // ),
         ActionButton(
-          key: const Key('FavoriteDialogButton'),
+          key: const Key('FavoriteButton'),
           text: favorite
               ? 'btn_delete_from_favorites'.l10n
               : 'btn_add_to_favorites'.l10n,
           onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
           trailing: SvgIcon(
-            favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
+            favorite ? SvgIcons.favorite19 : SvgIcons.unfavorite19,
           ),
         ),
         ActionButton(
-          key: const Key('MuteDialogButton'),
-          text: muted
-              ? PlatformUtils.isMobile
-                    ? 'btn_unmute'.l10n
-                    : 'btn_unmute_chat'.l10n
-              : PlatformUtils.isMobile
-              ? 'btn_mute'.l10n
-              : 'btn_mute_chat'.l10n,
+          key: const Key('MuteButton'),
+          text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
           onPressed: muted ? c.unmuteChat : c.muteChat,
-          trailing: SvgIcon(muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall),
+          trailing: SvgIcon(muted ? SvgIcons.unmuted19 : SvgIcons.muted19),
         ),
         ActionButton(
-          key: const Key('ClearHistoryButton'),
+          key: const Key('ClearButton'),
           text: 'btn_clear_history'.l10n,
           onPressed: () => _clearChat(c, context),
-          trailing: SvgIcon(SvgIcons.cleanHistory),
+          trailing: SvgIcon(SvgIcons.cleanHistory19),
         ),
         ActionButton(
-          key: const Key('DeleteDialogButton'),
+          key: const Key('DeleteButton'),
           text: 'btn_delete_chat'.l10n,
           onPressed: () => _hideChat(c, context),
-          trailing: SvgIcon(SvgIcons.delete),
+          trailing: SvgIcon(SvgIcons.delete19v2),
         ),
         ActionButton(
           text: 'btn_report'.l10n,
-          trailing: const SvgIcon(SvgIcons.report16),
+          trailing: const SvgIcon(SvgIcons.report19),
           onPressed: () => _reportUser(c, context),
         ),
         Obx(() {
@@ -362,7 +365,7 @@ class UserView extends StatelessWidget {
             key: const Key('Block'),
             text: 'btn_block'.l10n,
             onPressed: () => _blockUser(c, context),
-            trailing: const SvgIcon(SvgIcons.blockSmallRed),
+            trailing: const SvgIcon(SvgIcons.blockRed19),
             danger: true,
           );
         }),

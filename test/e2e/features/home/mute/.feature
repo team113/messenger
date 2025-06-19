@@ -22,9 +22,9 @@ Feature: Application muting and unmuting
     And I pause for 1 second
 
     When I right click `ChatsButton` button
-    And I tap `MuteChatsButton` button
+    And I tap `MuteButton` button
     Then I wait until `Muted` is present
 
     And I right click `ChatsButton` button
-    And I tap `UnmuteChatsButton` button
+    And I tap `MuteButton` button
     Then I wait until `Unmuted` is present

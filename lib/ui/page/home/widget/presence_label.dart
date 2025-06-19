@@ -25,7 +25,7 @@ import '/themes.dart';
 class PresenceLabel extends StatelessWidget {
   const PresenceLabel({super.key, this.presence});
 
-  /// The presence to display.
+  /// Presence to display.
   ///
   /// If it is not provided (i.e. null), the status will default to
   /// [Presence.present].

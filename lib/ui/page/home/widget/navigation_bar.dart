@@ -208,14 +208,14 @@ class CustomNavigationBarItem extends StatelessWidget {
            actions: [
              if (danger)
                ContextMenuTile(
-                 key: const Key('MuteChatsButton'),
+                 key: const Key('MuteButton'),
                  asset: SvgIcons.unmuted22,
                  label: 'btn_mute_chats'.l10n,
                  onPressed: (_) => onMute?.call(false),
                )
              else
                ContextMenuTile(
-                 key: const Key('UnmuteChatsButton'),
+                 key: const Key('MuteButton'),
                  asset: SvgIcons.muted22,
                  label: 'btn_unmute_chats'.l10n,
                  onPressed: (_) => onMute?.call(true),

@@ -27,7 +27,7 @@ Feature: Clear dialog
     When I go to Bob's page
     And I scroll `UserScrollable` to bottom
     And I pause for 1 seconds
-    And I tap `ClearHistoryButton` button
+    And I tap `ClearButton` button
     And I tap `Proceed` button
     And I pause for 1 seconds
     And I am in chat with Bob

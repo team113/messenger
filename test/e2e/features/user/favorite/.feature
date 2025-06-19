@@ -27,9 +27,10 @@ Feature: Favorite dialog
     When I go to Bob's page
     And I scroll `UserScrollable` to bottom
     And I pause for 1 seconds
-    And I tap `FavoriteDialogButton` button
-    And I see "Bob" dialog with me as favorite
-    Then I see "Bob" dialog first in favorites list
+    And I tap `FavoriteButton` button
+    And I pause for 1 seconds
+    And I see Bob dialog with me as favorite
+    Then I see dialog with Bob first in favorites list
 
-    When I tap `FavoriteDialogButton` button
-    Then I see "Bob" dialog with me as unfavorite
+    When I tap `FavoriteButton` button
+    Then I see Bob dialog with me as unfavorite

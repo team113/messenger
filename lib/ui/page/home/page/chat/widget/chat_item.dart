@@ -1569,7 +1569,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               ),
                           ],
                           ContextMenuButton(
-                            key: const Key('Delete'),
+                            key: const Key('DeleteButton'),
                             label: PlatformUtils.isMobile
                                 ? 'btn_delete'.l10n
                                 : 'btn_delete_message'.l10n,
@@ -1621,7 +1621,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             onPressed: widget.onResend,
                           ),
                           ContextMenuButton(
-                            key: const Key('Delete'),
+                            key: const Key('DeleteButton'),
                             label: PlatformUtils.isMobile
                                 ? 'btn_delete'.l10n
                                 : 'btn_delete_message'.l10n,

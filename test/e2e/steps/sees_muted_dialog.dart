@@ -20,24 +20,23 @@ import 'package:messenger/domain/model/chat.dart';
 
 import '../configuration.dart';
 import '../parameters/muted_status.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a dialog [Chat] with the provided name is displayed with
+/// Indicates whether a dialog [Chat]-dialog with the provided name is displayed with
 /// the specified [MutedStatus] or not.
 ///
-/// The [Chat] object represents a dialog between users.
-///
 /// Examples:
-/// - Then I see "Bob" dialog with me as muted
-/// - Then I see "Bob" dialog with me as unmuted
+/// - Then I see Bob dialog with me as muted
+/// - Then I see Bob dialog with me as unmuted
 final StepDefinitionGeneric seeDialogAsMuted =
-    then2<String, MutedStatus, CustomWorld>(
-      'I see {string} dialog with me as {muted}',
-      (name, status, context) async {
+    then2<TestUser, MutedStatus, CustomWorld>(
+      'I see {user} dialog with me as {muted}',
+      (user, status, context) async {
         await context.world.appDriver.waitUntil(() async {
           await context.world.appDriver.waitForAppToSettle();
 
-          final ChatId chatId = context.world.sessions[name]!.dialog!;
+          final ChatId chatId = context.world.sessions[user.name]!.dialog!;
 
           switch (status) {
             case MutedStatus.muted:

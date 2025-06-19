@@ -24,7 +24,7 @@ Feature: User avatar
     When I tap `MenuButton` button
     And I tap `PublicInformation` button
     And I update my avatar
-    Then I wait until `DeleteAvatar` is present
+    Then I wait until `DeleteButton` is present
 
-    When I tap `DeleteAvatar` button
-    Then I wait until `DeleteAvatar` is absent
+    When I tap `DeleteButton` button
+    Then I wait until `DeleteButton` is absent

@@ -71,7 +71,7 @@ class ReactiveTextField extends StatelessWidget {
     this.selectable,
   });
 
-  /// [ReactiveTextField] with trailing copy button
+  /// [ReactiveTextField] with trailing copy button.
   factory ReactiveTextField.copyable({
     Key? key,
     required String text,

@@ -29,7 +29,7 @@ Feature: Chat items are deleted correctly
     Then I wait until status of "For deletion" message is sent
 
     When I long press "For deletion" message
-    And I tap `Delete` button
+    And I tap `DeleteButton` button
     And I tap `DeleteForAll` button
     And I tap `Proceed` button
     Then I wait until "For deletion" message is absent
@@ -40,7 +40,7 @@ Feature: Chat items are deleted correctly
     Then I wait until status of "For hiding" message is sent
 
     When I long press "For hiding" message
-    And I tap `Delete` button
+    And I tap `DeleteButton` button
     And I tap `HideForMe` button
     And I tap `Proceed` button
     Then I wait until "For hiding" message is absent

@@ -27,8 +27,8 @@ Feature: Chat members
 
   Scenario: User removes a member
     When I wait until text "Bob" is present
-    And I scroll `ChatInfoScrollable` until `DeleteMemberButton` is present
-    And I tap `DeleteMemberButton` button
+    And I scroll `ChatInfoScrollable` until `DeleteButton` is present
+    And I tap `DeleteButton` button
     And I tap `Proceed` button
     Then I wait until text "Bob" is absent
 

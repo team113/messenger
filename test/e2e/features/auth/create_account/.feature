@@ -43,8 +43,8 @@ Feature: Account creation
     And I tap `DeleteAccount` button
     Then I wait until `EraseView` is present
 
-    When I scroll `EraseScrollable` until `ConfirmDelete` is present
-    And I tap `ConfirmDelete` button
+    When I scroll `EraseScrollable` until `DeleteButton` is present
+    And I tap `DeleteButton` button
     And I tap `Proceed` button
     Then I wait until `ConfirmAccountDeletion` is present
 

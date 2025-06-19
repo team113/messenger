@@ -1453,6 +1453,12 @@ class SvgIcons {
     height: 16,
   );
 
+  static const SvgData blockRed19 = SvgData(
+    'assets/icons/block_red19.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData cleanHistory = SvgData(
     'assets/icons/clean_history.svg',
     width: 17.21,
@@ -1657,10 +1663,22 @@ class SvgIcons {
     height: 17,
   );
 
+  static const SvgData favorite19 = SvgData(
+    'assets/icons/favorite19.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData unfavorite16 = SvgData(
     'assets/icons/unfavorite16.svg',
     width: 17.87,
     height: 17,
+  );
+
+  static const SvgData unfavorite19 = SvgData(
+    'assets/icons/unfavorite19.svg',
+    width: 18,
+    height: 18,
   );
 
   static const SvgData muted16 = SvgData(
@@ -1669,16 +1687,34 @@ class SvgIcons {
     height: 16.45,
   );
 
+  static const SvgData muted19 = SvgData(
+    'assets/icons/muted19.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData unmuted16 = SvgData(
     'assets/icons/unmuted16.svg',
     width: 16.18,
     height: 16.45,
   );
 
+  static const SvgData unmuted19 = SvgData(
+    'assets/icons/unmuted19.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData cleanHistory16 = SvgData(
     'assets/icons/clean_history16.svg',
     width: 15.28,
     height: 16,
+  );
+
+  static const SvgData cleanHistory19 = SvgData(
+    'assets/icons/clean_history19.svg',
+    width: 18,
+    height: 18,
   );
 
   static const SvgData clearSearch = SvgData(
@@ -1741,6 +1777,12 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData report19 = SvgData(
+    'assets/icons/report19.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData reportWhite = SvgData(
     'assets/icons/report_white.svg',
     width: 18,
@@ -1751,6 +1793,12 @@ class SvgIcons {
     'assets/icons/delete19.svg',
     width: 19.88,
     height: 19,
+  );
+
+  static const SvgData delete19v2 = SvgData(
+    'assets/icons/delete19_v2.svg',
+    width: 19,
+    height: 18,
   );
 
   static const SvgData delete19White = SvgData(

@@ -44,7 +44,7 @@ Feature: Monolog
 
   Scenario: User adds local chat monolog to favorites
     When I long press monolog
-    And I tap `FavoriteChatButton` button
+    And I tap `FavoriteButton` button
     Then monolog is indeed remote
     And I see monolog as favorite
 

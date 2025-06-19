@@ -21,25 +21,24 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
 import '../parameters/position_status.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a dialog [Chat] with the provided name is displayed at the
+/// Indicates whether a dialog [Chat]-dialog with the provided name is displayed at the
 /// specified [PositionStatus].
 ///
-/// The [Chat] object represents a dialog between users.
-///
 /// Examples:
-/// - Then I see "Bob" dialog first in favorites list
-/// - Then I see "Bob" dialog last in favorites list
+/// - Then I see dialog with Bob first in favorites list
+/// - Then I see dialog with Bob last in favorites list
 final StepDefinitionGeneric seeFavoriteDialogPosition =
-    then2<String, PositionStatus, CustomWorld>(
-      'I see {string} dialog {position} in favorites list',
-      (name, status, context) async {
+    then2<TestUser, PositionStatus, CustomWorld>(
+      'I see dialog with {user} {position} in favorites list',
+      (user, status, context) async {
         await context.world.appDriver.waitUntil(() async {
           await context.world.appDriver.waitForAppToSettle();
 
           final controller = Get.find<ChatsTabController>();
-          final ChatId chatId = context.world.sessions[name]!.dialog!;
+          final ChatId chatId = context.world.sessions[user.name]!.dialog!;
           final Iterable<ChatEntry> favorites = controller.chats.where(
             (c) => c.chat.value.favoritePosition != null,
           );

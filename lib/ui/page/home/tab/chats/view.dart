@@ -1044,7 +1044,7 @@ class ChatsTabView extends StatelessWidget {
                               ),
                             ),
                             PrimaryButton(
-                              key: const Key('DeleteChats'),
+                              key: const Key('DeleteButton'),
                               onPressed: c.selectedChats.isEmpty
                                   ? null
                                   : () => _hideChats(context, c),

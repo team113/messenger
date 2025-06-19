@@ -17,10 +17,9 @@
 
 import 'dart:async';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -53,6 +52,7 @@ import '/provider/gql/exceptions.dart'
         HideChatException,
         JoinChatCallException,
         ToggleChatMuteException,
+        UnblockUserException,
         UnfavoriteChatContactException,
         UnfavoriteChatException,
         UpdateChatContactNameException;
@@ -343,12 +343,17 @@ class UserController extends GetxController {
     blocklistStatus.value = RxStatus.loading();
     try {
       await _userService.unblockUser(id);
+    } on UnblockUserException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
     } finally {
       blocklistStatus.value = RxStatus.empty();
     }
   }
 
-  /// Marks the [chat] as favorited.
+  /// Marks a [Chat]-dialog with the [user] as favorite.
   Future<void> favoriteChat() async {
     final ChatId? dialog = user?.user.value.dialog;
     try {
@@ -358,12 +363,12 @@ class UserController extends GetxController {
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
-      MessagePopup.error(e);
+      MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
     }
   }
 
-  /// Removes the [chat] from the favorites.
+  /// Removes a [Chat]-dialog with the [user] from the favorites.
   Future<void> unfavoriteChat() async {
     final ChatId? dialog = user?.user.value.dialog;
     try {
@@ -373,12 +378,12 @@ class UserController extends GetxController {
     } on UnfavoriteChatContactException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
-      MessagePopup.error(e);
+      MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
     }
   }
 
-  /// Marks the [ChatContact] as favorited.
+  /// Marks the [user] as favorited.
   Future<void> favoriteContact() async {
     try {
       if (contactId != null) {
@@ -392,7 +397,7 @@ class UserController extends GetxController {
     }
   }
 
-  /// Removes the [ChatContact] from the favorites.
+  /// Removes the [user] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
       if (contactId != null) {
@@ -416,13 +421,13 @@ class UserController extends GetxController {
       } on ToggleChatMuteException catch (e) {
         MessagePopup.error(e);
       } catch (e) {
-        MessagePopup.error(e);
+        MessagePopup.error('err_data_transfer'.l10n);
         rethrow;
       }
     }
   }
 
-  /// Unmute a [Chat]-dialog with the [user].
+  /// Unmutes a [Chat]-dialog with the [user].
   Future<void> unmuteChat() async {
     final ChatId? dialog = user?.user.value.dialog;
 
@@ -432,7 +437,7 @@ class UserController extends GetxController {
       } on ToggleChatMuteException catch (e) {
         MessagePopup.error(e);
       } catch (e) {
-        MessagePopup.error(e);
+        MessagePopup.error('err_data_transfer'.l10n);
         rethrow;
       }
     }
@@ -447,10 +452,10 @@ class UserController extends GetxController {
         await _chatService.hideChat(dialog);
       } on HideChatException catch (e) {
         MessagePopup.error(e);
-      } on UnfavoriteChatException catch (e) {
-        MessagePopup.error(e);
+      } on UnfavoriteChatException {
+        MessagePopup.error('err_unknown'.l10n);
       } catch (e) {
-        MessagePopup.error(e);
+        MessagePopup.error('err_data_transfer'.l10n);
         rethrow;
       }
     }
@@ -466,7 +471,7 @@ class UserController extends GetxController {
       } on ClearChatException catch (e) {
         MessagePopup.error(e);
       } catch (e) {
-        MessagePopup.error(e);
+        MessagePopup.error('err_data_transfer'.l10n);
         rethrow;
       }
     }

@@ -32,6 +32,5 @@
 
 #   Scenario: User adds Bob straight to favorite contacts
 #     When I tap `MoreButton` button
-#     And I tap `AddToFavoriteButton` button
+#     And I tap `FavoriteButton` button
 #     Then I see "Bob" contact as favorite
-

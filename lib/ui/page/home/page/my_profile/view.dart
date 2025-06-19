@@ -17,15 +17,16 @@
 
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/cache_info.dart';
@@ -491,7 +492,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           state: TextFieldState(text: e.val, editable: false),
           label: 'label_email'.l10n,
           trailing: WidgetButton(
-            key: Key('DeleteEmail_$i'),
+            key: Key('DeleteButton_$i'),
             onPressed: () => _deleteEmail(c, context, e),
             child: Center(child: SvgIcon(SvgIcons.delete)),
           ),
