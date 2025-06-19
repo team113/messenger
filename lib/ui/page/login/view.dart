@@ -420,12 +420,13 @@ class LoginView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(21, 8, 8, 8),
                   child: WidgetButton(
+                    key: Key('ForgotPassword'),
                     onPressed: () {
                       c.recovery.clear();
                       c.recoveryCode.clear();
                       c.newPassword.clear();
                       c.repeatPassword.clear();
-                      c.recovery.unchecked = c.login.text;
+                      c.recovery.text = c.login.text;
                       c.recovered.value = false;
                       c.stage.value = LoginViewStage.recovery;
                     },
@@ -631,7 +632,7 @@ class LoginView extends StatelessWidget {
             fadeOutCurve: Curves.easeOut,
             sizeCurve: Curves.easeOut,
             child: Scrollbar(
-              key: Key('${c.stage.value}'),
+              key: Key(c.stage.value.name.capitalized),
               controller: c.scrollController,
               child: ListView(
                 controller: c.scrollController,

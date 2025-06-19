@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/widget/custom_page.dart';
 import 'page/vacancy/view.dart';
@@ -59,7 +60,7 @@ class WorkRouterDelegate extends RouterDelegate<RouteConfiguration>
         if (work != null) {
           pages.add(
             CustomPage(
-              key: ValueKey('${work.name.capitalizeFirst}WorkPage'),
+              key: ValueKey('${work.name.capitalized}WorkPage'),
               name: Routes.me,
               child: VacancyWorkView(work),
             ),

@@ -227,7 +227,7 @@ class ParticipantView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: KeyedSubtree(
-              key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
+              key: Key('${c.stage.value.name.capitalized}Stage'),
               child: child,
             ),
           );

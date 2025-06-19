@@ -478,7 +478,7 @@ class AccountsView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Column(
-              key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
+              key: Key('${c.stage.value.name.capitalized}Stage'),
               mainAxisSize: MainAxisSize.min,
               children: [
                 header,

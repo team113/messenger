@@ -16,8 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/block.dart';
@@ -57,7 +57,7 @@ class TypographyView extends StatelessWidget {
         ...style.fonts.schema.entries.map((size) {
           return Block(
             title:
-                '${size.key.capitalizeFirst} (${size.value.values.first.values.first.fontSize} pt)',
+                '${size.key.capitalized} (${size.value.values.first.values.first.fontSize} pt)',
             expanded: true,
             children: size.value.entries
                 .map((weight) {
