@@ -250,7 +250,7 @@ class UserView extends StatelessWidget {
                   const SizedBox(width: 3),
                   Text(
                     key: Key(
-                      c.user?.user.value.presence?.name.capitalizeFirst ?? '',
+                      c.user?.user.value.presence?.name.capitalized ?? '',
                     ),
                     subtitle!,
                     style: style.fonts.small.regular.secondary,

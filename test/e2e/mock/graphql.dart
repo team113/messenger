@@ -130,6 +130,38 @@ class MockGraphQlProvider extends GraphQlProvider {
   }) async {
     return null;
   }
+
+  @override
+  Future<void> validateConfirmationCode({
+    required MyUserIdentifier identifier,
+    required ConfirmationCode code,
+  }) {
+    if (code.val == '1234') {
+      return Future.value();
+    }
+
+    throw ValidateConfirmationCodeException(
+      ValidateConfirmationCodeErrorCode.wrongCode,
+    );
+  }
+
+  @override
+  Future<MyUserEventsVersionedMixin?> updateUserPassword({
+    MyUserIdentifier? identifier,
+    UserPassword? newPassword,
+    MyUserCredentials? confirmation,
+  }) {
+    if (identifier?.login?.val == 'alice' &&
+        confirmation?.code?.val == '1234') {
+      return Future.value(null);
+    }
+
+    return super.updateUserPassword(
+      identifier: identifier,
+      newPassword: newPassword,
+      confirmation: confirmation,
+    );
+  }
 }
 
 /// Mocked [GraphQlClient] with an ability to add [delay] to its requests.

@@ -267,7 +267,7 @@ class IntroductionView extends StatelessWidget {
             fadeDuration: const Duration(milliseconds: 250),
             sizeDuration: const Duration(milliseconds: 250),
             child: Scrollbar(
-              key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
+              key: Key('${c.stage.value.name.capitalized}Stage'),
               controller: c.scrollController,
               child: ListView(
                 key: const Key('IntroductionScrollable'),
