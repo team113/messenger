@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
+
 import '/domain/model/ongoing_call.dart';
 
 /// Media settings used in an [OngoingCall] containing the IDs of the devices to
@@ -25,6 +27,8 @@ class MediaSettings {
     this.audioDevice,
     this.outputDevice,
     this.screenDevice,
+    this.noiseSuppressionEnabled,
+    this.noiseSuppressionLevel,
   });
 
   /// ID of the video device to use by default.
@@ -38,4 +42,10 @@ class MediaSettings {
 
   /// ID of the screen to use in screen sharing by default.
   String? screenDevice;
+
+  /// Indicator whether noise suppression is enabled for microphone.
+  bool? noiseSuppressionEnabled;
+
+  /// Desired noise suppression level for microphone if enabled.
+  NoiseSuppressionLevel? noiseSuppressionLevel;
 }
