@@ -27,7 +27,7 @@ Feature: Delete dialog with user
     When I go to Bob's page
     And I scroll `UserScrollable` to bottom
     And I pause for 1 seconds
-    And I tap `DeleteButton` button
+    And I tap `DeleteChatButton` button
     And I tap `Proceed` button
     And I return to previous page
     And I pause for 1 seconds

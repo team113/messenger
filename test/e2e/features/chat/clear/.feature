@@ -25,6 +25,6 @@ Feature: Clear chat
     And I see some messages in chat
 
     When I tap `MoreButton` button
-    And I tap `ClearButton` button
+    And I tap `ClearHistoryButton` button
     And I tap `Proceed` button
     Then I see no messages in chat

@@ -34,7 +34,7 @@ Feature: Chats selection
     When I tap "Alice and Charlie" chat
     Then I see "Alice and Charlie" chat as selected
 
-    When I tap `DeleteButton` button
+    When I tap `DeleteChatsButton` button
     And I tap `Proceed` button
     Then I wait until "Alice and Bob" chat is absent
     And I wait until "Alice and Charlie" chat is absent

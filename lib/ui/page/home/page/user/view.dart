@@ -323,7 +323,9 @@ class UserView extends StatelessWidget {
         //   ),
         // ),
         ActionButton(
-          key: const Key('FavoriteButton'),
+          key: favorite
+              ? const Key('UnfavoriteButton')
+              : const Key('FavoriteButton'),
           text: favorite
               ? 'btn_delete_from_favorites'.l10n
               : 'btn_add_to_favorites'.l10n,
@@ -333,22 +335,22 @@ class UserView extends StatelessWidget {
           ),
         ),
         ActionButton(
-          key: const Key('MuteButton'),
+          key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
           text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
           onPressed: muted ? c.unmuteChat : c.muteChat,
           trailing: SvgIcon(muted ? SvgIcons.unmuted19 : SvgIcons.muted19),
         ),
         ActionButton(
-          key: const Key('ClearButton'),
+          key: const Key('ClearHistoryButton'),
           text: 'btn_clear_history'.l10n,
           onPressed: () => _clearChat(c, context),
           trailing: SvgIcon(SvgIcons.cleanHistory19),
         ),
         ActionButton(
-          key: const Key('DeleteButton'),
+          key: const Key('DeleteChatButton'),
           text: 'btn_delete_chat'.l10n,
           onPressed: () => _hideChat(c, context),
-          trailing: SvgIcon(SvgIcons.delete19v2),
+          trailing: SvgIcon(SvgIcons.delete19),
         ),
         ActionButton(
           text: 'btn_report'.l10n,

@@ -32,5 +32,5 @@ Feature: Favorite dialog
     And I see Bob dialog with me as favorite
     Then I see dialog with Bob first in favorites list
 
-    When I tap `FavoriteButton` button
+    When I tap `UnfavoriteButton` button
     Then I see Bob dialog with me as unfavorite

@@ -46,7 +46,7 @@ Feature: Chat messages have correct sending status
     Then I wait until status of "123" message is error
 
     When I long press "123" message
-    And I tap `DeleteButton` button
+    And I tap `DeleteMessageButton` button
     And I tap `Proceed` button
     Then I wait until "123" message is absent
 

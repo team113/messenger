@@ -29,7 +29,7 @@ Feature: Chat avatar
     Then I see chat avatar as "test.jpg"
 
     When I tap `EditProfileButton` button
-    And I tap `DeleteButton` button
+    And I tap `DeleteAvatar` button
     And I tap `SaveEditingButton` button
     Then I see chat avatar as none
 

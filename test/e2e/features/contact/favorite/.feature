@@ -44,7 +44,7 @@
 #     And I see "Bob" contact as favorite
 
 #     When I long press "Bob" contact
-#     And I tap `FavoriteButton` button
+#     And I tap `UnfavoriteButton` button
 #     Then I see "Bob" contact as unfavorited
 
 #   Scenario: User reorders favorite contacts

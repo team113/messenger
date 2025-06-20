@@ -492,7 +492,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           state: TextFieldState(text: e.val, editable: false),
           label: 'label_email'.l10n,
           trailing: WidgetButton(
-            key: Key('DeleteButton_$i'),
+            key: Key('DeleteEmail_$i'),
             onPressed: () => _deleteEmail(c, context, e),
             child: Center(child: SvgIcon(SvgIcons.delete)),
           ),

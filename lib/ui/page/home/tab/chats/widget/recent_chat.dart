@@ -280,7 +280,7 @@ class RecentChatTile extends StatelessWidget {
               ],
               if (chat.favoritePosition != null && onUnfavorite != null)
                 ContextMenuButton(
-                  key: const Key('FavoriteButton'),
+                  key: const Key('UnfavoriteButton'),
                   label: 'btn_delete_from_favorites'.l10n,
                   onPressed: onUnfavorite,
                   trailing: const SvgIcon(SvgIcons.favoriteSmall),
@@ -306,7 +306,7 @@ class RecentChatTile extends StatelessWidget {
                 ),
               if (chat.muted != null && onUnmute != null)
                 ContextMenuButton(
-                  key: const Key('MuteButton'),
+                  key: const Key('UnmuteButton'),
                   label: PlatformUtils.isMobile
                       ? 'btn_unmute'.l10n
                       : 'btn_unmute_chat'.l10n,

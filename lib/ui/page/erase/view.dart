@@ -158,7 +158,7 @@ class EraseView extends StatelessWidget {
         children = [
           Paddings.dense(
             PrimaryButton(
-              key: const Key('DeleteButton'),
+              key: const Key('ConfirmDelete'),
               title: 'btn_delete_account'.l10n,
               onPressed: () => _deleteAccount(context, c),
               danger: true,

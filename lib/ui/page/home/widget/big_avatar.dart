@@ -184,7 +184,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                   ),
                 if (widget.onDelete != null)
                   WidgetButton(
-                    key: const Key('DeleteButton'),
+                    key: const Key('DeleteAvatar'),
                     onPressed: widget.onDelete,
                     child: Text(
                       'btn_delete'.l10n,

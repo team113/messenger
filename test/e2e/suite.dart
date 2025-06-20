@@ -26,7 +26,7 @@ part 'suite.g.dart';
 /// Entry point of E2E tests.
 @GherkinTestSuite(
   featurePaths: ['test/e2e/features/**.feature'],
-  executionOrder: ExecutionOrder.alphabetical,
+  executionOrder: ExecutionOrder.sequential,
 )
 void main() async {
   Config.disableInfiniteAnimations = true;

@@ -28,12 +28,12 @@ Feature: Favorite chats
 
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat
-    And I tap `FavoriteButton` button
+    And I tap `FavoriteChatButton` button
     Then I see "Alice and Bob" chat as favorite
     And I see "Alice and Bob" chat first in favorites list
 
     When I long press "Alice and Charlie" chat
-    And I tap `FavoriteButton` button
+    And I tap `FavoriteChatButton` button
     Then I see "Alice and Charlie" chat as favorite
     And I see "Alice and Charlie" chat first in favorites list
 
@@ -42,7 +42,7 @@ Feature: Favorite chats
     And I see "Alice and Bob" chat as favorite
 
     When I long press "Alice and Bob" chat
-    And I tap `FavoriteButton` button
+    And I tap `UnfavoriteChatButton` button
     Then I see "Alice and Bob" chat as unfavorited
 
   Scenario: User reorders favorite chats

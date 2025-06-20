@@ -508,7 +508,9 @@ class ChatView extends StatelessWidget {
                                       //         : c.addToContacts,
                                       //   ),
                                       ContextMenuButton(
-                                        key: Key('FavoriteButton'),
+                                        key: favorite
+                                            ? Key('UnfavoriteButton')
+                                            : Key('FavoriteButton'),
                                         label: favorite
                                             ? 'btn_delete_from_favorites'.l10n
                                             : 'btn_add_to_favorites'.l10n,
@@ -529,7 +531,9 @@ class ChatView extends StatelessWidget {
                                       if (!isLocal) ...[
                                         if (!monolog)
                                           ContextMenuButton(
-                                            key: Key('MuteButton'),
+                                            key: muted
+                                                ? Key('UnmuteButton')
+                                                : Key('MuteButton'),
                                             label: muted
                                                 ? PlatformUtils.isMobile
                                                       ? 'btn_unmute'.l10n
@@ -552,7 +556,7 @@ class ChatView extends StatelessWidget {
                                                 : c.muteChat,
                                           ),
                                         ContextMenuButton(
-                                          key: const Key('ClearButton'),
+                                          key: const Key('ClearHistoryButton'),
                                           label: 'btn_clear_history'.l10n,
                                           trailing: const SvgIcon(
                                             SvgIcons.cleanHistory,

@@ -37,6 +37,6 @@
 #      And I tap `Proceed` button
 #      Then I wait until `ConfirmedPhone` is present
 
-#      When I tap `DeleteButton` widget
+#      When I tap `DeletePhone` widget
 #      And I tap `Proceed` button
 #      Then I wait until `ConfirmedPhone` is absent

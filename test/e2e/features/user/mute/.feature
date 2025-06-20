@@ -30,5 +30,5 @@ Feature: Dialog muting and unmuting
     And I tap `MuteButton` button
     Then I see Bob dialog with me as muted
 
-    When I tap `MuteButton` button
+    When I tap `UnmuteButton` button
     Then I see Bob dialog with me as unmuted

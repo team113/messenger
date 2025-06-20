@@ -29,5 +29,5 @@ Feature: Chat muting and unmuting
     Then I see "Alice and Bob" chat as muted
 
     When I long press "Alice and Bob" chat
-    And I tap `MuteButton` button
+    And I tap `UnmuteButton` button
     Then I see "Alice and Bob" chat as unmuted
