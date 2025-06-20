@@ -745,7 +745,7 @@ class ContactsTabView extends StatelessWidget {
                         ),
                       ),
                       ShadowedRoundedButton(
-                        key: const Key('DeleteContacts'),
+                        key: const Key('DeleteContactsButton'),
                         onPressed: c.selectedContacts.isEmpty
                             ? null
                             : () => _removeContacts(context, c),
@@ -834,7 +834,7 @@ class ContactsTabView extends StatelessWidget {
           actions: [
             favorite
                 ? ContextMenuButton(
-                    key: const Key('UnfavoriteContactButton'),
+                    key: const Key('UnfavoriteButton'),
                     label: 'btn_delete_from_favorites'.l10n,
                     onPressed: () =>
                         c.unfavoriteContact(contact.contact.value.id),
@@ -842,7 +842,7 @@ class ContactsTabView extends StatelessWidget {
                     inverted: const SvgIcon(SvgIcons.favoriteSmallWhite),
                   )
                 : ContextMenuButton(
-                    key: const Key('FavoriteContactButton'),
+                    key: const Key('FavoriteButton'),
                     label: 'btn_add_to_favorites'.l10n,
                     onPressed: () =>
                         c.favoriteContact(contact.contact.value.id),

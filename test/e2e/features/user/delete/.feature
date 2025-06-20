@@ -15,32 +15,20 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat items are deleted correctly
+Feature: Delete dialog with user
 
-  Background: User is in dialog with Bob
+  Background: User is in diaolog chat with Bob
     Given I am Alice
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
 
-  Scenario: User deletes message
-    When I fill `MessageField` field with "For deletion"
-    And I tap `Send` button
-    Then I wait until status of "For deletion" message is sent
-
-    When I long press "For deletion" message
-    And I tap `DeleteMessageButton` button
-    And I tap `DeleteForAll` button
+  Scenario: User delete dialog
+    When I go to Bob's page
+    And I scroll `UserScrollable` to bottom
+    And I pause for 1 seconds
+    And I tap `DeleteChatButton` button
     And I tap `Proceed` button
-    Then I wait until "For deletion" message is absent
-
-  Scenario: User hides message
-    When I fill `MessageField` field with "For hiding"
-    And I tap `Send` button
-    Then I wait until status of "For hiding" message is sent
-
-    When I long press "For hiding" message
-    And I tap `DeleteMessageButton` button
-    And I tap `HideForMe` button
-    And I tap `Proceed` button
-    Then I wait until "For hiding" message is absent
+    And I return to previous page
+    And I pause for 1 seconds
+    Then I see no dialog with Bob

@@ -417,6 +417,14 @@ class ChatView extends StatelessWidget {
                                       ),
                                     ),
                                   );
+                                } else if (c.chat?.chat.value.isDialog ==
+                                    true) {
+                                  // TODO: Delete 'MoreButton' in chat too when
+                                  //       updated chat design
+                                  //
+                                  // This condition is needed to no display
+                                  // 'MoreButton' in dialog
+                                  child = const SizedBox(width: 12);
                                 } else {
                                   child = ContextMenuRegion(
                                     key: c.moreKey,
@@ -470,7 +478,8 @@ class ChatView extends StatelessWidget {
                                           SvgIcons.searchWhite,
                                         ),
                                       ),
-                                      // TODO: Uncomment, when contacts are implemented.
+                                      // TODO: Uncomment, when contacts are
+                                      //       implemented.
                                       // if (dialog)
                                       //   ContextMenuButton(
                                       //     key: Key(
@@ -499,11 +508,9 @@ class ChatView extends StatelessWidget {
                                       //         : c.addToContacts,
                                       //   ),
                                       ContextMenuButton(
-                                        key: Key(
-                                          favorite
-                                              ? 'UnfavoriteChatButton'
-                                              : 'FavoriteChatButton',
-                                        ),
+                                        key: favorite
+                                            ? Key('UnfavoriteButton')
+                                            : Key('FavoriteButton'),
                                         label: favorite
                                             ? 'btn_delete_from_favorites'.l10n
                                             : 'btn_add_to_favorites'.l10n,
@@ -524,11 +531,9 @@ class ChatView extends StatelessWidget {
                                       if (!isLocal) ...[
                                         if (!monolog)
                                           ContextMenuButton(
-                                            key: Key(
-                                              muted
-                                                  ? 'UnmuteChatButton'
-                                                  : 'MuteChatButton',
-                                            ),
+                                            key: muted
+                                                ? Key('UnmuteButton')
+                                                : Key('MuteButton'),
                                             label: muted
                                                 ? PlatformUtils.isMobile
                                                       ? 'btn_unmute'.l10n
