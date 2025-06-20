@@ -22,7 +22,6 @@ import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-
 import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
@@ -31,6 +30,7 @@ import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
+
 import 'hook/performance.dart';
 import 'hook/reset_app.dart';
 import 'mock/geo.dart';
