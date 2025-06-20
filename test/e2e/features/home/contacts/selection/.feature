@@ -37,7 +37,7 @@
 #     When I tap "Charlie" contact
 #     Then I see "Charlie" contact as selected
 
-#     When I tap `DeleteContactButton` button
+#     When I tap `DeleteContactsButton` button
 #     And I tap `Proceed` button
 #     Then I wait until "Bob" contact is absent
 #     And I wait until "Charlie" contact is absent

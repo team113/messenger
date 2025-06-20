@@ -83,7 +83,7 @@ enum WidgetKey {
   DeleteButton,
   DeleteChatButton,
   DeleteChatsButton,
-  DeleteContactButton,
+  DeleteContactsButton,
   DeleteEmail_0,
   DeleteForAll,
   DeleteMessageButton,
