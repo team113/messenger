@@ -419,10 +419,11 @@ class ChatView extends StatelessWidget {
                                   );
                                 } else if (c.chat?.chat.value.isDialog ==
                                     true) {
+                                  // TODO: Delete 'MoreButton' in chat too when
+                                  //       updated chat design
+                                  //
                                   // This condition is needed to no display
                                   // 'MoreButton' in dialog
-                                  // TODO: delete 'MoreButton' in chat too when
-                                  // updated chat design
                                   child = const SizedBox(width: 12);
                                 } else {
                                   child = ContextMenuRegion(
@@ -478,7 +479,7 @@ class ChatView extends StatelessWidget {
                                         ),
                                       ),
                                       // TODO: Uncomment, when contacts are
-                                      // implemented.
+                                      //       implemented.
                                       // if (dialog)
                                       //   ContextMenuButton(
                                       //     key: Key(

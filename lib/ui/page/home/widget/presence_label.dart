@@ -27,7 +27,7 @@ class PresenceLabel extends StatelessWidget {
 
   /// Presence to display.
   ///
-  /// If it is not provided (i.e. null), the status will default to
+  /// If it is not provided (i.e. `null`), the status will default to
   /// [Presence.present].
   final Presence? presence;
 
