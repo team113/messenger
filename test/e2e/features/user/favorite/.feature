@@ -29,8 +29,8 @@ Feature: Favorite dialog
     And I pause for 1 seconds
     And I tap `FavoriteButton` button
     And I pause for 1 seconds
-    And I see Bob dialog with me as favorite
+    And I see dialog with Bob as favorite
     Then I see dialog with Bob first in favorites list
 
     When I tap `UnfavoriteButton` button
-    Then I see Bob dialog with me as unfavorite
+    Then I see dialog with Bob as unfavorite

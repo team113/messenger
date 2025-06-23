@@ -28,7 +28,7 @@ Feature: Dialog muting and unmuting
     And I scroll `UserScrollable` to bottom
     And I pause for 1 seconds
     And I tap `MuteButton` button
-    Then I see Bob dialog with me as muted
+    Then I see dialog with Bob as muted
 
     When I tap `UnmuteButton` button
-    Then I see Bob dialog with me as unmuted
+    Then I see dialog with Bob as unmuted
