@@ -23,15 +23,15 @@ import '../parameters/favorite_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a dialog [Chat]-dialog with the provided name is displayed with
-/// the specified [FavoriteStatus].
+/// Indicates whether a dialog [Chat]-dialog with the provided name is displayed
+/// with the specified [FavoriteStatus].
 ///
 /// Examples:
-/// - Then I see Bob dialog with me as favorite
-/// - Then I see Bob dialog with me as unfavorite
+/// - Then I see dialog with Bob as favorite
+/// - Then I see dialog with Bob as unfavorite
 final StepDefinitionGeneric seeDialogAsFavorite =
     then2<TestUser, FavoriteStatus, CustomWorld>(
-      'I see {user} dialog with me as {favorite}',
+      'I see dialog with {user} as {favorite}',
       (user, status, context) async {
         await context.world.appDriver.waitUntil(() async {
           final ChatId chatId = context.world.sessions[user.name]!.dialog!;
@@ -47,13 +47,13 @@ final StepDefinitionGeneric seeDialogAsFavorite =
               return isPresent;
 
             case FavoriteStatus.unfavorite:
-              final bool isPresent = await context.world.appDriver.isAbsent(
+              final bool isAbsent = await context.world.appDriver.isAbsent(
                 context.world.appDriver.findByKeySkipOffstage(
                   'FavoriteIndicator_$chatId',
                 ),
               );
 
-              return isPresent;
+              return isAbsent;
           }
         }, timeout: const Duration(seconds: 30));
       },

@@ -381,7 +381,7 @@ class UserController extends GetxController {
         await _chatService.unfavoriteChat(dialog);
       }
     } on UnfavoriteChatContactException catch (e) {
-      MessagePopup.error(e);
+      MessagePopup.error(e.toMessage());
     } catch (e) {
       MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
@@ -457,8 +457,8 @@ class UserController extends GetxController {
         await _chatService.hideChat(dialog);
       } on HideChatException catch (e) {
         MessagePopup.error(e);
-      } on UnfavoriteChatException {
-        MessagePopup.error('err_unknown'.l10n);
+      } on UnfavoriteChatException catch (e) {
+        MessagePopup.error(e.toMessage());
       } catch (e) {
         MessagePopup.error('err_data_transfer'.l10n);
         rethrow;

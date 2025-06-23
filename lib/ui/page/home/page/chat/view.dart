@@ -379,8 +379,7 @@ class ChatView extends StatelessWidget {
                                 final bool muted =
                                     c.chat?.chat.value.muted != null;
 
-                                final bool dialog =
-                                    c.chat?.chat.value.isDialog == true;
+                                final bool dialog = c.isDialog;
 
                                 final bool isLocal =
                                     c.chat?.chat.value.id.isLocal == true;
@@ -417,13 +416,14 @@ class ChatView extends StatelessWidget {
                                       ),
                                     ),
                                   );
-                                } else if (c.chat?.chat.value.isDialog ==
-                                    true) {
-                                  // TODO: Delete 'MoreButton' in chat too when
-                                  //       updated chat design
+                                } else if (c.isDialog) {
+                                  // TODO: Delete `MoreButton` everywhere when
+                                  //       the following is merged:
+                                  //       https://github.com/team113/messenger/issues/1248
+                                  //       https://github.com/team113/messenger/issues/1249
                                   //
-                                  // This condition is needed to no display
-                                  // 'MoreButton' in dialog
+                                  // This makes sure that `MoreButton` isn't
+                                  // displayed in the dialogs.
                                   child = const SizedBox(width: 12);
                                 } else {
                                   child = ContextMenuRegion(

@@ -17,7 +17,7 @@
 
 Feature: Clear chat
 
-  Scenario: User clears chat
+  Scenario: User clears group
     Given I am Alice
     And users Bob and Charlie
     And I have "Group" group

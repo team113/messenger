@@ -124,10 +124,6 @@ class UserView extends StatelessWidget {
 
     final UserBio? bio = c.user?.user.value.bio;
 
-    if (c.user == null) {
-      return const SizedBox();
-    }
-
     return Block(
       padding: EdgeInsets.fromLTRB(32, 8, 32, 16),
       children: [
@@ -193,7 +189,7 @@ class UserView extends StatelessWidget {
             children: [
               PresenceLabel(
                 key: Key(c.user?.user.value.presence?.name.capitalized ?? ''),
-                presence: c.user!.user.value.presence,
+                presence: c.user?.user.value.presence,
               ),
               const SizedBox(height: 4),
             ],
@@ -249,7 +245,7 @@ class UserView extends StatelessWidget {
         const SizedBox(height: 8),
         ReactiveTextField.copyable(
           key: const Key('NumCopyable'),
-          text: '${c.user!.user.value.num}',
+          text: '${c.user?.user.value.num}',
           label: 'label_num'.l10n,
         ),
         const SizedBox(height: 8),
@@ -294,6 +290,7 @@ class UserView extends StatelessWidget {
     // final bool contact = c.contact.value != null;
     // final bool favorite =
     //     c.contact.value?.contact.value.favoritePosition != null;
+
     final bool favorite =
         c.user?.dialog.value?.chat.value.favoritePosition != null;
     final bool muted = c.user?.dialog.value?.chat.value.muted != null;
@@ -338,7 +335,7 @@ class UserView extends StatelessWidget {
           key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
           text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
           onPressed: muted ? c.unmuteChat : c.muteChat,
-          trailing: SvgIcon(muted ? SvgIcons.unmuted19 : SvgIcons.muted19),
+          trailing: SvgIcon(muted ? SvgIcons.muted19 : SvgIcons.unmuted19),
         ),
         ActionButton(
           key: const Key('ClearHistoryButton'),

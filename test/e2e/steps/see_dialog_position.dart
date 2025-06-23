@@ -24,8 +24,8 @@ import '../parameters/position_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a dialog [Chat]-dialog with the provided name is displayed at the
-/// specified [PositionStatus].
+/// Indicates whether a dialog [Chat]-dialog with the provided name is displayed
+/// at the specified [PositionStatus].
 ///
 /// Examples:
 /// - Then I see dialog with Bob first in favorites list

@@ -17,7 +17,7 @@
 
 Feature: Dialog muting and unmuting
 
-  Background: User is in dialog chat with Bob
+  Background: User is in dialog with Bob
     Given I am Alice
     And user Bob
     And Bob has dialog with me

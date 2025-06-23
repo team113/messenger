@@ -23,15 +23,15 @@ import '../parameters/muted_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a dialog [Chat]-dialog with the provided name is displayed with
-/// the specified [MutedStatus] or not.
+/// Indicates whether a dialog [Chat]-dialog with the provided name is displayed
+/// with the specified [MutedStatus] or not.
 ///
 /// Examples:
-/// - Then I see Bob dialog with me as muted
-/// - Then I see Bob dialog with me as unmuted
+/// - Then I see dialog with Bob as muted
+/// - Then I see dialog with Bob as unmuted
 final StepDefinitionGeneric seeDialogAsMuted =
     then2<TestUser, MutedStatus, CustomWorld>(
-      'I see {user} dialog with me as {muted}',
+      'I see dialog with {user} as {muted}',
       (user, status, context) async {
         await context.world.appDriver.waitUntil(() async {
           await context.world.appDriver.waitForAppToSettle();

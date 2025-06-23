@@ -17,7 +17,7 @@
 
 Feature: Favorite dialog
 
-  Background: User is in diaolog chat with Bob
+  Background: User is in dialog with Bob
     Given I am Alice
     And user Bob
     And Bob has dialog with me

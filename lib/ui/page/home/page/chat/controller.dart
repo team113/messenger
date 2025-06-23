@@ -399,10 +399,13 @@ class ChatController extends GetxController {
   /// Returns the [CallButtonsPosition] currently set.
   CallButtonsPosition? get callPosition => settings.value?.callButtonsPosition;
 
+  /// Indicates whether the [chat] this [ChatController] is about is a dialog.
+  bool get isDialog => chat?.chat.value.isDialog == true;
+
   /// Returns [RxUser] being recipient of this [chat].
   ///
   /// Only meaningful, if the [chat] is a dialog.
-  RxUser? get user => chat?.chat.value.isDialog == true
+  RxUser? get user => isDialog
       ? chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user
       : null;
 
@@ -913,7 +916,7 @@ class ChatController extends GetxController {
           }
         };
 
-        if (chat?.chat.value.isDialog == true) {
+        if (isDialog) {
           _userSubscription = chat?.members.values
               .lastWhereOrNull((u) => u.user.id != me)
               ?.user
