@@ -678,6 +678,7 @@ class RxChatImpl extends RxChat {
             await _chatRepository.readUntil(id, untilId);
 
             _lastReadItemKey = untilId;
+            chat.value.lastReadItem = untilId;
             dto.value.lastReadItem = untilId;
 
             final DtoChatItem? item = await _driftItems.read(untilId);
