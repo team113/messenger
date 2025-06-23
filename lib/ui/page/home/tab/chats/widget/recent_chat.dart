@@ -219,11 +219,16 @@ class RecentChatTile extends StatelessWidget {
                 ],
                 if (rxChat.unreadCount.value > 0) ...[
                   const SizedBox(width: 10),
-                  UnreadCounter(
-                    key: const Key('UnreadMessages'),
-                    rxChat.unreadCount.value,
-                    inverted: inverted,
-                    dimmed: chat.muted != null,
+                  KeyedSubtree(
+                    key: chat.muted != null
+                        ? Key('MuteIndicator_${chat.id}')
+                        : null,
+                    child: UnreadCounter(
+                      key: const Key('UnreadMessages'),
+                      rxChat.unreadCount.value,
+                      inverted: inverted,
+                      dimmed: chat.muted != null,
+                    ),
                   ),
                 ] else ...[
                   if (chat.muted != null) ...[
