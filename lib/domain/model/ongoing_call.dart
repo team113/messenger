@@ -154,7 +154,9 @@ class OngoingCall {
        _preferredAudioDevice = mediaSettings?.audioDevice,
        _preferredOutputDevice = mediaSettings?.outputDevice,
        _preferredVideoDevice = mediaSettings?.videoDevice,
-       _preferredScreenDevice = mediaSettings?.screenDevice {
+       _preferredScreenDevice = mediaSettings?.screenDevice,
+       _noiseSuppressionEnabled = mediaSettings?.noiseSuppressionEnabled,
+       _noiseSuppressionLevel = mediaSettings?.noiseSuppressionLevel {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
@@ -277,6 +279,12 @@ class OngoingCall {
   ///
   /// Used to determine the [screenDevice].
   final String? _preferredScreenDevice;
+
+  /// Preferred noise suppression enabled flag.
+  bool? _noiseSuppressionEnabled;
+
+  /// Preferred noise suppression level.
+  webrtc.NoiseSuppressionLevel? _noiseSuppressionLevel;
 
   /// Indicator whether this [OngoingCall] should not initialize any media
   /// client related resources.
@@ -2154,6 +2162,20 @@ class OngoingCall {
             devices.firstWhereOrNull(
               (e) => e.deviceId() == track.getTrack().deviceId(),
             );
+
+        // NoiseSuppression is currently available only on Desktop
+        if (track.isAudioProcessingAvailable() && PlatformUtils.isDesktop) {
+          if (_noiseSuppressionEnabled != null) {
+            await track.getTrack().setNoiseSuppressionEnabled(
+              _noiseSuppressionEnabled!,
+            );
+          }
+          if (_noiseSuppressionLevel != null) {
+            await track.getTrack().setNoiseSuppressionLevel(
+              _noiseSuppressionLevel!,
+            );
+          }
+        }
       }
     }
   }
