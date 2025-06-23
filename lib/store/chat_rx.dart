@@ -86,6 +86,7 @@ class RxChatImpl extends RxChat {
     this.dto,
   ) : chat = Rx<Chat>(dto.value),
       _lastReadItemCursor = dto.lastReadItemCursor,
+      _lastReadItemKey = dto.value.lastReadItem,
       unreadCount = RxInt(dto.value.unreadCount),
       ver = dto.ver;
 
@@ -223,6 +224,9 @@ class RxChatImpl extends RxChat {
 
   /// Cursor of the last [ChatItem] read by the authenticated [MyUser].
   ChatItemsCursor? _lastReadItemCursor;
+
+  /// [ChatItemId] of the last [ChatItem] read by the authenticated [MyUser].
+  ChatItemId? _lastReadItemKey;
 
   /// [Mutex] guarding reading of [draft] from local storage to [ensureDraft].
   final Mutex _draftGuard = Mutex();
@@ -563,7 +567,7 @@ class RxChatImpl extends RxChat {
     //       needed, so that RAM is freed.
     await _pagination?.around(
       cursor: _lastReadItemCursor,
-      key: chat.value.lastReadItem,
+      key: _lastReadItemKey ?? chat.value.lastReadItem,
     );
 
     status.value = RxStatus.success();
@@ -673,7 +677,11 @@ class RxChatImpl extends RxChat {
           try {
             await _chatRepository.readUntil(id, untilId);
 
+            _lastReadItemKey = untilId;
+            dto.value.lastReadItem = untilId;
+
             final DtoChatItem? item = await _driftItems.read(untilId);
+
             _lastReadItemCursor =
                 item?.cursor ?? _lastReadItemCursor ?? dto.lastReadItemCursor;
             dto.lastReadItemCursor = _lastReadItemCursor;
@@ -1813,6 +1821,7 @@ class RxChatImpl extends RxChat {
       chat.value = e.value.copyWith();
       chat.value.firstItem = first ?? chat.value.firstItem;
       _lastReadItemCursor = e.lastReadItemCursor ?? _lastReadItemCursor;
+      _lastReadItemKey = e.value.lastReadItem ?? _lastReadItemKey;
       ver = e.ver;
 
       if (positionChanged) {
@@ -2221,7 +2230,12 @@ class RxChatImpl extends RxChat {
               if (event.byUser.id == me) {
                 final DtoChatItem? item = await _driftItems.readAt(event.at);
                 _lastReadItemCursor = item?.cursor ?? _lastReadItemCursor;
-                write((chat) => chat..lastReadItemCursor = _lastReadItemCursor);
+                _lastReadItemKey = item?.value.id ?? _lastReadItemKey;
+                write(
+                  (chat) => chat
+                    ..lastReadItemCursor = _lastReadItemCursor
+                    ..value.lastItem = item?.value ?? chat.value.lastItem,
+                );
               }
               break;
 
