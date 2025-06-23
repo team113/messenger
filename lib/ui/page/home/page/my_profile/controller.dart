@@ -24,6 +24,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -742,6 +743,18 @@ class MyProfileController extends GetxController {
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   Future<void> updateUserLogin(UserLogin? login) async {
     await _myUserService.updateUserLogin(login);
+  }
+
+  /// Sets [NoiseSuppressionLevel] enabled state.
+  Future<void> setNoiseSuppressionEnabled(bool enabled) async {
+    await _settingsRepo.setNoiseSuppressionEnabled(enabled);
+  }
+
+  /// Sets new [NoiseSuppressionLevel].
+  Future<void> setNoiseSuppressionLevelValue(
+    NoiseSuppressionLevel level,
+  ) async {
+    await _settingsRepo.setNoiseSuppressionLevel(level);
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
