@@ -1441,60 +1441,53 @@ class ChatView extends StatelessWidget {
 
                             bool deleteForAll = false;
 
-                            final result =
-                                await MessagePopup.alert(
-                                  c.selected.length > 1
-                                      ? 'label_delete_messages'.l10n
-                                      : 'label_delete_message'.l10n,
-                                  description: [
-                                    if (!deletable && !isMonolog)
-                                      TextSpan(
-                                        text: c.selected.length > 1
-                                            ? 'label_this_messages_will_be_deleted_only_for_you'
-                                                  .l10n
-                                            : 'label_this_message_will_be_deleted_only_for_you'
-                                                  .l10n,
-                                      ),
-                                  ],
-                                  additional: [
-                                    if (deletable && !isMonolog)
-                                      StatefulBuilder(
-                                        builder: (context, setState) {
-                                          return RowCheckboxButton(
-                                            key: const Key('DeleteForAll'),
-                                            label:
-                                                'label_also_delete_for_everyone'
-                                                    .l10n,
-                                            value: deleteForAll,
-                                            onPressed: (e) => setState(
-                                              () => deleteForAll = e,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                  ],
-                                  button: (context) =>
-                                      MessagePopup.deleteButton(
-                                        key: const Key('Proceed'),
-                                        context,
-                                        label: 'btn_delete'.l10n,
-                                      ),
-                                ).then((pressed) async {
-                                  if (!(pressed ?? false)) return null;
+                            final bool? pressed = await MessagePopup.alert(
+                              c.selected.length > 1
+                                  ? 'label_delete_messages'.l10n
+                                  : 'label_delete_message'.l10n,
+                              description: [
+                                if (!deletable && !isMonolog)
+                                  TextSpan(
+                                    text: c.selected.length > 1
+                                        ? 'label_this_messages_will_be_deleted_only_for_you'
+                                              .l10n
+                                        : 'label_this_message_will_be_deleted_only_for_you'
+                                              .l10n,
+                                  ),
+                              ],
+                              additional: [
+                                if (deletable && !isMonolog)
+                                  StatefulBuilder(
+                                    builder: (context, setState) {
+                                      return RowCheckboxButton(
+                                        key: const Key('DeleteForAll'),
+                                        label: 'label_also_delete_for_everyone'
+                                            .l10n,
+                                        value: deleteForAll,
+                                        onPressed: (e) =>
+                                            setState(() => deleteForAll = e),
+                                      );
+                                    },
+                                  ),
+                              ],
+                              button: (context) => MessagePopup.deleteButton(
+                                key: const Key('Proceed'),
+                                context,
+                                label: 'btn_delete'.l10n,
+                              ),
+                            );
 
-                                  if (deletable &&
-                                      (isMonolog || deleteForAll)) {
-                                    return await Future.wait(
-                                      c.selected.asItems.map(c.deleteMessage),
-                                    );
-                                  } else {
-                                    return await Future.wait(
-                                      c.selected.asItems.map(c.hideChatItem),
-                                    );
-                                  }
-                                });
+                            if (pressed ?? false) {
+                              if (deletable && (isMonolog || deleteForAll)) {
+                                await Future.wait(
+                                  c.selected.asItems.map(c.deleteMessage),
+                                );
+                              } else {
+                                await Future.wait(
+                                  c.selected.asItems.map(c.hideChatItem),
+                                );
+                              }
 
-                            if (result != null) {
                               c.selecting.value = false;
                             }
                           }

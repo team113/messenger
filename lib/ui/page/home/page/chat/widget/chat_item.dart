@@ -1588,7 +1588,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
                               bool deleteForAll = false;
 
-                              MessagePopup.alert(
+                              final bool? pressed = await MessagePopup.alert(
                                 'label_delete_message'.l10n,
                                 description: [
                                   if (!deletable && !isMonolog)
@@ -1619,15 +1619,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   context,
                                   label: 'btn_delete'.l10n,
                                 ),
-                              ).then((pressed) {
-                                if (!(pressed ?? false)) return;
+                              );
 
+                              if (pressed ?? false) {
                                 if (deletable && (isMonolog || deleteForAll)) {
                                   widget.onDelete?.call();
                                 } else if (!isMonolog) {
                                   widget.onHide?.call();
                                 }
-                              });
+                              }
                             },
                           ),
                         ],
@@ -1649,18 +1649,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             trailing: const SvgIcon(SvgIcons.delete19),
                             inverted: const SvgIcon(SvgIcons.delete19White),
                             onPressed: () async {
-                              MessagePopup.alert(
+                              final bool? pressed = await MessagePopup.alert(
                                 'label_delete_message'.l10n,
                                 button: (context) => MessagePopup.deleteButton(
                                   key: const Key('Proceed'),
                                   context,
                                   label: 'btn_delete'.l10n,
                                 ),
-                              ).then((pressed) {
-                                if (!(pressed ?? false)) return;
+                              );
 
+                              if (pressed ?? false) {
                                 widget.onDelete?.call();
-                              });
+                              }
                             },
                           ),
                         ],

@@ -1069,7 +1069,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
                             bool deleteForAll = false;
 
-                            MessagePopup.alert(
+                            final bool? pressed = await MessagePopup.alert(
                               'label_delete_message'.l10n,
                               description: [
                                 if (!deletable && !isMonolog)
@@ -1099,15 +1099,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 context,
                                 label: 'btn_delete'.l10n,
                               ),
-                            ).then((pressed) {
-                              if (!(pressed ?? false)) return;
+                            );
 
+                            if (pressed ?? false) {
                               if (deletable && (isMonolog || deleteForAll)) {
                                 widget.onDelete?.call();
                               } else if (!isMonolog) {
                                 widget.onHide?.call();
                               }
-                            });
+                            }
                           },
                         ),
                         ContextMenuButton(
