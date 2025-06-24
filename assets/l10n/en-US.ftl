@@ -657,7 +657,6 @@ label_delete_chat = Delete chat
 label_delete_chats = Delete chats
 label_delete_email = Delete E-mail
 label_delete_for_everyone = Delete for everyone
-label_delete_for_me = Delete for me
 label_delete_message = Delete the message?
 label_delete_messages = Delete the messages?
 label_delivered = Delivered

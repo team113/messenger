@@ -679,7 +679,6 @@ label_delete_chat = Удалить чат
 label_delete_chats = Удалить чаты
 label_delete_email = Удалить E-mail
 label_delete_for_everyone = Удалить для всех
-label_delete_for_me = Удалить для меня
 label_delete_message = Удалить сообщение?
 label_delete_messages = Удалить сообщения?
 label_delivered = Доставлено
