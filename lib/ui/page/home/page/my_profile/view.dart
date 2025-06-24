@@ -805,20 +805,17 @@ Widget _media(BuildContext context, MyProfileController c) {
               // False by default
               final isEnabled = c.media.value?.noiseSuppressionEnabled ?? true;
 
+              // Moderate by default (if enabled)
               final level =
                   c.media.value?.noiseSuppressionLevel ??
                   NoiseSuppressionLevel.moderate;
 
+              // Values of NoiseSuppressionLevel
               final values = NoiseSuppressionLevel.values;
 
-              String text = !isEnabled
-                  ? 'disabled'
-                  : switch (level) {
-                      NoiseSuppressionLevel.low => 'low',
-                      NoiseSuppressionLevel.moderate => 'moderate',
-                      NoiseSuppressionLevel.high => 'high',
-                      NoiseSuppressionLevel.veryHigh => 'veryHigh',
-                    };
+              // Percentage in slider
+              final percentage =
+                  (100 * (1 / (values.length - 1)) * values.indexOf(level));
 
               return Column(
                 children: [
@@ -837,7 +834,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                           handler: FlutterSliderHandler(
                             child: const SizedBox(),
                           ),
-                          values: [values.indexOf(level).toDouble()],
+                          values: [percentage],
                           tooltip: FlutterSliderTooltip(disabled: true),
                           fixedValues: values.mapIndexed((i, e) {
                             return FlutterSliderFixedValue(
@@ -857,10 +854,8 @@ Widget _media(BuildContext context, MyProfileController c) {
                             ),
                           ),
                           onDragCompleted: (i, lower, upper) {
-                            if (lower is double) {
-                              c.setNoiseSuppressionLevelValue(
-                                values[lower.round()],
-                              );
+                            if (lower is NoiseSuppressionLevel) {
+                              c.setNoiseSuppressionLevelValue(lower);
                             }
                           },
                           hatchMark: FlutterSliderHatchMark(
