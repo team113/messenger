@@ -1614,11 +1614,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                       },
                                     ),
                                 ],
-                                button: (context) => MessagePopup.deleteButton(
-                                  key: const Key('Proceed'),
-                                  context,
-                                  label: 'btn_delete'.l10n,
-                                ),
+                                button: MessagePopup.deleteButton,
                               );
 
                               if (pressed ?? false) {
@@ -1651,11 +1647,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             onPressed: () async {
                               final bool? pressed = await MessagePopup.alert(
                                 'label_delete_message'.l10n,
-                                button: (context) => MessagePopup.deleteButton(
-                                  key: const Key('Proceed'),
-                                  context,
-                                  label: 'btn_delete'.l10n,
-                                ),
+                                button: MessagePopup.deleteButton,
                               );
 
                               if (pressed ?? false) {

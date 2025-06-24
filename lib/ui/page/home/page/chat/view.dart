@@ -1470,11 +1470,7 @@ class ChatView extends StatelessWidget {
                                     },
                                   ),
                               ],
-                              button: (context) => MessagePopup.deleteButton(
-                                key: const Key('Proceed'),
-                                context,
-                                label: 'btn_delete'.l10n,
-                              ),
+                              button: MessagePopup.deleteButton,
                             );
 
                             if (pressed ?? false) {
