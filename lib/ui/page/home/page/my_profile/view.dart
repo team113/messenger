@@ -794,6 +794,7 @@ Widget _media(BuildContext context, MyProfileController c) {
         );
       }),
 
+      // Voice processing widget
       Column(
         children: [
           if (PlatformUtils.isDesktop) ...[
@@ -825,7 +826,6 @@ Widget _media(BuildContext context, MyProfileController c) {
                     text: 'Noise Suppression',
                     value: isEnabled,
                     onChanged: c.setNoiseSuppressionEnabled,
-                    // onChanged: ,
                   ),
                   if (isEnabled) ...[
                     SizedBox(
@@ -841,9 +841,9 @@ Widget _media(BuildContext context, MyProfileController c) {
                           tooltip: FlutterSliderTooltip(disabled: true),
                           fixedValues: values.mapIndexed((i, e) {
                             return FlutterSliderFixedValue(
-                              percent: ((i / (values.length - 1)) * 100).round(),
-                              // TODO: Value meaning?
-                              value: e
+                              percent: ((i / (values.length - 1)) * 100)
+                                  .round(),
+                              value: e,
                             );
                           }).toList(),
                           trackBar: FlutterSliderTrackBar(
@@ -859,13 +859,12 @@ Widget _media(BuildContext context, MyProfileController c) {
                           onDragCompleted: (i, lower, upper) {
                             if (lower is double) {
                               c.setNoiseSuppressionLevelValue(
-                                values[lower.round()]
+                                values[lower.round()],
                               );
                             }
                           },
                           hatchMark: FlutterSliderHatchMark(
                             labelsDistanceFromTrackBar: -48,
-                            density: 0.5,
                             labels: [
                               FlutterSliderHatchMarkLabel(
                                 percent: 0,
@@ -901,6 +900,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 8),
                 ],
               );
             }),

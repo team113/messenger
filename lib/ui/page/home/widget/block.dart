@@ -125,33 +125,37 @@ class Block extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   padding: _aspected(context, padding),
-                  child: AnimatedSize(
-                    duration: const Duration(milliseconds: 300),
-                    alignment: Alignment.topCenter,
-                    curve: Curves.easeInOut,
-                    child: Column(
-                      crossAxisAlignment: crossAxisAlignment,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(height: title != null ? 6 : 10),
-                        if (title != null) ...[
-                          Center(
-                            child: Container(
-                              padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
-                              child: Text(
-                                title!,
-                                textAlign: TextAlign.center,
-                                style:
-                                    titleStyle ??
-                                    style.fonts.big.regular.onBackground,
+                  child: ClipPath(
+                    clipper: _BottomEdgeClipper(),
+                    child: AnimatedSize(
+                      duration: const Duration(milliseconds: 300),
+                      alignment: Alignment.topCenter,
+                      curve: Curves.easeInOut,
+                      clipBehavior: Clip.none,
+                      child: Column(
+                        crossAxisAlignment: crossAxisAlignment,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(height: title != null ? 6 : 10),
+                          if (title != null) ...[
+                            Center(
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
+                                child: Text(
+                                  title!,
+                                  textAlign: TextAlign.center,
+                                  style:
+                                      titleStyle ??
+                                      style.fonts.big.regular.onBackground,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 12),
+                            const SizedBox(height: 12),
+                          ],
+                          ...children,
+                          const SizedBox(height: 4),
                         ],
-                        ...children,
-                        const SizedBox(height: 4),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -198,4 +202,16 @@ class Block extends StatelessWidget {
 
     return style.fonts.small.regular.secondaryHighlightDarkest;
   }
+}
+
+/// [CustomClipper] that does not clip in width.
+class _BottomEdgeClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    const double kBig = 1e6;
+    return Path()..addRect(Rect.fromLTRB(-kBig, 0, kBig, size.height));
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
