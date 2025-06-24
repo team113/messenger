@@ -25,7 +25,6 @@ import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -59,6 +58,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/fixed_timer.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
 import 'data_attachment.dart';
@@ -1603,7 +1603,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     StatefulBuilder(
                                       builder: (context, setState) {
                                         return RowCheckboxButton(
-                                      key: const Key('DeleteForAll'),
+                                          key: const Key('DeleteForAll'),
                                           label:
                                               'label_also_delete_for_everyone'
                                                   .l10n,
@@ -1653,7 +1653,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 'label_delete_message'.l10n,
                                 button: (context) => MessagePopup.deleteButton(
                                   key: const Key('Proceed'),
-                                context,
+                                  context,
                                   label: 'btn_delete'.l10n,
                                 ),
                               ).then((pressed) {
