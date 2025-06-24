@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.1...v0.6.0) | [Milestone](/../../milestone/41)
 
+### Changed
+
+- UI:
+    - Media panel:
+        - Default order of call buttons in dock. ([#1263], [#1294])
+
 ### Fixed
 
 - UI:
@@ -19,6 +25,8 @@ All user visible changes to this project will be documented in this file. This p
     - Auth page:
         - Inability to proceed to recover access with username not being empty. ([#1285])
 
+[#1263]: /../../issue/1263
+[#1294]: /../../pull/1294
 [#1280]: /../../pull/1280
 [#1285]: /../../pull/1285
 
