@@ -1074,8 +1074,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               description: [
                                 if (!deletable && !isMonolog)
                                   TextSpan(
-                                    text: 'label_message_will_deleted_for_you'
-                                        .l10n,
+                                    text:
+                                        'label_this_message_will_be_deleted_only_for_you'
+                                            .l10n,
                                   ),
                               ],
                               additional: [
@@ -1084,7 +1085,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                     builder: (context, setState) {
                                       return RowCheckboxButton(
                                         key: const Key('DeleteForAll'),
-                                        label: 'label_delete_for_everyone'.l10n,
+                                        label: 'label_also_delete_for_everyone'
+                                            .l10n,
                                         value: deleteForAll,
                                         onPressed: (e) =>
                                             setState(() => deleteForAll = e),

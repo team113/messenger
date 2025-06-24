@@ -1450,9 +1450,9 @@ class ChatView extends StatelessWidget {
                                     if (!deletable && !isMonolog)
                                       TextSpan(
                                         text: c.selected.length > 1
-                                            ? 'label_messages_will_deleted_for_you'
+                                            ? 'label_this_messages_will_be_deleted_only_for_you'
                                                   .l10n
-                                            : 'label_message_will_deleted_for_you'
+                                            : 'label_this_message_will_be_deleted_only_for_you'
                                                   .l10n,
                                       ),
                                   ],
@@ -1462,8 +1462,9 @@ class ChatView extends StatelessWidget {
                                         builder: (context, setState) {
                                           return RowCheckboxButton(
                                             key: const Key('DeleteForAll'),
-                                            label: 'label_delete_for_everyone'
-                                                .l10n,
+                                            label:
+                                                'label_also_delete_for_everyone'
+                                                    .l10n,
                                             value: deleteForAll,
                                             onPressed: (e) => setState(
                                               () => deleteForAll = e,
