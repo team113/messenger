@@ -30,12 +30,12 @@
 
 #   Scenario: User adds contact to favorites
 #     When I long press "Bob" contact
-#     And I tap `FavoriteContactButton` button
+#     And I tap `FavoriteButton` button
 #     Then I see "Bob" contact as favorite
 #     And I see "Bob" contact first in contacts list
 
 #     When I long press "Charlie" contact
-#     And I tap `FavoriteContactButton` button
+#     And I tap `FavoriteButton` button
 #     Then I see "Charlie" contact as favorite
 #     And I see "Charlie" contact first in contacts list
 
@@ -44,7 +44,7 @@
 #     And I see "Bob" contact as favorite
 
 #     When I long press "Bob" contact
-#     And I tap `UnfavoriteContactButton` button
+#     And I tap `UnfavoriteButton` button
 #     Then I see "Bob" contact as unfavorited
 
 #   Scenario: User reorders favorite contacts

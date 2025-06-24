@@ -47,6 +47,7 @@ import '/provider/gql/exceptions.dart'
         HideChatException,
         JoinChatCallException,
         ToggleChatMuteException,
+        UnblockUserException,
         UnfavoriteChatContactException,
         UnfavoriteChatException,
         UpdateChatContactNameException;
@@ -347,8 +348,43 @@ class UserController extends GetxController {
     blocklistStatus.value = RxStatus.loading();
     try {
       await _userService.unblockUser(id);
+    } on UnblockUserException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
     } finally {
       blocklistStatus.value = RxStatus.empty();
+    }
+  }
+
+  /// Marks a [Chat]-dialog with the [user] as favorite.
+  Future<void> favoriteChat() async {
+    final ChatId? dialog = user?.user.value.dialog;
+    try {
+      if (dialog != null) {
+        await _chatService.favoriteChat(dialog);
+      }
+    } on FavoriteChatContactException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Removes a [Chat]-dialog with the [user] from the favorites.
+  Future<void> unfavoriteChat() async {
+    final ChatId? dialog = user?.user.value.dialog;
+    try {
+      if (dialog != null) {
+        await _chatService.unfavoriteChat(dialog);
+      }
+    } on UnfavoriteChatContactException catch (e) {
+      MessagePopup.error(e.toMessage());
+    } catch (e) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
     }
   }
 
@@ -390,7 +426,7 @@ class UserController extends GetxController {
       } on ToggleChatMuteException catch (e) {
         MessagePopup.error(e);
       } catch (e) {
-        MessagePopup.error(e);
+        MessagePopup.error('err_data_transfer'.l10n);
         rethrow;
       }
     }
@@ -406,7 +442,7 @@ class UserController extends GetxController {
       } on ToggleChatMuteException catch (e) {
         MessagePopup.error(e);
       } catch (e) {
-        MessagePopup.error(e);
+        MessagePopup.error('err_data_transfer'.l10n);
         rethrow;
       }
     }
@@ -422,9 +458,9 @@ class UserController extends GetxController {
       } on HideChatException catch (e) {
         MessagePopup.error(e);
       } on UnfavoriteChatException catch (e) {
-        MessagePopup.error(e);
+        MessagePopup.error(e.toMessage());
       } catch (e) {
-        MessagePopup.error(e);
+        MessagePopup.error('err_data_transfer'.l10n);
         rethrow;
       }
     }
@@ -440,7 +476,7 @@ class UserController extends GetxController {
       } on ClearChatException catch (e) {
         MessagePopup.error(e);
       } catch (e) {
-        MessagePopup.error(e);
+        MessagePopup.error('err_data_transfer'.l10n);
         rethrow;
       }
     }

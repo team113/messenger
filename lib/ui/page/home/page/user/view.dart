@@ -21,9 +21,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '/api/backend/schema.dart' show Presence;
-import '/util/platform_utils.dart';
-import '/ui/widget/widget_button.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -35,12 +32,15 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
+import '/ui/page/home/widget/presence_label.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/line_divider.dart';
 import '/ui/widget/obscured_selection_area.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
@@ -175,32 +175,6 @@ class UserView extends StatelessWidget {
             children: children,
           );
         }),
-        const SizedBox(height: 4),
-        Obx(() {
-          return SelectionContainer.disabled(
-            child: Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 6,
-              children: [
-                WidgetButton(
-                  key: const Key('NumCopyable'),
-                  onPressed: () {},
-                  onPressedWithDetails: (u) {
-                    PlatformUtils.copy(text: '${c.user?.user.value.num}');
-                    MessagePopup.success(
-                      'label_copied'.l10n,
-                      at: u.globalPosition,
-                    );
-                  },
-                  child: Text(
-                    '${c.user?.user.value.num}',
-                    style: style.fonts.normal.regular.primary,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
         const SizedBox(height: 8),
         Obx(() {
           final String? subtitle = c.user?.user.value.getSubtitle();
@@ -209,54 +183,13 @@ class UserView extends StatelessWidget {
             return const SizedBox();
           }
 
-          bool isOnline = false;
-          bool isAway = false;
-
-          switch (c.user!.user.value.presence) {
-            case Presence.present:
-              isOnline = c.user!.user.value.online;
-              break;
-
-            case Presence.away:
-              isAway = c.user!.user.value.online;
-              break;
-
-            case null || Presence.artemisUnknown:
-              // No-op.
-              break;
-          }
-
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const SizedBox(height: 12),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isOnline || isAway)
-                    Transform.translate(
-                      offset: Offset(0, 0.5),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isAway
-                              ? style.colors.warning
-                              : style.colors.acceptAuxiliary,
-                          shape: BoxShape.circle,
-                        ),
-                        width: 10,
-                        height: 10,
-                      ),
-                    ),
-                  const SizedBox(width: 3),
-                  Text(
-                    key: Key(
-                      c.user?.user.value.presence?.name.capitalized ?? '',
-                    ),
-                    subtitle!,
-                    style: style.fonts.small.regular.secondary,
-                  ),
-                ],
+              PresenceLabel(
+                key: Key(c.user?.user.value.presence?.name.capitalized ?? ''),
+                presence: c.user?.user.value.presence,
               ),
               const SizedBox(height: 4),
             ],
@@ -308,6 +241,14 @@ class UserView extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 8),
+        LineDivider('label_identifier'.l10n),
+        const SizedBox(height: 8),
+        ReactiveTextField.copyable(
+          key: const Key('NumCopyable'),
+          text: '${c.user?.user.value.num}',
+          label: 'label_num'.l10n,
+        ),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -350,6 +291,10 @@ class UserView extends StatelessWidget {
     // final bool favorite =
     //     c.contact.value?.contact.value.favoritePosition != null;
 
+    final bool favorite =
+        c.user?.dialog.value?.chat.value.favoritePosition != null;
+    final bool muted = c.user?.dialog.value?.chat.value.muted != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -375,8 +320,38 @@ class UserView extends StatelessWidget {
         //   ),
         // ),
         ActionButton(
+          key: favorite
+              ? const Key('UnfavoriteButton')
+              : const Key('FavoriteButton'),
+          text: favorite
+              ? 'btn_delete_from_favorites'.l10n
+              : 'btn_add_to_favorites'.l10n,
+          onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+          trailing: SvgIcon(
+            favorite ? SvgIcons.favorite19 : SvgIcons.unfavorite19,
+          ),
+        ),
+        ActionButton(
+          key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
+          text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+          onPressed: muted ? c.unmuteChat : c.muteChat,
+          trailing: SvgIcon(muted ? SvgIcons.muted19 : SvgIcons.unmuted19),
+        ),
+        ActionButton(
+          key: const Key('ClearHistoryButton'),
+          text: 'btn_clear_history'.l10n,
+          onPressed: () => _clearChat(c, context),
+          trailing: SvgIcon(SvgIcons.cleanHistory19),
+        ),
+        ActionButton(
+          key: const Key('DeleteChatButton'),
+          text: 'btn_delete_chat'.l10n,
+          onPressed: () => _hideChat(c, context),
+          trailing: SvgIcon(SvgIcons.delete19),
+        ),
+        ActionButton(
           text: 'btn_report'.l10n,
-          trailing: const SvgIcon(SvgIcons.report16),
+          trailing: const SvgIcon(SvgIcons.report19),
           onPressed: () => _reportUser(c, context),
         ),
         Obx(() {
@@ -388,7 +363,7 @@ class UserView extends StatelessWidget {
             key: const Key('Block'),
             text: 'btn_block'.l10n,
             onPressed: () => _blockUser(c, context),
-            trailing: const SvgIcon(SvgIcons.blockSmallRed),
+            trailing: const SvgIcon(SvgIcons.blockRed19),
             danger: true,
           );
         }),
@@ -476,6 +451,48 @@ class UserView extends StatelessWidget {
 
     if (result == true) {
       await c.report();
+    }
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(UserController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.user?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(UserController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(
+          text: c.user?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
     }
   }
 }

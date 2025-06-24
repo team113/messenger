@@ -740,6 +740,7 @@ label_hello = Привет!
 label_hello_reply = Оу, привет :)
 label_hidden = Был(а) недавно
 label_hotkey = Горячие клавиши
+label_identifier = Идентификатор
 label_identifiers = Идентификаторы
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.

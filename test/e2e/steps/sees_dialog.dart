@@ -15,10 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatKind;
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -31,7 +33,7 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
   '{user} sees dialog with me in recent chats',
   (TestUser user, context) async {
-    final provider = GraphQlProvider();
+    final GraphQlProvider provider = GraphQlProvider();
 
     try {
       await context.world.appDriver.waitUntil(() async {
@@ -64,7 +66,7 @@ final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
 final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
   '{user} sees no dialog with me in recent chats',
   (TestUser user, context) async {
-    final provider = GraphQlProvider();
+    final GraphQlProvider provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
     final dialog = (await provider.recentChats(first: 120)).recentChats.edges
         .firstWhereOrNull(
@@ -77,4 +79,26 @@ final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
+);
+
+/// Indicates whether a dialog [Chat] with the provided name is not displayed
+/// in the list of chats.
+///
+/// Examples:
+/// - Then I see no dialog with Bob
+final StepDefinitionGeneric seesNoDialogWithUser = then1<TestUser, CustomWorld>(
+  'I see no dialog with {user}',
+  (TestUser user, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+
+      final ChatsTabController controller = Get.find<ChatsTabController>();
+      final ChatId chatId = context.world.sessions[user.name]!.dialog!;
+      final ChatEntry? dialog = controller.chats.firstWhereOrNull(
+        (c) => c.chat.value.id == chatId,
+      );
+
+      return dialog?.chat.value.isHidden != false;
+    });
+  },
 );

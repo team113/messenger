@@ -112,9 +112,11 @@ import 'steps/see_contact_dismissed.dart';
 import 'steps/see_contact_position.dart';
 import 'steps/see_contact_selection.dart';
 import 'steps/see_contacts.dart';
+import 'steps/see_dialog_position.dart';
 import 'steps/see_draft.dart';
 import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
+import 'steps/see_favorite_dialog.dart';
 import 'steps/see_favorite_monolog.dart';
 import 'steps/see_field_having_error.dart';
 import 'steps/see_search_results.dart';
@@ -122,6 +124,7 @@ import 'steps/see_sessions.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
+import 'steps/sees_muted_dialog.dart';
 import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
@@ -241,7 +244,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeBlockedUsers,
         seeChatAsDismissed,
         seeChatAsFavorite,
+        seeDialogAsFavorite,
         seeChatAsMuted,
+        seeDialogAsMuted,
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
@@ -260,6 +265,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeCountSessions,
         seeDraftInDialog,
         seeFavoriteChatPosition,
+        seeFavoriteDialogPosition,
         seeFieldHavingAnError,
         seeFieldHavingNoError,
         seeMonologAsFavorite,
@@ -270,6 +276,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
+        seesNoDialogWithUser,
         seeUserInSearchResults,
         selectMessageText,
         sendsAttachmentToMe,

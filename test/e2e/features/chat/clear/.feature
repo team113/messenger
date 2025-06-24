@@ -17,11 +17,11 @@
 
 Feature: Clear chat
 
-  Scenario: User clears chat
+  Scenario: User clears group
     Given I am Alice
-    And user Bob
-    And Bob has dialog with me
-    And I am in chat with Bob
+    And users Bob and Charlie
+    And I have "Group" group
+    And I am in "Group" group
     And I see some messages in chat
 
     When I tap `MoreButton` button
