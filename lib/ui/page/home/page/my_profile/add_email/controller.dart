@@ -36,12 +36,8 @@ enum AddEmailPage { add, confirm }
 
 /// Controller of a [AddEmailView].
 class AddEmailController extends GetxController {
-  AddEmailController(
-    this._myUserService, {
-    this.email,
-    this.pop,
-    bool timeout = false,
-  }) : page = Rx(email == null ? AddEmailPage.add : AddEmailPage.confirm) {
+  AddEmailController(this._myUserService, {this.email, bool timeout = false})
+    : page = Rx(email == null ? AddEmailPage.add : AddEmailPage.confirm) {
     if (timeout) {
       _setResendEmailTimer();
     }
@@ -53,9 +49,8 @@ class AddEmailController extends GetxController {
   /// [UserEmail] the [AddEmailView] is about.
   UserEmail? email;
 
-  /// Callback, called when a [AddEmailView] this controller is bound to should
-  /// be popped from the [Navigator].
-  final void Function()? pop;
+  /// Indicator whether [UserEmail] has been confirmed successfully.
+  final RxBool confirmed = RxBool(false);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -154,8 +149,8 @@ class AddEmailController extends GetxController {
               confirmation: code,
               locale: L10n.chosen.value?.toString(),
             );
-            pop?.call();
             s.clear();
+            confirmed.value = true;
           } on AddUserEmailException catch (e) {
             if (e.code == AddUserEmailErrorCode.occupied) {
               s.resubmitOnError.value = true;
