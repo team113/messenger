@@ -1415,6 +1415,7 @@ class ChatView extends StatelessWidget {
                         ? () async {
                             final bool isMonolog =
                                 c.chat?.chat.value.isMonolog ?? false;
+
                             final bool deletable = c.selected.every((e) {
                               if (e is ChatMessageElement) {
                                 return e.item.value.author.id == c.me &&
@@ -1449,7 +1450,7 @@ class ChatView extends StatelessWidget {
                                 if (!deletable && !isMonolog)
                                   TextSpan(
                                     text: c.selected.length > 1
-                                        ? 'label_this_messages_will_be_deleted_only_for_you'
+                                        ? 'label_these_messages_will_be_deleted_only_for_you'
                                               .l10n
                                         : 'label_this_message_will_be_deleted_only_for_you'
                                               .l10n,

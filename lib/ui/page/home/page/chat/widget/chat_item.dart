@@ -25,6 +25,7 @@ import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -58,7 +59,6 @@ import '/ui/widget/widget_button.dart';
 import '/util/fixed_timer.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
 import 'data_attachment.dart';
