@@ -73,7 +73,7 @@ class ChangePasswordView extends StatelessWidget {
                     PrimaryButton(
                       key: const Key('Close'),
                       onPressed: Navigator.of(context).pop,
-                      title: 'btn_close'.l10n,
+                      title: 'btn_ok'.l10n,
                     ),
                   ],
                 ),
@@ -93,6 +93,7 @@ class ChangePasswordView extends StatelessWidget {
                         child: ReactiveTextField(
                           state: c.oldPassword,
                           label: 'label_current_password'.l10n,
+                          hint: 'label_password_hint'.l10n,
                           obscure: c.obscurePassword.value,
                           onSuffixPressed: () => c.obscurePassword.toggle(),
                           treatErrorAsStatus: false,
@@ -109,6 +110,7 @@ class ChangePasswordView extends StatelessWidget {
                       key: const Key('NewPasswordField'),
                       state: c.newPassword,
                       label: 'label_new_password'.l10n,
+                      hint: 'label_password_hint'.l10n,
                       obscure: c.obscureNewPassword.value,
                       onSuffixPressed: () => c.obscureNewPassword.toggle(),
                       treatErrorAsStatus: false,
@@ -125,6 +127,7 @@ class ChangePasswordView extends StatelessWidget {
                       key: const Key('RepeatPasswordField'),
                       state: c.repeatPassword,
                       label: 'label_repeat_password'.l10n,
+                      hint: 'label_password_hint'.l10n,
                       obscure: c.obscureRepeatPassword.value,
                       onSuffixPressed: () => c.obscureRepeatPassword.toggle(),
                       treatErrorAsStatus: false,
@@ -152,7 +155,10 @@ class ChangePasswordView extends StatelessWidget {
                       return PrimaryButton(
                         key: const Key('Proceed'),
                         onPressed: enabled ? c.changePassword : null,
-                        title: 'btn_proceed'.l10n,
+                        leading: enabled
+                            ? const SvgIcon(SvgIcons.passwordWhite)
+                            : const SvgIcon(SvgIcons.passwordGrey),
+                        title: 'btn_save'.l10n,
                       );
                     }),
                   ],
