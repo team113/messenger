@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.1...v0.6.0) | [Milestone](/../../milestone/41)
 
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned delete popups. ([#1291], [#1268])
+
 ### Fixed
 
 - UI:
@@ -21,6 +27,8 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1280]: /../../pull/1280
 [#1285]: /../../pull/1285
+[#1291]: /../../pull/1291
+[#1268]: /../../issue/1268
 
 
 
