@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned delete popups. ([#1291], [#1268])
+    - Media panel:
+        - Default order of call buttons in dock. ([#1294], [#1263])
 
 ### Fixed
 
@@ -25,10 +27,12 @@ All user visible changes to this project will be documented in this file. This p
     - Auth page:
         - Inability to proceed to recover access with username not being empty. ([#1285])
 
+[#1268]: /../../issue/1268
+[#1263]: /../../issue/1263
 [#1280]: /../../pull/1280
 [#1285]: /../../pull/1285
 [#1291]: /../../pull/1291
-[#1268]: /../../issue/1268
+[#1294]: /../../pull/1294
 
 
 
