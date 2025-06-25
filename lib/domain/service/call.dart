@@ -257,10 +257,7 @@ class CallService extends DisposableService {
   /// specified [Chat]-group by the authenticated [MyUser].
   Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
     Log.debug('redialChatCallMember($chatId, $memberId)', '$runtimeType');
-
-    if (_callsRepo.contains(chatId)) {
-      await _callsRepo.redialChatCallMember(chatId, memberId);
-    }
+    await _callsRepo.redialChatCallMember(chatId, memberId);
   }
 
   /// Removes the specified [User] from the [ChatCall] of the specified
