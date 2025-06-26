@@ -60,6 +60,17 @@ class Log {
     _breadcrumb(message, tag, SentryLevel.debug);
   }
 
+  /// Reports the [exception] to [Sentry], if enabled.
+  static Future<void> report(Exception exception, {StackTrace? trace}) async {
+    if (!kDebugMode && Config.sentryDsn.isNotEmpty) {
+      try {
+        await Sentry.captureException(exception, stackTrace: trace);
+      } catch (_) {
+        // No-op.
+      }
+    }
+  }
+
   /// Reports a [Breadcrumb] with the provided details to the [Sentry], if
   /// enabled.
   static Future<void> _breadcrumb(
