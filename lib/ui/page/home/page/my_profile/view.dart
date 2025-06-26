@@ -799,7 +799,7 @@ Widget _media(BuildContext context, MyProfileController c) {
         children: [
           if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) ...[
             const SizedBox(height: 20),
-            const LineDivider('Voice Processing'),
+            LineDivider('label_voice_processing'.l10n),
             const SizedBox(height: 16),
             Obx(() {
               // False by default
@@ -820,7 +820,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               return Column(
                 children: [
                   SwitchField(
-                    text: 'Noise Suppression',
+                    text: 'label_noise_suppression'.l10n,
                     value: isEnabled,
                     onChanged: (enabled) {
                       c.setNoiseSuppressionEnabled(enabled);
@@ -870,28 +870,28 @@ Widget _media(BuildContext context, MyProfileController c) {
                               FlutterSliderHatchMarkLabel(
                                 percent: 0,
                                 label: Text(
-                                  'Low',
+                                  'label_low'.l10n,
                                   style: style.fonts.smaller.regular.secondary,
                                 ),
                               ),
                               FlutterSliderHatchMarkLabel(
                                 percent: 33,
                                 label: Text(
-                                  'Medium',
+                                  'label_medium'.l10n,
                                   style: style.fonts.smaller.regular.secondary,
                                 ),
                               ),
                               FlutterSliderHatchMarkLabel(
                                 percent: 66,
                                 label: Text(
-                                  'High',
+                                  'label_high'.l10n,
                                   style: style.fonts.smaller.regular.secondary,
                                 ),
                               ),
                               FlutterSliderHatchMarkLabel(
                                 percent: 100,
                                 label: Text(
-                                  'Very High',
+                                  'label_very_high'.l10n,
                                   style: style.fonts.smaller.regular.secondary,
                                 ),
                               ),
