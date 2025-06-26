@@ -135,7 +135,7 @@ class MessagePopup {
     return Stack(
       children: [
         OutlinedRoundedButton(
-          key: key,
+          key: key ?? const Key('Proceed'),
           maxWidth: double.infinity,
           onPressed: () => Navigator.of(context).pop(true),
           color: style.colors.danger,

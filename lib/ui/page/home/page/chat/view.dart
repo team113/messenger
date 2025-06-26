@@ -43,11 +43,11 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/checkbox_button.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
@@ -1413,67 +1413,78 @@ class ChatView extends StatelessWidget {
                     enabled: canDelete,
                     onPressed: canDelete
                         ? () async {
-                            final bool deletable =
-                                c.chat?.chat.value.isMonolog == true ||
-                                c.selected.every((e) {
-                                  if (e is ChatMessageElement) {
-                                    return e.item.value.author.id == c.me &&
-                                        c.chat?.chat.value.isRead(
-                                              e.item.value,
-                                              c.me,
-                                            ) ==
-                                            false;
-                                  } else if (e is ChatForwardElement) {
-                                    return e.authorId == c.me &&
-                                        c.chat?.chat.value.isRead(
-                                              e.forwards.first.value,
-                                              c.me,
-                                            ) ==
-                                            false;
-                                  } else if (e is ChatInfoElement) {
-                                    return false;
-                                  } else if (e is ChatCallElement) {
-                                    return false;
-                                  }
+                            final bool isMonolog =
+                                c.chat?.chat.value.isMonolog ?? false;
 
-                                  return false;
-                                });
+                            final bool deletable = c.selected.every((e) {
+                              if (e is ChatMessageElement) {
+                                return e.item.value.author.id == c.me &&
+                                    c.chat?.chat.value.isRead(
+                                          e.item.value,
+                                          c.me,
+                                        ) ==
+                                        false;
+                              } else if (e is ChatForwardElement) {
+                                return e.authorId == c.me &&
+                                    c.chat?.chat.value.isRead(
+                                          e.forwards.first.value,
+                                          c.me,
+                                        ) ==
+                                        false;
+                              } else if (e is ChatInfoElement) {
+                                return false;
+                              } else if (e is ChatCallElement) {
+                                return false;
+                              }
 
-                            final result = await ConfirmDialog.show(
-                              context,
-                              title: c.selected.length > 1
+                              return false;
+                            });
+
+                            bool deleteForAll = false;
+
+                            final bool? pressed = await MessagePopup.alert(
+                              c.selected.length > 1
                                   ? 'label_delete_messages'.l10n
                                   : 'label_delete_message'.l10n,
-                              description: deletable
-                                  ? null
-                                  : c.selected.length > 1
-                                  ? 'label_messages_will_deleted_for_you'.l10n
-                                  : 'label_message_will_deleted_for_you'.l10n,
-                              initial: 1,
-                              variants: [
-                                ConfirmDialogVariant(
-                                  key: const Key('HideForMe'),
-                                  label: 'label_delete_for_me'.l10n,
-                                  onProceed: () async {
-                                    return await Future.wait(
-                                      c.selected.asItems.map(c.hideChatItem),
-                                    );
-                                  },
-                                ),
-                                if (deletable)
-                                  ConfirmDialogVariant(
-                                    key: const Key('DeleteForAll'),
-                                    label: 'label_delete_for_everyone'.l10n,
-                                    onProceed: () async {
-                                      return await Future.wait(
-                                        c.selected.asItems.map(c.deleteMessage),
+                              description: [
+                                if (!deletable && !isMonolog)
+                                  TextSpan(
+                                    text: c.selected.length > 1
+                                        ? 'label_these_messages_will_be_deleted_only_for_you'
+                                              .l10n
+                                        : 'label_this_message_will_be_deleted_only_for_you'
+                                              .l10n,
+                                  ),
+                              ],
+                              additional: [
+                                if (deletable && !isMonolog)
+                                  StatefulBuilder(
+                                    builder: (context, setState) {
+                                      return RowCheckboxButton(
+                                        key: const Key('DeleteForAll'),
+                                        label: 'label_also_delete_for_everyone'
+                                            .l10n,
+                                        value: deleteForAll,
+                                        onPressed: (e) =>
+                                            setState(() => deleteForAll = e),
                                       );
                                     },
                                   ),
                               ],
+                              button: MessagePopup.deleteButton,
                             );
 
-                            if (result != null) {
+                            if (pressed ?? false) {
+                              if (deletable && (isMonolog || deleteForAll)) {
+                                await Future.wait(
+                                  c.selected.asItems.map(c.deleteMessage),
+                                );
+                              } else {
+                                await Future.wait(
+                                  c.selected.asItems.map(c.hideChatItem),
+                                );
+                              }
+
                               c.selecting.value = false;
                             }
                           }
