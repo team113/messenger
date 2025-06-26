@@ -48,5 +48,4 @@ class MediaSettings {
 
   /// Desired noise suppression level for microphone if enabled.
   NoiseSuppressionLevel? noiseSuppressionLevel;
-
 }

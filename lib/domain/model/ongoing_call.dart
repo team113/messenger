@@ -20,7 +20,9 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc hide NoiseSuppressionLevel;
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart'
+    as webrtc
+    hide NoiseSuppressionLevel;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -281,10 +283,10 @@ class OngoingCall {
   final String? _preferredScreenDevice;
 
   /// Preferred noise suppression enabled flag.
-  bool? _noiseSuppressionEnabled;
+  final bool? _noiseSuppressionEnabled;
 
   /// Preferred noise suppression level.
-  NoiseSuppressionLevel? _noiseSuppressionLevel;
+  final NoiseSuppressionLevel? _noiseSuppressionLevel;
 
   /// Indicator whether this [OngoingCall] should not initialize any media
   /// client related resources.
@@ -2166,14 +2168,10 @@ class OngoingCall {
         // NoiseSuppression is currently available only on Desktop
         if (track.isAudioProcessingAvailable() && PlatformUtils.isDesktop) {
           if (_noiseSuppressionEnabled != null) {
-            await track.setNoiseSuppressionEnabled(
-              _noiseSuppressionEnabled!,
-            );
+            await track.setNoiseSuppressionEnabled(_noiseSuppressionEnabled);
           }
           if (_noiseSuppressionLevel != null) {
-            await track.setNoiseSuppressionLevel(
-              _noiseSuppressionLevel!,
-            );
+            await track.setNoiseSuppressionLevel(_noiseSuppressionLevel);
           }
         }
       }
