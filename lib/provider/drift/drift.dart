@@ -307,7 +307,7 @@ class ScopedDatabase extends _$ScopedDatabase {
   }
 
   /// Resets everything, meaning dropping and re-creating every table.
-  Future<void> reset() async {
+  Future<void> reset([bool recreate = true]) async {
     Log.debug('reset()', '$runtimeType');
 
     for (var e in allSchemaEntities) {
@@ -318,7 +318,17 @@ class ScopedDatabase extends _$ScopedDatabase {
       }
     }
 
-    await createMigrator().createAll();
+    if (recreate) {
+      await createMigrator().createAll();
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    Log.debug('close()', '$runtimeType');
+
+    _closed = true;
+    await super.close();
   }
 }
 
@@ -519,9 +529,9 @@ final class ScopedDriftProvider extends DisposableInterface {
   }
 
   /// Resets the [ScopedDatabase] and closes this [ScopedDriftProvider].
-  Future<void> reset() async {
+  Future<void> reset([bool recreate = true]) async {
     await _completeAllOperations((db) async {
-      await _caught(db?.reset());
+      await _caught(db?.reset(recreate));
       this.db = db;
     });
   }

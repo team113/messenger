@@ -73,7 +73,7 @@ class AuthService extends DisposableService {
   final RxMap<UserId, Rx<Credentials>> accounts = RxMap();
 
   /// [Function] to be invoked before [logout].
-  Future<void> Function()? onLogout;
+  Future<void> Function({bool keepData})? onLogout;
 
   /// Callback, called to indicate whether application has any [OngoingCall]s.
   bool Function()? hasCalls;
@@ -488,8 +488,12 @@ class AuthService extends DisposableService {
     SessionId? id,
     UserPassword? password,
     bool force = false,
+    bool keepData = true,
   }) async {
-    Log.debug('deleteSession($id, $password, force: $force)', '$runtimeType');
+    Log.debug(
+      'deleteSession($id, $password, force: $force, keepData: $keepData)',
+      '$runtimeType',
+    );
 
     if (id != null) {
       await _authRepository.deleteSession(id: id, password: password);
@@ -498,18 +502,13 @@ class AuthService extends DisposableService {
 
     status.value = RxStatus.empty();
 
-    if (force) {
-      if (userId != null) {
-        _authRepository.removeAccount(userId!);
-      }
+    final Future<void> Function({bool keepData})? logoutCallback = onLogout;
+    Future<void> handleCallbacks() async {
+      if (logoutCallback != null) {
+        Log.debug('Invoking `onLogout(keepData: $keepData)`', '$runtimeType');
 
-      return _unauthorized();
-    }
-
-    return await WebUtils.protect(() async {
-      if (onLogout != null) {
         try {
-          await onLogout?.call();
+          await logoutCallback(keepData: keepData);
         } catch (e) {
           Log.debug('Unable to invoke `onLogout()`: $e', '$runtimeType');
         }
@@ -517,14 +516,32 @@ class AuthService extends DisposableService {
         onLogout = null;
         hasCalls = null;
       }
+    }
 
+    if (force) {
+      if (userId != null) {
+        _authRepository.removeAccount(userId!);
+      }
+
+      _unauthorized();
+
+      await handleCallbacks();
+
+      return Routes.auth;
+    }
+
+    return await WebUtils.protect(() async {
       try {
         await _authRepository.deleteSession();
       } catch (e) {
         printError(info: e.toString());
       }
 
-      return _unauthorized();
+      _unauthorized();
+
+      await handleCallbacks();
+
+      return Routes.auth;
     });
   }
 
@@ -546,7 +563,7 @@ class AuthService extends DisposableService {
       _authRepository.removeAccount(userId!, keepProfile: keepProfile);
     }
 
-    return await deleteSession() ?? Routes.auth;
+    return await deleteSession(keepData: keepProfile) ?? Routes.auth;
   }
 
   /// Switches to the account with the provided [UserId] using the persisted
