@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
+import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 
 import '/domain/model/ongoing_call.dart';
 
@@ -48,4 +48,5 @@ class MediaSettings {
 
   /// Desired noise suppression level for microphone if enabled.
   NoiseSuppressionLevel? noiseSuppressionLevel;
+
 }

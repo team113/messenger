@@ -21,7 +21,7 @@ import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
+import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';

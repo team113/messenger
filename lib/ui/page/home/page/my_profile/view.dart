@@ -24,7 +24,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
+import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 

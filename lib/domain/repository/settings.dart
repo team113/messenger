@@ -19,7 +19,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart' show Rect;
 import 'package:get/get.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
+import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
