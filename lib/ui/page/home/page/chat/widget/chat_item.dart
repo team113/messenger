@@ -47,16 +47,17 @@ import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animations.dart';
+import '/ui/widget/checkbox_button.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/fixed_timer.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
@@ -1585,28 +1586,44 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   ) &&
                                   widget.item.value is ChatMessage;
 
-                              await ConfirmDialog.show(
-                                context,
-                                title: 'label_delete_message'.l10n,
-                                description: deletable || isMonolog
-                                    ? null
-                                    : 'label_message_will_deleted_for_you'.l10n,
-                                initial: 1,
-                                variants: [
-                                  if (!deletable || !isMonolog)
-                                    ConfirmDialogVariant(
-                                      key: const Key('HideForMe'),
-                                      onProceed: widget.onHide,
-                                      label: 'label_delete_for_me'.l10n,
-                                    ),
-                                  if (deletable)
-                                    ConfirmDialogVariant(
-                                      key: const Key('DeleteForAll'),
-                                      onProceed: widget.onDelete,
-                                      label: 'label_delete_for_everyone'.l10n,
+                              bool deleteForAll = false;
+
+                              final bool? pressed = await MessagePopup.alert(
+                                'label_delete_message'.l10n,
+                                description: [
+                                  if (!deletable && !isMonolog)
+                                    TextSpan(
+                                      text:
+                                          'label_this_message_will_be_deleted_only_for_you'
+                                              .l10n,
                                     ),
                                 ],
+                                additional: [
+                                  if (deletable && !isMonolog)
+                                    StatefulBuilder(
+                                      builder: (context, setState) {
+                                        return RowCheckboxButton(
+                                          key: const Key('DeleteForAll'),
+                                          label:
+                                              'label_also_delete_for_everyone'
+                                                  .l10n,
+                                          value: deleteForAll,
+                                          onPressed: (e) =>
+                                              setState(() => deleteForAll = e),
+                                        );
+                                      },
+                                    ),
+                                ],
+                                button: MessagePopup.deleteButton,
                               );
+
+                              if (pressed ?? false) {
+                                if (deletable && (isMonolog || deleteForAll)) {
+                                  widget.onDelete?.call();
+                                } else if (!isMonolog) {
+                                  widget.onHide?.call();
+                                }
+                              }
                             },
                           ),
                         ],
@@ -1628,17 +1645,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             trailing: const SvgIcon(SvgIcons.delete19),
                             inverted: const SvgIcon(SvgIcons.delete19White),
                             onPressed: () async {
-                              await ConfirmDialog.show(
-                                context,
-                                title: 'label_delete_message'.l10n,
-                                variants: [
-                                  ConfirmDialogVariant(
-                                    key: const Key('DeleteForAll'),
-                                    onProceed: widget.onDelete,
-                                    label: 'label_delete_for_everyone'.l10n,
-                                  ),
-                                ],
+                              final bool? pressed = await MessagePopup.alert(
+                                'label_delete_message'.l10n,
+                                button: MessagePopup.deleteButton,
                               );
+
+                              if (pressed ?? false) {
+                                widget.onDelete?.call();
+                              }
                             },
                           ),
                         ],

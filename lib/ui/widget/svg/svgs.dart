@@ -1797,8 +1797,8 @@ class SvgIcons {
 
   static const SvgData delete19White = SvgData(
     'assets/icons/delete19_white.svg',
-    width: 19.88,
-    height: 19,
+    width: 19,
+    height: 18,
   );
 
   static const SvgData download19 = SvgData(

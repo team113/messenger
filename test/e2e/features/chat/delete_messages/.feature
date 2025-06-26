@@ -41,6 +41,5 @@ Feature: Chat items are deleted correctly
 
     When I long press "For hiding" message
     And I tap `DeleteMessageButton` button
-    And I tap `HideForMe` button
     And I tap `Proceed` button
     Then I wait until "For hiding" message is absent

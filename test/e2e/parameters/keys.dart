@@ -105,7 +105,6 @@ enum WidgetKey {
   ForwardField,
   GalleryPopup,
   HideChatButton,
-  HideForMe,
   HomeView,
   Interface,
   IntroductionScrollable,
