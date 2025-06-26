@@ -726,10 +726,10 @@ class CallController extends GetxController {
       if (persisted?.isNotEmpty != true) {
         persisted = {
           ScreenButton(this),
-          VideoButton(this),
-          EndCallButton(this),
           AudioButton(this),
+          VideoButton(this),
           MoreButton(this),
+          EndCallButton(this),
         };
       }
 
