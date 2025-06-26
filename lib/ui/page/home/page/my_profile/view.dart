@@ -797,13 +797,13 @@ Widget _media(BuildContext context, MyProfileController c) {
       // Voice processing widget
       Column(
         children: [
-          if (PlatformUtils.isDesktop) ...[
+          if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) ...[
             const SizedBox(height: 20),
             const LineDivider('Voice Processing'),
             const SizedBox(height: 16),
             Obx(() {
               // False by default
-              final isEnabled = c.media.value?.noiseSuppressionEnabled ?? true;
+              final isEnabled = c.media.value?.noiseSuppressionEnabled ?? false;
 
               // Moderate by default (if enabled)
               final level =
@@ -822,7 +822,13 @@ Widget _media(BuildContext context, MyProfileController c) {
                   SwitchField(
                     text: 'Noise Suppression',
                     value: isEnabled,
-                    onChanged: c.setNoiseSuppressionEnabled,
+                    onChanged: (enabled) {
+                      c.setNoiseSuppressionEnabled(enabled);
+                      if (enabled) {
+                        // set saved value or default one.
+                        c.setNoiseSuppressionLevelValue(level);
+                      }
+                    },
                   ),
                   if (isEnabled) ...[
                     SizedBox(
