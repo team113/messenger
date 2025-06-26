@@ -47,6 +47,7 @@ import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
+import 'provider/drift/background.dart';
 import 'provider/drift/blocklist.dart';
 import 'provider/drift/call_credentials.dart';
 import 'provider/drift/call_rect.dart';
@@ -54,10 +55,13 @@ import 'provider/drift/chat.dart';
 import 'provider/drift/chat_credentials.dart';
 import 'provider/drift/chat_item.dart';
 import 'provider/drift/chat_member.dart';
+import 'provider/drift/credentials.dart';
 import 'provider/drift/draft.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/monolog.dart';
+import 'provider/drift/my_user.dart';
 import 'provider/drift/session.dart';
+import 'provider/drift/settings.dart';
 import 'provider/drift/user.dart';
 import 'provider/drift/version.dart';
 import 'provider/gql/graphql.dart';
@@ -85,6 +89,8 @@ import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
 import 'ui/worker/my_user.dart';
 import 'ui/worker/settings.dart';
+import 'util/get.dart';
+import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/scoped_dependencies.dart';
 import 'util/web/web_utils.dart';
@@ -715,7 +721,55 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 NotificationService(graphQlProvider),
               );
 
-              _state._auth.onLogout = notificationService.unregisterPushDevice;
+              _state._auth.onLogout = ({bool keepData = true}) async {
+                Log.debug(
+                  '_state._auth.onLogout -> keepData: $keepData',
+                  '$runtimeType',
+                );
+
+                try {
+                  await notificationService.unregisterPushDevice();
+                } catch (_) {
+                  // No-op.
+                }
+
+                if (!keepData) {
+                  try {
+                    // Scope can already close the database due to `onClose`
+                    // races - in such cases the database should be constructed
+                    // so that it is being opened and then reset.
+                    if (scoped.isClosed) {
+                      final ScopedDatabase db = ScopedDatabase(me);
+                      await db.reset(false);
+                      await db.close();
+                    } else {
+                      await scoped.reset(false);
+                    }
+
+                    final backgroundProvider =
+                        Get.findOrNull<BackgroundDriftProvider>();
+                    final credentialsProvider =
+                        Get.findOrNull<CredentialsDriftProvider>();
+                    final monologProvider =
+                        Get.findOrNull<MonologDriftProvider>();
+                    final myUserProvider =
+                        Get.findOrNull<MyUserDriftProvider>();
+                    final settingsProvider =
+                        Get.findOrNull<SettingsDriftProvider>();
+                    final versionProvider =
+                        Get.findOrNull<VersionDriftProvider>();
+
+                    await backgroundProvider?.delete(me);
+                    await credentialsProvider?.delete(me);
+                    await monologProvider?.delete(me);
+                    await myUserProvider?.delete(me);
+                    await settingsProvider?.delete(me);
+                    await versionProvider?.delete(me);
+                  } catch (_) {
+                    // No-op.
+                  }
+                }
+              };
 
               final AbstractSettingsRepository settingsRepository = deps
                   .put<AbstractSettingsRepository>(

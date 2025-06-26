@@ -1660,8 +1660,25 @@ class ChatController extends GetxController {
     await _typingGuard.protect(() async {
       if (_typingSubscription == null) {
         Log.debug('_keepTyping()', '$runtimeType');
+
+        final StackTrace invoked = StackTrace.current;
+
         _typingSubscription ??= _chatService
             .keepTyping(id)
+            .timeout(
+              Duration(minutes: 1),
+              onTimeout: (_) async {
+                Log.warning(
+                  'Timeout of `keepTyping()` occurred with trace: $invoked',
+                  '$runtimeType',
+                );
+
+                await Log.report(
+                  TimeoutException('Timeout of `keepTyping()` occurred'),
+                  trace: invoked,
+                );
+              },
+            )
             .listen(
               (_) {},
               onError: (e) {
