@@ -18,6 +18,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned message delete popups. ([#1291], [#1268])
     - Media panel:
         - Default order of call buttons in dock. ([#1294], [#1263])
+    - Profile page:
+        - Redesigned email and password popups. ([#1296], [#1293])
 
 ### Fixed
 
@@ -29,10 +31,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1263]: /../../issue/1263
 [#1268]: /../../issue/1268
+[#1293]: /../../issue/1293
 [#1280]: /../../pull/1280
 [#1285]: /../../pull/1285
 [#1291]: /../../pull/1291
 [#1294]: /../../pull/1294
+[#1296]: /../../pull/1296
 
 
 
