@@ -25,7 +25,6 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -51,105 +50,107 @@ class DeleteEmailView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: DeleteEmailController(
-        Get.find(),
-        Get.find(),
-        email: email,
-        pop: context.popModal,
-      ),
+      init: DeleteEmailController(Get.find(), Get.find(), email: email),
       builder: (DeleteEmailController c) {
-        final List<Widget> children;
-
-        if (c.myUser.value?.hasPassword == false) {
-          children = [
-            const SizedBox(height: 12),
-            Text(
-              'label_add_email_confirmation_sent_to'.l10nfmt({
-                'email': '${c.myUser.value?.emails.confirmed.firstOrNull}',
-              }),
-              style: style.fonts.normal.regular.onBackground,
-            ),
-            const SizedBox(height: 16),
-            Obx(() {
-              return Text(
-                c.resendEmailTimeout.value == 0
-                    ? 'label_did_not_receive_code'.l10n
-                    : 'label_code_sent_again'.l10n,
-                style: style.fonts.normal.regular.onBackground,
-              );
-            }),
-            Obx(() {
-              final bool enabled = c.resendEmailTimeout.value == 0;
-
-              return WidgetButton(
-                onPressed: enabled ? c.sendConfirmationCode : null,
-                child: Text(
-                  enabled
-                      ? 'btn_resend_code'.l10n
-                      : 'label_wait_seconds'.l10nfmt({
-                          'for': c.resendEmailTimeout.value,
-                        }),
-                  style: enabled
-                      ? style.fonts.normal.regular.primary
-                      : style.fonts.normal.regular.onBackground,
-                ),
-              );
-            }),
-            const SizedBox(height: 16),
-            ReactiveTextField(state: c.code, hint: 'label_one_time_code'.l10n),
-            const SizedBox(height: 25),
-            PrimaryButton(
-              key: const Key('Proceed'),
-              onPressed: c.code.submit,
-              title: 'btn_proceed'.l10n,
-            ),
-            const SizedBox(height: 16),
-          ];
-        } else {
-          children = [
-            const SizedBox(height: 12),
-            Text(
-              'label_enter_password_below'.l10n,
-              style: style.fonts.normal.regular.secondary,
-            ),
-            const SizedBox(height: 12),
-            Obx(() {
-              return ReactiveTextField(
-                key: const Key('PasswordField'),
-                state: c.password,
-                obscure: c.obscurePassword.value,
-                onSuffixPressed: c.obscurePassword.toggle,
-                treatErrorAsStatus: false,
-                trailing: SvgIcon(
-                  c.obscurePassword.value
-                      ? SvgIcons.visibleOff
-                      : SvgIcons.visibleOn,
-                ),
-                hint: 'label_password'.l10n,
-              );
-            }),
-            const SizedBox(height: 25),
-            Obx(() {
-              final bool enabled =
-                  !c.password.isEmpty.value && c.password.error.value == null;
-
-              return PrimaryButton(
-                key: const Key('Proceed'),
-                onPressed: enabled ? c.password.submit : null,
-                title: 'btn_proceed'.l10n,
-              );
-            }),
-            const SizedBox(height: 16),
-          ];
-        }
-
         final Widget child = Scrollbar(
           controller: c.scrollController,
-          child: ListView(
-            controller: c.scrollController,
-            shrinkWrap: true,
-            children: children,
-          ),
+          child: Obx(() {
+            return ListView(
+              controller: c.scrollController,
+              shrinkWrap: true,
+              children: !c.deleted.value
+                  ? [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: Text(
+                          c.email.val,
+                          textAlign: TextAlign.center,
+                          style: style.fonts.normal.regular.onBackground,
+                        ),
+                      ),
+                      Text(
+                        c.myUser.value?.hasPassword != false
+                            ? 'label_enter_one_time_code'.l10n
+                            : 'label_enter_password_or_one_time_code'.l10n,
+                        style: style.fonts.normal.regular.secondary,
+                      ),
+                      const SizedBox(height: 24),
+                      Obx(() {
+                        return ReactiveTextField(
+                          key: const Key('PasswordField'),
+                          state: c.passwordOrCode,
+                          obscure: c.obscurePasswordOrCode.value,
+                          onSuffixPressed: c.obscurePasswordOrCode.toggle,
+                          treatErrorAsStatus: false,
+                          trailing: SvgIcon(
+                            c.obscurePasswordOrCode.value
+                                ? SvgIcons.visibleOff
+                                : SvgIcons.visibleOn,
+                          ),
+                          label: c.myUser.value?.hasPassword != false
+                              ? 'label_one_time_code'.l10n
+                              : 'label_password_or_one_time_code'.l10n,
+                          hint: c.myUser.value?.hasPassword != false
+                              ? 'label_one_time_code_hint'.l10n
+                              : 'label_enter_password_or_code'.l10n,
+                        );
+                      }),
+                      const SizedBox(height: 25),
+                      Obx(() {
+                        final bool enabled =
+                            !c.passwordOrCode.isEmpty.value &&
+                            c.passwordOrCode.error.value == null;
+
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: PrimaryButton(
+                                key: const Key('Resend'),
+                                onPressed: c.resendEmailTimeout.value == 0
+                                    ? c.sendConfirmationCode
+                                    : null,
+                                title: c.resendEmailTimeout.value == 0
+                                    ? 'label_resend'.l10n
+                                    : 'label_resend_timeout'.l10nfmt({
+                                        'timeout': c.resendEmailTimeout.value,
+                                      }),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: PrimaryButton(
+                                key: const Key('Proceed'),
+                                danger: true,
+                                title: 'btn_delete'.l10n,
+                                onPressed: enabled
+                                    ? c.passwordOrCode.submit
+                                    : null,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                      const SizedBox(height: 16),
+                    ]
+                  : [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          'label_email_deleted'.l10n,
+                          textAlign: TextAlign.center,
+                          style: style.fonts.normal.regular.secondary,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      PrimaryButton(
+                        key: const Key('Proceed'),
+                        onPressed: context.popModal,
+                        title: 'btn_ok'.l10n,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+            );
+          }),
         );
 
         return Column(

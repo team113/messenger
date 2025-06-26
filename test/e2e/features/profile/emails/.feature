@@ -40,4 +40,5 @@ Feature: User email
     And I tap `Proceed` button
     And I fill `PasswordField` field with "123"
     And I tap `Proceed` button
+    And I tap `CloseButton` button
     Then I wait until `ConfirmedEmail_0` is absent
