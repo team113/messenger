@@ -128,7 +128,7 @@ class ChangePasswordView extends StatelessWidget {
                     ReactiveTextField(
                       key: const Key('RepeatPasswordField'),
                       state: c.repeatPassword,
-                      label: 'label_repeat_password'.l10n,
+                      label: 'label_confirm_password'.l10n,
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       hint: 'label_password_hint'.l10n,
                       obscure: c.obscureRepeatPassword.value,

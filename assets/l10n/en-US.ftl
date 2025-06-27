@@ -638,6 +638,7 @@ label_confirm = Confirm
 label_confirmation_code = Confirmation code
 label_confirm_account_deletion = Confirm account deletion
 label_confirm_email = Confirm e-mail
+label_confirm_password = Confirm password
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact_us_via_provided_email = Please, contact us by email {$email}.

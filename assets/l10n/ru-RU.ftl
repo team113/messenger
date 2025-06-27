@@ -659,6 +659,7 @@ label_confirm = Подтвердить
 label_confirmation_code = Код подтверждения
 label_confirm_account_deletion = Подтверждение удаления аккаунта
 label_confirm_email = Подтвердить e-mail
+label_confirm_password = Подтвердить пароль
 label_connection_lost = Связь с сервером потеряна
 label_connection_restored = Связь восстановлена
 label_contact_us_via_provided_email = Пожалуйста, свяжитесь с нами по эмейлу {$email}.
