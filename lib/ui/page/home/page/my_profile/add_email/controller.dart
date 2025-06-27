@@ -32,7 +32,7 @@ import '/util/message_popup.dart';
 export 'view.dart';
 
 /// Possible stages of a [AddEmailView] to be displayed.
-enum AddEmailPage { add, confirm }
+enum AddEmailPage { add, confirm, confirmed }
 
 /// Controller of a [AddEmailView].
 class AddEmailController extends GetxController {
@@ -48,9 +48,6 @@ class AddEmailController extends GetxController {
 
   /// [UserEmail] the [AddEmailView] is about.
   UserEmail? email;
-
-  /// Indicator whether [UserEmail] has been confirmed successfully.
-  final RxBool confirmed = RxBool(false);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -150,7 +147,7 @@ class AddEmailController extends GetxController {
               locale: L10n.chosen.value?.toString(),
             );
             s.clear();
-            confirmed.value = true;
+            page.value = AddEmailPage.confirmed;
           } on AddUserEmailException catch (e) {
             if (e.code == AddUserEmailErrorCode.occupied) {
               s.resubmitOnError.value = true;

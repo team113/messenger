@@ -64,120 +64,118 @@ class AddEmailView extends StatelessWidget {
         return Obx(() {
           final List<Widget> children;
 
-          if (!c.confirmed.value) {
-            switch (c.page.value) {
-              case AddEmailPage.add:
-                children = [
-                  const SizedBox(height: 12),
-                  ReactiveTextField(
-                    key: Key('EmailField'),
-                    state: c.emailField,
-                    label: 'label_email'.l10n,
-                    hint: 'example@domain.com',
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    style: style.fonts.normal.regular.onBackground,
-                    treatErrorAsStatus: false,
-                  ),
-                  const SizedBox(height: 25),
-                  Obx(() {
-                    return PrimaryButton(
-                      key: const Key('Proceed'),
-                      onPressed: c.emailField.isEmpty.value
-                          ? null
-                          : c.emailField.submit,
-                      leading: c.emailField.isEmpty.value
-                          ? const SvgIcon(SvgIcons.emailGrey)
-                          : const SvgIcon(SvgIcons.emailWhite),
-                      title: 'btn_add'.l10n,
-                    );
-                  }),
-                ];
-                break;
-
-              case AddEmailPage.confirm:
-                children = [
-                  ?switch (c.email) {
-                    UserEmail(:final val) => Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Text(
-                        val,
-                        textAlign: TextAlign.center,
-                        style: style.fonts.normal.regular.onBackground,
-                      ),
-                    ),
-                    null => null,
-                  },
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Obx(() {
-                      return Text(
-                        c.resent.value
-                            ? 'label_add_email_confirmation_sent_again'.l10n
-                            : 'label_add_email_confirmation_sent'.l10n,
-                        style: style.fonts.small.regular.secondary,
-                      );
-                    }),
-                  ),
-                  const SizedBox(height: 25),
-                  ReactiveTextField(
-                    key: const Key('ConfirmationCode'),
-                    state: c.code,
-                    label: 'label_confirmation_code'.l10n,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    hint: 'label_one_time_code_hint'.l10n,
-                    formatters: [FilteringTextInputFormatter.digitsOnly],
-                    type: TextInputType.number,
-                  ),
-                  const SizedBox(height: 25),
-                  Obx(() {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: PrimaryButton(
-                            key: const Key('Resend'),
-                            onPressed: c.resendEmailTimeout.value == 0
-                                ? c.resendEmail
-                                : null,
-                            title: c.resendEmailTimeout.value == 0
-                                ? 'label_resend'.l10n
-                                : 'label_resend_timeout'.l10nfmt({
-                                    'timeout': c.resendEmailTimeout.value,
-                                  }),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: PrimaryButton(
-                            key: const Key('Proceed'),
-                            onPressed: c.code.isEmpty.value
-                                ? null
-                                : c.code.submit,
-                            title: 'btn_confirm'.l10n,
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                ];
-                break;
-            }
-          } else {
-            children = [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  'label_email_confirmed'.l10n,
-                  textAlign: TextAlign.center,
-                  style: style.fonts.small.regular.secondary,
+          switch (c.page.value) {
+            case AddEmailPage.add:
+              children = [
+                const SizedBox(height: 12),
+                ReactiveTextField(
+                  key: Key('EmailField'),
+                  state: c.emailField,
+                  label: 'label_email'.l10n,
+                  hint: 'example@domain.com',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  style: style.fonts.normal.regular.onBackground,
+                  treatErrorAsStatus: false,
                 ),
-              ),
-              const SizedBox(height: 16),
-              PrimaryButton(
-                key: const Key('Proceed'),
-                onPressed: context.popModal,
-                title: 'btn_ok'.l10n,
-              ),
-            ];
+                const SizedBox(height: 25),
+                Obx(() {
+                  return PrimaryButton(
+                    key: const Key('Proceed'),
+                    onPressed: c.emailField.isEmpty.value
+                        ? null
+                        : c.emailField.submit,
+                    leading: c.emailField.isEmpty.value
+                        ? const SvgIcon(SvgIcons.emailGrey)
+                        : const SvgIcon(SvgIcons.emailWhite),
+                    title: 'btn_add'.l10n,
+                  );
+                }),
+              ];
+              break;
+
+            case AddEmailPage.confirm:
+              children = [
+                ?switch (c.email) {
+                  UserEmail(:final val) => Padding(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: Text(
+                      val,
+                      textAlign: TextAlign.center,
+                      style: style.fonts.normal.regular.onBackground,
+                    ),
+                  ),
+                  null => null,
+                },
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Obx(() {
+                    return Text(
+                      c.resent.value
+                          ? 'label_add_email_confirmation_sent_again'.l10n
+                          : 'label_add_email_confirmation_sent'.l10n,
+                      style: style.fonts.small.regular.secondary,
+                    );
+                  }),
+                ),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('ConfirmationCode'),
+                  state: c.code,
+                  label: 'label_confirmation_code'.l10n,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  hint: 'label_one_time_code_hint'.l10n,
+                  formatters: [FilteringTextInputFormatter.digitsOnly],
+                  type: TextInputType.number,
+                ),
+                const SizedBox(height: 25),
+                Obx(() {
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: PrimaryButton(
+                          key: const Key('Resend'),
+                          onPressed: c.resendEmailTimeout.value == 0
+                              ? c.resendEmail
+                              : null,
+                          title: c.resendEmailTimeout.value == 0
+                              ? 'label_resend'.l10n
+                              : 'label_resend_timeout'.l10nfmt({
+                                  'timeout': c.resendEmailTimeout.value,
+                                }),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: PrimaryButton(
+                          key: const Key('Proceed'),
+                          onPressed: c.code.isEmpty.value
+                              ? null
+                              : c.code.submit,
+                          title: 'btn_confirm'.l10n,
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+              ];
+              break;
+            case AddEmailPage.confirmed:
+              children = [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    'label_email_confirmed'.l10n,
+                    textAlign: TextAlign.center,
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                PrimaryButton(
+                  key: const Key('Proceed'),
+                  onPressed: context.popModal,
+                  title: 'btn_ok'.l10n,
+                ),
+              ];
           }
 
           return Column(
@@ -186,7 +184,8 @@ class AddEmailView extends StatelessWidget {
               ModalPopupHeader(
                 text: switch (c.page.value) {
                   AddEmailPage.add => 'label_add_email'.l10n,
-                  AddEmailPage.confirm => 'label_confirm_email'.l10n,
+                  AddEmailPage.confirm ||
+                  AddEmailPage.confirmed => 'label_confirm_email'.l10n,
                 },
               ),
               const SizedBox(height: 13),
