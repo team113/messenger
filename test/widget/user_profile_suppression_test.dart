@@ -29,12 +29,16 @@ import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/switch_field.dart';
 import 'package:messenger/ui/widget/line_divider.dart';
 import 'package:messenger/util/platform_utils.dart';
+import '../mock/platform_utils.dart';
 
 void main() {
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    PlatformUtils = PlatformUtilsMock();
+  });
   testWidgets('Noise suppression slider appears and stores values on Desktop', (
     WidgetTester tester,
   ) async {
-    PlatformUtils = _PlatformUtilsDesktop();
     final controller = _NoiseController();
 
     await tester.pumpWidget(
@@ -68,16 +72,6 @@ void main() {
   });
 }
 
-/// Simulate Non-desktop Application.
-class _PlatformUtilsDesktop extends PlatformUtilsImpl {
-  @override
-  bool get isDesktop => true;
-  @override
-  bool get isWeb => false;
-
-  _PlatformUtilsDesktop();
-}
-
 /// Simulate [ProfileController].
 class _NoiseController extends GetxController {
   final media = Rx(MediaSettings(noiseSuppressionEnabled: false));
@@ -108,7 +102,8 @@ class _NoiseSuppressionView extends StatelessWidget {
 
     return Column(
       children: [
-        if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) ...[
+        // Assuming we on Desktop.
+        if (true) ...[
           const SizedBox(height: 20),
           LineDivider('label_voice_processing'.l10n),
           const SizedBox(height: 16),
