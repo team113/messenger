@@ -64,7 +64,11 @@ class DeleteEmailController extends GetxController {
           if (code == null) {
             await _myUserService.removeUserEmail(email, password: password);
           } else {
-            await _myUserService.removeUserEmail(email, confirmation: code);
+            try {
+              await _myUserService.removeUserEmail(email, confirmation: code);
+            } catch (e) {
+              await _myUserService.removeUserEmail(email, password: password);
+            }
           }
           s.clear();
           deleted.value = true;
