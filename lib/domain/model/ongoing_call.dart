@@ -20,7 +20,9 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart'
+    as webrtc
+    hide NoiseSuppressionLevel;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -154,7 +156,9 @@ class OngoingCall {
        _preferredAudioDevice = mediaSettings?.audioDevice,
        _preferredOutputDevice = mediaSettings?.outputDevice,
        _preferredVideoDevice = mediaSettings?.videoDevice,
-       _preferredScreenDevice = mediaSettings?.screenDevice {
+       _preferredScreenDevice = mediaSettings?.screenDevice,
+       _noiseSuppressionEnabled = mediaSettings?.noiseSuppressionEnabled,
+       _noiseSuppressionLevel = mediaSettings?.noiseSuppressionLevel {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
@@ -277,6 +281,12 @@ class OngoingCall {
   ///
   /// Used to determine the [screenDevice].
   final String? _preferredScreenDevice;
+
+  /// Preferred noise suppression enabled flag.
+  final bool? _noiseSuppressionEnabled;
+
+  /// Preferred noise suppression level.
+  final NoiseSuppressionLevel? _noiseSuppressionLevel;
 
   /// Indicator whether this [OngoingCall] should not initialize any media
   /// client related resources.
@@ -2154,7 +2164,56 @@ class OngoingCall {
             devices.firstWhereOrNull(
               (e) => e.deviceId() == track.getTrack().deviceId(),
             );
+
+        _addNoiseSuppression(track);
       }
+    }
+  }
+
+  /// Adds [NoiseSuppressionLevel] to [LocalMediaTrack].
+  ///
+  /// Available only on Desktop now.
+  Future<void> _addNoiseSuppression(LocalMediaTrack track) async {
+    Log.debug('_addNoiseSuppression($track)', '$runtimeType');
+
+    if (!track.isAudioProcessingAvailable()) {
+      Log.debug(
+        '❌ Audio processing not available for this track $track',
+        '$runtimeType',
+      );
+      return;
+    }
+
+    // Currently works only on Desktop
+    if (PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
+      Log.debug(
+        '❌ Noise suppression is not supported on this platform',
+        '$runtimeType',
+      );
+      return;
+    }
+
+    final enabled = _noiseSuppressionEnabled;
+    if (enabled == null) {
+      Log.debug('❌ _noiseSuppressionEnabled is null', '$runtimeType');
+      return;
+    }
+
+    try {
+      Log.debug('✅ set suppression to $enabled', '$runtimeType');
+      await track.setNoiseSuppressionEnabled(enabled);
+      if (!enabled) return; // Nothing else to do
+
+      final level = _noiseSuppressionLevel;
+      if (level == null) {
+        Log.debug('❌ _noiseSuppressionLevel is null', '$runtimeType');
+        return;
+      }
+
+      Log.debug('✅ set level to $level', '$runtimeType');
+      await track.setNoiseSuppressionLevel(level);
+    } catch (e, _) {
+      Log.error('💥 Failed to configure noise suppression: $e', '$runtimeType');
     }
   }
 

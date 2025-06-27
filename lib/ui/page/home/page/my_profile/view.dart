@@ -24,6 +24,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -792,7 +793,126 @@ Widget _media(BuildContext context, MyProfileController c) {
           ),
         );
       }),
-      SizedBox(height: 8),
+
+      // Voice processing widget
+      Column(
+        children: [
+          if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) ...[
+            const SizedBox(height: 20),
+            LineDivider('label_voice_processing'.l10n),
+            const SizedBox(height: 16),
+            Obx(() {
+              // False by default
+              final isEnabled = c.media.value?.noiseSuppressionEnabled ?? false;
+
+              // Moderate by default (if enabled)
+              final level =
+                  c.media.value?.noiseSuppressionLevel ??
+                  NoiseSuppressionLevel.moderate;
+
+              // Values of NoiseSuppressionLevel
+              final values = NoiseSuppressionLevel.values;
+
+              // Percentage in slider
+              final percentage =
+                  (100 * (1 / (values.length - 1)) * values.indexOf(level));
+
+              return Column(
+                children: [
+                  SwitchField(
+                    text: 'label_noise_suppression'.l10n,
+                    value: isEnabled,
+                    onChanged: (enabled) {
+                      c.setNoiseSuppressionEnabled(enabled);
+                      if (enabled) {
+                        // set saved value or default one.
+                        c.setNoiseSuppressionLevelValue(level);
+                      }
+                    },
+                  ),
+                  if (isEnabled) ...[
+                    SizedBox(
+                      height: 70,
+                      child: Transform.translate(
+                        offset: Offset(0, 12),
+                        child: FlutterSlider(
+                          handlerHeight: 24,
+                          handler: FlutterSliderHandler(
+                            child: const SizedBox(),
+                          ),
+                          values: [percentage],
+                          tooltip: FlutterSliderTooltip(disabled: true),
+                          fixedValues: values.mapIndexed((i, e) {
+                            return FlutterSliderFixedValue(
+                              percent: ((i / (values.length - 1)) * 100)
+                                  .round(),
+                              value: e,
+                            );
+                          }).toList(),
+                          trackBar: FlutterSliderTrackBar(
+                            inactiveTrackBar: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: style.colors.onBackgroundOpacity13,
+                            ),
+                            activeTrackBar: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: style.colors.primaryHighlight,
+                            ),
+                          ),
+                          onDragCompleted: (i, lower, upper) {
+                            if (lower is NoiseSuppressionLevel) {
+                              c.setNoiseSuppressionLevelValue(lower);
+                            }
+                          },
+                          hatchMark: FlutterSliderHatchMark(
+                            labelsDistanceFromTrackBar: -48,
+                            labels: [
+                              FlutterSliderHatchMarkLabel(
+                                percent: 0,
+                                label: Text(
+                                  textAlign: TextAlign.center,
+                                  'label_low'.l10n,
+                                  style: style.fonts.smaller.regular.secondary,
+                                ),
+                              ),
+                              FlutterSliderHatchMarkLabel(
+                                percent: 33,
+                                label: Text(
+                                  textAlign: TextAlign.center,
+                                  'label_medium'.l10n,
+                                  style: style.fonts.smaller.regular.secondary,
+                                ),
+                              ),
+                              FlutterSliderHatchMarkLabel(
+                                percent: 66,
+                                label: Text(
+                                  textAlign: TextAlign.center,
+                                  'label_high'.l10n,
+                                  style: style.fonts.smaller.regular.secondary,
+                                ),
+                              ),
+                              FlutterSliderHatchMarkLabel(
+                                percent: 100,
+                                label: Text(
+                                  textAlign: TextAlign.center,
+                                  'label_very_high'.l10n,
+                                  style: style.fonts.smaller.regular.secondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                ],
+              );
+            }),
+          ] else
+            const SizedBox(height: 8),
+        ],
+      ),
     ],
   );
 }

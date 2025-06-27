@@ -14,7 +14,7 @@
 #include <hotkey_manager_windows/hotkey_manager_windows_plugin_c_api.h>
 #include <irondash_engine_context/irondash_engine_context_plugin_c_api.h>
 #include <medea_flutter_webrtc/medea_flutter_webrtc_plugin_c_api.h>
-#include <medea_jason/medea_jason_plugin.h>
+#include <medea_jason/medea_jason_plugin_c_api.h>
 #include <media_kit_libs_windows_video/media_kit_libs_windows_video_plugin_c_api.h>
 #include <media_kit_video/media_kit_video_plugin_c_api.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
@@ -47,8 +47,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("IrondashEngineContextPluginCApi"));
   MedeaFlutterWebrtcPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("MedeaFlutterWebrtcPluginCApi"));
-  MedeaJasonPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("MedeaJasonPlugin"));
+  MedeaJasonPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("MedeaJasonPluginCApi"));
   MediaKitLibsWindowsVideoPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("MediaKitLibsWindowsVideoPluginCApi"));
   MediaKitVideoPluginCApiRegisterWithRegistrar(
