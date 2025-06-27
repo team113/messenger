@@ -65,7 +65,7 @@ class ChangePasswordView extends StatelessWidget {
                           c.stage.value == ChangePasswordFlowStage.set
                               ? 'label_password_set'.l10n
                               : 'label_password_changed'.l10n,
-                          style: style.fonts.normal.regular.secondary,
+                          style: style.fonts.small.regular.secondary,
                         ),
                       ),
                     ),

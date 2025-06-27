@@ -114,7 +114,7 @@ class AddEmailView extends StatelessWidget {
                         c.resent.value
                             ? 'label_add_email_confirmation_sent_again'.l10n
                             : 'label_add_email_confirmation_sent'.l10n,
-                        style: style.fonts.normal.regular.secondary,
+                        style: style.fonts.small.regular.secondary,
                       );
                     }),
                   ),
@@ -168,7 +168,7 @@ class AddEmailView extends StatelessWidget {
                 child: Text(
                   'label_email_confirmed'.l10n,
                   textAlign: TextAlign.center,
-                  style: style.fonts.normal.regular.secondary,
+                  style: style.fonts.small.regular.secondary,
                 ),
               ),
               const SizedBox(height: 16),

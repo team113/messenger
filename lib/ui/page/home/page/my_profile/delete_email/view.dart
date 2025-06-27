@@ -72,7 +72,7 @@ class DeleteEmailView extends StatelessWidget {
                         c.myUser.value?.hasPassword != false
                             ? 'label_enter_one_time_code'.l10n
                             : 'label_enter_password_or_one_time_code'.l10n,
-                        style: style.fonts.normal.regular.secondary,
+                        style: style.fonts.small.regular.secondary,
                       ),
                       const SizedBox(height: 24),
                       Obx(() {
@@ -139,7 +139,7 @@ class DeleteEmailView extends StatelessWidget {
                         child: Text(
                           'label_email_deleted'.l10n,
                           textAlign: TextAlign.center,
-                          style: style.fonts.normal.regular.secondary,
+                          style: style.fonts.small.regular.secondary,
                         ),
                       ),
                       const SizedBox(height: 16),
