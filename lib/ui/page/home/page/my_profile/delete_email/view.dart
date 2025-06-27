@@ -90,6 +90,7 @@ class DeleteEmailView extends StatelessWidget {
                           label: c.myUser.value?.hasPassword != false
                               ? 'label_one_time_code'.l10n
                               : 'label_password_or_one_time_code'.l10n,
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
                           hint: c.myUser.value?.hasPassword != false
                               ? 'label_one_time_code_hint'.l10n
                               : 'label_enter_password_or_code'.l10n,

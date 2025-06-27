@@ -123,6 +123,7 @@ class AddEmailView extends StatelessWidget {
                     key: const Key('ConfirmationCode'),
                     state: c.code,
                     label: 'label_confirmation_code'.l10n,
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
                     hint: 'label_one_time_code_hint'.l10n,
                     formatters: [FilteringTextInputFormatter.digitsOnly],
                     type: TextInputType.number,
