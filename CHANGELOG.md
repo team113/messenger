@@ -27,6 +27,8 @@ All user visible changes to this project will be documented in this file. This p
         - Scroll back button not scrolling chat to its true bottom. ([#1302])
     - Auth page:
         - Inability to proceed to recover access with username not being empty. ([#1285])
+- Web:
+    - Web application install button incorrectly stating that [Progressive Web Application (PWA)](PWA) is already installed. ([#1303])
 
 [#1263]: /../../issue/1263
 [#1268]: /../../issue/1268
@@ -35,6 +37,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1291]: /../../pull/1291
 [#1294]: /../../pull/1294
 [#1302]: /../../pull/1302
+[#1303]: /../../pull/1303
 
 
 
