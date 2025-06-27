@@ -905,7 +905,8 @@ label_requirements_ui_ux_developer =
     - Confident knowledge of Figma;
     - Ability to provide high-quality audio and video communication.
 label_resend = Resend
-label_resend_timeout = Resend ({$timeout})
+label_resend_timeout = Resend
+    ({$timeout})
 label_review = Review
 label_review_freelance =
     - a completed task should pass the review of the code;

@@ -928,7 +928,8 @@ label_requirements_ui_ux_developer =
     - уверенное владение Figma;
     - возможность обеспечить качественную аудио и видеосвязь.
 label_resend = Отправить код
-label_resend_timeout = Повторить ({$timeout})
+label_resend_timeout = Повторить
+    ({$timeout})
 label_review = Ревью
 label_review_freelance =
     - выполненная задача должна пройти ревью кода;
