@@ -19,9 +19,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show SelectedContent;
+import 'package:flutter/rendering.dart'
+    show SelectWordSelectionEvent, SelectedContent;
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -516,18 +518,21 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 Flexible(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                    child: SelectionText.rich(
-                      TextSpan(
-                        children: [
-                          if (text != null) text,
-                          // TODO: Use transparent [MessageTimestamp]:
-                          //       https://github.com/flutter/flutter/issues/124787
-                          const WidgetSpan(child: SizedBox(width: 95)),
-                        ],
+                    child: DoubleTapTextSelector(
+                      onSelectionChanged: (a) => _selection = a,
+                      child: SelectionText.rich(
+                        TextSpan(
+                          children: [
+                            if (text != null) text,
+                            // TODO: Use transparent [MessageTimestamp]:
+                            //       https://github.com/flutter/flutter/issues/124787
+                            const WidgetSpan(child: SizedBox(width: 95)),
+                          ],
+                        ),
+                        selectable: PlatformUtils.isDesktop || menu,
+                        onChanged: (a) => _selection = a,
+                        style: style.fonts.medium.regular.onBackground,
                       ),
-                      selectable: PlatformUtils.isDesktop || menu,
-                      onChanged: (a) => _selection = a,
-                      style: style.fonts.medium.regular.onBackground,
                     ),
                   ),
                 ),
@@ -1333,5 +1338,82 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       widget.onDragging?.call(false);
       setState(() {});
     }
+  }
+}
+
+/// Fixes double tap text selection on widgets inside [SelectionArea]
+/// that have [GestureRecognizer] parent widgets
+class DoubleTapTextSelector extends StatelessWidget {
+  const DoubleTapTextSelector({
+    super.key,
+    required this.onSelectionChanged,
+    required this.child,
+  });
+
+  final void Function(SelectedContent?) onSelectionChanged;
+  final Widget child;
+
+  static bool _isPrecisePointerDevice(PointerDeviceKind pointerDeviceKind) {
+    switch (pointerDeviceKind) {
+      case PointerDeviceKind.mouse:
+        return true;
+      case PointerDeviceKind.trackpad:
+      case PointerDeviceKind.stylus:
+      case PointerDeviceKind.invertedStylus:
+      case PointerDeviceKind.touch:
+      case PointerDeviceKind.unknown:
+        return false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selectionDelegate = context
+        .findAncestorWidgetOfExactType<SelectionContainer>()
+        ?.delegate;
+
+    final selectionOverlay = context
+        .findAncestorStateOfType<SelectableRegionState>()
+        // ignore: invalid_use_of_visible_for_testing_member
+        ?.selectionOverlay;
+
+    /// Selects a whole word at the `offset` location.
+    ///
+    /// The `offset` is in global coordinates.
+    ///
+    /// If the whole word is already in the current selection, selection won't
+    /// change.
+    void selectWordAt({required Offset offset}) {
+      selectionDelegate?.dispatchSelectionEvent(
+        SelectWordSelectionEvent(globalPosition: offset),
+      );
+      onSelectionChanged(selectionDelegate?.getSelectedContent());
+    }
+
+    return GestureDetector(
+      onDoubleTapDown: (details) {
+        switch (defaultTargetPlatform) {
+          case TargetPlatform.iOS:
+            if (kIsWeb &&
+                details.kind != null &&
+                !_isPrecisePointerDevice(details.kind!)) {
+              // Double tap on iOS web triggers when a drag begins after the double tap.
+              break;
+            }
+            selectWordAt(offset: details.globalPosition);
+            if (details.kind != null &&
+                !_isPrecisePointerDevice(details.kind!)) {
+              selectionOverlay?.showHandles();
+            }
+          case TargetPlatform.android:
+          case TargetPlatform.fuchsia:
+          case TargetPlatform.macOS:
+          case TargetPlatform.linux:
+          case TargetPlatform.windows:
+            selectWordAt(offset: details.globalPosition);
+        }
+      },
+      child: child,
+    );
   }
 }
