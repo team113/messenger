@@ -565,6 +565,7 @@ class ChatController extends GetxController {
         elements.clear();
         _fragment!.items.values.forEach(_add);
         _subscribeFor(fragment: _fragment);
+        _updateFabStates();
 
         status.value = RxStatus.success();
       }
@@ -967,6 +968,8 @@ class ChatController extends GetxController {
                 var result = _calculateListViewIndex();
                 initIndex = result.index;
                 initOffset = result.offset;
+
+                Future.delayed(Duration(milliseconds: 500), _updateFabStates);
               }
             }
           });
@@ -1034,6 +1037,7 @@ class ChatController extends GetxController {
       }
 
       SchedulerBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(Duration(milliseconds: 500), _updateFabStates);
         _ensureScrollable();
       });
 
@@ -1144,6 +1148,8 @@ class ChatController extends GetxController {
       if (addToHistory && item != null) {
         this.addToHistory(item);
       }
+
+      _updateFabStates();
     } else {
       if (original != null) {
         final ListElementId elementId = ListElementId(original.at, original.id);
@@ -1175,6 +1181,8 @@ class ChatController extends GetxController {
               curve: Curves.ease,
             );
             _ignorePositionChanges = false;
+
+            _updateFabStates();
           });
         } else {
           if (_bottomLoader == null) {
@@ -1192,6 +1200,8 @@ class ChatController extends GetxController {
               curve: Curves.ease,
             );
             _ignorePositionChanges = false;
+
+            _updateFabStates();
           });
         }
       }
@@ -1245,6 +1255,8 @@ class ChatController extends GetxController {
           elements.remove(_bottomLoader?.id);
           _topLoader = null;
           _bottomLoader = null;
+
+          _updateFabStates();
         });
       }
     }
@@ -1265,6 +1277,12 @@ class ChatController extends GetxController {
       await animateTo(item.id, item: item, addToHistory: false);
       _updateFabStates();
     } else if (chat?.messages.isEmpty == false && listController.hasClients) {
+      if (chat?.hasNext.value != false) {
+        if (chat?.lastItem != null) {
+          return animateTo(chat!.lastItem!.id, item: chat!.lastItem);
+        }
+      }
+
       canGoDown.value = false;
 
       _itemToReturnTo = _topVisibleItem;
