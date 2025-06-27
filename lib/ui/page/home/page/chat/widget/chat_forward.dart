@@ -518,7 +518,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 Flexible(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                    child: DoubleTapTextSelector(
+                    child: _DoubleTapTextSelector(
                       onSelectionChanged: (a) => _selection = a,
                       child: SelectionText.rich(
                         TextSpan(
@@ -1341,18 +1341,23 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   }
 }
 
-/// Fixes double tap text selection on widgets inside [SelectionArea]
-/// that have [GestureRecognizer] parent widgets
-class DoubleTapTextSelector extends StatelessWidget {
-  const DoubleTapTextSelector({
-    super.key,
+/// A widget that fixes double tap text selection on widgets inside
+/// [SelectionArea] that have [GestureRecognizer] parent widgets.
+class _DoubleTapTextSelector extends StatelessWidget {
+  const _DoubleTapTextSelector({
     required this.onSelectionChanged,
     required this.child,
   });
 
+  /// Callback, called when the [SelectedContent] changes.
   final void Function(SelectedContent?) onSelectionChanged;
+
+  /// The widget below this widget in the tree.
+  ///
+  /// {@macro flutter.widgets.ProxyWidget.child}
   final Widget child;
 
+  /// Returns `true` if given [pointerDeviceKind] is precise.
   static bool _isPrecisePointerDevice(PointerDeviceKind pointerDeviceKind) {
     switch (pointerDeviceKind) {
       case PointerDeviceKind.mouse:
@@ -1397,7 +1402,8 @@ class DoubleTapTextSelector extends StatelessWidget {
             if (kIsWeb &&
                 details.kind != null &&
                 !_isPrecisePointerDevice(details.kind!)) {
-              // Double tap on iOS web triggers when a drag begins after the double tap.
+              // Double tap on iOS web triggers when
+              // a drag begins after the double tap.
               break;
             }
             selectWordAt(offset: details.globalPosition);
