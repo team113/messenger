@@ -212,8 +212,7 @@ class _NoiseSuppressionView extends StatelessWidget {
               ],
             );
           }),
-        ] else
-          const SizedBox(height: 8),
+        ],
       ],
     );
   }

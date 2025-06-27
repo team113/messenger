@@ -29,9 +29,11 @@ All user visible changes to this project will be documented in this file. This p
         - Inability to proceed to recover access with username not being empty. ([#1285])
 
 [#1263]: /../../issue/1263
+[#1264]: /../../issue/1264
 [#1268]: /../../issue/1268
 [#1280]: /../../pull/1280
 [#1285]: /../../pull/1285
+[#1285]: /../../pull/1287
 [#1291]: /../../pull/1291
 [#1294]: /../../pull/1294
 [#1302]: /../../pull/1302
