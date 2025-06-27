@@ -870,6 +870,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                               FlutterSliderHatchMarkLabel(
                                 percent: 0,
                                 label: Text(
+                                  textAlign: TextAlign.center,
                                   'label_low'.l10n,
                                   style: style.fonts.smaller.regular.secondary,
                                 ),
@@ -877,6 +878,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                               FlutterSliderHatchMarkLabel(
                                 percent: 33,
                                 label: Text(
+                                  textAlign: TextAlign.center,
                                   'label_medium'.l10n,
                                   style: style.fonts.smaller.regular.secondary,
                                 ),
@@ -884,6 +886,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                               FlutterSliderHatchMarkLabel(
                                 percent: 66,
                                 label: Text(
+                                  textAlign: TextAlign.center,
                                   'label_high'.l10n,
                                   style: style.fonts.smaller.regular.secondary,
                                 ),
@@ -891,6 +894,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                               FlutterSliderHatchMarkLabel(
                                 percent: 100,
                                 label: Text(
+                                  textAlign: TextAlign.center,
                                   'label_very_high'.l10n,
                                   style: style.fonts.smaller.regular.secondary,
                                 ),
