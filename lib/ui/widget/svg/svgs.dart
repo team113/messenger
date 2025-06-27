@@ -1993,6 +1993,12 @@ class SvgIcons {
     height: 20,
   );
 
+  static const SvgData passwordGrey = SvgData(
+    'assets/icons/password_grey.svg',
+    width: 18,
+    height: 20,
+  );
+
   static const SvgData downloadArrow = SvgData(
     'assets/icons/download_arrow.svg',
     width: 19,

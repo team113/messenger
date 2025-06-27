@@ -33,10 +33,12 @@ Feature: User email
     And I wait until `ConfirmationCode` is present
     And I fill `ConfirmationCode` field with "1234"
     And I tap `Proceed` button
+    And I tap `CloseButton` button
     Then I wait until `ConfirmedEmail_0` is present
 
     When I tap `DeleteEmail_0` button
     And I tap `Proceed` button
     And I fill `PasswordField` field with "123"
     And I tap `Proceed` button
+    And I tap `CloseButton` button
     Then I wait until `ConfirmedEmail_0` is absent
