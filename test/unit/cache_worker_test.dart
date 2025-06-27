@@ -130,4 +130,26 @@ void main() async {
     await worker.clear();
     await cacheProvider.clear();
   });
+
+  test('CacheWorker updatex max size according to slider', () async {
+    final CacheWorker worker = CacheWorker(cacheProvider, null);
+    await worker.onInit();
+
+    void applySlider(double value) {
+      if (value == 64 * GB) {
+        CacheWorker.instance.setMaxSize(null);
+      } else {
+        CacheWorker.instance.setMaxSize(value.round());
+      }
+    }
+
+    applySlider(4.0 * GB);
+    expect(worker.info.value.maxSize, 4 * GB);
+
+    applySlider(64.0 * GB);
+    expect(worker.info.value.maxSize, null);
+
+    await worker.clear();
+    await cacheProvider.clear();
+  });
 }
