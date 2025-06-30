@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.1...v0.6.0) | [Milestone](/../../milestone/41)
 
+### Added
+
+- UI:
+    - Profile page:
+        - Added settings for noise suppression. ([#1287], [#1264])
+
 ### Changed
 
 - UI:
