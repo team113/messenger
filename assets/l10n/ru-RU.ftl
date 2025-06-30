@@ -581,7 +581,6 @@ label_audio_call = Аудиозвонок{$by ->
         [x]{""}
         *[other] {" "}от {$by}
     }
-label_audio_notifications = Звуковые уведомления
 label_avatar_removed = {$author} удалил аватар
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}удалил аватар
@@ -776,7 +775,6 @@ label_key_plus_key_by_default = {$modifier} + {$key} (по умолчанию)
 label_language = Язык
 label_language_and_background = Язык, бэкграунд, ...
 label_language_entry = {$code}, {$name}
-label_last_seen = Был(а) в сети
 label_latest_version_is_installed = Установлена последняя версия
 label_leave_group = Покинуть группу
 label_legal_information = Юридическая информация
@@ -804,7 +802,7 @@ label_money_freelance =
     - оплата осуществляется криптовалютой USDT (TRC-20).
 label_monolog_created = Чат создан
 label_mute_or_unmute_chats = Выключить или включить уведомления
-label_mute_slash_unmute = Включить/выключить микрофон
+label_mute_slash_unmute_microphone = Включить/выключить микрофон
 label_muted = Выключен звук
 label_muted_chats = Заглушённые чаты
 label_muted_until_i_turn_on = Выключено пока я не включу
@@ -829,7 +827,6 @@ label_nothing_found = Ничего не найдено
 label_notifications = Уведомления
 label_num = Gapopa ID
 label_occupied_space = Занято
-label_off = Выкл
 label_offline = офлайн
 label_one_time_code = Одноразовый код
 label_online = онлайн

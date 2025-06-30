@@ -1,1 +1,4 @@
+- Redesigned message delete popups.
+- Updated actions list on user page.
+- Updated default order of call buttons in dock.
 - Bug fixes and performance improvements.
