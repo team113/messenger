@@ -101,8 +101,8 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.28
   sqlite3: ^2.4.4
   stdlibc: ^0.1.4
-  super_clipboard: ^0.9.0-dev.3
-  super_drag_and_drop: ^0.9.0-dev.3
+  super_clipboard: ^0.9.1
+  super_drag_and_drop: ^0.9.1
   toml: ^0.16.0
   universal_io: ^2.2.2
   url_launcher: ^6.1.12
