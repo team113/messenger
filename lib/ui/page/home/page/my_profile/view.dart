@@ -826,6 +826,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 children: [
                   SwitchField(
                     text: 'label_noise_suppression'.l10n,
+                    key: Key('NoiseSuppressionSwitch'),
                     value: isEnabled,
                     onChanged: (enabled) {
                       c.setNoiseSuppressionEnabled(enabled);
@@ -841,6 +842,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                       child: Transform.translate(
                         offset: Offset(0, 12),
                         child: FlutterSlider(
+                          key: Key('NoiseSuppressionSlider'),
                           handlerHeight: 24,
                           handler: FlutterSliderHandler(
                             child: const SizedBox(),
