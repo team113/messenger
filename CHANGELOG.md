@@ -19,7 +19,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Default order of call buttons in dock. ([#1294], [#1263])
     - User page:
-        - Redesigned actions. ([#1282], [#1250])
+        - Redesigned description and actions. ([#1310], [#1282], [#1250])
 
 ### Fixed
 
