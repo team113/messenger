@@ -159,11 +159,16 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
   final ProfileTab tab = ProfileTab.values[i];
 
   // Builds a [Block] wrapped with [Obx] to highlight it.
-  Widget block({String? title, required List<Widget> children}) {
+  Widget block({
+    String? title,
+    required List<Widget> children,
+    bool clipHeight = false,
+  }) {
     return Obx(() {
       return Block(
         title: title ?? tab.l10n,
         highlight: c.highlightIndex.value == i,
+        clipHeight: clipHeight,
         children: children,
       );
     });
@@ -324,7 +329,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         return const SizedBox();
       }
 
-      return block(children: [_media(context, c)]);
+      return block(clipHeight: true, children: [_media(context, c)]);
 
     case ProfileTab.welcome:
       return Obx(() {
