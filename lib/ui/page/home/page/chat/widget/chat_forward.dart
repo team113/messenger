@@ -197,6 +197,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Indicator whether [Offset] during horizontal dragging.
   bool _offsetWasBigger = false;
 
+  /// [ChatMessageQuote] of last clicked or hovered [ChatForward] message.
+  ///
+  /// Becomes [null] when user clicks on any place other than a [ChatForward]
+  /// message.
+  ChatMessageQuote? _copyableQuote;
+
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
   /// [User].
   bool get _isRead {
@@ -518,20 +524,47 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 Flexible(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                    child: _DoubleTapTextSelector(
-                      onSelectionChanged: (a) => _selection = a,
-                      child: SelectionText.rich(
-                        TextSpan(
-                          children: [
-                            if (text != null) text,
-                            // TODO: Use transparent [MessageTimestamp]:
-                            //       https://github.com/flutter/flutter/issues/124787
-                            const WidgetSpan(child: SizedBox(width: 95)),
-                          ],
+                    child: TapRegion(
+                      onTapInside: (event) {
+                        if (event.buttons & kSecondaryButton != 0) {
+                          if (forward.value case ChatForward(
+                            quote: final ChatMessageQuote quote,
+                          )) {
+                            _copyableQuote = quote;
+                          }
+                        }
+                      },
+                      onTapUpOutside: (event) {
+                        if (forward.value case ChatForward(
+                          quote: final ChatMessageQuote quote,
+                        )) {
+                          // Workaround to reset [_copyableQuote] after
+                          // menu button action
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            // Check for situation when user clicks outside
+                            // forwarded message but not the one selected
+                            // in [onTapInside]
+                            if (_copyableQuote == quote) {
+                              _copyableQuote = null;
+                            }
+                          });
+                        }
+                      },
+                      child: _DoubleTapTextSelector(
+                        onSelectionChanged: (a) => _selection = a,
+                        child: SelectionText.rich(
+                          TextSpan(
+                            children: [
+                              if (text != null) text,
+                              // TODO: Use transparent [MessageTimestamp]:
+                              //       https://github.com/flutter/flutter/issues/124787
+                              const WidgetSpan(child: SizedBox(width: 95)),
+                            ],
+                          ),
+                          selectable: PlatformUtils.isDesktop || menu,
+                          onChanged: (a) => _selection = a,
+                          style: style.fonts.medium.regular.onBackground,
                         ),
-                        selectable: PlatformUtils.isDesktop || menu,
-                        onChanged: (a) => _selection = a,
-                        style: style.fonts.medium.regular.onBackground,
                       ),
                     ),
                   ),
@@ -848,9 +881,19 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     final ChatItem? item = widget.note.value?.value;
 
-    String? copyable;
+    final String? copyable;
     if (item is ChatMessage) {
       copyable = item.text?.val;
+    } else {
+      final StringBuffer buffer = StringBuffer();
+      for (var i = 0; i < widget.forwards.length; i++) {
+        if (widget.forwards[i].value case ChatForward(
+          quote: ChatMessageQuote(:final text),
+        )) {
+          buffer.writeln(text);
+        }
+      }
+      copyable = buffer.toString();
     }
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
@@ -1000,7 +1043,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             trailing: const SvgIcon(SvgIcons.copy19),
                             inverted: const SvgIcon(SvgIcons.copy19White),
                             onPressed: () => widget.onCopy?.call(
-                              _selection?.plainText ?? copyable!,
+                              _selection?.plainText ??
+                                  _copyableQuote?.text?.val ??
+                                  copyable!,
                             ),
                           ),
                         ContextMenuButton(
