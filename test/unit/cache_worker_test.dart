@@ -131,7 +131,7 @@ void main() async {
     await cacheProvider.clear();
   });
 
-  test('CacheWorker updatex max size according to slider', () async {
+  test('CacheWorker updates max size according to slider', () async {
     final CacheWorker worker = CacheWorker(cacheProvider, null);
     await worker.onInit();
 

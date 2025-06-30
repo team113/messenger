@@ -30,13 +30,11 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1263]: /../../issue/1263
 [#1268]: /../../issue/1268
-[#1292]: /../../issue/1292
 [#1280]: /../../pull/1280
 [#1285]: /../../pull/1285
 [#1291]: /../../pull/1291
 [#1294]: /../../pull/1294
 [#1302]: /../../pull/1302
-[#1305]: /../../pull/1305
 
 
 
