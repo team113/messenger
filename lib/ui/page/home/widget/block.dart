@@ -217,7 +217,8 @@ class _BottomEdgeClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     const double maxFinite = double.maxFinite;
-    return Path()..addRect(Rect.fromLTRB(-maxFinite, 0, maxFinite, size.height));
+    return Path()
+      ..addRect(Rect.fromLTRB(-maxFinite, 0, maxFinite, size.height));
   }
 
   @override
