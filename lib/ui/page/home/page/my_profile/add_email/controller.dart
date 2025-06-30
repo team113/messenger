@@ -32,7 +32,7 @@ import '/util/message_popup.dart';
 export 'view.dart';
 
 /// Possible stages of a [AddEmailView] to be displayed.
-enum AddEmailPage { add, confirm, confirmed }
+enum AddEmailPage { add, confirm, success }
 
 /// Controller of a [AddEmailView].
 class AddEmailController extends GetxController {
@@ -147,7 +147,7 @@ class AddEmailController extends GetxController {
               locale: L10n.chosen.value?.toString(),
             );
             s.clear();
-            page.value = AddEmailPage.confirmed;
+            page.value = AddEmailPage.success;
           } on AddUserEmailException catch (e) {
             if (e.code == AddUserEmailErrorCode.occupied) {
               s.resubmitOnError.value = true;

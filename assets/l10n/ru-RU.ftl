@@ -656,10 +656,10 @@ label_conditions_ui_ux_designer =
     - учёт рабочего времени и оплата переработок.
 label_confidentiality = Конфиденциальность
 label_confirm = Подтвердить
-label_confirmation_code = Код подтверждения
 label_confirm_account_deletion = Подтверждение удаления аккаунта
 label_confirm_email = Подтвердить e-mail
 label_confirm_password = Подтвердить пароль
+label_confirmation_code = Код подтверждения
 label_connection_lost = Связь с сервером потеряна
 label_connection_restored = Связь восстановлена
 label_contact_us_via_provided_email = Пожалуйста, свяжитесь с нами по эмейлу {$email}.
@@ -707,10 +707,10 @@ label_edit = Редактировать
 label_email = E-mail
 label_email_confirmed = E-mail был подтверждён
 label_email_deleted = E-mail был удалён
+label_email_example = example@gmail.com
 label_email_or_phone_not_set = E-mail или номер телефона не задан. Восстановление доступа к аккаунту невозможно.
 label_email_or_phone_not_set1 = Не задан e-mail.{" "}
 label_email_or_phone_not_set2 = Восстановление доступа к аккаунту невозможно.
-label_email_example = example@gmail.com
 label_enter_one_time_code = Введите одноразовый код. Одноразовый код был отправлен на ваш адрес электронной почты. Если вы не получили письма, проверьте папку со спамом или введенные данные.
 label_enter_password_below = Пожалуйста, введите Ваш пароль в поле ниже.
 label_enter_password_or_code = Введите пароль или код
@@ -928,7 +928,8 @@ label_requirements_ui_ux_developer =
     - уверенное владение Figma;
     - возможность обеспечить качественную аудио и видеосвязь.
 label_resend = Отправить код
-label_resend_timeout = Повторить
+label_resend_timeout =
+    Повторить
     ({$timeout})
 label_review = Ревью
 label_review_freelance =

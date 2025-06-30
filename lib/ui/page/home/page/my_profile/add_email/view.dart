@@ -25,7 +25,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
-import '/ui/widget/svg/svgs.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -159,7 +159,8 @@ class AddEmailView extends StatelessWidget {
                 }),
               ];
               break;
-            case AddEmailPage.confirmed:
+
+            case AddEmailPage.success:
               children = [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -185,7 +186,7 @@ class AddEmailView extends StatelessWidget {
                 text: switch (c.page.value) {
                   AddEmailPage.add => 'label_add_email'.l10n,
                   AddEmailPage.confirm ||
-                  AddEmailPage.confirmed => 'label_confirm_email'.l10n,
+                  AddEmailPage.success => 'label_confirm_email'.l10n,
                 },
               ),
               const SizedBox(height: 13),

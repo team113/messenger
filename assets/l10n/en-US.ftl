@@ -635,10 +635,10 @@ label_conditions_ui_ux_designer =
     - Relocation possible to one of the company offices.
 label_confidentiality = Confidentiality
 label_confirm = Confirm
-label_confirmation_code = Confirmation code
 label_confirm_account_deletion = Confirm account deletion
 label_confirm_email = Confirm e-mail
 label_confirm_password = Confirm password
+label_confirmation_code = Confirmation code
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact_us_via_provided_email = Please, contact us by email {$email}.
@@ -685,10 +685,10 @@ label_edit = Edit
 label_email = E-mail
 label_email_confirmed = E-mail has been confirmed
 label_email_deleted = E-mail has been deleted
+label_email_example = example@gmail.com
 label_email_or_phone_not_set = E-mail or phone number is not set. Access to the account will be lost.
 label_email_or_phone_not_set1 = No e-mail is linked.{" "}
 label_email_or_phone_not_set2 = Access to the account cannot be restored.
-label_email_example = example@gmail.com
 label_enter_one_time_code = Enter your one-time code. One-time code has been sent to your e-mails. If you did not receive e-mails, check your spam folder or data entered.
 label_enter_password_below = Please, enter your password in the field below.
 label_enter_password_or_code = Enter password or code
@@ -905,7 +905,8 @@ label_requirements_ui_ux_developer =
     - Confident knowledge of Figma;
     - Ability to provide high-quality audio and video communication.
 label_resend = Resend
-label_resend_timeout = Resend
+label_resend_timeout =
+    Resend
     ({$timeout})
 label_review = Review
 label_review_freelance =
