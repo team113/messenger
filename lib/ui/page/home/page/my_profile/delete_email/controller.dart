@@ -31,6 +31,9 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
+/// Possible stages of a [DeleteEmailView] to be displayed.
+enum DeleteEmailPage { delete, success }
+
 /// Controller of a [DeleteEmailView].
 class DeleteEmailController extends GetxController {
   DeleteEmailController(
@@ -42,8 +45,8 @@ class DeleteEmailController extends GetxController {
   /// [UserEmail] the [DeleteEmailView] is about.
   final UserEmail email;
 
-  /// Indicator whether [UserEmail] has been deleted successfully.
-  final RxBool deleted = RxBool(false);
+  /// Current [DeleteEmailPage] displayed.
+  final Rx<DeleteEmailPage> page = Rx(DeleteEmailPage.delete);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -71,7 +74,7 @@ class DeleteEmailController extends GetxController {
             }
           }
           s.clear();
-          deleted.value = true;
+          page.value = DeleteEmailPage.success;
         } on RemoveUserEmailException catch (e) {
           s.error.value = e.toMessage();
         } catch (e) {
