@@ -1533,15 +1533,6 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 color: style.colors.primaryHighlight,
               ),
             ),
-            onDragging: (i, lower, upper) {
-              if (lower is double) {
-                if (lower == 64.0 * GB) {
-                  CacheWorker.instance.setMaxSize(null);
-                } else {
-                  CacheWorker.instance.setMaxSize(lower.round());
-                }
-              }
-            },
             onDragCompleted: (i, lower, upper) {
               if (lower is double) {
                 if (lower == 64.0 * GB) {
