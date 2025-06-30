@@ -23,6 +23,8 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
+- Android:
+    - Black screen stuck when opening application. ([#1308])
 - UI:
     - Chat page:
         - Screenshots made to clipboard not pasted as attachments. ([#1280])
@@ -39,9 +41,10 @@ All user visible changes to this project will be documented in this file. This p
 [#1285]: /../../pull/1285
 [#1291]: /../../pull/1291
 [#1294]: /../../pull/1294
+[#1296]: /../../pull/1296
 [#1302]: /../../pull/1302
 [#1303]: /../../pull/1303
-[#1296]: /../../pull/1296
+[#1308]: /../../pull/1308
 
 
 
