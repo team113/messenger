@@ -372,7 +372,14 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
-  PlatformUtils = PlatformUtilsMock();
+  print('[${DateTime.now()}] PlatformUtils now: ${PlatformUtils.runtimeType}');
+  if (PlatformUtils.runtimeType is PlatformUtilsImpl) {
+    PlatformUtils = PlatformUtilsMock();
+    print(
+      '[${DateTime.now()}] PlatformUtils now: ${PlatformUtils.runtimeType}',
+    );
+  }
+
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 
