@@ -32,6 +32,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/performance.dart';
+import 'hook/platform_override.dart';
 import 'hook/reset_app.dart';
 import 'mock/geo.dart';
 import 'mock/graphql.dart';
@@ -324,6 +325,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ]
       ..hooks = [
         ResetAppHook(),
+        PlatformOverrideHook(),
 
         // [IntegrationTestWidgetsFlutterBinding.traceAction] being used is only
         // supported on Dart VM platforms.
