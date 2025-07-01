@@ -28,6 +28,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show RemoveUserEmailException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
+import '/api/backend/schema.dart';
 
 export 'view.dart';
 
@@ -69,8 +70,12 @@ class DeleteEmailController extends GetxController {
           } else {
             try {
               await _myUserService.removeUserEmail(email, confirmation: code);
-            } catch (e) {
-              await _myUserService.removeUserEmail(email, password: password);
+            } on RemoveUserEmailException catch (e) {
+              if (e.code == RemoveUserEmailErrorCode.wrongCode) {
+                await _myUserService.removeUserEmail(email, password: password);
+              } else {
+                rethrow;
+              }
             }
           }
           s.clear();
