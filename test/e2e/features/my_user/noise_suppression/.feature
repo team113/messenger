@@ -16,7 +16,8 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 Feature: User enables noise suppression
-  
+
+  @desktop
   Scenario: Alice enables noise suppression
     Given I am Alice
     And I wait until `HomeView` is present
@@ -29,4 +30,3 @@ Feature: User enables noise suppression
     When I scroll `MyProfileScrollable` until `NoiseSuppressionSwitch` is present
     And I tap `NoiseSuppressionSwitch` button
     Then I wait until `NoiseSuppressionSlider` is present
-
