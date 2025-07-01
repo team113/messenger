@@ -329,7 +329,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         return const SizedBox();
       }
 
-      print('PLATFORM UTILS: ${PlatformUtils.isDesktop} + ${PlatformUtils.isWeb}');
+      print('PLATFORM UTILS: ${PlatformUtils.isDesktop} && ${!PlatformUtils.isWeb}');
 
       return block(clipHeight: true, children: [_media(context, c)]);
 

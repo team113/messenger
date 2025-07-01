@@ -325,6 +325,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ]
       ..hooks = [
         ResetAppHook(),
+        // Hook related to platform overriding.
         PlatformOverrideHook(),
 
         // [IntegrationTestWidgetsFlutterBinding.traceAction] being used is only
@@ -372,11 +373,12 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
-  print('[${DateTime.now()}] PlatformUtils now: ${PlatformUtils.runtimeType}');
+  print('[${DateTime.now()}] 1. appInitializationFn: PlatformUtils now: ${PlatformUtils.runtimeType}');
   if (PlatformUtils.runtimeType is PlatformUtilsImpl) {
+    print('[${DateTime.now()}] 2. appInitializationFn: PlatformUtils now: ${PlatformUtils.runtimeType}');
     PlatformUtils = PlatformUtilsMock();
     print(
-      '[${DateTime.now()}] PlatformUtils now: ${PlatformUtils.runtimeType}',
+      '[${DateTime.now()}] 3. appInitializationFn: PlatformUtils now: ${PlatformUtils.runtimeType}',
     );
   }
 

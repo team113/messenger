@@ -15,28 +15,56 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:ui';
+
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:messenger/util/web/web.dart';
 
 import '../mock/platform_utils.dart';
 
-/// Mocked [PlatformUtilsImpl] to use platform as Desktop.
-class _FakePlatformUtils extends PlatformUtilsMock {
-  _FakePlatformUtils({
-    required this.isWeb,
-    required this.isDesktop,
-    required this.isMobile,
-  });
+/// Mocked [PlatformUtilsImpl] to use platform as Desktop on Web.
+///
+/// * Forces desktop code path (`isDesktop == true`)
+/// * Never calls plugins such as `WindowManager`
+class _FakeDesktopUtils extends PlatformUtilsMock {
+  @override
+  bool get isWeb => false;
+  @override
+  bool get isDesktop => true;
 
+  /// Returns Web version of isFocused.
   @override
-  final bool isWeb;
+  Future<bool> get isFocused async => WebUtils.isFocused;
+
+  /// Returns Web version of focusChanged.
   @override
-  final bool isDesktop;
+  Stream<bool> get onFocusChanged => WebUtils.onFocusChanged;
+
+  /// Returns Web version of onFullscreenChange.
   @override
-  final bool isMobile;
+  Stream<bool> get onFullscreenChange => WebUtils.onFullscreenChange;
+
+  /// Calls Web version of enterFullscreen
+  @override
+  Future<void> enterFullscreen() async {
+    WebUtils.toggleFullscreen(true);
+  }
+
+  // Calls Web version of exitFullscreen
+  @override
+  Future<void> exitFullscreen() async {
+    WebUtils.toggleFullscreen(false);
+  }
+
+  /// Returns empty stream to not trigger [WindowManager].
+  @override
+  Stream<Offset> get onMoved => const Stream.empty();
 }
 
-/// [Hook] overriding platform by tags for test.
+/// [Hook] overriding platform for test.
+///
+/// Uses tags to identify platform.
 class PlatformOverrideHook extends Hook {
   @override
   int get priority => 2;
@@ -58,14 +86,10 @@ class PlatformOverrideHook extends Hook {
     Iterable<Tag> tags,
   ) async {
     if (_hasDesktopTag(tags)) {
-      _saved = PlatformUtils;
-      print('[${DateTime.now()}] PlatformUtils now: ${PlatformUtils.runtimeType}');
-      PlatformUtils = _FakePlatformUtils(
-        isWeb: false,
-        isMobile: false,
-        isDesktop: true,
-      );
-      print('[${DateTime.now()}] PlatformUtils now: ${PlatformUtils.runtimeType}');
+      _saved = PlatformUtilsMock();
+      print('[${DateTime.now()}] 1. onBefore: PlatformUtils now: ${PlatformUtils.runtimeType}');
+      PlatformUtils = _FakeDesktopUtils();
+      print('[${DateTime.now()}] 2. onBefore: PlatformUtils now: ${PlatformUtils.runtimeType}');
     }
     return super.onBeforeScenario(config, scenario, tags);
   }
@@ -77,8 +101,13 @@ class PlatformOverrideHook extends Hook {
     Iterable<Tag> tags,
   ) {
     if (_hasDesktopTag(tags)) {
+      print(
+        '[${DateTime.now()}] 1. onAfterScenario: PlatformUtils now: ${PlatformUtils.runtimeType}',
+      );
       PlatformUtils = _saved;
-      print('[${DateTime.now()}] PlatformUtils now: ${PlatformUtils.runtimeType}');
+      print(
+        '[${DateTime.now()}] 2. onAfterScenario: PlatformUtils now: ${PlatformUtils.runtimeType}',
+      );
     }
     return super.onAfterScenario(config, scenario, tags);
   }
