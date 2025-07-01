@@ -123,6 +123,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           ReactiveTextField(
             state: _state,
             hint: _generated,
+            floatingAccent: true,
             label: Config.link,
             floatingLabelBehavior: FloatingLabelBehavior.always,
           ),

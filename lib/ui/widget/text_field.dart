@@ -69,6 +69,7 @@ class ReactiveTextField extends StatelessWidget {
     this.subtitle,
     this.clearable = true,
     this.selectable,
+    this.floatingAccent = false,
   });
 
   /// [ReactiveTextField] with trailing copy button.
@@ -198,6 +199,9 @@ class ReactiveTextField extends StatelessWidget {
   /// Indicator whether text within this [ReactiveTextField] should be
   /// selectable.
   final bool? selectable;
+
+  /// Indicator whether the style of floating [label] should have accent.
+  final bool floatingAccent;
 
   @override
   Widget build(BuildContext context) {
@@ -329,6 +333,11 @@ class ReactiveTextField extends StatelessWidget {
           ? decoration.floatingLabelStyle?.copyWith(color: style.colors.danger)
           : state.isFocused.value
           ? decoration.floatingLabelStyle?.copyWith(color: style.colors.primary)
+          : floatingAccent
+          ? decoration.floatingLabelStyle?.copyWith(
+              fontSize: style.fonts.big.regular.onBackground.fontSize,
+              color: style.colors.onBackground,
+            )
           : decoration.floatingLabelStyle;
 
       return Theme(
