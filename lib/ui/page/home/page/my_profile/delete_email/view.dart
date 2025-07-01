@@ -70,8 +70,8 @@ class DeleteEmailView extends StatelessWidget {
                   ),
                   Text(
                     c.myUser.value?.hasPassword != false
-                        ? 'label_enter_one_time_code'.l10n
-                        : 'label_enter_password_or_one_time_code'.l10n,
+                        ? 'label_enter_password_or_one_time_code'.l10n
+                        : 'label_enter_one_time_code'.l10n,
                     style: style.fonts.small.regular.secondary,
                   ),
                   const SizedBox(height: 24),
@@ -88,12 +88,12 @@ class DeleteEmailView extends StatelessWidget {
                             : SvgIcons.visibleOn,
                       ),
                       label: c.myUser.value?.hasPassword != false
-                          ? 'label_one_time_code'.l10n
-                          : 'label_password_or_one_time_code'.l10n,
+                          ? 'label_password_or_one_time_code'.l10n
+                          : 'label_one_time_code'.l10n,
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       hint: c.myUser.value?.hasPassword != false
-                          ? 'label_one_time_code_hint'.l10n
-                          : 'label_enter_password_or_code'.l10n,
+                          ? 'label_enter_password_or_code'.l10n
+                          : 'label_one_time_code_hint'.l10n,
                     );
                   }),
                   const SizedBox(height: 25),
