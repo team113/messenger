@@ -28,6 +28,7 @@ import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/cache_info.dart';
@@ -55,7 +56,6 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
-import '/ui/page/home/widget/presence_label.dart';
 import '/ui/page/login/privacy_policy/view.dart';
 import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -412,6 +412,8 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
 Widget _profile(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
+  final presence = c.myUser.value?.presence ?? Presence.present;
+
   return Block(
     title: 'label_profile'.l10n,
     children: [
@@ -448,7 +450,26 @@ Widget _profile(BuildContext context, MyProfileController c) {
         },
         child: Row(
           children: [
-            Expanded(child: PresenceLabel(presence: c.myUser.value?.presence)),
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: switch (presence) {
+                  Presence.present => style.colors.acceptAuxiliary,
+                  Presence.away => style.colors.warning,
+                  (_) => style.colors.secondary,
+                },
+              ),
+              width: 8,
+              height: 8,
+            ),
+            SizedBox(width: 5),
+            Expanded(
+              child: Text(switch (presence) {
+                Presence.present => 'label_presence_present'.l10n,
+                Presence.away => 'label_presence_away'.l10n,
+                (_) => '',
+              }, textAlign: TextAlign.left),
+            ),
             Text('btn_change'.l10n, style: style.fonts.medium.regular.primary),
             SizedBox(width: 5),
           ],
@@ -761,10 +782,10 @@ Widget _media(BuildContext context, MyProfileController c) {
 
         return FieldButton(
           headline: Text(
-            'label_mute_slash_unmute'.l10n,
+            'label_mute_slash_unmute_microphone'.l10n,
             style: c.hotKeyRecording.value
-                ? style.fonts.big.regular.primary
-                : style.fonts.big.regular.secondary,
+                ? style.fonts.normal.regular.primary
+                : style.fonts.normal.regular.secondary,
           ),
           onPressed: c.toggleHotKey,
           border: c.hotKeyRecording.value
@@ -1549,7 +1570,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 FlutterSliderHatchMarkLabel(
                   percent: 0,
                   label: Text(
-                    'label_off'.l10n,
+                    'label_count_gb'.l10nfmt({'count': 0}),
                     style: style.fonts.smaller.regular.secondary,
                   ),
                 ),
