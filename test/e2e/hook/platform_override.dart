@@ -22,12 +22,13 @@ import 'package:messenger/util/platform_utils.dart';
 import 'package:messenger/util/web/web.dart';
 
 import '../mock/platform_utils.dart';
+import '../mock/window_manager_stub.dart';
 
 /// Mocked [PlatformUtilsImpl] to use platform as Desktop on Web.
 ///
 /// * Forces desktop code path (`isDesktop == true`)
 /// * Never calls plugins such as `WindowManager`
-class _FakeDesktopUtils extends PlatformUtilsMock {
+class _FakeDesktopPlatformUtils extends PlatformUtilsMock {
   @override
   bool get isWeb => false;
   @override
@@ -86,9 +87,10 @@ class PlatformOverrideHook extends Hook {
     Iterable<Tag> tags,
   ) async {
     if (_hasDesktopTag(tags)) {
+      registerWindowManagerStub();
       _saved = PlatformUtilsMock();
       print('[${DateTime.now()}] 1. onBefore: PlatformUtils now: ${PlatformUtils.runtimeType}');
-      PlatformUtils = _FakeDesktopUtils();
+      PlatformUtils = _FakeDesktopPlatformUtils();
       print('[${DateTime.now()}] 2. onBefore: PlatformUtils now: ${PlatformUtils.runtimeType}');
     }
     return super.onBeforeScenario(config, scenario, tags);
