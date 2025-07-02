@@ -631,8 +631,8 @@ Widget _password(BuildContext context, MyProfileController c) {
           onPressed: () => ChangePasswordView.show(context),
           warning: true,
           trailing: c.myUser.value?.hasPassword == true
-              ? const SvgIcon(SvgIcons.passwordSmall)
-              : const SvgIcon(SvgIcons.passwordSmallWhite),
+              ? const SvgIcon(SvgIcons.password)
+              : const SvgIcon(SvgIcons.passwordWhite),
         );
       }),
       const SizedBox(height: 10),
@@ -1658,28 +1658,32 @@ Future<void> _deleteEmail(
 }) async {
   final style = Theme.of(context).style;
 
+  final bool hasPasswordOrEmail =
+      c.myUser.value?.emails.confirmed.isNotEmpty == true ||
+      c.myUser.value?.hasPassword == true;
+
+  if (confirmed && hasPasswordOrEmail) {
+    await DeleteEmailView.show(context, email: email);
+  }
+
   final bool? result = await MessagePopup.alert(
     'label_delete_email'.l10n,
     description: [
-      TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
-      TextSpan(text: email.val, style: style.fonts.normal.regular.onBackground),
-      TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
+      TextSpan(
+        text: 'alert_email_will_be_deleted1'.l10n,
+        style: style.fonts.small.regular.secondary,
+      ),
+      TextSpan(text: email.val, style: style.fonts.small.regular.onBackground),
+      TextSpan(
+        text: 'alert_email_will_be_deleted2'.l10n,
+        style: style.fonts.small.regular.secondary,
+      ),
     ],
+    button: MessagePopup.deleteButton,
   );
 
   if (result == true) {
-    if (context.mounted) {
-      if (confirmed) {
-        if (c.myUser.value?.emails.confirmed.isNotEmpty == true ||
-            c.myUser.value?.hasPassword == true) {
-          await DeleteEmailView.show(context, email: email);
-        } else {
-          await c.deleteEmail(email);
-        }
-      } else {
-        await c.deleteEmail(email);
-      }
-    }
+    await c.deleteEmail(email);
   }
 }
 

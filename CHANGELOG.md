@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.6.0] · 2025-??-??
+[0.6.0]: /../../tree/v0.6.0
+
+[Diff](/../../compare/v0.5.2...v0.6.0) | [Milestone](/../../milestone/42)
+
+### Changed
+
+- UI:
+    - Profile page:
+        - Redesigned email and password popups. ([#1296], [#1293])
+
+[#1293]: /../../issue/1293
+[#1296]: /../../pull/1296
+
+
+
+
 ## [0.5.2] · 2025-07-01
 [0.5.2]: /../../tree/v0.5.2
 
