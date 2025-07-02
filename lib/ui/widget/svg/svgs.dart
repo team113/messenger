@@ -194,8 +194,8 @@ class SvgIcons {
 
   static const SvgData password = SvgData(
     'assets/icons/password.svg',
-    width: 19,
-    height: 21,
+    width: 18,
+    height: 20,
   );
 
   static const SvgData passwordSmall = SvgData(
@@ -1923,8 +1923,8 @@ class SvgIcons {
 
   static const SvgData emailWhite = SvgData(
     'assets/icons/email_white.svg',
-    width: 21.93,
-    height: 22.5,
+    width: 20,
+    height: 20,
   );
 
   static const SvgData emailGrey = SvgData(
@@ -1989,6 +1989,12 @@ class SvgIcons {
 
   static const SvgData passwordWhite = SvgData(
     'assets/icons/password_white.svg',
+    width: 18,
+    height: 20,
+  );
+
+  static const SvgData passwordGrey = SvgData(
+    'assets/icons/password_grey.svg',
     width: 18,
     height: 20,
   );

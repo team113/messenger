@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -31,27 +32,28 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
+/// Possible stages of a [DeleteEmailView] to be displayed.
+enum DeleteEmailPage { delete, success }
+
 /// Controller of a [DeleteEmailView].
 class DeleteEmailController extends GetxController {
   DeleteEmailController(
     this._myUserService,
     this._authService, {
     required this.email,
-    this.pop,
   });
 
   /// [UserEmail] the [DeleteEmailView] is about.
   final UserEmail email;
 
-  /// Callback, called when a [DeleteEmailView] this controller is bound to
-  /// should be popped from the [Navigator].
-  final void Function()? pop;
+  /// Current [DeleteEmailPage] displayed.
+  final Rx<DeleteEmailPage> page = Rx(DeleteEmailPage.delete);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
   /// [TextFieldState] of the [UserPassword] input.
-  late final TextFieldState password = TextFieldState(
+  late final TextFieldState passwordOrCode = TextFieldState(
     onChanged: (s) => s.error.value = null,
     onSubmitted: (s) async {
       final password = UserPassword.tryParse(s.text);
@@ -62,9 +64,33 @@ class DeleteEmailController extends GetxController {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
         try {
-          await _myUserService.removeUserEmail(email, password: password);
-          pop?.call();
+          final code = ConfirmationCode.tryParse(s.text);
+
+          // If text in the field is not even parsed as [ConfirmationCode], then
+          // it is certainly a [UserPassword].
+          if (code == null) {
+            await _myUserService.removeUserEmail(email, password: password);
+          } else {
+            // Otherwise first try the parsed [ConfirmationCode].
+            try {
+              await _myUserService.removeUserEmail(email, confirmation: code);
+            } on RemoveUserEmailException catch (e) {
+              switch (e.code) {
+                // If wrong, then perhaps it may be a password instead?
+                case RemoveUserEmailErrorCode.wrongCode:
+                  await _myUserService.removeUserEmail(
+                    email,
+                    password: password,
+                  );
+                  break;
+
+                default:
+                  rethrow;
+              }
+            }
+          }
           s.clear();
+          page.value = DeleteEmailPage.success;
         } on RemoveUserEmailException catch (e) {
           s.error.value = e.toMessage();
         } catch (e) {
@@ -80,38 +106,8 @@ class DeleteEmailController extends GetxController {
     },
   );
 
-  /// Indicator whether the [password] should be obscured.
-  final RxBool obscurePassword = RxBool(true);
-
-  /// [TextFieldState] of the [UserPassword] input.
-  late final TextFieldState code = TextFieldState(
-    onChanged: (s) => s.error.value = null,
-    onSubmitted: (s) async {
-      final code = ConfirmationCode.tryParse(s.text);
-
-      if (code == null) {
-        s.error.value = 'err_wrong_recovery_code'.l10n;
-      } else {
-        s.editable.value = false;
-        s.status.value = RxStatus.loading();
-        try {
-          await _myUserService.removeUserEmail(email, confirmation: code);
-          pop?.call();
-          s.clear();
-        } on RemoveUserEmailException catch (e) {
-          s.error.value = e.toMessage();
-        } catch (e) {
-          s.resubmitOnError.value = true;
-          s.error.value = 'err_data_transfer'.l10n;
-          s.unsubmit();
-          rethrow;
-        } finally {
-          s.editable.value = true;
-          s.status.value = RxStatus.empty();
-        }
-      }
-    },
-  );
+  /// Indicator whether the [passwordOrCode] should be obscured.
+  final RxBool obscurePasswordOrCode = RxBool(true);
 
   /// Indicator whether [UserEmail] confirmation code has been resent.
   final RxBool resent = RxBool(false);
@@ -133,10 +129,7 @@ class DeleteEmailController extends GetxController {
 
   @override
   void onInit() {
-    if (myUser.value?.hasPassword == false) {
-      sendConfirmationCode();
-    }
-
+    sendConfirmationCode();
     super.onInit();
   }
 
@@ -150,13 +143,15 @@ class DeleteEmailController extends GetxController {
   /// Sends a [ConfirmationCode] to the [email].
   Future<void> sendConfirmationCode() async {
     try {
+      _setResendEmailTimer(true);
+
       await _authService.createConfirmationCode(
         email: email,
         locale: L10n.chosen.value?.toString(),
       );
       resent.value = true;
-      _setResendEmailTimer(true);
     } catch (e) {
+      _setResendEmailTimer(false);
       MessagePopup.error(e);
       rethrow;
     }

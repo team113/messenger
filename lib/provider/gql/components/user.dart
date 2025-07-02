@@ -744,6 +744,20 @@ mixin UserGraphQlMixin {
       variables: variables.toJson(),
     );
 
+    if (confirmation != null) {
+      final QueryResult result = await client.mutate(
+        query,
+        onException: (data) => AddUserEmailException(
+          (AddUserEmail$Mutation.fromJson(data).addUserEmail
+                  as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
+              .code,
+        ),
+      );
+
+      return (AddUserEmail$Mutation.fromJson(result.data!).addUserEmail
+          as MyUserEventsVersionedMixin?);
+    }
+
     final request = query.asRequest;
     final body = const RequestSerializer().serializeRequest(request);
     final encodedBody = json.encode(body);

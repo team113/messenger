@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -25,7 +26,6 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
@@ -51,121 +51,137 @@ class DeleteEmailView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: DeleteEmailController(
-        Get.find(),
-        Get.find(),
-        email: email,
-        pop: context.popModal,
-      ),
+      init: DeleteEmailController(Get.find(), Get.find(), email: email),
       builder: (DeleteEmailController c) {
-        final List<Widget> children;
+        return Obx(() {
+          final List<Widget> children;
 
-        if (c.myUser.value?.hasPassword == false) {
-          children = [
-            const SizedBox(height: 12),
-            Text(
-              'label_add_email_confirmation_sent_to'.l10nfmt({
-                'email': '${c.myUser.value?.emails.confirmed.firstOrNull}',
-              }),
-              style: style.fonts.normal.regular.onBackground,
-            ),
-            const SizedBox(height: 16),
-            Obx(() {
-              return Text(
-                c.resendEmailTimeout.value == 0
-                    ? 'label_did_not_receive_code'.l10n
-                    : 'label_code_sent_again'.l10n,
-                style: style.fonts.normal.regular.onBackground,
-              );
-            }),
-            Obx(() {
-              final bool enabled = c.resendEmailTimeout.value == 0;
+          switch (c.page.value) {
+            case DeleteEmailPage.delete:
+              final bool hasPassword = c.myUser.value?.hasPassword != false;
 
-              return WidgetButton(
-                onPressed: enabled ? c.sendConfirmationCode : null,
-                child: Text(
-                  enabled
-                      ? 'btn_resend_code'.l10n
-                      : 'label_wait_seconds'.l10nfmt({
-                          'for': c.resendEmailTimeout.value,
-                        }),
-                  style: enabled
-                      ? style.fonts.normal.regular.primary
-                      : style.fonts.normal.regular.onBackground,
+              children = [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Text(
+                    c.email.val,
+                    textAlign: TextAlign.center,
+                    style: style.fonts.normal.regular.onBackground,
+                  ),
                 ),
-              );
-            }),
-            const SizedBox(height: 16),
-            ReactiveTextField(state: c.code, hint: 'label_one_time_code'.l10n),
-            const SizedBox(height: 25),
-            PrimaryButton(
-              key: const Key('Proceed'),
-              onPressed: c.code.submit,
-              title: 'btn_proceed'.l10n,
-            ),
-            const SizedBox(height: 16),
-          ];
-        } else {
-          children = [
-            const SizedBox(height: 12),
-            Text(
-              'label_enter_password_below'.l10n,
-              style: style.fonts.normal.regular.secondary,
-            ),
-            const SizedBox(height: 12),
-            Obx(() {
-              return ReactiveTextField(
-                key: const Key('PasswordField'),
-                state: c.password,
-                obscure: c.obscurePassword.value,
-                onSuffixPressed: c.obscurePassword.toggle,
-                treatErrorAsStatus: false,
-                trailing: SvgIcon(
-                  c.obscurePassword.value
-                      ? SvgIcons.visibleOff
-                      : SvgIcons.visibleOn,
+                Text(
+                  hasPassword
+                      ? 'label_enter_password_or_one_time_code'.l10n
+                      : 'label_enter_one_time_code'.l10n,
+                  style: style.fonts.small.regular.secondary,
                 ),
-                hint: 'label_password'.l10n,
-              );
-            }),
-            const SizedBox(height: 25),
-            Obx(() {
-              final bool enabled =
-                  !c.password.isEmpty.value && c.password.error.value == null;
+                const SizedBox(height: 24),
+                Obx(() {
+                  return ReactiveTextField(
+                    key: const Key('PasswordField'),
+                    state: c.passwordOrCode,
+                    obscure: c.obscurePasswordOrCode.value,
+                    onSuffixPressed: c.obscurePasswordOrCode.toggle,
+                    treatErrorAsStatus: false,
+                    trailing: SvgIcon(
+                      c.obscurePasswordOrCode.value
+                          ? SvgIcons.visibleOff
+                          : SvgIcons.visibleOn,
+                    ),
+                    label: hasPassword
+                        ? 'label_password_or_one_time_code'.l10n
+                        : 'label_one_time_code'.l10n,
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    hint: hasPassword
+                        ? 'label_enter_password_or_code'.l10n
+                        : 'label_one_time_code_hint'.l10n,
+                  );
+                }),
+                const SizedBox(height: 25),
+                Obx(() {
+                  final bool enabled =
+                      !c.passwordOrCode.isEmpty.value &&
+                      c.passwordOrCode.error.value == null;
 
-              return PrimaryButton(
-                key: const Key('Proceed'),
-                onPressed: enabled ? c.password.submit : null,
-                title: 'btn_proceed'.l10n,
-              );
-            }),
-            const SizedBox(height: 16),
-          ];
-        }
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: PrimaryButton(
+                          key: const Key('Resend'),
+                          onPressed: c.resendEmailTimeout.value == 0
+                              ? c.sendConfirmationCode
+                              : null,
+                          title: c.resendEmailTimeout.value == 0
+                              ? 'label_resend'.l10n
+                              : 'label_resend_timeout'.l10nfmt({
+                                  'timeout': c.resendEmailTimeout.value,
+                                }),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: PrimaryButton(
+                          key: const Key('Proceed'),
+                          danger: true,
+                          title: 'btn_delete'.l10n,
+                          onPressed: enabled ? c.passwordOrCode.submit : null,
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+                const SizedBox(height: 16),
+              ];
+              break;
 
-        final Widget child = Scrollbar(
-          controller: c.scrollController,
-          child: ListView(
-            controller: c.scrollController,
-            shrinkWrap: true,
-            children: children,
-          ),
-        );
+            case DeleteEmailPage.success:
+              children = [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    'label_email_deleted'.l10n,
+                    textAlign: TextAlign.center,
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                PrimaryButton(
+                  key: const Key('Proceed'),
+                  onPressed: context.popModal,
+                  title: 'btn_ok'.l10n,
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+          }
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 4),
-            ModalPopupHeader(text: 'label_delete_email'.l10n),
-            const SizedBox(height: 13),
-            Flexible(
-              child: Padding(
-                padding: ModalPopup.padding(context),
-                child: child,
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 4),
+              ModalPopupHeader(text: 'label_delete_email'.l10n),
+              const SizedBox(height: 13),
+              Flexible(
+                child: Padding(
+                  padding: ModalPopup.padding(context),
+                  child: Scrollbar(
+                    controller: c.scrollController,
+                    child: AnimatedSizeAndFade(
+                      sizeDuration: const Duration(milliseconds: 250),
+                      fadeDuration: const Duration(milliseconds: 250),
+                      child: ListView(
+                        key: Key(c.page.value.name),
+                        controller: c.scrollController,
+                        shrinkWrap: true,
+                        children: children,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
-        );
+            ],
+          );
+        });
       },
     );
   }
