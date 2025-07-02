@@ -180,16 +180,19 @@ class AddEmailController extends GetxController {
   /// Resends a [ConfirmationCode] to the unconfirmed email of the authenticated
   /// [MyUser].
   Future<void> resendEmail() async {
+    resent.value = true;
+    _setResendEmailTimer(true);
+
     try {
       await _myUserService.addUserEmail(
         email!,
         locale: L10n.chosen.value?.toString(),
       );
-      resent.value = true;
-      _setResendEmailTimer(true);
     } on AddUserEmailException catch (e) {
       code.error.value = e.toMessage();
+      _setResendEmailTimer(false);
     } catch (e) {
+      _setResendEmailTimer(false);
       MessagePopup.error(e);
       rethrow;
     }

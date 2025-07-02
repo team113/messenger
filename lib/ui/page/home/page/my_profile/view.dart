@@ -631,8 +631,8 @@ Widget _password(BuildContext context, MyProfileController c) {
           onPressed: () => ChangePasswordView.show(context),
           warning: true,
           trailing: c.myUser.value?.hasPassword == true
-              ? const SvgIcon(SvgIcons.passwordSmall)
-              : const SvgIcon(SvgIcons.passwordSmallWhite),
+              ? const SvgIcon(SvgIcons.password)
+              : const SvgIcon(SvgIcons.passwordWhite),
         );
       }),
       const SizedBox(height: 10),

@@ -62,6 +62,14 @@ class AddEmailView extends StatelessWidget {
       init: AddEmailController(Get.find(), email: email, timeout: timeout),
       builder: (AddEmailController c) {
         return Obx(() {
+          final Widget header = ModalPopupHeader(
+            text: switch (c.page.value) {
+              AddEmailPage.add => 'label_add_email'.l10n,
+              AddEmailPage.confirm ||
+              AddEmailPage.success => 'label_confirm_email'.l10n,
+            },
+          );
+
           final List<Widget> children = switch (c.page.value) {
             AddEmailPage.add => [
               const SizedBox(height: 12),
@@ -116,7 +124,7 @@ class AddEmailView extends StatelessWidget {
               ReactiveTextField(
                 key: const Key('ConfirmationCode'),
                 state: c.code,
-                label: 'label_confirmation_code'.l10n,
+                label: 'label_one_time_code'.l10n,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 hint: 'label_one_time_code_hint'.l10n,
                 formatters: [FilteringTextInputFormatter.digitsOnly],
@@ -124,12 +132,14 @@ class AddEmailView extends StatelessWidget {
               ),
               const SizedBox(height: 25),
               Obx(() {
+                final bool enabled = c.code.status.value.isEmpty;
+
                 return Row(
                   children: [
                     Expanded(
                       child: PrimaryButton(
                         key: const Key('Resend'),
-                        onPressed: c.resendEmailTimeout.value == 0
+                        onPressed: c.resendEmailTimeout.value == 0 && enabled
                             ? c.resendEmail
                             : null,
                         title: c.resendEmailTimeout.value == 0
@@ -143,7 +153,9 @@ class AddEmailView extends StatelessWidget {
                     Expanded(
                       child: PrimaryButton(
                         key: const Key('Proceed'),
-                        onPressed: c.code.isEmpty.value ? null : c.code.submit,
+                        onPressed: c.code.isEmpty.value || !enabled
+                            ? null
+                            : c.code.submit,
                         title: 'btn_confirm'.l10n,
                       ),
                     ),
@@ -161,7 +173,7 @@ class AddEmailView extends StatelessWidget {
                   style: style.fonts.small.regular.secondary,
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               PrimaryButton(
                 key: const Key('Proceed'),
                 onPressed: context.popModal,
@@ -173,13 +185,7 @@ class AddEmailView extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ModalPopupHeader(
-                text: switch (c.page.value) {
-                  AddEmailPage.add => 'label_add_email'.l10n,
-                  AddEmailPage.confirm ||
-                  AddEmailPage.success => 'label_confirm_email'.l10n,
-                },
-              ),
+              header,
               const SizedBox(height: 13),
               Flexible(
                 child: Padding(

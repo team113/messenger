@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -28,7 +29,6 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show RemoveUserEmailException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-import '/api/backend/schema.dart';
 
 export 'view.dart';
 
@@ -65,16 +65,27 @@ class DeleteEmailController extends GetxController {
         s.status.value = RxStatus.loading();
         try {
           final code = ConfirmationCode.tryParse(s.text);
+
+          // If text in the field is not even parsed as [ConfirmationCode], then
+          // it is certainly a [UserPassword].
           if (code == null) {
             await _myUserService.removeUserEmail(email, password: password);
           } else {
+            // Otherwise first try the parsed [ConfirmationCode].
             try {
               await _myUserService.removeUserEmail(email, confirmation: code);
             } on RemoveUserEmailException catch (e) {
-              if (e.code == RemoveUserEmailErrorCode.wrongCode) {
-                await _myUserService.removeUserEmail(email, password: password);
-              } else {
-                rethrow;
+              switch (e.code) {
+                // If wrong, then perhaps it may be a password instead?
+                case RemoveUserEmailErrorCode.wrongCode:
+                  await _myUserService.removeUserEmail(
+                    email,
+                    password: password,
+                  );
+                  break;
+
+                default:
+                  rethrow;
               }
             }
           }
@@ -132,13 +143,15 @@ class DeleteEmailController extends GetxController {
   /// Sends a [ConfirmationCode] to the [email].
   Future<void> sendConfirmationCode() async {
     try {
+      _setResendEmailTimer(true);
+
       await _authService.createConfirmationCode(
         email: email,
         locale: L10n.chosen.value?.toString(),
       );
       resent.value = true;
-      _setResendEmailTimer(true);
     } catch (e) {
+      _setResendEmailTimer(false);
       MessagePopup.error(e);
       rethrow;
     }
