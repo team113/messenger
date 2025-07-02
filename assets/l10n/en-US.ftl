@@ -560,7 +560,6 @@ label_audio_call = Audio call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
     }
-label_audio_notifications = Audio notifications
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}removed avatar
@@ -757,7 +756,6 @@ label_key_plus_key_by_default = {$modifier} + {$key} (by default)
 label_language = Language
 label_language_and_background = Language, background, ...
 label_language_entry = {$code}, {$name}
-label_last_seen = Last seen
 label_latest_version_is_installed = Latest version is installed
 label_leave_group = Leave group
 label_legal_information = Legal information
@@ -785,7 +783,7 @@ label_money_freelance =
     - the payment is made with cryptocurrency USDT (TRC-20).
 label_monolog_created = Chat created
 label_mute_or_unmute_chats = Mute or unmute chats
-label_mute_slash_unmute = Mute/unmute
+label_mute_slash_unmute_microphone = Mute/unmute microphone
 label_muted = Muted
 label_muted_chats = Muted chats
 label_muted_until_i_turn_on = Muted until I turn it on
@@ -810,7 +808,6 @@ label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
 label_occupied_space = Occupied
-label_off = Off
 label_offline = offline
 label_one_time_code = One-time code
 label_one_time_code_hint = Enter code

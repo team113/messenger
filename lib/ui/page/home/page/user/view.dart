@@ -20,7 +20,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -32,7 +34,6 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
-import '/ui/page/home/widget/presence_label.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/line_divider.dart';
 import '/ui/widget/obscured_selection_area.dart';
@@ -175,7 +176,7 @@ class UserView extends StatelessWidget {
             children: children,
           );
         }),
-        const SizedBox(height: 8),
+        const SizedBox(height: 1),
         Obx(() {
           final String? subtitle = c.user?.user.value.getSubtitle();
 
@@ -183,13 +184,53 @@ class UserView extends StatelessWidget {
             return const SizedBox();
           }
 
+          bool isOnline = false;
+          bool isAway = false;
+
+          switch (c.user!.user.value.presence) {
+            case Presence.present:
+              isOnline = c.user!.user.value.online;
+              break;
+
+            case Presence.away:
+              isAway = c.user!.user.value.online;
+              break;
+
+            case null || Presence.artemisUnknown:
+              // No-op.
+              break;
+          }
+
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              PresenceLabel(
-                key: Key(c.user?.user.value.presence?.name.capitalized ?? ''),
-                presence: c.user?.user.value.presence,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isOnline || isAway)
+                    Transform.translate(
+                      offset: Offset(0, 0.5),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isAway
+                              ? style.colors.warning
+                              : style.colors.acceptAuxiliary,
+                          shape: BoxShape.circle,
+                        ),
+                        width: 10,
+                        height: 10,
+                      ),
+                    ),
+                  const SizedBox(width: 3),
+                  Text(
+                    key: Key(
+                      c.user?.user.value.presence?.name.capitalized ?? '',
+                    ),
+                    subtitle!,
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                ],
               ),
               const SizedBox(height: 4),
             ],
@@ -206,7 +247,6 @@ class UserView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const SizedBox(height: 12),
               const SizedBox(height: 6),
               Text(subtitle!, style: style.fonts.small.regular.secondary),
               const SizedBox(height: 4),
@@ -228,21 +268,23 @@ class UserView extends StatelessWidget {
           ],
         ),
         if (bio != null) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           ExpandableText(
             bio.val,
             expandText: 'label_expandable_more'.l10n,
             collapseText: '',
-            maxLines: 2,
+            maxLines: 3,
             linkColor: style.colors.primary,
             animation: true,
             collapseOnTextTap: false,
             style: style.fonts.small.regular.secondary,
+            urlStyle: style.fonts.small.regular.primary,
+            onUrlTap: (url) => launchUrlString(url),
           ),
         ],
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         LineDivider('label_identifier'.l10n),
-        const SizedBox(height: 8),
+        const SizedBox(height: 21),
         ReactiveTextField.copyable(
           key: const Key('NumCopyable'),
           text: '${c.user?.user.value.num}',

@@ -138,7 +138,7 @@ class CacheWorker extends DisposableService {
     if (key != null && FIFOCache.exists(key)) {
       final Uint8List? bytes = FIFOCache.get(key);
 
-      if (bytes != null) {
+      if (bytes != null && bytes.lengthInBytes != 0) {
         switch (responseType) {
           case CacheResponseType.file:
             // If [CacheEntry] is supposed to contain a [File], and we don't
@@ -173,8 +173,11 @@ class CacheWorker extends DisposableService {
 
               case CacheResponseType.bytes:
                 final Uint8List bytes = await file.readAsBytes();
-                FIFOCache.set(checksum, bytes);
-                return CacheEntry(bytes: bytes);
+
+                if (bytes.lengthInBytes != 0) {
+                  FIFOCache.set(checksum, bytes);
+                  return CacheEntry(bytes: bytes);
+                }
             }
           }
         }
