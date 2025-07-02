@@ -51,10 +51,10 @@ abstract class AbstractSettingsRepository {
   /// Sets the [MediaSettings.outputDevice] value.
   Future<void> setOutputDevice(String id);
 
-  /// Enables or disables noise suppression for microphone tracks.
+  /// Enables or disables noise suppression.
   Future<void> setNoiseSuppressionEnabled(bool enabled);
 
-  /// Sets the noise suppression level for microphone tracks.
+  /// Sets the [NoiseSuppressionLevel] level.
   Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level);
 
   /// Sets the [ApplicationSettings.enablePopups] value.

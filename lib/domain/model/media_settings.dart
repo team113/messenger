@@ -43,9 +43,9 @@ class MediaSettings {
   /// ID of the screen to use in screen sharing by default.
   String? screenDevice;
 
-  /// Indicator whether noise suppression is enabled for microphone.
+  /// Whether noise suppression is enabled for local tracks.
   bool? noiseSuppressionEnabled;
 
-  /// Desired noise suppression level for microphone if enabled.
+  /// Desired noise suppression level for local tracks if enabled.
   NoiseSuppressionLevel? noiseSuppressionLevel;
 }

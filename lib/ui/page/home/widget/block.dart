@@ -84,6 +84,7 @@ class Block extends StatelessWidget {
   final double maxWidth;
 
   /// Whether to clip overflowing content in height, but not width.
+  /// 
   /// Defaults to `false` to avoid extra GPU work.
   final bool clipHeight;
 

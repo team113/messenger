@@ -280,10 +280,10 @@ class OngoingCall {
   /// Used to determine the [screenDevice].
   final String? _preferredScreenDevice;
 
-  /// Preferred noise suppression enabled flag.
+  /// Whether noise suppression enabled for [LocalMediaTrack]s.
   final bool? _noiseSuppressionEnabled;
 
-  /// Preferred noise suppression level.
+  /// Preferred noise suppression level for [LocalMediaTrack]s.
   final NoiseSuppressionLevel? _noiseSuppressionLevel;
 
   /// Indicator whether this [OngoingCall] should not initialize any media
@@ -2168,32 +2168,26 @@ class OngoingCall {
     }
   }
 
-  /// Adds [NoiseSuppressionLevel] to [LocalMediaTrack].
+  /// Adds saved locally [_noiseSuppressionLevel] to [LocalMediaTrack].
   ///
   /// Available only on Desktop now.
   Future<void> _addNoiseSuppression(LocalMediaTrack track) async {
     Log.debug('_addNoiseSuppression($track)', '$runtimeType');
+
+    if (PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
+      return;
+    }
+
+    final enabled = _noiseSuppressionEnabled;
+    if (enabled == null) {
+      return;
+    }
 
     if (!track.isAudioProcessingAvailable()) {
       Log.debug(
         '❌ Audio processing not available for this track $track',
         '$runtimeType',
       );
-      return;
-    }
-
-    // Currently works only on Desktop
-    if (PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
-      Log.debug(
-        '❌ Noise suppression is not supported on this platform',
-        '$runtimeType',
-      );
-      return;
-    }
-
-    final enabled = _noiseSuppressionEnabled;
-    if (enabled == null) {
-      Log.debug('❌ _noiseSuppressionEnabled is null', '$runtimeType');
       return;
     }
 
@@ -2204,14 +2198,17 @@ class OngoingCall {
 
       final level = _noiseSuppressionLevel;
       if (level == null) {
-        Log.debug('❌ _noiseSuppressionLevel is null', '$runtimeType');
+        Log.debug('_noiseSuppressionLevel is null', '$runtimeType');
         return;
       }
 
       Log.debug('✅ set level to $level', '$runtimeType');
       await track.setNoiseSuppressionLevel(level);
     } catch (e, _) {
-      Log.error('💥 Failed to configure noise suppression: $e', '$runtimeType');
+      Log.error(
+        '💥 Failed to configure noise suppression for track $track: $e',
+        '$runtimeType',
+      );
     }
   }
 

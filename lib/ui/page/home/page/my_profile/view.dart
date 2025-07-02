@@ -820,7 +820,7 @@ Widget _media(BuildContext context, MyProfileController c) {
         );
       }),
 
-      // Voice processing widget
+      // Voice processing widget.
       Column(
         children: [
           if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) ...[
@@ -828,18 +828,17 @@ Widget _media(BuildContext context, MyProfileController c) {
             LineDivider('label_voice_processing'.l10n),
             const SizedBox(height: 16),
             Obx(() {
-              // False by default
+              final values = NoiseSuppressionLevel.values;
+
+              // False by default.
               final isEnabled = c.media.value?.noiseSuppressionEnabled ?? false;
 
-              // Moderate by default (if enabled)
+              // Moderate by default.
               final level =
                   c.media.value?.noiseSuppressionLevel ??
                   NoiseSuppressionLevel.moderate;
 
-              // Values of NoiseSuppressionLevel
-              final values = NoiseSuppressionLevel.values;
-
-              // Percentage in slider
+              // Position of the current level on the slider as a percentage.
               final percentage =
                   (100 * (1 / (values.length - 1)) * values.indexOf(level));
 
@@ -851,7 +850,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                     onChanged: (enabled) {
                       c.setNoiseSuppressionEnabled(enabled);
                       if (enabled) {
-                        // set saved value or default one.
+                        // Sets saved value or default one.
                         c.setNoiseSuppressionLevelValue(level);
                       }
                     },
