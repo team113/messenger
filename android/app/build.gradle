@@ -57,7 +57,7 @@ android {
     defaultConfig {
         applicationId "com.team113.messenger"
         minSdkVersion 24
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
