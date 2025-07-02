@@ -38,7 +38,7 @@ alert_chat_will_be_deleted2 = {" "}будет удалён.
 alert_chat_will_be_reported1 = На чат{" "}
 alert_chat_will_be_reported2 = {" "}будет отправлена жалоба.
 alert_email_will_be_deleted1 = E-mail{" "}
-alert_email_will_be_deleted2 = {" "}будет удалён.
+alert_email_will_be_deleted2 = {" "}будет удалён
 alert_popup_permissions_button = Открыть настройки
 alert_popup_permissions_description =
     Вы не сможете принимать звонки, пока

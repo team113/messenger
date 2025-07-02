@@ -38,7 +38,7 @@ alert_chat_will_be_deleted2 = {" "}will be deleted.
 alert_chat_will_be_reported1 = Chat{" "}
 alert_chat_will_be_reported2 = {" "}will be reported.
 alert_email_will_be_deleted1 = E-mail{" "}
-alert_email_will_be_deleted2 = {" "}will be deleted.
+alert_email_will_be_deleted2 = {" "}will be deleted
 alert_popup_permissions_button = Open settings
 alert_popup_permissions_description =
     You will not be able to accept calls
