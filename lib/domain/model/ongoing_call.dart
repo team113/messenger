@@ -155,8 +155,11 @@ class OngoingCall {
        _preferredOutputDevice = mediaSettings?.outputDevice,
        _preferredVideoDevice = mediaSettings?.videoDevice,
        _preferredScreenDevice = mediaSettings?.screenDevice,
-       _noiseSuppressionEnabled = mediaSettings?.noiseSuppressionEnabled,
-       _noiseSuppressionLevel = mediaSettings?.noiseSuppressionLevel {
+       _noiseSuppression = mediaSettings?.noiseSuppression,
+       _noiseSuppressionLevel = mediaSettings?.noiseSuppressionLevel,
+       _echoCancellation = mediaSettings?.echoCancellation,
+       _autoGainControl = mediaSettings?.autoGainControl,
+       _highPassFilter = mediaSettings?.highPassFilter {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
@@ -280,11 +283,24 @@ class OngoingCall {
   /// Used to determine the [screenDevice].
   final String? _preferredScreenDevice;
 
-  /// Whether noise suppression enabled for [LocalMediaTrack]s.
-  final bool? _noiseSuppressionEnabled;
+  /// Indicator whether noise suppression should be enabled for
+  /// [LocalMediaTrack]s.
+  bool? _noiseSuppression;
 
   /// Preferred noise suppression level for [LocalMediaTrack]s.
-  final NoiseSuppressionLevel? _noiseSuppressionLevel;
+  NoiseSuppressionLevel? _noiseSuppressionLevel;
+
+  /// Indicator whether echo cancellation should be enabled for
+  /// [LocalMediaTrack]s.
+  bool? _echoCancellation;
+
+  /// Indicator whether auto gain control should be enabled for
+  /// [LocalMediaTrack]s.
+  bool? _autoGainControl;
+
+  /// Indicator whether high pass filter should be enabled for
+  /// [LocalMediaTrack]s.
+  bool? _highPassFilter;
 
   /// Indicator whether this [OngoingCall] should not initialize any media
   /// client related resources.
@@ -401,6 +417,21 @@ class OngoingCall {
 
   /// Indicator whether this [OngoingCall] wasn't [init]ed.
   bool get background => _background;
+
+  /// Indicates whether noise suppression should be enabled.
+  bool? get noiseSuppression => _noiseSuppression;
+
+  /// Returns the suppression level set.
+  NoiseSuppressionLevel? get noiseSuppressionLevel => _noiseSuppressionLevel;
+
+  /// Indicates whether echo cancellation should be enabled.
+  bool? get echoCancellation => _echoCancellation;
+
+  /// Indicates whether auto gain control should be enabled.
+  bool? get autoGainControl => _autoGainControl;
+
+  /// Indicates whether high pass filter should be enabled.
+  bool? get highPassFilter => _highPassFilter;
 
   /// Initializes the media client resources.
   ///
@@ -1291,6 +1322,113 @@ class OngoingCall {
     _notifications.add(ErrorNotification(message: message));
   }
 
+  /// Applies the provided voice processing settings to the [LocalMediaTrack]s.
+  Future<void> applyVoiceProcessing({
+    bool? noiseSuppression,
+    NoiseSuppressionLevel? noiseSuppressionLevel,
+    bool? echoCancellation,
+    bool? autoGainControl,
+    bool? highPassFilter,
+  }) async {
+    Log.debug(
+      'applyVoiceProcessing(noiseSuppression: $noiseSuppression, noiseSuppressionLevel: $noiseSuppressionLevel, echoCancellation: $echoCancellation, autoGainControl: $autoGainControl, highPassFilter: $highPassFilter)',
+      '$runtimeType',
+    );
+
+    noiseSuppression ??= _noiseSuppression;
+    noiseSuppressionLevel ??= _noiseSuppressionLevel;
+    echoCancellation ??= _echoCancellation;
+    autoGainControl ??= _autoGainControl;
+    highPassFilter ??= _highPassFilter;
+
+    if (noiseSuppression == _noiseSuppression &&
+        noiseSuppressionLevel == _noiseSuppressionLevel &&
+        echoCancellation == _echoCancellation &&
+        autoGainControl == _autoGainControl &&
+        highPassFilter == _highPassFilter) {
+      // No-op, as these settings are already applied.
+      return;
+    }
+
+    for (var t in me.tracks.map((e) => e.track).whereType<LocalMediaTrack>()) {
+      if (!t.isAudioProcessingAvailable()) {
+        Log.debug(
+          'applyVoiceProcessing() -> audio processing not available for track $t',
+          '$runtimeType',
+        );
+
+        continue;
+      }
+
+      if (noiseSuppression != _noiseSuppression ||
+          _noiseSuppressionLevel != noiseSuppressionLevel) {
+        final bool? enabled = _noiseSuppression = noiseSuppression;
+        final NoiseSuppressionLevel? level = _noiseSuppressionLevel =
+            noiseSuppressionLevel;
+
+        if (enabled != null) {
+          try {
+            await t.setNoiseSuppressionEnabled(enabled);
+
+            if (enabled && level != null) {
+              await t.setNoiseSuppressionLevel(level);
+            }
+          } catch (e, _) {
+            Log.error(
+              '💥 applyVoiceProcessing() -> Failed to invoke `setNoiseSuppressionEnabled($enabled)` for track $t due to: $e',
+              '$runtimeType',
+            );
+          }
+        }
+      }
+
+      if (echoCancellation != _echoCancellation) {
+        final bool? enabled = _echoCancellation = echoCancellation;
+
+        if (enabled != null) {
+          try {
+            await t.setEchoCancellationEnabled(enabled);
+          } catch (e, _) {
+            Log.error(
+              '💥 applyVoiceProcessing() -> Failed to invoke `setEchoCancellationEnabled($enabled)` for track $t due to: $e',
+              '$runtimeType',
+            );
+          }
+        }
+      }
+
+      if (autoGainControl != _autoGainControl) {
+        final bool? enabled = _autoGainControl = autoGainControl;
+
+        if (enabled != null) {
+          try {
+            await t.setAutoGainControlEnabled(enabled);
+          } catch (e, _) {
+            Log.error(
+              '💥 applyVoiceProcessing() -> Failed to invoke `setAutoGainControlEnabled($enabled)` for track $t due to: $e',
+              '$runtimeType',
+            );
+          }
+        }
+      }
+
+      if (highPassFilter != _highPassFilter) {
+        final bool? enabled = _highPassFilter = highPassFilter;
+
+        if (enabled != null) {
+          try {
+            await t.setHighPassFilterEnabled(enabled);
+          } catch (e, _) {
+            Log.error(
+              '💥 applyVoiceProcessing() -> Failed to invoke `setHighPassFilterEnabled($enabled)` for track $t due to: $e',
+              '$runtimeType',
+            );
+          }
+        }
+      }
+    }
+  }
+
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   ///
@@ -1315,9 +1453,31 @@ class OngoingCall {
 
     if (audio) {
       AudioTrackConstraints constraints = AudioTrackConstraints();
+
       if (audioDevice != null) {
         constraints.deviceId(audioDevice.deviceId());
       }
+
+      if (_noiseSuppression != null) {
+        constraints.idealNoiseSuppression(_noiseSuppression!);
+      }
+
+      if (_noiseSuppressionLevel != null) {
+        constraints.noiseSuppressionLevel(_noiseSuppressionLevel!);
+      }
+
+      if (_echoCancellation != null) {
+        constraints.idealEchoCancellation(_echoCancellation!);
+      }
+
+      if (_autoGainControl != null) {
+        constraints.idealAutoGainControl(_autoGainControl!);
+      }
+
+      if (_highPassFilter != null) {
+        constraints.idealHighPassFilter(_highPassFilter!);
+      }
+
       settings.audio(constraints);
     }
 
@@ -2162,53 +2322,7 @@ class OngoingCall {
             devices.firstWhereOrNull(
               (e) => e.deviceId() == track.getTrack().deviceId(),
             );
-
-        await _addNoiseSuppression(track);
       }
-    }
-  }
-
-  /// Adds saved locally [_noiseSuppressionLevel] to [LocalMediaTrack].
-  ///
-  /// Available only on Desktop now.
-  Future<void> _addNoiseSuppression(LocalMediaTrack track) async {
-    Log.debug('_addNoiseSuppression($track)', '$runtimeType');
-
-    if (PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
-      return;
-    }
-
-    final enabled = _noiseSuppressionEnabled;
-    if (enabled == null) {
-      return;
-    }
-
-    if (!track.isAudioProcessingAvailable()) {
-      Log.debug(
-        '❌ Audio processing not available for this track $track',
-        '$runtimeType',
-      );
-      return;
-    }
-
-    try {
-      Log.debug('✅ set suppression to $enabled', '$runtimeType');
-      await track.setNoiseSuppressionEnabled(enabled);
-      if (!enabled) return; // Nothing else to do
-
-      final level = _noiseSuppressionLevel;
-      if (level == null) {
-        Log.debug('_noiseSuppressionLevel is null', '$runtimeType');
-        return;
-      }
-
-      Log.debug('✅ set level to $level', '$runtimeType');
-      await track.setNoiseSuppressionLevel(level);
-    } catch (e, _) {
-      Log.error(
-        '💥 Failed to configure noise suppression for track $track: $e',
-        '$runtimeType',
-      );
     }
   }
 

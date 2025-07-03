@@ -47,14 +47,29 @@ void main() {
   );
 
   test('Noise suppression settings are stored', () async {
-    await repo.setNoiseSuppressionEnabled(true);
+    expect(repo.mediaSettings.value?.noiseSuppression, null);
+    expect(repo.mediaSettings.value?.noiseSuppressionLevel, null);
+
+    await repo.setNoiseSuppression(true);
     await repo.setNoiseSuppressionLevel(NoiseSuppressionLevel.high);
 
-    expect(repo.mediaSettings.value?.noiseSuppressionEnabled, true);
+    expect(repo.mediaSettings.value?.noiseSuppression, true);
     expect(
       repo.mediaSettings.value?.noiseSuppressionLevel,
       NoiseSuppressionLevel.high,
     );
+
+    expect(repo.mediaSettings.value?.echoCancellation, null);
+    await repo.setEchoCancellation(true);
+    expect(repo.mediaSettings.value?.echoCancellation, true);
+
+    expect(repo.mediaSettings.value?.autoGainControl, null);
+    await repo.setAutoGainControl(true);
+    expect(repo.mediaSettings.value?.autoGainControl, true);
+
+    expect(repo.mediaSettings.value?.highPassFilter, null);
+    await repo.setHighPassFilter(true);
+    expect(repo.mediaSettings.value?.highPassFilter, true);
   });
 
   tearDown(() async => Future.wait([common.close(), scoped.close()]));

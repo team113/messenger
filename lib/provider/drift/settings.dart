@@ -47,8 +47,11 @@ class Settings extends Table {
   TextColumn get audioDevice => text().nullable()();
   TextColumn get outputDevice => text().nullable()();
   TextColumn get screenDevice => text().nullable()();
-  BoolColumn get noiseSuppressionEnabled => boolean().nullable()();
+  BoolColumn get noiseSuppression => boolean().nullable()();
   TextColumn get noiseSuppressionLevel => text().nullable()();
+  BoolColumn get echoCancellation => boolean().nullable()();
+  BoolColumn get autoGainControl => boolean().nullable()();
+  BoolColumn get highPassFilter => boolean().nullable()();
   TextColumn get muteKeys => text().nullable()();
 }
 
@@ -181,10 +184,13 @@ extension _SettingsDb on DtoSettings {
         videoDevice: e.videoDevice,
         outputDevice: e.outputDevice,
         screenDevice: e.screenDevice,
-        noiseSuppressionEnabled: e.noiseSuppressionEnabled,
+        noiseSuppression: e.noiseSuppression,
         noiseSuppressionLevel: NoiseSuppressionLevel.values.firstWhereOrNull(
           (level) => level.name == e.noiseSuppressionLevel,
         ),
+        echoCancellation: e.echoCancellation,
+        autoGainControl: e.autoGainControl,
+        highPassFilter: e.highPassFilter,
       ),
     );
   }
@@ -205,8 +211,11 @@ extension _SettingsDb on DtoSettings {
       videoDevice: media.videoDevice,
       screenDevice: media.screenDevice,
       outputDevice: media.outputDevice,
-      noiseSuppressionEnabled: media.noiseSuppressionEnabled,
+      noiseSuppression: media.noiseSuppression,
       noiseSuppressionLevel: media.noiseSuppressionLevel?.name,
+      echoCancellation: media.echoCancellation,
+      autoGainControl: media.autoGainControl,
+      highPassFilter: media.highPassFilter,
       muteKeys: application.muteKeys?.toString(),
     );
   }

@@ -83,7 +83,7 @@ class Block extends StatelessWidget {
   /// Maximum width this [Block] should occupy.
   final double maxWidth;
 
-  /// Whether to clip overflowing content in height, but not width.
+  /// Indicator whether to clip overflowing content in height, but not width.
   ///
   /// Defaults to `false` to avoid extra GPU work.
   final bool clipHeight;
@@ -217,7 +217,7 @@ class Block extends StatelessWidget {
 class _BottomEdgeClipper extends CustomClipper<Path> {
   /// Large, but safe finite constant to use in clipping.
   ///
-  /// Using [double.maxFinite] would case UI crash.
+  /// Using [double.maxFinite] causes issues under Web platforms.
   static const _big = 1e6;
 
   @override

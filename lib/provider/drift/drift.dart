@@ -99,8 +99,11 @@ class CommonDatabase extends _$CommonDatabase {
           bool migrated = false;
 
           if (a >= 6 && b <= 5) {
-            await m.addColumn(settings, settings.noiseSuppressionEnabled);
+            await m.addColumn(settings, settings.noiseSuppression);
             await m.addColumn(settings, settings.noiseSuppressionLevel);
+            await m.addColumn(settings, settings.echoCancellation);
+            await m.addColumn(settings, settings.autoGainControl);
+            await m.addColumn(settings, settings.highPassFilter);
             migrated = true;
           }
 

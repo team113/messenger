@@ -51,11 +51,20 @@ abstract class AbstractSettingsRepository {
   /// Sets the [MediaSettings.outputDevice] value.
   Future<void> setOutputDevice(String id);
 
-  /// Enables or disables noise suppression.
-  Future<void> setNoiseSuppressionEnabled(bool enabled);
+  /// Sets the [MediaSettings.noiseSuppression] value.
+  Future<void> setNoiseSuppression(bool enabled);
 
-  /// Sets the [NoiseSuppressionLevel] level.
+  /// Sets the [MediaSettings.noiseSuppressionLevel] value.
   Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level);
+
+  /// Sets the [MediaSettings.echoCancellation] value.
+  Future<void> setEchoCancellation(bool enabled);
+
+  /// Sets the [MediaSettings.autoGainControl] value.
+  Future<void> setAutoGainControl(bool enabled);
+
+  /// Sets the [MediaSettings.highPassFilter] value.
+  Future<void> setHighPassFilter(bool enabled);
 
   /// Sets the [ApplicationSettings.enablePopups] value.
   Future<void> setPopupsEnabled(bool enabled);

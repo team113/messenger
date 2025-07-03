@@ -128,15 +128,33 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setNoiseSuppressionEnabled(bool enabled) async {
-    Log.debug('setNoiseSuppressionEnabled($enabled)', '$runtimeType');
-    await _set(media: (e) => e..noiseSuppressionEnabled = enabled);
+  Future<void> setNoiseSuppression(bool enabled) async {
+    Log.debug('setNoiseSuppression($enabled)', '$runtimeType');
+    await _set(media: (e) => e..noiseSuppression = enabled);
   }
 
   @override
   Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level) async {
     Log.debug('setNoiseSuppressionLevel($level)', '$runtimeType');
     await _set(media: (e) => e..noiseSuppressionLevel = level);
+  }
+
+  @override
+  Future<void> setEchoCancellation(bool enabled) async {
+    Log.debug('setEchoCancellation($enabled)', '$runtimeType');
+    await _set(media: (e) => e..echoCancellation = enabled);
+  }
+
+  @override
+  Future<void> setAutoGainControl(bool enabled) async {
+    Log.debug('setAutoGainControl($enabled)', '$runtimeType');
+    await _set(media: (e) => e..autoGainControl = enabled);
+  }
+
+  @override
+  Future<void> setHighPassFilter(bool enabled) async {
+    Log.debug('setHighPassFilter($enabled)', '$runtimeType');
+    await _set(media: (e) => e..highPassFilter = enabled);
   }
 
   @override

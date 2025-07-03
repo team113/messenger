@@ -11,12 +11,20 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.2...v0.6.0) | [Milestone](/../../milestone/42)
 
+### Added
+
+- UI:
+    - Profile page:
+        - Voice processing settings for calls. ([#1287], [#1264])
+
 ### Changed
 
 - UI:
     - Profile page:
         - Redesigned email and password popups. ([#1296], [#1293])
 
+[#1264]: /../../issue/1264
+[#1287]: /../../pull/1287
 [#1293]: /../../issue/1293
 [#1296]: /../../pull/1296
 
@@ -27,12 +35,6 @@ All user visible changes to this project will be documented in this file. This p
 [0.5.2]: /../../tree/v0.5.2
 
 [Diff](/../../compare/v0.5.1...v0.5.2) | [Milestone](/../../milestone/41)
-
-### Added
-
-- UI:
-    - Profile page:
-        - Added settings for noise suppression. ([#1287], [#1264])
 
 ### Changed
 
@@ -61,12 +63,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1250]: /../../issue/1250
 [#1263]: /../../issue/1263
-[#1264]: /../../issue/1264
 [#1268]: /../../issue/1268
 [#1280]: /../../pull/1280
 [#1282]: /../../pull/1282
 [#1285]: /../../pull/1285
-[#1285]: /../../pull/1287
 [#1291]: /../../pull/1291
 [#1294]: /../../pull/1294
 [#1302]: /../../pull/1302

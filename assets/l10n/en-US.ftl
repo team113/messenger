@@ -560,6 +560,7 @@ label_audio_call = Audio call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
     }
+label_auto_gain_control = Auto gain control
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}removed avatar
@@ -672,6 +673,7 @@ label_did_not_receive_code = Didn't receive the code?
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_in_chat_description =
     Users who come via a direct link automatically become full members of the group.
+label_disabled = Disabled
 label_discard_changes_question = Discard changes?
 label_download = Download
 label_download_and_update = Download and update
@@ -681,6 +683,7 @@ label_draft = Draft
 label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
+label_echo_cancellation = Echo cancellation
 label_edit = Edit
 label_email = E-mail
 label_email_confirmed = E-mail has been confirmed
@@ -689,6 +692,7 @@ label_email_example = example@gmail.com
 label_email_or_phone_not_set = E-mail or phone number is not set. Access to the account will be lost.
 label_email_or_phone_not_set1 = No e-mail is linked.{" "}
 label_email_or_phone_not_set2 = Access to the account cannot be restored.
+label_enabled = Enabled
 label_enter_one_time_code = Enter your one-time code. One-time code has been sent to your e-mails. If you did not receive e-mails, check your spam folder or data entered.
 label_enter_password_below = Please, enter your password in the field below.
 label_enter_password_or_code = Enter password or code
@@ -721,6 +725,7 @@ label_hello = Hello!
 label_hello_reply = Yay, hello :)
 label_hidden = Last seen recently
 label_high = High
+label_high_pass_filter = High pass filter
 label_hotkey = Hotkey
 label_identifier = Identifier
 label_identifiers = Identifiers

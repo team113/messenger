@@ -27,8 +27,11 @@ class MediaSettings {
     this.audioDevice,
     this.outputDevice,
     this.screenDevice,
-    this.noiseSuppressionEnabled,
-    this.noiseSuppressionLevel,
+    this.noiseSuppression = true,
+    this.noiseSuppressionLevel = NoiseSuppressionLevel.veryHigh,
+    this.echoCancellation = true,
+    this.autoGainControl = true,
+    this.highPassFilter = true,
   });
 
   /// ID of the video device to use by default.
@@ -43,9 +46,18 @@ class MediaSettings {
   /// ID of the screen to use in screen sharing by default.
   String? screenDevice;
 
-  /// Whether noise suppression is enabled for local tracks.
-  bool? noiseSuppressionEnabled;
+  /// Indicator whether noise suppression should be enabled for local tracks.
+  bool? noiseSuppression;
 
-  /// Desired noise suppression level for local tracks if enabled.
+  /// Desired noise suppression level for local tracks, if enabled.
   NoiseSuppressionLevel? noiseSuppressionLevel;
+
+  /// Indicator whether echo cancellation should be enabled for local tracks.
+  bool? echoCancellation;
+
+  /// Indicator whether auto gain control should be enabled for local tracks.
+  bool? autoGainControl;
+
+  /// Indicator whether high pass filter should be enabled for local tracks.
+  bool? highPassFilter;
 }
