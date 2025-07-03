@@ -103,8 +103,8 @@ class NotificationService: UNNotificationServiceExtension {
 
         let decoder = JSONDecoder()
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.mmmZ"
-        dateFormatter.locale = Locale(identifier: "en_US")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSX"
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
 
@@ -115,14 +115,14 @@ class NotificationService: UNNotificationServiceExtension {
 
         var fresh = creds
 
-        if Date() > creds.access.expireAt {
+        if Date() > creds.access.expireAt.val {
           if #available(iOS 12.0, macOS 12.0, *) {
             if let refreshed = await refreshToken(creds: creds) {
               fresh = refreshed
 
               let encoder = JSONEncoder()
               let dateFormatter = DateFormatter()
-              dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.mmmZ"
+              dateFormatter.dateFormat = "yyyy-MM-ddTHH:mm:ss.mmmZ"
               dateFormatter.locale = Locale(identifier: "en_US")
               dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
               encoder.dateEncodingStrategy = .formatted(dateFormatter)
@@ -198,11 +198,11 @@ class NotificationService: UNNotificationServiceExtension {
           return Credentials(
             access: Token(
               secret: response.data.refreshSession.accessToken.secret,
-              expireAt: response.data.refreshSession.accessToken.expiresAt
+              expireAt: DateType(val: response.data.refreshSession.accessToken.expiresAt)
             ),
             refresh: Token(
               secret: response.data.refreshSession.refreshToken.secret,
-              expireAt: response.data.refreshSession.refreshToken.expiresAt
+              expireAt: DateType(val: response.data.refreshSession.refreshToken.expiresAt)
             ),
             userId: response.data.refreshSession.user.id
           )
@@ -262,7 +262,11 @@ class NotificationService: UNNotificationServiceExtension {
 
   struct Token: Codable {
     let secret: String
-    let expireAt: Date
+    let expireAt: DateType
+  }
+
+  struct DateType: Codable {
+    let val: Date
   }
 
   struct RefreshSessionResponse: Decodable {
@@ -322,9 +326,9 @@ class NotificationService: UNNotificationServiceExtension {
 
       // Time in microseconds to consider `lockedAt` value as being outdated
       // or stale, so it can be safely overwritten.
-      let lockedAtTtl: Int = 30_000_000 // 30s
+      let lockedAtTtl: Int = 30_000_000  // 30s
 
-      let retryDelay = UInt64(0.2 * Double(NSEC_PER_SEC)) // 200ms
+      let retryDelay = UInt64(0.2 * Double(NSEC_PER_SEC))  // 200ms
 
       var acquired: Bool = false
       while !acquired {
