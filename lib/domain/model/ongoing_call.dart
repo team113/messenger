@@ -1485,10 +1485,6 @@ class OngoingCall {
         constraints.idealHighPassFilter(_highPassFilter!);
       }
 
-      print(
-        '====== constraints -> $_noiseSuppression, $_noiseSuppressionLevel, $_echoCancellation, $_autoGainControl, $_highPassFilter',
-      );
-
       settings.audio(constraints);
     }
 
@@ -2345,30 +2341,6 @@ class OngoingCall {
             devices.firstWhereOrNull(
               (e) => e.deviceId() == track.getTrack().deviceId(),
             );
-      }
-
-      try {
-        print(
-          '======== NOISE SETTINGS (${track.kind()} ${track.mediaSourceKind()}) ========',
-        );
-        print(
-          'isAudioProcessingAvailable -> ${track.isAudioProcessingAvailable()}',
-        );
-        print(
-          'isAutoGainControlEnabled -> ${await track.isAutoGainControlEnabled()}',
-        );
-        print(
-          'isEchoCancellationEnabled -> ${await track.isEchoCancellationEnabled()}',
-        );
-        print(
-          'isNoiseSuppressionEnabled -> ${await track.isNoiseSuppressionEnabled()}',
-        );
-        print(
-          'getNoiseSuppressionLevel -> ${await track.getNoiseSuppressionLevel()}',
-        );
-        print('=====================');
-      } catch (_) {
-        //
       }
     }
   }
