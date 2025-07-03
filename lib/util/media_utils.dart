@@ -296,6 +296,28 @@ class MediaUtilsImpl {
     if (audio != null) {
       final AudioTrackConstraints constraints = AudioTrackConstraints();
       if (audio.device != null) constraints.deviceId(audio.device!);
+
+      if (audio.noiseSuppression != null) {
+        constraints.idealNoiseSuppression(audio.noiseSuppression!);
+      }
+
+      if ((audio.noiseSuppression ?? true) &&
+          audio.noiseSuppressionLevel != null) {
+        constraints.noiseSuppressionLevel(audio.noiseSuppressionLevel!);
+      }
+
+      if (audio.echoCancellation != null) {
+        constraints.idealEchoCancellation(audio.echoCancellation!);
+      }
+
+      if (audio.autoGainControl != null) {
+        constraints.idealAutoGainControl(audio.autoGainControl!);
+      }
+
+      if (audio.highPassFilter != null) {
+        constraints.idealHighPassFilter(audio.highPassFilter!);
+      }
+
       settings.audio(constraints);
     }
 
@@ -332,7 +354,29 @@ class TrackPreferences {
 
 /// [TrackPreferences] of a microphone track.
 class AudioPreferences extends TrackPreferences {
-  const AudioPreferences({super.device});
+  const AudioPreferences({
+    super.device,
+    this.noiseSuppression,
+    this.noiseSuppressionLevel,
+    this.echoCancellation,
+    this.autoGainControl,
+    this.highPassFilter,
+  });
+
+  /// Indicator whether noise suppression should be enabled.
+  final bool? noiseSuppression;
+
+  /// Desired noise suppression level, if enabled.
+  final NoiseSuppressionLevel? noiseSuppressionLevel;
+
+  /// Indicator whether echo cancellation should be enabled.
+  final bool? echoCancellation;
+
+  /// Indicator whether auto gain control should be enabled.
+  final bool? autoGainControl;
+
+  /// Indicator whether high pass filter should be enabled.
+  final bool? highPassFilter;
 }
 
 /// [TrackPreferences] of a video camera track.

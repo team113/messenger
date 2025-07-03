@@ -1061,7 +1061,14 @@ class OngoingCall {
               await _room?.enableAudio();
 
               final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-                audio: AudioPreferences(device: audioDevice.value?.deviceId()),
+                audio: AudioPreferences(
+                  device: audioDevice.value?.deviceId(),
+                  noiseSuppression: _noiseSuppression,
+                  noiseSuppressionLevel: _noiseSuppressionLevel,
+                  echoCancellation: _echoCancellation,
+                  autoGainControl: _autoGainControl,
+                  highPassFilter: _highPassFilter,
+                ),
               );
               tracks.forEach(_addLocalTrack);
             }
@@ -1462,7 +1469,7 @@ class OngoingCall {
         constraints.idealNoiseSuppression(_noiseSuppression!);
       }
 
-      if (_noiseSuppressionLevel != null) {
+      if ((_noiseSuppression ?? true) && _noiseSuppressionLevel != null) {
         constraints.noiseSuppressionLevel(_noiseSuppressionLevel!);
       }
 
@@ -1477,6 +1484,10 @@ class OngoingCall {
       if (_highPassFilter != null) {
         constraints.idealHighPassFilter(_highPassFilter!);
       }
+
+      print(
+        '====== constraints -> $_noiseSuppression, $_noiseSuppressionLevel, $_echoCancellation, $_autoGainControl, $_highPassFilter',
+      );
 
       settings.audio(constraints);
     }
@@ -1901,6 +1912,11 @@ class OngoingCall {
                     device:
                         audioDevice.value?.deviceId() ??
                         devices.audio().firstOrNull?.deviceId(),
+                    noiseSuppression: _noiseSuppression,
+                    noiseSuppressionLevel: _noiseSuppressionLevel,
+                    echoCancellation: _echoCancellation,
+                    autoGainControl: _autoGainControl,
+                    highPassFilter: _highPassFilter,
                   )
                 : null,
             video: videoState.value.isEnabled
@@ -2219,7 +2235,14 @@ class OngoingCall {
 
     final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
       audio: audioState.value.isEnabled && audio
-          ? AudioPreferences(device: audioDevice.value?.deviceId())
+          ? AudioPreferences(
+              device: audioDevice.value?.deviceId(),
+              noiseSuppression: _noiseSuppression,
+              noiseSuppressionLevel: _noiseSuppressionLevel,
+              echoCancellation: _echoCancellation,
+              autoGainControl: _autoGainControl,
+              highPassFilter: _highPassFilter,
+            )
           : null,
       video: videoState.value.isEnabled && video
           ? VideoPreferences(
@@ -2322,6 +2345,30 @@ class OngoingCall {
             devices.firstWhereOrNull(
               (e) => e.deviceId() == track.getTrack().deviceId(),
             );
+      }
+
+      try {
+        print(
+          '======== NOISE SETTINGS (${track.kind()} ${track.mediaSourceKind()}) ========',
+        );
+        print(
+          'isAudioProcessingAvailable -> ${track.isAudioProcessingAvailable()}',
+        );
+        print(
+          'isAutoGainControlEnabled -> ${await track.isAutoGainControlEnabled()}',
+        );
+        print(
+          'isEchoCancellationEnabled -> ${await track.isEchoCancellationEnabled()}',
+        );
+        print(
+          'isNoiseSuppressionEnabled -> ${await track.isNoiseSuppressionEnabled()}',
+        );
+        print(
+          'getNoiseSuppressionLevel -> ${await track.getNoiseSuppressionLevel()}',
+        );
+        print('=====================');
+      } catch (_) {
+        //
       }
     }
   }
