@@ -374,7 +374,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
-  
+
   print('[${DateTime.now()}] 1. appInitializationFn: PlatformUtils now: ${PlatformUtils.runtimeType}');
   if (PlatformUtils.runtimeType is PlatformUtilsImpl) {
     print('[${DateTime.now()}] 2. appInitializationFn: PlatformUtils now: ${PlatformUtils.runtimeType}');

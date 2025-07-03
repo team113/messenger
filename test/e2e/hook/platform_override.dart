@@ -15,11 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/util/platform_utils.dart';
-import 'package:messenger/util/web/web.dart';
 
 import '../mock/platform_utils.dart';
 import '../mock/window_manager_stub.dart';
@@ -33,34 +30,6 @@ class _FakeDesktopPlatformUtils extends PlatformUtilsMock {
   bool get isWeb => false;
   @override
   bool get isDesktop => true;
-
-  /// Returns Web version of isFocused.
-  @override
-  Future<bool> get isFocused async => WebUtils.isFocused;
-
-  /// Returns Web version of focusChanged.
-  @override
-  Stream<bool> get onFocusChanged => WebUtils.onFocusChanged;
-
-  /// Returns Web version of onFullscreenChange.
-  @override
-  Stream<bool> get onFullscreenChange => WebUtils.onFullscreenChange;
-
-  /// Calls Web version of enterFullscreen
-  @override
-  Future<void> enterFullscreen() async {
-    WebUtils.toggleFullscreen(true);
-  }
-
-  // Calls Web version of exitFullscreen
-  @override
-  Future<void> exitFullscreen() async {
-    WebUtils.toggleFullscreen(false);
-  }
-
-  /// Returns empty stream to not trigger [WindowManager].
-  @override
-  Stream<Offset> get onMoved => const Stream.empty();
 }
 
 /// [Hook] overriding platform for test.
@@ -87,11 +56,9 @@ class PlatformOverrideHook extends Hook {
     Iterable<Tag> tags,
   ) async {
     if (_hasDesktopTag(tags)) {
-      registerWindowManagerStub();
       _saved = PlatformUtilsMock();
-      print('[${DateTime.now()}] 1. onBefore: PlatformUtils now: ${PlatformUtils.runtimeType}');
+      registerWindowManagerStub();
       PlatformUtils = _FakeDesktopPlatformUtils();
-      print('[${DateTime.now()}] 2. onBefore: PlatformUtils now: ${PlatformUtils.runtimeType}');
     }
     return super.onBeforeScenario(config, scenario, tags);
   }
@@ -103,13 +70,8 @@ class PlatformOverrideHook extends Hook {
     Iterable<Tag> tags,
   ) {
     if (_hasDesktopTag(tags)) {
-      print(
-        '[${DateTime.now()}] 1. onAfterScenario: PlatformUtils now: ${PlatformUtils.runtimeType}',
-      );
+      unregisterWindowManagerStub();
       PlatformUtils = _saved;
-      print(
-        '[${DateTime.now()}] 2. onAfterScenario: PlatformUtils now: ${PlatformUtils.runtimeType}',
-      );
     }
     return super.onAfterScenario(config, scenario, tags);
   }

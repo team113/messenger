@@ -18,23 +18,22 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// Register no-op handler for each method from window manager.
-/// 
-/// It must be used when mocking Desktop platform on Web.
-void registerWindowManagerStub() {
-  const channel = MethodChannel('window_manager');
+const _channel = MethodChannel('window_manager');
 
+/// Registers handlers for methods from window manager.
+///
+/// It must be used when mocking Desktop platform on Web.
+/// Otherwise, plugin exceptions will be received.
+void registerWindowManagerStub() {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-      .setMockMethodCallHandler(channel, (call) async {
+      .setMockMethodCallHandler(_channel, (call) async {
         final String m = call.method;
-        if (m.startsWith('is')) return false; // any boolean getters
-        switch (m) {
-          case 'getSize':
-            return const <double>[800, 600];
-          case 'getPosition':
-            return const <double>[0, 0];
-          default:
-            return null;
-        }
+        if (m.startsWith('is')) return false; // Any boolean getters.
+        return null;
       });
+}
+
+void unregisterWindowManagerStub() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(_channel, null);
 }
