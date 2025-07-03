@@ -29,7 +29,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   final String? cache;
 
   @override
-  bool get isTesting => false;
+  bool get isTesting => true;
 
   @override
   Future<Directory> get downloadsDirectory =>
