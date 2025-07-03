@@ -215,11 +215,14 @@ class Block extends StatelessWidget {
 
 /// [CustomClipper] that does not clip in width.
 class _BottomEdgeClipper extends CustomClipper<Path> {
+  /// Large, but safe finite constant to use in clipping.
+  ///
+  /// Using [double.maxFinite] would case UI crash.
+  static const _big = 1e6;
+
   @override
   Path getClip(Size size) {
-    const double maxFinite = double.maxFinite;
-    return Path()
-      ..addRect(Rect.fromLTRB(-maxFinite, 0, maxFinite, size.height));
+    return Path()..addRect(Rect.fromLTRB(-_big, 0, _big, size.height));
   }
 
   @override
