@@ -32,12 +32,10 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/performance.dart';
-import 'hook/platform_override.dart';
 import 'hook/reset_app.dart';
 import 'mock/geo.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
-import 'mock/window_manager_stub.dart';
 import 'parameters/appcast_version.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
@@ -326,8 +324,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ]
       ..hooks = [
         ResetAppHook(),
-        // Hook related to platform overriding.
-        PlatformOverrideHook(),
 
         // [IntegrationTestWidgetsFlutterBinding.traceAction] being used is only
         // supported on Dart VM platforms.
@@ -374,16 +370,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
-
-  print('[${DateTime.now()}] 1. appInitializationFn: PlatformUtils now: ${PlatformUtils.runtimeType}');
-  if (PlatformUtils.runtimeType is PlatformUtilsImpl) {
-    print('[${DateTime.now()}] 2. appInitializationFn: PlatformUtils now: ${PlatformUtils.runtimeType}');
-    PlatformUtils = PlatformUtilsMock();
-    print(
-      '[${DateTime.now()}] 3. appInitializationFn: PlatformUtils now: ${PlatformUtils.runtimeType}',
-    );
-  }
-
+  PlatformUtils = PlatformUtilsMock();
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 

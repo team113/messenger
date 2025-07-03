@@ -20,7 +20,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart' show Rect;
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 import 'package:mutex/mutex.dart';
 
 import '/domain/model/application_settings.dart';
@@ -125,18 +124,6 @@ class SettingsRepository extends DisposableInterface
   Future<void> setOutputDevice(String id) async {
     Log.debug('setOutputDevice($id)', '$runtimeType');
     await _set(media: (e) => e..outputDevice = id);
-  }
-
-  @override
-  Future<void> setNoiseSuppressionEnabled(bool enabled) async {
-    Log.debug('setNoiseSuppressionEnabled($enabled)', '$runtimeType');
-    await _set(media: (e) => e..noiseSuppressionEnabled = enabled);
-  }
-
-  @override
-  Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level) async {
-    Log.debug('setNoiseSuppressionLevel($level)', '$runtimeType');
-    await _set(media: (e) => e..noiseSuppressionLevel = level);
   }
 
   @override

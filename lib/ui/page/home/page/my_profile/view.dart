@@ -24,10 +24,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
-import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/cache_info.dart';
@@ -55,7 +55,6 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
-import '/ui/page/home/widget/presence_label.dart';
 import '/ui/page/login/privacy_policy/view.dart';
 import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -159,16 +158,11 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
   final ProfileTab tab = ProfileTab.values[i];
 
   // Builds a [Block] wrapped with [Obx] to highlight it.
-  Widget block({
-    String? title,
-    required List<Widget> children,
-    bool clipHeight = false,
-  }) {
+  Widget block({String? title, required List<Widget> children}) {
     return Obx(() {
       return Block(
         title: title ?? tab.l10n,
         highlight: c.highlightIndex.value == i,
-        clipHeight: clipHeight,
         children: children,
       );
     });
@@ -329,9 +323,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         return const SizedBox();
       }
 
-      print('PLATFORM UTILS: ${PlatformUtils.isDesktop} && ${!PlatformUtils.isWeb}');
-
-      return block(clipHeight: true, children: [_media(context, c)]);
+      return block(children: [_media(context, c)]);
 
     case ProfileTab.welcome:
       return Obx(() {
@@ -414,6 +406,8 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
 Widget _profile(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
+  final presence = c.myUser.value?.presence ?? Presence.present;
+
   return Block(
     title: 'label_profile'.l10n,
     children: [
@@ -450,7 +444,26 @@ Widget _profile(BuildContext context, MyProfileController c) {
         },
         child: Row(
           children: [
-            Expanded(child: PresenceLabel(presence: c.myUser.value?.presence)),
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: switch (presence) {
+                  Presence.present => style.colors.acceptAuxiliary,
+                  Presence.away => style.colors.warning,
+                  (_) => style.colors.secondary,
+                },
+              ),
+              width: 8,
+              height: 8,
+            ),
+            SizedBox(width: 5),
+            Expanded(
+              child: Text(switch (presence) {
+                Presence.present => 'label_presence_present'.l10n,
+                Presence.away => 'label_presence_away'.l10n,
+                (_) => '',
+              }, textAlign: TextAlign.left),
+            ),
             Text('btn_change'.l10n, style: style.fonts.medium.regular.primary),
             SizedBox(width: 5),
           ],
@@ -618,8 +631,8 @@ Widget _password(BuildContext context, MyProfileController c) {
           onPressed: () => ChangePasswordView.show(context),
           warning: true,
           trailing: c.myUser.value?.hasPassword == true
-              ? const SvgIcon(SvgIcons.passwordSmall)
-              : const SvgIcon(SvgIcons.passwordSmallWhite),
+              ? const SvgIcon(SvgIcons.password)
+              : const SvgIcon(SvgIcons.passwordWhite),
         );
       }),
       const SizedBox(height: 10),
@@ -763,10 +776,10 @@ Widget _media(BuildContext context, MyProfileController c) {
 
         return FieldButton(
           headline: Text(
-            'label_mute_slash_unmute'.l10n,
+            'label_mute_slash_unmute_microphone'.l10n,
             style: c.hotKeyRecording.value
-                ? style.fonts.big.regular.primary
-                : style.fonts.big.regular.secondary,
+                ? style.fonts.normal.regular.primary
+                : style.fonts.normal.regular.secondary,
           ),
           onPressed: c.toggleHotKey,
           border: c.hotKeyRecording.value
@@ -800,128 +813,7 @@ Widget _media(BuildContext context, MyProfileController c) {
           ),
         );
       }),
-
-      // Voice processing widget
-      Column(
-        children: [
-          if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) ...[
-            const SizedBox(height: 20),
-            LineDivider('label_voice_processing'.l10n),
-            const SizedBox(height: 16),
-            Obx(() {
-              // False by default
-              final isEnabled = c.media.value?.noiseSuppressionEnabled ?? false;
-
-              // Moderate by default (if enabled)
-              final level =
-                  c.media.value?.noiseSuppressionLevel ??
-                  NoiseSuppressionLevel.moderate;
-
-              // Values of NoiseSuppressionLevel
-              final values = NoiseSuppressionLevel.values;
-
-              // Percentage in slider
-              final percentage =
-                  (100 * (1 / (values.length - 1)) * values.indexOf(level));
-
-              return Column(
-                children: [
-                  SwitchField(
-                    text: 'label_noise_suppression'.l10n,
-                    key: Key('NoiseSuppressionSwitch'),
-                    value: isEnabled,
-                    onChanged: (enabled) {
-                      c.setNoiseSuppressionEnabled(enabled);
-                      if (enabled) {
-                        // set saved value or default one.
-                        c.setNoiseSuppressionLevelValue(level);
-                      }
-                    },
-                  ),
-                  if (isEnabled) ...[
-                    SizedBox(
-                      height: 70,
-                      child: Transform.translate(
-                        offset: Offset(0, 12),
-                        child: FlutterSlider(
-                          key: Key('NoiseSuppressionSlider'),
-                          handlerHeight: 24,
-                          handler: FlutterSliderHandler(
-                            child: const SizedBox(),
-                          ),
-                          values: [percentage],
-                          tooltip: FlutterSliderTooltip(disabled: true),
-                          fixedValues: values.mapIndexed((i, e) {
-                            return FlutterSliderFixedValue(
-                              percent: ((i / (values.length - 1)) * 100)
-                                  .round(),
-                              value: e,
-                            );
-                          }).toList(),
-                          trackBar: FlutterSliderTrackBar(
-                            inactiveTrackBar: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: style.colors.onBackgroundOpacity13,
-                            ),
-                            activeTrackBar: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: style.colors.primaryHighlight,
-                            ),
-                          ),
-                          onDragCompleted: (i, lower, upper) {
-                            if (lower is NoiseSuppressionLevel) {
-                              c.setNoiseSuppressionLevelValue(lower);
-                            }
-                          },
-                          hatchMark: FlutterSliderHatchMark(
-                            labelsDistanceFromTrackBar: -48,
-                            labels: [
-                              FlutterSliderHatchMarkLabel(
-                                percent: 0,
-                                label: Text(
-                                  textAlign: TextAlign.center,
-                                  'label_low'.l10n,
-                                  style: style.fonts.smaller.regular.secondary,
-                                ),
-                              ),
-                              FlutterSliderHatchMarkLabel(
-                                percent: 33,
-                                label: Text(
-                                  textAlign: TextAlign.center,
-                                  'label_medium'.l10n,
-                                  style: style.fonts.smaller.regular.secondary,
-                                ),
-                              ),
-                              FlutterSliderHatchMarkLabel(
-                                percent: 66,
-                                label: Text(
-                                  textAlign: TextAlign.center,
-                                  'label_high'.l10n,
-                                  style: style.fonts.smaller.regular.secondary,
-                                ),
-                              ),
-                              FlutterSliderHatchMarkLabel(
-                                percent: 100,
-                                label: Text(
-                                  textAlign: TextAlign.center,
-                                  'label_very_high'.l10n,
-                                  style: style.fonts.smaller.regular.secondary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 8),
-                ],
-              );
-            }),
-          ] else
-            const SizedBox(height: 8),
-        ],
-      ),
+      SizedBox(height: 8),
     ],
   );
 }
@@ -1553,7 +1445,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 FlutterSliderHatchMarkLabel(
                   percent: 0,
                   label: Text(
-                    'label_off'.l10n,
+                    'label_count_gb'.l10nfmt({'count': 0}),
                     style: style.fonts.smaller.regular.secondary,
                   ),
                 ),
@@ -1766,28 +1658,32 @@ Future<void> _deleteEmail(
 }) async {
   final style = Theme.of(context).style;
 
+  final bool hasPasswordOrEmail =
+      c.myUser.value?.emails.confirmed.isNotEmpty == true ||
+      c.myUser.value?.hasPassword == true;
+
+  if (confirmed && hasPasswordOrEmail) {
+    await DeleteEmailView.show(context, email: email);
+  }
+
   final bool? result = await MessagePopup.alert(
     'label_delete_email'.l10n,
     description: [
-      TextSpan(text: 'alert_email_will_be_deleted1'.l10n),
-      TextSpan(text: email.val, style: style.fonts.normal.regular.onBackground),
-      TextSpan(text: 'alert_email_will_be_deleted2'.l10n),
+      TextSpan(
+        text: 'alert_email_will_be_deleted1'.l10n,
+        style: style.fonts.small.regular.secondary,
+      ),
+      TextSpan(text: email.val, style: style.fonts.small.regular.onBackground),
+      TextSpan(
+        text: 'alert_email_will_be_deleted2'.l10n,
+        style: style.fonts.small.regular.secondary,
+      ),
     ],
+    button: MessagePopup.deleteButton,
   );
 
   if (result == true) {
-    if (context.mounted) {
-      if (confirmed) {
-        if (c.myUser.value?.emails.confirmed.isNotEmpty == true ||
-            c.myUser.value?.hasPassword == true) {
-          await DeleteEmailView.show(context, email: email);
-        } else {
-          await c.deleteEmail(email);
-        }
-      } else {
-        await c.deleteEmail(email);
-      }
-    }
+    await c.deleteEmail(email);
   }
 }
 

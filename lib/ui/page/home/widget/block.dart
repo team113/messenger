@@ -39,7 +39,6 @@ class Block extends StatelessWidget {
     this.background,
     this.headline,
     this.maxWidth = 400,
-    this.clipHeight = false,
   });
 
   /// Optional header of this [Block].
@@ -83,10 +82,6 @@ class Block extends StatelessWidget {
   /// Maximum width this [Block] should occupy.
   final double maxWidth;
 
-  /// Whether to clip overflowing content in height, but not width.
-  /// Defaults to `false` to avoid extra GPU work.
-  final bool clipHeight;
-
   /// Default [Block.padding] of its contents.
   static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
 
@@ -104,41 +99,6 @@ class Block extends StatelessWidget {
       ),
       borderRadius: BorderRadius.circular(15),
     );
-
-    // Core content that may optionally be clipped.
-    Widget content = AnimatedSize(
-      duration: const Duration(milliseconds: 300),
-      alignment: Alignment.topCenter,
-      curve: Curves.easeInOut,
-      clipBehavior: Clip.none,
-      child: Column(
-        crossAxisAlignment: crossAxisAlignment,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: title != null ? 6 : 10),
-          if (title != null) ...[
-            Center(
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
-                child: Text(
-                  title!,
-                  textAlign: TextAlign.center,
-                  style: titleStyle ?? style.fonts.big.regular.onBackground,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-          ],
-          ...children,
-          const SizedBox(height: 4),
-        ],
-      ),
-    );
-
-    // Apply axis-aligned clip only if requested.
-    if (clipHeight) {
-      content = ClipPath(clipper: _BottomEdgeClipper(), child: content);
-    }
 
     return HighlightedContainer(
       highlight: highlight == true,
@@ -165,7 +125,35 @@ class Block extends StatelessWidget {
                 Container(
                   width: double.infinity,
                   padding: _aspected(context, padding),
-                  child: content,
+                  child: AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    alignment: Alignment.topCenter,
+                    curve: Curves.easeInOut,
+                    child: Column(
+                      crossAxisAlignment: crossAxisAlignment,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(height: title != null ? 6 : 10),
+                        if (title != null) ...[
+                          Center(
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
+                              child: Text(
+                                title!,
+                                textAlign: TextAlign.center,
+                                style:
+                                    titleStyle ??
+                                    style.fonts.big.regular.onBackground,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        ...children,
+                        const SizedBox(height: 4),
+                      ],
+                    ),
+                  ),
                 ),
                 if (headline != null)
                   Positioned(
@@ -210,17 +198,4 @@ class Block extends StatelessWidget {
 
     return style.fonts.small.regular.secondaryHighlightDarkest;
   }
-}
-
-/// [CustomClipper] that does not clip in width.
-class _BottomEdgeClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    const double maxFinite = double.maxFinite;
-    return Path()
-      ..addRect(Rect.fromLTRB(-maxFinite, 0, maxFinite, size.height));
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }

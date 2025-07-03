@@ -69,6 +69,7 @@ class ReactiveTextField extends StatelessWidget {
     this.subtitle,
     this.clearable = true,
     this.selectable,
+    this.floatingAccent = false,
   });
 
   /// [ReactiveTextField] with trailing copy button.
@@ -198,6 +199,9 @@ class ReactiveTextField extends StatelessWidget {
   /// Indicator whether text within this [ReactiveTextField] should be
   /// selectable.
   final bool? selectable;
+
+  /// Indicator whether the style of floating [label] should have accent.
+  final bool floatingAccent;
 
   @override
   Widget build(BuildContext context) {
@@ -329,6 +333,11 @@ class ReactiveTextField extends StatelessWidget {
           ? decoration.floatingLabelStyle?.copyWith(color: style.colors.danger)
           : state.isFocused.value
           ? decoration.floatingLabelStyle?.copyWith(color: style.colors.primary)
+          : floatingAccent
+          ? decoration.floatingLabelStyle?.copyWith(
+              fontSize: style.fonts.big.regular.onBackground.fontSize,
+              color: style.colors.onBackground,
+            )
           : decoration.floatingLabelStyle;
 
       return Theme(
@@ -471,34 +480,29 @@ class ReactiveTextField extends StatelessWidget {
             // Displays the [subtitle] or an error, if any.
             AnimatedSize(
               duration: 200.milliseconds,
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: SafeAnimatedSwitcher(
-                  duration: 200.milliseconds,
-                  child: state.error.value == null
-                      ? subtitle != null
-                            ? Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  20,
-                                  8,
-                                  20,
-                                  8,
-                                ),
-                                child: DefaultTextStyle(
-                                  style: style.fonts.small.regular.onBackground,
-                                  child: subtitle!,
-                                ),
-                              )
-                            : const SizedBox(width: double.infinity, height: 1)
-                      : Padding(
-                          key: Key('HasError'),
-                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+              child: SafeAnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: state.error.value == null
+                    ? subtitle != null
+                          ? Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                              child: DefaultTextStyle(
+                                style: style.fonts.small.regular.onBackground,
+                                child: subtitle!,
+                              ),
+                            )
+                          : const SizedBox(width: double.infinity, height: 1)
+                    : Padding(
+                        key: Key('HasError'),
+                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
                           child: Text(
                             state.error.value ?? '',
                             style: style.fonts.small.regular.danger,
                           ),
                         ),
-                ),
+                      ),
               ),
             ),
           ],

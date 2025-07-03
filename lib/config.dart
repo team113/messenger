@@ -127,7 +127,7 @@ class Config {
   ///
   /// Should be bumped up, when breaking changes in this scheme occur, however
   /// be sure to write migrations and test them.
-  static int commonVersion = 6;
+  static int commonVersion = 5;
 
   /// Schema version of the [ScopedDatabase].
   ///

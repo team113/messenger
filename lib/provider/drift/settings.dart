@@ -21,7 +21,6 @@ import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
-import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/media_settings.dart';
@@ -47,8 +46,6 @@ class Settings extends Table {
   TextColumn get audioDevice => text().nullable()();
   TextColumn get outputDevice => text().nullable()();
   TextColumn get screenDevice => text().nullable()();
-  BoolColumn get noiseSuppressionEnabled => boolean().nullable()();
-  TextColumn get noiseSuppressionLevel => text().nullable()();
   TextColumn get muteKeys => text().nullable()();
 }
 
@@ -181,10 +178,6 @@ extension _SettingsDb on DtoSettings {
         videoDevice: e.videoDevice,
         outputDevice: e.outputDevice,
         screenDevice: e.screenDevice,
-        noiseSuppressionEnabled: e.noiseSuppressionEnabled,
-        noiseSuppressionLevel: NoiseSuppressionLevel.values.firstWhereOrNull(
-          (level) => level.name == e.noiseSuppressionLevel,
-        ),
       ),
     );
   }
@@ -205,8 +198,6 @@ extension _SettingsDb on DtoSettings {
       videoDevice: media.videoDevice,
       screenDevice: media.screenDevice,
       outputDevice: media.outputDevice,
-      noiseSuppressionEnabled: media.noiseSuppressionEnabled,
-      noiseSuppressionLevel: media.noiseSuppressionLevel?.name,
       muteKeys: application.muteKeys?.toString(),
     );
   }

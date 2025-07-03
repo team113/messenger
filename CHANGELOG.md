@@ -9,13 +9,24 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.6.0] · 2025-??-??
 [0.6.0]: /../../tree/v0.6.0
 
-[Diff](/../../compare/v0.5.1...v0.6.0) | [Milestone](/../../milestone/41)
+[Diff](/../../compare/v0.5.2...v0.6.0) | [Milestone](/../../milestone/42)
 
-### Added
+### Changed
 
 - UI:
     - Profile page:
-        - Added settings for noise suppression. ([#1287], [#1264])
+        - Redesigned email and password popups. ([#1296], [#1293])
+
+[#1293]: /../../issue/1293
+[#1296]: /../../pull/1296
+
+
+
+
+## [0.5.2] · 2025-07-01
+[0.5.2]: /../../tree/v0.5.2
+
+[Diff](/../../compare/v0.5.1...v0.5.2) | [Milestone](/../../milestone/41)
 
 ### Changed
 
@@ -24,28 +35,36 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned message delete popups. ([#1291], [#1268])
     - Media panel:
         - Default order of call buttons in dock. ([#1294], [#1263])
+    - User page:
+        - Redesigned description and actions. ([#1310], [#1282], [#1250])
 
 ### Fixed
 
+- Android:
+    - Black screen stuck when opening application. ([#1308])
 - UI:
     - Chat page:
         - Screenshots made to clipboard not pasted as attachments. ([#1280])
         - Scroll back button not scrolling chat to its true bottom. ([#1302])
     - Auth page:
         - Inability to proceed to recover access with username not being empty. ([#1285])
+    - User page:
+        - Links in description not being clickable. ([#1310])
 - Web:
     - Web application install button incorrectly stating that [Progressive Web Application (PWA)](PWA) is already installed. ([#1303])
 
+[#1250]: /../../issue/1250
 [#1263]: /../../issue/1263
-[#1264]: /../../issue/1264
 [#1268]: /../../issue/1268
 [#1280]: /../../pull/1280
+[#1282]: /../../pull/1282
 [#1285]: /../../pull/1285
-[#1285]: /../../pull/1287
 [#1291]: /../../pull/1291
 [#1294]: /../../pull/1294
 [#1302]: /../../pull/1302
 [#1303]: /../../pull/1303
+[#1308]: /../../pull/1308
+[#1310]: /../../pull/1310
 
 
 

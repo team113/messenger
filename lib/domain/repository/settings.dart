@@ -19,7 +19,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart' show Rect;
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
@@ -50,12 +49,6 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [MediaSettings.outputDevice] value.
   Future<void> setOutputDevice(String id);
-
-  /// Enables or disables noise suppression for microphone tracks.
-  Future<void> setNoiseSuppressionEnabled(bool enabled);
-
-  /// Sets the noise suppression level for microphone tracks.
-  Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level);
 
   /// Sets the [ApplicationSettings.enablePopups] value.
   Future<void> setPopupsEnabled(bool enabled);
