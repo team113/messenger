@@ -88,6 +88,14 @@ class Config {
   /// Intended to be used in E2E testing.
   static bool disableDragArea = false;
 
+  /// Whether the application is running in a test environment.
+  ///
+  /// Example:
+  /// ```dart
+  /// if (PlatformUtils.isDesktop || Config.isTesting) { ... }
+  /// ```
+  static bool isTesting = false;
+
   /// Product identifier of `User-Agent` header to put in network queries.
   static String userAgentProduct = 'Gapopa';
 
