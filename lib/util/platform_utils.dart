@@ -125,17 +125,6 @@ class PlatformUtilsImpl {
   /// [Duration] of inactivity to consider [_isActive] as `false`.
   static const Duration _activityTimeout = Duration(seconds: 15);
 
-  /// Whether the application is running in a test environment.
-  ///
-  /// Useful in scenarios with displaying platform-specific features.
-  /// False by default in real [PlatformUtils].
-  ///
-  /// Example:
-  /// ```dart
-  /// if (PlatformUtils.isDesktop || PlatformUtils.isTesting) { ... }
-  /// ```
-  bool get isTesting => false;
-
   /// Indicates whether application is running in a web browser.
   bool get isWeb => GetPlatform.isWeb;
 

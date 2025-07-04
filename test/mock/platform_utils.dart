@@ -29,9 +29,6 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   final String? cache;
 
   @override
-  bool get isTesting => true;
-
-  @override
   Future<Directory> get downloadsDirectory =>
       Future.value(Directory('.temp_cache/downloads'));
 
