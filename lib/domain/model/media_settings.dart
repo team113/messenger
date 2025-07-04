@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
+
 import '/domain/model/ongoing_call.dart';
 
 /// Media settings used in an [OngoingCall] containing the IDs of the devices to
@@ -25,6 +27,11 @@ class MediaSettings {
     this.audioDevice,
     this.outputDevice,
     this.screenDevice,
+    this.noiseSuppression = true,
+    this.noiseSuppressionLevel = NoiseSuppressionLevel.veryHigh,
+    this.echoCancellation = true,
+    this.autoGainControl = true,
+    this.highPassFilter = true,
   });
 
   /// ID of the video device to use by default.
@@ -38,4 +45,19 @@ class MediaSettings {
 
   /// ID of the screen to use in screen sharing by default.
   String? screenDevice;
+
+  /// Indicator whether noise suppression should be enabled for local tracks.
+  bool? noiseSuppression;
+
+  /// Desired noise suppression level for local tracks, if enabled.
+  NoiseSuppressionLevel? noiseSuppressionLevel;
+
+  /// Indicator whether echo cancellation should be enabled for local tracks.
+  bool? echoCancellation;
+
+  /// Indicator whether auto gain control should be enabled for local tracks.
+  bool? autoGainControl;
+
+  /// Indicator whether high pass filter should be enabled for local tracks.
+  bool? highPassFilter;
 }

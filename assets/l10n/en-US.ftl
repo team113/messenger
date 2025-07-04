@@ -150,11 +150,11 @@ btn_call_video_off_desc =
     Turn
     video off
 btn_call_video_on = Turn video on
-btn_camera = Camera
-btn_cancel = Cancel
 btn_call_video_on_desc =
     Turn
     video on
+btn_camera = Camera
+btn_cancel = Cancel
 btn_change = Change
 btn_change_account_desc =
     Change
@@ -187,8 +187,8 @@ btn_done = Done
 btn_download = Download
 btn_download_all = Download all
 btn_download_all_as = Download all as
-btn_download_as = Download as
 btn_download_application = Download application
+btn_download_as = Download as
 btn_download_version = Download {$version}
 btn_edit = Edit
 btn_email = E-mail
@@ -238,9 +238,9 @@ btn_resend_code = Resend confirmation code
 btn_resend_message = Resend message
 btn_save = Save
 btn_save_all = Save all
+btn_save_my_credentials_for_one_click = Save my credentials for one-click signing in
 btn_save_to_gallery = Save to gallery
 btn_save_to_gallery_all = Save all to gallery
-btn_save_my_credentials_for_one_click = Save my credentials for one-click signing in
 btn_schedule_an_interview = Schedule an interview
 btn_select = Select
 btn_select_and_delete = Select and delete
@@ -488,8 +488,8 @@ label_about_you_description =
     Any details about you.
     4096 symbols max.
 label_account = Account
-label_accounts = Your accounts
 label_account_created = Account is created
+label_accounts = Your accounts
 label_active_account = Active
 label_active_devices = Active devices
 label_active_sessions = Active sessions
@@ -560,6 +560,7 @@ label_audio_call = Audio call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
     }
+label_auto_gain_control = Auto gain control
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}removed avatar
@@ -567,6 +568,7 @@ label_avatar_updated = {$author} updated avatar
 label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}updated avatar
 label_away = away
+label_b = {$amount} B
 label_background = Background
 label_besides_freelance_is_an_option_too1 = Besides, we offer an opportunity to collaborate as a freelance developer. The list of tasks and terms of cooperation can be found on the{" "}
 label_besides_freelance_is_an_option_too2 = Freelance.
@@ -593,8 +595,8 @@ label_call_title =
 label_call_window = Call window
 label_calls = Calls
 label_camera = Camera
-label_chat = Chat
 label_change_password = Change password
+label_chat = Chat
 label_chat_call_declined = Declined call
 label_chat_call_ended = Ended call
 label_chat_call_missed = Missed call
@@ -648,9 +650,9 @@ label_count_seconds = {$count} { $count ->
        [1] second
        *[other] seconds
    }
-label_critical_update_is_available = Current version is no longer supported
 label_create_group = Group creation
 label_create_link = Create link
+label_critical_update_is_available = Current version is no longer supported
 label_current_password = Current password
 label_danger_zone = Danger zone
 label_date = Date
@@ -671,6 +673,7 @@ label_did_not_receive_code = Didn't receive the code?
 label_direct_chat_link = Direct chat link
 label_direct_chat_link_in_chat_description =
     Users who come via a direct link automatically become full members of the group.
+label_disabled = Disabled
 label_discard_changes_question = Discard changes?
 label_download = Download
 label_download_and_update = Download and update
@@ -680,6 +683,7 @@ label_draft = Draft
 label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
+label_echo_cancellation = Echo cancellation
 label_edit = Edit
 label_email = E-mail
 label_email_confirmed = E-mail has been confirmed
@@ -688,6 +692,7 @@ label_email_example = example@gmail.com
 label_email_or_phone_not_set = E-mail or phone number is not set. Access to the account will be lost.
 label_email_or_phone_not_set1 = No e-mail is linked.{" "}
 label_email_or_phone_not_set2 = Access to the account cannot be restored.
+label_enabled = Enabled
 label_enter_one_time_code = Enter your one-time code. One-time code has been sent to your e-mails. If you did not receive e-mails, check your spam folder or data entered.
 label_enter_password_below = Please, enter your password in the field below.
 label_enter_password_or_code = Enter password or code
@@ -709,6 +714,7 @@ label_forwarded_messages = {$count ->
     [1] Forwarded message
    *[other] Forwarded messages
 }
+label_gb = {$amount} GB
 label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
@@ -718,6 +724,8 @@ label_guest_account_created = Guest account created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
 label_hidden = Last seen recently
+label_high = High
+label_high_pass_filter = High pass filter
 label_hotkey = Hotkey
 label_identifier = Identifier
 label_identifiers = Identifiers
@@ -728,6 +736,13 @@ label_information = Info
 label_installation_error = Installation error
 label_installation_error_description = Web App is already installed or not available in your browser
 label_interface = Interface
+label_introduction_description =
+    You have access to your account during one year or until:
+
+         • you click the button "Sign out";
+         • the token has been invalidated due to technical issues (cookie / cache lost; OS / browser / application updated; connection certifications changed; etc...).
+
+    To save access to your account, set a password and/or e-mail.
 label_introduction_description1 =
     Access to a guest account is maintained for one year or until:
 
@@ -737,21 +752,9 @@ label_introduction_description1 =
     To save access to your account, please set a password or e-mail number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
-label_introduction_description =
-    You have access to your account during one year or until:
-
-         • you click the button "Sign out";
-         • the token has been invalidated due to technical issues (cookie / cache lost; OS / browser / application updated; connection certifications changed; etc...).
-
-    To save access to your account, set a password and/or e-mail.
 label_introduction_description_email = No e-mail is linked. Access to your account will be lost if you forget the password.
 label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
-label_b = {$amount} B
 label_kb = {$amount} KB
-label_mb = {$amount} MB
-label_gb = {$amount} GB
-label_tb = {$amount} TB
-label_pb = {$amount} PB
 label_key_plus_key_by_default = {$modifier} + {$key} (by default)
 label_language = Language
 label_language_and_background = Language, background, ...
@@ -765,6 +768,8 @@ label_login = Login
 label_login_hint = Your unique login
 label_login_options = Sign in options
 label_login_section_hint = Password and e-mail
+label_low = Low
+label_mb = {$amount} MB
 label_media_camera = Camera
 label_media_devices = Media devices
 label_media_microphone = Microphone
@@ -772,6 +777,7 @@ label_media_no_device_available = No device is available
 label_media_output = Speaker
 label_media_section_hint = Microphone, speaker, camera
 label_media_settings = Media settings
+label_medium = Moderate
 label_message = Message
 label_message_editing = Message editing
 label_microphone_changed = Microphone has been changed to {$microphone}
@@ -804,6 +810,7 @@ label_no_updates_are_available_subtitle = You have the latest version installed.
 label_no_updates_are_available_title = No updates are available
 label_no_users = No users
 label_no_welcome_message = Welcome message has not been added
+label_noise_suppression = Noise suppression
 label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
@@ -827,6 +834,7 @@ label_password_not_set1 = The password is not set.{" "}
 label_password_not_set2 = Access to the account may be lost.
 label_password_or_one_time_code = Password or one-time code
 label_password_set = Password has been set
+label_pb = {$amount} PB
 label_personal_data_deletion = Delete account
 label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
 label_personal_data_deletion_description1 = This process is{" "}
@@ -940,6 +948,7 @@ label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_menu = Menu
 label_tasks = Tasks
+label_tb = {$amount} TB
 label_tech_stack = Tech Stack
 label_tech_stack_backend_developer =
     - Langauge - Rust;
@@ -982,11 +991,11 @@ label_typing = Typing
 label_unknown = Unknown
 label_unknown_chat_direct_link = This direct link is invalid. It could've been deleted by its author. Please recheck the link.
 label_unknown_page = Unknown page
+label_unmuted = Unmuted
 label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
-label_unmuted = Unmuted
 label_update_available = Update available
 label_user = User
 label_user_added_user = {$author} added {$user}
@@ -1002,6 +1011,7 @@ label_users = Users
 label_users_count = Users: {$count}
 label_verify = Verify
 label_version_semicolon = Version: {$version}
+label_very_high = Very high
 label_video = Video
 label_video_call = Video call{$by ->
         [x]{""}
@@ -1011,6 +1021,7 @@ label_video_downloaded = Video downloaded.
 label_video_downloading = Video is downloading...
 label_video_saved_to_gallery = Video saved to gallery.
 label_visits_count = Visits: {$count}
+label_voice_processing = Voice processing
 label_wait_seconds = Wait {$for} s
 label_waiting_for_connection = Waiting for connection...
 label_warning = Warning
@@ -1031,13 +1042,13 @@ label_we_welcome_backend_developer =
     - Skill in other programming languages: Java, Go, Python, Ruby, TypeScript, JavaScript.
 label_welcome_message = Welcome message
 label_welcome_message_description = Greeting is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.
-label_welcome_message_hint = Add, edit, delete
 label_welcome_message_freelance =
     Good afternoon. Please, specify:
     - login on GitHub;
     - PR number (Pull Request);
     - estimated time for completing the task (deadline);
     - the proposed method for solving the problem.
+label_welcome_message_hint = Add, edit, delete
 label_what_we_can_help_you_with = What can we help you with?
 label_work_with_us = Work with us
 label_work_with_us_desc =

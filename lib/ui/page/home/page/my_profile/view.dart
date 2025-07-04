@@ -158,11 +158,16 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
   final ProfileTab tab = ProfileTab.values[i];
 
   // Builds a [Block] wrapped with [Obx] to highlight it.
-  Widget block({String? title, required List<Widget> children}) {
+  Widget block({
+    String? title,
+    required List<Widget> children,
+    bool clipHeight = false,
+  }) {
     return Obx(() {
       return Block(
         title: title ?? tab.l10n,
         highlight: c.highlightIndex.value == i,
+        clipHeight: clipHeight,
         children: children,
       );
     });
@@ -323,7 +328,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         return const SizedBox();
       }
 
-      return block(children: [_media(context, c)]);
+      return block(clipHeight: true, children: [_media(context, c)]);
 
     case ProfileTab.welcome:
       return Obx(() {
@@ -813,7 +818,160 @@ Widget _media(BuildContext context, MyProfileController c) {
           ),
         );
       }),
-      SizedBox(height: 8),
+
+      // Voice processing is unavailable for mobile platforms.
+      if (!PlatformUtils.isMobile) ...[
+        const SizedBox(height: 20),
+        LineDivider('label_voice_processing'.l10n),
+        const SizedBox(height: 16),
+        Obx(() {
+          return SwitchField(
+            text: 'label_echo_cancellation'.l10n,
+            value: c.media.value?.echoCancellation ?? false,
+            onChanged: c.setEchoCancellation,
+          );
+        }),
+        const SizedBox(height: 16),
+        Obx(() {
+          return SwitchField(
+            text: 'label_auto_gain_control'.l10n,
+            value: c.media.value?.autoGainControl ?? false,
+            onChanged: c.setAutoGainControl,
+          );
+        }),
+
+        // High pass filter and noise suppression level are only available under
+        // desktops.
+        if (PlatformUtils.isWeb) ...[
+          const SizedBox(height: 16),
+          Obx(() {
+            final bool enabled = c.media.value?.noiseSuppression ?? true;
+
+            return SwitchField(
+              text: 'label_noise_suppression'.l10n,
+              value: enabled,
+              onChanged: (e) => c.setNoiseSuppression(
+                e
+                    ? NoiseSuppressionLevelWithOff.veryHigh
+                    : NoiseSuppressionLevelWithOff.off,
+              ),
+            );
+          }),
+          const SizedBox(height: 8),
+        ] else ...[
+          const SizedBox(height: 16),
+          Obx(() {
+            return SwitchField(
+              text: 'label_high_pass_filter'.l10n,
+              value: c.media.value?.highPassFilter ?? false,
+              onChanged: c.setHighPassFilter,
+            );
+          }),
+          const SizedBox(height: 20),
+          LineDivider('label_noise_suppression'.l10n),
+          SizedBox(height: 8),
+          Obx(() {
+            final List<NoiseSuppressionLevelWithOff?> values =
+                NoiseSuppressionLevelWithOff.values;
+
+            NoiseSuppressionLevelWithOff? level =
+                c.media.value?.noiseSuppression != true
+                ? NoiseSuppressionLevelWithOff.off
+                : NoiseSuppressionLevelWithOff.values
+                      .whereNot((e) => e == NoiseSuppressionLevelWithOff.off)
+                      .firstWhereOrNull(
+                        (e) =>
+                            e.toLevel() == c.media.value?.noiseSuppressionLevel,
+                      );
+            level ??= NoiseSuppressionLevelWithOff.off;
+
+            // Position of the current level on the slider as a percentage.
+            final percentage =
+                (100 * (1 / (values.length - 1)) * values.indexOf(level));
+
+            return SizedBox(
+              height: 70,
+              child: Transform.translate(
+                offset: Offset(0, 12),
+                child: FlutterSlider(
+                  handlerHeight: 24,
+                  handler: FlutterSliderHandler(child: const SizedBox()),
+                  values: [percentage],
+                  tooltip: FlutterSliderTooltip(disabled: true),
+                  fixedValues: values.mapIndexed((i, e) {
+                    return FlutterSliderFixedValue(
+                      percent: ((i / (values.length - 1)) * 100).round(),
+                      value: e,
+                    );
+                  }).toList(),
+                  trackBar: FlutterSliderTrackBar(
+                    inactiveTrackBar: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: style.colors.onBackgroundOpacity13,
+                    ),
+                    activeTrackBar: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: style.colors.primaryHighlight,
+                    ),
+                  ),
+                  onDragCompleted: (i, lower, upper) {
+                    if (lower is NoiseSuppressionLevelWithOff) {
+                      c.setNoiseSuppression(lower);
+                    } else if (upper is NoiseSuppressionLevelWithOff) {
+                      c.setNoiseSuppression(upper);
+                    }
+                  },
+                  hatchMark: FlutterSliderHatchMark(
+                    labelsDistanceFromTrackBar: -48,
+                    labels: [
+                      FlutterSliderHatchMarkLabel(
+                        percent: 0,
+                        label: Text(
+                          textAlign: TextAlign.center,
+                          'label_disabled'.l10n,
+                          style: style.fonts.smaller.regular.secondary,
+                        ),
+                      ),
+                      FlutterSliderHatchMarkLabel(
+                        percent: 25,
+                        label: Text(
+                          textAlign: TextAlign.center,
+                          'label_low'.l10n,
+                          style: style.fonts.smaller.regular.secondary,
+                        ),
+                      ),
+                      FlutterSliderHatchMarkLabel(
+                        percent: 50,
+                        label: Text(
+                          textAlign: TextAlign.center,
+                          'label_medium'.l10n,
+                          style: style.fonts.smaller.regular.secondary,
+                        ),
+                      ),
+                      FlutterSliderHatchMarkLabel(
+                        percent: 75,
+                        label: Text(
+                          textAlign: TextAlign.center,
+                          'label_high'.l10n,
+                          style: style.fonts.smaller.regular.secondary,
+                        ),
+                      ),
+                      FlutterSliderHatchMarkLabel(
+                        percent: 100,
+                        label: Text(
+                          textAlign: TextAlign.center,
+                          'label_very_high'.l10n,
+                          style: style.fonts.smaller.regular.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      ],
     ],
   );
 }
@@ -1430,11 +1588,19 @@ Widget _storage(BuildContext context, MyProfileController c) {
               ),
             ),
             onDragCompleted: (i, lower, upper) {
+              double? value;
+
               if (lower is double) {
-                if (lower == 64.0 * GB) {
+                value = lower;
+              } else if (upper is double) {
+                value = upper;
+              }
+
+              if (value != null) {
+                if (value == 64.0 * GB) {
                   CacheWorker.instance.setMaxSize(null);
                 } else {
-                  CacheWorker.instance.setMaxSize(lower.round());
+                  CacheWorker.instance.setMaxSize(value.round());
                 }
               }
             },

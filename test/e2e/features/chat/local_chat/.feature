@@ -22,6 +22,7 @@ Feature: Local chats
     And user Bob
     And I am in chat with Bob
     And Bob sees no dialog with me in recent chats
+    And I pause for 5 seconds
 
   Scenario: Message can be posted in local dialog
     When I fill `MessageField` field with "Hello, my local friend"
