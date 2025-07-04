@@ -19,9 +19,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show SelectedContent;
+import 'package:flutter/rendering.dart'
+    show SelectWordSelectionEvent, SelectedContent;
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -194,6 +196,12 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   /// Indicator whether [Offset] during horizontal dragging.
   bool _offsetWasBigger = false;
+
+  /// [ChatMessageQuote] of last clicked or hovered [ChatForward] message.
+  ///
+  /// Becomes [null] when user clicks on any place other than a [ChatForward]
+  /// message.
+  ChatMessageQuote? _copyableQuote;
 
   /// Indicates whether these [ChatForwardWidget.forwards] were read by any
   /// [User].
@@ -516,18 +524,48 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 Flexible(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                    child: SelectionText.rich(
-                      TextSpan(
-                        children: [
-                          if (text != null) text,
-                          // TODO: Use transparent [MessageTimestamp]:
-                          //       https://github.com/flutter/flutter/issues/124787
-                          const WidgetSpan(child: SizedBox(width: 95)),
-                        ],
+                    child: TapRegion(
+                      onTapInside: (event) {
+                        if (event.buttons & kSecondaryButton != 0) {
+                          if (forward.value case ChatForward(
+                            quote: final ChatMessageQuote quote,
+                          )) {
+                            _copyableQuote = quote;
+                          }
+                        }
+                      },
+                      onTapUpOutside: (event) {
+                        if (forward.value case ChatForward(
+                          quote: final ChatMessageQuote quote,
+                        )) {
+                          // Workaround to reset [_copyableQuote] after
+                          // menu button action
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            // Check for situation when user clicks outside
+                            // forwarded message but not the one selected
+                            // in [onTapInside]
+                            if (_copyableQuote == quote) {
+                              _copyableQuote = null;
+                            }
+                          });
+                        }
+                      },
+                      child: _DoubleTapTextSelector(
+                        onSelectionChanged: (a) => _selection = a,
+                        child: SelectionText.rich(
+                          TextSpan(
+                            children: [
+                              if (text != null) text,
+                              // TODO: Use transparent [MessageTimestamp]:
+                              //       https://github.com/flutter/flutter/issues/124787
+                              const WidgetSpan(child: SizedBox(width: 95)),
+                            ],
+                          ),
+                          selectable: PlatformUtils.isDesktop || menu,
+                          onChanged: (a) => _selection = a,
+                          style: style.fonts.medium.regular.onBackground,
+                        ),
                       ),
-                      selectable: PlatformUtils.isDesktop || menu,
-                      onChanged: (a) => _selection = a,
-                      style: style.fonts.medium.regular.onBackground,
                     ),
                   ),
                 ),
@@ -843,9 +881,19 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
     final ChatItem? item = widget.note.value?.value;
 
-    String? copyable;
+    final String? copyable;
     if (item is ChatMessage) {
       copyable = item.text?.val;
+    } else {
+      final StringBuffer buffer = StringBuffer();
+      for (var i = 0; i < widget.forwards.length; i++) {
+        if (widget.forwards[i].value case ChatForward(
+          quote: ChatMessageQuote(:final text),
+        )) {
+          buffer.writeln(text);
+        }
+      }
+      copyable = buffer.toString();
     }
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
@@ -995,7 +1043,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             trailing: const SvgIcon(SvgIcons.copy19),
                             inverted: const SvgIcon(SvgIcons.copy19White),
                             onPressed: () => widget.onCopy?.call(
-                              _selection?.plainText ?? copyable!,
+                              _selection?.plainText ??
+                                  _copyableQuote?.text?.val ??
+                                  copyable!,
                             ),
                           ),
                         ContextMenuButton(
@@ -1333,5 +1383,88 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       widget.onDragging?.call(false);
       setState(() {});
     }
+  }
+}
+
+/// A widget that fixes double tap text selection on widgets inside
+/// [SelectionArea] that have [GestureRecognizer] parent widgets.
+class _DoubleTapTextSelector extends StatelessWidget {
+  const _DoubleTapTextSelector({
+    required this.onSelectionChanged,
+    required this.child,
+  });
+
+  /// Callback, called when the [SelectedContent] changes.
+  final void Function(SelectedContent?) onSelectionChanged;
+
+  /// The widget below this widget in the tree.
+  ///
+  /// {@macro flutter.widgets.ProxyWidget.child}
+  final Widget child;
+
+  /// Returns `true` if given [pointerDeviceKind] is precise.
+  static bool _isPrecisePointerDevice(PointerDeviceKind pointerDeviceKind) {
+    switch (pointerDeviceKind) {
+      case PointerDeviceKind.mouse:
+        return true;
+      case PointerDeviceKind.trackpad:
+      case PointerDeviceKind.stylus:
+      case PointerDeviceKind.invertedStylus:
+      case PointerDeviceKind.touch:
+      case PointerDeviceKind.unknown:
+        return false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selectionDelegate = context
+        .findAncestorWidgetOfExactType<SelectionContainer>()
+        ?.delegate;
+
+    final selectionOverlay = context
+        .findAncestorStateOfType<SelectableRegionState>()
+        // ignore: invalid_use_of_visible_for_testing_member
+        ?.selectionOverlay;
+
+    /// Selects a whole word at the `offset` location.
+    ///
+    /// The `offset` is in global coordinates.
+    ///
+    /// If the whole word is already in the current selection, selection won't
+    /// change.
+    void selectWordAt({required Offset offset}) {
+      selectionDelegate?.dispatchSelectionEvent(
+        SelectWordSelectionEvent(globalPosition: offset),
+      );
+      onSelectionChanged(selectionDelegate?.getSelectedContent());
+    }
+
+    return GestureDetector(
+      onDoubleTapDown: (details) {
+        switch (defaultTargetPlatform) {
+          case TargetPlatform.iOS:
+            if (kIsWeb &&
+                details.kind != null &&
+                !_isPrecisePointerDevice(details.kind!)) {
+              // Double tap on iOS web triggers when
+              // a drag begins after the double tap.
+              break;
+            }
+            selectWordAt(offset: details.globalPosition);
+            if (details.kind != null &&
+                !_isPrecisePointerDevice(details.kind!)) {
+              selectionOverlay?.showHandles();
+            }
+          case TargetPlatform.android:
+          case TargetPlatform.fuchsia:
+          case TargetPlatform.macOS:
+          case TargetPlatform.linux:
+          case TargetPlatform.windows:
+            selectWordAt(offset: details.globalPosition);
+        }
+      },
+      child: child,
+    );
   }
 }
