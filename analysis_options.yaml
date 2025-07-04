@@ -11,6 +11,12 @@ analyzer:
     - '**/*.graphql.dart'
     - '**/*.mocks.dart'
     - 'build/**.dart'
+  plugins:
+    - custom_lint
+
+# custom_lint:
+#   rules:
+#     - unused_ftl_key: warning
 
 linter:
   # List of all available lints can be found here:
