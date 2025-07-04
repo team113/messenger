@@ -118,7 +118,7 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - instrumentisto-libwebrtc-bin (134.0.6998.165)
+  - instrumentisto-libwebrtc-bin (136.0.7103.92)
   - integration_test (0.0.1):
     - Flutter
   - irondash_engine_context (0.0.1):
@@ -126,9 +126,9 @@ PODS:
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
-  - medea_flutter_webrtc (0.13.3):
+  - medea_flutter_webrtc (0.14.0):
     - Flutter
-    - instrumentisto-libwebrtc-bin (= 134.0.6998.165)
+    - instrumentisto-libwebrtc-bin (= 136.0.7103.92)
   - medea_jason (0.9.1):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
@@ -154,9 +154,9 @@ PODS:
   - PromisesObjC (2.4.0)
   - screen_brightness_ios (0.1.0):
     - Flutter
-  - SDWebImage (5.21.0):
-    - SDWebImage/Core (= 5.21.0)
-  - SDWebImage/Core (5.21.0)
+  - SDWebImage (5.21.1):
+    - SDWebImage/Core (= 5.21.1)
+  - SDWebImage/Core (5.21.1)
   - Sentry/HybridSDK (8.46.0)
   - sentry_flutter (8.14.2):
     - Flutter
@@ -167,9 +167,9 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - SQLite.swift (0.15.3):
-    - SQLite.swift/standard (= 0.15.3)
-  - SQLite.swift/standard (0.15.3)
+  - SQLite.swift (0.15.4):
+    - SQLite.swift/standard (= 0.15.4)
+  - SQLite.swift/standard (0.15.4)
   - sqlite3 (3.49.2):
     - sqlite3/common (= 3.49.2)
   - sqlite3/common (3.49.2)
@@ -368,12 +368,12 @@ SPEC CHECKSUMS:
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
   image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
-  instrumentisto-libwebrtc-bin: afe27fb5f2bf987d714a7ee37ecbe92a08601bd8
+  instrumentisto-libwebrtc-bin: 16b8b2d319afc89fbc4527275ad3726a8ae3e201
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   irondash_engine_context: 8e58ca8e0212ee9d1c7dc6a42121849986c88486
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
-  medea_flutter_webrtc: 5d1329d904af8cdc1763007aaf8bbcd410cc9b7f
-  medea_jason: e5c1a250fa2392fd24a59ffe7e06b511feaf5a04
+  medea_flutter_webrtc: c6c3f1b5b3193c549d9520414c62e47b1dfbd2cf
+  medea_jason: 36b5aa477692e0e2e1560e3f212d241406ff3156
   media_kit_libs_ios_video: 5a18affdb97d1f5d466dc79988b13eff6c5e2854
   media_kit_video: 1746e198cb697d1ffb734b1d05ec429d1fcd1474
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
@@ -384,12 +384,12 @@ SPEC CHECKSUMS:
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   screen_brightness_ios: 28c5fbdb40634de44f86025d84470158ad4df48c
-  SDWebImage: f84b0feeb08d2d11e6a9b843cb06d75ebf5b8868
+  SDWebImage: f29024626962457f3470184232766516dee8dfea
   Sentry: da60d980b197a46db0b35ea12cb8f39af48d8854
   sentry_flutter: 27892878729f42701297c628eb90e7c6529f3684
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
-  SQLite.swift: 8d054987f02728cc912b0eb5a9659650573a65a2
+  SQLite.swift: a107c734115fea616a4ad31371d39f1637e8de56
   sqlite3: 3c950dc86011117c307eb0b28c4a7bb449dce9f1
   sqlite3_flutter_libs: 74334e3ef2dbdb7d37e50859bb45da43935779c4
   super_native_extensions: b763c02dc3a8fd078389f410bf15149179020cb4

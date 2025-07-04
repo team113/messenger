@@ -24,6 +24,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -744,6 +745,38 @@ class MyProfileController extends GetxController {
     await _myUserService.updateUserLogin(login);
   }
 
+  /// Sets the [MediaSettings.noiseSuppression] value.
+  Future<void> setNoiseSuppression(NoiseSuppressionLevelWithOff level) async {
+    switch (level) {
+      case NoiseSuppressionLevelWithOff.off:
+        await _settingsRepo.setNoiseSuppression(false);
+        break;
+
+      case NoiseSuppressionLevelWithOff.low:
+      case NoiseSuppressionLevelWithOff.moderate:
+      case NoiseSuppressionLevelWithOff.high:
+      case NoiseSuppressionLevelWithOff.veryHigh:
+        await _settingsRepo.setNoiseSuppression(true);
+        await _settingsRepo.setNoiseSuppressionLevel(level.toLevel());
+        break;
+    }
+  }
+
+  /// Sets the [MediaSettings.echoCancellation] value.
+  Future<void> setEchoCancellation(bool enabled) async {
+    await _settingsRepo.setEchoCancellation(enabled);
+  }
+
+  /// Sets the [MediaSettings.autoGainControl] value.
+  Future<void> setAutoGainControl(bool enabled) async {
+    await _settingsRepo.setAutoGainControl(enabled);
+  }
+
+  /// Sets the [MediaSettings.highPassFilter] value.
+  Future<void> setHighPassFilter(bool enabled) async {
+    await _settingsRepo.setHighPassFilter(enabled);
+  }
+
   /// Updates [MyUser.login] field for the authenticated [MyUser].
   Future<void> updateWelcomeMessage({
     ChatMessageText? text,
@@ -919,4 +952,33 @@ extension on LogicalKeyboardKey {
     LogicalKeyboardKey.shiftRight => HotKeyModifier.shift,
     (_) => null,
   };
+}
+
+/// Audio processing noise suppression aggressiveness.
+enum NoiseSuppressionLevelWithOff {
+  /// Disabled.
+  off,
+
+  /// Minimal noise suppression.
+  low,
+
+  /// Moderate level of suppression.
+  moderate,
+
+  /// Aggressive noise suppression.
+  high,
+
+  /// Maximum suppression.
+  veryHigh;
+
+  /// Converts this [NoiseSuppressionLevelWithOff] to actual
+  /// [NoiseSuppressionLevel].
+  NoiseSuppressionLevel toLevel() {
+    return switch (this) {
+      off || low => NoiseSuppressionLevel.low,
+      moderate => NoiseSuppressionLevel.moderate,
+      high => NoiseSuppressionLevel.high,
+      veryHigh => NoiseSuppressionLevel.veryHigh,
+    };
+  }
 }
