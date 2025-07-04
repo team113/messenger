@@ -81,8 +81,9 @@ class SettingsRepository extends DisposableInterface
 
     await _guard.protect(() async {
       final DtoSettings? settings = await _settingsLocal.read(userId);
-      mediaSettings.value = settings?.media;
-      applicationSettings.value = settings?.application;
+      mediaSettings.value = settings?.media ?? MediaSettings();
+      applicationSettings.value =
+          settings?.application ?? ApplicationSettings();
 
       final DtoBackground? bytes = await _backgroundLocal.read(userId);
       background.value = bytes?.bytes;
@@ -266,8 +267,8 @@ class SettingsRepository extends DisposableInterface
     Log.debug('_initSettingsSubscription()', '$runtimeType');
 
     _settingsSubscription = _settingsLocal.watch(userId).listen((e) {
-      applicationSettings.value = e?.application;
-      mediaSettings.value = e?.media;
+      applicationSettings.value = e?.application ?? applicationSettings.value;
+      mediaSettings.value = e?.media ?? mediaSettings.value;
     });
   }
 

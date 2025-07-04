@@ -17,6 +17,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:log_me/log_me.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import 'package:messenger/domain/model/user.dart';
@@ -47,29 +48,40 @@ void main() {
   );
 
   test('Noise suppression settings are stored', () async {
-    expect(repo.mediaSettings.value?.noiseSuppression, null);
-    expect(repo.mediaSettings.value?.noiseSuppressionLevel, null);
+    Log.options = LogOptions(level: LogLevel.all);
 
-    await repo.setNoiseSuppression(true);
-    await repo.setNoiseSuppressionLevel(NoiseSuppressionLevel.high);
+    await repo.init();
 
     expect(repo.mediaSettings.value?.noiseSuppression, true);
+    await repo.setNoiseSuppression(false);
+    await Future.delayed(Duration(microseconds: 16));
+    expect(repo.mediaSettings.value?.noiseSuppression, false);
+
+    expect(
+      repo.mediaSettings.value?.noiseSuppressionLevel,
+      NoiseSuppressionLevel.veryHigh,
+    );
+    await repo.setNoiseSuppressionLevel(NoiseSuppressionLevel.high);
+    await Future.delayed(Duration(microseconds: 16));
     expect(
       repo.mediaSettings.value?.noiseSuppressionLevel,
       NoiseSuppressionLevel.high,
     );
 
-    expect(repo.mediaSettings.value?.echoCancellation, null);
-    await repo.setEchoCancellation(true);
     expect(repo.mediaSettings.value?.echoCancellation, true);
+    await repo.setEchoCancellation(false);
+    await Future.delayed(Duration(microseconds: 16));
+    expect(repo.mediaSettings.value?.echoCancellation, false);
 
-    expect(repo.mediaSettings.value?.autoGainControl, null);
-    await repo.setAutoGainControl(true);
     expect(repo.mediaSettings.value?.autoGainControl, true);
+    await repo.setAutoGainControl(false);
+    await Future.delayed(Duration(microseconds: 16));
+    expect(repo.mediaSettings.value?.autoGainControl, false);
 
-    expect(repo.mediaSettings.value?.highPassFilter, null);
-    await repo.setHighPassFilter(true);
     expect(repo.mediaSettings.value?.highPassFilter, true);
+    await repo.setHighPassFilter(false);
+    await Future.delayed(Duration(microseconds: 16));
+    expect(repo.mediaSettings.value?.highPassFilter, false);
   });
 
   tearDown(() async => Future.wait([common.close(), scoped.close()]));
