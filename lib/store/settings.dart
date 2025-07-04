@@ -20,6 +20,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart' show Rect;
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 import 'package:mutex/mutex.dart';
 
 import '/domain/model/application_settings.dart';
@@ -80,8 +81,9 @@ class SettingsRepository extends DisposableInterface
 
     await _guard.protect(() async {
       final DtoSettings? settings = await _settingsLocal.read(userId);
-      mediaSettings.value = settings?.media;
-      applicationSettings.value = settings?.application;
+      mediaSettings.value = settings?.media ?? MediaSettings();
+      applicationSettings.value =
+          settings?.application ?? ApplicationSettings();
 
       final DtoBackground? bytes = await _backgroundLocal.read(userId);
       background.value = bytes?.bytes;
@@ -124,6 +126,36 @@ class SettingsRepository extends DisposableInterface
   Future<void> setOutputDevice(String id) async {
     Log.debug('setOutputDevice($id)', '$runtimeType');
     await _set(media: (e) => e..outputDevice = id);
+  }
+
+  @override
+  Future<void> setNoiseSuppression(bool enabled) async {
+    Log.debug('setNoiseSuppression($enabled)', '$runtimeType');
+    await _set(media: (e) => e..noiseSuppression = enabled);
+  }
+
+  @override
+  Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level) async {
+    Log.debug('setNoiseSuppressionLevel($level)', '$runtimeType');
+    await _set(media: (e) => e..noiseSuppressionLevel = level);
+  }
+
+  @override
+  Future<void> setEchoCancellation(bool enabled) async {
+    Log.debug('setEchoCancellation($enabled)', '$runtimeType');
+    await _set(media: (e) => e..echoCancellation = enabled);
+  }
+
+  @override
+  Future<void> setAutoGainControl(bool enabled) async {
+    Log.debug('setAutoGainControl($enabled)', '$runtimeType');
+    await _set(media: (e) => e..autoGainControl = enabled);
+  }
+
+  @override
+  Future<void> setHighPassFilter(bool enabled) async {
+    Log.debug('setHighPassFilter($enabled)', '$runtimeType');
+    await _set(media: (e) => e..highPassFilter = enabled);
   }
 
   @override
@@ -235,8 +267,8 @@ class SettingsRepository extends DisposableInterface
     Log.debug('_initSettingsSubscription()', '$runtimeType');
 
     _settingsSubscription = _settingsLocal.watch(userId).listen((e) {
-      applicationSettings.value = e?.application;
-      mediaSettings.value = e?.media;
+      applicationSettings.value = e?.application ?? applicationSettings.value;
+      mediaSettings.value = e?.media ?? mediaSettings.value;
     });
   }
 

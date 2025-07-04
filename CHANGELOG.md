@@ -11,12 +11,20 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.2...v0.6.0) | [Milestone](/../../milestone/42)
 
+### Added
+
+- UI:
+    - Profile page:
+        - Voice processing settings for calls. ([#1287], [#1264])
+
 ### Changed
 
 - UI:
     - Profile page:
         - Redesigned email and password popups. ([#1296], [#1293])
 
+[#1264]: /../../issue/1264
+[#1287]: /../../pull/1287
 [#1293]: /../../issue/1293
 [#1296]: /../../pull/1296
 
