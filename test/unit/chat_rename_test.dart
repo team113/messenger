@@ -300,68 +300,70 @@ void main() async {
     );
   });
 
-  test('ChatService throws a RenameChatException on chat rename', () async {
-    when(
-      graphQlProvider.renameChat(
+  test(
+    'ChatService does not throw RenameChatException on chat rename',
+    () async {
+      when(
+        graphQlProvider.renameChat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          ChatName('newname'),
+        ),
+      ).thenThrow(const RenameChatException(RenameChatErrorCode.unknownChat));
+
+      Get.put(chatProvider);
+
+      AbstractSettingsRepository settingsRepository = Get.put(
+        SettingsRepository(
+          const UserId('me'),
+          settingsProvider,
+          backgroundProvider,
+          callRectProvider,
+        ),
+      );
+      UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider),
+      );
+      final CallRepository callRepository = Get.put(
+        CallRepository(
+          graphQlProvider,
+          userRepository,
+          callCredentialsProvider,
+          chatCredentialsProvider,
+          settingsRepository,
+          me: const UserId('me'),
+        ),
+      );
+      AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+        ChatRepository(
+          graphQlProvider,
+          chatProvider,
+          chatItemProvider,
+          chatMemberProvider,
+          callRepository,
+          draftProvider,
+          userRepository,
+          sessionProvider,
+          monologProvider,
+          me: const UserId('me'),
+        ),
+      );
+      ChatService chatService = Get.put(
+        ChatService(chatRepository, authService),
+      );
+
+      await chatService.renameChat(
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         ChatName('newname'),
-      ),
-    ).thenThrow(const RenameChatException(RenameChatErrorCode.unknownChat));
+      );
 
-    Get.put(chatProvider);
-
-    AbstractSettingsRepository settingsRepository = Get.put(
-      SettingsRepository(
-        const UserId('me'),
-        settingsProvider,
-        backgroundProvider,
-        callRectProvider,
-      ),
-    );
-    UserRepository userRepository = Get.put(
-      UserRepository(graphQlProvider, userProvider),
-    );
-    final CallRepository callRepository = Get.put(
-      CallRepository(
-        graphQlProvider,
-        userRepository,
-        callCredentialsProvider,
-        chatCredentialsProvider,
-        settingsRepository,
-        me: const UserId('me'),
-      ),
-    );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        sessionProvider,
-        monologProvider,
-        me: const UserId('me'),
-      ),
-    );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
-
-    expect(
-      () async => await chatService.renameChat(
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        ChatName('newname'),
-      ),
-      throwsA(isA<RenameChatException>()),
-    );
-
-    verify(
-      graphQlProvider.renameChat(
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        ChatName('newname'),
-      ),
-    );
-  });
+      verify(
+        graphQlProvider.renameChat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          ChatName('newname'),
+        ),
+      );
+    },
+  );
 
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

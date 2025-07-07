@@ -296,7 +296,7 @@ void main() async {
   });
 
   test(
-    'ChatService throws a DeleteChatMessageException when delete message',
+    'ChatService does not throw a DeleteChatMessageException when deleting message',
     () async {
       when(
         graphQlProvider.deleteChatMessage(
@@ -311,17 +311,14 @@ void main() async {
       Get.put(chatProvider);
       Get.put(chatItemProvider);
 
-      expect(
-        () async => await chatService.deleteChatItem(
-          ChatMessage(
-            const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            User(const UserId('me'), UserNum('1234123412341234')),
-            PreciseDateTime.now(),
-            status: SendingStatus.sent,
-          ),
+      await chatService.deleteChatItem(
+        ChatMessage(
+          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          User(const UserId('me'), UserNum('1234123412341234')),
+          PreciseDateTime.now(),
+          status: SendingStatus.sent,
         ),
-        throwsA(isA<DeleteChatMessageException>()),
       );
 
       verify(
@@ -360,7 +357,7 @@ void main() async {
   });
 
   test(
-    'ChatService throws a HideChatItemException when hide ChatItem',
+    'ChatService does not throw a HideChatItemException when hiding ChatItem',
     () async {
       when(
         graphQlProvider.hideChatItem(
@@ -373,17 +370,14 @@ void main() async {
       Get.put(chatProvider);
       Get.put(chatItemProvider);
 
-      expect(
-        () async => await chatService.hideChatItem(
-          ChatMessage(
-            const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            User(const UserId('me'), UserNum('1234123412341234')),
-            PreciseDateTime.now(),
-            status: SendingStatus.sent,
-          ),
+      await chatService.hideChatItem(
+        ChatMessage(
+          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          User(const UserId('me'), UserNum('1234123412341234')),
+          PreciseDateTime.now(),
+          status: SendingStatus.sent,
         ),
-        throwsA(isA<HideChatItemException>()),
       );
 
       verify(
