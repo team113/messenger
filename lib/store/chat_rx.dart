@@ -1977,11 +1977,13 @@ class RxChatImpl extends RxChat {
 
             case ChatEventKind.cleared:
               write((chat) {
+                chat.value.firstItem = null;
                 chat.value.lastItem = null;
                 chat.value.lastReadItem = null;
                 chat.lastItemCursor = null;
                 chat.lastReadItemCursor = null;
               });
+              _lastReadItemKey = null;
               _lastReadItemCursor = null;
               await clear();
               break;
