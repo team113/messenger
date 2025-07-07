@@ -54,17 +54,24 @@ import '/provider/drift/monolog.dart';
 import '/provider/drift/version.dart';
 import '/provider/gql/exceptions.dart'
     show
+        AddChatMemberException,
+        ClearChatException,
         ConnectionException,
+        DeleteChatDirectLinkException,
         DeleteChatForwardException,
         DeleteChatMessageException,
         EditChatMessageException,
-        StaleVersionException,
-        UploadAttachmentException,
-        HideChatItemException,
-        HideChatException,
-        UnfavoriteChatException,
         FavoriteChatException,
-        ClearChatException;
+        ForwardChatItemsException,
+        HideChatException,
+        HideChatItemException,
+        RemoveChatMemberException,
+        RenameChatException,
+        StaleVersionException,
+        ToggleChatMuteException,
+        UnfavoriteChatException,
+        UpdateChatAvatarException,
+        UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
@@ -532,7 +539,22 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.name = name);
 
     try {
-      await _graphQlProvider.renameChat(id, name);
+      try {
+        await _graphQlProvider.renameChat(id, name);
+      } on RenameChatException catch (e) {
+        switch (e.code) {
+          case RenameChatErrorCode.unknownChat:
+            await remove(id);
+            break;
+
+          case RenameChatErrorCode.artemisUnknown:
+            rethrow;
+
+          case RenameChatErrorCode.dialog:
+            chat?.chat.update((c) => c?.name = previous);
+            break;
+        }
+      }
     } catch (_) {
       chat?.chat.update((c) => c?.name = previous);
       rethrow;
@@ -560,7 +582,25 @@ class ChatRepository extends DisposableInterface
     }
 
     try {
-      await _graphQlProvider.addChatMember(chatId, userId);
+      try {
+        await _graphQlProvider.addChatMember(chatId, userId);
+      } on AddChatMemberException catch (e) {
+        switch (e.code) {
+          case AddChatMemberErrorCode.artemisUnknown:
+          case AddChatMemberErrorCode.blocked:
+            rethrow;
+
+          case AddChatMemberErrorCode.unknownUser:
+          case AddChatMemberErrorCode.notGroup:
+            if (user != null) {
+              chat?.members.remove(user.id);
+            }
+
+          case AddChatMemberErrorCode.unknownChat:
+            await remove(chatId);
+            break;
+        }
+      }
     } catch (_) {
       if (user != null) {
         chat?.members.remove(user.id);
@@ -582,10 +622,32 @@ class ChatRepository extends DisposableInterface
     final RxChatImpl? chat = chats[chatId];
     final DtoChatMember? member = chat?.members.pagination?.items[userId];
 
+    if (chat?.chat.value.isGroup == false) {
+      // No-op.
+      return;
+    }
+
     chat?.members.remove(userId);
 
     try {
-      await _graphQlProvider.removeChatMember(chatId, userId);
+      try {
+        await _graphQlProvider.removeChatMember(chatId, userId);
+      } on RemoveChatMemberException catch (e) {
+        switch (e.code) {
+          case RemoveChatMemberErrorCode.artemisUnknown:
+            rethrow;
+
+          case RemoveChatMemberErrorCode.notGroup:
+            if (member != null) {
+              chat?.members.put(member);
+            }
+            break;
+
+          case RemoveChatMemberErrorCode.unknownChat:
+            await remove(chatId);
+            break;
+        }
+      }
     } catch (_) {
       if (member != null) {
         chat?.members.put(member);
@@ -996,7 +1058,22 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.directLink = null);
 
     try {
-      await _graphQlProvider.deleteChatDirectLink(groupId: groupId);
+      try {
+        await _graphQlProvider.deleteChatDirectLink(groupId: groupId);
+      } on DeleteChatDirectLinkException catch (e) {
+        switch (e.code) {
+          case DeleteChatDirectLinkErrorCode.artemisUnknown:
+            rethrow;
+
+          case DeleteChatDirectLinkErrorCode.notGroup:
+            // No-op.
+            break;
+
+          case DeleteChatDirectLinkErrorCode.unknownChat:
+            await remove(groupId);
+            break;
+        }
+      }
     } catch (_) {
       chat?.chat.update((c) => c?.directLink = link);
       rethrow;
@@ -1021,21 +1098,41 @@ class ChatRepository extends DisposableInterface
       to = (await ensureRemoteDialog(to))!.id;
     }
 
-    await _graphQlProvider.forwardChatItems(
-      from,
-      to,
-      items
-          .map(
-            (i) => ChatItemQuoteInput(
-              id: i.item.id,
-              attachments: i.attachments,
-              withText: i.withText,
-            ),
-          )
-          .toList(),
-      text: text,
-      attachments: attachments,
-    );
+    try {
+      await _graphQlProvider.forwardChatItems(
+        from,
+        to,
+        items
+            .map(
+              (i) => ChatItemQuoteInput(
+                id: i.item.id,
+                attachments: i.attachments,
+                withText: i.withText,
+              ),
+            )
+            .toList(),
+        text: text,
+        attachments: attachments,
+      );
+    } on ForwardChatItemsException catch (e) {
+      switch (e.code) {
+        case ForwardChatItemsErrorCode.blocked:
+        case ForwardChatItemsErrorCode.noTextAndNoAttachment:
+        case ForwardChatItemsErrorCode.unknownUser:
+        case ForwardChatItemsErrorCode.unknownForwardedAttachment:
+        case ForwardChatItemsErrorCode.wrongItemsCount:
+        case ForwardChatItemsErrorCode.unsupportedForwardedItem:
+        case ForwardChatItemsErrorCode.unknownForwardedItem:
+        case ForwardChatItemsErrorCode.unknownAttachment:
+        case ForwardChatItemsErrorCode.artemisUnknown:
+          rethrow;
+
+        case ForwardChatItemsErrorCode.unknownChat:
+          // No-op, as either `from` or `to` chat doesn't exist - which one is
+          // unknown.
+          break;
+      }
+    }
   }
 
   @override
@@ -1093,12 +1190,30 @@ class ChatRepository extends DisposableInterface
     }
 
     try {
-      await _graphQlProvider.updateChatAvatar(
-        id,
-        file: file == null ? null : upload,
-        crop: crop,
-        onSendProgress: onSendProgress,
-      );
+      try {
+        await _graphQlProvider.updateChatAvatar(
+          id,
+          file: file == null ? null : upload,
+          crop: crop,
+          onSendProgress: onSendProgress,
+        );
+      } on UpdateChatAvatarException catch (e) {
+        switch (e.code) {
+          case UpdateChatAvatarErrorCode.unknownChat:
+            await remove(id);
+            break;
+
+          case UpdateChatAvatarErrorCode.invalidCropCoordinates:
+          case UpdateChatAvatarErrorCode.invalidCropPoints:
+          case UpdateChatAvatarErrorCode.malformed:
+          case UpdateChatAvatarErrorCode.unsupportedFormat:
+          case UpdateChatAvatarErrorCode.invalidSize:
+          case UpdateChatAvatarErrorCode.invalidDimensions:
+          case UpdateChatAvatarErrorCode.artemisUnknown:
+          case UpdateChatAvatarErrorCode.dialog:
+            rethrow;
+        }
+      }
     } catch (e) {
       if (file == null) {
         chat?.chat.update((c) => c?.avatar = avatar);
@@ -1121,7 +1236,23 @@ class ChatRepository extends DisposableInterface
     chat?.chat.update((c) => c?.muted = muting?.toModel());
 
     try {
-      await _graphQlProvider.toggleChatMute(id, muting);
+      try {
+        await _graphQlProvider.toggleChatMute(id, muting);
+      } on ToggleChatMuteException catch (e) {
+        switch (e.code) {
+          case ToggleChatMuteErrorCode.tooShort:
+          case ToggleChatMuteErrorCode.artemisUnknown:
+            rethrow;
+
+          case ToggleChatMuteErrorCode.unknownChat:
+            await remove(id);
+            break;
+
+          case ToggleChatMuteErrorCode.monolog:
+            // No-op.
+            break;
+        }
+      }
     } catch (e) {
       chat?.chat.update((c) => c?.muted = muted);
       rethrow;
@@ -1144,7 +1275,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    var query = await _graphQlProvider.chatItems(
+    final query = await _graphQlProvider.chatItems(
       id,
       first: first,
       after: after,

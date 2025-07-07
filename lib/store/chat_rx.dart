@@ -793,23 +793,41 @@ class RxChatImpl extends RxChat {
         );
       }
 
-      final response = await _chatRepository.postChatMessage(
-        id,
-        text: text,
-        attachments: attachments?.map((e) => e.id).toList(),
-        repliesTo: repliesTo.map((e) => e.id).toList(),
-      );
+      try {
+        final response = await _chatRepository.postChatMessage(
+          id,
+          text: text,
+          attachments: attachments?.map((e) => e.id).toList(),
+          repliesTo: repliesTo.map((e) => e.id).toList(),
+        );
 
-      final event =
-          response?.events
-                  .map((e) => _chatRepository.chatEvent(e))
-                  .firstWhereOrNull((e) => e is EventChatItemPosted)
-              as EventChatItemPosted?;
+        final event =
+            response?.events
+                    .map((e) => _chatRepository.chatEvent(e))
+                    .firstWhereOrNull((e) => e is EventChatItemPosted)
+                as EventChatItemPosted?;
 
-      if (event != null && event.item is DtoChatMessage) {
-        remove(message.value.id);
-        _pending.remove(message.value);
-        message = event.item as DtoChatMessage;
+        if (event != null && event.item is DtoChatMessage) {
+          remove(message.value.id);
+          _pending.remove(message.value);
+          message = event.item as DtoChatMessage;
+        }
+      } on PostChatMessageException catch (e) {
+        switch (e.code) {
+          case PostChatMessageErrorCode.blocked:
+          case PostChatMessageErrorCode.noTextAndNoAttachment:
+          case PostChatMessageErrorCode.wrongAttachmentsCount:
+          case PostChatMessageErrorCode.wrongReplyingChatItemsCount:
+          case PostChatMessageErrorCode.unknownAttachment:
+          case PostChatMessageErrorCode.unknownReplyingChatItem:
+          case PostChatMessageErrorCode.unknownUser:
+          case PostChatMessageErrorCode.artemisUnknown:
+            rethrow;
+
+          case PostChatMessageErrorCode.unknownChat:
+            await _chatRepository.remove(id);
+            break;
+        }
       }
     } catch (e) {
       message.value.status.value = SendingStatus.error;
