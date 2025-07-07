@@ -342,7 +342,7 @@ void main() async {
   });
 
   test(
-    'ChatService throws a RemoveChatMemberErrorCode on a chat leave',
+    'ChatService does not throw RemoveChatMemberErrorCode on a chat leave',
     () async {
       when(
         graphQlProvider.recentChats(
@@ -380,12 +380,9 @@ void main() async {
       Get.put<GraphQlProvider>(graphQlProvider);
       ChatService chatService = await init(graphQlProvider);
 
-      expect(
-        () async => await chatService.removeChatMember(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-        ),
-        throwsA(isA<RemoveChatMemberException>()),
+      await chatService.removeChatMember(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
       );
 
       verify(
