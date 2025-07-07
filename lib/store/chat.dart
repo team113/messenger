@@ -55,9 +55,16 @@ import '/provider/drift/version.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
+        DeleteChatForwardException,
+        DeleteChatMessageException,
         EditChatMessageException,
         StaleVersionException,
-        UploadAttachmentException;
+        UploadAttachmentException,
+        HideChatItemException,
+        HideChatException,
+        UnfavoriteChatException,
+        FavoriteChatException,
+        ClearChatException;
 import '/provider/gql/graphql.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
@@ -620,7 +627,17 @@ class ChatRepository extends DisposableInterface
 
       // [Chat.isHidden] will be changed by [RxChatImpl]'s own remote event
       // handler. Chat will be removed from [paginated] via [RxChatImpl].
-      await _graphQlProvider.hideChat(id);
+      try {
+        await _graphQlProvider.hideChat(id);
+      } on HideChatException catch (e) {
+        switch (e.code) {
+          case HideChatErrorCode.artemisUnknown:
+            rethrow;
+
+          case HideChatErrorCode.unknownChat:
+          // No-op.
+        }
+      }
     } catch (_) {
       chat?.chat.update((c) => c?.isHidden = false);
 
@@ -746,7 +763,23 @@ class ChatRepository extends DisposableInterface
       }
 
       try {
-        await _graphQlProvider.deleteChatMessage(message.id);
+        try {
+          await _graphQlProvider.deleteChatMessage(message.id);
+        } on DeleteChatMessageException catch (e) {
+          switch (e.code) {
+            case DeleteChatMessageErrorCode.notAuthor:
+            case DeleteChatMessageErrorCode.quoted:
+            case DeleteChatMessageErrorCode.read:
+              rethrow;
+
+            case DeleteChatMessageErrorCode.unknownChatItem:
+              // No-op.
+              break;
+
+            case DeleteChatMessageErrorCode.artemisUnknown:
+              rethrow;
+          }
+        }
 
         if (item != null) {
           chat?.remove(item.value.id);
@@ -782,7 +815,21 @@ class ChatRepository extends DisposableInterface
       }
 
       try {
-        await _graphQlProvider.deleteChatForward(forward.id);
+        try {
+          await _graphQlProvider.deleteChatForward(forward.id);
+        } on DeleteChatForwardException catch (e) {
+          switch (e.code) {
+            case DeleteChatForwardErrorCode.artemisUnknown:
+            case DeleteChatForwardErrorCode.notAuthor:
+            case DeleteChatForwardErrorCode.quoted:
+            case DeleteChatForwardErrorCode.read:
+              rethrow;
+
+            case DeleteChatForwardErrorCode.unknownChatItem:
+              // No-op.
+              break;
+          }
+        }
 
         if (item != null) {
           chat?.remove(item.value.id);
@@ -815,7 +862,18 @@ class ChatRepository extends DisposableInterface
     }
 
     try {
-      await _graphQlProvider.hideChatItem(id);
+      try {
+        await _graphQlProvider.hideChatItem(id);
+      } on HideChatItemException catch (e) {
+        switch (e.code) {
+          case HideChatItemErrorCode.unknownChatItem:
+            // No-op.
+            break;
+
+          case HideChatItemErrorCode.artemisUnknown:
+            rethrow;
+        }
+      }
 
       if (item != null) {
         chat?.remove(item.value.id);
@@ -1281,7 +1339,18 @@ class ChatRepository extends DisposableInterface
       }
 
       if (!id.isLocal) {
-        await _graphQlProvider.favoriteChat(id, newPosition);
+        try {
+          await _graphQlProvider.favoriteChat(id, newPosition);
+        } on FavoriteChatException catch (e) {
+          switch (e.code) {
+            case FavoriteChatErrorCode.unknownChat:
+              await remove(id);
+              break;
+
+            case FavoriteChatErrorCode.artemisUnknown:
+              rethrow;
+          }
+        }
       }
     } catch (e) {
       if (chat?.chat.value.isMonolog == true) {
@@ -1309,7 +1378,18 @@ class ChatRepository extends DisposableInterface
     paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
 
     try {
-      await _graphQlProvider.unfavoriteChat(id);
+      try {
+        await _graphQlProvider.unfavoriteChat(id);
+      } on UnfavoriteChatException catch (e) {
+        switch (e.code) {
+          case UnfavoriteChatErrorCode.unknownChat:
+            await remove(id);
+            break;
+
+          case UnfavoriteChatErrorCode.artemisUnknown:
+            rethrow;
+        }
+      }
     } catch (e) {
       chat?.chat.update((c) => c?.favoritePosition = oldPosition);
       paginated.emit(MapChangeNotification.updated(chat?.id, chat?.id, chat));
@@ -1352,7 +1432,21 @@ class ChatRepository extends DisposableInterface
     }
 
     try {
-      await _graphQlProvider.clearChat(id, until);
+      try {
+        await _graphQlProvider.clearChat(id, until);
+      } on ClearChatException catch (e) {
+        switch (e.code) {
+          case ClearChatErrorCode.artemisUnknown:
+            rethrow;
+
+          case ClearChatErrorCode.unknownChat:
+            await remove(id);
+            return;
+
+          case ClearChatErrorCode.unknownChatItem:
+            rethrow;
+        }
+      }
     } catch (_) {
       if (chat != null) {
         chat.messages.insertAll(0, items ?? []);
