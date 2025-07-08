@@ -449,12 +449,15 @@ clean.test.e2e:
 
 # Find unused labels from .ftl file.
 #
+# Defaults:
+#   FTL_FILE = assets/l10n/en-US.ftl
+#   SRC_DIR  = lib
+#
 # Usage:
-#   make ftl_unused                     # run locally
-#   make ftl_unused dockerized=yes      # run inside the flutter Docker image
+#   make ftl_unused [FTL_FILE=path/to/file.ftl] [SRC_DIR=path/to/src/dir] [dockerized=(no|yes)]
 
-FTL_FILE := assets/l10n/en-US.ftl
-SRC_DIR  := lib
+FTL_FILE ?= assets/l10n/en-US.ftl
+SRC_DIR  ?= lib
 
 ftl_unused:
 ifeq ($(dockerized),yes)
@@ -463,9 +466,14 @@ ifeq ($(dockerized),yes)
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make ftl_unused dockerized=no
+			FTL_FILE=$(FTL_FILE) SRC_DIR=$(SRC_DIR)
 else
-	dart run tools/labels_checker.dart \
-		-f $(FTL_FILE) -s $(SRC_DIR)
+ifeq ($(shell test -f tools/pubspec.yaml && echo yes),yes)
+	@dart pub get --directory=tools > /dev/null
+else
+	@dart pub get > /dev/null
+endif
+	dart run tools/labels_checker.dart -f $(FTL_FILE) -s $(SRC_DIR)
 endif
 
 
