@@ -24,7 +24,10 @@ import 'interactive_logo.dart';
 
 /// [Block] display the [InteractiveLogo].
 class ProjectBlock extends StatelessWidget {
-  const ProjectBlock({super.key, this.children = const []});
+  const ProjectBlock({super.key, this.onPressed, this.children = const []});
+
+  /// Callback, called when logo is pressed.
+  final void Function()? onPressed;
 
   /// [Widget]s to display under the [InteractiveLogo], if any.
   final List<Widget> children;
@@ -51,7 +54,7 @@ class ProjectBlock extends StatelessWidget {
           maxLines: 1,
         ),
         const SizedBox(height: 20),
-        const InteractiveLogo(),
+        InteractiveLogo(onEyePressed: onPressed),
         const SizedBox(height: 7),
         ...children,
       ],

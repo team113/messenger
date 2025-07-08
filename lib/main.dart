@@ -91,6 +91,8 @@ Future<void> main() async {
     dateStamp: !PlatformUtils.isWeb,
   );
 
+  Log.maxLogs = Config.logAmount;
+
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     MediaKit.ensureInitialized();
