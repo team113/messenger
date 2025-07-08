@@ -447,6 +447,27 @@ clean.test.e2e:
 	       test/e2e/gherkin/reports/
 
 
+# Find unused labels from .ftl file.
+#
+# Usage:
+#   make ftl_unused                     # run locally
+#   make ftl_unused dockerized=yes      # run inside the flutter Docker image
+
+FTL_FILE := assets/l10n/en-US.ftl
+SRC_DIR  := lib
+
+ftl_unused:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host \
+	           -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make ftl_unused dockerized=no
+else
+	dart run tools/labels_checker.dart \
+		-f $(FTL_FILE) -s $(SRC_DIR)
+endif
+
 
 
 ######################
@@ -953,7 +974,7 @@ sentry.upload:
 
 .PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
         appcast.xml appcast.xml.item \
-        clean.e2e clean.flutter clean.test.e2e \
+        clean.e2e clean.flutter clean.test.e2e ftl_unused \
         copyright \
         docker.down docker.image docker.push docker.tags docker.tar \
         docker.untar docker.up \
