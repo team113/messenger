@@ -17,7 +17,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:log_me/log_me.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import 'package:messenger/domain/model/user.dart';
@@ -48,8 +47,6 @@ void main() {
   );
 
   test('Noise suppression settings are stored', () async {
-    Log.options = LogOptions(level: LogLevel.all);
-
     await repo.init();
 
     expect(repo.mediaSettings.value?.noiseSuppression, true);

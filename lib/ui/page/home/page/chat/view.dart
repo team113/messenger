@@ -129,8 +129,27 @@ class ChatView extends StatelessWidget {
         return Obx(() {
           if (c.status.value.isEmpty) {
             return Scaffold(
-              appBar: AppBar(),
-              body: Center(child: Text('label_no_chat_found'.l10n)),
+              appBar: const CustomAppBar(
+                padding: EdgeInsets.only(left: 4, right: 20),
+                leading: [StyledBackButton()],
+              ),
+              body: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    border: style.systemMessageBorder,
+                    color: style.systemMessageColor,
+                  ),
+                  child: Text(
+                    'label_no_chat_found'.l10n,
+                    style: style.systemMessageStyle,
+                  ),
+                ),
+              ),
             );
           } else if (!c.status.value.isSuccess) {
             return Scaffold(

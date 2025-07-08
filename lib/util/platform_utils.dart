@@ -60,13 +60,6 @@ class PlatformUtilsImpl {
             .inMilliseconds;
 
         isDeltaSynchronized.value = difference <= 2200;
-
-        if (!isDeltaSynchronized.value) {
-          Log.debug(
-            'Delta not synchronized -> difference is $difference ms',
-            '$runtimeType',
-          );
-        }
       }
 
       _lastDeltaPing = DateTime.now();
@@ -803,6 +796,33 @@ class PlatformUtilsImpl {
     }
 
     return contents ?? (await rootBundle.load(asset));
+  }
+
+  /// Forms and downloads the provided [bytes] as a file.
+  Future<File?> createAndDownload(String name, Uint8List bytes) async {
+    if (isWeb) {
+      await WebUtils.downloadBlob(name, bytes);
+      return null;
+    }
+
+    String? to;
+
+    if (PlatformUtils.isDesktop) {
+      to = await FilePicker.platform.saveFile(
+        fileName: name,
+        lockParentWindow: true,
+      );
+    } else {
+      to = (await temporaryDirectory).path;
+    }
+
+    if (to != null) {
+      final File file = File(to);
+      await file.writeAsBytes(bytes);
+      return file;
+    }
+
+    return null;
   }
 }
 

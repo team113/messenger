@@ -22,12 +22,15 @@ import '/ui/widget/svg/svg.dart';
 
 /// Animated logo, displaying the [SvgImage] based on the provided [index].
 class AnimatedLogo extends StatelessWidget {
-  const AnimatedLogo({super.key, this.index = 0});
+  const AnimatedLogo({super.key, this.index = 0, this.onEyePressed});
 
   /// Index of logo animation.
   ///
   /// Should be in 0..9 range inclusive.
   final int index;
+
+  /// Callback, called when an eye of the logo is pressed.
+  final void Function()? onEyePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +51,20 @@ class AnimatedLogo extends StatelessWidget {
             return const Center(child: CustomProgressIndicator());
           },
         ),
+
+        if (onEyePressed != null)
+          Positioned(
+            left: 45,
+            top: 64,
+            child: GestureDetector(
+              onDoubleTap: onEyePressed,
+              child: Container(
+                color: Colors.transparent,
+                width: 30,
+                height: 36,
+              ),
+            ),
+          ),
       ],
     );
   }

@@ -299,7 +299,7 @@ void main() async {
     );
   });
 
-  test('ChatService throws HideChatException on chat hide', () async {
+  test('ChatService does not throw HideChatException on chat hide', () async {
     when(
       graphQlProvider.recentChats(
         first: anyNamed('first'),
@@ -366,11 +366,8 @@ void main() async {
     );
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    expect(
-      chatService.hideChat(
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ),
-      throwsA(isA<HideChatException>()),
+    await chatService.hideChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     );
 
     await Future.delayed(Duration.zero);

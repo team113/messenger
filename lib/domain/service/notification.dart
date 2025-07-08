@@ -102,6 +102,13 @@ class NotificationService extends DisposableService {
   /// successfully configured.
   bool get pushNotifications => _pushNotifications;
 
+  /// Returns the [DeviceToken] that is used for push notifications.
+  DeviceToken get token => DeviceToken(
+    apns: _apns == null ? null : ApnsDeviceToken(_apns ?? ''),
+    voip: _voip == null ? null : ApnsVoipDeviceToken(_voip ?? ''),
+    fcm: _token == null ? null : FcmRegistrationToken(_token ?? ''),
+  );
+
   /// Indicator whether this device's [Locale] contains a China country code.
   bool get _isChina => Platform.localeName.contains('CN');
 
@@ -611,6 +618,10 @@ class NotificationService extends DisposableService {
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications.
   Future<void> unregisterPushDevice() async {
     Log.debug('unregisterPushDevice()', '$runtimeType');
+
+    Log.debug('unregisterPushDevice() -> _token: $_token', '$runtimeType');
+    Log.debug('unregisterPushDevice() -> _apns: $_apns', '$runtimeType');
+    Log.debug('unregisterPushDevice() -> _voip: $_voip', '$runtimeType');
 
     try {
       await Future.wait([

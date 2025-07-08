@@ -114,6 +114,11 @@
 #   level = "debug" (if `kDebugMode` or `kProfileMode` is `true`)
 #   level = "info" (if `kReleaseMode` is `true`)
 
+# Maximum allowed amount of the log entries to keep in RAM.
+#
+# Default:
+#   amount = 2048
+
 [link]
 # Prefix of the direct chat link URL.
 #
