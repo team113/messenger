@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Profile page:
         - Voice processing settings for calls. ([#1287], [#1264])
+- Technical information and logs modal opened by double clicking logo's eye. ([#1319])
 
 ### Changed
 
@@ -27,6 +28,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1287]: /../../pull/1287
 [#1293]: /../../issue/1293
 [#1296]: /../../pull/1296
+[#1319]: /../../pull/1319
 
 
 
