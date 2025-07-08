@@ -23,10 +23,16 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Redesigned email and password popups. ([#1296], [#1293])
 
+### Fixed
+
+- iOS:
+    - [VoIP] [CallKit] notification still ringing despite already joined call on another device. ([#1320])
+
 [#1264]: /../../issue/1264
 [#1287]: /../../pull/1287
 [#1293]: /../../issue/1293
 [#1296]: /../../pull/1296
+[#1320]: /../../pull/1320
 
 
 

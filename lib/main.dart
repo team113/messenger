@@ -300,7 +300,11 @@ Future<void> handlePushNotification(RemoteMessage message) async {
   final bool isCall =
       tag?.endsWith('_call') == true || tag?.endsWith('-call') == true;
 
+  // Since tags are only working under Android, thus this code is related to
+  // Android platform only - iOS doesn't execute that.
   if (isCall && message.data['chatId'] != null) {
+    final ChatId chatId = message.data['chatId'];
+
     SharedPreferences? prefs;
     CredentialsDriftProvider? credentialsProvider;
     AccountDriftProvider? accountProvider;
@@ -311,11 +315,11 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
         switch (event!.event) {
           case Event.actionCallAccept:
-            await prefs?.setString('answeredCall', message.data['chatId']);
+            await prefs?.setString('answeredCall', chatId.val);
             break;
 
           case Event.actionCallDecline:
-            await provider?.declineChatCall(ChatId(message.data['chatId']));
+            await provider?.declineChatCall(chatId);
             break;
 
           case Event.actionCallEnded:
@@ -338,16 +342,16 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
       await FlutterCallkitIncoming.showCallkitIncoming(
         CallKitParams(
-          id: message.data['chatId'],
+          id: chatId.val,
           nameCaller: message.notification?.title ?? 'gapopa',
           appName: 'Gapopa',
           avatar: '', // TODO: Add avatar to FCM notifications.
-          handle: message.data['chatId'],
+          handle: chatId.val,
           type: 0,
           textAccept: 'btn_accept'.l10n,
           textDecline: 'btn_decline'.l10n,
           duration: 30000,
-          extra: {'chatId': message.data['chatId']},
+          extra: {'chatId': chatId.val},
           headers: {'platform': 'flutter'},
           android: AndroidParams(
             isCustomNotification: true,
@@ -383,59 +387,110 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         provider.token = credentials.access.secret;
         provider.reconnect();
 
-        subscription = provider
-            .chatEvents(ChatId(message.data['chatId']), null, () => null)
-            .listen((e) async {
-              var events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
-              if (events.$$typename == 'ChatEventsVersioned') {
-                var mixin =
-                    events
-                        as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+        subscription = provider.chatEvents(chatId, null, () => null).listen((
+          e,
+        ) async {
+          final events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
+          if (events.$$typename == 'Chat') {
+            final mixin = events as ChatEvents$Subscription$ChatEvents$Chat;
+            final call = mixin.ongoingCall;
 
-                for (var e in mixin.events) {
-                  if (e.$$typename == 'EventChatCallFinished') {
-                    await FlutterCallkitIncoming.endCall(
-                      (message.data['chatId'] as String).base62ToUuid(),
-                    );
-                  } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                    var node =
-                        e
-                            as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-                    if (node.user.id == credentials.userId) {
-                      await FlutterCallkitIncoming.endCall(
-                        (message.data['chatId'] as String).base62ToUuid(),
-                      );
-                    }
-                  } else if (e.$$typename == 'EventChatCallDeclined') {
-                    var node =
-                        e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
-                    if (node.user.id == credentials.userId) {
-                      await FlutterCallkitIncoming.endCall(
-                        (message.data['chatId'] as String).base62ToUuid(),
-                      );
-                    }
-                  }
+            if (call != null) {
+              if (call.members.any((e) => e.user.id == credentials.userId)) {
+                await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+              }
+            }
+          } else if (events.$$typename == 'ChatEventsVersioned') {
+            final mixin =
+                events
+                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+
+            for (var e in mixin.events) {
+              if (e.$$typename == 'EventChatCallFinished') {
+                await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+              } else if (e.$$typename == 'EventChatCallStarted') {
+                final node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
+
+                if (node.call.members.any(
+                  (e) => e.user.id == credentials.userId,
+                )) {
+                  await FlutterCallkitIncoming.endCall(
+                    chatId.val.base62ToUuid(),
+                  );
+                }
+              } else if (e.$$typename == 'EventChatCallConversationStarted') {
+                final node =
+                    e
+                        as ChatEventsVersionedMixin$Events$EventChatCallConversationStarted;
+
+                if (node.call.members.any(
+                  (e) => e.user.id == credentials.userId,
+                )) {
+                  await FlutterCallkitIncoming.endCall(
+                    chatId.val.base62ToUuid(),
+                  );
+                }
+              } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+                var node =
+                    e
+                        as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+                if (node.userId == credentials.userId) {
+                  await FlutterCallkitIncoming.endCall(
+                    chatId.val.base62ToUuid(),
+                  );
+                }
+              } else if (e.$$typename == 'EventChatCallMemberJoined') {
+                var node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+                if (node.user.id == credentials.userId) {
+                  await FlutterCallkitIncoming.endCall(
+                    chatId.val.base62ToUuid(),
+                  );
+                }
+              } else if (e.$$typename == 'EventChatCallMemberLeft') {
+                var node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
+                if (node.user.id == credentials.userId) {
+                  await FlutterCallkitIncoming.endCall(
+                    chatId.val.base62ToUuid(),
+                  );
+                }
+              } else if (e.$$typename == 'EventChatCallDeclined') {
+                var node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+                if (node.user.id == credentials.userId) {
+                  await FlutterCallkitIncoming.endCall(
+                    chatId.val.base62ToUuid(),
+                  );
                 }
               }
-            });
+            }
+          }
+        });
 
         prefs = await SharedPreferences.getInstance();
         await prefs.remove('answeredCall');
+
+        // Ensure that we haven't already joined the call.
+        final query = await provider.getChat(chatId);
+        final call = query.chat?.ongoingCall;
+        if (call != null) {
+          if (call.members.any((e) => e.user.id == credentials.userId)) {
+            await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+          }
+        }
       }
 
       // Remove the incoming call notification after a reasonable amount of
       // time for a better UX.
       await Future.delayed(30.seconds);
 
-      await FlutterCallkitIncoming.endCall(
-        (message.data['chatId'] as String).base62ToUuid(),
-      );
+      await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
     } catch (_) {
       provider?.disconnect();
       subscription?.cancel();
-      await FlutterCallkitIncoming.endCall(
-        (message.data['chatId'] as String).base62ToUuid(),
-      );
+      await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
     }
   } else {
     // If message contains no notification (it's a background notification),
