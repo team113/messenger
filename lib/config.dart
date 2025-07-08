@@ -107,6 +107,9 @@ class Config {
   /// Level of [Log]ger to log.
   static me.LogLevel logLevel = me.LogLevel.info;
 
+  /// Maximum allowed [Log.maxLogs] amount of log entries to keep.
+  static int logAmount = 2048;
+
   /// URL of a Sparkle Appcast XML file.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
@@ -234,6 +237,10 @@ class Config {
           kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.debug,
     );
 
+    logAmount = const bool.hasEnvironment('SOCAPP_LOG_AMOUNT')
+        ? const int.fromEnvironment('SOCAPP_LOG_AMOUNT')
+        : (document['log']?['amount'] ?? 2048);
+
     appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
         ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
         : (document['appcast']?['url'] ?? appcast);
@@ -342,6 +349,7 @@ class Config {
                 orElse: () => logLevel,
               );
             }
+            logAmount = _asInt(remote['log']?['amount']) ?? logAmount;
             origin = url;
           }
         }

@@ -27,6 +27,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/login/controller.dart';
 import '/ui/page/login/view.dart';
+import '/ui/page/support/log/view.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
@@ -332,6 +333,7 @@ class AuthView extends StatelessWidget {
                 return AnimatedLogo(
                   key: const ValueKey('Logo'),
                   index: c.logoFrame.value,
+                  onEyePressed: () => LogView.show(context),
                 );
               }),
               ...footer,
