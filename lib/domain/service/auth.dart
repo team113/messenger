@@ -223,8 +223,6 @@ class AuthService extends DisposableService {
     _deltaWorker = ever(PlatformUtils.isDeltaSynchronized, (
       bool synchronized,
     ) async {
-      Log.debug('_deltaWorker -> $synchronized', '$runtimeType');
-
       if (synchronized) {
         if (_deltaMutex.isLocked) {
           _deltaMutex.release();

@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:ffi' hide Size;
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cupertino_http/cupertino_http.dart'
     show CupertinoClient, URLSessionConfiguration;
@@ -490,6 +491,11 @@ class WebUtils {
 
   /// Refreshes the current browser's page.
   static Future<void> refresh() async {
+    // No-op.
+  }
+
+  /// Downloads the provided [bytes] as a blob file.
+  static Future<void> downloadBlob(String name, Uint8List bytes) async {
     // No-op.
   }
 }

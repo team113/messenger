@@ -31,9 +31,11 @@ import '/ui/page/login/widget/prefix_button.dart';
 import '/ui/page/work/widget/project_block.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'log/view.dart';
 
 /// [Routes.support] page.
 class SupportView extends StatelessWidget {
@@ -54,7 +56,7 @@ class SupportView extends StatelessWidget {
           ),
           body: ListView(
             children: [
-              const ProjectBlock(),
+              ProjectBlock(onPressed: () => LogView.show(context)),
               Block(
                 title: 'label_what_we_can_help_you_with'.l10n,
                 children: [
@@ -111,9 +113,22 @@ class SupportView extends StatelessWidget {
                     }),
                     const SizedBox(height: 8),
                   ],
-                  Text(
-                    'label_version_semicolon'.l10nfmt({'version': Pubspec.ref}),
-                    style: style.fonts.small.regular.secondary,
+
+                  WidgetButton(
+                    onPressed: () {},
+                    onPressedWithDetails: (u) {
+                      PlatformUtils.copy(text: Pubspec.ref);
+                      MessagePopup.success(
+                        'label_copied'.l10n,
+                        at: u.globalPosition,
+                      );
+                    },
+                    child: Text(
+                      'label_version_semicolon'.l10nfmt({
+                        'version': Pubspec.ref,
+                      }),
+                      style: style.fonts.small.regular.secondary,
+                    ),
                   ),
                   const SizedBox(height: 4),
                 ],
