@@ -262,7 +262,7 @@ void main() async {
   });
 
   test(
-    'ChatService throws a ToggleChatMuteException when toggle chat mute',
+    'ChatService does not throw ToggleChatMuteException when toggle chat mute',
     () async {
       AuthService authService = Get.put(
         AuthService(
@@ -329,12 +329,9 @@ void main() async {
         const ToggleChatMuteException(ToggleChatMuteErrorCode.unknownChat),
       );
 
-      expect(
-        () async => await chatService.toggleChatMute(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          null,
-        ),
-        throwsA(isA<ToggleChatMuteException>()),
+      await chatService.toggleChatMute(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        null,
       );
 
       verify(

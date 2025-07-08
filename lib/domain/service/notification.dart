@@ -619,6 +619,10 @@ class NotificationService extends DisposableService {
   Future<void> unregisterPushDevice() async {
     Log.debug('unregisterPushDevice()', '$runtimeType');
 
+    Log.debug('unregisterPushDevice() -> _token: $_token', '$runtimeType');
+    Log.debug('unregisterPushDevice() -> _apns: $_apns', '$runtimeType');
+    Log.debug('unregisterPushDevice() -> _voip: $_voip', '$runtimeType');
+
     try {
       await Future.wait([
         if (_token != null)

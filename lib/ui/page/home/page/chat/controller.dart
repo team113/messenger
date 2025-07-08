@@ -653,7 +653,14 @@ class ChatController extends GetxController {
     try {
       await _chatService.hideChatItem(item);
     } on HideChatItemException catch (e) {
-      MessagePopup.error(e);
+      switch (e.code) {
+        case HideChatItemErrorCode.unknownChatItem:
+          // No-op.
+          break;
+
+        case HideChatItemErrorCode.artemisUnknown:
+          MessagePopup.error('err_unknown'.l10n);
+      }
     } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
@@ -667,9 +674,37 @@ class ChatController extends GetxController {
     try {
       await _chatService.deleteChatItem(item);
     } on DeleteChatMessageException catch (e) {
-      MessagePopup.error(e);
+      switch (e.code) {
+        case DeleteChatMessageErrorCode.artemisUnknown:
+          MessagePopup.error('err_data_transfer'.l10n);
+          break;
+
+        case DeleteChatMessageErrorCode.notAuthor:
+        case DeleteChatMessageErrorCode.quoted:
+        case DeleteChatMessageErrorCode.read:
+          MessagePopup.error(e.toMessage());
+          break;
+
+        case DeleteChatMessageErrorCode.unknownChatItem:
+          // No-op.
+          break;
+      }
     } on DeleteChatForwardException catch (e) {
-      MessagePopup.error(e);
+      switch (e.code) {
+        case DeleteChatForwardErrorCode.artemisUnknown:
+          MessagePopup.error('err_data_transfer'.l10n);
+          break;
+
+        case DeleteChatForwardErrorCode.notAuthor:
+        case DeleteChatForwardErrorCode.quoted:
+        case DeleteChatForwardErrorCode.read:
+          MessagePopup.error(e.toMessage());
+          break;
+
+        case DeleteChatForwardErrorCode.unknownChatItem:
+          // No-op.
+          break;
+      }
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
