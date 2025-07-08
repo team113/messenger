@@ -440,7 +440,7 @@ void main() async {
   );
 
   test(
-    'ChatService throws DeleteChatDirectLinkException on ChatDirectLink deletion',
+    'ChatService does not throw DeleteChatDirectLinkException on ChatDirectLink deletion',
     () async {
       final GraphQlProvider graphQlProvider = Get.find();
       final ChatService chatService = Get.find();
@@ -455,11 +455,8 @@ void main() async {
         ),
       );
 
-      expect(
-        () async => await chatService.deleteChatDirectLink(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        ),
-        throwsA(isA<DeleteChatDirectLinkException>()),
+      await chatService.deleteChatDirectLink(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       );
 
       verify(

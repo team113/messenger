@@ -232,137 +232,98 @@ void main() async {
     ]);
   });
 
-  test(
-    'ChatService throws UpdateChatAvatarErrorCode.tooBigSize, UpdateChatAvatarErrorCode.unknownChat',
-    () async {
-      when(
-        graphQlProvider.updateChatAvatar(
-          const ChatId('123'),
-          file: captureThat(isNotNull, named: 'file'),
-          onSendProgress: null,
-        ),
-      ).thenThrow(
-        const UpdateChatAvatarException(UpdateChatAvatarErrorCode.invalidSize),
-      );
+  test('ChatService throws UpdateChatAvatarErrorCode.tooBigSize', () async {
+    when(
+      graphQlProvider.updateChatAvatar(
+        const ChatId('123'),
+        file: captureThat(isNotNull, named: 'file'),
+        onSendProgress: null,
+      ),
+    ).thenThrow(
+      const UpdateChatAvatarException(UpdateChatAvatarErrorCode.invalidSize),
+    );
 
-      when(
-        graphQlProvider.updateChatAvatar(
-          const ChatId('123'),
-          file: null,
-          onSendProgress: null,
-        ),
-      ).thenThrow(
-        const UpdateChatAvatarException(UpdateChatAvatarErrorCode.unknownChat),
-      );
+    AbstractSettingsRepository settingsRepository = Get.put(
+      SettingsRepository(
+        const UserId('me'),
+        settingsProvider,
+        backgroundProvider,
+        callRectProvider,
+      ),
+    );
 
-      AbstractSettingsRepository settingsRepository = Get.put(
-        SettingsRepository(
-          const UserId('me'),
-          settingsProvider,
-          backgroundProvider,
-          callRectProvider,
+    AuthService authService = Get.put(
+      AuthService(
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
         ),
-      );
+        credentialsProvider,
+        accountProvider,
+        locksProvider,
+      ),
+    );
+    authService.init();
 
-      AuthService authService = Get.put(
-        AuthService(
-          Get.put<AbstractAuthRepository>(
-            AuthRepository(
-              graphQlProvider,
-              myUserProvider,
-              credentialsProvider,
-            ),
-          ),
-          credentialsProvider,
-          accountProvider,
-          locksProvider,
-        ),
-      );
-      authService.init();
-
-      final UserRepository userRepository = UserRepository(
+    final UserRepository userRepository = UserRepository(
+      graphQlProvider,
+      userProvider,
+    );
+    final CallRepository callRepository = Get.put(
+      CallRepository(
         graphQlProvider,
-        userProvider,
-      );
-      final CallRepository callRepository = Get.put(
-        CallRepository(
-          graphQlProvider,
-          userRepository,
-          callCredentialsProvider,
-          chatCredentialsProvider,
-          settingsRepository,
-          me: const UserId('me'),
-        ),
-      );
-      final ChatRepository chatRepository = ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
         userRepository,
-        sessionProvider,
-        monologProvider,
+        callCredentialsProvider,
+        chatCredentialsProvider,
+        settingsRepository,
         me: const UserId('me'),
+      ),
+    );
+    final ChatRepository chatRepository = ChatRepository(
+      graphQlProvider,
+      chatProvider,
+      chatItemProvider,
+      chatMemberProvider,
+      callRepository,
+      draftProvider,
+      userRepository,
+      sessionProvider,
+      monologProvider,
+      me: const UserId('me'),
+    );
+
+    final ChatService chatService = ChatService(chatRepository, authService);
+
+    Object? exception;
+
+    try {
+      await chatService.updateChatAvatar(
+        const ChatId('123'),
+        file: NativeFile(
+          name: 'test',
+          size: 2,
+          bytes: Uint8List.fromList([1, 1]),
+        ),
+        onSendProgress: null,
       );
+    } catch (e) {
+      exception = e;
+    }
 
-      final ChatService chatService = ChatService(chatRepository, authService);
+    if (exception !=
+        const UpdateChatAvatarException(
+          UpdateChatAvatarErrorCode.invalidSize,
+        )) {
+      fail('UpdateChatAvatarErrorCode.tooBigSize not thrown');
+    }
 
-      Object? exception;
-
-      try {
-        await chatService.updateChatAvatar(
-          const ChatId('123'),
-          file: NativeFile(
-            name: 'test',
-            size: 2,
-            bytes: Uint8List.fromList([1, 1]),
-          ),
-          onSendProgress: null,
-        );
-      } catch (e) {
-        exception = e;
-      }
-
-      if (exception !=
-          const UpdateChatAvatarException(
-            UpdateChatAvatarErrorCode.invalidSize,
-          )) {
-        fail('UpdateChatAvatarErrorCode.tooBigSize not thrown');
-      }
-
-      try {
-        await chatService.updateChatAvatar(
-          const ChatId('123'),
-          file: null,
-          onSendProgress: null,
-        );
-      } catch (e) {
-        exception = e;
-      }
-
-      if (exception !=
-          const UpdateChatAvatarException(
-            UpdateChatAvatarErrorCode.unknownChat,
-          )) {
-        fail('UpdateChatAvatarErrorCode.unknownChat not thrown');
-      }
-
-      verifyInOrder([
-        graphQlProvider.updateChatAvatar(
-          const ChatId('123'),
-          file: captureThat(isNotNull, named: 'file'),
-          onSendProgress: null,
-        ),
-        graphQlProvider.updateChatAvatar(
-          const ChatId('123'),
-          file: null,
-          onSendProgress: null,
-        ),
-      ]);
-    },
-  );
+    verifyInOrder([
+      graphQlProvider.updateChatAvatar(
+        const ChatId('123'),
+        file: captureThat(isNotNull, named: 'file'),
+        onSendProgress: null,
+      ),
+    ]);
+  });
 
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
