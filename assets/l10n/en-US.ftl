@@ -647,7 +647,6 @@ label_login_options = Sign in options
 label_login_section_hint = Password and e-mail
 label_low = Low
 label_mb = {$amount} MB
-label_media_camera = Camera
 label_media_devices = Media devices
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available

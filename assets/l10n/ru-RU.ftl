@@ -669,7 +669,6 @@ label_login_options = Способы входа
 label_login_section_hint = Gapopa ID, логин, e-mail, телефон, пароль
 label_low = Низкое
 label_mb = {$amount} МБ
-label_media_camera = Камера
 label_media_devices = Медиа устройства
 label_media_microphone = Микрофон
 label_media_no_device_available = Нет доступных устройств
