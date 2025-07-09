@@ -605,6 +605,12 @@ class TextFieldState extends ReactiveFieldState {
     this.focus.addListener(() async {
       isFocused.value = this.focus.hasFocus;
 
+      if (this.focus.hasFocus) {
+        focuses.add(this);
+      } else {
+        focuses.remove(this);
+      }
+
       if (onFocus != null) {
         if (controller.text != _previousText &&
             (_previousText != null || controller.text.isNotEmpty)) {
@@ -653,6 +659,9 @@ class TextFieldState extends ReactiveFieldState {
 
   @override
   late final FocusNode focus;
+
+  /// [TextFieldState]s that currently have focus.
+  static List<TextFieldState> focuses = [];
 
   /// Previous [TextEditingController]'s text used to determine if the [text]
   /// was modified on any [focus] change.

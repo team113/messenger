@@ -532,7 +532,7 @@ class AuthService extends DisposableService {
       try {
         await _authRepository.deleteSession();
       } catch (e) {
-        printError(info: e.toString());
+        Log.warning('Failed to delete `Session`: $e');
       }
 
       _unauthorized();
