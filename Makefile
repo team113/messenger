@@ -454,23 +454,25 @@ clean.test.e2e:
 #   SRC_DIR  = lib
 #
 # Usage:
-#   make ftl_unused [FTL_FILE=path/to/file.ftl] [SRC_DIR=path/to/src/dir] [dockerized=(no|yes)]
+#   make clean.ftl [FTL_FILE=path/to/file.ftl]
+# 				   [SRC_DIR=path/to/src/dir]
+#				   [dockerized=(no|yes)]
 
 FTL_FILE ?= assets/l10n/en-US.ftl
 SRC_DIR  ?= lib
 
 CHECKER_DIR := tools/labels_checker
 
-ftl_unused:
+clean.ftl:
 ifeq ($(dockerized),yes)
 	docker run --rm --network=host \
 	           -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make ftl_unused dockerized=no \
+			make clean.ftl dockerized=no \
 				FTL_FILE=$(FTL_FILE) SRC_DIR=$(SRC_DIR)
 else
-	dart pub get --directory=$(CHECKER_DIR) >/dev/null
+	dart pub get --directory=$(CHECKER_DIR)
 
 	dart run $(CHECKER_DIR)/labels_checker.dart \
 		-f $(FTL_FILE) -s $(SRC_DIR)
@@ -982,7 +984,7 @@ sentry.upload:
 
 .PHONY: build clean deps docs down e2e fcm fmt gen lint release run test up \
         appcast.xml appcast.xml.item \
-        clean.e2e clean.flutter clean.test.e2e ftl_unused \
+        clean.e2e clean.flutter clean.test.e2e clean.ftl \
         copyright \
         docker.down docker.image docker.push docker.tags docker.tar \
         docker.untar docker.up \

@@ -38,7 +38,7 @@ import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 
 Future<void> main(List<String> argv) async {
-  // ── 1. CLI parsing ─────────────────────────────────────────────────────────
+  // Parse CLI.
   final cli = ArgParser()
     ..addOption(
       'ftl',
@@ -58,7 +58,7 @@ Future<void> main(List<String> argv) async {
   } on FormatException catch (e) {
     stderr.writeln(e.message);
     stderr.writeln(cli.usage);
-    exit(64); // EX_USAGE
+    exit(64); // EX_USAGE.
   }
 
   if (args['help'] as bool ||
@@ -77,10 +77,10 @@ Future<void> main(List<String> argv) async {
   final ftlPath = args['ftl'] as String;
   final srcDir = args['src'] as String;
 
-  // ── 2. Parse labels from the .ftl file ─────────────────────────────────────
+  // Parse labels from the .ftl file.
   final ftlLabels = await _parseFtlFile(ftlPath);
 
-  // ── 3. Walk every Dart file and collect literals ──────────────────────────
+  // Walk every Dart file and collect literals.
   final projectLabels = <String>{};
 
   final dartFiles = await Directory(srcDir)
@@ -105,7 +105,7 @@ Future<void> main(List<String> argv) async {
     projectLabels.addAll(visitor.findings);
   }
 
-  // ── 4. Diff and report ────────────────────────────────────────────────────
+  // Diff and report.
   final unused = ftlLabels.difference(projectLabels);
 
   stdout
@@ -116,8 +116,6 @@ Future<void> main(List<String> argv) async {
   }
 }
 
-// ───────────────────────── helpers ───────────────────────────────────────────
-
 /// Parses a Fluent-FTL file and returns the label identifiers on the left side
 /// of “labelId = …”.
 Future<Set<String>> _parseFtlFile(String path) async {
@@ -127,7 +125,7 @@ Future<Set<String>> _parseFtlFile(String path) async {
   final file = File(path);
   if (!await file.exists()) {
     stderr.writeln('Error: .ftl file not found: $path');
-    exit(66); // EX_NOINPUT
+    exit(66); // EX_NOINPUT.
   }
 
   final lines = file
