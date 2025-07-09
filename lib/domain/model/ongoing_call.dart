@@ -1369,13 +1369,15 @@ class OngoingCall {
       _autoGainControl.value = autoGainControl ?? _autoGainControl.value;
       _highPassFilter.value = highPassFilter ?? _highPassFilter.value;
 
-      _removeLocalTracks(MediaKind.audio, MediaSourceKind.device);
+      await _room?.disableAudio();
 
       await _updateTracks(
         audio: audioState.value.isEnabled,
         video: videoState.value.isEnabled,
         screen: screenShareState.value.isEnabled,
       );
+
+      await _room?.enableAudio();
       return;
     }
 
@@ -2364,6 +2366,10 @@ class OngoingCall {
             devices.firstWhereOrNull(
               (e) => e.deviceId() == track.getTrack().deviceId(),
             );
+
+        print(
+          '====== $kind/$source -> isNoiseSuppressionEnabled: ${await track.isNoiseSuppressionEnabled()} =====',
+        );
       }
     }
   }

@@ -110,6 +110,7 @@ class CallSettingsController extends GetxController {
     switch (level) {
       case NoiseSuppressionLevelWithOff.off:
         await _call.value.applyVoiceProcessing(noiseSuppression: false);
+        await _settingsRepo.setNoiseSuppression(false);
         break;
 
       case NoiseSuppressionLevelWithOff.low:
@@ -120,6 +121,9 @@ class CallSettingsController extends GetxController {
           noiseSuppression: true,
           noiseSuppressionLevel: level.toLevel(),
         );
+
+        await _settingsRepo.setNoiseSuppression(true);
+        await _settingsRepo.setNoiseSuppressionLevel(level.toLevel());
         break;
     }
   }
@@ -127,15 +131,18 @@ class CallSettingsController extends GetxController {
   /// Enables or disables the echo cancellation of local media in call.
   Future<void> setEchoCancellation(bool enabled) async {
     await _call.value.applyVoiceProcessing(echoCancellation: enabled);
+    await _settingsRepo.setEchoCancellation(enabled);
   }
 
   /// Enables or disables the auto gain control of local media in call.
   Future<void> setAutoGainControl(bool enabled) async {
     await _call.value.applyVoiceProcessing(autoGainControl: enabled);
+    await _settingsRepo.setAutoGainControl(enabled);
   }
 
   /// Enables or disables the high pass filter of local media in call.
   Future<void> setHighPassFilter(bool enabled) async {
     await _call.value.applyVoiceProcessing(highPassFilter: enabled);
+    await _settingsRepo.setHighPassFilter(enabled);
   }
 }
