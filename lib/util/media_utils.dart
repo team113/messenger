@@ -483,3 +483,32 @@ class DefaultDeviceDetails extends DeviceDetails {
   @override
   String id() => 'default';
 }
+
+/// Audio processing noise suppression aggressiveness.
+enum NoiseSuppressionLevelWithOff {
+  /// Disabled.
+  off,
+
+  /// Minimal noise suppression.
+  low,
+
+  /// Moderate level of suppression.
+  moderate,
+
+  /// Aggressive noise suppression.
+  high,
+
+  /// Maximum suppression.
+  veryHigh;
+
+  /// Converts this [NoiseSuppressionLevelWithOff] to actual
+  /// [NoiseSuppressionLevel].
+  NoiseSuppressionLevel toLevel() {
+    return switch (this) {
+      off || low => NoiseSuppressionLevel.low,
+      moderate => NoiseSuppressionLevel.moderate,
+      high => NoiseSuppressionLevel.high,
+      veryHigh => NoiseSuppressionLevel.veryHigh,
+    };
+  }
+}

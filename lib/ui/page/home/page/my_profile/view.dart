@@ -679,7 +679,6 @@ Widget _media(BuildContext context, MyProfileController c) {
 
         return FieldButton(
           text: selected?.label() ?? 'label_media_no_device_available'.l10n,
-
           trailing: Transform.translate(
             offset: Offset(5, 0),
             child: SvgIcon(SvgIcons.mediaDevicesMicrophone),
@@ -738,7 +737,6 @@ Widget _media(BuildContext context, MyProfileController c) {
 
         return FieldButton(
           text: selected?.label() ?? 'label_media_no_device_available'.l10n,
-
           trailing: Transform.translate(
             offset: Offset(5, 0),
             child: SvgIcon(SvgIcons.mediaDevicesCamera),

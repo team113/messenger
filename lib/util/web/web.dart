@@ -155,6 +155,9 @@ class WebUtils {
   /// Indicates whether device's browser is Firefox or not.
   static bool get isFirefox => browser.isFirefox;
 
+  /// Indicates whether device's browser is Chrome or not.
+  static bool get isChrome => browser.isChrome;
+
   /// Indicates whether device's browser is in fullscreen mode or not.
   static bool get isFullscreen {
     return (fullscreenElement != null ||
