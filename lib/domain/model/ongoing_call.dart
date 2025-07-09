@@ -2366,10 +2366,6 @@ class OngoingCall {
             devices.firstWhereOrNull(
               (e) => e.deviceId() == track.getTrack().deviceId(),
             );
-
-        print(
-          '====== $kind/$source -> isNoiseSuppressionEnabled: ${await track.isNoiseSuppressionEnabled()} =====',
-        );
       }
     }
   }
