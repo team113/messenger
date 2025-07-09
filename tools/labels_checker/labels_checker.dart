@@ -106,15 +106,23 @@ Future<void> main(List<String> argv) async {
   }
 
   // Diff and report.
+  stdout.writeln('FTL files scanned : ${ftlFiles.length}');
   final unused = ftlLabels.difference(projectLabels);
 
-  stdout
-    ..writeln('FTL files scanned : ${ftlFiles.length}')
-    ..writeln('Labels discovered : ${ftlLabels.length}')
-    ..writeln('Unused labels     : ${unused.length}');
-  for (final l in unused) {
-    stdout.writeln('  • $l');
+  if (unused.isNotEmpty) {
+    stderr
+      ..writeln('You have unused assets! Remove them.\n')
+      ..writeln('Labels discovered : ${ftlLabels.length}')
+      ..writeln('Unused labels     : ${unused.length}');
+
+    for (final l in unused) {
+      stderr.writeln('  • $l');
+    }
+    exit(1);
   }
+
+  stdout.writeln('Unused assets were not found.');
+  exit(0);
 }
 
 /// Parses [path] and returns a list of all the found .ftl files by this path.
