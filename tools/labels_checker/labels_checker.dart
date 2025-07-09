@@ -55,10 +55,7 @@ Future<void> main(List<String> argv) async {
     stdout
       ..writeln('Find unused Fluent-style labels in Dart code\n')
       ..writeln('Example:')
-      ..writeln('  dart run tools/labels_checker.dart              # defaults')
-      ..writeln(
-        '  dart run tools/labels_checker.dart -f es-ES.ftl # one locale',
-      )
+      ..writeln('  dart run tools/labels_checker/labels_checker.dart')
       ..writeln(cli.usage);
     return;
   }
@@ -82,7 +79,7 @@ Future<void> main(List<String> argv) async {
   // Collect project files.
   final dartFiles = await Directory(srcDir)
       .list(recursive: true)
-      .where((e) => e is File && e.path.endsWith('.dart'))
+      .where((file) => file is File && file.path.endsWith('.dart'))
       .cast<File>()
       .toList();
 
