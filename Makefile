@@ -254,6 +254,8 @@ ifeq ($(dockerized),yes)
 			make flutter.pub cmd='$(cmd)' dockerized=no
 else
 	flutter pub $(or $(cmd),get)
+
+	flutter pub -C tools/labels_checker $(or $(cmd),get)
 endif
 
 
@@ -449,34 +451,21 @@ clean.test.e2e:
 
 # Find unused labels from .ftl file.
 #
-# Defaults:
-#   FTL_FILE = assets/l10n/en-US.ftl
-#   SRC_DIR  = lib
-#
 # Usage:
-#   make clean.ftl [FTL_FILE=path/to/file.ftl]
-# 				   [SRC_DIR=path/to/src/dir]
-#				   [dockerized=(no|yes)]
-
-FTL_FILE ?= assets/l10n/en-US.ftl
-SRC_DIR  ?= lib
+#   make clean.ftl
 
 CHECKER_DIR := tools/labels_checker
 
 clean.ftl:
 ifeq ($(dockerized),yes)
-	docker run --rm --network=host \
-	           -v "$(PWD)":/app -w /app \
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make clean.ftl dockerized=no \
-				FTL_FILE=$(FTL_FILE) SRC_DIR=$(SRC_DIR)
+			make clean.ftl dockerized=no
 else
-	dart pub get --directory=$(CHECKER_DIR)
-
-	dart run $(CHECKER_DIR)/labels_checker.dart \
-		-f $(FTL_FILE) -s $(SRC_DIR)
+	dart run $(CHECKER_DIR)/labels_checker.dart
 endif
+
 
 
 
