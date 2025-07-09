@@ -33,7 +33,6 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
@@ -359,9 +358,6 @@ class CallController extends GetxController {
   /// Worker capturing any [ApplicationSettings.callButtons] changes to update
   /// the [buttons] value.
   Worker? _settingsWorker;
-
-  /// Worker capturing any [MediaSettings] changes.
-  Worker? _mediaWorker;
 
   /// Worker capturing any [OngoingCall.connectionLost] changes to play
   /// reconnect sound.
@@ -788,36 +784,6 @@ class CallController extends GetxController {
       }
     });
 
-    _mediaWorker = ever(_settingsRepository.mediaSettings, (
-      MediaSettings? settings,
-    ) async {
-      final bool? noiseSuppression = _currentCall.value.noiseSuppression;
-      final NoiseSuppressionLevel? noiseSuppressionLevel =
-          _currentCall.value.noiseSuppressionLevel;
-      final bool? echoCancellation = _currentCall.value.echoCancellation;
-      final bool? autoGainControl = _currentCall.value.autoGainControl;
-      final bool? highPassFilter = _currentCall.value.highPassFilter;
-
-      if (settings != null) {
-        if (settings.noiseSuppressionLevel == noiseSuppressionLevel &&
-            noiseSuppression == settings.noiseSuppression &&
-            echoCancellation == settings.echoCancellation &&
-            autoGainControl == settings.autoGainControl &&
-            highPassFilter == settings.highPassFilter) {
-          // No-op, already applied.
-          return;
-        }
-
-        await _currentCall.value.applyVoiceProcessing(
-          noiseSuppression: settings.noiseSuppression,
-          noiseSuppressionLevel: settings.noiseSuppressionLevel,
-          echoCancellation: settings.echoCancellation,
-          autoGainControl: settings.autoGainControl,
-          highPassFilter: settings.highPassFilter,
-        );
-      }
-    });
-
     _showUiWorker = ever(showUi, (bool showUi) {
       if (displayMore.value && !showUi) {
         displayMore.value = false;
@@ -881,7 +847,6 @@ class CallController extends GetxController {
     _notificationsSubscription?.cancel();
     _buttonsWorker?.dispose();
     _settingsWorker?.dispose();
-    _mediaWorker?.dispose();
     _reconnectAudio?.cancel();
     _reconnectWorker?.dispose();
     _hiddenTimer?.cancel();
