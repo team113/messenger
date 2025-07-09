@@ -27,6 +27,7 @@ import '/domain/service/notification.dart';
 import '/domain/service/session.dart';
 import '/l10n/l10n.dart';
 import '/pubspec.g.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
@@ -43,8 +44,24 @@ class LogView extends StatelessWidget {
   const LogView({super.key});
 
   /// Displays a [LogView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context) {
-    return showDialog(context: context, builder: (_) => LogView());
+  static Future<T?> show<T>(BuildContext context) async {
+    final route = DialogRoute<T>(
+      context: context,
+      builder: (_) => LogView(),
+      settings: RouteSettings(name: 'LogView'),
+      barrierColor:
+          DialogTheme.of(context).barrierColor ??
+          Theme.of(context).dialogTheme.barrierColor ??
+          Colors.black54,
+    );
+
+    router.obscuring.add(route);
+
+    try {
+      return await Navigator.of(context, rootNavigator: true).push<T>(route);
+    } finally {
+      router.obscuring.remove(route);
+    }
   }
 
   @override
