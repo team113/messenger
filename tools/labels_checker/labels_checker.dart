@@ -16,18 +16,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-//
-// ──────────────────────────────────────────────────────────────────────────────
-//  labels_checker.dart – find unused Fluent-FTL labels in a Dart project
-// ──────────────────────────────────────────────────────────────────────────────
-//  Usage:
-//      dart run tools/labels_checker.dart -f assets/l10n/en-US.ftl -s lib
-//  or (after chmod):
-//      tools/labels_checker.dart -f … -s …
-//
-//  Requires: Dart 3.x, package:analyzer, package:args
-// ──────────────────────────────────────────────────────────────────────────────
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -43,16 +31,18 @@ Future<void> main(List<String> argv) async {
     ..addOption(
       'ftl',
       abbr: 'f',
-      help: 'Path to the source .ftl file (en-US.ftl, ru-RU.ftl, etc.)',
+      defaultsTo: 'assets/l10n',
+      help: 'Path to one .ftl file or a directory that contains them',
     )
     ..addOption(
       'src',
       abbr: 's',
+      defaultsTo: 'lib',
       help: 'Directory that contains Dart sources to scan (e.g. "lib")',
     )
     ..addFlag('help', abbr: 'h', negatable: false, help: 'Show this help');
 
-  ArgResults args;
+  late final ArgResults args;
   try {
     args = cli.parse(argv);
   } on FormatException catch (e) {
@@ -61,28 +51,35 @@ Future<void> main(List<String> argv) async {
     exit(64); // EX_USAGE.
   }
 
-  if (args['help'] as bool ||
-      !args.wasParsed('ftl') ||
-      !args.wasParsed('src')) {
+  if (args['help'] as bool) {
     stdout
       ..writeln('Find unused Fluent-style labels in Dart code\n')
       ..writeln('Example:')
+      ..writeln('  dart run tools/labels_checker.dart              # defaults')
       ..writeln(
-        '  dart run tools/labels_checker.dart -f assets/l10n/en-US.ftl -s lib\n',
+        '  dart run tools/labels_checker.dart -f es-ES.ftl # one locale',
       )
       ..writeln(cli.usage);
     return;
   }
 
-  final ftlPath = args['ftl'] as String;
+  final ftlPathOrDir = args['ftl'] as String;
   final srcDir = args['src'] as String;
 
-  // Parse labels from the .ftl file.
-  final ftlLabels = await _parseFtlFile(ftlPath);
+  // Collect .ftl files.
+  final ftlFiles = await _gatherFtlFiles(ftlPathOrDir);
+  if (ftlFiles.isEmpty) {
+    stderr.writeln('No .ftl files found under $ftlPathOrDir');
+    exit(66); // EX_NOINPUT.
+  }
 
-  // Walk every Dart file and collect literals.
-  final projectLabels = <String>{};
+  // Parse labels from the .ftl files.
+  final ftlLabels = <String>{};
+  for (final f in ftlFiles) {
+    ftlLabels.addAll(await _parseFtlFile(f.path));
+  }
 
+  // Collect project files.
   final dartFiles = await Directory(srcDir)
       .list(recursive: true)
       .where((e) => e is File && e.path.endsWith('.dart'))
@@ -91,9 +88,12 @@ Future<void> main(List<String> argv) async {
 
   if (dartFiles.isEmpty) {
     stderr.writeln('No dart files were found in $srcDir');
-    exit(0);
+    exit(66); // EX_NOINPUT.
   }
 
+  // Parse project files for labels.
+  stdout.writeln('Scanning ${dartFiles.length} project files...');
+  final projectLabels = <String>{};
   for (final file in dartFiles) {
     final fileUnit = parseFile(
       path: file.path,
@@ -109,11 +109,27 @@ Future<void> main(List<String> argv) async {
   final unused = ftlLabels.difference(projectLabels);
 
   stdout
-    ..writeln('Labels in $ftlPath: ${ftlLabels.length}')
-    ..writeln('UNUSED labels (${unused.length}):');
+    ..writeln('FTL files scanned : ${ftlFiles.length}')
+    ..writeln('Labels discovered : ${ftlLabels.length}')
+    ..writeln('Unused labels     : ${unused.length}');
   for (final l in unused) {
     stdout.writeln('  • $l');
   }
+}
+
+/// Parses [path] and returns a list of all the found .ftl files by this path.
+///
+/// Takes either [path] to file or to folder.
+Future<List<File>> _gatherFtlFiles(String path) async {
+  if (await FileSystemEntity.isDirectory(path)) {
+    return Directory(path)
+        .list(recursive: true)
+        .where((file) => file is File && file.path.endsWith('.ftl'))
+        .cast<File>()
+        .toList();
+  }
+  final f = File(path);
+  return await f.exists() ? [f] : <File>[];
 }
 
 /// Parses a Fluent-FTL file and returns the label identifiers on the left side
