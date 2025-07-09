@@ -53,7 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # for correct versioning via `git describe --tags`
+          fetch-depth: 0  # for correct versioning via `git` describe --tags`
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -917,6 +917,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main'
          || startsWith(github.ref, 'refs/tags/v') }}
     needs:
+      - assetsanalyze
       - copyright
       - dartanalyze
       - dartdoc
@@ -1139,6 +1140,7 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main'
          || startsWith(github.ref, 'refs/tags/v') }}
     needs:
+      - assetsanalyze
       - build
       - build-linux
       - copyright
@@ -1240,6 +1242,7 @@ jobs:
     name: release (GitHub)
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     needs:
+      - assetsanalyze
       - build
       - build-linux
       - copyright
