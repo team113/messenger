@@ -473,7 +473,7 @@ ifeq ($(shell test -f tools/pubspec.yaml && echo yes),yes)
 else
 	@dart pub get > /dev/null
 endif
-	dart run tools/labels_checker.dart -f $(FTL_FILE) -s $(SRC_DIR)
+	dart run tools/labels_checker/labels_checker.dart -f $(FTL_FILE) -s $(SRC_DIR)
 endif
 
 
