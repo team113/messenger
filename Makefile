@@ -255,7 +255,7 @@ ifeq ($(dockerized),yes)
 else
 	flutter pub $(or $(cmd),get)
 
-	flutter pub -C tools/labels_checker $(or $(cmd),get)
+	flutter pub $(or $(cmd),get) --directory=tools/labels_checker
 endif
 
 
