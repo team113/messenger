@@ -13,6 +13,11 @@
       "devDependencies": []
     },
     {
+      "name": "args",
+      "version": "2.7.0",
+      "dependencies": []
+    },
+    {
       "name": "analyzer",
       "version": "7.5.5",
       "dependencies": [
@@ -31,8 +36,40 @@
       ]
     },
     {
-      "name": "args",
-      "version": "2.7.0",
+      "name": "_fe_analyzer_shared",
+      "version": "85.0.0",
+      "dependencies": [
+        "meta"
+      ]
+    },
+    {
+      "name": "path",
+      "version": "1.9.1",
+      "dependencies": []
+    },
+    {
+      "name": "collection",
+      "version": "1.19.1",
+      "dependencies": []
+    },
+    {
+      "name": "watcher",
+      "version": "1.1.2",
+      "dependencies": [
+        "async",
+        "path"
+      ]
+    },
+    {
+      "name": "pub_semver",
+      "version": "2.2.0",
+      "dependencies": [
+        "collection"
+      ]
+    },
+    {
+      "name": "meta",
+      "version": "1.17.0",
       "dependencies": []
     },
     {
@@ -45,11 +82,31 @@
       ]
     },
     {
-      "name": "watcher",
-      "version": "1.1.2",
+      "name": "string_scanner",
+      "version": "1.4.1",
       "dependencies": [
-        "async",
+        "source_span"
+      ]
+    },
+    {
+      "name": "package_config",
+      "version": "2.2.0",
+      "dependencies": [
         "path"
+      ]
+    },
+    {
+      "name": "convert",
+      "version": "3.1.2",
+      "dependencies": [
+        "typed_data"
+      ]
+    },
+    {
+      "name": "typed_data",
+      "version": "1.4.0",
+      "dependencies": [
+        "collection"
       ]
     },
     {
@@ -62,27 +119,8 @@
       ]
     },
     {
-      "name": "pub_semver",
-      "version": "2.2.0",
-      "dependencies": [
-        "collection"
-      ]
-    },
-    {
-      "name": "path",
-      "version": "1.9.1",
-      "dependencies": []
-    },
-    {
-      "name": "package_config",
-      "version": "2.2.0",
-      "dependencies": [
-        "path"
-      ]
-    },
-    {
-      "name": "meta",
-      "version": "1.17.0",
+      "name": "term_glyph",
+      "version": "1.2.2",
       "dependencies": []
     },
     {
@@ -97,52 +135,6 @@
       ]
     },
     {
-      "name": "crypto",
-      "version": "3.0.6",
-      "dependencies": [
-        "typed_data"
-      ]
-    },
-    {
-      "name": "convert",
-      "version": "3.1.2",
-      "dependencies": [
-        "typed_data"
-      ]
-    },
-    {
-      "name": "collection",
-      "version": "1.19.1",
-      "dependencies": []
-    },
-    {
-      "name": "_fe_analyzer_shared",
-      "version": "85.0.0",
-      "dependencies": [
-        "meta"
-      ]
-    },
-    {
-      "name": "string_scanner",
-      "version": "1.4.1",
-      "dependencies": [
-        "source_span"
-      ]
-    },
-    {
-      "name": "async",
-      "version": "2.13.0",
-      "dependencies": [
-        "collection",
-        "meta"
-      ]
-    },
-    {
-      "name": "term_glyph",
-      "version": "1.2.2",
-      "dependencies": []
-    },
-    {
       "name": "file",
       "version": "7.0.1",
       "dependencies": [
@@ -151,10 +143,18 @@
       ]
     },
     {
-      "name": "typed_data",
-      "version": "1.4.0",
+      "name": "crypto",
+      "version": "3.0.6",
       "dependencies": [
-        "collection"
+        "typed_data"
+      ]
+    },
+    {
+      "name": "async",
+      "version": "2.13.0",
+      "dependencies": [
+        "collection",
+        "meta"
       ]
     }
   ],

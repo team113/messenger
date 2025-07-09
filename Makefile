@@ -459,21 +459,21 @@ clean.test.e2e:
 FTL_FILE ?= assets/l10n/en-US.ftl
 SRC_DIR  ?= lib
 
+CHECKER_DIR := tools/labels_checker
+
 ftl_unused:
 ifeq ($(dockerized),yes)
 	docker run --rm --network=host \
 	           -v "$(PWD)":/app -w /app \
 	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make ftl_unused dockerized=no
-			FTL_FILE=$(FTL_FILE) SRC_DIR=$(SRC_DIR)
+			make ftl_unused dockerized=no \
+				FTL_FILE=$(FTL_FILE) SRC_DIR=$(SRC_DIR)
 else
-ifeq ($(shell test -f tools/pubspec.yaml && echo yes),yes)
-	@dart pub get --directory=tools > /dev/null
-else
-	@dart pub get > /dev/null
-endif
-	dart run tools/labels_checker/labels_checker.dart -f $(FTL_FILE) -s $(SRC_DIR)
+	dart pub get --directory=$(CHECKER_DIR) >/dev/null
+
+	dart run $(CHECKER_DIR)/labels_checker.dart \
+		-f $(FTL_FILE) -s $(SRC_DIR)
 endif
 
 
