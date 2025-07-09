@@ -449,22 +449,6 @@ clean.test.e2e:
 	       test/e2e/gherkin/reports/
 
 
-# Find unused labels from .ftl file.
-#
-# Usage:
-#   make clean.ftl
-
-clean.ftl:
-ifeq ($(dockerized),yes)
-	docker run --rm --network=host -v "$(PWD)":/app -w /app \
-	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
-		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make clean.ftl dockerized=no
-else
-	dart run tools/labels_checker/labels_checker.dart
-endif
-
-
 
 
 ######################
@@ -656,6 +640,28 @@ ifeq ($(background),yes)
 ifeq ($(log),yes)
 	docker compose logs -f
 endif
+endif
+
+
+
+
+####################
+# Linting commands #
+####################
+
+# Find unused labels from .ftl file.
+#
+# Usage:
+#   make lint.ftl
+
+lint.ftl:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make lint.ftl dockerized=no
+else
+	dart run tools/labels_checker/labels_checker.dart
 endif
 
 
@@ -982,6 +988,7 @@ sentry.upload:
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
+		lint.ftl \
         minikube.boot \
         sentry.upload \
         test.e2e test.unit

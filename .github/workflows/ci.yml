@@ -60,7 +60,7 @@ jobs:
 
       - run: make flutter.pub
 
-      - run: make clean.ftl
+      - run: make lint.ftl
 
   copyright:
     runs-on: ubuntu-latest
