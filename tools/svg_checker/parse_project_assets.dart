@@ -7,6 +7,8 @@ void main() {
 Future<Set<String>> parseSvgClass(String path) async {
   final Set<String> svgAssets;
 
+  
+
   return svgAssets;
 }
 
