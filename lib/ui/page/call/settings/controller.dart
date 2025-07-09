@@ -104,4 +104,45 @@ class CallSettingsController extends GetxController {
   Future<void> enumerateDevices() async {
     await _call.value.enumerateDevices();
   }
+
+  /// Sets the provided [level] value as a noise suppression to use.
+  Future<void> setNoiseSuppression(NoiseSuppressionLevelWithOff level) async {
+    switch (level) {
+      case NoiseSuppressionLevelWithOff.off:
+        await _call.value.applyVoiceProcessing(noiseSuppression: false);
+        await _settingsRepo.setNoiseSuppression(false);
+        break;
+
+      case NoiseSuppressionLevelWithOff.low:
+      case NoiseSuppressionLevelWithOff.moderate:
+      case NoiseSuppressionLevelWithOff.high:
+      case NoiseSuppressionLevelWithOff.veryHigh:
+        await _call.value.applyVoiceProcessing(
+          noiseSuppression: true,
+          noiseSuppressionLevel: level.toLevel(),
+        );
+
+        await _settingsRepo.setNoiseSuppression(true);
+        await _settingsRepo.setNoiseSuppressionLevel(level.toLevel());
+        break;
+    }
+  }
+
+  /// Enables or disables the echo cancellation of local media in call.
+  Future<void> setEchoCancellation(bool enabled) async {
+    await _call.value.applyVoiceProcessing(echoCancellation: enabled);
+    await _settingsRepo.setEchoCancellation(enabled);
+  }
+
+  /// Enables or disables the auto gain control of local media in call.
+  Future<void> setAutoGainControl(bool enabled) async {
+    await _call.value.applyVoiceProcessing(autoGainControl: enabled);
+    await _settingsRepo.setAutoGainControl(enabled);
+  }
+
+  /// Enables or disables the high pass filter of local media in call.
+  Future<void> setHighPassFilter(bool enabled) async {
+    await _call.value.applyVoiceProcessing(highPassFilter: enabled);
+    await _settingsRepo.setHighPassFilter(enabled);
+  }
 }

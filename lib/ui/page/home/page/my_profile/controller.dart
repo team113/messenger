@@ -24,7 +24,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
-import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -952,33 +951,4 @@ extension on LogicalKeyboardKey {
     LogicalKeyboardKey.shiftRight => HotKeyModifier.shift,
     (_) => null,
   };
-}
-
-/// Audio processing noise suppression aggressiveness.
-enum NoiseSuppressionLevelWithOff {
-  /// Disabled.
-  off,
-
-  /// Minimal noise suppression.
-  low,
-
-  /// Moderate level of suppression.
-  moderate,
-
-  /// Aggressive noise suppression.
-  high,
-
-  /// Maximum suppression.
-  veryHigh;
-
-  /// Converts this [NoiseSuppressionLevelWithOff] to actual
-  /// [NoiseSuppressionLevel].
-  NoiseSuppressionLevel toLevel() {
-    return switch (this) {
-      off || low => NoiseSuppressionLevel.low,
-      moderate => NoiseSuppressionLevel.moderate,
-      high => NoiseSuppressionLevel.high,
-      veryHigh => NoiseSuppressionLevel.veryHigh,
-    };
-  }
 }
