@@ -454,8 +454,6 @@ clean.test.e2e:
 # Usage:
 #   make clean.ftl
 
-CHECKER_DIR := tools/labels_checker
-
 clean.ftl:
 ifeq ($(dockerized),yes)
 	docker run --rm --network=host -v "$(PWD)":/app -w /app \
@@ -463,7 +461,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make clean.ftl dockerized=no
 else
-	dart run $(CHECKER_DIR)/labels_checker.dart
+	dart run tools/labels_checker/labels_checker.dart
 endif
 
 
