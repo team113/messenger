@@ -123,6 +123,22 @@ else
 endif
 
 
+# Analyze unused labels in Fluent files.
+#
+# Usage:
+#   make flutter.analyze.fluent
+
+flutter.analyze.fluent:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make flutter.analyze.fluent dockerized=no
+else
+	dart run tools/labels_checker/labels_checker.dart
+endif
+
+
 # Build Flutter project from sources.
 #
 # Usage:
@@ -645,28 +661,6 @@ endif
 
 
 
-####################
-# Linting commands #
-####################
-
-# Find unused labels from .ftl file.
-#
-# Usage:
-#   make lint.ftl
-
-lint.ftl:
-ifeq ($(dockerized),yes)
-	docker run --rm --network=host -v "$(PWD)":/app -w /app \
-	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
-		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make lint.ftl dockerized=no
-else
-	dart run tools/labels_checker/labels_checker.dart
-endif
-
-
-
-
 #####################
 # Minikube commands #
 #####################
@@ -983,12 +977,12 @@ sentry.upload:
         docker.untar docker.up \
         docs.dart \
         fcm.conf \
-        flutter.analyze flutter.build flutter.bundle.rename flutter.clean \
-        flutter.fmt flutter.gen flutter.pub flutter.run \
+        flutter.analyze flutter.analyze.fluent flutter.build
+        flutter.bundle.rename flutter.clean flutter.fmt flutter.gen \
+        flutter.pub flutter.run \
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
-		lint.ftl \
         minikube.boot \
         sentry.upload \
         test.e2e test.unit

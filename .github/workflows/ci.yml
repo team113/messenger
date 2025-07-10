@@ -48,20 +48,6 @@ jobs:
   # Linting and formatting #
   ##########################
 
-  assetsanalyze:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VER }}
-          channel: stable
-          cache: true
-
-      - run: make flutter.pub
-
-      - run: make lint.ftl
-
   copyright:
     runs-on: ubuntu-latest
     steps:
@@ -84,6 +70,7 @@ jobs:
       - run: make flutter.pub
 
       - run: make flutter.analyze
+      - run: make flutter.analyze.fluent
 
   dartfmt:
     runs-on: ubuntu-latest
