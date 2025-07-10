@@ -977,7 +977,7 @@ sentry.upload:
         docker.untar docker.up \
         docs.dart \
         fcm.conf \
-        flutter.analyze flutter.analyze.fluent flutter.build
+        flutter.analyze flutter.analyze.fluent flutter.build \
         flutter.bundle.rename flutter.clean flutter.fmt flutter.gen \
         flutter.pub flutter.run \
         git.release \
