@@ -1,3 +1,2 @@
-- Redesigned message delete popups.
-- Updated description and actions list on user page.
+- Redesigned popups for email adding and password changing.
 - Bug fixes and performance improvements.
