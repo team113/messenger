@@ -1371,6 +1371,15 @@ class OngoingCall {
 
       await _room?.disableAudio();
 
+      members[_me]?.tracks.removeWhere((t) {
+        if (t.kind == MediaKind.audio && t.source == MediaSourceKind.device) {
+          t.stop();
+          t.dispose();
+          return true;
+        }
+        return false;
+      });
+
       await _updateTracks(
         audio: audioState.value.isEnabled,
         video: videoState.value.isEnabled,
