@@ -18,6 +18,7 @@
 import FirebaseMessaging
 import SQLite
 import UserNotifications
+import os
 
 class NotificationService: UNNotificationServiceExtension {
   var contentHandler: ((UNNotificationContent) -> Void)?
@@ -115,25 +116,25 @@ class NotificationService: UNNotificationServiceExtension {
 
         var fresh = creds
 
-        if Date() > creds.access.expireAt.val {
-          if #available(iOS 12.0, macOS 12.0, *) {
-            if let refreshed = await refreshToken(creds: creds) {
-              fresh = refreshed
+        // if Date() > creds.access.expireAt.val {
+        if #available(iOS 12.0, macOS 12.0, *) {
+          if let refreshed = await refreshToken(creds: creds) {
+            fresh = refreshed
 
-              let encoder = JSONEncoder()
-              let dateFormatter = DateFormatter()
-              dateFormatter.dateFormat = "yyyy-MM-ddTHH:mm:ss.mmmZ"
-              dateFormatter.locale = Locale(identifier: "en_US")
-              dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-              encoder.dateEncodingStrategy = .formatted(dateFormatter)
+            let encoder = JSONEncoder()
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSX"
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+            encoder.dateEncodingStrategy = .formatted(dateFormatter)
 
-              let jsonData = try! encoder.encode(refreshed)
-              let json = String(data: jsonData, encoding: String.Encoding.utf8)
+            let jsonData = try! encoder.encode(refreshed)
+            let json = String(data: jsonData, encoding: String.Encoding.utf8)
 
-              try! db.run(tokens.insert(or: .replace, userId <- accountId, credentials <- json!))
-            }
+            try! db.run(tokens.insert(or: .replace, userId <- accountId, credentials <- json!))
           }
         }
+        // }
 
         if #available(iOS 12.0, macOS 12.0, *) {
           await sendDelivery(creds: fresh, chatId: chatId)
@@ -181,12 +182,14 @@ class NotificationService: UNNotificationServiceExtension {
       request.httpMethod = "POST"
       request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
+      let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "network")
+
       do {
         request.httpBody = try JSONSerialization.data(withJSONObject: dataToSend)
         let (data, _) = try await URLSession.shared.data(for: request)
 
         if let response = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-          NSLog("POST Response:", response)
+          logger.log("refreshToken() response decoded -> \(response)")
         }
 
         let decoder = JSONDecoder()
@@ -209,7 +212,7 @@ class NotificationService: UNNotificationServiceExtension {
         }
         return creds
       } catch {
-        print("POST Request Failed:", error)
+        logger.error("refreshToken() failed -> \(error)")
       }
     }
 

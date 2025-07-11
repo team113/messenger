@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.6.0] · 2025-??-??
+[0.6.0]: /../../tree/v0.6.0
+
+[Diff](/../../compare/v0.5.3...v0.6.0) | [Milestone](/../../milestone/43)
+
+### Fixed
+
+- iOS:
+    - Authorization sometimes being lost when receiving push notifications. ([#1326])
+
+[#1326]: /../../pull/1326
+
+
+
+
 ## [0.5.3] · 2025-07-10
 [0.5.3]: /../../tree/v0.5.3
 
