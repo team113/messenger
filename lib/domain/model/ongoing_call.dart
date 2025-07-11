@@ -38,9 +38,10 @@ import '/util/log.dart';
 import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import 'chat.dart';
+import '/util/web/web_utils.dart';
 import 'chat_call.dart';
 import 'chat_item.dart';
+import 'chat.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
@@ -155,11 +156,11 @@ class OngoingCall {
        _preferredOutputDevice = mediaSettings?.outputDevice,
        _preferredVideoDevice = mediaSettings?.videoDevice,
        _preferredScreenDevice = mediaSettings?.screenDevice,
-       _noiseSuppression = mediaSettings?.noiseSuppression,
-       _noiseSuppressionLevel = mediaSettings?.noiseSuppressionLevel,
-       _echoCancellation = mediaSettings?.echoCancellation,
-       _autoGainControl = mediaSettings?.autoGainControl,
-       _highPassFilter = mediaSettings?.highPassFilter {
+       _noiseSuppression = RxnBool(mediaSettings?.noiseSuppression),
+       _noiseSuppressionLevel = Rx(mediaSettings?.noiseSuppressionLevel),
+       _echoCancellation = RxnBool(mediaSettings?.echoCancellation),
+       _autoGainControl = RxnBool(mediaSettings?.autoGainControl),
+       _highPassFilter = RxnBool(mediaSettings?.highPassFilter) {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
@@ -285,22 +286,22 @@ class OngoingCall {
 
   /// Indicator whether noise suppression should be enabled for
   /// [LocalMediaTrack]s.
-  bool? _noiseSuppression;
+  late final RxnBool _noiseSuppression;
 
   /// Preferred noise suppression level for [LocalMediaTrack]s.
-  NoiseSuppressionLevel? _noiseSuppressionLevel;
+  late final Rx<NoiseSuppressionLevel?> _noiseSuppressionLevel;
 
   /// Indicator whether echo cancellation should be enabled for
   /// [LocalMediaTrack]s.
-  bool? _echoCancellation;
+  late final RxnBool _echoCancellation;
 
   /// Indicator whether auto gain control should be enabled for
   /// [LocalMediaTrack]s.
-  bool? _autoGainControl;
+  late final RxnBool _autoGainControl;
 
   /// Indicator whether high pass filter should be enabled for
   /// [LocalMediaTrack]s.
-  bool? _highPassFilter;
+  late final RxnBool _highPassFilter;
 
   /// Indicator whether this [OngoingCall] should not initialize any media
   /// client related resources.
@@ -419,19 +420,20 @@ class OngoingCall {
   bool get background => _background;
 
   /// Indicates whether noise suppression should be enabled.
-  bool? get noiseSuppression => _noiseSuppression;
+  bool? get noiseSuppression => _noiseSuppression.value;
 
   /// Returns the suppression level set.
-  NoiseSuppressionLevel? get noiseSuppressionLevel => _noiseSuppressionLevel;
+  NoiseSuppressionLevel? get noiseSuppressionLevel =>
+      _noiseSuppressionLevel.value;
 
   /// Indicates whether echo cancellation should be enabled.
-  bool? get echoCancellation => _echoCancellation;
+  bool? get echoCancellation => _echoCancellation.value;
 
   /// Indicates whether auto gain control should be enabled.
-  bool? get autoGainControl => _autoGainControl;
+  bool? get autoGainControl => _autoGainControl.value;
 
   /// Indicates whether high pass filter should be enabled.
-  bool? get highPassFilter => _highPassFilter;
+  bool? get highPassFilter => _highPassFilter.value;
 
   /// Initializes the media client resources.
   ///
@@ -1063,11 +1065,11 @@ class OngoingCall {
               final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
                 audio: AudioPreferences(
                   device: audioDevice.value?.deviceId(),
-                  noiseSuppression: _noiseSuppression,
-                  noiseSuppressionLevel: _noiseSuppressionLevel,
-                  echoCancellation: _echoCancellation,
-                  autoGainControl: _autoGainControl,
-                  highPassFilter: _highPassFilter,
+                  noiseSuppression: _noiseSuppression.value,
+                  noiseSuppressionLevel: _noiseSuppressionLevel.value,
+                  echoCancellation: _echoCancellation.value,
+                  autoGainControl: _autoGainControl.value,
+                  highPassFilter: _highPassFilter.value,
                 ),
               );
               tracks.forEach(_addLocalTrack);
@@ -1342,18 +1344,49 @@ class OngoingCall {
       '$runtimeType',
     );
 
-    noiseSuppression ??= _noiseSuppression;
-    noiseSuppressionLevel ??= _noiseSuppressionLevel;
-    echoCancellation ??= _echoCancellation;
-    autoGainControl ??= _autoGainControl;
-    highPassFilter ??= _highPassFilter;
+    noiseSuppression ??= _noiseSuppression.value;
+    noiseSuppressionLevel ??= _noiseSuppressionLevel.value;
+    echoCancellation ??= _echoCancellation.value;
+    autoGainControl ??= _autoGainControl.value;
+    highPassFilter ??= _highPassFilter.value;
 
-    if (noiseSuppression == _noiseSuppression &&
-        noiseSuppressionLevel == _noiseSuppressionLevel &&
-        echoCancellation == _echoCancellation &&
-        autoGainControl == _autoGainControl &&
-        highPassFilter == _highPassFilter) {
+    if (noiseSuppression == _noiseSuppression.value &&
+        noiseSuppressionLevel == _noiseSuppressionLevel.value &&
+        echoCancellation == _echoCancellation.value &&
+        autoGainControl == _autoGainControl.value &&
+        highPassFilter == _highPassFilter.value) {
       // No-op, as these settings are already applied.
+      return;
+    }
+
+    // TODO: Chromium agents don't support changing noise suppression settings
+    //       on an active track, thus tracks should be recreated.
+    if (WebUtils.isChrome) {
+      _noiseSuppression.value = noiseSuppression ?? _noiseSuppression.value;
+      _noiseSuppressionLevel.value =
+          noiseSuppressionLevel ?? _noiseSuppressionLevel.value;
+      _echoCancellation.value = echoCancellation ?? _echoCancellation.value;
+      _autoGainControl.value = autoGainControl ?? _autoGainControl.value;
+      _highPassFilter.value = highPassFilter ?? _highPassFilter.value;
+
+      await _room?.disableAudio();
+
+      members[_me]?.tracks.removeWhere((t) {
+        if (t.kind == MediaKind.audio && t.source == MediaSourceKind.device) {
+          t.stop();
+          t.dispose();
+          return true;
+        }
+        return false;
+      });
+
+      await _updateTracks(
+        audio: audioState.value.isEnabled,
+        video: videoState.value.isEnabled,
+        screen: screenShareState.value.isEnabled,
+      );
+
+      await _room?.enableAudio();
       return;
     }
 
@@ -1367,10 +1400,10 @@ class OngoingCall {
         continue;
       }
 
-      if (noiseSuppression != _noiseSuppression ||
-          _noiseSuppressionLevel != noiseSuppressionLevel) {
-        final bool? enabled = _noiseSuppression = noiseSuppression;
-        final NoiseSuppressionLevel? level = _noiseSuppressionLevel =
+      if (noiseSuppression != _noiseSuppression.value ||
+          _noiseSuppressionLevel.value != noiseSuppressionLevel) {
+        final bool? enabled = _noiseSuppression.value = noiseSuppression;
+        final NoiseSuppressionLevel? level = _noiseSuppressionLevel.value =
             noiseSuppressionLevel;
 
         if (enabled != null) {
@@ -1389,8 +1422,8 @@ class OngoingCall {
         }
       }
 
-      if (echoCancellation != _echoCancellation) {
-        final bool? enabled = _echoCancellation = echoCancellation;
+      if (echoCancellation != _echoCancellation.value) {
+        final bool? enabled = _echoCancellation.value = echoCancellation;
 
         if (enabled != null) {
           try {
@@ -1404,8 +1437,8 @@ class OngoingCall {
         }
       }
 
-      if (autoGainControl != _autoGainControl) {
-        final bool? enabled = _autoGainControl = autoGainControl;
+      if (autoGainControl != _autoGainControl.value) {
+        final bool? enabled = _autoGainControl.value = autoGainControl;
 
         if (enabled != null) {
           try {
@@ -1419,8 +1452,8 @@ class OngoingCall {
         }
       }
 
-      if (highPassFilter != _highPassFilter) {
-        final bool? enabled = _highPassFilter = highPassFilter;
+      if (highPassFilter != _highPassFilter.value) {
+        final bool? enabled = _highPassFilter.value = highPassFilter;
 
         if (enabled != null) {
           try {
@@ -1465,24 +1498,25 @@ class OngoingCall {
         constraints.deviceId(audioDevice.deviceId());
       }
 
-      if (_noiseSuppression != null) {
-        constraints.idealNoiseSuppression(_noiseSuppression!);
+      if (_noiseSuppression.value != null) {
+        constraints.idealNoiseSuppression(_noiseSuppression.value!);
       }
 
-      if ((_noiseSuppression ?? true) && _noiseSuppressionLevel != null) {
-        constraints.noiseSuppressionLevel(_noiseSuppressionLevel!);
+      if ((_noiseSuppression.value ?? true) &&
+          _noiseSuppressionLevel.value != null) {
+        constraints.noiseSuppressionLevel(_noiseSuppressionLevel.value!);
       }
 
-      if (_echoCancellation != null) {
-        constraints.idealEchoCancellation(_echoCancellation!);
+      if (_echoCancellation.value != null) {
+        constraints.idealEchoCancellation(_echoCancellation.value!);
       }
 
-      if (_autoGainControl != null) {
-        constraints.idealAutoGainControl(_autoGainControl!);
+      if (_autoGainControl.value != null) {
+        constraints.idealAutoGainControl(_autoGainControl.value!);
       }
 
-      if (_highPassFilter != null) {
-        constraints.idealHighPassFilter(_highPassFilter!);
+      if (_highPassFilter.value != null) {
+        constraints.idealHighPassFilter(_highPassFilter.value!);
       }
 
       settings.audio(constraints);
@@ -1908,11 +1942,11 @@ class OngoingCall {
                     device:
                         audioDevice.value?.deviceId() ??
                         devices.audio().firstOrNull?.deviceId(),
-                    noiseSuppression: _noiseSuppression,
-                    noiseSuppressionLevel: _noiseSuppressionLevel,
-                    echoCancellation: _echoCancellation,
-                    autoGainControl: _autoGainControl,
-                    highPassFilter: _highPassFilter,
+                    noiseSuppression: _noiseSuppression.value,
+                    noiseSuppressionLevel: _noiseSuppressionLevel.value,
+                    echoCancellation: _echoCancellation.value,
+                    autoGainControl: _autoGainControl.value,
+                    highPassFilter: _highPassFilter.value,
                   )
                 : null,
             video: videoState.value.isEnabled
@@ -2233,11 +2267,11 @@ class OngoingCall {
       audio: audioState.value.isEnabled && audio
           ? AudioPreferences(
               device: audioDevice.value?.deviceId(),
-              noiseSuppression: _noiseSuppression,
-              noiseSuppressionLevel: _noiseSuppressionLevel,
-              echoCancellation: _echoCancellation,
-              autoGainControl: _autoGainControl,
-              highPassFilter: _highPassFilter,
+              noiseSuppression: _noiseSuppression.value,
+              noiseSuppressionLevel: _noiseSuppressionLevel.value,
+              echoCancellation: _echoCancellation.value,
+              autoGainControl: _autoGainControl.value,
+              highPassFilter: _highPassFilter.value,
             )
           : null,
       video: videoState.value.isEnabled && video

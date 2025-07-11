@@ -459,7 +459,7 @@ void main() async {
   });
 
   test(
-    'ChatService throws RemoveChatMemberException when removing chat member',
+    'ChatService does not throw RemoveChatMemberException when removing chat member',
     () async {
       when(
         graphQlProvider.removeChatMember(
@@ -472,12 +472,9 @@ void main() async {
 
       final ChatService chatService = await init(graphQlProvider);
 
-      expect(
-        () async => await chatService.removeChatMember(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-        ),
-        throwsA(isA<RemoveChatMemberException>()),
+      await chatService.removeChatMember(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
       );
 
       verify(

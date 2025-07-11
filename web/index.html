@@ -282,8 +282,8 @@
   <!-- TODO: Styles page related, should be removed at some point. -->
   <script defer src="/script/FileSaver.min.js"></script>
   <script>
-    function webSaveAs(url, name) {
-      saveAs(url, name);
+    async function webSaveAs(blob, name) {
+      return await saveAs(blob, name);
     }
   </script>
 

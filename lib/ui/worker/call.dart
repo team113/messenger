@@ -511,10 +511,25 @@ class CallWorker extends DisposableService {
               _eventsSubscriptions[chatId] = provider.chatEvents(chatId, null, () => null).listen((
                 e,
               ) async {
-                var events = ChatEvents$Subscription.fromJson(
+                final events = ChatEvents$Subscription.fromJson(
                   e.data!,
                 ).chatEvents;
-                if (events.$$typename == 'ChatEventsVersioned') {
+
+                if (events.$$typename == 'Chat') {
+                  final mixin =
+                      events as ChatEvents$Subscription$ChatEvents$Chat;
+                  final call = mixin.ongoingCall;
+
+                  if (call != null) {
+                    if (call.members.any(
+                      (e) => e.user.id == credentials.userId,
+                    )) {
+                      await FlutterCallkitIncoming.endCall(
+                        chatId.val.base62ToUuid(),
+                      );
+                    }
+                  }
+                } else if (events.$$typename == 'ChatEventsVersioned') {
                   var mixin =
                       events
                           as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
@@ -543,6 +558,18 @@ class CallWorker extends DisposableService {
                           );
                         }
                       }
+                    } else if (e.$$typename == 'EventChatCallMemberLeft') {
+                      var node =
+                          e
+                              as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
+                      final call = _callService.calls[chatId];
+
+                      if (node.user.id == credentials.userId &&
+                          call?.value.connected != true) {
+                        await FlutterCallkitIncoming.endCall(
+                          chatId.val.base62ToUuid(),
+                        );
+                      }
                     } else if (e.$$typename == 'EventChatCallDeclined') {
                       final node =
                           e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
@@ -569,6 +596,17 @@ class CallWorker extends DisposableService {
                   }
                 }
               });
+
+              // Ensure that we haven't already joined the call.
+              final query = await provider.getChat(chatId);
+              final call = query.chat?.ongoingCall;
+              if (call != null) {
+                if (call.members.any((e) => e.user.id == credentials.userId)) {
+                  await FlutterCallkitIncoming.endCall(
+                    chatId.val.base62ToUuid(),
+                  );
+                }
+              }
             }
             break;
 

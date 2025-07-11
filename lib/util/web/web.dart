@@ -126,6 +126,9 @@ external JSPromise<JSAny?> _getLocks();
 @JS('locksAvailable')
 external bool _locksAvailable();
 
+@JS('webSaveAs')
+external JSPromise<JSAny?> _webSaveAs(web.Blob blob, JSString name);
+
 /// Helper providing access to features having different implementations in
 /// browser and on native platforms.
 class WebUtils {
@@ -151,6 +154,9 @@ class WebUtils {
 
   /// Indicates whether device's browser is Firefox or not.
   static bool get isFirefox => browser.isFirefox;
+
+  /// Indicates whether device's browser is Chrome or not.
+  static bool get isChrome => browser.isChrome;
 
   /// Indicates whether device's browser is in fullscreen mode or not.
   static bool get isFullscreen {
@@ -877,6 +883,24 @@ class WebUtils {
     }
   }
 
+  /// Refreshes the current browser's page.
+  static Future<void> refresh() async {
+    web.window.location.reload();
+  }
+
+  /// Downloads the provided [bytes] as a blob file.
+  static Future<void> downloadBlob(String name, Uint8List bytes) async {
+    final JSPromise promise = _webSaveAs(
+      web.Blob(
+        [bytes.toJS].toJS,
+        web.BlobPropertyBag(type: 'text/plain;charset=utf-8'),
+      ),
+      name.toJS,
+    );
+
+    await promise.toDart;
+  }
+
   /// Handles the [key] event to invoke [_keyHandlers] related to it.
   static bool _handleBindKeys(KeyEvent key) {
     if (key is KeyUpEvent) {
@@ -918,11 +942,6 @@ class WebUtils {
     }
 
     return false;
-  }
-
-  /// Refreshes the current browser's page.
-  static Future<void> refresh() async {
-    web.window.location.reload();
   }
 }
 

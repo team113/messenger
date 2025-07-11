@@ -1,4 +1,3 @@
-- Redesigned message delete popups.
-- Updated description and actions list on user page.
-- Updated default order of call buttons in dock.
+- Added voice processing settings for calls.
+- Redesigned popups for email adding and password changing.
 - Bug fixes and performance improvements.

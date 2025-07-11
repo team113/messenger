@@ -223,8 +223,6 @@ class AuthService extends DisposableService {
     _deltaWorker = ever(PlatformUtils.isDeltaSynchronized, (
       bool synchronized,
     ) async {
-      Log.debug('_deltaWorker -> $synchronized', '$runtimeType');
-
       if (synchronized) {
         if (_deltaMutex.isLocked) {
           _deltaMutex.release();
@@ -534,7 +532,7 @@ class AuthService extends DisposableService {
       try {
         await _authRepository.deleteSession();
       } catch (e) {
-        printError(info: e.toString());
+        Log.warning('Failed to delete `Session`: $e');
       }
 
       _unauthorized();

@@ -24,7 +24,10 @@ import '/ui/widget/svg/svg.dart';
 
 /// Interactive animated logo.
 class InteractiveLogo extends StatefulWidget {
-  const InteractiveLogo({super.key});
+  const InteractiveLogo({super.key, this.onEyePressed});
+
+  /// Callback, called when an eye of the logo is pressed.
+  final void Function()? onEyePressed;
 
   @override
   State<InteractiveLogo> createState() => _InteractiveLogoState();
@@ -54,13 +57,31 @@ class _InteractiveLogoState extends State<InteractiveLogo> {
   Widget build(BuildContext context) {
     return Listener(
       onPointerDown: (_) => _animate(),
-      child: SvgImage.asset(
-        'assets/images/logo/head_$_frame.svg',
-        height: 134,
-        fit: BoxFit.contain,
-        placeholderBuilder: (context) {
-          return const Center(child: CustomProgressIndicator());
-        },
+      child: Stack(
+        children: [
+          SvgImage.asset(
+            'assets/images/logo/head_$_frame.svg',
+            height: 134,
+            fit: BoxFit.contain,
+            placeholderBuilder: (context) {
+              return const Center(child: CustomProgressIndicator());
+            },
+          ),
+
+          if (widget.onEyePressed != null)
+            Positioned(
+              left: 35,
+              top: 48,
+              child: GestureDetector(
+                onDoubleTap: widget.onEyePressed,
+                child: Container(
+                  color: Colors.transparent,
+                  width: 30,
+                  height: 36,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
