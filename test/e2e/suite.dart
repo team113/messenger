@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/config.dart';
 
@@ -30,5 +31,8 @@ part 'suite.g.dart';
 )
 void main() async {
   Config.disableInfiniteAnimations = true;
-  executeTestSuite(gherkinTestConfiguration, appInitializationFn);
+  executeTestSuite(
+    configuration: gherkinTestConfiguration,
+    appMainFunction: appInitializationFn,
+  );
 }
