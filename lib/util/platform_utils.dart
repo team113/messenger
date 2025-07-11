@@ -813,7 +813,7 @@ class PlatformUtilsImpl {
         lockParentWindow: true,
       );
     } else {
-      to = (await temporaryDirectory).path;
+      to = '${(await temporaryDirectory).path}/$name';
     }
 
     if (to != null) {
