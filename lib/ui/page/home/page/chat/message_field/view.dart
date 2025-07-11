@@ -354,89 +354,82 @@ class MessageFieldView extends StatelessWidget {
             );
           }
 
-          return ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-            child: Container(
-              color: style.colors.onPrimaryOpacity50,
-              child: AnimatedSize(
-                duration: 400.milliseconds,
-                alignment: Alignment.bottomCenter,
-                curve: Curves.ease,
-                child: Container(
-                  width: double.infinity,
-                  padding:
-                      c.replied.isNotEmpty ||
-                          c.attachments.isNotEmpty ||
-                          c.edited.value != null
-                      ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                      : EdgeInsets.zero,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (c.edited.value != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: WidgetButton(
-                            onPressed: () =>
-                                onItemPressed?.call(c.edited.value!),
-                            child: _buildPreview(
-                              context,
-                              c.edited.value!,
-                              c,
-                              onClose: () => c.edited.value = null,
-                              edited: true,
-                            ),
+          return Container(
+            color: style.colors.background,
+            child: AnimatedSize(
+              duration: 400.milliseconds,
+              alignment: Alignment.bottomCenter,
+              curve: Curves.ease,
+              child: Container(
+                width: double.infinity,
+                padding:
+                    c.replied.isNotEmpty ||
+                        c.attachments.isNotEmpty ||
+                        c.edited.value != null
+                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                    : EdgeInsets.zero,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (c.edited.value != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: WidgetButton(
+                          onPressed: () => onItemPressed?.call(c.edited.value!),
+                          child: _buildPreview(
+                            context,
+                            c.edited.value!,
+                            c,
+                            onClose: () => c.edited.value = null,
+                            edited: true,
                           ),
                         ),
-                      if (previews != null)
-                        ConstrainedBox(
-                          constraints:
-                              this.constraints ??
-                              BoxConstraints(
-                                maxHeight: max(
-                                  100,
-                                  MediaQuery.of(context).size.height / 3.4,
-                                ),
+                      ),
+                    if (previews != null)
+                      ConstrainedBox(
+                        constraints:
+                            this.constraints ??
+                            BoxConstraints(
+                              maxHeight: max(
+                                100,
+                                MediaQuery.of(context).size.height / 3.4,
                               ),
-                          child: Scrollbar(
-                            controller: c.scrollController,
-                            child: previews,
-                          ),
+                            ),
+                        child: Scrollbar(
+                          controller: c.scrollController,
+                          child: previews,
                         ),
-                      if (c.attachments.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: MouseRegion(
-                            cursor: grab
-                                ? CustomMouseCursors.grab
-                                : MouseCursor.defer,
-                            opaque: false,
-                            child: ScrollConfiguration(
-                              behavior: CustomScrollBehavior(),
-                              child: SingleChildScrollView(
-                                clipBehavior: Clip.none,
-                                physics: grab
-                                    ? null
-                                    : const NeverScrollableScrollPhysics(),
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: c.attachments
-                                      .map(
-                                        (e) => _buildAttachment(context, e, c),
-                                      )
-                                      .toList(),
-                                ),
+                      ),
+                    if (c.attachments.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: MouseRegion(
+                          cursor: grab
+                              ? CustomMouseCursors.grab
+                              : MouseCursor.defer,
+                          opaque: false,
+                          child: ScrollConfiguration(
+                            behavior: CustomScrollBehavior(),
+                            child: SingleChildScrollView(
+                              clipBehavior: Clip.none,
+                              physics: grab
+                                  ? null
+                                  : const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: c.attachments
+                                    .map((e) => _buildAttachment(context, e, c))
+                                    .toList(),
                               ),
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -800,16 +793,18 @@ class MessageFieldView extends StatelessWidget {
 
     if (edited) {
       return Container(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            SvgIcon(SvgIcons.editSmall),
+            SizedBox(width: 8),
             Expanded(
               child: Text(
-                'label_message_editing'.l10n,
-                style: style.fonts.medium.regular.primary,
+                'label_editing'.l10n,
+                style: style.fonts.small.regular.primary,
               ),
             ),
             AnimatedButton(

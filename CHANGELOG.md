@@ -11,12 +11,19 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.3...v0.6.0) | [Milestone](/../../milestone/43)
 
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned editing mode. ([#1327])
+
 ### Fixed
 
 - iOS:
     - Authorization sometimes being lost when receiving push notifications. ([#1326])
 
 [#1326]: /../../pull/1326
+[#1327]: /../../pull/1327
 
 
 

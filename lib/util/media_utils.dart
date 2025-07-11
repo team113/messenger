@@ -512,3 +512,21 @@ enum NoiseSuppressionLevelWithOff {
     };
   }
 }
+
+/// Extention adding conversion of [NoiseSuppressionLevel] to
+/// [NoiseSuppressionLevelWithOff].
+extension NoiseSuppressionLevelToOff on NoiseSuppressionLevel {
+  /// Converts this [NoiseSuppressionLevelWithOff] to actual
+  /// [NoiseSuppressionLevel].
+  NoiseSuppressionLevelWithOff toLevelWithOff([bool enabled = true]) {
+    return switch (enabled) {
+      false => NoiseSuppressionLevelWithOff.off,
+      true => switch (this) {
+        NoiseSuppressionLevel.low => NoiseSuppressionLevelWithOff.low,
+        NoiseSuppressionLevel.moderate => NoiseSuppressionLevelWithOff.moderate,
+        NoiseSuppressionLevel.high => NoiseSuppressionLevelWithOff.high,
+        NoiseSuppressionLevel.veryHigh => NoiseSuppressionLevelWithOff.veryHigh,
+      },
+    };
+  }
+}

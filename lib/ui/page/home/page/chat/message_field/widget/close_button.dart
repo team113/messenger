@@ -23,7 +23,10 @@ import '/ui/widget/widget_button.dart';
 
 /// Circular close button.
 class CloseButton extends StatelessWidget {
-  const CloseButton({super.key, this.onPressed});
+  const CloseButton({super.key, this.icon, this.onPressed});
+
+  /// [SvgData] to use inside this button.
+  final SvgData? icon;
 
   /// Callback, called when this button is pressed.
   final void Function()? onPressed;
@@ -35,16 +38,23 @@ class CloseButton extends StatelessWidget {
     return WidgetButton(
       onPressed: onPressed,
       child: Container(
-        width: 16 * 1.5,
-        height: 16 * 1.5,
-        margin: const EdgeInsets.only(left: 8, bottom: 8),
+        width: 24,
+        height: 24,
+        margin: const EdgeInsets.fromLTRB(3, 3, 3, 3),
         child: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: style.cardColor,
+            boxShadow: [
+              CustomBoxShadow(
+                color: style.colors.onBackgroundOpacity20,
+                blurRadius: 2,
+                blurStyle: BlurStyle.outer,
+              ),
+            ],
           ),
           alignment: Alignment.center,
-          child: const SvgIcon(SvgIcons.closeSmallPrimary),
+          child: SvgIcon(icon ?? SvgIcons.attachmentClose),
         ),
       ),
     );

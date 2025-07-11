@@ -325,11 +325,11 @@ class LoginController extends GetxController {
               break;
 
             default:
-              s.error.value = 'err_wrong_recovery_code'.l10n;
+              s.error.value = 'err_wrong_code'.l10n;
               break;
           }
         } on FormatException catch (_) {
-          s.error.value = 'err_wrong_recovery_code'.l10n;
+          s.error.value = 'err_wrong_code'.l10n;
           s.status.value = RxStatus.empty();
           ++codeAttempts;
           if (codeAttempts >= 3) {
@@ -544,9 +544,9 @@ class LoginController extends GetxController {
       recoveryCode.status.value = RxStatus.success();
       stage.value = LoginViewStage.recoveryPassword;
     } on FormatException {
-      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
+      recoveryCode.error.value = 'err_wrong_code'.l10n;
     } on ArgumentError {
-      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
+      recoveryCode.error.value = 'err_wrong_code'.l10n;
     } on ValidateConfirmationCodeException catch (e) {
       recoveryCode.error.value = e.toMessage();
     } catch (e) {

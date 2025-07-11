@@ -36,6 +36,7 @@ import '/domain/service/disposable_service.dart';
 import '/provider/drift/cache.dart';
 import '/provider/drift/download.dart';
 import '/util/backoff.dart';
+import '/util/log.dart';
 import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
 
@@ -417,6 +418,8 @@ class CacheWorker extends DisposableService {
 
   /// Sets the maximum allowed size of the cache.
   Future<void> setMaxSize(int? size) async {
+    Log.debug('setMaxSize($size)', '$runtimeType');
+
     info.value.maxSize = size;
     info.refresh();
     await _cacheLocal?.upsert(info.value);

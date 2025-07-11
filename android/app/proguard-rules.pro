@@ -19,6 +19,7 @@
 -keep class androidx.window.sidecar.SidecarInterface
 -keep class androidx.window.sidecar.SidecarProvider
 -keep class androidx.window.sidecar.SidecarWindowLayoutInfodan
+-keep class org.jni_zero.** { *; }
 
 -dontwarn androidx.compose.runtime.internal.StabilityInferred
 -dontwarn androidx.compose.ui.geometry.Offset

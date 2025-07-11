@@ -17,7 +17,6 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
@@ -30,6 +29,7 @@ import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/widget/line_divider.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/styled_slider.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/media_utils.dart';
 import '/util/platform_utils.dart';
@@ -219,9 +219,6 @@ class CallSettingsView extends StatelessWidget {
                       LineDivider('label_noise_suppression'.l10n),
                       SizedBox(height: 8),
                       Obx(() {
-                        final List<NoiseSuppressionLevelWithOff?> values =
-                            NoiseSuppressionLevelWithOff.values;
-
                         NoiseSuppressionLevelWithOff? level =
                             _call.value.noiseSuppression != true
                             ? NoiseSuppressionLevelWithOff.off
@@ -237,100 +234,28 @@ class CallSettingsView extends StatelessWidget {
                                   );
                         level ??= NoiseSuppressionLevelWithOff.off;
 
-                        // Position of the current level on the slider as a percentage.
-                        final percentage =
-                            (100 *
-                            (1 / (values.length - 1)) *
-                            values.indexOf(level));
-
-                        return SizedBox(
-                          height: 70,
-                          child: Transform.translate(
-                            offset: Offset(0, 12),
-                            child: FlutterSlider(
-                              handlerHeight: 24,
-                              handler: FlutterSliderHandler(
-                                child: const SizedBox(),
-                              ),
-                              values: [percentage],
-                              tooltip: FlutterSliderTooltip(disabled: true),
-                              fixedValues: values.mapIndexed((i, e) {
-                                return FlutterSliderFixedValue(
-                                  percent: ((i / (values.length - 1)) * 100)
-                                      .round(),
-                                  value: e,
-                                );
-                              }).toList(),
-                              trackBar: FlutterSliderTrackBar(
-                                inactiveTrackBar: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: style.colors.onBackgroundOpacity13,
-                                ),
-                                activeTrackBar: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: style.colors.primaryHighlight,
-                                ),
-                              ),
-                              onDragCompleted: (i, lower, upper) {
-                                if (lower is NoiseSuppressionLevelWithOff) {
-                                  c.setNoiseSuppression(lower);
-                                } else if (upper
-                                    is NoiseSuppressionLevelWithOff) {
-                                  c.setNoiseSuppression(upper);
-                                }
+                        return StyledSlider(
+                          value: level,
+                          values: NoiseSuppressionLevelWithOff.values,
+                          labelBuilder: (_, value) {
+                            return Text(
+                              textAlign: TextAlign.center,
+                              switch (value) {
+                                NoiseSuppressionLevelWithOff.off =>
+                                  'label_disabled'.l10n,
+                                NoiseSuppressionLevelWithOff.low =>
+                                  'label_low'.l10n,
+                                NoiseSuppressionLevelWithOff.moderate =>
+                                  'label_medium'.l10n,
+                                NoiseSuppressionLevelWithOff.high =>
+                                  'label_high'.l10n,
+                                NoiseSuppressionLevelWithOff.veryHigh =>
+                                  'label_very_high'.l10n,
                               },
-                              hatchMark: FlutterSliderHatchMark(
-                                labelsDistanceFromTrackBar: -48,
-                                labels: [
-                                  FlutterSliderHatchMarkLabel(
-                                    percent: 0,
-                                    label: Text(
-                                      textAlign: TextAlign.center,
-                                      'label_disabled'.l10n,
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ),
-                                  FlutterSliderHatchMarkLabel(
-                                    percent: 25,
-                                    label: Text(
-                                      textAlign: TextAlign.center,
-                                      'label_low'.l10n,
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ),
-                                  FlutterSliderHatchMarkLabel(
-                                    percent: 50,
-                                    label: Text(
-                                      textAlign: TextAlign.center,
-                                      'label_medium'.l10n,
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ),
-                                  FlutterSliderHatchMarkLabel(
-                                    percent: 75,
-                                    label: Text(
-                                      textAlign: TextAlign.center,
-                                      'label_high'.l10n,
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ),
-                                  FlutterSliderHatchMarkLabel(
-                                    percent: 100,
-                                    label: Text(
-                                      textAlign: TextAlign.center,
-                                      'label_very_high'.l10n,
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                              style: style.fonts.smaller.regular.secondary,
+                            );
+                          },
+                          onCompleted: c.setNoiseSuppression,
                         );
                       }),
                     ],
