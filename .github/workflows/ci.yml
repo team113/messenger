@@ -69,6 +69,7 @@ jobs:
       - run: make flutter.pub
 
       - run: make flutter.analyze
+      - run: make flutter.analyze.fluent
 
   dartfmt:
     runs-on: ubuntu-latest
