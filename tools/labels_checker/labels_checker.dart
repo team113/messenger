@@ -44,7 +44,7 @@ import 'package:analyzer/dart/ast/visitor.dart';
 /// **Custom ignore patterns**
 /// ```bash
 /// dart run tools/labels_checker/labels_checker.dart \
-///   -i '^push_*' -i '^analytics_*'
+///   -i '^push_' -i '^analytics_'
 /// ```
 ///
 /// ### Exit flags:
@@ -58,7 +58,7 @@ Future<void> main(List<String> argv) async {
     ..addMultiOption(
       'ignore',
       abbr: 'i',
-      defaultsTo: ['^email_*', '^fcm_*'],
+      defaultsTo: ['^email_', '^fcm_'],
       help:
           'RegExp patterns of labels to ignore'
           ' when reporting unused labels.\n',
