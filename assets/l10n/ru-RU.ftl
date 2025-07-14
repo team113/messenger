@@ -322,7 +322,7 @@ fcm_group_avatar_changed = {$userName ->
     } {$operation ->
           [update] обновил аватар
          *[remove] удалил аватар
-    }
+      }
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
