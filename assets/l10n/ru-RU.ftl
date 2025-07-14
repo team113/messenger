@@ -317,12 +317,19 @@ fcm_dialog_title =
        *[other] {$userName}
     }
 fcm_group_avatar_changed = {$userName ->
-    [x] {$userNum}
-   *[other] {$userName}
-} {$operation ->
-      [update] обновил аватар
-     *[remove] удалил аватар
-}
+        [x] {$userNum}
+       *[other] {$userName}
+    } {$operation ->
+          [update] обновил аватар
+         *[remove] удалил аватар
+    }
+fcm_group_name_changed = {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } {$operation ->
+          [update] переименовал чат на {$groupName}
+         *[remove] удалил имя
+      }
 fcm_group_title =
     {$user1Name ->
         [x] {$user1Num ->
@@ -357,13 +364,6 @@ fcm_incoming_call =
         [yes] видео
         *[other] аудио
     } звонок
-fcm_group_name_changed = {$userName ->
-        [x] {$userNum}
-       *[other] {$userName}
-    } {$operation ->
-          [update] переименовал чат на {$groupName}
-         *[remove] удалил имя
-      }
 fcm_message =
     { $type ->
         [dialog] {""}
