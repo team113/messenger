@@ -697,6 +697,15 @@ class AuthService extends DisposableService {
           '$runtimeType',
         );
 
+        while (!WebUtils.isOnLine && !isClosed) {
+          Log.debug(
+            'refreshSession($userId |-> $attempt) navigator.onLine returned `false`, retrying in 1 seconds...',
+            '$runtimeType',
+          );
+
+          await Future.delayed(Duration(seconds: 1));
+        }
+
         Credentials? oldCreds;
 
         if (userId != null) {
