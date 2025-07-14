@@ -25,6 +25,31 @@ import 'package:analyzer/dart/analysis/utilities.dart' show parseFile;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 
+/// A command-line utility that scans `.dart` files for **unused .ftl labels**.
+///
+/// The general script's steps are the following:
+/// 1. collects a set of all labels defined in `.ftl` files (with exceptions, such as `fcm_*` or `gmail_*`)
+/// 2. collects a set of **simple string literals** from `.dart` files
+/// 3. compares the sets and reports unused labels
+///
+/// ### Usage example:
+/// - Run with default flags (`--ftl=assets/l10n --src=lib`):
+///   ```bash
+///   dart run tools/labels_checker/labels_checker.dart
+///   ```
+///
+/// - Run with custom flags:
+///   ```bash
+///   dart run tools/labels_checker/labels_checker.dart \
+///       --ftl=assets/l10n/ru-RU.ftl \
+///       --src=lib/api
+///   ```
+///
+/// ### Exit flags:
+/// 1. `0`  if no labels unused
+/// 2. `1`  if there are labels unused
+/// 3. `64` if wrong cli usage
+/// 4. `66` if some input files are missing (you used flags and specified empty --src folder)
 Future<void> main(List<String> argv) async {
   // Parse CLI.
   final cli = ArgParser()
