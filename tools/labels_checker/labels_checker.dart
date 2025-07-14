@@ -29,7 +29,7 @@ import 'package:analyzer/dart/ast/visitor.dart';
 ///
 /// ### Usage examples
 /// **Default run**: scans `assets/l10n` and `lib`,
-/// skipping labels that starts with `email_` or `fcm_`
+/// skipping labels that start with `email_` or `fcm_`
 /// ```bash
 /// dart run tools/labels_checker/labels_checker.dart
 /// ```
