@@ -9,13 +9,28 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.6.0] · 2025-??-??
 [0.6.0]: /../../tree/v0.6.0
 
-[Diff](/../../compare/v0.5.2...v0.6.0) | [Milestone](/../../milestone/42)
+[Diff](/../../compare/v0.5.3...v0.6.0) | [Milestone](/../../milestone/43)
+
+### Fixed
+
+- iOS:
+    - Authorization sometimes being lost when receiving push notifications. ([#1326])
+
+[#1326]: /../../pull/1326
+
+
+
+
+## [0.5.3] · 2025-07-10
+[0.5.3]: /../../tree/v0.5.3
+
+[Diff](/../../compare/v0.5.2...v0.5.3) | [Milestone](/../../milestone/42)
 
 ### Added
 
 - UI:
     - Profile page:
-        - Voice processing settings for calls. ([#1287], [#1264])
+        - Voice processing settings for calls. ([#1323], [#1287], [#1264])
 - Technical information and logs modal opened by double clicking logo's eye. ([#1319])
 
 ### Changed
@@ -35,6 +50,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1296]: /../../pull/1296
 [#1319]: /../../pull/1319
 [#1320]: /../../pull/1320
+[#1323]: /../../pull/1323
 
 
 
