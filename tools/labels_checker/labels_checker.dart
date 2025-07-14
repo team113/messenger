@@ -110,7 +110,8 @@ Future<void> main(List<String> argv) async {
 
   // Parse labels from the .ftl files.
   stdout.writeln(
-    'Scanning ${ftlFiles.length.toString().padRight(3)} .ftl files...',
+    'Scanning ${ftlFiles.length.toString().padRight(3)} '
+    '${'.ftl'.padRight(5)} files...',
   );
   final Set<String> ftlLabels = <String>{};
   for (final f in ftlFiles) {
@@ -131,7 +132,8 @@ Future<void> main(List<String> argv) async {
 
   // Parse project files for labels.
   stdout.writeln(
-    'Scanning ${dartFiles.length.toString().padRight(3)} .dart files...\n',
+    'Scanning ${dartFiles.length.toString().padRight(3)} '
+    '${'.dart'.padRight(5)} files...\n',
   );
   final Set<String> projectLabels = <String>{};
   for (final file in dartFiles) {
