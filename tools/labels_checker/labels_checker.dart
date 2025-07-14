@@ -96,6 +96,7 @@ Future<void> main(List<String> argv) async {
   }
 
   // Parse labels from the .ftl files.
+  stdout.writeln('Scanning ${ftlFiles.length} .ftl files...');
   final ftlLabels = <String>{};
   for (final f in ftlFiles) {
     ftlLabels.addAll(await _parseFtlFile(f.path));
@@ -114,7 +115,7 @@ Future<void> main(List<String> argv) async {
   }
 
   // Parse project files for labels.
-  stdout.writeln('Scanning ${dartFiles.length} project files...');
+  stdout.writeln('Scanning ${dartFiles.length} .dart files...');
   final projectLabels = <String>{};
   for (final file in dartFiles) {
     final fileUnit = parseFile(
@@ -128,7 +129,6 @@ Future<void> main(List<String> argv) async {
   }
 
   // Diff and report.
-  stdout.writeln('FTL files scanned : ${ftlFiles.length}');
   final unused = ftlLabels.difference(projectLabels);
 
   if (unused.isNotEmpty) {
