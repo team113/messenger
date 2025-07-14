@@ -168,6 +168,10 @@ class LogView extends StatelessWidget {
                               },
                               child: SvgIcon(SvgIcons.copy),
                             ),
+                            trailing: WidgetButton(
+                              onPressed: c.clearLogs,
+                              child: SvgIcon(SvgIcons.delete19),
+                            ),
                             title: Text('Logs'),
                           ),
                           ...Log.logs.map((e) {
@@ -281,6 +285,8 @@ class LogView extends StatelessWidget {
 
   /// Builds the technical information about current [Session].
   Widget _session(BuildContext context, LogController c) {
+    final style = Theme.of(context).style;
+
     final session = c.sessions
         ?.firstWhereOrNull((e) => e.session.value.id == c.sessionId)
         ?.session
@@ -303,6 +309,13 @@ class LogView extends StatelessWidget {
         ),
         Text('ID: ${c.sessionId}'),
         Text('$session'),
+        ListTile(
+          title: Text(
+            'Force `refreshSession()` to occur',
+            style: style.fonts.small.regular.primary,
+          ),
+          onTap: c.refreshSession,
+        ),
       ],
     );
   }
