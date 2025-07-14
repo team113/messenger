@@ -196,7 +196,6 @@ btn_participants_desc =
     участников
 btn_password = Пароль
 btn_paste = Вставить
-btn_privacy_policy = Политика конфиденциальности
 btn_proceed = Продолжить
 btn_refresh_page = Обновить страницу
 btn_reply = Ответить
@@ -642,7 +641,6 @@ label_duration_hour_short = ч
 label_duration_minute_short = м
 label_duration_second_short = с
 label_echo_cancellation = Эхоподавление
-label_edit = Редактировать
 label_editing = Редактирование
 label_email = E-mail
 label_email_confirmed = E-mail был подтверждён

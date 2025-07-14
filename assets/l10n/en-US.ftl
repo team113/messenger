@@ -196,7 +196,6 @@ btn_participants_desc =
     participants
 btn_password = Password
 btn_paste = Paste
-btn_privacy_policy = Privacy policy
 btn_proceed = Proceed
 btn_refresh_page = Refresh page
 btn_reply = Reply
@@ -622,7 +621,6 @@ label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
 label_echo_cancellation = Echo cancellation
-label_edit = Edit
 label_editing = Editing
 label_email = E-mail
 label_email_confirmed = E-mail has been confirmed
