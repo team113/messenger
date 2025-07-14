@@ -783,7 +783,9 @@ class AuthService extends DisposableService {
           final Credentials? creds = credentials.value;
           if (creds != null && proceedIfRefreshBefore != null) {
             shouldProceed = proceedIfRefreshBefore.isAfter(
-              creds.session.lastActivatedAt.val,
+              // Add a delay just to prevent possible races between old access
+              // token still being used in WebSocket connection.
+              creds.session.lastActivatedAt.val.add(Duration(seconds: 10)),
             );
           }
 
@@ -793,7 +795,7 @@ class AuthService extends DisposableService {
           }
 
           Log.debug(
-            'refreshSession($userId |-> $attempt): should refresh is `false`, yet proceeding as ${creds?.session.lastActivatedAt.val.toUtc()} is after ${proceedIfRefreshBefore?.toUtc()}',
+            'refreshSession($userId |-> $attempt): should refresh is `false`, yet proceeding as ${creds?.session.lastActivatedAt.val.toUtc()} (+10 seconds) is before ${proceedIfRefreshBefore?.toUtc()}',
             '$runtimeType',
           );
         }
