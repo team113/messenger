@@ -165,11 +165,11 @@ Future<void> main(List<String> argv) async {
   for (final l in unused) {
     stdout.writeln('  • $l');
   }
-  // Prevents stdout and stderr streams from mixing.
+  // Prevents stdout and stderr streams' outputs from mixing.
   await stdout.flush();
 
   if (unused.isNotEmpty) {
-    stderr.writeln('\nYou have unused assets! Remove them');
+    stderr.writeln('\nYou have unused assets! Remove them.');
     exit(1);
   }
 
