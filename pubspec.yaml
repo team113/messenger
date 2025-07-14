@@ -124,7 +124,6 @@ dependencies:
 dev_dependencies:
   artemis:
     git: https://github.com/SleepySquash/artemis
-  assets_cleaner: ^0.1.5+12
   build: ^2.4.1
   build_runner: ^2.4.11
   change_app_package_name: ^1.4.0
