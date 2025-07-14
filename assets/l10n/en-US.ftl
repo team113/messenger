@@ -321,6 +321,13 @@ fcm_group_avatar_changed = {$userName ->
           [update] updated avatar
          *[remove] removed avatar
       }
+fcm_group_name_changed = {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    } {$operation ->
+          [update] renamed chat to {$groupName}
+         *[remove] removed name
+      }
 fcm_group_title =
     {$user1Name ->
         [x] {$user1Num ->
@@ -358,13 +365,6 @@ fcm_incoming_call =
         [yes] video
         *[other] audio
     } call
-fcm_group_name_changed = {$userName ->
-        [x] {$userNum}
-       *[other] {$userName}
-    } {$operation ->
-          [update] renamed chat to {$groupName}
-         *[remove] removed name
-      }
 fcm_message =
     { $type ->
         [dialog] {""}
@@ -444,6 +444,7 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } removed you from group
+fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about_you = About you
