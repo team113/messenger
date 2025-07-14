@@ -239,6 +239,11 @@ btn_work_with_us = Work with us
 colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
+email_confirmation_code =
+    {$domain} confirmation code is: {$token}
+    Valid until {$expiresAt}.
+    {$domain}
+email_confirmation_code_subject = {$domain} confirmation code
 err_account_not_found = Indicated account is not found
 err_account_unavailable = This account is not available. Please, log in again.
 err_blocked = You've been added to the blocklist of this user.
@@ -305,6 +310,10 @@ err_you_already_add_this_email = Indicated E-mail has been added already.
 err_you_already_add_this_phone = Indicated phone has been added already.
 err_you_are_blocked = You are blacklisted
 exclamation_mark = !
+fcm_dialog_title = {$userName ->
+        [x] {$userNum}
+       *[other] {$userName}
+    }
 fcm_group_avatar_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
@@ -312,6 +321,43 @@ fcm_group_avatar_changed = {$userName ->
           [update] updated avatar
          *[remove] removed avatar
       }
+fcm_group_title =
+    {$user1Name ->
+        [x] {$user1Num ->
+                [x] {""}
+               *[other] {$user1Num}
+            }
+       *[other] {$user1Name}
+    }{$user2Name ->
+        [x] {$user2Num ->
+                [x] {""}
+               *[other] , {$user2Num}
+            }
+       *[other] , {$user2Name}
+    }{$user3Name ->
+        [x] {$user3Num ->
+                [x] {""}
+               *[other] , {$user3Num}
+            }
+       *[other] , {$user3Name}
+    } {$moreMembers ->
+        [yes] ...
+       *[no] {""}
+    }
+fcm_incoming_call =
+    { $type ->
+        [group] {$userName ->
+           [x] {$userNum}
+           *[other] {$userName}
+        } started { $isVideo ->
+            [yes] a
+            *[other] an
+        }
+        *[dialog] Incoming
+    } { $isVideo ->
+        [yes] video
+        *[other] audio
+    } call
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
@@ -350,6 +396,17 @@ fcm_message =
             [0] {$text}
             *[other] {" "}{$text}
         }
+    }
+fcm_missed_call =
+    Missed { $isVideo ->
+        [yes] video
+        *[other] audio
+    } call{ $type ->
+        [group] {" from "}{$userName ->
+            [x] {$userNum}
+            *[other] {$userName}
+        }
+        *[dialog] {""}
     }
 fcm_user_added_user =
     {$authorName ->

@@ -239,6 +239,11 @@ btn_work_with_us = Работайте с нами
 colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
+email_confirmation_code =
+    Код подтверждения {$domain}: {$token}
+    Действителен до {$expiresAt}.
+    {$domain}
+email_confirmation_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
 err_account_unavailable = Этот аккаунт недоступен. Пожалуйста, повторите авторизацию.
 err_blocked = Пользователь добавил Вас в чёрный список.
@@ -306,13 +311,52 @@ err_you_already_add_this_email = Вы уже добавили указанный
 err_you_already_add_this_phone = Вы уже добавили указанный номер телефона.
 err_you_are_blocked = Вы в чёрном списке.
 exclamation_mark = !
-fcm_group_avatar_changed = {$userName ->
+fcm_dialog_title =
+    {$userName ->
         [x] {$userNum}
        *[other] {$userName}
-    } {$operation ->
-          [update] обновил аватар
-         *[remove] удалил аватар
-      }
+    }
+fcm_group_avatar_changed = {$userName ->
+    [x] {$userNum}
+   *[other] {$userName}
+} {$operation ->
+      [update] обновил аватар
+     *[remove] удалил аватар
+}
+fcm_group_title =
+    {$user1Name ->
+        [x] {$user1Num ->
+                [x] {""}
+               *[other] {$user1Num}
+            }
+       *[other] {$user1Name}
+    }{$user2Name ->
+        [x] {$user2Num ->
+                [x] {""}
+               *[other] , {$user2Num}
+            }
+       *[other] , {$user2Name}
+    }{$user3Name ->
+        [x] {$user3Num ->
+                [x] {""}
+               *[other] , {$user3Num}
+            }
+       *[other] , {$user3Name}
+    } {$moreMembers ->
+        [yes] ...
+       *[no] {""}
+    }
+fcm_incoming_call =
+    { $type ->
+        [group] {$userName ->
+           [x] {$userNum}
+           *[other] {$userName}
+        } начинает
+        *[dialog] Входящий
+    } { $isVideo ->
+        [yes] видео
+        *[other] аудио
+    } звонок
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
@@ -359,6 +403,17 @@ fcm_message =
             [0] {$text}
             *[other] {" "}{$text}
         }
+    }
+fcm_missed_call =
+    Пропущенный { $isVideo ->
+        [yes] видео
+        *[other] аудио
+    } звонок{ $type ->
+        [group] {" от "}{$userName ->
+            [x] {$userNum}
+            *[other] {$userName}
+        }
+        *[dialog] {""}
     }
 fcm_user_added_user =
     {$authorName ->
