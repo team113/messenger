@@ -27,23 +27,25 @@ import 'package:analyzer/dart/ast/visitor.dart';
 
 /// A command-line utility that scans `.dart` files for **unused .ftl labels**.
 ///
-/// The general script's steps are the following:
-/// 1. collects a set of all labels defined in `.ftl` files (with exceptions, such as `fcm_*` or `gmail_*`)
-/// 2. collects a set of **simple string literals** from `.dart` files
-/// 3. compares the sets and reports unused labels
+/// ### Usage examples
+/// **Default run**: scans `assets/l10n` and `lib`,
+/// skipping labels that starts with `email_` or `fcm_`
+/// ```bash
+/// dart run tools/labels_checker/labels_checker.dart
+/// ```
 ///
-/// ### Usage example:
-/// - Run with default flags (`--ftl=assets/l10n --src=lib`):
-///   ```bash
-///   dart run tools/labels_checker/labels_checker.dart
-///   ```
-///
-/// - Run with custom flags:
+/// **Custom locations**
 ///   ```bash
 ///   dart run tools/labels_checker/labels_checker.dart \
 ///       --ftl=assets/l10n/ru-RU.ftl \
 ///       --src=lib/api
 ///   ```
+///
+/// **Custom ignore patterns**
+/// ```bash
+/// dart run tools/labels_checker/labels_checker.dart \
+///   -i '^push_*' -i '^analytics_*'
+/// ```
 ///
 /// ### Exit flags:
 /// 1. `0`  if no labels unused
@@ -53,6 +55,14 @@ import 'package:analyzer/dart/ast/visitor.dart';
 Future<void> main(List<String> argv) async {
   // Parse CLI.
   final cli = ArgParser()
+    ..addMultiOption(
+      'ignore',
+      abbr: 'i',
+      defaultsTo: ['^email_*', '^fcm_*'],
+      help:
+          'RegExp patterns of labels to ignore'
+          ' when reporting unused labels.\n',
+    )
     ..addOption(
       'ftl',
       abbr: 'f',
@@ -63,7 +73,7 @@ Future<void> main(List<String> argv) async {
       'src',
       abbr: 's',
       defaultsTo: 'lib',
-      help: 'Directory that contains Dart sources to scan (e.g. "lib")',
+      help: 'Directory that contains Dart sources to scan',
     )
     ..addFlag('help', abbr: 'h', negatable: false, help: 'Show this help');
 
@@ -87,23 +97,28 @@ Future<void> main(List<String> argv) async {
 
   final ftlPathOrDir = args['ftl'] as String;
   final srcDir = args['src'] as String;
+  final ignoreRegExps = (args['ignore'] as List<String>)
+      .map((exp) => RegExp(exp))
+      .toList();
 
   // Collect .ftl files.
-  final ftlFiles = await _gatherFtlFiles(ftlPathOrDir);
+  final List<File> ftlFiles = await _gatherFtlFiles(ftlPathOrDir);
   if (ftlFiles.isEmpty) {
     stderr.writeln('No .ftl files found under $ftlPathOrDir');
     exit(66); // EX_NOINPUT.
   }
 
   // Parse labels from the .ftl files.
-  stdout.writeln('Scanning ${ftlFiles.length} .ftl files...');
-  final ftlLabels = <String>{};
+  stdout.writeln(
+    'Scanning ${ftlFiles.length.toString().padRight(3)} .ftl files...',
+  );
+  final Set<String> ftlLabels = <String>{};
   for (final f in ftlFiles) {
     ftlLabels.addAll(await _parseFtlFile(f.path));
   }
 
   // Collect project files.
-  final dartFiles = await Directory(srcDir)
+  final List<File> dartFiles = await Directory(srcDir)
       .list(recursive: true)
       .where((file) => file is File && file.path.endsWith('.dart'))
       .cast<File>()
@@ -115,8 +130,10 @@ Future<void> main(List<String> argv) async {
   }
 
   // Parse project files for labels.
-  stdout.writeln('Scanning ${dartFiles.length} .dart files...');
-  final projectLabels = <String>{};
+  stdout.writeln(
+    'Scanning ${dartFiles.length.toString().padRight(3)} .dart files...\n',
+  );
+  final Set<String> projectLabels = <String>{};
   for (final file in dartFiles) {
     final fileUnit = parseFile(
       path: file.path,
@@ -128,22 +145,31 @@ Future<void> main(List<String> argv) async {
     projectLabels.addAll(visitor.findings);
   }
 
-  // Diff and report.
-  final unused = ftlLabels.difference(projectLabels);
+  // Difference and report.
+  final Set<String> ignored = ftlLabels
+      .where((label) => ignoreRegExps.any((ignore) => ignore.hasMatch(label)))
+      .toSet();
+
+  final Set<String> unused = ftlLabels
+      .difference(projectLabels)
+      .difference(ignored);
+
+  stdout.writeln('${'Labels discovered'.padRight(18)} : ${ftlLabels.length}');
+  stdout.writeln('${'Labels ignored'.padRight(18)} : ${ignored.length}');
+  for (final i in ignored) {
+    stdout.writeln('  • $i');
+  }
+  stdout.writeln('${'Labels unused'.padRight(18)} : ${unused.length}');
+  for (final l in unused) {
+    stdout.writeln('  • $l');
+  }
 
   if (unused.isNotEmpty) {
-    stderr
-      ..writeln('You have unused assets! Remove them.\n')
-      ..writeln('Labels discovered : ${ftlLabels.length}')
-      ..writeln('Unused labels     : ${unused.length}');
-
-    for (final l in unused) {
-      stderr.writeln('  • $l');
-    }
+    stderr.writeln('\nYou have unused assets! Remove them');
     exit(1);
   }
 
-  stdout.writeln('Unused assets were not found.');
+  stdout.writeln('\nUnused assets were not found.');
   exit(0);
 }
 
