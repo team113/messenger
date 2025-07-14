@@ -464,13 +464,6 @@ class LoginController extends GetxController {
 
     _recoveryLogin = _recoveryNum = _recoveryPhone = _recoveryEmail = null;
 
-    if (recovery.text.isEmpty) {
-      recovery.status.value = RxStatus.empty();
-      recovery.editable.value = true;
-      recovery.error.value = 'err_account_not_found'.l10n;
-      return;
-    }
-
     // Parse the [recovery] input.
     try {
       _recoveryNum = UserNum(recovery.text);
@@ -491,21 +484,22 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _authService.createConfirmationCode(
-        login: _recoveryLogin,
-        num: _recoveryNum,
-        email: _recoveryEmail,
-        phone: _recoveryPhone,
-        locale: L10n.chosen.value?.toString(),
-      );
+      if (_recoveryLogin != null ||
+          _recoveryNum != null ||
+          _recoveryEmail != null ||
+          _recoveryPhone != null) {
+        await _authService.createConfirmationCode(
+          login: _recoveryLogin,
+          num: _recoveryNum,
+          email: _recoveryEmail,
+          phone: _recoveryPhone,
+          locale: L10n.chosen.value?.toString(),
+        );
+      }
 
       stage.value = LoginViewStage.recoveryCode;
       recovery.status.value = RxStatus.success();
       recovery.editable.value = false;
-    } on FormatException {
-      recovery.error.value = 'err_account_not_found'.l10n;
-    } on ArgumentError {
-      recovery.error.value = 'err_account_not_found'.l10n;
     } catch (e) {
       recovery.unsubmit();
       recovery.resubmitOnError.value = true;
@@ -626,7 +620,7 @@ class LoginController extends GetxController {
         case UpdateUserPasswordErrorCode.wrongCode:
           recoveryCode.error.value = 'err_wrong_code'.l10n;
         case UpdateUserPasswordErrorCode.confirmationRequired:
-          repeatPassword.error.value = 'err_confirmation_required'.l10n;
+          repeatPassword.error.value = 'err_data_transfer'.l10n;
         case UpdateUserPasswordErrorCode.artemisUnknown:
           repeatPassword.error.value = 'err_unknown'.l10n;
       }

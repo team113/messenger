@@ -26,8 +26,6 @@ Feature: Account deletion
     When I tap `MenuButton` button
     And I scroll `MenuListView` until `DangerZone` is present
     And I tap `DangerZone` button
-    And I scroll `MyProfileScrollable` until `DeleteAccount` is present
-    And I tap `DeleteAccount` button
     Then I wait until `EraseView` is present
 
     When I scroll `EraseScrollable` until `ConfirmDelete` is present

@@ -42,7 +42,6 @@ import '/l10n/l10n.dart';
 import '/pubspec.g.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
@@ -53,8 +52,6 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
-import '/ui/page/login/privacy_policy/view.dart';
-import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/line_divider.dart';
@@ -388,10 +385,10 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
       );
 
     case ProfileTab.danger:
-      return SizedBox();
+      return const SizedBox();
 
     case ProfileTab.legal:
-      return block(children: [_legal(context, c)]);
+      return const SizedBox();
 
     case ProfileTab.support:
       return const SizedBox();
@@ -1537,31 +1534,6 @@ Widget _storage(BuildContext context, MyProfileController c) {
         );
       }),
       SizedBox(height: 8),
-    ],
-  );
-}
-
-/// Returns the buttons for legal related information displaying.
-Widget _legal(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
-  return Column(
-    children: [
-      Center(
-        child: StyledCupertinoButton(
-          label: 'btn_terms_and_conditions'.l10n,
-          style: style.fonts.small.regular.primary,
-          onPressed: () => TermsOfUseView.show(context),
-        ),
-      ),
-      const SizedBox(height: 12),
-      Center(
-        child: StyledCupertinoButton(
-          label: 'btn_privacy_policy'.l10n,
-          style: style.fonts.small.regular.primary,
-          onPressed: () => PrivacyPolicy.show(context),
-        ),
-      ),
     ],
   );
 }

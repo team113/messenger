@@ -1138,6 +1138,9 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.chatDirectLink] page.
   void link(ChatDirectLinkSlug slug) => go('${Routes.chatDirectLink}$slug');
+
+  /// Changes router location to the [Routes.erase] page.
+  void erase({bool push = false}) => (push ? this.push : go)(Routes.erase);
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

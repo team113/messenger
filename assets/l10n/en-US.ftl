@@ -277,7 +277,6 @@ email_confirmation_code =
     Valid until {$expiresAt}.
     {$domain}
 email_confirmation_code_subject = {$domain} confirmation code
-err_account_not_found = Indicated account is not found
 err_account_unavailable = This account is not available. Please, log in again.
 err_blocked = You've been added to the blocklist of this user.
 err_blocked_by = {$user} has added you to their blocklist.
@@ -288,7 +287,6 @@ err_call_popup_was_blocked =
     Allow the popup windows to display call as a popup
 err_camera_permission_denied = Camera permission is denied. Please, ensure application has camera permissions.
 err_chat_direct_link_occupied = Link is occupied.
-err_confirmation_required = A password must be provided to acomplish that action.
 err_could_not_download = An error occurred while downloading. Please, try again.
 err_data_transfer =
     Data transfer error. Please, check your network connection.
@@ -653,7 +651,6 @@ label_create_group = Group creation
 label_create_link = Create link
 label_critical_update_is_available = Current version is no longer supported
 label_current_password = Current password
-label_danger_zone = Danger zone
 label_date = Date
 label_days_short = {$days} d
 label_delete_account = Delete account
@@ -761,7 +758,6 @@ label_language_and_background = Language, background, ...
 label_language_entry = {$code}, {$name}
 label_latest_version_is_installed = Latest version is installed
 label_leave_group = Leave group
-label_legal_information = Legal information
 label_link_to_chat = Link to you
 label_linked_devices = Linked devices
 label_login = Login

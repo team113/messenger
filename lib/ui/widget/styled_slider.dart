@@ -19,9 +19,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 
-import '../../util/platform_utils.dart';
 import '/themes.dart';
+import '/util/platform_utils.dart';
 
+/// [FlutterSlider] styled and refactor to be as handy as possible.
 class StyledSlider<T> extends StatefulWidget {
   const StyledSlider({
     super.key,
@@ -31,16 +32,25 @@ class StyledSlider<T> extends StatefulWidget {
     required this.labelBuilder,
   });
 
+  /// Currently selected value from [values].
   final T value;
+
+  /// [T] values to switch between.
   final List<T> values;
+
+  /// Callback, called when the provided [T] is selected.
   final void Function(T)? onCompleted;
+
+  /// Builder building a label to the provided value.
   final Widget Function(double percent, T value) labelBuilder;
 
   @override
   State<StyledSlider<T>> createState() => _StyledSliderState<T>();
 }
 
+/// State of a [StyledSlider] used to keep and compare the previous value.
 class _StyledSliderState<T> extends State<StyledSlider<T>> {
+  /// Previously selected [T] value.
   T? _previous;
 
   @override
@@ -122,48 +132,6 @@ class _StyledSliderState<T> extends State<StyledSlider<T>> {
                 label: widget.labelBuilder(percent, e),
               );
             }).toList(),
-            // labels: [
-            //   FlutterSliderHatchMarkLabel(
-            //     percent: 0,
-            //     label: Text(
-            //       textAlign: TextAlign.center,
-            //       'label_disabled'.l10n,
-            //       style: style.fonts.smaller.regular.secondary,
-            //     ),
-            //   ),
-            //   FlutterSliderHatchMarkLabel(
-            //     percent: 25,
-            //     label: Text(
-            //       textAlign: TextAlign.center,
-            //       'label_low'.l10n,
-            //       style: style.fonts.smaller.regular.secondary,
-            //     ),
-            //   ),
-            //   FlutterSliderHatchMarkLabel(
-            //     percent: 50,
-            //     label: Text(
-            //       textAlign: TextAlign.center,
-            //       'label_medium'.l10n,
-            //       style: style.fonts.smaller.regular.secondary,
-            //     ),
-            //   ),
-            //   FlutterSliderHatchMarkLabel(
-            //     percent: 75,
-            //     label: Text(
-            //       textAlign: TextAlign.center,
-            //       'label_high'.l10n,
-            //       style: style.fonts.smaller.regular.secondary,
-            //     ),
-            //   ),
-            //   FlutterSliderHatchMarkLabel(
-            //     percent: 100,
-            //     label: Text(
-            //       textAlign: TextAlign.center,
-            //       'label_very_high'.l10n,
-            //       style: style.fonts.smaller.regular.secondary,
-            //     ),
-            //   ),
-            // ],
           ),
         ),
       ),

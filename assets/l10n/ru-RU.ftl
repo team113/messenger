@@ -277,7 +277,6 @@ email_confirmation_code =
     Действителен до {$expiresAt}.
     {$domain}
 email_confirmation_code_subject = Код подтверждения {$domain}
-err_account_not_found = Указанный аккаунт не найден
 err_account_unavailable = Этот аккаунт недоступен. Пожалуйста, повторите авторизацию.
 err_blocked = Пользователь добавил Вас в чёрный список.
 err_blocked_by = {$user} добавил Вас в чёрный список.
@@ -289,7 +288,6 @@ err_call_popup_was_blocked =
 err_camera_permission_denied = Доступ к камере отсутствует. Пожалуйста, убедитесь, что приложение имеет доступ к камере.
 err_chat_contact_not_owner = Нет доступа к контакту
 err_chat_direct_link_occupied = Ссылка занята.
-err_confirmation_required = Пароль должен быть предоставлен для данного действия.
 err_could_not_download = При загрузке произошла ошибка. Пожалуйста, попробуйте снова.
 err_data_transfer =
     Ошибка передачи данных. Пожалуйста, проверьте Ваше подключение к сети.
@@ -675,7 +673,6 @@ label_create_group = Создание группы
 label_create_link = Создать ссылку
 label_critical_update_is_available = Текущая версия не поддерживается
 label_current_password = Текущий пароль
-label_danger_zone = Опасная зона
 label_date = Дата
 label_days_short = {$days} д
 label_delete_account = Удалить аккаунт
@@ -783,7 +780,6 @@ label_language_and_background = Язык, бэкграунд, ...
 label_language_entry = {$code}, {$name}
 label_latest_version_is_installed = Установлена последняя версия
 label_leave_group = Покинуть группу
-label_legal_information = Юридическая информация
 label_link_to_chat = Ссылка на Вас
 label_linked_devices = Связанные устройства
 label_login = Логин
