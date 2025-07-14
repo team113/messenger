@@ -165,7 +165,6 @@ Future<List<File>> _gatherFtlFiles(String path) async {
 /// Parses a Fluent-FTL file and returns the label identifiers on the left side
 /// of “labelId = …”.
 Future<Set<String>> _parseFtlFile(String path) async {
-  const copyrightLines = 17;
   final labels = <String>{};
 
   final file = File(path);
@@ -177,8 +176,7 @@ Future<Set<String>> _parseFtlFile(String path) async {
   final lines = file
       .openRead()
       .transform(utf8.decoder)
-      .transform(const LineSplitter())
-      .skip(copyrightLines);
+      .transform(const LineSplitter());
 
   await for (final line in lines) {
     final idx = line.indexOf(' =');
