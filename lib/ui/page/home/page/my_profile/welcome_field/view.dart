@@ -522,7 +522,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
         children: [
           Expanded(
             child: Text(
-              'label_message_editing'.l10n,
+              'label_editing'.l10n,
               style: style.fonts.medium.regular.primary,
             ),
           ),

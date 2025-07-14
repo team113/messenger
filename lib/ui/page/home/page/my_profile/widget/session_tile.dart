@@ -66,6 +66,8 @@ class SessionTileWidget extends StatelessWidget {
                 child: SvgIcon(switch (session.userAgent.system) {
                   'macOS' => SvgIcons.userAgentMacOs,
                   'iOS' => SvgIcons.userAgentIOs,
+                  'iPadOS' => SvgIcons.userAgentIOs,
+                  'watchOS' => SvgIcons.userAgentIOs,
                   'Android' => SvgIcons.userAgentAndroid,
                   'Linux' => SvgIcons.userAgentLinux,
                   'Windows' => SvgIcons.userAgentWindows,

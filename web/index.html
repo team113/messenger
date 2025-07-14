@@ -106,7 +106,14 @@
       }
     }
   </style>
-  <script defer type="module">
+</head>
+
+<body>
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter_bootstrap.js"></script>
+
+  <!-- Initialize `medea_jason` JS code -->
+  <script type="module">
     import init, {
       Jason,
       MediaStreamSettings,
@@ -116,7 +123,7 @@
       FacingMode,
       MediaKind,
       MediaSourceKind
-    } from '/assets/packages/medea_jason/assets/pkg/medea_jason.js';
+    } from '/assets/packages/medea_jason/assets/pkg/medea_jason.js?v={{flutter_service_worker_version}}';
 
     window.jasonLoaded = (async () => {
       await init();
@@ -130,6 +137,8 @@
       window.MediaSourceKind = MediaSourceKind;
     })();
   </script>
+
+  <!-- Store position and size of windows in calls -->
   <script defer type="text/javascript">
     window.isPopup = window.opener != null && window.opener !== window;
 
@@ -150,16 +159,6 @@
       }
     }
   </script>
-
-</head>
-
-<!-- TODO: Should not disable context menu on the body tag all.
-           This is due to WebAssembly being slow when using
-           `ContextMenuInterceptor` -->
-
-<body>
-  <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter_bootstrap.js"></script>
 
   <div id="loader" class="container content">
     <div style="vertical-align: middle;">

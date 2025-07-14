@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -139,10 +140,13 @@ class Log {
         return;
       }
 
-      logs.add(LogEntry(level, text, DateTime.now()));
-      while (logs.length > maxLogs) {
-        logs.removeAt(0);
-      }
+      // Fixes `setState() or markNeedsBuild() called during build`.
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        logs.add(LogEntry(level, text, DateTime.now()));
+        while (logs.length > maxLogs) {
+          logs.removeAt(0);
+        }
+      });
     }
   }
 }

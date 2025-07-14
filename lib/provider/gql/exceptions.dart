@@ -510,7 +510,7 @@ class UpdateUserPasswordException
       case UpdateUserPasswordErrorCode.wrongCode:
         return 'err_wrong_code'.l10n;
       case UpdateUserPasswordErrorCode.confirmationRequired:
-        return 'err_confirmation_required'.l10n;
+        return toString();
       case UpdateUserPasswordErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1468,7 +1468,7 @@ class DeleteSessionException with LocalizedExceptionMixin implements Exception {
       case DeleteSessionErrorCode.wrongCode:
         return 'err_wrong_code'.l10n;
       case DeleteSessionErrorCode.confirmationRequired:
-        return 'err_confirmation_required'.l10n;
+        return toString();
       case DeleteSessionErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1510,7 +1510,7 @@ class DeleteMyUserException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case DeleteMyUserErrorCode.confirmationRequired:
-        return 'err_confirmation_required'.l10n;
+        return toString();
       case DeleteMyUserErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
       case DeleteMyUserErrorCode.wrongCode:
@@ -1537,7 +1537,7 @@ class RemoveUserEmailException
   String toMessage() {
     switch (code) {
       case RemoveUserEmailErrorCode.confirmationRequired:
-        return 'err_confirmation_required'.l10n;
+        return toString();
       case RemoveUserEmailErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
       case RemoveUserEmailErrorCode.wrongCode:
@@ -1564,7 +1564,7 @@ class RemoveUserPhoneException
   String toMessage() {
     switch (code) {
       case RemoveUserPhoneErrorCode.confirmationRequired:
-        return 'err_confirmation_required'.l10n;
+        return toString();
       case RemoveUserPhoneErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
       case RemoveUserPhoneErrorCode.wrongCode:

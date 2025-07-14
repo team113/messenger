@@ -67,6 +67,7 @@ class CallSettingsController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+
     _call.value.enumerateDevices();
     _stateWorker = ever(_call.value.state, (state) {
       if (state == OngoingCallState.ended) {

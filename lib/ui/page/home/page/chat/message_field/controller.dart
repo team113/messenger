@@ -207,6 +207,10 @@ class MessageFieldController extends GetxController {
   /// [OverlayEntry] of the [MessageFieldMore].
   OverlayEntry? _moreEntry;
 
+  /// Indicator whether [_keyUpHandler] and [_pasteEventListener] are
+  /// registered.
+  bool _handlersRegistered = false;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
 
@@ -341,8 +345,14 @@ class MessageFieldController extends GetxController {
     }
 
     field.focus.removeListener(_focusListener);
-    ClipboardEvents.instance?.unregisterPasteEventListener(_pasteEventListener);
-    HardwareKeyboard.instance.removeHandler(_keyUpHandler);
+
+    if (_handlersRegistered) {
+      _handlersRegistered = false;
+      ClipboardEvents.instance?.unregisterPasteEventListener(
+        _pasteEventListener,
+      );
+      HardwareKeyboard.instance.removeHandler(_keyUpHandler);
+    }
 
     super.onClose();
   }
@@ -664,13 +674,21 @@ class MessageFieldController extends GetxController {
   /// [TextFieldState.focus] has a focus.
   void _focusListener() {
     if (field.focus.hasFocus) {
-      HardwareKeyboard.instance.addHandler(_keyUpHandler);
-      ClipboardEvents.instance?.registerPasteEventListener(_pasteEventListener);
+      if (!_handlersRegistered) {
+        _handlersRegistered = true;
+        HardwareKeyboard.instance.addHandler(_keyUpHandler);
+        ClipboardEvents.instance?.registerPasteEventListener(
+          _pasteEventListener,
+        );
+      }
     } else {
-      HardwareKeyboard.instance.removeHandler(_keyUpHandler);
-      ClipboardEvents.instance?.unregisterPasteEventListener(
-        _pasteEventListener,
-      );
+      if (_handlersRegistered) {
+        _handlersRegistered = false;
+        HardwareKeyboard.instance.removeHandler(_keyUpHandler);
+        ClipboardEvents.instance?.unregisterPasteEventListener(
+          _pasteEventListener,
+        );
+      }
     }
   }
 }
