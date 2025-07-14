@@ -17,9 +17,9 @@
 devtools_options.yaml
 
 # Flutter/Dart/Pub related
+**/.dart_tool/
 **/doc/api/
 **/ios/Flutter/.last_build_id
-**/.dart_tool/
 /.flutter-plugins
 /.flutter-plugins-dependencies
 /.packages
@@ -27,6 +27,7 @@ devtools_options.yaml
 /.pub/
 /build/
 /doc/
+/tools/**/pubspec.lock
 
 # Generation related
 /lib/**/*.g.dart
