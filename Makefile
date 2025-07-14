@@ -126,7 +126,7 @@ endif
 # Analyze unused labels in Fluent files.
 #
 # Usage:
-#   make flutter.analyze.fluent
+#   make flutter.analyze.fluent [dockerized=(no|yes)]
 
 flutter.analyze.fluent:
 ifeq ($(dockerized),yes)
