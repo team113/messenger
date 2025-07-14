@@ -169,7 +169,7 @@ class MyProfileController extends GetxController {
         try {
           UserLogin(s.text);
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
+          s.error.value = 'err_incorrect_login_input'.l10n;
           return;
         }
       }

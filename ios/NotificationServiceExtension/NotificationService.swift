@@ -116,25 +116,25 @@ class NotificationService: UNNotificationServiceExtension {
 
         var fresh = creds
 
-        // if Date() > creds.access.expireAt.val {
-        if #available(iOS 12.0, macOS 12.0, *) {
-          if let refreshed = await refreshToken(creds: creds) {
-            fresh = refreshed
+        if Date() > creds.access.expireAt.val {
+          if #available(iOS 12.0, macOS 12.0, *) {
+            if let refreshed = await refreshToken(creds: creds) {
+              fresh = refreshed
 
-            let encoder = JSONEncoder()
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSX"
-            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-            encoder.dateEncodingStrategy = .formatted(dateFormatter)
+              let encoder = JSONEncoder()
+              let dateFormatter = DateFormatter()
+              dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSX"
+              dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+              dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+              encoder.dateEncodingStrategy = .formatted(dateFormatter)
 
-            let jsonData = try! encoder.encode(refreshed)
-            let json = String(data: jsonData, encoding: String.Encoding.utf8)
+              let jsonData = try! encoder.encode(refreshed)
+              let json = String(data: jsonData, encoding: String.Encoding.utf8)
 
-            try! db.run(tokens.insert(or: .replace, userId <- accountId, credentials <- json!))
+              try! db.run(tokens.insert(or: .replace, userId <- accountId, credentials <- json!))
+            }
           }
         }
-        // }
 
         if #available(iOS 12.0, macOS 12.0, *) {
           await sendDelivery(creds: fresh, chatId: chatId)

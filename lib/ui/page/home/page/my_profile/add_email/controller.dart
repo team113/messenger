@@ -128,7 +128,7 @@ class AddEmailController extends GetxController {
           try {
             ConfirmationCode(s.text);
           } on FormatException {
-            s.error.value = 'err_wrong_recovery_code'.l10n;
+            s.error.value = 'err_wrong_code'.l10n;
           }
         }
       },
@@ -136,7 +136,7 @@ class AddEmailController extends GetxController {
         final code = ConfirmationCode.tryParse(s.text);
 
         if (code == null) {
-          s.error.value = 'err_wrong_recovery_code'.l10n;
+          s.error.value = 'err_wrong_code'.l10n;
         } else {
           s.editable.value = false;
           s.status.value = RxStatus.loading();

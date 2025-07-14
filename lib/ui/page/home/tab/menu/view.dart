@@ -25,6 +25,7 @@ import '/themes.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
+import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_button.dart';
@@ -172,10 +173,15 @@ class MenuTabView extends StatelessWidget {
                       tab,
                       key: key,
                       inverted: switch (tab) {
+                        ProfileTab.danger => router.route == Routes.erase,
                         ProfileTab.support => router.route == Routes.support,
                         (_) => inverted,
                       },
                       onPressed: switch (tab) {
+                        ProfileTab.legal => () async {
+                          await TermsOfUseView.show(router.context!);
+                        },
+                        ProfileTab.danger => () => router.erase(push: true),
                         ProfileTab.support => router.support,
                         ProfileTab.logout => () async {
                           await ConfirmLogoutView.show(router.context!);

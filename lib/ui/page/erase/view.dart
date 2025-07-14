@@ -58,10 +58,10 @@ class EraseView extends StatelessWidget {
             title: Text('label_personal_data_deletion'.l10n),
             actions: const [SizedBox(width: 32)],
           ),
-          body: ListView(
-            key: const Key('EraseScrollable'),
-            children: [
-              Block(
+          body: Center(
+            child: SingleChildScrollView(
+              key: const Key('EraseScrollable'),
+              child: Block(
                 title: 'label_warning_uppercase'.l10n,
                 titleStyle: style.fonts.large.regular.onBackground.copyWith(
                   color: style.colors.danger,
@@ -100,7 +100,7 @@ class EraseView extends StatelessWidget {
                   _deletion(context, c),
                 ],
               ),
-            ],
+            ),
           ),
         );
       },
