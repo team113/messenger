@@ -72,7 +72,7 @@ class _StyledSliderState<T> extends State<StyledSlider<T>> {
     final current =
         (100 *
         (1 / (widget.values.length - 1)) *
-        widget.values.indexOf(widget.value));
+        widget.values.indexOf(_previous ?? widget.value));
 
     return SizedBox(
       height: 70,
@@ -94,25 +94,19 @@ class _StyledSliderState<T> extends State<StyledSlider<T>> {
             inactiveTrackBarHeight: 3,
             inactiveTrackBar: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: style.colors.onBackgroundOpacity13,
+              color: style.colors.secondaryHighlightDarkest,
             ),
             activeTrackBar: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: style.colors.primaryHighlight,
+              color: style.colors.primary,
             ),
           ),
           onDragging: (i, lower, upper) {
-            T? real;
-
             if (lower is T) {
-              real = lower;
-            } else if (upper is T) {
-              real = upper;
-            }
-
-            if (real != _previous) {
-              _previous = real;
-              PlatformUtils.haptic(kind: HapticKind.light);
+              if (lower != _previous) {
+                setState(() => _previous = lower);
+                PlatformUtils.haptic(kind: HapticKind.light);
+              }
             }
           },
           onDragCompleted: (i, lower, upper) {
@@ -123,13 +117,37 @@ class _StyledSliderState<T> extends State<StyledSlider<T>> {
             }
           },
           hatchMark: FlutterSliderHatchMark(
-            labelsDistanceFromTrackBar: -48,
+            labelsDistanceFromTrackBar: 0,
             labels: widget.values.mapIndexed((i, e) {
               final percent = ((i / (widget.values.length - 1)) * 100);
+              final selected =
+                  widget.values.indexOf(_previous ?? widget.value) >= i;
 
               return FlutterSliderHatchMarkLabel(
                 percent: percent,
-                label: widget.labelBuilder(percent, e),
+                label: Transform.translate(
+                  offset: Offset(0, 1.5),
+                  child: FractionalTranslation(
+                    translation: Offset(0, -0.5),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        widget.labelBuilder(percent, e),
+                        SizedBox(height: 12),
+                        Container(
+                          width: 3,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: selected
+                                ? style.colors.primary
+                                : style.colors.secondaryHighlightDarkest,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               );
             }).toList(),
           ),
