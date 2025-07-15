@@ -101,6 +101,16 @@ ${Log.logs.map((e) => '[${e.at.toStamp}] [${e.level.name}] ${e.text}').join('\n'
 ========================================
 ''';
   }
+
+  /// Refreshes the current [Session].
+  Future<void> refreshSession() async {
+    await _authService.refreshSession(proceedIfRefreshBefore: DateTime.now());
+  }
+
+  /// Clears the [Log.logs].
+  void clearLogs() {
+    Log.logs.clear();
+  }
 }
 
 /// Extention adding text representation in stamp view of [DateTime].
