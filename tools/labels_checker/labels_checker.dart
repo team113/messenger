@@ -25,7 +25,7 @@ import 'package:analyzer/dart/analysis/utilities.dart' show parseFile;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 
-/// A command-line utility that scans `.dart` files for **unused .ftl labels**.
+/// Command-line utility that scans `.dart` files for **unused .ftl labels**.
 ///
 /// ### Usage examples
 /// **Default run**: scans `assets/l10n` and `lib`,
