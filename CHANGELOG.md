@@ -16,7 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned editing mode. ([#1327])
-    - My profile page:
+    - Profile page:
         - Slider with ticks. ([#1330])
 
 ### Fixed
