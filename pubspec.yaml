@@ -63,7 +63,7 @@ dependencies:
   image_picker: ^1.1.1
   intl: ^0.19.0
   json_annotation: ^4.9.0
-  just_audio: ^0.10.3
+  just_audio: ^0.10.4
   log_me: ^0.1.2
   macos_haptic_feedback: ^1.0.0
   material_floating_search_bar: ^0.3.7
@@ -108,7 +108,6 @@ dependencies:
   url_launcher: ^6.1.12
   uuid: ^4.3.3
   vibration: ^3.1.2
-  volume_controller: any
   wakelock_plus: ^1.1.4
   web_socket_channel: ^3.0.1
   web: ">=0.5.1 <2.0.0"
