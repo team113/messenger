@@ -50,7 +50,7 @@ void main() {
     await repo.init();
 
     expect(repo.mediaSettings.value?.noiseSuppression, true);
-    await repo.setNoiseSuppression(false);
+    await repo.setNoiseSuppression(enabled: false);
     await Future.delayed(Duration(microseconds: 16));
     expect(repo.mediaSettings.value?.noiseSuppression, false);
 
@@ -58,7 +58,10 @@ void main() {
       repo.mediaSettings.value?.noiseSuppressionLevel,
       NoiseSuppressionLevel.veryHigh,
     );
-    await repo.setNoiseSuppressionLevel(NoiseSuppressionLevel.high);
+    await repo.setNoiseSuppression(
+      enabled: true,
+      level: NoiseSuppressionLevel.high,
+    );
     await Future.delayed(Duration(microseconds: 16));
     expect(
       repo.mediaSettings.value?.noiseSuppressionLevel,

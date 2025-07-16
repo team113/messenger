@@ -587,7 +587,7 @@ final class ScopedDriftProvider extends DisposableInterface {
           onError: (e) {
             if (e is! StateError &&
                 e is! CouldNotRollBackException &&
-                !e.isConnectionClosedException) {
+                !_isConnectionClosedException(e)) {
               controller?.addError(e);
             }
           },
@@ -781,6 +781,11 @@ Future<T?> _caught<T>(Future<T?>? function) async {
 
 /// Indicates  whether this error is a `drift` race related one.
 bool _isConnectionClosedException(dynamic e) {
-  return e.toString().contains('ConnectionClosedException') ||
-      e.toString().contains('Channel was closed before receiving a response');
+  try {
+    return e.toString().contains('ConnectionClosedException') ||
+        e.toString().contains('Channel was closed before receiving a response');
+  } catch (_) {
+    // Happens if `toString()` isn't defined on that dynamic.
+    return false;
+  }
 }
