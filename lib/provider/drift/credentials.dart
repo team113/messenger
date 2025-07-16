@@ -80,11 +80,15 @@ class CredentialsDriftProvider extends DriftProviderBase {
     final result = await safe((db) async {
       final stmt = await db.select(db.tokens).get();
       return stmt
-          .map((e) {
+          .map((c) {
             try {
-              return _CredentialsDb.fromDb(e);
+              return _CredentialsDb.fromDb(c);
             } catch (e) {
               Log.error('Unable to decode `Credentials`: $e', '$runtimeType');
+              Log.error(
+                'The credentials stored are: `${c.credentials}`',
+                '$runtimeType',
+              );
               return null;
             }
           })
