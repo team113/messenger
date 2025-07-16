@@ -1,4 +1,3 @@
-#!/usr/bin/env dart run
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
@@ -25,57 +24,61 @@ import 'package:analyzer/dart/analysis/utilities.dart' show parseFile;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 
-/// Command-line utility that scans `.dart` files for **unused .ftl labels**.
+/// Command-line utility scanning `.dart` files for unused `.ftl` labels.
+///
+/// By default scans `assets/l10n` and `lib`, skipping labels that start with
+/// `email_` or `fcm_`.
 ///
 /// ### Usage examples
-/// **Default run**: scans `assets/l10n` and `lib`,
-/// skipping labels that start with `email_` or `fcm_`
+///
 /// ```bash
-/// dart run tools/labels_checker/labels_checker.dart
+/// dart run analyze.dart
 /// ```
 ///
-/// **Custom locations**
-///   ```bash
-///   dart run tools/labels_checker/labels_checker.dart \
-///       --ftl=assets/l10n/ru-RU.ftl \
-///       --src=lib/api
-///   ```
+/// #### Custom locations
 ///
-/// **Custom ignore patterns**
 /// ```bash
-/// dart run tools/labels_checker/labels_checker.dart \
-///   -i '^push_' -i '^analytics_'
+/// dart run analyze.dart \
+///          --ftl=assets/l10n/ru-RU.ftl \
+///          --src=lib/api
 /// ```
 ///
-/// ### Exit flags:
-/// 1. `0`  if no labels unused
-/// 2. `1`  if there are labels unused
-/// 3. `64` if wrong cli usage
-/// 4. `66` if some input files are missing (you used flags and specified empty --src folder)
+/// #### Custom ignore patterns
+///
+/// ```bash
+/// dart run analyze.dart \
+///          -i '^push_' \
+///          -i '^analytics_'
+/// ```
+///
+/// ### Exit flags
+///
+/// - 0, on success.
+/// - 1, when unused labels are found.
+/// - 64, when invalid arguments are passed.
+/// - 66, when input files can't be found (including empty `--src` folder).
 Future<void> main(List<String> argv) async {
-  // Parse CLI.
+  // Parse arguments.
   final cli = ArgParser()
     ..addMultiOption(
       'ignore',
       abbr: 'i',
       defaultsTo: ['^email_', '^fcm_'],
-      help:
-          'RegExp patterns of labels to ignore'
-          ' when reporting unused labels.\n',
+      help: 'Labels to ignore in `.ftl` files (supports regular expressions).',
     )
     ..addOption(
       'ftl',
       abbr: 'f',
       defaultsTo: 'assets/l10n',
-      help: 'Path to one .ftl file or a directory that contains them',
+      help: 'Path to one `.ftl` file or a directory that contains those.',
     )
     ..addOption(
       'src',
       abbr: 's',
       defaultsTo: 'lib',
-      help: 'Directory that contains Dart sources to scan',
+      help: 'Directory with Dart sources to scan.',
     )
-    ..addFlag('help', abbr: 'h', negatable: false, help: 'Show this help');
+    ..addFlag('help', abbr: 'h', negatable: false, help: 'Show this help.');
 
   late final ArgResults args;
   try {
@@ -88,9 +91,9 @@ Future<void> main(List<String> argv) async {
 
   if (args['help'] as bool) {
     stdout
-      ..writeln('Find unused Fluent-style labels in Dart code\n')
+      ..writeln('Find unused Fluent-style labels in Dart code.\n')
       ..writeln('Example:')
-      ..writeln('  dart run tools/labels_checker/labels_checker.dart')
+      ..writeln('  dart run analyze.dart')
       ..writeln(cli.usage);
     return;
   }
@@ -98,25 +101,25 @@ Future<void> main(List<String> argv) async {
   final ftlPathOrDir = args['ftl'] as String;
   final srcDir = args['src'] as String;
   final ignoreRegExps = (args['ignore'] as List<String>)
-      .map((exp) => RegExp(exp))
+      .map(RegExp.new)
       .toList();
 
-  // Collect .ftl files.
+  // Collect `.ftl` files.
   final List<File> ftlFiles = await _gatherFtlFiles(ftlPathOrDir);
   if (ftlFiles.isEmpty) {
-    stderr.writeln('No .ftl files found under $ftlPathOrDir');
+    stderr.writeln('No .ftl files found under $ftlPathOrDir.');
     exit(66); // EX_NOINPUT.
   }
 
-  // Parse labels from the .ftl files.
-  stdout.writeln(
-    'Scanning ${ftlFiles.length.toString().padRight(3)} '
-    '${'.ftl'.padRight(5)} files...',
-  );
+  // Parse labels from the `.ftl` files.
+  stdout.write('Scanning ${ftlFiles.length} `.ftl` files...');
+
   final Set<String> ftlLabels = <String>{};
   for (final f in ftlFiles) {
     ftlLabels.addAll(await _parseFtlFile(f.path));
   }
+
+  stdout.writeln(' done.');
 
   // Collect project files.
   final List<File> dartFiles = await Directory(srcDir)
@@ -126,15 +129,13 @@ Future<void> main(List<String> argv) async {
       .toList();
 
   if (dartFiles.isEmpty) {
-    stderr.writeln('No dart files were found in $srcDir');
+    stderr.writeln('No `.dart` files were found in $srcDir.');
     exit(66); // EX_NOINPUT.
   }
 
   // Parse project files for labels.
-  stdout.writeln(
-    'Scanning ${dartFiles.length.toString().padRight(3)} '
-    '${'.dart'.padRight(5)} files...\n',
-  );
+  stdout.write('Scanning ${dartFiles.length} `.dart` files...');
+
   final Set<String> projectLabels = <String>{};
   for (final file in dartFiles) {
     final fileUnit = parseFile(
@@ -147,7 +148,10 @@ Future<void> main(List<String> argv) async {
     projectLabels.addAll(visitor.findings);
   }
 
-  // Difference and report.
+  stdout.writeln(' done.');
+  stdout.writeln();
+
+  // Differentiate and report.
   final Set<String> ignored = ftlLabels
       .where((label) => ignoreRegExps.any((ignore) => ignore.hasMatch(label)))
       .toSet();
@@ -156,28 +160,29 @@ Future<void> main(List<String> argv) async {
       .difference(projectLabels)
       .difference(ignored);
 
-  stdout.writeln('${'Labels discovered'.padRight(18)} : ${ftlLabels.length}');
-  stdout.writeln('${'Labels ignored'.padRight(18)} : ${ignored.length}');
+  stdout.writeln('Labels discovered: ${ftlLabels.length}');
+  stdout.writeln('Labels ignored: ${ignored.length}');
   for (final i in ignored) {
     stdout.writeln('  • $i');
   }
-  stdout.writeln('${'Labels unused'.padRight(18)} : ${unused.length}');
+  stdout.writeln('Labels unused: ${unused.length}');
   for (final l in unused) {
     stdout.writeln('  • $l');
   }
+
   // Prevents stdout and stderr streams' outputs from mixing.
   await stdout.flush();
 
   if (unused.isNotEmpty) {
-    stderr.writeln('\nYou have unused assets! Remove them.');
+    stderr.writeln('\n⛔️ Unused keys are found. Remove them.');
     exit(1);
   }
 
-  stdout.writeln('\nUnused assets were not found.');
+  stdout.writeln('\n✅ Unused keys were not found.');
   exit(0);
 }
 
-/// Parses [path] and returns a list of all the found .ftl files by this path.
+/// Parses [path] and returns a list of all the found `.ftl` files by this path.
 ///
 /// Takes either [path] to file or to folder.
 Future<List<File>> _gatherFtlFiles(String path) async {
@@ -192,14 +197,13 @@ Future<List<File>> _gatherFtlFiles(String path) async {
   return await f.exists() ? [f] : <File>[];
 }
 
-/// Parses a Fluent-FTL file and returns the label identifiers on the left side
-/// of “labelId = …”.
+/// Parses a `.ftl` file and returns a [Set] of keys.
 Future<Set<String>> _parseFtlFile(String path) async {
   final labels = <String>{};
 
   final file = File(path);
   if (!await file.exists()) {
-    stderr.writeln('Error: .ftl file not found: $path');
+    stderr.writeln('Error: `.ftl` file not found: $path');
     exit(66); // EX_NOINPUT.
   }
 
@@ -216,9 +220,11 @@ Future<Set<String>> _parseFtlFile(String path) async {
   return labels;
 }
 
-/// Grabs every *simple* string literal (no interpolation) in a compilation unit.
+/// Grabs every simple [String] literal (no interpolation) in a compilation
+/// unit.
 class _StringLiteralCollector extends RecursiveAstVisitor<void> {
-  final findings = <String>{};
+  /// [Set] of [String] literals found during visiting the node.
+  final Set<String> findings = <String>{};
 
   @override
   void visitSimpleStringLiteral(SimpleStringLiteral node) {

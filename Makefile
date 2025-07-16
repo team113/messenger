@@ -135,7 +135,7 @@ ifeq ($(dockerized),yes)
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.analyze.fluent dockerized=no
 else
-	dart run tools/labels_checker/labels_checker.dart
+	dart run script/fluent/analyze.dart
 endif
 
 
@@ -270,8 +270,7 @@ ifeq ($(dockerized),yes)
 			make flutter.pub cmd='$(cmd)' dockerized=no
 else
 	flutter pub $(or $(cmd),get)
-
-	flutter pub $(or $(cmd),get) --directory=tools/labels_checker
+	flutter pub $(or $(cmd),get) --directory=script/fluent
 endif
 
 
