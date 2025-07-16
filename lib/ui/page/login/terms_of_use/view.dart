@@ -39,13 +39,22 @@ class TermsOfUseView extends StatefulWidget {
 /// itself.
 class _TermsOfUseViewState extends State<TermsOfUseView> {
   /// Text of the terms and conditions itself.
-  String? _text;
+  String? _terms;
+
+  /// Text of the privacy policy itself.
+  String? _privacy;
 
   @override
   void initState() {
     PlatformUtils.loadString('assets/terms.html').then((value) {
       if (mounted) {
-        setState(() => _text = value);
+        setState(() => _terms = value);
+      }
+    });
+
+    PlatformUtils.loadString('assets/privacy.html').then((value) {
+      if (mounted) {
+        setState(() => _privacy = value);
       }
     });
 
@@ -54,7 +63,7 @@ class _TermsOfUseViewState extends State<TermsOfUseView> {
 
   @override
   Widget build(BuildContext context) {
-    if (_text == null) {
+    if (_terms == null && _privacy == null) {
       return const CircularProgressIndicator();
     }
 
@@ -66,17 +75,35 @@ class _TermsOfUseViewState extends State<TermsOfUseView> {
             padding: ModalPopup.padding(
               context,
             ).add(const EdgeInsets.only(bottom: 16)),
-            child: HtmlWidget(
-              _text!,
-              onTapUrl: launchUrlString,
-              customWidgetBuilder: (element) {
-                // Don't display `<title>` tag, as body already contains header.
-                if (element.localName == 'title') {
-                  return const SizedBox();
-                }
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                HtmlWidget(
+                  _terms!,
+                  onTapUrl: launchUrlString,
+                  customWidgetBuilder: (element) {
+                    // Don't display `<title>` tag, as body already contains header.
+                    if (element.localName == 'title') {
+                      return const SizedBox();
+                    }
 
-                return null;
-              },
+                    return null;
+                  },
+                ),
+                SizedBox(height: 64),
+                HtmlWidget(
+                  _privacy!,
+                  onTapUrl: launchUrlString,
+                  customWidgetBuilder: (element) {
+                    // Don't display `<title>` tag, as body already contains header.
+                    if (element.localName == 'title') {
+                      return const SizedBox();
+                    }
+
+                    return null;
+                  },
+                ),
+              ],
             ),
           ),
         ),

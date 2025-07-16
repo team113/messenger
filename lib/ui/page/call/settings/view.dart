@@ -17,7 +17,6 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
@@ -30,6 +29,7 @@ import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/widget/line_divider.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/styled_slider.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/media_utils.dart';
 import '/util/platform_utils.dart';
@@ -60,284 +60,220 @@ class CallSettingsView extends StatelessWidget {
       builder: (CallSettingsController c) {
         return Stack(
           children: [
-            Scrollbar(
-              controller: c.scrollController,
-              child: ListView(
-                controller: c.scrollController,
-                shrinkWrap: true,
-                padding: ModalPopup.padding(context),
-                children: [
-                  ModalPopupHeader(text: 'label_media_devices'.l10n),
-                  SizedBox(height: 12),
-                  Obx(() {
-                    final selected =
-                        c.devices.audio().firstWhereOrNull(
-                          (e) => e.id() == c.mic.value?.id(),
-                        ) ??
-                        c.devices.audio().firstOrNull;
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ModalPopupHeader(text: 'label_media_devices'.l10n),
+                SizedBox(height: 12),
+                Flexible(
+                  child: Scrollbar(
+                    controller: c.scrollController,
+                    child: ListView(
+                      controller: c.scrollController,
+                      shrinkWrap: true,
+                      padding: ModalPopup.padding(context),
+                      children: [
+                        Obx(() {
+                          final selected =
+                              c.devices.audio().firstWhereOrNull(
+                                (e) => e.id() == c.mic.value?.id(),
+                              ) ??
+                              c.devices.audio().firstOrNull;
 
-                    return FieldButton(
-                      text:
-                          selected?.label() ??
-                          'label_media_no_device_available'.l10n,
-                      style: style.fonts.normal.regular.primary,
-                      trailing: Transform.translate(
-                        offset: Offset(5, 0),
-                        child: SvgIcon(SvgIcons.mediaDevicesMicrophone),
-                      ),
-                      onPressed: () async {
-                        await MicrophoneSwitchView.show(
-                          context,
-                          onChanged: (device) => c.setAudioDevice(device),
-                          mic: c.mic.value?.id(),
-                        );
+                          return FieldButton(
+                            text:
+                                selected?.label() ??
+                                'label_media_no_device_available'.l10n,
+                            style: style.fonts.normal.regular.primary,
+                            trailing: Transform.translate(
+                              offset: Offset(5, 0),
+                              child: SvgIcon(SvgIcons.mediaDevicesMicrophone),
+                            ),
+                            onPressed: () async {
+                              await MicrophoneSwitchView.show(
+                                context,
+                                onChanged: (device) => c.setAudioDevice(device),
+                                mic: c.mic.value?.id(),
+                              );
 
-                        if (c.devices.audio().isEmpty) {
-                          await c.enumerateDevices();
-                        }
-                      },
-                    );
-                  }),
-
-                  // TODO: Remove, when Safari supports output devices without
-                  //       tweaking the developer options:
-                  //       https://bugs.webkit.org/show_bug.cgi?id=216641
-                  if (!WebUtils.isSafari || c.devices.output().isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    Obx(() {
-                      final selected =
-                          c.devices.output().firstWhereOrNull(
-                            (e) => e.id() == c.output.value?.id(),
-                          ) ??
-                          c.devices.output().firstOrNull;
-
-                      return FieldButton(
-                        text:
-                            selected?.label() ??
-                            'label_media_no_device_available'.l10n,
-                        trailing: Transform.translate(
-                          offset: Offset(5, 0),
-                          child: SvgIcon(SvgIcons.mediaDevicesSpeaker),
-                        ),
-                        style: style.fonts.normal.regular.primary,
-                        onPressed: () async {
-                          await OutputSwitchView.show(
-                            context,
-                            onChanged: (device) => c.setOutputDevice(device),
-                            output: c.output.value?.id(),
+                              if (c.devices.audio().isEmpty) {
+                                await c.enumerateDevices();
+                              }
+                            },
                           );
+                        }),
 
-                          if (c.devices.output().isEmpty) {
-                            await c.enumerateDevices();
-                          }
-                        },
-                      );
-                    }),
-                  ],
-                  const SizedBox(height: 16),
-                  Obx(() {
-                    final selected =
-                        c.devices.video().firstWhereOrNull(
-                          (e) => e.id() == c.camera.value?.id(),
-                        ) ??
-                        c.devices.video().firstOrNull;
+                        // TODO: Remove, when Safari supports output devices without
+                        //       tweaking the developer options:
+                        //       https://bugs.webkit.org/show_bug.cgi?id=216641
+                        if (!WebUtils.isSafari ||
+                            c.devices.output().isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Obx(() {
+                            final selected =
+                                c.devices.output().firstWhereOrNull(
+                                  (e) => e.id() == c.output.value?.id(),
+                                ) ??
+                                c.devices.output().firstOrNull;
 
-                    return FieldButton(
-                      text:
-                          selected?.label() ??
-                          'label_media_no_device_available'.l10n,
-                      trailing: Transform.translate(
-                        offset: Offset(5, 0),
-                        child: SvgIcon(SvgIcons.mediaDevicesCamera),
-                      ),
-                      style: style.fonts.normal.regular.primary,
-                      onPressed: () async {
-                        await CameraSwitchView.show(
-                          context,
-                          onChanged: (device) => c.setVideoDevice(device),
-                          camera: c.camera.value?.id(),
-                        );
-
-                        if (c.devices.video().isEmpty) {
-                          await c.enumerateDevices();
-                        }
-                      },
-                    );
-                  }),
-                  const SizedBox(height: 16),
-
-                  // Voice processing is unavailable for mobile platforms.
-                  if (!PlatformUtils.isMobile) ...[
-                    const SizedBox(height: 20),
-                    LineDivider('label_voice_processing'.l10n),
-                    const SizedBox(height: 16),
-                    Obx(() {
-                      return SwitchField(
-                        text: 'label_echo_cancellation'.l10n,
-                        value: _call.value.echoCancellation ?? false,
-                        onChanged: c.setEchoCancellation,
-                      );
-                    }),
-                    const SizedBox(height: 16),
-                    Obx(() {
-                      return SwitchField(
-                        text: 'label_auto_gain_control'.l10n,
-                        value: _call.value.autoGainControl ?? false,
-                        onChanged: c.setAutoGainControl,
-                      );
-                    }),
-
-                    // High pass filter and noise suppression level are only available under
-                    // desktops.
-                    if (PlatformUtils.isWeb) ...[
-                      const SizedBox(height: 16),
-                      Obx(() {
-                        final bool enabled =
-                            _call.value.noiseSuppression ?? true;
-
-                        return SwitchField(
-                          text: 'label_noise_suppression'.l10n,
-                          value: enabled,
-                          onChanged: (e) => c.setNoiseSuppression(
-                            e
-                                ? NoiseSuppressionLevelWithOff.veryHigh
-                                : NoiseSuppressionLevelWithOff.off,
-                          ),
-                        );
-                      }),
-                      const SizedBox(height: 8),
-                    ] else ...[
-                      const SizedBox(height: 16),
-                      Obx(() {
-                        return SwitchField(
-                          text: 'label_high_pass_filter'.l10n,
-                          value: _call.value.highPassFilter ?? false,
-                          onChanged: c.setHighPassFilter,
-                        );
-                      }),
-                      const SizedBox(height: 20),
-                      LineDivider('label_noise_suppression'.l10n),
-                      SizedBox(height: 8),
-                      Obx(() {
-                        final List<NoiseSuppressionLevelWithOff?> values =
-                            NoiseSuppressionLevelWithOff.values;
-
-                        NoiseSuppressionLevelWithOff? level =
-                            _call.value.noiseSuppression != true
-                            ? NoiseSuppressionLevelWithOff.off
-                            : NoiseSuppressionLevelWithOff.values
-                                  .whereNot(
-                                    (e) =>
-                                        e == NoiseSuppressionLevelWithOff.off,
-                                  )
-                                  .firstWhereOrNull(
-                                    (e) =>
-                                        e.toLevel() ==
-                                        _call.value.noiseSuppressionLevel,
-                                  );
-                        level ??= NoiseSuppressionLevelWithOff.off;
-
-                        // Position of the current level on the slider as a percentage.
-                        final percentage =
-                            (100 *
-                            (1 / (values.length - 1)) *
-                            values.indexOf(level));
-
-                        return SizedBox(
-                          height: 70,
-                          child: Transform.translate(
-                            offset: Offset(0, 12),
-                            child: FlutterSlider(
-                              handlerHeight: 24,
-                              handler: FlutterSliderHandler(
-                                child: const SizedBox(),
+                            return FieldButton(
+                              text:
+                                  selected?.label() ??
+                                  'label_media_no_device_available'.l10n,
+                              trailing: Transform.translate(
+                                offset: Offset(5, 0),
+                                child: SvgIcon(SvgIcons.mediaDevicesSpeaker),
                               ),
-                              values: [percentage],
-                              tooltip: FlutterSliderTooltip(disabled: true),
-                              fixedValues: values.mapIndexed((i, e) {
-                                return FlutterSliderFixedValue(
-                                  percent: ((i / (values.length - 1)) * 100)
-                                      .round(),
-                                  value: e,
+                              style: style.fonts.normal.regular.primary,
+                              onPressed: () async {
+                                await OutputSwitchView.show(
+                                  context,
+                                  onChanged: (device) =>
+                                      c.setOutputDevice(device),
+                                  output: c.output.value?.id(),
                                 );
-                              }).toList(),
-                              trackBar: FlutterSliderTrackBar(
-                                inactiveTrackBar: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: style.colors.onBackgroundOpacity13,
-                                ),
-                                activeTrackBar: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  color: style.colors.primaryHighlight,
-                                ),
-                              ),
-                              onDragCompleted: (i, lower, upper) {
-                                if (lower is NoiseSuppressionLevelWithOff) {
-                                  c.setNoiseSuppression(lower);
-                                } else if (upper
-                                    is NoiseSuppressionLevelWithOff) {
-                                  c.setNoiseSuppression(upper);
+
+                                if (c.devices.output().isEmpty) {
+                                  await c.enumerateDevices();
                                 }
                               },
-                              hatchMark: FlutterSliderHatchMark(
-                                labelsDistanceFromTrackBar: -48,
-                                labels: [
-                                  FlutterSliderHatchMarkLabel(
-                                    percent: 0,
-                                    label: Text(
-                                      textAlign: TextAlign.center,
-                                      'label_disabled'.l10n,
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ),
-                                  FlutterSliderHatchMarkLabel(
-                                    percent: 25,
-                                    label: Text(
-                                      textAlign: TextAlign.center,
-                                      'label_low'.l10n,
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ),
-                                  FlutterSliderHatchMarkLabel(
-                                    percent: 50,
-                                    label: Text(
-                                      textAlign: TextAlign.center,
-                                      'label_medium'.l10n,
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ),
-                                  FlutterSliderHatchMarkLabel(
-                                    percent: 75,
-                                    label: Text(
-                                      textAlign: TextAlign.center,
-                                      'label_high'.l10n,
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ),
-                                  FlutterSliderHatchMarkLabel(
-                                    percent: 100,
-                                    label: Text(
-                                      textAlign: TextAlign.center,
-                                      'label_very_high'.l10n,
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                            );
+                          }),
+                        ],
+                        const SizedBox(height: 16),
+                        Obx(() {
+                          final selected =
+                              c.devices.video().firstWhereOrNull(
+                                (e) => e.id() == c.camera.value?.id(),
+                              ) ??
+                              c.devices.video().firstOrNull;
+
+                          return FieldButton(
+                            text:
+                                selected?.label() ??
+                                'label_media_no_device_available'.l10n,
+                            trailing: Transform.translate(
+                              offset: Offset(5, 0),
+                              child: SvgIcon(SvgIcons.mediaDevicesCamera),
                             ),
-                          ),
-                        );
-                      }),
-                    ],
-                  ],
-                  SizedBox(height: 16),
-                ],
-              ),
+                            style: style.fonts.normal.regular.primary,
+                            onPressed: () async {
+                              await CameraSwitchView.show(
+                                context,
+                                onChanged: (device) => c.setVideoDevice(device),
+                                camera: c.camera.value?.id(),
+                              );
+
+                              if (c.devices.video().isEmpty) {
+                                await c.enumerateDevices();
+                              }
+                            },
+                          );
+                        }),
+                        const SizedBox(height: 16),
+
+                        // Voice processing is unavailable for mobile platforms.
+                        if (!PlatformUtils.isMobile) ...[
+                          const SizedBox(height: 20),
+                          LineDivider('label_voice_processing'.l10n),
+                          const SizedBox(height: 16),
+                          Obx(() {
+                            return SwitchField(
+                              text: 'label_echo_cancellation'.l10n,
+                              value: _call.value.echoCancellation ?? false,
+                              onChanged: c.setEchoCancellation,
+                            );
+                          }),
+                          const SizedBox(height: 16),
+                          Obx(() {
+                            return SwitchField(
+                              text: 'label_auto_gain_control'.l10n,
+                              value: _call.value.autoGainControl ?? false,
+                              onChanged: c.setAutoGainControl,
+                            );
+                          }),
+
+                          // High pass filter and noise suppression level are only available under
+                          // desktops.
+                          if (PlatformUtils.isWeb) ...[
+                            const SizedBox(height: 16),
+                            Obx(() {
+                              final bool enabled =
+                                  _call.value.noiseSuppression ?? true;
+
+                              return SwitchField(
+                                text: 'label_noise_suppression'.l10n,
+                                value: enabled,
+                                onChanged: (e) => c.setNoiseSuppression(
+                                  e
+                                      ? NoiseSuppressionLevelWithOff.veryHigh
+                                      : NoiseSuppressionLevelWithOff.off,
+                                ),
+                              );
+                            }),
+                            const SizedBox(height: 8),
+                          ] else ...[
+                            const SizedBox(height: 16),
+                            Obx(() {
+                              return SwitchField(
+                                text: 'label_high_pass_filter'.l10n,
+                                value: _call.value.highPassFilter ?? false,
+                                onChanged: c.setHighPassFilter,
+                              );
+                            }),
+                            const SizedBox(height: 20),
+                            LineDivider('label_noise_suppression'.l10n),
+                            SizedBox(height: 8),
+                            Obx(() {
+                              NoiseSuppressionLevelWithOff? level =
+                                  _call.value.noiseSuppression != true
+                                  ? NoiseSuppressionLevelWithOff.off
+                                  : NoiseSuppressionLevelWithOff.values
+                                        .whereNot(
+                                          (e) =>
+                                              e ==
+                                              NoiseSuppressionLevelWithOff.off,
+                                        )
+                                        .firstWhereOrNull(
+                                          (e) =>
+                                              e.toLevel() ==
+                                              _call.value.noiseSuppressionLevel,
+                                        );
+                              level ??= NoiseSuppressionLevelWithOff.off;
+
+                              return StyledSlider(
+                                value: level,
+                                values: NoiseSuppressionLevelWithOff.values,
+                                labelBuilder: (_, value) {
+                                  return Text(
+                                    textAlign: TextAlign.center,
+                                    switch (value) {
+                                      NoiseSuppressionLevelWithOff.off =>
+                                        'label_disabled'.l10n,
+                                      NoiseSuppressionLevelWithOff.low =>
+                                        'label_low'.l10n,
+                                      NoiseSuppressionLevelWithOff.moderate =>
+                                        'label_medium'.l10n,
+                                      NoiseSuppressionLevelWithOff.high =>
+                                        'label_high'.l10n,
+                                      NoiseSuppressionLevelWithOff.veryHigh =>
+                                        'label_very_high'.l10n,
+                                    },
+                                    style:
+                                        style.fonts.smaller.regular.secondary,
+                                  );
+                                },
+                                onCompleted: c.setNoiseSuppression,
+                              );
+                            }),
+                          ],
+                        ],
+                        SizedBox(height: 16),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         );

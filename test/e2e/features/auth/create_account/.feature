@@ -39,8 +39,6 @@ Feature: Account creation
 
     When I scroll `MenuListView` until `DangerZone` is present
     And I tap `DangerZone` button
-    And I scroll `MyProfileScrollable` until `DeleteAccount` is present
-    And I tap `DeleteAccount` button
     Then I wait until `EraseView` is present
 
     When I scroll `EraseScrollable` until `ConfirmDelete` is present

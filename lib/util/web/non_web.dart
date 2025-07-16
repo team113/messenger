@@ -110,6 +110,9 @@ class WebUtils {
     return null;
   }
 
+  /// Indicates whether browser is considering to have connectivity status.
+  static bool get isOnLine => true;
+
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
   static void removeCredentials(UserId userId) {

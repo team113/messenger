@@ -30,7 +30,6 @@ import '/themes.dart';
 import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/home/widget/num.dart';
 import '/ui/page/login/controller.dart';
-import '/ui/page/login/privacy_policy/view.dart';
 import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/page/login/view.dart';
 import '/ui/widget/download_button.dart';
@@ -389,7 +388,7 @@ class IntroductionView extends StatelessWidget {
             text: 'alert_by_proceeding_you_accept_terms4'.l10n,
             style: style.fonts.small.regular.primary,
             recognizer: TapGestureRecognizer()
-              ..onTap = () => PrivacyPolicy.show(context),
+              ..onTap = () => TermsOfUseView.show(context),
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms5'.l10n,

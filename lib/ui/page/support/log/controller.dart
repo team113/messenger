@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
@@ -36,6 +37,9 @@ class LogController extends GetxController {
     this._sessionService,
     this._notificationService,
   );
+
+  /// [ScrollController] to use in a [ListView].
+  final ScrollController scrollController = ScrollController();
 
   /// [AuthService] used to retrieve the current [sessionId].
   final AuthService _authService;
@@ -60,6 +64,10 @@ class LogController extends GetxController {
 
   /// Returns the [DeviceToken] of this device, if any.
   DeviceToken? get token => _notificationService?.token;
+
+  /// Indicates whether the [NotificationService] reports push notifications as
+  /// being active.
+  bool? get pushNotifications => _notificationService?.pushNotifications;
 
   /// Returns a report of the technical information and [Log]s.
   String report() {
@@ -92,6 +100,16 @@ ${Log.logs.map((e) => '[${e.at.toStamp}] [${e.level.name}] ${e.text}').join('\n'
 
 ========================================
 ''';
+  }
+
+  /// Refreshes the current [Session].
+  Future<void> refreshSession() async {
+    await _authService.refreshSession(proceedIfRefreshBefore: DateTime.now());
+  }
+
+  /// Clears the [Log.logs].
+  void clearLogs() {
+    Log.logs.clear();
   }
 }
 

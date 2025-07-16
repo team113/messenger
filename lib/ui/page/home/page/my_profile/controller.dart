@@ -68,7 +68,7 @@ class MyProfileController extends GetxController {
   MyProfileController(
     this._myUserService,
     this._sessionService,
-    this._settingsRepo,
+    this._settingsRepository,
     this._authService,
     this._chatService,
     this._blocklistService,
@@ -169,7 +169,7 @@ class MyProfileController extends GetxController {
         try {
           UserLogin(s.text);
         } on FormatException catch (_) {
-          s.error.value = 'err_incorrect_input'.l10n;
+          s.error.value = 'err_incorrect_login_input'.l10n;
           return;
         }
       }
@@ -249,7 +249,7 @@ class MyProfileController extends GetxController {
   final SessionService _sessionService;
 
   /// Settings repository, used to update the [ApplicationSettings].
-  final AbstractSettingsRepository _settingsRepo;
+  final AbstractSettingsRepository _settingsRepository;
 
   /// [ChatService] for uploading the [Attachment]s for [WelcomeMessage].
   final ChatService _chatService;
@@ -298,13 +298,14 @@ class MyProfileController extends GetxController {
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Returns the current [ApplicationSettings] value.
-  Rx<ApplicationSettings?> get settings => _settingsRepo.applicationSettings;
+  Rx<ApplicationSettings?> get settings =>
+      _settingsRepository.applicationSettings;
 
   /// Returns the current background's [Uint8List] value.
-  Rx<Uint8List?> get background => _settingsRepo.background;
+  Rx<Uint8List?> get background => _settingsRepository.background;
 
   /// Returns the current [MediaSettings] value.
-  Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
+  Rx<MediaSettings?> get media => _settingsRepository.mediaSettings;
 
   /// Returns the list of active [RxSession]s.
   RxList<RxSession> get sessions => _sessionService.sessions;
@@ -558,7 +559,7 @@ class MyProfileController extends GetxController {
   }
 
   /// Removes the currently set [background].
-  Future<void> removeBackground() => _settingsRepo.setBackground(null);
+  Future<void> removeBackground() => _settingsRepository.setBackground(null);
 
   /// Opens an image choose popup and sets the selected file as a [background].
   Future<void> pickBackground() async {
@@ -572,7 +573,7 @@ class MyProfileController extends GetxController {
     );
 
     if (result != null && result.files.isNotEmpty) {
-      _settingsRepo.setBackground(result.files.first.bytes);
+      _settingsRepository.setBackground(result.files.first.bytes);
     }
   }
 
@@ -748,32 +749,34 @@ class MyProfileController extends GetxController {
   Future<void> setNoiseSuppression(NoiseSuppressionLevelWithOff level) async {
     switch (level) {
       case NoiseSuppressionLevelWithOff.off:
-        await _settingsRepo.setNoiseSuppression(false);
+        await _settingsRepository.setNoiseSuppression(enabled: false);
         break;
 
       case NoiseSuppressionLevelWithOff.low:
       case NoiseSuppressionLevelWithOff.moderate:
       case NoiseSuppressionLevelWithOff.high:
       case NoiseSuppressionLevelWithOff.veryHigh:
-        await _settingsRepo.setNoiseSuppression(true);
-        await _settingsRepo.setNoiseSuppressionLevel(level.toLevel());
+        await _settingsRepository.setNoiseSuppression(
+          enabled: true,
+          level: level.toLevel(),
+        );
         break;
     }
   }
 
   /// Sets the [MediaSettings.echoCancellation] value.
   Future<void> setEchoCancellation(bool enabled) async {
-    await _settingsRepo.setEchoCancellation(enabled);
+    await _settingsRepository.setEchoCancellation(enabled);
   }
 
   /// Sets the [MediaSettings.autoGainControl] value.
   Future<void> setAutoGainControl(bool enabled) async {
-    await _settingsRepo.setAutoGainControl(enabled);
+    await _settingsRepository.setAutoGainControl(enabled);
   }
 
   /// Sets the [MediaSettings.highPassFilter] value.
   Future<void> setHighPassFilter(bool enabled) async {
-    await _settingsRepo.setHighPassFilter(enabled);
+    await _settingsRepository.setHighPassFilter(enabled);
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
@@ -792,7 +795,7 @@ class MyProfileController extends GetxController {
 
   /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
   Future<void> setWorkWithUsTabEnabled(bool enabled) =>
-      _settingsRepo.setWorkWithUsTabEnabled(enabled);
+      _settingsRepository.setWorkWithUsTabEnabled(enabled);
 
   /// Highlights the provided [tab].
   Future<void> highlight(ProfileTab? tab) async {
@@ -819,7 +822,7 @@ class MyProfileController extends GetxController {
           }
         }
 
-        _settingsRepo.setMuteKeys([
+        _settingsRepository.setMuteKeys([
           ...modifiers.map((e) => e.name),
           if (lastKey != null) lastKey.usbHidUsage.toString(),
         ]);

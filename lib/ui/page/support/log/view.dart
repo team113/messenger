@@ -84,143 +84,154 @@ class LogView extends StatelessWidget {
               children: [
                 ModalPopupHeader(text: 'Version: ${Pubspec.ref}'),
                 Flexible(
-                  child: Obx(() {
-                    return ListView(
-                      padding: EdgeInsets.all(8),
-                      shrinkWrap: true,
-                      children: [
-                        SelectionContainer.disabled(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: PrimaryButton(
-                                  onPressed: () async {
-                                    try {
-                                      await PlatformUtils.copy(
-                                        text: c.report(),
-                                      );
+                  child: Scrollbar(
+                    controller: c.scrollController,
+                    child: Obx(() {
+                      return ListView(
+                        controller: c.scrollController,
+                        padding: EdgeInsets.all(8),
+                        shrinkWrap: true,
+                        children: [
+                          SelectionContainer.disabled(
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: PrimaryButton(
+                                    onPressed: () async {
+                                      try {
+                                        await PlatformUtils.copy(
+                                          text: c.report(),
+                                        );
 
-                                      MessagePopup.success('label_copied'.l10n);
-                                    } catch (e) {
-                                      MessagePopup.error(e);
-                                    }
-                                  },
-                                  title: 'Copy as text',
+                                        MessagePopup.success(
+                                          'label_copied'.l10n,
+                                        );
+                                      } catch (e) {
+                                        MessagePopup.error(e);
+                                      }
+                                    },
+                                    title: 'Copy as text',
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: PrimaryButton(
-                                  onPressed: () async {
-                                    try {
-                                      final file =
-                                          await PlatformUtils.createAndDownload(
-                                            'report_${DateTime.now().millisecondsSinceEpoch}.log',
-                                            Uint8List.fromList(
-                                              c.report().codeUnits,
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: PrimaryButton(
+                                    onPressed: () async {
+                                      try {
+                                        final file =
+                                            await PlatformUtils.createAndDownload(
+                                              'report_${DateTime.now().millisecondsSinceEpoch}.log',
+                                              Uint8List.fromList(
+                                                c.report().codeUnits,
+                                              ),
+                                            );
+
+                                        if (file != null &&
+                                            PlatformUtils.isMobile) {
+                                          await SharePlus.instance.share(
+                                            ShareParams(
+                                              files: [XFile(file.path)],
                                             ),
                                           );
-
-                                      if (file != null &&
-                                          PlatformUtils.isMobile) {
-                                        await SharePlus.instance.share(
-                                          ShareParams(
-                                            files: [XFile(file.path)],
-                                          ),
-                                        );
+                                        }
+                                      } catch (e) {
+                                        MessagePopup.error(e);
                                       }
-                                    } catch (e) {
-                                      MessagePopup.error(e);
-                                    }
-                                  },
-                                  title: 'Download as file',
+                                    },
+                                    title: 'Download as file',
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
 
-                        _application(context, c),
-                        _myUser(context, c),
-                        _session(context, c),
-                        _token(context, c),
+                          _application(context, c),
+                          _myUser(context, c),
+                          _session(context, c),
+                          _token(context, c),
 
-                        // Logs.
-                        ListTile(
-                          leading: WidgetButton(
-                            onPressed: () {},
-                            onPressedWithDetails: (u) {
-                              PlatformUtils.copy(
-                                text: Log.logs
-                                    .map((e) => '[${e.at.toStamp}] ${e.text}')
-                                    .join('\n'),
-                              );
+                          // Logs.
+                          ListTile(
+                            leading: WidgetButton(
+                              onPressed: () {},
+                              onPressedWithDetails: (u) {
+                                PlatformUtils.copy(
+                                  text: Log.logs
+                                      .map((e) => '[${e.at.toStamp}] ${e.text}')
+                                      .join('\n'),
+                                );
 
-                              MessagePopup.success(
-                                'label_copied'.l10n,
-                                at: u.globalPosition,
-                              );
-                            },
-                            child: SvgIcon(SvgIcons.copy),
+                                MessagePopup.success(
+                                  'label_copied'.l10n,
+                                  at: u.globalPosition,
+                                );
+                              },
+                              child: SvgIcon(SvgIcons.copy),
+                            ),
+                            trailing: WidgetButton(
+                              onPressed: c.clearLogs,
+                              child: SvgIcon(SvgIcons.delete19),
+                            ),
+                            title: Text('Logs'),
                           ),
-                          title: Text('Logs'),
-                        ),
-                        ...Log.logs.map((e) {
-                          return Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                e.at.toStamp,
-                                style: style.fonts.small.regular.onBackground,
-                              ),
-                              SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  e.text,
-                                  style: switch (e.level) {
-                                    me.LogLevel.fatal =>
-                                      style.fonts.small.regular.danger,
-
-                                    me.LogLevel.error =>
-                                      style.fonts.small.regular.danger,
-
-                                    me.LogLevel.warning =>
-                                      style.fonts.small.regular.onBackground
-                                          .copyWith(
-                                            color: style.colors.warning,
-                                          ),
-
-                                    me.LogLevel.info =>
-                                      style.fonts.small.regular.onBackground
-                                          .copyWith(
-                                            color: style.colors.acceptAuxiliary,
-                                          ),
-
-                                    me.LogLevel.debug =>
-                                      style.fonts.small.regular.onBackground,
-
-                                    me.LogLevel.trace =>
-                                      style
-                                          .fonts
-                                          .small
-                                          .regular
-                                          .secondaryHighlightDarkest,
-
-                                    me.LogLevel.off || me.LogLevel.all =>
-                                      style
-                                          .fonts
-                                          .small
-                                          .regular
-                                          .secondaryHighlightDarkest,
-                                  },
+                          ...Log.logs.map((e) {
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  e.at.toStamp,
+                                  style: style.fonts.small.regular.onBackground,
                                 ),
-                              ),
-                            ],
-                          );
-                        }),
-                      ],
-                    );
-                  }),
+                                SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    e.text,
+                                    style: switch (e.level) {
+                                      me.LogLevel.fatal =>
+                                        style.fonts.small.regular.danger,
+
+                                      me.LogLevel.error =>
+                                        style.fonts.small.regular.danger,
+
+                                      me.LogLevel.warning =>
+                                        style.fonts.small.regular.onBackground
+                                            .copyWith(
+                                              color: style.colors.warning,
+                                            ),
+
+                                      me.LogLevel.info =>
+                                        style.fonts.small.regular.onBackground
+                                            .copyWith(
+                                              color:
+                                                  style.colors.acceptAuxiliary,
+                                            ),
+
+                                      me.LogLevel.debug =>
+                                        style.fonts.small.regular.onBackground,
+
+                                      me.LogLevel.trace =>
+                                        style
+                                            .fonts
+                                            .small
+                                            .regular
+                                            .secondaryHighlightDarkest,
+
+                                      me.LogLevel.off || me.LogLevel.all =>
+                                        style
+                                            .fonts
+                                            .small
+                                            .regular
+                                            .secondaryHighlightDarkest,
+                                    },
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                        ],
+                      );
+                    }),
+                  ),
                 ),
               ],
             ),
@@ -274,6 +285,8 @@ class LogView extends StatelessWidget {
 
   /// Builds the technical information about current [Session].
   Widget _session(BuildContext context, LogController c) {
+    final style = Theme.of(context).style;
+
     final session = c.sessions
         ?.firstWhereOrNull((e) => e.session.value.id == c.sessionId)
         ?.session
@@ -296,6 +309,13 @@ class LogView extends StatelessWidget {
         ),
         Text('ID: ${c.sessionId}'),
         Text('$session'),
+        ListTile(
+          title: Text(
+            'Force `refreshSession()` to occur',
+            style: style.fonts.small.regular.primary,
+          ),
+          onTap: c.refreshSession,
+        ),
       ],
     );
   }
@@ -317,6 +337,9 @@ class LogView extends StatelessWidget {
           title: Text('Token'),
         ),
         Text('${c.token}'),
+        Text(
+          'Push Notifications are considered active: ${c.pushNotifications}',
+        ),
       ],
     );
   }

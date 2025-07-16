@@ -30,7 +30,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
-import 'privacy_policy/view.dart';
 import 'terms_of_use/view.dart';
 import 'widget/sign_button.dart';
 
@@ -679,7 +678,7 @@ class LoginView extends StatelessWidget {
             text: 'alert_by_proceeding_you_accept_terms4'.l10n,
             style: style.fonts.small.regular.primary,
             recognizer: TapGestureRecognizer()
-              ..onTap = () => PrivacyPolicy.show(context),
+              ..onTap = () => TermsOfUseView.show(context),
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms5'.l10n,
