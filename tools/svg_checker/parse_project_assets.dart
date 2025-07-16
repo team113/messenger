@@ -1,3 +1,20 @@
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'dart:io';
 
 import 'package:analyzer/dart/analysis/features.dart';
@@ -30,35 +47,57 @@ void main() async {
     sourceOfTruthPaths.addAll(parsedAssets);
   }
 
-  // REPORT:
-  // final foundStringPaths = await _findUsedSvgPaths(dartFiles);
-  // print('${sourceOfTruthPaths.length}; ${foundStringPaths.length}');
-  // print('Defined and not used: ${foundStringPaths.difference(sourceOfTruthPaths)}');
-
-
   // GET SOURCE OF TRUTH IN DEFINED [SvgIcons] PROPERTIES:
   // (they are 358)
-  final Map<String, List<String>> sourceOfTruthPropsMap =
-      await _parseSvgIconClass(pathToSvgIcons);
-  final Set<String> sourceOfTruthPropsSet = sourceOfTruthPropsMap.keys.toSet();
+  final Map<String, List<String>> sourceOfTruthProps = _parseSvgIconClass(
+    pathToSvgIcons,
+  );
 
   // FIND USED [SvgIcons] PROPERTIES.
   final Set<String> foundProps = <String>{};
   for (final file in dartFiles) {
-    final Set<String> newProps = await _parseDartFileForProps(file);
+    final Set<String> newProps = _parseSvgIconsProps(file);
     foundProps.addAll(newProps);
   }
 
-  // COMPARE THOSE TWO.
-  final diff = sourceOfTruthPropsSet.difference(foundProps);
-  print('Difference: ${diff.length}');
+  // Here we analyzer SvgIcons usage.
+  // final sourceOfTruthPropsSet = sourceOfTruthPropsMap.keys.toSet();
+  // final diff = sourceOfTruthPropsSet.difference(foundProps);
+  // print('Difference: ${diff.length}');
+  // for (final asset in diff) {
+  //   print('  • SvgIcons.$asset');
+  // }
+
+  // let's actually abstract from SvgIcons and see what defined there.
+  // Parse paths found in SvgIcons.
+  final pathsDefinedInSvgIcons = <String>{};
+  for (final listOfPaths in sourceOfTruthProps.values) {
+    for (final path in listOfPaths) {
+      pathsDefinedInSvgIcons.add(path);
+    }
+  }
+
+  // Let's analyze not defined paths.
+  // I believe, that most of them are dynamic.
+  final pathsNotDefinedInSvgIcons = sourceOfTruthPaths.difference(
+    pathsDefinedInSvgIcons,
+  );
+
+  for (final path in pathsNotDefinedInSvgIcons) {
+    print(path);
+  }
+  // print(pathsNotDefinedInSvgIcons.length);
+
+  // Let's see which we used in project.
+  // kind of useless variable
+  // final foundStaticPaths = await _findUsedSvgPaths(dartFiles);
 }
 
 /// Finds .svg paths by parsing [SimpleStringLiteral]s in [dartFiles].
 Future<Set<String>> _findUsedSvgPaths(List<File> dartFiles) async {
   final Set<String> foundPaths = <String>{};
   for (final file in dartFiles) {
-    final Set<String> newPaths = await _parseDartFileForStrings(file);
+    final Set<String> newPaths = await _parseSvgAssets(file);
     // if (newPaths.isNotEmpty) print('${file.path} $newPaths');
     foundPaths.addAll(newPaths);
   }
@@ -68,29 +107,49 @@ Future<Set<String>> _findUsedSvgPaths(List<File> dartFiles) async {
 }
 
 /// Returns all the found [SvgIcons] properties found in [file].
-Future<Set<String>> _parseDartFileForProps(File file) async {
+Set<String> _parseSvgIconsProps(File file) {
   final fileUnit = parseFile(
     path: file.path,
     featureSet: FeatureSet.latestLanguageVersion(),
   ).unit;
 
-  final visitor = _SvgIconUsageCollector();
+  final visitor = _SvgIconsPropsVisitor();
   fileUnit.visitChildren(visitor);
-  return visitor.hits;
+  return visitor.properties;
 }
 
 /// Returns all the [SimpleStringLiteral]s that are .svg paths in [file].
-Future<Set<String>> _parseDartFileForStrings(File file) async {
+Set<String> _parseSvgAssets(File file) {
   final fileUnit = parseFile(
     path: file.path,
     featureSet: FeatureSet.latestLanguageVersion(),
   ).unit;
 
-  final visitor = _SvgLiteralCollector();
+  final visitor = _SvgAssetPathVisitor();
   fileUnit.visitChildren(visitor);
-  return visitor.hits;
+  return visitor.paths;
 }
 
+/// Returns mapping `propertyName -> PathsList`.
+///
+/// Parses specifically [SvgData] properties of [SvgIcons] class.
+Map<String, List<String>> _parseSvgIconClass(String pathToClass) {
+  final Map<String, List<String>> propertyToPathMap;
+
+  final fileUnit = parseFile(
+    path: pathToClass,
+    featureSet: FeatureSet.latestLanguageVersion(),
+  ).unit;
+
+  final visitor = _SvgIconsDeclarationVisitor();
+  fileUnit.visitChildren(visitor);
+  propertyToPathMap = visitor.propertyToPaths;
+
+  return propertyToPathMap;
+}
+
+/// Visitor that parses accessed **properties**
+///
 /// Searches for usage of properties of [SvgIcons].
 ///
 /// Example:
@@ -100,33 +159,129 @@ Future<Set<String>> _parseDartFileForStrings(File file) async {
 /// ```
 ///
 /// From this chunk of code collector finds [SvgIcons.menuLegal].
-class _SvgIconUsageCollector extends RecursiveAstVisitor {
-  final hits = <String>{};
+class _SvgIconsPropsVisitor extends RecursiveAstVisitor {
+  final properties = <String>{};
 
   @override
   visitPrefixedIdentifier(PrefixedIdentifier node) {
     if (node.prefix.name == 'SvgIcons') {
-      hits.add(node.identifier.name);
+      properties.add(node.identifier.name);
       // print(node);
     }
     return super.visitPrefixedIdentifier(node);
   }
 }
 
-/// Searches for usage of .svg paths within [SimpleStringLiteral]s.
-class _SvgLiteralCollector extends RecursiveAstVisitor<void> {
-  final Set<String> hits = {};
+/// Visitor that parses [SimpleStringLiteral]s for .svg paths usage.
+class _SvgAssetPathVisitor extends RecursiveAstVisitor<void> {
+  final Set<String> paths = {};
 
   @override
   void visitSimpleStringLiteral(SimpleStringLiteral node) {
     final value = node.value;
-    if (value.endsWith('.svg') && value.length > '.svg'.length) {
-      hits.add(value);
+    if (value.endsWith('.svg') && value.contains('/')) {
+      paths.add(value);
     }
     super.visitSimpleStringLiteral(node);
   }
 }
 
+/// Visitor that parses properties of the [SvgIcons] class.
+///
+/// Handles two patterns:
+///
+/// 1. Declaration of [SvgData].
+/// ```dart
+/// static const SvgData callTurnVideoOffWhite = SvgData(
+///   'path/to/asset.svg',
+///   width: n,
+///   height: m,
+/// );
+/// ```
+///
+/// 2. Declaration of [List] of [SvgData].
+/// ```dart
+/// static const List<SvgData> head = [
+///   SvgData('path/to/asset/x1.svg'),
+///   ...
+///   SvgData('path/to/asset/x2.svg'),
+/// ];
+/// ```
+class _SvgIconsDeclarationVisitor extends RecursiveAstVisitor<void> {
+  final Map<String, List<String>> propertyToPaths = {};
+
+  @override
+  void visitFieldDeclaration(FieldDeclaration node) {
+    // We only care about: static const properties.
+    if (!node.isStatic || !node.fields.isConst) return;
+
+    for (final variable in node.fields.variables) {
+      // Property name.
+      final name = variable.name.lexeme;
+
+      // Dive in initializer to collect more information.
+      final init = variable.initializer;
+
+      // Initializer must exist.
+      if (init == null) continue;
+
+      /// [init.childEntities] - are tokens of initialization.
+      ///
+      /// For init of single SvgData
+      /// ```dart
+      /// static const SvgData menuSupport = SvgData(
+      ///  'assets/icons/menu/help.svg',
+      ///  width: 50,
+      ///  height: 50,
+      ///  );
+      /// ```
+      /// tokens are the following:
+      /// ```
+      /// init.childEntities[0] == SvgData
+      /// init.childEntities[1] == ('assets/icons/fullscreen_enter_small.svg',
+      ///                           width: 13, height: 13)
+      /// ```
+      ///
+      /// For init of list of SvgData
+      /// ```dart
+      /// static const List<SvgData> head = [
+      ///   SvgData('assets/images/logo/head_0.svg', width: 206.33, height: 220.68),
+      ///   SvgData('assets/images/logo/head_1.svg', width: 206.33, height: 220.68),
+      ///   ...
+      ///   SvgData('assets/images/logo/head_9.svg', width: 206.33, height: 220.68),
+      /// ];
+      /// ```
+      /// tokens are the following:
+      /// ```
+      /// list[0]       == [
+      /// list[1:N - 1] == SvgData('path_Zn.svg', width: Xn, height: Yn)
+      /// list[N]       == ]
+      /// ```
+      final children = init.childEntities;
+
+      for (final child in children) {
+        final tokenString = child.toString();
+        // We assume, that path is inside single-quotes.
+        // Example: 'assets/images/logo/head_3.svg'.
+        final indexStart = tokenString.indexOf("'");
+        final indexEnd = tokenString.lastIndexOf("'");
+
+        // Check for valid .svg path.
+        if (indexStart != -1 && indexStart != indexEnd) {
+          final path = tokenString.substring(indexStart + 1, indexEnd);
+          if (!path.endsWith('.svg')) continue;
+
+          // Safely add path to name.
+          propertyToPaths.putIfAbsent(name, () => []).add(path);
+        }
+      }
+    }
+
+    super.visitFieldDeclaration(node);
+  }
+}
+
+/// Returns a set of full file paths to `.svg` files found in [path].
 Future<Set<String>> _parseFolder(String path) async {
   final dir = Directory(path);
   // Or might throw.
@@ -140,105 +295,4 @@ Future<Set<String>> _parseFolder(String path) async {
   }
 
   return paths;
-}
-
-/// Returns mapping of names of properties to list of paths.
-///
-/// Examples:
-/// `propertyToPathMap[head] == [assets/images/logo/head_0.svg, assets/...]`
-/// `propertyToPathMap[other] == [_some_aset.svg]`
-///
-/// Parses specifically [SvgData] properties of [SvgIcons] class.
-Future<Map<String, List<String>>> _parseSvgIconClass(String pathToClass) async {
-  final Map<String, List<String>> propertyToPathMap;
-
-  final fileUnit = parseFile(
-    path: pathToClass,
-    featureSet: FeatureSet.latestLanguageVersion(),
-  ).unit;
-
-  final visitor = _DeclaredIconsCollector();
-  fileUnit.visitChildren(visitor);
-  propertyToPathMap = visitor.findingsMap;
-
-  return propertyToPathMap;
-}
-
-/// Visitor for [SvgIcons] class.
-class _DeclaredIconsCollector extends RecursiveAstVisitor<void> {
-  final Map<String, List<String>> findingsMap = {};
-  final Set<String> foundProperties = {};
-  int _counter = 1;
-
-  @override
-  void visitFieldDeclaration(FieldDeclaration node) {
-    // We only care about: static const properties.
-    if (!node.isStatic || !node.fields.isConst) return;
-
-    for (final variable in node.fields.variables) {
-      // Field name.
-      final name = variable.name.lexeme;
-
-      // In order to find out the string, dive in init.
-      final init = variable.initializer;
-
-      // initializer must exist.
-      if (init == null) continue;
-
-      // Instantly add list to map.
-      foundProperties.add(name);
-
-      /// What are children? Children are tokens of initialization.
-      ///
-      /// For example,
-      /// static const SvgData menuSupport = SvgData(
-      ///  'assets/icons/menu/help.svg',
-      ///  width: 50,
-      ///  height: 50,
-      ///  );
-      ///
-      /// for this tokens are the following:
-      /// list[0] == SvgData
-      /// list[1] == ('assets/icons/fullscreen_enter_small.svg', width: 13, height: 13)
-      ///
-      /// We also have list. for it
-      ///
-      /// static const List<SvgData> head = [
-      ///   SvgData('assets/images/logo/head_0.svg', width: 206.33, height: 220.68),
-      ///   SvgData('assets/images/logo/head_1.svg', width: 206.33, height: 220.68),
-      ///   SvgData('assets/images/logo/head_2.svg', width: 206.33, height: 220.68),
-      ///   SvgData('assets/images/logo/head_3.svg', width: 206.33, height: 220.68),
-      ///   SvgData('assets/images/logo/head_4.svg', width: 206.33, height: 220.68),
-      ///   SvgData('assets/images/logo/head_5.svg', width: 206.33, height: 220.68),
-      ///   SvgData('assets/images/logo/head_6.svg', width: 206.33, height: 220.68),
-      ///   SvgData('assets/images/logo/head_7.svg', width: 206.33, height: 220.68),
-      ///   SvgData('assets/images/logo/head_8.svg', width: 206.33, height: 220.68),
-      ///   SvgData('assets/images/logo/head_9.svg', width: 206.33, height: 220.68),
-      /// ];
-      ///
-      /// for it something like this:
-      /// list[0]       == [
-      /// list[1:N - 1] == SvgData('path.svg', width: x, height: y)
-      /// list[N]       == ]
-      final children = init.childEntities;
-      for (final child in children) {
-        final tokenString = child.toString();
-        final indexStart = tokenString.indexOf("'");
-        final indexEnd = tokenString.lastIndexOf("'");
-
-        // Check whether string results in a .svg path.
-        if (indexStart != -1 && indexStart != indexEnd) {
-          final path = tokenString.substring(indexStart + 1, indexEnd);
-
-          // Sanity check.
-          if (!path.endsWith('.svg')) continue;
-
-          // Safely add path to name.
-          findingsMap.putIfAbsent(name, () => []).add(path);
-        }
-      }
-    }
-
-    super.visitFieldDeclaration(node);
-  }
 }
