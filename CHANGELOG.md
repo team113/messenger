@@ -22,11 +22,12 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - iOS:
-    - Authorization sometimes being lost when receiving push notifications. ([#1326])
+    - Authorization sometimes being lost when receiving push notifications. ([#1331], [#1326])
 
 [#1326]: /../../pull/1326
 [#1327]: /../../pull/1327
 [#1330]: /../../pull/1330
+[#1331]: /../../pull/1331
 
 
 
