@@ -123,7 +123,7 @@ else
 endif
 
 
-# Analyze unused labels in Fluent files.
+# Analyze unused l10n phrases in Fluent files.
 #
 # Usage:
 #   make flutter.analyze.fluent [dockerized=(no|yes)]
@@ -976,9 +976,9 @@ sentry.upload:
         docker.untar docker.up \
         docs.dart \
         fcm.conf \
-        flutter.analyze flutter.analyze.fluent flutter.build \
-        flutter.bundle.rename flutter.clean flutter.fmt flutter.gen \
-        flutter.pub flutter.run \
+        flutter.analyze flutter.analyze.fluent \
+        flutter.build flutter.bundle.rename \
+        flutter.clean flutter.fmt flutter.gen flutter.pub flutter.run \
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
