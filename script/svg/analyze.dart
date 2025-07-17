@@ -61,7 +61,7 @@ void main() async {
 
   final Set<String> usedSvgIconsProps = <String>{};
   for (final file in dartFiles) {
-    final Set<String> newProps = _parseSvgIconsProps(file);
+    final Set<String> newProps = _parseSvgIconsUsedProps(file);
     usedSvgIconsProps.addAll(newProps);
   }
 
@@ -73,8 +73,16 @@ void main() async {
 
   stdout.writeln('Properties unused: ${unused.length}');
   for (final asset in unused) {
-    stdout.writeln('  • SvgIcons.$asset');
+    final svgPaths = svgIconsPropsMap[asset]!;
+    final type = svgPaths.length > 1 ? 'List<SvgData>' : 'SvgData';
+
+    stdout.writeln('  • SvgIcons.$asset ($type $asset)');
+
+    for (final svgPath in svgPaths) {
+      stdout.writeln('    - $svgPath');
+    }
   }
+
   stdout.writeln();
 
   // Prevents stdout and stderr streams' outputs from mixing.
@@ -90,7 +98,7 @@ void main() async {
 }
 
 /// Returns all the found [SvgIcons] properties found in [file].
-Set<String> _parseSvgIconsProps(File file) {
+Set<String> _parseSvgIconsUsedProps(File file) {
   final fileUnit = parseFile(
     path: file.path,
     featureSet: FeatureSet.latestLanguageVersion(),
@@ -191,7 +199,7 @@ class _SvgIconsDeclarationVisitor extends RecursiveAstVisitor<void> {
 /// ProfileTab.legal => const SvgIcon(SvgIcons.menuLegal),
 /// ```
 ///
-/// From this chunk of code visitor finds [SvgIcons.menuLegal].
+/// From this chunk of code visitor collects `menuLegal`.
 class _SvgIconsPropsVisitor extends RecursiveAstVisitor {
   /// [Set] of [SvgIcons] property names found during visiting the node.
   final Set<String> properties = <String>{};
@@ -200,6 +208,7 @@ class _SvgIconsPropsVisitor extends RecursiveAstVisitor {
   visitPrefixedIdentifier(PrefixedIdentifier node) {
     final prefixName = node.prefix.name;
     final propertyName = node.identifier.name;
+
     if (prefixName == 'SvgIcons') {
       properties.add(propertyName);
     }
