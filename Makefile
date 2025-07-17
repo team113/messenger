@@ -286,7 +286,7 @@ ifeq ($(dockerized),yes)
 			make flutter.pub cmd='$(cmd)' dockerized=no
 else
 	flutter pub $(or $(cmd),get)
-	flutter pub $(or $(cmd),get) --directory=script/fluent
+	flutter pub $(or $(cmd),get) --directory=script
 endif
 
 
