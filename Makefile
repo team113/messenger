@@ -123,6 +123,22 @@ else
 endif
 
 
+# Analyze unused l10n phrases in Fluent files.
+#
+# Usage:
+#   make flutter.analyze.fluent [dockerized=(no|yes)]
+
+flutter.analyze.fluent:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make flutter.analyze.fluent dockerized=no
+else
+	dart run script/fluent/analyze.dart
+endif
+
+
 # Build Flutter project from sources.
 #
 # Usage:
@@ -254,6 +270,7 @@ ifeq ($(dockerized),yes)
 			make flutter.pub cmd='$(cmd)' dockerized=no
 else
 	flutter pub $(or $(cmd),get)
+	flutter pub $(or $(cmd),get) --directory=script/fluent
 endif
 
 
@@ -959,8 +976,9 @@ sentry.upload:
         docker.untar docker.up \
         docs.dart \
         fcm.conf \
-        flutter.analyze flutter.build flutter.bundle.rename flutter.clean \
-        flutter.fmt flutter.gen flutter.pub flutter.run \
+        flutter.analyze flutter.analyze.fluent \
+        flutter.build flutter.bundle.rename \
+        flutter.clean flutter.fmt flutter.gen flutter.pub flutter.run \
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
