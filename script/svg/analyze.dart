@@ -161,11 +161,11 @@ class _SvgIconsDeclarationVisitor extends RecursiveAstVisitor<void> {
 
       if (propertyInit == null) continue;
 
-      /// Syntactic elements of the property's init expression.
-      ///
-      /// When parsing an init like `x = SvgData(...)`, the child entities will
-      /// be the type (`SvgData`) and its arguments list (`(...)`). For a list,
-      /// they will be the brackets and the elements within then.
+      // Syntactic elements of the property's init expression.
+      //
+      // When parsing an init like `x = SvgData(...)`, the child entities will
+      // be the type (`SvgData`) and its arguments list (`(...)`). For a list,
+      // they will be the brackets and the elements within then.
       final children = propertyInit.childEntities;
 
       for (final child in children) {
