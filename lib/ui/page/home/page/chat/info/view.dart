@@ -338,7 +338,7 @@ class ChatInfoView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(6, 0, 8, 24),
+                padding: const EdgeInsets.fromLTRB(6, 0, 8, 0),
                 child: Text(
                   'label_direct_chat_link_in_chat_description'.l10n,
                   style: style.fonts.small.regular.secondary,
@@ -472,7 +472,7 @@ class ChatInfoView extends StatelessWidget {
           key: const Key('AddMemberButton'),
           onPressed: () => AddChatMemberView.show(context, chatId: id),
           child: Text(
-            'btn_add_member'.l10n,
+            'btn_add_participant'.l10n,
             style: style.fonts.small.regular.primary,
           ),
         ),

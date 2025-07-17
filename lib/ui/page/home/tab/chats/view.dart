@@ -134,7 +134,7 @@ class ChatsTabView extends StatelessWidget {
                       child = Align(
                         key: const Key('3'),
                         alignment: Alignment.centerLeft,
-                        child: Text('btn_select_and_delete'.l10n),
+                        child: Text('btn_select'.l10n),
                       );
                     } else {
                       final Widget synchronization;
@@ -233,7 +233,7 @@ class ChatsTabView extends StatelessWidget {
                         actions: [
                           ContextMenuButton(
                             key: const Key('SelectChatsButton'),
-                            label: 'btn_select_and_delete'.l10n,
+                            label: 'btn_select'.l10n,
                             onPressed: c.toggleSelecting,
                             trailing: const SvgIcon(SvgIcons.select),
                             inverted: const SvgIcon(SvgIcons.selectWhite),

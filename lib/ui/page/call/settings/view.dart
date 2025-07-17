@@ -249,15 +249,16 @@ class CallSettingsView extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                     switch (value) {
                                       NoiseSuppressionLevelWithOff.off =>
-                                        'label_disabled'.l10n,
+                                        'label_noise_suppression_disabled'.l10n,
                                       NoiseSuppressionLevelWithOff.low =>
-                                        'label_low'.l10n,
+                                        'label_noise_suppression_low'.l10n,
                                       NoiseSuppressionLevelWithOff.moderate =>
-                                        'label_medium'.l10n,
+                                        'label_noise_suppression_medium'.l10n,
                                       NoiseSuppressionLevelWithOff.high =>
-                                        'label_high'.l10n,
+                                        'label_noise_suppression_high'.l10n,
                                       NoiseSuppressionLevelWithOff.veryHigh =>
-                                        'label_very_high'.l10n,
+                                        'label_noise_suppression_very_high'
+                                            .l10n,
                                     },
                                     style:
                                         style.fonts.smaller.regular.secondary,

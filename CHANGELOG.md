@@ -11,6 +11,11 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.3...v0.6.0) | [Milestone](/../../milestone/43)
 
+### Added
+
+- UI:
+    - Spanish localization.
+
 ### Changed
 
 - UI:
