@@ -58,7 +58,6 @@ btn_add_participant_desc =
     участника
 btn_add_participants = Добавить участников
 btn_add_to_favorites = Добавить в избранные
-btn_allow = Разрешить
 btn_audio_call = Аудиозвонок
 btn_back = Назад
 btn_block = Заблокировать
@@ -167,13 +166,10 @@ btn_decline = Отклонить
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
 btn_delete_chat = Удалить чат
-btn_delete_direct_chat_link = Удалить
-btn_delete_for_all = Удалить для всех
 btn_delete_from_favorites = Удалить из избранных
 btn_delete_link = Удалить ссылку
 btn_delete_message = Удалить сообщение
 btn_discard = Отменить
-btn_do_not_allow = Не разрешать
 btn_done = Готово
 btn_download = Скачать
 btn_download_all = Скачать всё
@@ -203,7 +199,6 @@ btn_leave = Покинуть
 btn_leave_group = Покинуть группу
 btn_login_and_password = Логин и пароль
 btn_logout = Выйти
-btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении
 btn_mute = Отключить звук
 btn_mute_chat = Отключить звук
@@ -485,7 +480,6 @@ label_active_account = Онлайн
 label_active_devices = Активные устройства
 label_active_sessions = Активные сессии
 label_add_account = Добавить аккаунт
-label_add_chat_member = Добавление участника
 label_add_email = Добавить e-mail
 label_add_email_confirmation_sent = Одноразовый код был отправлен на Ваши e-mail'ы. Если Вы не получили e-mail, проверьте введённые данные или папку "Спам".
 label_add_email_confirmed = E-mail подтверждён
@@ -544,7 +538,6 @@ label_ago_date = {$years ->
     [few] {$years} года назад
     *[other] {$years} лет назад
 }
-label_all = Все
 label_all_chats_and_groups = Все чаты и группы
 label_all_session_except_current_terminated = Все сессии, кроме текущей, будут завершены
 label_also_delete_for_everyone = Также удалить для всех
@@ -593,7 +586,6 @@ label_call_title =
         }
     }
 label_call_window = Окно звонка
-label_calls = Звонки
 label_camera = Камера
 label_chat = Чат
 label_change_password = Изменить пароль
@@ -677,7 +669,6 @@ label_delivered = Доставлено
 label_desktop_apps = Приложения для компьютера
 label_details = Подробности
 label_device_by_default = По умолчанию - {$device}
-label_devices = Устройства
 label_dialog_created = Диалог создан
 label_dialog_created_by_link = Диалог создан по прямой ссылке
 label_direct_chat_link = Пригласить в группу
@@ -707,7 +698,6 @@ label_enter_password_or_one_time_code = Введите Ваш пароль ил�
 label_entrance = Вход
 label_error = Ошибка
 label_expandable_more = ещё
-label_favorite_contacts = Избранные
 label_file_downloaded = Файл скачан
 label_files_downloaded = Файлы скачаны
 label_files_saved_to_gallery = Файлы добавлены в галерею
@@ -841,8 +831,6 @@ label_one_time_password = Одноразовый код
 label_online = онлайн
 label_open_calls_in_app = В том же окне
 label_open_calls_in_window = В отдельном окне
-label_open_chat = Открыть чат
-label_or = Или
 label_outgoing_call = Звоним
 label_participants = Участников: {$count}
 label_participants_of = Участников: {$a} из {$b}
@@ -867,7 +855,6 @@ label_personal_data_deletion_description5 =
     - Ваша биография;
     - все Ваши e-mail'ы;
     - все Ваши номера телефонов.
-label_photo = Фото
 label_presence_away = Отошёл
 label_presence_present = Онлайн
 label_profile = Профиль
@@ -1031,9 +1018,7 @@ label_user_removed_user = {$author} удалил(а) {$user}
 label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = удалил(а)
 label_user_removed_user3 = {" "}{$user}
-label_users = Пользователи
 label_users_count = Пользователей: {$count}
-label_verify = Верифицировать
 label_version_semicolon = Версия: {$version}
 label_video = Видео
 label_video_call = Видеозвонок{$by ->
