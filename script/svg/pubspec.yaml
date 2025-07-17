@@ -1,7 +1,6 @@
-name: svg_checker
+name: svg_analyze
 environment:
   sdk: '>=3.8.0 <4.0.0'
 
 dependencies:
-  args: ^2.5.0
   analyzer: any
