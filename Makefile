@@ -139,6 +139,22 @@ else
 endif
 
 
+# Analyze unused properties in SvgIcons class.
+#
+# Usage:
+#   make flutter.analyze.svg [dockerized=(no|yes)]
+
+flutter.analyze.svg:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make flutter.analyze.svg dockerized=no
+else
+	dart run script/svg/analyze.dart
+endif
+
+
 # Build Flutter project from sources.
 #
 # Usage:
@@ -976,7 +992,7 @@ sentry.upload:
         docker.untar docker.up \
         docs.dart \
         fcm.conf \
-        flutter.analyze flutter.analyze.fluent \
+        flutter.analyze flutter.analyze.fluent flutter.analyze.svg \
         flutter.build flutter.bundle.rename \
         flutter.clean flutter.fmt flutter.gen flutter.pub flutter.run \
         git.release \
