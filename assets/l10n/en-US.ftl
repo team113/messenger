@@ -17,11 +17,6 @@
 
 alert_account_will_be_deleted1 = Account{" "}
 alert_account_will_be_deleted2 = {" "}will be deleted.
-alert_are_you_sure = Are you sure?
-alert_are_you_sure_want_to_delete_email =
-    Are you sure you want to delete this Email?
-alert_are_you_sure_want_to_delete_phone =
-    Are you sure you want to delete this phone number?
 alert_are_you_sure_want_to_log_out1 = Are you sure you want to sign out of account{" "}
 alert_are_you_sure_want_to_log_out2 = ?
 alert_by_proceeding_you_accept_terms1 = By proceeding, you agree with the{" "}
@@ -39,18 +34,6 @@ alert_chat_will_be_reported1 = Chat{" "}
 alert_chat_will_be_reported2 = {" "}will be reported.
 alert_email_will_be_deleted1 = E-mail{" "}
 alert_email_will_be_deleted2 = {" "}will be deleted
-alert_popup_permissions_button = Open settings
-alert_popup_permissions_description =
-    You will not be able to accept calls
-    while the app is in background if the following permissions are
-    disabled:
-
-    - Show on Lock screen;
-
-    - Display pop-up windows while running in the background;
-
-    - Display pop-up window.
-alert_popup_permissions_title = Please enable the popup permissions
 alert_user_will_be_blocked1 = User{" "}
 alert_user_will_be_blocked2 = {" "}will be blocked.
 alert_user_will_be_removed1 = User{" "}
@@ -71,7 +54,6 @@ btn_add_participant_desc =
     participant
 btn_add_participants = Add participants
 btn_add_to_favorites = Add to favorites
-btn_allow = Allow
 btn_audio_call = Audio call
 btn_back = Back
 btn_block = Block
@@ -177,17 +159,13 @@ btn_decline = Decline
 btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_chat = Delete chat
-btn_delete_direct_chat_link = Delete
-btn_delete_for_all = Delete for all
 btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
 btn_discard = Discard
-btn_do_not_allow = Do not allow
 btn_done = Done
 btn_download = Download
 btn_download_all = Download all
 btn_download_all_as = Download all as
-btn_download_application = Download application
 btn_download_as = Download as
 btn_download_version = Download {$version}
 btn_edit = Edit
@@ -197,19 +175,14 @@ btn_file = File
 btn_forgot_password = Forgot password?
 btn_forward = Forward
 btn_forward_message = Forward message
-btn_fullscreen_exit = Exit fullscreen
 btn_gallery = Gallery
 btn_guest = Guest
 btn_help = Help
-btn_hide = Hide
-btn_hide_chat = Hide chat
 btn_info = Info
 btn_install_web_app = Install Web App
-btn_leave = Leave
 btn_leave_group = Leave group
 btn_login_and_password = Login and password
 btn_logout = Logout
-btn_media_settings = Media settings
 btn_message_info = Message info
 btn_mute = Mute
 btn_mute_chat = Mute chat
@@ -223,11 +196,8 @@ btn_participants_desc =
     participants
 btn_password = Password
 btn_paste = Paste
-btn_privacy_policy = Privacy policy
 btn_proceed = Proceed
-btn_pwa_is_installed = Web App is installed
 btn_refresh_page = Refresh page
-btn_remove = Remove
 btn_reply = Reply
 btn_reply_message = Reply to message
 btn_report = Report
@@ -242,7 +212,6 @@ btn_save_my_credentials_for_one_click = Save my credentials for one-click signin
 btn_save_to_gallery = Save to gallery
 btn_save_to_gallery_all = Save all to gallery
 btn_schedule_an_interview = Schedule an interview
-btn_select = Select
 btn_select_and_delete = Select and delete
 btn_select_messages = Select messages
 btn_send = Send
@@ -260,7 +229,6 @@ btn_terminate_all_other_sessions = Terminate all other sessions
 btn_terminate_this_session = Terminate this session
 btn_terms_and_conditions = Terms and conditions
 btn_unblock = Unblock
-btn_unblock_short = Unblock
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
@@ -268,10 +236,8 @@ btn_upload = Upload
 btn_video_call = Video call
 btn_work_with_us = Work with us
 colon_space = :{" "}
-comma_separated_a_b_c = {$a},{" "}{$b},{" "}{$c}
 comma_space = ,{" "}
 dot = .
-dot_space = .{" "}
 email_confirmation_code =
     {$domain} confirmation code is: {$token}
     Valid until {$expiresAt}.
@@ -290,7 +256,6 @@ err_chat_direct_link_occupied = Link is occupied.
 err_could_not_download = An error occurred while downloading. Please, try again.
 err_data_transfer =
     Data transfer error. Please, check your network connection.
-err_dialog = Can't perform this action in a dialog
 err_dimensions_too_big = File dimensions exceed 32767 x 32767 pixels.
 err_email_occupied = Specified E-mail is linked to another account. Please, annulate the previous verification.
 err_incorrect_email = Incorrect E-mail.
@@ -311,7 +276,6 @@ err_no_text_and_no_attachment =
     Either text or at least one attachment should be specified
 err_no_text_no_attachment_and_reply =
     Either text or at least one attachment or reply should be specified
-err_not_call_member = Not a call member
 err_not_group = Not a group
 err_not_member = Not a member
 err_password_empty = Please, enter the password
@@ -479,19 +443,16 @@ fcm_user_removed_you =
 fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
-label_about = About
 label_about_you = About you
 label_about_you_description =
     Any details about you.
     4096 symbols max.
-label_account = Account
 label_account_created = Account is created
 label_accounts = Your accounts
 label_active_account = Active
 label_active_devices = Active devices
 label_active_sessions = Active sessions
 label_add_account = Add account
-label_add_chat_member = Add member
 label_add_email = Add e-mail
 label_add_email_confirmation_sent = One-time code has been sent to your e-mails. If you did not receive e-mails, check your data entered or spam folder.
 label_add_email_confirmation_sent_again = One-time code has been sent again to your e-mails. If you did not receive e-mails, check your data entered or spam folder.
@@ -539,20 +500,11 @@ label_ago_date = {$years ->
     [1] An year ago
     *[other] {$years} years ago
 }
-label_all = All
 label_all_chats_and_groups = All chats and groups
 label_all_session_except_current_terminated = All sessions except this one will be terminated
 label_also_delete_for_everyone = Also delete for everyone
 label_always_muted = Always muted
-label_any_button_or_combination = Any button or combination
-label_app_background = Application background
 label_application = Application
-label_are_you_sure_no = No
-label_are_you_sure_yes = Yes
-label_attachments = [{$count} {$count ->
-    [1] attachment
-    *[other] attachments
-    }]
 label_audio_call = Audio call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
@@ -574,7 +526,6 @@ label_blocked = Blocked
 label_blocked_users = Blocked users
 label_blocked_users_count = Blocked users: {$count}
 label_cache = Cache
-label_cache_and_downloads = Cache
 label_cache_limit_gb = Cache limit: {$gb} GB
 label_call_active = Active call
 label_call_calling = Calling
@@ -590,7 +541,6 @@ label_call_title =
         }
     }
 label_call_window = Call window
-label_calls = Calls
 label_camera = Camera
 label_change_password = Change password
 label_chat = Chat
@@ -626,17 +576,10 @@ label_conditions_frontend_developer =
     - Daily payments;
     - 4-, 6- or 8-hour work day;
     - Relocation possible to one of the company offices.
-label_conditions_ui_ux_designer =
-    - Remote work;
-    - Daily payments;
-    - 4-, 6- or 8-hour work day;
-    - Relocation possible to one of the company offices.
 label_confidentiality = Confidentiality
-label_confirm = Confirm
 label_confirm_account_deletion = Confirm account deletion
 label_confirm_email = Confirm e-mail
 label_confirm_password = Confirm password
-label_confirmation_code = Confirmation code
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact_us_via_provided_email = Please, contact us by email {$email}.
@@ -659,10 +602,8 @@ label_delete_chats = Delete chats
 label_delete_email = Delete e-mail
 label_delete_message = Delete the message
 label_delete_messages = Delete the messages
-label_delivered = Delivered
 label_desktop_apps = Desktop apps
 label_device_by_default = By default - {$device}
-label_devices = Devices
 label_dialog_created = Dialog created
 label_dialog_created_by_link = Dialog created via direct link
 label_did_not_receive_code = Didn't receive the code?
@@ -680,24 +621,19 @@ label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
 label_echo_cancellation = Echo cancellation
-label_edit = Edit
 label_editing = Editing
 label_email = E-mail
 label_email_confirmed = E-mail has been confirmed
 label_email_deleted = E-mail has been deleted
-label_email_example = example@gmail.com
 label_email_or_phone_not_set = E-mail or phone number is not set. Access to the account will be lost.
 label_email_or_phone_not_set1 = No e-mail is linked.{" "}
 label_email_or_phone_not_set2 = Access to the account cannot be restored.
-label_enabled = Enabled
 label_enter_one_time_code = Enter your one-time code. One-time code has been sent to your e-mails. If you did not receive e-mails, check your spam folder or data entered.
 label_enter_password_below = Please, enter your password in the field below.
 label_enter_password_or_code = Enter password or code
 label_enter_password_or_one_time_code = Enter your password or one-time code. One-time code has been sent to your e-mails. If you did not receive e-mails, check your spam folder or data entered.
-label_entrance = Sign in
 label_error = Error
 label_expandable_more = more
-label_favorite_contacts = Favorite
 label_file_downloaded = File downloaded
 label_files_downloaded = Files are downloaded
 label_files_saved_to_gallery = Files are saved to the gallery
@@ -716,7 +652,6 @@ label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
 label_group_created_by2 = {" "}created the group
-label_group_name = Group name
 label_guest_account_created = Guest account created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
@@ -761,18 +696,15 @@ label_leave_group = Leave group
 label_link_to_chat = Link to you
 label_linked_devices = Linked devices
 label_login = Login
-label_login_hint = Your unique login
 label_login_options = Sign in options
 label_login_section_hint = Password and e-mail
 label_low = Low
 label_mb = {$amount} MB
-label_media_camera = Camera
 label_media_devices = Media devices
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
 label_media_output = Speaker
 label_media_section_hint = Microphone, speaker, camera
-label_media_settings = Media settings
 label_medium = Moderate
 label_message = Message
 label_microphone_changed = Microphone has been changed to {$microphone}
@@ -816,8 +748,6 @@ label_one_time_code_hint = Enter code
 label_online = online
 label_open_calls_in_app = In the application
 label_open_calls_in_window = In a separate window
-label_open_chat = Open chat
-label_or = Or
 label_outgoing_call = Calling
 label_participants = Participants: {$count}
 label_participants_of = Participants: {$a} of {$b}
@@ -845,12 +775,10 @@ label_personal_data_deletion_description5 =
     - your biography;
     - all of your emails;
     - all of your phone numbers.
-label_photo = Photo
 label_presence_away = Away
 label_presence_present = Online
 label_profile = Profile
 label_public_section_hint = Name, profile picture, about, ...
-label_read_at = Read at: {$date}
 label_read_by = Read by
 label_reason = Reason
 label_reason_described = Reason: {$reason}
@@ -900,10 +828,6 @@ label_requirements_frontend_developer =
     - Skill in covering code with unit and/or integration tests;
     - Skill in reading and understanding technical literature in English;
     - Ability to provide high-quality audio and video communication.
-label_requirements_ui_ux_developer =
-    - Understanding of UI/UX design principles;
-    - Confident knowledge of Figma;
-    - Ability to provide high-quality audio and video communication.
 label_resend = Resend
 label_resend_timeout =
     Resend
@@ -915,13 +839,9 @@ label_review_freelance =
 label_saved_files = Saved files
 label_screen_sharing = Screen sharing
 label_search = Search
-label_search_not_found = Not found
-label_search_recent = Recent
-label_selected = Selected: {$count}
 label_send_message_hint = Message...
 label_set_cache_limits = Set cache limits
 label_set_password = Set password
-label_settings = Settings
 label_show_call_window = Show call window
 label_sign_in = Sign in
 label_sign_in_input = Gapopa ID, login, E-mail
@@ -972,7 +892,6 @@ label_tech_stack_frontend_developer =
     - Firebase - push notifications;
     - GraphQL and Artemis - communication with backend;
     - Gherkin - E2E testing.
-label_tech_stack_ui_ux_designer = - Figma - layout and prototyping.
 label_terminate_sessions = Terminate session(s)
 label_terms_and_privacy_policy = Terms & Privacy policy
 label_text_status = Text status
@@ -1002,12 +921,9 @@ label_user_removed_user = {$author} removed {$user}
 label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = removed
 label_user_removed_user3 = {" "}{$user}
-label_users = Users
 label_users_count = Users: {$count}
-label_verify = Verify
 label_version_semicolon = Version: {$version}
 label_very_high = Very high
-label_video = Video
 label_video_call = Video call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
@@ -1037,12 +953,6 @@ label_we_welcome_backend_developer =
     - Skill in other programming languages: Java, Go, Python, Ruby, TypeScript, JavaScript.
 label_welcome_message = Welcome message
 label_welcome_message_description = Greeting is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.
-label_welcome_message_freelance =
-    Good afternoon. Please, specify:
-    - login on GitHub;
-    - PR number (Pull Request);
-    - estimated time for completing the task (deadline);
-    - the proposed method for solving the problem.
 label_welcome_message_hint = Add, edit, delete
 label_what_we_can_help_you_with = What can we help you with?
 label_work_with_us = Work with us
@@ -1054,7 +964,6 @@ label_you_can_use_randomly_generated_link = You can use randomly generated link 
 label_you_were_added_to_group = You were added to the group
 label_your_direct_link = Direct link to your chat
 label_your_name = Your name
-label_your_password = Your password
 label_your_status = Your status
 plus = +
 question_mark = ?
