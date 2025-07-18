@@ -67,8 +67,9 @@ class PerformanceHook extends Hook {
   Future<void> onAfterScenario(
     TestConfiguration config,
     String scenario,
-    Iterable<Tag> tags,
-  ) async {
+    Iterable<Tag> tags, {
+    bool passed = true,
+  }) async {
     _completer?.complete();
     _completer = null;
 
