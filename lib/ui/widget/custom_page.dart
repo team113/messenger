@@ -116,6 +116,20 @@ class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
       child,
     );
 
+    // We parse route. If it is fullscreenDialog, then
+    // `CupertinoFullscreenDialogTransition` is returned. Otherwise:
+    // `CupertinoPageTransition`
+
+    // ROUTE INFORMATION:
+
+    // print('\nROUTE INFORMATION');
+    // print(route);
+    // print('IS NARROW? ${context.isNarrow}\n');
+
+    if (PlatformUtils.isDesktop && !context.isNarrow) {
+      return child;
+    }
+
     if (widget is CupertinoPageTransition) {
       return SlideTransition(
         position: Tween(begin: Offset.zero, end: const Offset(-1.0, 0.0))
