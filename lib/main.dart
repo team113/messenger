@@ -244,7 +244,9 @@ Future<void> main() async {
 
       return event;
     };
-    options.logger =
+
+    // ignore: invalid_use_of_internal_member
+    options.log =
         (
           SentryLevel level,
           String message, {

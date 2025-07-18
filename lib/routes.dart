@@ -993,23 +993,25 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Widget build(BuildContext context) {
-    return LifecycleObserver(
-      onStateChange: (v) => _state.lifecycle.value = v,
-      child: Listener(
-        onPointerDown: (_) => PlatformUtils.keepActive(),
-        onPointerHover: (_) => PlatformUtils.keepActive(),
-        onPointerSignal: (_) => PlatformUtils.keepActive(),
-        child: Scaffold(
-          body: Navigator(
-            key: navigatorKey,
-            observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
-            pages: _pages,
-            onDidRemovePage: (Page<Object?> page) {
-              final bool success = page.canPop;
-              if (success) {
-                _state.pop(page.name);
-              }
-            },
+    return SentryDisplayWidget(
+      child: LifecycleObserver(
+        onStateChange: (v) => _state.lifecycle.value = v,
+        child: Listener(
+          onPointerDown: (_) => PlatformUtils.keepActive(),
+          onPointerHover: (_) => PlatformUtils.keepActive(),
+          onPointerSignal: (_) => PlatformUtils.keepActive(),
+          child: Scaffold(
+            body: Navigator(
+              key: navigatorKey,
+              observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
+              pages: _pages,
+              onDidRemovePage: (Page<Object?> page) {
+                final bool success = page.canPop;
+                if (success) {
+                  _state.pop(page.name);
+                }
+              },
+            ),
           ),
         ),
       ),
