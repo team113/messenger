@@ -39,7 +39,7 @@ class ProjectBlock extends StatelessWidget {
     return Block(
       children: [
         Text(
-          'label_messenger'.l10n,
+          'label_messenger1'.l10n,
           style: style.fonts.larger.regular.secondary,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
@@ -47,7 +47,7 @@ class ProjectBlock extends StatelessWidget {
         ),
         const SizedBox(height: 1.6),
         Text(
-          'label_by_gapopa'.l10n,
+          'label_messenger2'.l10n,
           style: style.fonts.medium.regular.secondary,
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,

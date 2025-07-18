@@ -108,7 +108,7 @@ class UserController extends GetxController {
         try {
           BlocklistReason(s.text);
         } on FormatException {
-          s.error.value = 'err_blocklist_reason_does_not_meet_regexp'.l10n;
+          s.error.value = 'err_incorrect_input'.l10n;
         }
       }
     },
@@ -303,7 +303,7 @@ class UserController extends GetxController {
       );
       reason.clear();
     } on FormatException {
-      reason.error.value = 'err_blocklist_reason_does_not_meet_regexp'.l10n;
+      reason.error.value = 'err_incorrect_input'.l10n;
     } catch (e) {
       MessagePopup.error('err_data_transfer'.l10n);
     } finally {

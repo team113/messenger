@@ -85,7 +85,7 @@ class ConfirmDeleteView extends StatelessWidget {
               const SizedBox(height: 16),
               ReactiveTextField(
                 state: c.code,
-                hint: 'label_one_time_code'.l10n,
+                hint: 'label_one_time_password'.l10n,
               ),
               const SizedBox(height: 25),
               PrimaryButton(

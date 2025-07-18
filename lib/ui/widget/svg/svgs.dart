@@ -1789,6 +1789,12 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData reportGrey = SvgData(
+    'assets/icons/report_grey.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData delete19 = SvgData(
     'assets/icons/delete19.svg',
     width: 19,
@@ -2177,5 +2183,11 @@ class SvgIcons {
     'assets/icons/attachment_close.svg',
     width: 8,
     height: 8,
+  );
+
+  static const SvgData removeFromCallWhite = SvgData(
+    'assets/icons/remove_from_call_white.svg',
+    width: 21.36,
+    height: 20.51,
   );
 }

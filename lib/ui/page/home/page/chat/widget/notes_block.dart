@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/widget/line_divider.dart';
 
 /// [Block] describing [Chat]-monolog usage examples.
 class NotesBlock extends StatelessWidget {
@@ -42,8 +43,17 @@ class NotesBlock extends StatelessWidget {
       title: info ? 'label_information'.l10n : 'label_chat_monolog'.l10n,
       titleStyle: style.fonts.large.regular.onBackground,
       children: [
+        Center(
+          child: Text(
+            'label_chat_monolog_description1'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+        ),
+        SizedBox(height: 20),
+        LineDivider('label_chat_monolog_description2'.l10n),
+        SizedBox(height: 16),
         Text(
-          'label_chat_monolog_description'.l10n,
+          'label_chat_monolog_description3'.l10n,
           style: style.fonts.small.regular.secondary,
         ),
         const SizedBox(height: 24),

@@ -85,7 +85,7 @@ class MessageInfo extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'ID${'colon_space'.l10n}$id',
+                        '${'label_id'.l10n}${'colon_space'.l10n}$id',
                         style: style.fonts.small.regular.onBackground,
                       ),
                       const SizedBox(width: 8),
