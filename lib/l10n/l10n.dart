@@ -43,13 +43,6 @@ class L10n {
   /// [FluentBundle] providing translation.
   static FluentBundle _bundle = FluentBundle('');
 
-  /// Phrases to pass to the [_bundle], that shouldn't be localized.
-  static const Map<String, String> _phrases = {
-    'label_messenger_full': 'Messenger by Gapopa',
-    'label_messenger1': 'Messenger',
-    'label_messenger2': 'by Gapopa',
-  };
-
   /// Initializes this [L10n] with the default [Locale] of the device, or
   /// optionally with the provided [Language].
   static Future<void> init([Language? lang]) async {
@@ -86,10 +79,7 @@ class L10n {
       chosen.value = lang;
 
       _bundle = FluentBundle(lang.toString())
-        ..addMessages(await PlatformUtils.loadString('assets/l10n/$lang.ftl'))
-        ..addMessages(
-          _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
-        );
+        ..addMessages(await PlatformUtils.loadString('assets/l10n/$lang.ftl'));
       if (refresh) {
         await Get.forceAppUpdate();
       }
