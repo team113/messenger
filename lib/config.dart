@@ -48,7 +48,8 @@ class Config {
   /// Sentry DSN (Data Source Name) to send errors to.
   ///
   /// If empty, then omitted.
-  static String sentryDsn = '';
+  static String sentryDsn =
+      'https://1f316a7b9e8f4feb8747cb91a0dbf1af@new.sentry.nbg1.whost14.net/2';
 
   /// Domain considered as an origin of the application.
   static String origin = '';
