@@ -561,15 +561,23 @@ class ChatInfoView extends StatelessWidget {
       ],
       additional: [
         const SizedBox(height: 25),
-        ReactiveTextField(state: c.reporting, label: 'label_reason'.l10n),
+        ReactiveTextField(
+          state: c.reporting,
+          label: 'label_reason'.l10n,
+          hint: 'label_reason_hint'.l10n,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+        ),
       ],
       button: (context) {
         return Obx(() {
+          final bool enabled = !c.reporting.isEmpty.value;
+
           return PrimaryButton(
             title: 'btn_proceed'.l10n,
-            onPressed: c.reporting.isEmpty.value
-                ? null
-                : () => Navigator.of(context).pop(true),
+            onPressed: enabled ? () => Navigator.of(context).pop(true) : null,
+            leading: SvgIcon(
+              enabled ? SvgIcons.reportWhite : SvgIcons.reportGrey,
+            ),
           );
         });
       },

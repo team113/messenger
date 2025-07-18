@@ -28,17 +28,6 @@ alert_chat_will_be_reported1 = El grupo{" "}
 alert_chat_will_be_reported2 = {" "}será reportado
 alert_email_will_be_deleted1 = El e-mail{" "}
 alert_email_will_be_deleted2 = {" "}será eliminado
-alert_popup_permissions_button = Abrir configuración
-alert_popup_permissions_description =
-    No podrá recibir llamadas mientras
-    la aplicación esté en segundo plano si los siguientes permisos están desactivados:
-
-    - Mostrar en la pantalla de bloqueo;
-
-    - Mostrar ventanas emergentes mientras se ejecuta en segundo plano;
-
-    - Mostrar ventanas emergentes.
-alert_popup_permissions_title = Permita las ventanas emergentes
 alert_user_will_be_blocked1 = El usuario{" "}
 alert_user_will_be_blocked2 = {" "}será bloqueado
 alert_user_will_be_removed1 = El usuario{" "}
@@ -58,7 +47,6 @@ btn_add_participant_desc =
     miembro
 btn_add_participants = Añadir miembros
 btn_add_to_favorites = Añadir a favoritos
-btn_allow = Permitir
 btn_audio_call = Llamada de audio
 btn_back = Atrás
 btn_block = Bloquear
@@ -148,15 +136,12 @@ btn_change_account_desc =
     de cuenta
 btn_change_password = Cambiar la contraseña
 btn_check_for_updates = Verificar actualizaciones
-btn_clear = Borrar
 btn_clear_cache = Borrar caché
-btn_clear_chat = Borrar el chat
 btn_clear_history = Borrar el historial
 btn_close = Cerrar
 btn_confirm = Confirmar
 btn_confirm_email = Confirmar e-mail
 btn_copy = Copiar
-btn_copy_link = Copiar el enlace
 btn_copy_text = Copiar el texto
 btn_create = Crear
 btn_create_and_copy =
@@ -167,19 +152,14 @@ btn_decline = Rechazar
 btn_delete = Eliminar
 btn_delete_account = Eliminar la cuenta
 btn_delete_chat = Eliminar el chat
-btn_delete_direct_chat_link = Eliminar
-btn_delete_for_all = Eliminar para todos
 btn_delete_from_favorites = Eliminar de favoritos
-btn_delete_link = Eliminar el enlace
 btn_delete_message = Eliminar el mensaje
 btn_discard = Descartar
-btn_do_not_allow = No permitir
 btn_done = Listo
 btn_download = Descargar
 btn_download_all = Descargar todo
 btn_download_all_as = Descargar todo como
 btn_download_as = Descargar como
-btn_download_application = Descargar aplicación
 btn_download_version = Descargar {$version}
 btn_edit = Editar
 btn_email = E-mail
@@ -191,25 +171,19 @@ btn_forward_message = Reenviar el mensaje
 btn_gallery = Galería
 btn_guest = Invitado
 btn_help = Ayuda
-btn_hidden_chats = Chats ocultos
 btn_hide = Ocultar
-btn_hide_chat = Ocultar el chat
 btn_info = Información
 btn_install_android = Archivo .apk para Android
 btn_install_ios = Archivo .ipa para iOS
 btn_install_web_app = Instalar la aplicación web
-btn_language_entry = {$code}, {$name}
-btn_leave = Salir
 btn_leave_group = Salir del grupo
 btn_login_and_password = Usuario y contraseña
 btn_logout = Salir
-btn_media_settings = Configuración de multimedia
 btn_message_info = Información del mensaje
 btn_mute = Silenciar
 btn_mute_chat = Silenciar el chat
 btn_mute_chats = Silenciar los chats
 btn_ok = Ok
-btn_one_time_code = Código desechable
 btn_open = Abrir
 btn_open_separately = abrir en ventana nueva
 btn_participants = Miembros
@@ -219,10 +193,8 @@ btn_participants_desc =
 btn_password = Сontraseña
 btn_paste = Pegar
 btn_proceed = Continuar
-btn_pwa_is_installed = La aplicación web está instalada
 btn_read_all = Leer todo
 btn_refresh_page = Actualizar la página
-btn_remove = Eliminar
 btn_remove_account = Eliminar cuenta de la lista
 btn_reply = Responder
 btn_reply_message = Responder al mensaje
@@ -255,10 +227,6 @@ btn_terminate_all_other_sessions = Terminar todas las demás sesiones
 btn_terminate_this_session = Terminar esta sesión
 btn_terms_and_conditions = Condiciones de uso & Política de privacidad
 btn_unblock = Desbloquear
-btn_unblock_short = Desbloq.
-btn_undo_delete = Cancelar
-btn_unhide = Mostrar
-btn_unhide_chat = Mostrar el chat
 btn_unmute = Desactivar silencio
 btn_unmute_chat = Desactivar silencio del chat
 btn_unmute_chats = Desactivar silencio de los chats
@@ -266,29 +234,22 @@ btn_upload = Subir
 btn_video_call = Videollamada
 btn_work_with_us = Trabaje con nosotros
 colon_space = :{" "}
-comma_separated_a_b_c = {$a},{" "}{$b},{" "}{$c}
 comma_space = , {" "}
 dot = .
-dot_space = . {" "}
 email_confirmation_code =
     Código: {$token}
     Válido hasta el: {$expiresAt}.
     {$domain}
 email_confirmation_code_subject = {$domain} - código desechable
-err_account_not_found = La cuenta indicada no se encuentra
 err_account_unavailable = Hay que ingresar para entrar en la cuenta
 err_blocked = El usuario lo ha bloqueado
 err_blocked_by = El usuario {$user} lo ha bloqueado
-err_blocked_by_un = El usuario {$user} lo ha desbloqueado
-err_blocked_by_you = Usted ha bloqueado al usuario {$user}
-err_blocked_by_you_un = Usted ha desbloqueado al usuario {$user}
 err_blocked_by_multiple = Uno o más de los usuarios seleccionados lo bloquearon
 err_call_popup_was_blocked =
     Ventana emergente bloqueada.
     Permite que las ventanas emergentes muestren las llamadas en ventanas separadas.
 err_camera_permission_denied = Acceso a la cámara denegado. Asegúrese de que la aplicación tenga permiso para usar cámara.
 err_chat_direct_link_occupied = Enlace ocupado
-err_confirmation_required = La acción debe confirmarse con contraseña
 err_could_not_download = Ocurrió un error durante la descarga. Inténtalo de nuevo.
 err_data_transfer = Error de transferencia de datos. Verifique su conexión.
 err_dimensions_too_big = El tamaño de la imagen excede el límite de 32767 x 32767 píxeles
@@ -297,21 +258,17 @@ err_incorrect_email = E-mail incorrecto
 err_incorrect_input = Formato incorrecto
 err_incorrect_login_input = El nombre del usuario solo debe contener caracteres alfanuméricos, "-" y "_". Debe empezar con una letra o número y tener de 3 a 20 caracteres.
 err_incorrect_login_or_password = Identificador de cuenta o contraseña inválidos
-err_incorrect_one_time_code = Código desechable inválido
 err_input_empty = Campo no debe estar vacío
 err_invalid_symbols_in_link = Caracteres inválidos. Solo se permiten: A-z, , -, _ y 0-9
 err_login_occupied = Este nombre de usuario está ocupado
 err_media_devices_are_null = Acceso a dispositivos de multimedia denegado. Asegúrese de que la aplicación tenga permiso para usar dispositivos de media.
-err_message_was_read = Mensaje leído
 err_microphone_permission_denied = Acceso al micrófono denegado. Asegúrese de que la aplicación tenga permiso para usar el micrófono.
 err_network = Error al conectar con el servidor
 err_no_filename = El archivo debe tener nombre
 err_password_incorrect = La contraseña es demasiado larga y/o comienza/termina con un espacio
 err_passwords_mismatch = Las contraseñas no coinciden
 err_popup_call_cant_be_closed = La ventana no se puede cerrar automáticamente. Cierre la ventana manualmente.
-err_quoted_message = El mensaje ya no se puede eliminar
 err_size_too_big = El tamaño del archivo supera los 15 MB
-err_terminate_other_sessions = No puede terminar otras sesiones si han pasado menos de 48 horas desde que inició sesión en el dispositivo actual
 err_too_many_emails = Número máximo de e-mails alcanzado
 err_unauthorized = Se necesita autentificación
 err_uneditable_message = El mensaje no se puede editar
@@ -321,7 +278,6 @@ err_uploaded_file_malformed = El archivo está dañado
 err_wrong_code = Código erroneo
 err_wrong_members_count = Cantidad máxima de miembros: 100
 err_wrong_password = Contraseña incorrecta
-err_wrong_recovery_code = Código erroneo
 err_you_already_add_this_email = Este e-mail ya ha sido agregado anteriormente a su cuenta
 err_you_are_blocked = Usted está bloqueado(a)
 exclamation_mark = !
@@ -464,28 +420,19 @@ label_a_of_b = {$a} de {$b}
 label_a_slash_b = {$a} / {$b}
 label_about_you = Sobre Usted
 label_about_you_description = Hasta 4096 caracteres
-label_account = Cuenta
-label_account_deleted = Cuenta eliminada
-label_account_will_be_removed_from_list1 = La cuenta{" "}
-label_account_will_be_removed_from_list2 = {" "}será eliminada de la lista.
 label_account_has_been_signed_out_due_to_reasons1 = La sesión de la cuenta{" "}
 label_account_has_been_signed_out_due_to_reasons2 =
     {" "}se ha cerrado debido a un problema técnico (cookie / caché eliminado; sistema operativo / navegador / aplicación actualizados; certificado cambiado; etc...).
 
     No se ha configurado la contraseña ni el e-mail para esta cuenta. No es posible ingresar.
-label_account_has_been_suspended = Cuenta suspendida
 label_accounts = Sus cuentas
 label_account_created = La cuenta ha sido creada
-label_account_creating_done = Su cuenta ha sido creada
-label_account_creating_dots = Creando su cuenta...
 label_active_account = Online
 label_active_devices = Dispositivos activos
 label_active_sessions = Sesiones activas
 label_add_account = Agregar una cuenta
-label_add_chat_member = Añadir un miembro
 label_add_email = Agregar un e-mail
 label_add_email_confirmation_sent = Código desechable enviado a sus e-mails. Si no los ha recibido, revise los datos ingresados o carpeta de spam.
-label_add_email_confirmed = E-mail confirmado
 label_add_participants = Añadir miembros
 label_ago =
     {$years ->
@@ -531,16 +478,11 @@ label_ago_date =
         [1] Hace un año
         *[other] Hace {$years} años
     }
-label_all = Todos
 label_all_chats_and_groups = Todos los chats y grupos
 label_all_session_except_current_terminated = Todas las sesiones, excepto esta, serán terminadas
 label_also_delete_for_everyone = También eliminar para todas
 label_always_muted = Siempre silenciados
-label_any_button_or_combination = Cualquier tecla o combinación
-label_app_background = Fondo de la aplicación
 label_application = Aplicación
-label_are_you_sure_no = No
-label_are_you_sure_yes = Sí
 label_audio_call =
     Llamada de audio{$by ->
         [x]{""}
@@ -564,8 +506,6 @@ label_blocked = Bloqueado
 label_blocked_users = Usuarios bloqueados
 label_blocked_users_count = Usuarios bloqueados: {$count}
 label_cache = Caché
-label_cache_and_downloads = Caché
-label_cache_disabled = 0 GB
 label_cache_limit_gb = Límite del caché
 label_call_active = Llamada activa
 label_call_calling = Llamando
@@ -581,7 +521,6 @@ label_call_title =
         }
     }
 label_call_window = Ventana de llamada
-label_calls = Llamadas
 label_camera = Cámara
 label_chat = Chat
 label_change_password = Cambiar la contrseña
@@ -599,7 +538,6 @@ label_chat_monolog_description3 =
     – cualquier contenido (texto, video, imágenes).
 label_chats = Chats
 label_chats_and_groups = Chats y grupos: {$count}
-label_chats_count = Chats: {$count}
 label_city_country_activated_at = {$city}, {$country} • {$at}
 label_clear_history = Borrar el chat
 label_code_requirements = Requisitos para el código
@@ -625,8 +563,6 @@ label_conditions_frontend_developer =
     - Control de horario y pago por horas extras
     - Posibilidad de reubicación
 label_confidentiality = Privacidad
-label_confirm = Confirmar
-label_confirmation_code = Código desechable
 label_connection_lost = Conexión perdida
 label_connection_restored = Conexión restablecida
 label_contact_us_via_provided_email = Contáctenos por e-mail {$email}.
@@ -641,36 +577,20 @@ label_count_seconds =
 label_critical_update_is_available = La versión actual ya no es compatible
 label_create_group = Creación de grupo
 label_create_link = Crear enlace
-label_current_account_status = Estado actual de la cuenta
 label_current_password = Contrseña actual
-label_danger_zone = Eliminar la cuenta
-label_date = Fecha
 label_days_short = {$days} d
 label_delete_account = Eliminar la cuenta
 label_delete_chat = Eliminar los chat(s)
 label_delete_chats = Eliminar los chat(s)
-label_delete_link_description1 = ¡Atención! Esta acción es{" "}
-label_delete_link_description2 = IRREVERSIBLE
-label_delete_link_description3 =
-    {"."} Perderá el control sobre el enlace.
-
-    Otro usuario puede tomarlo.
 label_delete_email = Eliminar el e-mail
-label_delete_for_everyone = Eliminar para todos
-label_delete_for_me = Eliminar para mi
 label_delete_message = ¿Eliminar el mensaje?
 label_delete_messages = ¿Eliminar los mensajes?
-label_deleted_account = Cuenta Eliminada
-label_delivered = Entregado
 label_desktop_apps = Aplicaciones para computadora
-label_details = Detalles
 label_device_by_default = Por defecto - {$device}
-label_devices = Dispositivos
 label_dialog_created = Diálogo creado
 label_dialog_created_by_link = Diálogo creado mediante enlace directo
 label_direct_chat_link = Invitar al grupo
 label_direct_chat_link_in_chat_description = Los usuarios que siguen el enlace del grupo serán miembros plenos del grupo automáticamente.
-label_direct_link_to_the_user = Enlace al chat con el usuario {$user}
 label_discard_changes_question = Descartar los cambios
 label_download = Descargar
 label_download_and_update = Descargar y actualizar
@@ -687,19 +607,15 @@ label_email_deleted = E-mail eliminado
 label_email_example = example@domain.com
 label_email_or_phone_not_set1 = E-mail no configurado.{" "}
 label_email_or_phone_not_set2 = No se puede recuperar el acceso a la cuenta.actualizó el avatar.
-label_empty_message = Sin mensajes
 label_enter_code = Introduce el código
 label_enter_one_time_code = Ingresa código desechable. Código desechable enviado a sus e-mails. Si no los ha recibido, revise los datos ingresados o carpeta de spam.
 label_enter_password_or_code = Ingrese la contraseña o código
 label_enter_password_or_one_time_code = Ingrese su contraseña o código desechable. El código desechable ha sido enviado a sus e-mails. Si no los ha recibido, revise los datos ingresados o carpeta de spam.
-label_entrance = Ingresar
 label_error = Error
 label_expandable_more = más
-label_favorite_contacts = Favoritos
 label_file_downloaded = Archivo descargado
 label_files_downloaded = Archivos descargados
 label_files_saved_to_gallery = Los archivos se guardaron en la galería
-label_for_learning_use_our = Sandbox
 label_for_learning_use_our_flutter_incubator1 = Si desea aprender/mejorar sus habilidades en Flutter, puede usar nuestro
 label_for_learning_use_our_flutter_incubator2 = Sandbox.
 label_for_learning_use_our_rust_incubator1 = Si desea aprender/mejorar sus habilidades en Rust, puede usar nuestro
@@ -715,15 +631,10 @@ label_group_created = Grupo creado
 label_group_created_by = {$author} creó el grupo
 label_group_created_by1 = {$author}
 label_group_created_by2 = {" "}creó el grupo
-label_group_name = Nombre del grupo
-label_groups_count = Grupos: {$count}
 label_guest_account_created = Cuenta de invitado creada
 label_hello = ¡Hola!
 label_hello_reply = Oh, hola :)
 label_hidden = Últimna Conexión: reciente
-label_hidden_chats = Chats ocultos
-label_hide_chats = Ocultar chat(s)
-label_hide_chats_modal_description = El chat será movido a la lista de "Chats ocultos"
 label_high_pass_filter = Filtro paso alto
 label_hotkey = Tecla de acceso rápido
 label_id = ID
@@ -736,9 +647,6 @@ label_information = Información
 label_installation_error = Error de instalación
 label_installation_error_description = La aplicación web ya está instalada o no está disponible en su navegador
 label_interface = Interface
-label_introduction_access1 = Para guardar el acceso a su cuenta{" "}
-label_introduction_access2 = configure
-label_introduction_access3 = {" "}Una contraseña, usuario o e-mail
 label_introduction_description1 = Puede cambiar su avatar, nombre, estado de texto, contraseña, usuario y e-mail en{" "}
 label_introduction_description2 = la configuración del perfil
 label_introduction_description3 = .
@@ -766,21 +674,16 @@ label_leave_group = Salir del grupo
 label_link_to_chat = Enlace hacia Usted
 label_linked_devices = Dispositivos vinculados
 label_login = Usuario
-label_login_hint = usuario_unico
+label_login_example = nombre_de_usuario_unico
 label_login_options = Opciones para ingresar
 label_login_section_hint = Usuario, contraseña y e-mail
-label_logout = Salir
-label_media_camera = Cámara
 label_media_devices = Dispositivos multimedia
 label_media_microphone = Micrófono
 label_media_no_device_available = No hay dispositivos disponibles
 label_media_output = Altavoz
 label_media_section_hint = Micrófono, altavoz, cámara
-label_media_settings = Configuración de multimedia
 label_message = Mensaje
-label_message_editing = Edición del mensaje
-label_message_will_deleted_for_you = El mensaje será eliminado solo para Usted
-label_messages_will_deleted_for_you = Los mensajes serán eliminados solo para Usted
+label_messenger_full = Messenger de Gapopa
 label_messenger1 = Messenger
 label_messenger2 = de Gapopa
 label_microphone_changed = El micrófono ha cambiado a {$microphone}
@@ -798,7 +701,6 @@ label_muted_chats = Chats silenciados
 label_muted_until_i_turn_on = Silenciado hasta: que lo encienda
 label_muted_until_period = Silenciado hasta: {$period}
 label_name = Nombre
-label_name_group = Nombre
 label_name_updated = {$author} cambió el nombre del grupo
 label_name_updated1 = {$author}
 label_name_updated2 = {" "} cambió el nombre del grupo
@@ -818,26 +720,20 @@ label_noise_suppression_high = Alto
 label_noise_suppression_low = Bajo
 label_noise_suppression_medium = Medio
 label_noise_suppression_very_high = Muy alto
-label_not_sent = No enviado
 label_nothing_found = No encontrado
 label_notifications = Notificaciones
 label_num = Gapopa ID
 label_occupied_space = Ocupado
 label_offline = fuera de línea
-label_on_the_way = Enviado
-label_one_time_code_has_been_sent_to_emails = Código desechable enviado a sus e-mails. Si no los ha recibido, revise los datos ingresados o carpeta de spam.
 label_one_time_password = Código desechable
 label_online = en línea
 label_open_calls_in_app = En la misma ventana
 label_open_calls_in_window = En una ventana separada
-label_open_chat = Abrir chat
-label_or = O
 label_outgoing_call = Llamando
 label_participants = Miembros: {$count}
 label_participants_of = Miembros: {$a} de {$b}
 label_password = Сontraseña
 label_password_changed = Contraseña cambiada
-label_password_not_set = La contraseña no esta configurada. Podría perder el acceso a la cuenta.
 label_password_not_set1 = La contraseña no esta configurada.{" "}
 label_password_not_set2 = Podría perder el acceso a la cuenta.
 label_password_or_one_time_code = Contraseña o código desechable
@@ -856,12 +752,10 @@ label_personal_data_deletion_description5 =
     - su biografía;
     - todos sus e-mails;
     - todos sus números de teléfono.
-label_photo = Foto
 label_presence_away = Away
 label_presence_present = En línea
 label_profile = Perfil
 label_public_section_hint = Avatar, nombre, a cerca de Usted, ...
-label_read = Leído
 label_read_by = Leído
 label_reason = Motivo
 label_reason_described = Motivo: {$reason}
@@ -885,7 +779,6 @@ label_regulations_freelance =
     4. En el mensaje de respuesta recibirá una confirmación de que le fue asignánda la tarea. (su estado cambiará a "En progreso").
     5. Debe hacer una confirmación al menos cada 72 horas durante el desarrollo de la atrea.
     6. El equipo frontend puede rechazar la colaboración si el código presentado es de calidad evidentemente baja.
-label_remove_account = Eliminar cuenta de la lista
 label_remove_member = Eliminar miembro
 label_repeat_password = Confirmar la contraseña
 label_replace_this_text_with_concern = Describe el asunto.
@@ -895,7 +788,6 @@ label_replies = [{$count} {$count ->
     *[other] respuestas
 }]
 label_report = Reportar
-label_required = Оbligatorio
 label_requirements = Requisitos
 label_requirements_backend_developer =
     - conocimiento de Rust;
@@ -923,19 +815,13 @@ label_review = Revisión
 label_review_freelance =
     - toda tarea completada debe pasar la revisión del código;
     - las solicitudes de revisión de la tarea completada, comentarios, aclaraciones y argumentos deben publicarse en GitHub en el asunto o pull request.
-label_saved_accounts = Cuentas guardadas
 label_saved_files = Archivos descargados
 label_screen_sharing = Compartimiento de pantalla
 label_search = Buscar
-label_search_not_found = No encontrado
-label_search_recent = Recientes
 label_selected = Seleccionado: {$count}
 label_send_message_hint = Mensaje...
-label_sent = Enviado
-label_sessions_terminated = Sesión(es) terminada(s)
 label_set_cache_limits = Configurar límites del caché
 label_set_password = Configurar la contraseña
-label_settings = Configuración
 label_show_call_window = Mostrar la ventana de llamada
 label_sign_in = Ingresar
 label_sign_in_input = Gapopa ID, usuario o e-mail
@@ -944,7 +830,6 @@ label_sign_in_with_one_time_code = Ingresar con un código desechable
 label_sign_in_with_password = Ingresar con contraseña
 label_sign_up = Crear una cuenta
 label_sign_up_code_email_sent = El código de verificación enviado al e-mail {$text}
-label_sign_up_hint = Contraseña o e-mail
 label_sign_up_with_password = Regístrese con contraseña
 label_signed_in = Ingresado
 label_source_code = Código fuente
@@ -1017,11 +902,8 @@ label_user_removed_user = {$author} eliminó {$user}
 label_user_removed_user1 = {$author}{" "}
 label_user_removed_user2 = eliminó
 label_user_removed_user3 = {" "}{$user}
-label_users = Usuarios
 label_users_count = Usuarios: {$count}
-label_verify = Verificar
 label_version_semicolon = Versión: {$version}
-label_video = Video
 label_video_call =
     Videollamada{$by ->
         [x]{""}
@@ -1052,22 +934,14 @@ label_we_welcome_backend_developer =
 label_welcome_message = Mensaje de bienvenida
 label_welcome_message_description = El mensaje de bienvenida se muestra automáticamente a los usuarios que le agregaron a su lista de chats, pero no se muestra a los usuarios que Usted agregó.
 label_welcome_message_hint = Agregar, editar, eliminar
-label_welcome_message_freelance =
-    ¡Hola! Por favor, indique:
-    - su nombre de usuario en GitHub;
-    - el número del PR (Pull Request);
-    - el plazo estimado para completar la tarea;
-    - el método propuesto para resolver la tarea.
 label_what_we_can_help_you_with = ¿Cómo podemos ayudarle?
 label_work_with_us = Trabaje con nosotros
 label_work_with_us_desc =
     Trabaje
     con nosotros
 label_you = Usted
-label_you_account_created = Usted: Cuenta creada
 label_you_can_use_randomly_generated_link = Puede utilizar un enlace generado o crear su propio enlace.
 label_you_were_added_to_group = Usted ha sido agregado(a) al grupo
-label_your_account_created = Su cuenta creada
 label_your_direct_link = Enlace directo para chatear con Usted
 label_your_name = Su nombre
 label_your_num = Su Gapopa ID

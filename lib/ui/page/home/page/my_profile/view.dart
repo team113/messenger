@@ -556,7 +556,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             key: Key('LoginField'),
             state: c.login,
             label: 'label_login'.l10n,
-            hint: 'unique_login',
+            hint: 'label_login_example'.l10n,
             prefixText: '@',
             prefixStyle: c.login.isEmpty.value
                 ? style.fonts.medium.regular.secondary.copyWith(

@@ -45,9 +45,9 @@ class L10n {
 
   /// Phrases to pass to the [_bundle], that shouldn't be localized.
   static const Map<String, String> _phrases = {
-    'label_by_gapopa': 'by Gapopa',
-    'label_messenger_by_gapopa': 'Messenger by Gapopa',
-    'label_messenger': 'Messenger',
+    'label_messenger_full': 'Messenger by Gapopa',
+    'label_messenger1': 'Messenger',
+    'label_messenger2': 'by Gapopa',
   };
 
   /// Initializes this [L10n] with the default [Locale] of the device, or

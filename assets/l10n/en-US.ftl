@@ -28,18 +28,6 @@ alert_chat_will_be_reported1 = Group{" "}
 alert_chat_will_be_reported2 = {" "}will be reported
 alert_email_will_be_deleted1 = E-mail{" "}
 alert_email_will_be_deleted2 = {" "}will be deleted
-alert_popup_permissions_button = Open settings
-alert_popup_permissions_description =
-    You will not be able to accept calls
-    while the app is in background if the following permissions are
-    disabled:
-
-    - Show on Lock screen;
-
-    - Display pop-up windows while running in the background;
-
-    - Display pop-up window.
-alert_popup_permissions_title = Allow pop-up windows
 alert_user_will_be_blocked1 = User{" "}
 alert_user_will_be_blocked2 = {" "}will be blocked
 alert_user_will_be_removed1 = User{" "}
@@ -148,15 +136,12 @@ btn_change_account_desc =
     account
 btn_change_password = Change password
 btn_check_for_updates = Check for updates
-btn_clear = Clear
 btn_clear_cache = Clear cache
-btn_clear_chat = Clear chat
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
 btn_confirm_email = Confirm e-mail
 btn_copy = Copy
-btn_copy_link = Copy link
 btn_copy_text = Copy text
 btn_create = Create
 btn_create_and_copy =
@@ -168,7 +153,6 @@ btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_chat = Delete chat
 btn_delete_from_favorites = Remove from favorites
-btn_delete_link = Delete link
 btn_delete_message = Delete message
 btn_discard = Discard
 btn_done = Done
@@ -187,25 +171,19 @@ btn_forward_message = Forward message
 btn_gallery = Gallery
 btn_guest = Guest
 btn_help = Help
-btn_hidden_chats = Hidden chats
 btn_hide = Hide
-btn_hide_chat = Hide chat
 btn_info = Information
 btn_install_android = .apk file for Android
 btn_install_ios = .ipa file for iOS
 btn_install_web_app = Install Web App
-btn_language_entry = {$code}, {$name}
-btn_leave = Leave
 btn_leave_group = Leave group
 btn_login_and_password = Login and password
 btn_logout = Sign out
-btn_media_settings = Media settings
 btn_message_info = Message information
 btn_mute = Mute
 btn_mute_chat = Mute chat
 btn_mute_chats = Mute chats
-btn_ok = Ok
-btn_one_time_code = One-time code
+btn_ok = OK
 btn_open = Open
 btn_open_separately = open in new window
 btn_participants = Members
@@ -215,10 +193,8 @@ btn_participants_desc =
 btn_password = Password
 btn_paste = Paste
 btn_proceed = Proceed
-btn_pwa_is_installed = Web App is installed
 btn_read_all = Read all
 btn_refresh_page = Refresh page
-btn_remove = Remove
 btn_remove_account = Remove account from the list
 btn_reply = Reply
 btn_reply_message = Reply to message
@@ -251,10 +227,6 @@ btn_terminate_all_other_sessions = Terminate all other sessions
 btn_terminate_this_session = Terminate this session
 btn_terms_and_conditions = Terms of Usage & Privacy Policy
 btn_unblock = Unblock
-btn_unblock_short = Unblock
-btn_undo_delete = Cancel
-btn_unhide = Unhide
-btn_unhide_chat = Unhide chat
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
@@ -262,29 +234,22 @@ btn_upload = Upload
 btn_video_call = Video call
 btn_work_with_us = Work with us
 colon_space = :{" "}
-comma_separated_a_b_c = {$a},{" "}{$b},{" "}{$c}
 comma_space = , {" "}
 dot = .
-dot_space = . {" "}
 email_confirmation_code =
     Code: {$token}
     Valid until: {$expiresAt}.
     {$domain}
 email_confirmation_code_subject = {$domain} - one time code
-err_account_not_found = Indicated account is not found
 err_account_unavailable = To access the account sign in is required
 err_blocked = User blocked you
 err_blocked_by = User {$user} blocked you
-err_blocked_by_un = User {$user} unblocked you
-err_blocked_by_you = You have blocked user {$user}
-err_blocked_by_you_un = You have unblocked user {$user}
 err_blocked_by_multiple = One or more of the selected users blocked you
 err_call_popup_was_blocked =
     Pop-up blocked.
     Allow pop-up to display calls in a separate window.
 err_camera_permission_denied = Access to camera is denied. Make sure application has permission to use camera.
 err_chat_direct_link_occupied = Link is occupied
-err_confirmation_required = Action must be confirmed with password
 err_could_not_download = An error occurred while downloading. Try again.
 err_data_transfer = Data transfer error. Check your connection.
 err_dimensions_too_big = File dimensions exceed 32767 x 32767 pixels
@@ -293,21 +258,17 @@ err_incorrect_email = Incorrect e-mail
 err_incorrect_input = Incorrect input
 err_incorrect_login_input = Login should contain only alphanumeric characters, "-" and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
 err_incorrect_login_or_password = Incorrect account identifier or password.
-err_incorrect_one_time_code = Incorrect one-time code
 err_input_empty = Field must not be empty
 err_invalid_symbols_in_link = Unacceptable characters. The following characters are allowed: A-z, -, _ and 0-9
 err_login_occupied = The login is taken
 err_media_devices_are_null = Access to media devices is denied. Make sure your browser has permission to use media devices.
-err_message_was_read = Message has been read
 err_microphone_permission_denied = Access to microphone is denied. Make sure application has permission to use microphone.
 err_network = Server connection error
 err_no_filename = File must have a name
 err_password_incorrect = Password is too long and/or starts/ends with a space
 err_passwords_mismatch = Passwords do not match
 err_popup_call_cant_be_closed = Window cannot be closed automatically. Close the window manually.
-err_quoted_message = Message can no longer be deleted
 err_size_too_big = File size exceeds 15 MB
-err_terminate_other_sessions = You can’t terminate other sessions if less than 48 hours have passed since you signed in in on the current device
 err_too_many_emails = Reached maximum allowed number of E-mails
 err_unauthorized = Authentication required
 err_uneditable_message = Message can no longer be edited
@@ -317,7 +278,6 @@ err_uploaded_file_malformed = File is corrupted
 err_wrong_code = Provided code is wrong
 err_wrong_members_count = Maximum number of members: 100
 err_wrong_password = Wrong password
-err_wrong_recovery_code = Provided code is wrong
 err_you_already_add_this_email = Specified e-mail has already been added to your account
 err_you_are_blocked = You are blocked
 exclamation_mark = !
@@ -463,19 +423,12 @@ label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about_you = About you
 label_about_you_description = 4096 characters max
-label_account = Account
-label_account_deleted = Account deleted
-label_account_will_be_removed_from_list1 = Account{" "}
-label_account_will_be_removed_from_list2 = {" "}will be removed from the list.
 label_account_has_been_signed_out_due_to_reasons1 = Account{" "}
 label_account_has_been_signed_out_due_to_reasons2 =
     {" "}session has been terminated due to technical issue (cookie / cash deleted; OS / browser / application updated; certificate changed; etc...).
 
     Password or e-mail has not been set for this account. Sign in is impossible.
-label_account_has_been_suspended = Account suspended
 label_account_created = Account is created
-label_account_creating_done = Your account is created
-label_account_creating_dots = Creating your account...
 label_accounts = Your accounts
 label_active_account = Online
 label_active_devices = Active devices
@@ -483,7 +436,6 @@ label_active_sessions = Active sessions
 label_add_account = Add account
 label_add_email = Add e-mail
 label_add_email_confirmation_sent = One-time code has been sent to your e-mails. If you did not receive e-mails, check your data entered or spam folder.
-label_add_email_confirmed = E-mail confirmed
 label_add_participants = Add members
 label_ago = {$years ->
     [0] {$months ->
@@ -531,11 +483,7 @@ label_all_chats_and_groups = All chats and groups
 label_all_session_except_current_terminated = All sessions except this one will be terminated
 label_also_delete_for_everyone = Also delete for everyone
 label_always_muted = Always muted
-label_any_button_or_combination = Any key or combination
-label_app_background = Application background
 label_application = Application
-label_are_you_sure_no = No
-label_are_you_sure_yes = Yes
 label_audio_call = Audio call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
@@ -558,8 +506,6 @@ label_blocked = Blocked
 label_blocked_users = Blocked users
 label_blocked_users_count = Blocked users: {$count}
 label_cache = Cache
-label_cache_and_downloads = Cache
-label_cache_disabled = 0 GB
 label_cache_limit_gb = Cache limit: {$gb} GB
 label_call_active = Active call
 label_call_calling = Calling
@@ -592,7 +538,6 @@ label_chat_monolog_description3 =
     – any content (text, video, pictures).
 label_chats = Chats
 label_chats_and_groups = Chats and groups: {$count}
-label_chats_count = Chats: {$count}
 label_city_country_activated_at = {$city}, {$country} • {$at}
 label_clear_history = Clear chat
 label_code_requirements = Requirements for the code
@@ -618,8 +563,6 @@ label_conditions_frontend_developer =
     - Time tracking and payment for overtime;
     - Relocation possible.
 label_confidentiality = Confidentiality
-label_confirm = Confirm
-label_confirmation_code = One-time code
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact_us_via_provided_email = Contact us by e-mail {$email}.
@@ -633,35 +576,20 @@ label_count_seconds = {$count} { $count ->
 label_create_group = Group creation
 label_create_link = Create link
 label_critical_update_is_available = Current version is no longer supported
-label_current_account_status = Current account status
 label_current_password = Current password
-label_danger_zone = Delete account
-label_date = Date
 label_days_short = {$days} d
 label_delete_account = Delete account
 label_delete_chat = Delete chat(s)
 label_delete_chats = Delete chat(s)
-label_delete_link_description1 = Attention! This action is{" "}
-label_delete_link_description2 = IRREVERSIBLE
-label_delete_link_description3 =
-    {"."} You will lose control over the link.
-
-    Another user can take the link.
 label_delete_email = Delete E-mail
-label_delete_for_everyone = Delete for everyone
-label_delete_for_me = Delete for me
 label_delete_message = Delete message?
 label_delete_messages = Delete messages?
-label_deleted_account = Deleted Account
-label_delivered = Delivered
 label_desktop_apps = Desktop apps
-label_details = Details
 label_device_by_default = By default - {$device}
 label_dialog_created = Dialog created
 label_dialog_created_by_link = Dialog created via direct link
 label_direct_chat_link = Invite to the group
 label_direct_chat_link_in_chat_description = Users, who follow the group link, become full members of the group automatically.
-label_direct_link_to_the_user = Link to the chat with user {$user}
 label_discard_changes_question = Discard changes
 label_download = Download
 label_download_and_update = Download and update
@@ -678,7 +606,6 @@ label_email_deleted = E-mail deleted
 label_email_example = example@domain.com
 label_email_or_phone_not_set1 = No e-mail is added.{" "}
 label_email_or_phone_not_set2 = Access to the account cannot be restored.
-label_empty_message = No messages
 label_enter_code = Enter code
 label_enter_one_time_code = Enter your one-time code. One-time code has been sent to your e-mails. If you did not receive e-mails, check your spam folder or data entered.
 label_enter_password_or_code = Enter password or code
@@ -688,7 +615,6 @@ label_expandable_more = more
 label_file_downloaded = File downloaded
 label_files_downloaded = Files downloaded
 label_files_saved_to_gallery = Files are saved to the gallery
-label_for_learning_use_our = Sandbox
 label_for_learning_use_our_flutter_incubator1 = If you would like to learn/improve your knowledge of Flutter, you can use our{" "}
 label_for_learning_use_our_flutter_incubator2 = Sandbox.
 label_for_learning_use_our_rust_incubator1 = If you would like to learn/improve your knowledge of Rust, you can use our{" "}
@@ -703,15 +629,10 @@ label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
 label_group_created_by2 = {" "}created the group
-label_group_name = Group name
-label_groups_count = Groups: {$count}
 label_guest_account_created = Guest account created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
 label_hidden = Last seen recently
-label_hidden_chats = Hidden chats
-label_hide_chats = Hide chat(s)
-label_hide_chats_modal_description = The chat will be moved to the "Hidden chats" list
 label_high_pass_filter = High pass filter
 label_hotkey = Hotkeys
 label_id = ID
@@ -724,9 +645,6 @@ label_information = Information
 label_installation_error = Installation error
 label_installation_error_description = Web App is already installed or not available in your browser
 label_interface = Interface
-label_introduction_access1 = To save access to your account,{" "}
-label_introduction_access2 = set
-label_introduction_access3 = {" "}a password, login or e-mail.
 label_introduction_description =
     You have access to your account during one year or until:
 
@@ -754,21 +672,16 @@ label_leave_group = Leave group
 label_link_to_chat = Link to you
 label_linked_devices = Linked devices
 label_login = Login
-label_login_hint = unique_login
+label_login_example = your_unique_login
 label_login_options = Sign in options
 label_login_section_hint = Login, password and e-mail
-label_logout = Sign out
-label_media_camera = Camera
 label_media_devices = Media devices
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
 label_media_output = Speaker
 label_media_section_hint = Microphone, speaker, camera
-label_media_settings = Media settings
 label_message = Message
-label_message_editing = Message editing
-label_message_will_deleted_for_you = The message will be deleted only for you
-label_messages_will_deleted_for_you = The messages will be deleted only for you
+label_messenger_full = Messenger by Gapopa
 label_messenger1 = Messenger
 label_messenger2 = by Gapopa
 label_microphone_changed = Microphone has been changed to {$microphone}
@@ -786,7 +699,6 @@ label_muted_chats = Muted chats
 label_muted_until_i_turn_on = Muted until: I turn it on
 label_muted_until_period = Muted until: {$period}
 label_name = Name
-label_name_group = Name
 label_name_updated = {$author} updated group name
 label_name_updated1 = {$author}
 label_name_updated2 = {" "}updated group name
@@ -806,14 +718,11 @@ label_noise_suppression_high = High
 label_noise_suppression_low = Low
 label_noise_suppression_medium = Medium
 label_noise_suppression_very_high = Very high
-label_not_sent = Not sent
 label_nothing_found = Not found
 label_notifications = Notifications
 label_num = Gapopa ID
 label_occupied_space = Occupied
 label_offline = offline
-label_on_the_way = Sent
-label_one_time_code_has_been_sent_to_emails = One-time code has been sent to your e-mails. If you did not receive e-mails, check your data entered or spam folder.
 label_one_time_password = One-time code
 label_online = online
 label_open_calls_in_app = In the same window
@@ -823,7 +732,6 @@ label_participants = Members: {$count}
 label_participants_of = Members: {$a} of {$b}
 label_password = Password
 label_password_changed = Password has been changed
-label_password_not_set = The password is not set. Access to the account may be lost.
 label_password_not_set1 = The password is not set.{" "}
 label_password_not_set2 = Access to the account may be lost.
 label_password_or_one_time_code = Password or one-time code
@@ -846,7 +754,6 @@ label_presence_away = Away
 label_presence_present = Online
 label_profile = Profile
 label_public_section_hint = Avatar, name, about you, ...
-label_read = Read
 label_read_by = Read
 label_reason = Reason
 label_reason_described = Reason: {$reason}
@@ -870,7 +777,6 @@ label_regulations_freelance =
     4. In the response message you will receive a confirmation that the task is assigned to you (the task status will change to “In progress”)
     5. While working on the task you should push commit of your task at least once every 72 hours.
     6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
-label_remove_account = Remove account from the list
 label_remove_member = Remove member
 label_repeat_password = Confirm password
 label_replace_this_text_with_concern = Describe the concern.
@@ -880,7 +786,6 @@ label_replies = [{$count} {$count ->
     *[other] replies
     }]
 label_report = Report
-label_required = Required
 label_requirements = Requirements
 label_requirements_backend_developer =
     - knowledge of Rust;
@@ -910,13 +815,11 @@ label_review = Review
 label_review_freelance =
     - a completed task should pass the review of the code;
     - the request for the review of the completed task, comments, clarifications, and arguments should be posted publicly on GitHub in the corresponding issue or pull request.
-label_saved_accounts = Saved accounts
 label_saved_files = Downloaded files
 label_screen_sharing = Screen sharing
 label_search = Search
+label_selected = Selected: {$count}
 label_send_message_hint = Message...
-label_sent = Sent
-label_sessions_terminated = Session(s) terminated
 label_set_cache_limits = Set cache limits
 label_set_password = Set password
 label_show_call_window = Show call window
@@ -927,7 +830,6 @@ label_sign_in_with_one_time_code = Sign in with one-time code
 label_sign_in_with_password = Sign in with password
 label_sign_up = Create account
 label_sign_up_code_email_sent = Verification code has been sent to the e-mail {$text}
-label_sign_up_hint = Password or e-mail
 label_sign_up_with_password = Sign up with password
 label_signed_in = Signed in
 label_source_code = Source code
@@ -1000,7 +902,6 @@ label_user_removed_user2 = removed
 label_user_removed_user3 = {" "}{$user}
 label_users_count = Users: {$count}
 label_version_semicolon = Version: {$version}
-label_video = Video
 label_video_call = Video call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
@@ -1030,22 +931,14 @@ label_we_welcome_backend_developer =
 label_welcome_message = Welcome message
 label_welcome_message_description = Welcome message is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.
 label_welcome_message_hint = Add, edit, delete
-label_welcome_message_freelance =
-    Hello. Please, specify:
-    - login on GitHub;
-    - PR number (Pull Request);
-    - estimated time for completing the task (deadline);
-    - the proposed method for solving the task.
 label_what_we_can_help_you_with = How can we help you?
 label_work_with_us = Work with us
 label_work_with_us_desc =
     Work
     with us
 label_you = You
-label_you_account_created = You: Account created
 label_you_can_use_randomly_generated_link = You can use a generated link or create your own.
 label_you_were_added_to_group = You have been added to the group
-label_your_account_created = Your account created
 label_your_direct_link = Direct link to chat with you
 label_your_name = Your name
 label_your_num = Your Gapopa ID
