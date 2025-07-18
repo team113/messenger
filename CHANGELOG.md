@@ -13,6 +13,8 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
+- Desktop:
+    - Redesign routes switching animation. ([#])
 - UI:
     - Chat page:
         - Redesigned editing mode. ([#1327])
