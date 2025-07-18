@@ -59,6 +59,20 @@ messaging.onMessage(async (payload) => {
       }
     }
   }
+
+  // Otherwise that's a normal push notification.
+  else {
+    // Try to set a badge, if available.
+    if (navigator.setAppBadge) {
+      let unreadCount = 1;
+
+      if (unreadCount && unreadCount > 0) {
+        navigator.setAppBadge(unreadCount);
+      } else {
+        navigator.clearAppBadge();
+      }
+    }
+  }
 });
 
 messaging.onBackgroundMessage(async (payload) => {
@@ -89,6 +103,20 @@ messaging.onBackgroundMessage(async (payload) => {
 
       for (var notification of notifications) {
         notification.close();
+      }
+    }
+  }
+
+  // Otherwise that's a normal push notification.
+  else {
+    // Try to set a badge, if available.
+    if (navigator.setAppBadge) {
+      let unreadCount = 1;
+
+      if (unreadCount && unreadCount > 0) {
+        navigator.setAppBadge(unreadCount);
+      } else {
+        navigator.clearAppBadge();
       }
     }
   }
