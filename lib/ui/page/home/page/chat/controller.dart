@@ -2636,7 +2636,7 @@ extension ChatCallFinishReasonL10n on ChatCallFinishReason {
       case ChatCallFinishReason.serverDecision:
         return 'label_chat_call_ended'.l10n;
       case ChatCallFinishReason.moved:
-        return 'label_chat_call_moved'.l10n;
+        return 'label_chat_call_ended'.l10n;
       case ChatCallFinishReason.artemisUnknown:
         return null;
     }

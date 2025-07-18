@@ -27,14 +27,14 @@ class BottomPaddedRow extends StatelessWidget {
   const BottomPaddedRow({
     super.key,
     this.children = const [],
-    this.spacing = 10,
+    this.spacer = _defaultSpacer,
   });
 
   /// [Widget]s to put in the [Row].
   final List<Widget> children;
 
-  /// Spacing between [children].
-  final double spacing;
+  /// Builder building spacing between [children].
+  final Widget Function(BuildContext) spacer;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class BottomPaddedRow extends StatelessWidget {
       widgets.add(Expanded(child: children[i]));
 
       if (i < children.length - 1) {
-        widgets.add(SizedBox(width: spacing));
+        widgets.add(spacer(context));
       }
     }
 
@@ -72,4 +72,7 @@ class BottomPaddedRow extends StatelessWidget {
       child: Row(children: widgets),
     );
   }
+
+  /// Builds a [SizedBox].
+  static Widget _defaultSpacer(BuildContext _) => SizedBox(width: 10);
 }

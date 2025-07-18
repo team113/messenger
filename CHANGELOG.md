@@ -11,6 +11,11 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.3...v0.6.0) | [Milestone](/../../milestone/43)
 
+### Added
+
+- UI:
+    - Spanish localization. ([#1333])
+
 ### Changed
 
 - Desktop:
@@ -20,6 +25,8 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned editing mode. ([#1327])
     - Profile page:
         - Slider with ticks. ([#1330])
+    - Chats tab:
+        - Group creating and chats selecting buttons. ([#1333])
 
 ### Fixed
 
@@ -30,6 +37,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1327]: /../../pull/1327
 [#1330]: /../../pull/1330
 [#1331]: /../../pull/1331
+[#1333]: /../../pull/1333
 
 
 

@@ -119,11 +119,11 @@ class IntroductionView extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: 'label_introduction_description1'.l10n,
-                        style: style.fonts.medium.regular.onBackground,
+                        style: style.fonts.small.regular.secondary,
                       ),
                       TextSpan(
                         text: 'label_introduction_description2'.l10n,
-                        style: style.fonts.medium.regular.primary,
+                        style: style.fonts.small.regular.primary,
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             Navigator.of(context).pop();
@@ -132,14 +132,14 @@ class IntroductionView extends StatelessWidget {
                       ),
                       TextSpan(
                         text: 'label_introduction_description3'.l10n,
-                        style: style.fonts.medium.regular.onBackground,
+                        style: style.fonts.small.regular.secondary,
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 25),
                 _terms(context),
-                const SizedBox(height: 25 / 2),
+                const SizedBox(height: 16),
                 PrimaryButton(
                   key: const Key('ProceedButton'),
                   onPressed: Navigator.of(context).pop,
@@ -221,7 +221,7 @@ class IntroductionView extends StatelessWidget {
                         ),
                       ],
                       child: Text(
-                        'label_messenger_by_gapopa'.l10n,
+                        'label_messenger_full'.l10n,
                         style: style.fonts.normal.regular.secondary,
                       ),
                     ),
@@ -237,7 +237,7 @@ class IntroductionView extends StatelessWidget {
                 ];
               } else {
                 header = ModalPopupHeader(
-                  text: 'label_messenger_by_gapopa'.l10n,
+                  text: 'label_messenger_full'.l10n,
                   dense: false,
                 );
                 children = [
@@ -295,6 +295,7 @@ class IntroductionView extends StatelessWidget {
         c.myUser.value?.num,
         key: const Key('NumCopyable'),
         share: PlatformUtils.isMobile,
+        label: 'label_your_num'.l10n,
       );
     });
   }
@@ -382,16 +383,6 @@ class IntroductionView extends StatelessWidget {
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms3'.l10n,
-            style: style.fonts.small.regular.secondary,
-          ),
-          TextSpan(
-            text: 'alert_by_proceeding_you_accept_terms4'.l10n,
-            style: style.fonts.small.regular.primary,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => TermsOfUseView.show(context),
-          ),
-          TextSpan(
-            text: 'alert_by_proceeding_you_accept_terms5'.l10n,
             style: style.fonts.small.regular.secondary,
           ),
         ],
