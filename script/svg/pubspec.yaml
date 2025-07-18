@@ -1,0 +1,6 @@
+name: svg_analyze
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+
+dependencies:
+  analyzer: any
