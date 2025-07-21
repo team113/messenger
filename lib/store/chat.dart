@@ -713,6 +713,24 @@ class ChatRepository extends DisposableInterface
     await chats[chatId]?.read(untilId);
   }
 
+  @override
+  Future<void> readAll() async {
+    Log.debug('readAll()', '$runtimeType');
+
+    final List<Future> futures = [];
+
+    for (var e in chats.values) {
+      final ChatItem? last = e.lastItem ?? e.chat.value.lastItem;
+      final int unread = e.unreadCount.value;
+
+      if (unread != 0 && last != null) {
+        futures.add(e.read(last.id));
+      }
+    }
+
+    await Future.wait(futures);
+  }
+
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
   /// authenticated [MyUser].
   Future<void> readUntil(ChatId chatId, ChatItemId untilId) async {

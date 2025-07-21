@@ -64,7 +64,7 @@ class DownloadButton extends StatefulWidget {
     this.link = 'messenger-ios.ipa',
     this.onPressed,
   }) : asset = SvgIcons.appleBlack,
-       title = 'iOS',
+       title = 'btn_install_ios',
        download = true;
 
   /// Constructs a [DownloadButton] for downloading the iOS application from App
@@ -81,7 +81,7 @@ class DownloadButton extends StatefulWidget {
     this.link = 'messenger-android.apk',
     this.onPressed,
   }) : asset = SvgIcons.android,
-       title = 'Android',
+       title = 'btn_install_android',
        download = true;
 
   /// Constructs a [DownloadButton] for downloading the Android application from
@@ -123,7 +123,7 @@ class _DownloadButtonState extends State<DownloadButton> {
     final style = Theme.of(context).style;
 
     return FieldButton(
-      text: widget.title,
+      text: widget.title.l10n,
       onPressed: widget.link == null || _progress != null
           ? null
           : widget.download

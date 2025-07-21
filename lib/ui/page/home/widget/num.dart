@@ -26,7 +26,7 @@ import 'sharable.dart';
 
 /// [CopyableTextField] representation of the provided [UserNum].
 class UserNumCopyable extends StatelessWidget {
-  const UserNumCopyable(this.num, {super.key, this.share = false});
+  const UserNumCopyable(this.num, {super.key, this.share = false, this.label});
 
   /// [UserNum] to display.
   final UserNum? num;
@@ -35,6 +35,9 @@ class UserNumCopyable extends StatelessWidget {
   /// [CopyableTextField].
   final bool share;
 
+  /// Label to display.
+  final String? label;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -42,7 +45,7 @@ class UserNumCopyable extends StatelessWidget {
     if (share) {
       return SharableTextField(
         text: num?.toString(),
-        label: 'label_num'.l10n,
+        label: label ?? 'label_num'.l10n,
         share: 'Gapopa ID: $num',
         style: style.fonts.big.regular.onBackground,
       );
@@ -50,7 +53,7 @@ class UserNumCopyable extends StatelessWidget {
 
     return CopyableTextField(
       state: TextFieldState(text: num?.toString(), editable: false),
-      label: 'label_num'.l10n,
+      label: label ?? 'label_num'.l10n,
     );
   }
 }

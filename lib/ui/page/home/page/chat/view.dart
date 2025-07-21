@@ -53,6 +53,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/obscured_menu_interceptor.dart';
 import '/ui/widget/obscured_selection_area.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/selected_dot.dart';
@@ -1325,8 +1326,34 @@ class ChatView extends StatelessWidget {
       ],
       additional: [
         const SizedBox(height: 25),
-        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
+        ReactiveTextField(
+          state: c.reason,
+          label: 'label_reason'.l10n,
+          hint: 'label_reason_hint'.l10n,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+        ),
       ],
+      button: (context) {
+        return Obx(() {
+          final bool enabled = c.reason.error.value == null;
+
+          return PrimaryButton(
+            key: const Key('Proceed'),
+            danger: true,
+            onPressed: enabled
+                ? () {
+                    if (c.reason.error.value != null) {
+                      return;
+                    }
+
+                    Navigator.of(context).pop(true);
+                  }
+                : null,
+            title: 'btn_block'.l10n,
+            leading: SvgIcon(enabled ? SvgIcons.blockWhite : SvgIcons.block),
+          );
+        });
+      },
     );
 
     if (result == true) {

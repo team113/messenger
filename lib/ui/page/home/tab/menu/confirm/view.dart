@@ -131,26 +131,11 @@ class ConfirmLogoutView extends StatelessWidget {
               header = ModalPopupHeader(text: 'btn_logout'.l10n);
 
               children = [
-                RichText(
-                  text: TextSpan(
-                    style: style.fonts.small.regular.secondary,
-                    children: [
-                      TextSpan(
-                        text: 'alert_are_you_sure_want_to_log_out1'.l10n,
-                      ),
-                      TextSpan(
-                        style: style.fonts.small.regular.onBackground,
-                        text:
-                            c.myUser.value?.name?.val ??
-                            c.myUser.value?.num.toString() ??
-                            '',
-                      ),
-                      TextSpan(
-                        text: 'alert_are_you_sure_want_to_log_out2'.l10n,
-                      ),
-                    ],
+                Center(
+                  child: Text(
+                    '${c.myUser.value?.name ?? c.myUser.value?.num}',
+                    style: style.fonts.normal.regular.onBackground,
                   ),
-                  textAlign: TextAlign.start,
                 ),
                 const SizedBox(height: 16),
                 if (!c.hasPassword.value) ...[
