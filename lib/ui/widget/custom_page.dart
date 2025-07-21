@@ -62,7 +62,7 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 400);
+  Duration get transitionDuration => const Duration(milliseconds: 0);
 
   @override
   Widget buildPage(
