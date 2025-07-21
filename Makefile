@@ -139,7 +139,7 @@ else
 endif
 
 
-# Analyze unused properties in SvgIcons class.
+# Analyze unused SVG icons.
 #
 # Usage:
 #   make flutter.analyze.svg [dockerized=(no|yes)]

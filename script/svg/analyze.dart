@@ -22,8 +22,13 @@ import 'package:analyzer/dart/analysis/utilities.dart' show parseFile;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 
-/// Command-line utility scanning `.dart` files for unused [SvgIcons]
-/// properties.
+/// Command-line utility scanning `.dart` files for unused [SvgIcons].
+///
+/// ### Usage examples
+///
+/// ```bash
+/// dart run analyze.dart
+/// ```
 ///
 /// ### Exit flags
 ///
@@ -40,7 +45,7 @@ void main() async {
         (file) =>
             file is File &&
             file.path.endsWith('.dart') &&
-            // SvgIcons file is collected separately.
+            // File containing [SvgIcons] isn't considered a Dart source file.
             file.path != pathToSvgIcons,
       )
       .cast<File>()
@@ -57,7 +62,7 @@ void main() async {
   stdout.writeln(' done.');
 
   // Collect used [SvgIcons] class properties.
-  stdout.write('Scanning `SvgIcons` properties used...');
+  stdout.write('Scanning `SvgIcons` used...');
 
   final Set<String> usedSvgIconsProps = <String>{};
   for (final file in dartFiles) {
@@ -69,12 +74,12 @@ void main() async {
   stdout.writeln();
 
   // Differentiate and report.
-  final unused = definedSvgIconsProps.difference(usedSvgIconsProps);
+  final Set<String> unused = definedSvgIconsProps.difference(usedSvgIconsProps);
 
-  stdout.writeln('Properties unused: ${unused.length}');
+  stdout.writeln('Icons unused: ${unused.length}');
   for (final asset in unused) {
-    final svgPaths = svgIconsPropsMap[asset]!;
-    final type = svgPaths.length > 1 ? 'List<SvgData>' : 'SvgData';
+    final List<String> svgPaths = svgIconsPropsMap[asset]!;
+    final String type = svgPaths.length > 1 ? 'List<SvgData>' : 'SvgData';
 
     stdout.writeln('  • SvgIcons.$asset ($type $asset)');
 
@@ -89,17 +94,17 @@ void main() async {
   await stdout.flush();
 
   if (unused.isNotEmpty) {
-    stderr.writeln('⛔️ Unused properties are found. Remove them.');
+    stderr.writeln('⛔️ Unused icons are found. Remove them.');
     exit(1);
   }
 
-  stdout.writeln('\n✅ Unused properties were not found.');
+  stdout.writeln('\n✅ Unused icons were not found.');
   exit(0);
 }
 
-/// Returns all the found [SvgIcons] properties found in [file].
+/// Returns all the found [SvgIcons] found in [file].
 Set<String> _parseSvgIconsUsedProps(File file) {
-  final fileUnit = parseFile(
+  final CompilationUnit fileUnit = parseFile(
     path: file.path,
     featureSet: FeatureSet.latestLanguageVersion(),
   ).unit;
@@ -127,6 +132,7 @@ Map<String, List<String>> _parseSvgIconsClass(String path) {
 /// Handles two patterns:
 ///
 /// 1. Declaration of [SvgData]:
+///
 /// ```dart
 /// static const SvgData callTurnVideoOffWhite = SvgData(
 ///   'path/to/asset.svg',
@@ -136,10 +142,11 @@ Map<String, List<String>> _parseSvgIconsClass(String path) {
 /// ```
 ///
 /// 2. Declaration of [List] of [SvgData]:
+///
 /// ```dart
 /// static const List<SvgData> head = [
 ///   SvgData('path/to/asset/x1.svg'),
-///   ...
+///   // ...
 ///   SvgData('path/to/asset/x2.svg'),
 /// ];
 /// ```
@@ -156,10 +163,12 @@ class _SvgIconsDeclarationVisitor extends RecursiveAstVisitor<void> {
     if (!node.isStatic || !node.fields.isConst) return;
 
     for (final variable in node.fields.variables) {
-      final propertyName = variable.name.lexeme;
-      final propertyInit = variable.initializer;
+      final String propertyName = variable.name.lexeme;
+      final Expression? propertyInit = variable.initializer;
 
-      if (propertyInit == null) continue;
+      if (propertyInit == null) {
+        continue;
+      }
 
       // Syntactic elements of the property's init expression.
       //
@@ -171,6 +180,7 @@ class _SvgIconsDeclarationVisitor extends RecursiveAstVisitor<void> {
       for (final child in children) {
         final tokenString = child.toString();
         // Assume path is inside single-quotes.
+        //
         // Example: 'assets/images/logo/head_3.svg'.
         final indexStart = tokenString.indexOf("'");
         final indexEnd = tokenString.lastIndexOf("'");
@@ -206,8 +216,8 @@ class _SvgIconsPropsVisitor extends RecursiveAstVisitor {
 
   @override
   visitPrefixedIdentifier(PrefixedIdentifier node) {
-    final prefixName = node.prefix.name;
-    final propertyName = node.identifier.name;
+    final String prefixName = node.prefix.name;
+    final String propertyName = node.identifier.name;
 
     if (prefixName == 'SvgIcons') {
       properties.add(propertyName);
