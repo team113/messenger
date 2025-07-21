@@ -287,7 +287,7 @@ class LoginView extends StatelessWidget {
 
                     return PrimaryButton(
                       onPressed: enabled ? c.email.submit : null,
-                      title: 'btn_proceed'.l10n,
+                      title: 'btn_send_one_time_code'.l10n,
                     );
                   }),
                 ),
