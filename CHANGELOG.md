@@ -19,7 +19,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - Desktop:
-    - Redesign routes switching animation. ([#])
+    - Redesign routes switching animation. ([#1336], [#1301])
 - UI:
     - Chat page:
         - Redesigned editing mode. ([#1327])
@@ -33,11 +33,13 @@ All user visible changes to this project will be documented in this file. This p
 - iOS:
     - Authorization sometimes being lost when receiving push notifications. ([#1331], [#1326])
 
+[#1301]: /../../issue/1301
 [#1326]: /../../pull/1326
 [#1327]: /../../pull/1327
 [#1330]: /../../pull/1330
 [#1331]: /../../pull/1331
 [#1333]: /../../pull/1333
+[#1336]: /../../pull/1336
 
 
 
