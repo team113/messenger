@@ -85,6 +85,8 @@ class AudioUtilsImpl {
 
   /// Plays the provided [sound] once.
   Future<void> once(AudioSource sound) async {
+    Log.debug('once($sound)', '$runtimeType');
+
     ensureInitialized();
 
     if (PlatformUtils.isWeb) {
@@ -112,6 +114,8 @@ class AudioUtilsImpl {
     AudioSource music, {
     Duration fade = Duration.zero,
   }) {
+    Log.debug('play($music)', '$runtimeType');
+
     StreamController? controller = _players[music];
     StreamSubscription? position;
 
@@ -195,6 +199,8 @@ class AudioUtilsImpl {
   ///
   /// Only meaningful on mobile devices.
   Future<void> setSpeaker(AudioSpeakerKind speaker) async {
+    Log.debug('setSpeaker($speaker)', '$runtimeType');
+
     if (_isMobile && _speaker != speaker) {
       _speaker = speaker;
       await _setSpeaker();
@@ -205,6 +211,8 @@ class AudioUtilsImpl {
   ///
   /// Only meaningful on mobile devices.
   Future<void> setDefaultSpeaker() async {
+    Log.debug('setDefaultSpeaker()', '$runtimeType');
+
     if (_isMobile) {
       final AudioSession session = await AudioSession.instance;
       final Set<AudioDevice> devices = await session.getDevices(
@@ -242,6 +250,8 @@ class AudioUtilsImpl {
   ///
   /// Should only be called via [setSpeaker].
   Future<void> _setSpeaker() async {
+    Log.debug('_setSpeaker()', '$runtimeType');
+
     // If the [_mutex] is locked, the output device is already being set.
     if (_mutex.isLocked) {
       return;

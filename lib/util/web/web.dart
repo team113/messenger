@@ -129,6 +129,9 @@ external bool _locksAvailable();
 @JS('webSaveAs')
 external JSPromise<JSAny?> _webSaveAs(web.Blob blob, JSString name);
 
+@JS('audioContext')
+web.AudioContext? _context;
+
 /// Helper providing access to features having different implementations in
 /// browser and on native platforms.
 class WebUtils {
@@ -832,22 +835,35 @@ class WebUtils {
     // No-op.
   }
 
+  /// Creates a ground for assets provided via [play] to playback automatically.
+  static Future<void> ensureAudioContext() async {
+    _context ??= web.AudioContext();
+    if (_context?.state == 'suspended') {
+      await (_context?.resume())?.toDart;
+    }
+  }
+
   /// Plays the provided [asset].
   static Future<void> play(String asset) async {
-    final web.AudioContext context = web.AudioContext();
-    final web.AudioBufferSourceNode source = context.createBufferSource();
+    await ensureAudioContext();
+
+    if (_context == null) {
+      throw Exception('AudioContext is `null`, cannot `play($asset)`');
+    }
+
+    final web.AudioBufferSourceNode source = _context!.createBufferSource();
 
     final Response bytes = await (await PlatformUtils.dio).get(
       'assets/assets/$asset',
       options: Options(responseType: ResponseType.bytes),
     );
 
-    final JSPromise<web.AudioBuffer> audioBuffer = context.decodeAudioData(
+    final JSPromise<web.AudioBuffer> audioBuffer = _context!.decodeAudioData(
       (bytes.data as Uint8List).buffer.toJS,
     );
 
     source.buffer = await audioBuffer.toDart;
-    source.connect(context.destination);
+    source.connect(_context!.destination);
     source.start();
   }
 
