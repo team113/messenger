@@ -44,7 +44,8 @@ import '/provider/gql/exceptions.dart'
         JoinChatCallException,
         ToggleChatCallHandException,
         RedialChatCallMemberException,
-        TransformDialogCallIntoGroupCallException;
+        TransformDialogCallIntoGroupCallException,
+        RemoveChatCallMemberException;
 import '/provider/gql/graphql.dart';
 import '/store/user.dart';
 import '/util/log.dart';
@@ -512,8 +513,25 @@ class CallRepository extends DisposableInterface
   @override
   Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
     Log.debug('removeChatCallMember($chatId, $userId)', '$runtimeType');
-    // TODO: Implement optimism, if possible.
-    await _graphQlProvider.removeChatCallMember(chatId, userId);
+
+    try {
+      // TODO: Implement optimism, if possible.
+      await _graphQlProvider.removeChatCallMember(chatId, userId);
+    } on RemoveChatCallMemberException catch (e) {
+      switch (e.code) {
+        case RemoveChatCallMemberErrorCode.artemisUnknown:
+          rethrow;
+
+        case RemoveChatCallMemberErrorCode.notGroup:
+          // No-op.
+          break;
+
+        case RemoveChatCallMemberErrorCode.notMember:
+        case RemoveChatCallMemberErrorCode.unknownChat:
+          // No-op.
+          break;
+      }
+    }
   }
 
   @override

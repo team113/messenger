@@ -88,6 +88,9 @@ class LoginController extends GetxController {
   /// [TextFieldState] for [ConfirmationCode] for [UserEmail] input.
   late final TextFieldState emailCode;
 
+  /// [TextFieldState] for an [UserNum], [UserLogin] or [UserEmail] text input.
+  late final TextFieldState identifier;
+
   /// [LoginView] stage to go back to.
   LoginViewStage? returnTo;
 
@@ -99,6 +102,9 @@ class LoginController extends GetxController {
 
   /// Indicator whether the [repeatPassword] should be obscured.
   final RxBool obscureRepeatPassword = RxBool(true);
+
+  /// Indicator whether the [emailCode] should be obscured.
+  final RxBool obscureCode = RxBool(true);
 
   /// Indicator whether the password has been reset.
   final RxBool recovered = RxBool(false);
@@ -341,6 +347,53 @@ class LoginController extends GetxController {
           s.error.value = 'err_data_transfer'.l10n;
           s.status.value = RxStatus.empty();
           s.unsubmit();
+          rethrow;
+        }
+      },
+    );
+
+    identifier = TextFieldState(
+      onSubmitted: (s) async {
+        final UserLogin? userLogin = UserLogin.tryParse(s.text);
+        final UserNum? userNum = UserNum.tryParse(s.text);
+        final UserEmail? userEmail = UserEmail.tryParse(s.text);
+        final UserPhone? userPhone = UserPhone.tryParse(s.text);
+
+        emailCode.clear();
+
+        final LoginViewStage previous = stage.value;
+
+        stage.value = switch (stage.value) {
+          LoginViewStage.signInWithEmail => LoginViewStage.signInWithEmailCode,
+          (_) => LoginViewStage.signUpWithEmailCode,
+        };
+
+        try {
+          if (userLogin != null ||
+              userNum != null ||
+              userEmail != null ||
+              userPhone != null) {
+            await _authService.createConfirmationCode(
+              email: userEmail,
+              login: userLogin,
+              num: userNum,
+              phone: userPhone,
+            );
+          }
+
+          s.unsubmit();
+        } on AddUserEmailException catch (e) {
+          s.error.value = e.toMessage();
+          _setResendEmailTimer(false);
+
+          stage.value = previous;
+        } catch (_) {
+          s.resubmitOnError.value = true;
+          s.error.value = 'err_data_transfer'.l10n;
+          _setResendEmailTimer(false);
+          s.unsubmit();
+
+          stage.value = previous;
           rethrow;
         }
       },
@@ -641,7 +694,32 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.createConfirmationCode(email: UserEmail(email.text));
+      switch (stage.value) {
+        case LoginViewStage.signInWithEmailCode:
+          final UserLogin? userLogin = UserLogin.tryParse(identifier.text);
+          final UserNum? userNum = UserNum.tryParse(identifier.text);
+          final UserEmail? userEmail = UserEmail.tryParse(identifier.text);
+          final UserPhone? userPhone = UserPhone.tryParse(identifier.text);
+
+          if (userLogin != null ||
+              userNum != null ||
+              userEmail != null ||
+              userPhone != null) {
+            await _authService.createConfirmationCode(
+              email: userEmail,
+              login: userLogin,
+              num: userNum,
+              phone: userPhone,
+            );
+          }
+          break;
+
+        default:
+          await _authService.createConfirmationCode(
+            email: UserEmail(email.text),
+          );
+          break;
+      }
     } on AddUserEmailException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {

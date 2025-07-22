@@ -498,35 +498,6 @@ class ChatView extends StatelessWidget {
                                           SvgIcons.searchWhite,
                                         ),
                                       ),
-                                      // TODO: Uncomment, when contacts are
-                                      //       implemented.
-                                      // if (dialog)
-                                      //   ContextMenuButton(
-                                      //     key: Key(
-                                      //       contact
-                                      //           ? 'DeleteFromContactsButton'
-                                      //           : 'AddToContactsButton',
-                                      //     ),
-                                      //     label: contact
-                                      //         ? 'btn_delete_from_contacts'.l10n
-                                      //         : 'btn_add_to_contacts'.l10n,
-                                      //     trailing: SvgIcon(
-                                      //       contact
-                                      //           ? SvgIcons.deleteContact
-                                      //           : SvgIcons.addContact,
-                                      //     ),
-                                      //     inverted: SvgIcon(
-                                      //       contact
-                                      //           ? SvgIcons.deleteContactWhite
-                                      //           : SvgIcons.addContactWhite,
-                                      //     ),
-                                      //     onPressed: contact
-                                      //         ? () => _removeFromContacts(
-                                      //               c,
-                                      //               context,
-                                      //             )
-                                      //         : c.addToContacts,
-                                      //   ),
                                       ContextMenuButton(
                                         key: favorite
                                             ? Key('UnfavoriteButton')
@@ -1361,31 +1332,6 @@ class ChatView extends StatelessWidget {
     }
   }
 
-  // TODO: Uncomment, when contacts are implemented.
-  /// Opens a confirmation popup deleting the [User] from address book.
-  // Future<void> _removeFromContacts(
-  //   ChatController c,
-  //   BuildContext context,
-  // ) async {
-  //   final style = Theme.of(context).style;
-
-  //   final bool? result = await MessagePopup.alert(
-  //     'label_delete_contact'.l10n,
-  //     description: [
-  //       TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
-  //       TextSpan(
-  //         text: c.user?.title,
-  //         style: style.fonts.normal.regular.onBackground,
-  //       ),
-  //       TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
-  //     ],
-  //   );
-
-  //   if (result == true) {
-  //     await c.removeFromContacts();
-  //   }
-  // }
-
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
   Widget _bottomBar(ChatController c, BuildContext context) {
@@ -1496,9 +1442,9 @@ class ChatView extends StatelessWidget {
                                 if (!deletable && !isMonolog)
                                   TextSpan(
                                     text: c.selected.length > 1
-                                        ? 'label_these_messages_will_be_deleted_only_for_you'
+                                        ? 'label_message_will_deleted_for_you'
                                               .l10n
-                                        : 'label_this_message_will_be_deleted_only_for_you'
+                                        : 'label_messages_will_deleted_for_you'
                                               .l10n,
                                   ),
                               ],

@@ -649,10 +649,16 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
+
               final ChatService chatService = deps.put(
                 ChatService(chatRepository, Get.find()),
               );
-              deps.put(CallService(Get.find(), chatService, callRepository));
+
+              final CallService callService = deps.put(
+                CallService(Get.find(), chatService, callRepository),
+              );
+              callService.onChatRemoved = chatRepository.remove;
+
               deps.put(BlocklistService(blocklistRepository));
 
               return deps;
@@ -901,12 +907,16 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               );
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
+
               final ChatService chatService = deps.put(
                 ChatService(chatRepository, Get.find()),
               );
+
               final CallService callService = deps.put(
                 CallService(Get.find(), chatService, callRepository),
               );
+              callService.onChatRemoved = chatRepository.remove;
+
               deps.put(BlocklistService(blocklistRepository));
 
               deps.put(

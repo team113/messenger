@@ -1074,9 +1074,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               description: [
                                 if (!deletable && !isMonolog)
                                   TextSpan(
-                                    text:
-                                        'label_this_message_will_be_deleted_only_for_you'
-                                            .l10n,
+                                    text: 'label_message_will_deleted_for_you'
+                                        .l10n,
                                   ),
                               ],
                               additional: [

@@ -34,6 +34,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/provider/drift/user.dart';
+import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
@@ -192,12 +193,24 @@ class UserRepository extends DisposableInterface
     }
 
     try {
-      await _graphQlProvider.blockUser(id, reason);
+      try {
+        await _graphQlProvider.blockUser(id, reason);
+      } on BlockUserException catch (e) {
+        switch (e.code) {
+          case BlockUserErrorCode.unknownUser:
+            // No-op.
+            break;
+
+          case BlockUserErrorCode.artemisUnknown:
+            rethrow;
+        }
+      }
     } catch (_) {
       if (user != null && user.user.value.isBlocked != record) {
         user.user.value.isBlocked = record ?? user.user.value.isBlocked;
         user.user.refresh();
       }
+
       rethrow;
     }
   }
@@ -215,12 +228,24 @@ class UserRepository extends DisposableInterface
     }
 
     try {
-      await _graphQlProvider.unblockUser(id);
+      try {
+        await _graphQlProvider.unblockUser(id);
+      } on UnblockUserException catch (e) {
+        switch (e.code) {
+          case UnblockUserErrorCode.unknownUser:
+            // No-op.
+            break;
+
+          case UnblockUserErrorCode.artemisUnknown:
+            rethrow;
+        }
+      }
     } catch (_) {
       if (user != null && user.user.value.isBlocked != record) {
         user.user.value.isBlocked = record ?? user.user.value.isBlocked;
         user.user.refresh();
       }
+
       rethrow;
     }
   }

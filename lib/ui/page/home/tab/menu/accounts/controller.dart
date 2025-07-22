@@ -69,6 +69,9 @@ class AccountsController extends GetxController {
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
+  /// Indicator whether the [emailCode] should be obscured.
+  final RxBool obscureCode = RxBool(true);
+
   /// Amount of [signIn] unsuccessful submitting attempts.
   int signInAttempts = 0;
 
