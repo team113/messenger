@@ -30,9 +30,12 @@ class CustomPage extends Page {
 
   @override
   Route createRoute(BuildContext context) {
+    final bool instantTransition = PlatformUtils.isDesktop && !context.isNarrow;
+
     return _CupertinoPageRoute(
       settings: this,
       pageBuilder: (_, __, ___) => child,
+      instantTransition: instantTransition,
     );
   }
 }
@@ -41,16 +44,24 @@ class CustomPage extends Page {
 ///
 /// Uses a [FadeUpwardsPageTransitionsBuilder] on Android.
 class _CupertinoPageRoute<T> extends PageRoute<T> {
-  _CupertinoPageRoute({super.settings, required this.pageBuilder})
-    : matchingBuilder = PlatformUtils.isAndroid
-          ? const FadeUpwardsPageTransitionsBuilder()
-          : const CustomCupertinoPageTransitionsBuilder();
+  _CupertinoPageRoute({
+    super.settings,
+    required this.pageBuilder,
+    required bool instantTransition,
+  }) : _transitionDuration = instantTransition
+           ? Duration.zero
+           : const Duration(milliseconds: 400),
+       matchingBuilder = PlatformUtils.isAndroid
+           ? const FadeUpwardsPageTransitionsBuilder()
+           : const CustomCupertinoPageTransitionsBuilder();
 
   /// [PageTransitionsBuilder] transition animation.
   final PageTransitionsBuilder matchingBuilder;
 
   /// Builder building the [Page] itself.
   final RoutePageBuilder pageBuilder;
+
+  final Duration _transitionDuration;
 
   @override
   Color? get barrierColor => null;
@@ -62,7 +73,7 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 0);
+  Duration get transitionDuration => _transitionDuration;
 
   @override
   Widget buildPage(
@@ -116,19 +127,9 @@ class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
       child,
     );
 
-    // We parse route. If it is fullscreenDialog, then
-    // `CupertinoFullscreenDialogTransition` is returned. Otherwise:
-    // `CupertinoPageTransition`
-
-    // ROUTE INFORMATION:
-
-    // print('\nROUTE INFORMATION');
-    // print(route);
-    // print('IS NARROW? ${context.isNarrow}\n');
-
-    if (PlatformUtils.isDesktop && !context.isNarrow) {
-      return child;
-    }
+    // if (PlatformUtils.isDesktop && !context.isNarrow) {
+    //   return child;
+    // }
 
     if (widget is CupertinoPageTransition) {
       return SlideTransition(
