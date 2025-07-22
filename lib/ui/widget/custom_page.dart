@@ -127,10 +127,6 @@ class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
       child,
     );
 
-    // if (PlatformUtils.isDesktop && !context.isNarrow) {
-    //   return child;
-    // }
-
     if (widget is CupertinoPageTransition) {
       return SlideTransition(
         position: Tween(begin: Offset.zero, end: const Offset(-1.0, 0.0))
