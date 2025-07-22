@@ -61,6 +61,9 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
   /// Builder building the [Page] itself.
   final RoutePageBuilder pageBuilder;
 
+  /// Custom transition duration.
+  ///
+  /// Used to build instant transitioning on Desktop.
   final Duration _transitionDuration;
 
   @override
