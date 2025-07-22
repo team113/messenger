@@ -322,9 +322,11 @@ class WebUtils {
     }
   }
 
-  /// Plays the provided [asset].
-  static Future<void> play(String asset) async {
-    // No-op.
+  /// Plays the provided [asset] and returns a [Stream].
+  ///
+  /// If the returned [Stream] is canceled, then the playback stops.
+  static Stream<void> play(String asset, {bool loop = false}) {
+    return Stream.empty();
   }
 
   /// Returns the `User-Agent` header to put in the network queries.

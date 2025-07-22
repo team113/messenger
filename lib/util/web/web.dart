@@ -835,36 +835,72 @@ class WebUtils {
     // No-op.
   }
 
-  /// Creates a ground for assets provided via [play] to playback automatically.
-  static Future<void> ensureAudioContext() async {
-    _context ??= web.AudioContext();
-    if (_context?.state == 'suspended') {
-      await (_context?.resume())?.toDart;
-    }
-  }
-
   /// Plays the provided [asset].
-  static Future<void> play(String asset) async {
-    await ensureAudioContext();
+  ///
+  /// If the returned [Stream] is canceled, then the playback stops.
+  static Stream<void> play(String asset, {bool loop = false}) {
+    Log.debug('play($asset, loop: $loop)', 'WebUtils');
 
-    if (_context == null) {
-      throw Exception('AudioContext is `null`, cannot `play($asset)`');
-    }
+    StreamController? controller;
+    StreamSubscription? onEnded;
+    web.AudioBufferSourceNode? node;
 
-    final web.AudioBufferSourceNode source = _context!.createBufferSource();
+    controller = StreamController(
+      onListen: () async {
+        _context ??= web.AudioContext();
+        if (_context?.state == 'suspended') {
+          Log.debug(
+            'play($asset, loop: $loop) -> _context?.state == `suspended`, resuming',
+            'WebUtils',
+          );
 
-    final Response bytes = await (await PlatformUtils.dio).get(
-      'assets/assets/$asset',
-      options: Options(responseType: ResponseType.bytes),
+          await (_context?.resume())?.toDart;
+        }
+
+        if (controller?.hasListener == false) {
+          return;
+        }
+
+        if (_context == null) {
+          throw Exception('AudioContext is `null`, cannot `play($asset)`');
+        }
+
+        final web.AudioBufferSourceNode source = _context!.createBufferSource();
+
+        final Response bytes = await (await PlatformUtils.dio).get(
+          'assets/assets/$asset',
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        if (controller?.hasListener == false) {
+          return;
+        }
+
+        final JSPromise<web.AudioBuffer> audioBuffer = _context!
+            .decodeAudioData((bytes.data as Uint8List).buffer.toJS);
+
+        node = source;
+        source.buffer = await audioBuffer.toDart;
+
+        if (controller?.hasListener == false) {
+          return;
+        }
+
+        source.loop = loop;
+        source.connect(_context!.destination);
+        source.start();
+        onEnded = source.onEnded.listen((_) {
+          controller?.close();
+        });
+      },
+      onCancel: () {
+        onEnded?.cancel();
+        node?.stop();
+        controller?.close();
+      },
     );
 
-    final JSPromise<web.AudioBuffer> audioBuffer = _context!.decodeAudioData(
-      (bytes.data as Uint8List).buffer.toJS,
-    );
-
-    source.buffer = await audioBuffer.toDart;
-    source.connect(_context!.destination);
-    source.start();
+    return controller.stream;
   }
 
   /// Returns the `User-Agent` header to put in the network queries.

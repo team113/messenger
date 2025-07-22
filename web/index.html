@@ -197,7 +197,7 @@
       if (audioContext == null) {
         try {
           audioContext = new AudioContext();
-          console.log('`AudioContext` is populated, thus `AudioUtils.once()` should play sounds via autoplay.');
+          console.log('`AudioContext` is populated, thus `AudioUtils` should play sounds via autoplay.');
         } catch (e) {
           console.log(`Failed to create "AudioContext" due to: ${e}`);
         }

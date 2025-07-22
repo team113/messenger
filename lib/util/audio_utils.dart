@@ -90,14 +90,10 @@ class AudioUtilsImpl {
     ensureInitialized();
 
     if (PlatformUtils.isWeb) {
-      final String url = switch (sound.kind) {
-        AudioSourceKind.asset => (sound as AssetAudioSource).asset,
-        AudioSourceKind.file => '',
-        AudioSourceKind.url => (sound as UrlAudioSource).url,
-      };
+      final String url = sound.direct;
 
       if (url.isNotEmpty) {
-        await WebUtils.play('$url?${Pubspec.ref}');
+        await (WebUtils.play('$url?${Pubspec.ref}')).listen((_) {}).asFuture();
       }
     } else if (_isMobile) {
       await _jaPlayer?.setAudioSource(sound.source);
@@ -118,6 +114,7 @@ class AudioUtilsImpl {
 
     StreamController? controller = _players[music];
     StreamSubscription? position;
+    StreamSubscription? playback;
 
     if (controller == null) {
       ja.AudioPlayer? jaPlayer;
@@ -126,6 +123,16 @@ class AudioUtilsImpl {
 
       controller = StreamController.broadcast(
         onListen: () async {
+          if (PlatformUtils.isWeb) {
+            playback?.cancel();
+            playback = WebUtils.play(
+              '${music.direct}?${Pubspec.ref}',
+              loop: true,
+            ).listen((_) {});
+
+            return;
+          }
+
           try {
             if (_isMobile) {
               jaPlayer = ja.AudioPlayer();
@@ -178,6 +185,11 @@ class AudioUtilsImpl {
           }
         },
         onCancel: () async {
+          if (PlatformUtils.isWeb) {
+            playback?.cancel();
+            return;
+          }
+
           _players.remove(music);
           position?.cancel();
           timer?.cancel();
@@ -443,5 +455,12 @@ extension on AudioSource {
     AudioSourceKind.url => ja.AudioSource.uri(
       Uri.parse((this as UrlAudioSource).url),
     ),
+  };
+
+  /// Returns an actual URL corresponding to this [AudioSource].
+  String get direct => switch (kind) {
+    AudioSourceKind.asset => (this as AssetAudioSource).asset,
+    AudioSourceKind.file => (this as FileAudioSource).file,
+    AudioSourceKind.url => (this as UrlAudioSource).url,
   };
 }
