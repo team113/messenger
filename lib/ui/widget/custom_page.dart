@@ -30,7 +30,7 @@ class CustomPage extends Page {
 
   @override
   Route createRoute(BuildContext context) {
-    final bool instantTransition = !(context.isMobile || context.isNarrow);
+    final bool instantTransition = !context.isMobile && !context.isNarrow;
 
     return _CupertinoPageRoute(
       settings: this,
