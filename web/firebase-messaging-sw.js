@@ -15,8 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js");
 
 firebase.initializeApp({
   apiKey: "AIzaSyBbttYFbYjucn8BY-p5tlWomcd5V9h8zWc",
