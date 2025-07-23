@@ -749,7 +749,7 @@ class ChatsTabController extends GetxController {
           : null,
     );
 
-    selecting.value = false;
+    toggleSelecting();
 
     try {
       await future;
