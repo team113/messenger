@@ -30,12 +30,10 @@ class CustomPage extends Page {
 
   @override
   Route createRoute(BuildContext context) {
-    final bool instantTransition = !context.isMobile && !context.isNarrow;
-
     return _CupertinoPageRoute(
       settings: this,
       pageBuilder: (_, __, ___) => child,
-      instantTransition: instantTransition,
+      instant: !context.isNarrow,
     );
   }
 }
@@ -47,8 +45,8 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
   _CupertinoPageRoute({
     super.settings,
     required this.pageBuilder,
-    required bool instantTransition,
-  }) : _transitionDuration = instantTransition
+    bool instant = false,
+  }) : transitionDuration = instant
            ? Duration.zero
            : const Duration(milliseconds: 400),
        matchingBuilder = PlatformUtils.isAndroid
@@ -61,11 +59,6 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
   /// Builder building the [Page] itself.
   final RoutePageBuilder pageBuilder;
 
-  /// Custom transition duration.
-  ///
-  /// Used to build instant transitioning on Desktop.
-  final Duration _transitionDuration;
-
   @override
   Color? get barrierColor => null;
 
@@ -76,7 +69,7 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => _transitionDuration;
+  final Duration transitionDuration;
 
   @override
   Widget buildPage(
