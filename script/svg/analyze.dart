@@ -33,7 +33,7 @@ import 'package:analyzer/dart/ast/visitor.dart';
 /// ### Exit flags
 ///
 /// - 0, on success.
-/// - 1, when unused properties are found.
+/// - 1, when unused `SvgIcons` are found.
 void main() async {
   const String pathToSvgIcons = 'lib/ui/widget/svg/svgs.dart';
   const String rootDir = 'lib/';
@@ -51,7 +51,7 @@ void main() async {
       .cast<File>()
       .toList();
 
-  // Collect defined [SvgIcons] class properties.
+  // Collect defined [SvgIcons].
   stdout.write('Scanning `SvgIcons` class...');
 
   final Map<String, List<String>> svgIconsPropsMap = _parseSvgIconsClass(
@@ -170,26 +170,25 @@ class _SvgIconsDeclarationVisitor extends RecursiveAstVisitor<void> {
         continue;
       }
 
-      // Syntactic elements of the property's init expression.
-      //
       // When parsing an init like `x = SvgData(...)`, the child entities will
       // be the type (`SvgData`) and its arguments list (`(...)`). For a list,
       // they will be the brackets and the elements within then.
-      final children = propertyInit.childEntities;
+      for (final child in propertyInit.childEntities) {
+        final String tokenString = child.toString();
 
-      for (final child in children) {
-        final tokenString = child.toString();
         // Assume path is inside single-quotes.
         //
         // Example: 'assets/images/logo/head_3.svg'.
-        final indexStart = tokenString.indexOf("'");
-        final indexEnd = tokenString.lastIndexOf("'");
+        final int indexStart = tokenString.indexOf("'");
+        final int indexEnd = tokenString.lastIndexOf("'");
 
         // Check for valid .svg path.
         if (indexStart != -1 && indexStart != indexEnd) {
           // Both ends are exclusive to trim quotes.
           final path = tokenString.substring(indexStart + 1, indexEnd);
-          if (!path.endsWith('.svg')) continue;
+          if (!path.endsWith('.svg')) {
+            continue;
+          }
 
           // Safely map property name to path.
           propertyToPaths.putIfAbsent(propertyName, () => []).add(path);
