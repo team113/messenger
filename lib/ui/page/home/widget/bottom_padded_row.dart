@@ -21,17 +21,22 @@ import 'package:get/get.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/util/platform_utils.dart';
+import 'navigation_bar.dart';
 
 /// [Row] padded to be at the bottom of the screen expanding its [children].
 class BottomPaddedRow extends StatelessWidget {
   const BottomPaddedRow({
     super.key,
     this.children = const [],
+    this.height = CustomNavigationBar.height,
     this.spacer = _defaultSpacer,
   });
 
   /// [Widget]s to put in the [Row].
   final List<Widget> children;
+
+  /// Height of this [BottomPaddedRow].
+  final double? height;
 
   /// Builder building spacing between [children].
   final Widget Function(BuildContext) spacer;
@@ -51,6 +56,7 @@ class BottomPaddedRow extends StatelessWidget {
     }
 
     return Container(
+      height: height,
       decoration: BoxDecoration(
         color: style.colors.onPrimary,
         boxShadow: [
