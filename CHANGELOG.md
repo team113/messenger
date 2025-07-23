@@ -27,6 +27,9 @@ All user visible changes to this project will be documented in this file. This p
         - Slider with ticks. ([#1330])
     - Chats tab:
         - Group creating and chats selecting buttons. ([#1333])
+    - Redesigned delete account page. ([#1339])
+    - Login modal:
+        - Accept any identifier instead of e-mail only during sign in via e-mail. ([#1339])
 
 ### Fixed
 
@@ -40,6 +43,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1331]: /../../pull/1331
 [#1333]: /../../pull/1333
 [#1336]: /../../pull/1336
+[#1339]: /../../pull/1339
 
 
 

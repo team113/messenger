@@ -374,7 +374,7 @@ class _ChatWatchData {
     List<Attachment> attachments = const [],
   }) {
     final String name = author?.title ?? 'x';
-    final String num = author?.num.toString() ?? 'err_unknown_user'.l10n;
+    final String num = author?.num.toString() ?? ('dot'.l10n * 3);
     final String type = isGroup ? 'group' : 'dialog';
     String attachmentsType = attachments.every((e) => e is ImageAttachment)
         ? 'image'
@@ -414,12 +414,12 @@ class _ChatWatchData {
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_added_you_to_group'.l10nfmt({
             'authorName': author?.title ?? 'x',
-            'authorNum': author?.num.toString() ?? 'err_unknown_user'.l10n,
+            'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
           });
         } else {
           return 'fcm_user_added_user'.l10nfmt({
             'authorName': author?.title ?? 'x',
-            'authorNum': author?.num.toString() ?? 'err_unknown_user'.l10n,
+            'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
             'userName': action.user.title,
             'userNum': action.user.num.toString(),
           });
@@ -436,12 +436,12 @@ class _ChatWatchData {
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_removed_you'.l10nfmt({
             'authorName': author?.title ?? 'x',
-            'authorNum': author?.num.toString() ?? 'err_unknown_user'.l10n,
+            'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
           });
         } else {
           return 'fcm_user_removed_user'.l10nfmt({
             'authorName': author?.title ?? 'x',
-            'authorNum': author?.num.toString() ?? 'err_unknown_user'.l10n,
+            'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
             'userName': action.user.title,
             'userNum': action.user.num.toString(),
           });
@@ -452,7 +452,7 @@ class _ChatWatchData {
 
         return 'fcm_group_avatar_changed'.l10nfmt({
           'userName': author?.title ?? 'x',
-          'userNum': author?.num.toString() ?? 'err_unknown_user'.l10n,
+          'userNum': author?.num.toString() ?? ('dot'.l10n * 3),
           'operation': action.avatar == null ? 'remove' : 'update',
         });
 
@@ -461,7 +461,7 @@ class _ChatWatchData {
 
         return 'fcm_group_name_changed'.l10nfmt({
           'userName': author?.title ?? 'x',
-          'userNum': author?.num.toString() ?? 'err_unknown_user'.l10n,
+          'userNum': author?.num.toString() ?? ('dot'.l10n * 3),
           'operation': action.name == null ? 'remove' : 'update',
           'groupName': action.name?.val ?? '',
         });

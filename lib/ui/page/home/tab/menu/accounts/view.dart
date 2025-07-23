@@ -25,7 +25,6 @@ import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/auth/account_is_not_accessible/view.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/login/controller.dart';
@@ -37,7 +36,6 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 
@@ -151,43 +149,11 @@ class AccountsView extends StatelessWidget {
                 onBack: () => c.stage.value = AccountsViewStage.add,
               );
               children = [
-                Text.rich(
-                  'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text})
-                      .parseLinks([], style.fonts.medium.regular.primary),
-                  style: style.fonts.medium.regular.onBackground,
-                ),
-                const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Obx(() {
-                    return Text(
-                      c.resendEmailTimeout.value == 0
-                          ? 'label_did_not_receive_code'.l10n
-                          : 'label_code_sent_again'.l10n,
-                      style: style.fonts.medium.regular.onBackground,
-                    );
-                  }),
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Obx(() {
-                    final bool enabled = c.resendEmailTimeout.value == 0;
-
-                    return WidgetButton(
-                      onPressed: enabled ? c.resendEmail : null,
-                      child: Text(
-                        enabled
-                            ? 'btn_resend_code'.l10n
-                            : 'label_wait_seconds'.l10nfmt({
-                                'for': c.resendEmailTimeout.value,
-                              }),
-                        style: enabled
-                            ? style.fonts.medium.regular.primary
-                            : style.fonts.medium.regular.onBackground,
-                      ),
-                    );
-                  }),
+                Center(child: Text(c.email.text)),
+                SizedBox(height: 20),
+                Text(
+                  'label_add_email_confirmation_sent'.l10n,
+                  style: style.fonts.small.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -195,22 +161,47 @@ class AccountsView extends StatelessWidget {
                   state: c.emailCode,
                   label: 'label_one_time_password'.l10n,
                   type: TextInputType.number,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  hint: 'label_enter_code'.l10n,
+                  obscure: c.obscureCode.value,
+                  onSuffixPressed: c.obscureCode.toggle,
+                  trailing: Center(
+                    child: SvgIcon(
+                      c.obscureCode.value
+                          ? SvgIcons.visibleOff
+                          : SvgIcons.visibleOn,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
                   final bool enabled =
                       !c.emailCode.isEmpty.value &&
                       c.codeTimeout.value == 0 &&
-                      !c.emailCode.status.value.isLoading;
+                      c.authStatus.value.isEmpty;
 
-                  return PrimaryButton(
-                    key: const Key('Proceed'),
-                    title: c.codeTimeout.value == 0
-                        ? 'btn_send'.l10n
-                        : 'label_wait_seconds'.l10nfmt({
-                            'for': c.codeTimeout.value,
-                          }),
-                    onPressed: enabled ? c.emailCode.submit : null,
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: PrimaryButton(
+                          key: const Key('Resend'),
+                          onPressed: enabled ? c.resendEmail : null,
+                          title: c.resendEmailTimeout.value == 0
+                              ? 'label_resend'.l10n
+                              : 'label_resend_timeout'.l10nfmt({
+                                  'timeout': c.resendEmailTimeout.value,
+                                }),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: PrimaryButton(
+                          key: const Key('Proceed'),
+                          onPressed: c.emailCode.submit,
+                          title: 'btn_sign_up'.l10n,
+                        ),
+                      ),
+                    ],
                   );
                 }),
                 const SizedBox(height: 16),
@@ -230,6 +221,7 @@ class AccountsView extends StatelessWidget {
                   state: c.email,
                   label: 'label_email'.l10n,
                   hint: 'label_email_example'.l10n,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
                 ),
@@ -241,6 +233,9 @@ class AccountsView extends StatelessWidget {
                     return PrimaryButton(
                       onPressed: enabled ? c.email.submit : null,
                       title: 'btn_send_one_time_code'.l10n,
+                      leading: SvgIcon(
+                        enabled ? SvgIcons.emailWhite : SvgIcons.emailGrey,
+                      ),
                     );
                   }),
                 ),

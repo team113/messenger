@@ -309,7 +309,7 @@ void main() async {
     );
   });
 
-  test('ChatService throws a ReadChatException', () async {
+  test('ChatService does not throw a ReadChatException', () async {
     when(
       graphQlProvider.recentChats(
         first: anyNamed('first'),
@@ -401,16 +401,10 @@ void main() async {
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     await chatService.get(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'));
 
-    Exception? exception;
-
-    try {
-      await chatService.readChat(
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        const ChatItemId('0'),
-      );
-    } on ReadChatException catch (e) {
-      exception = e;
-    }
+    await chatService.readChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      const ChatItemId('0'),
+    );
 
     verify(
       graphQlProvider.readChat(
@@ -418,8 +412,6 @@ void main() async {
         const ChatItemId('0'),
       ),
     );
-
-    assert(exception is ReadChatException);
   });
 
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));

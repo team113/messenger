@@ -24,7 +24,6 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View of the [MyUser] deletion confirmation.
@@ -45,77 +44,113 @@ class ConfirmDeleteView extends StatelessWidget {
       init: ConfirmDeleteController(Get.find(), Get.find()),
       builder: (ConfirmDeleteController c) {
         return Obx(() {
-          final List<Widget> children = [];
+          final List<Widget> children = [
+            const SizedBox(height: 12),
+            Center(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
+                    TextSpan(
+                      text: '${c.myUser.value?.name ?? c.myUser.value?.num}',
+                      style: style.fonts.small.regular.onBackground,
+                    ),
+                    TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
+                  ],
+                ),
+                style: style.fonts.small.regular.secondary,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ];
 
-          if (c.myUser.value?.emails.confirmed.isNotEmpty == true) {
+          final bool hasEmail =
+              c.myUser.value?.emails.confirmed.isNotEmpty == true;
+          final bool hasPassword = c.myUser.value?.hasPassword == true;
+
+          if (hasEmail) {
             children.addAll([
               const SizedBox(height: 12),
               Text(
-                'label_add_email_confirmation_sent_to'.l10nfmt({
-                  'email': '${c.myUser.value?.emails.confirmed.firstOrNull}',
-                }),
-                style: style.fonts.normal.regular.onBackground,
+                hasPassword
+                    ? 'label_enter_password_or_one_time_code'.l10n
+                    : 'label_enter_one_time_code'.l10n,
+                style: style.fonts.small.regular.secondary,
               ),
-              const SizedBox(height: 16),
-              Obx(() {
-                return Text(
-                  c.resendEmailTimeout.value == 0
-                      ? 'label_did_not_receive_code'.l10n
-                      : 'label_code_sent_again'.l10n,
-                  style: style.fonts.normal.regular.onBackground,
-                );
-              }),
-              Obx(() {
-                final bool enabled = c.resendEmailTimeout.value == 0;
 
-                return WidgetButton(
-                  onPressed: enabled ? c.sendConfirmationCode : null,
-                  child: Text(
-                    enabled
-                        ? 'btn_resend_code'.l10n
-                        : 'label_wait_seconds'.l10nfmt({
-                            'for': c.resendEmailTimeout.value,
-                          }),
-                    style: enabled
-                        ? style.fonts.normal.regular.primary
-                        : style.fonts.normal.regular.onBackground,
-                  ),
-                );
-              }),
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               ReactiveTextField(
                 state: c.code,
-                hint: 'label_one_time_password'.l10n,
-              ),
-              const SizedBox(height: 25),
-              PrimaryButton(
-                key: const Key('Proceed'),
-                onPressed: c.deleteAccount,
-                title: 'btn_proceed'.l10n,
-              ),
-              const SizedBox(height: 16),
-            ]);
-          } else if (c.myUser.value?.hasPassword == true) {
-            children.addAll([
-              const SizedBox(height: 12),
-              Text(
-                'label_enter_password_below'.l10n,
-                style: style.fonts.normal.regular.secondary,
-              ),
-              const SizedBox(height: 12),
-              Obx(() {
-                return ReactiveTextField(
-                  key: const Key('PasswordField'),
-                  state: c.password,
-                  obscure: c.obscurePassword.value,
-                  onSuffixPressed: c.obscurePassword.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgIcon(
+                label: hasPassword
+                    ? 'label_password_or_one_time_code'.l10n
+                    : 'label_one_time_password'.l10n,
+                hint: hasPassword
+                    ? 'label_enter_password_or_code'.l10n
+                    : 'label_enter_code'.l10n,
+                obscure: c.obscurePassword.value,
+                trailing: Center(
+                  child: SvgIcon(
                     c.obscurePassword.value
                         ? SvgIcons.visibleOff
                         : SvgIcons.visibleOn,
                   ),
-                  hint: 'label_password'.l10n,
+                ),
+                onSuffixPressed: c.obscurePassword.toggle,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+              ),
+              const SizedBox(height: 25),
+              Obx(() {
+                final bool enabled = c.code.status.value.isEmpty;
+
+                return Row(
+                  children: [
+                    Expanded(
+                      child: PrimaryButton(
+                        key: const Key('Resend'),
+                        onPressed: c.resendEmailTimeout.value == 0 && enabled
+                            ? c.sendConfirmationCode
+                            : null,
+                        title: c.resendEmailTimeout.value == 0
+                            ? 'label_resend'.l10n
+                            : 'label_resend_timeout'.l10nfmt({
+                                'timeout': c.resendEmailTimeout.value,
+                              }),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: PrimaryButton(
+                        key: const Key('Proceed'),
+                        danger: true,
+                        onPressed: c.deleteAccount,
+                        title: 'btn_confirm'.l10n,
+                      ),
+                    ),
+                  ],
+                );
+              }),
+              const SizedBox(height: 16),
+            ]);
+          } else if (hasPassword) {
+            children.addAll([
+              const SizedBox(height: 18),
+              Obx(() {
+                return ReactiveTextField(
+                  key: const Key('PasswordField'),
+                  state: c.password,
+                  treatErrorAsStatus: false,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  obscure: c.obscurePassword.value,
+                  onSuffixPressed: c.obscurePassword.toggle,
+                  trailing: Center(
+                    child: SvgIcon(
+                      c.obscurePassword.value
+                          ? SvgIcons.visibleOff
+                          : SvgIcons.visibleOn,
+                    ),
+                  ),
+                  hint: 'label_enter_password'.l10n,
+                  label: 'label_password'.l10n,
                 );
               }),
               const SizedBox(height: 25),
@@ -124,9 +159,10 @@ class ConfirmDeleteView extends StatelessWidget {
                     !c.password.isEmpty.value && c.password.error.value == null;
 
                 return PrimaryButton(
+                  danger: true,
                   key: const Key('Proceed'),
                   onPressed: enabled ? c.deleteAccount : null,
-                  title: 'btn_proceed'.l10n,
+                  title: 'btn_confirm'.l10n,
                 );
               }),
               const SizedBox(height: 16),
@@ -136,7 +172,7 @@ class ConfirmDeleteView extends StatelessWidget {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ModalPopupHeader(text: 'label_confirm_account_deletion'.l10n),
+              ModalPopupHeader(text: 'label_delete_account'.l10n),
               Flexible(
                 child: ListView(
                   padding: ModalPopup.padding(context),

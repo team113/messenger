@@ -69,7 +69,7 @@ class UserView extends StatelessWidget {
               ),
               body: Center(
                 child: c.status.value.isEmpty
-                    ? Text('err_unknown_user'.l10n)
+                    ? Text('label_unknown_page'.l10n)
                     : const CustomProgressIndicator(),
               ),
             );
@@ -341,26 +341,6 @@ class UserView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-
-        // TODO: Uncomment, when contacts are implemented.
-        // ActionButton(
-        //   text: contact
-        //       ? 'btn_delete_from_contacts'.l10n
-        //       : 'btn_add_to_contacts'.l10n,
-        //   onPressed: contact ? c.removeFromContacts : c.addToContacts,
-        //   trailing: SvgIcon(
-        //     contact ? SvgIcons.deleteContact16 : SvgIcons.addContact16,
-        //   ),
-        // ),
-        // ActionButton(
-        //   text: favorite
-        //       ? 'btn_delete_from_favorites'.l10n
-        //       : 'btn_add_to_favorites'.l10n,
-        //   onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
-        //   trailing: SvgIcon(
-        //     favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
-        //   ),
-        // ),
         ActionButton(
           key: favorite
               ? const Key('UnfavoriteButton')

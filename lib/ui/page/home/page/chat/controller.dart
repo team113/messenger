@@ -805,11 +805,11 @@ class ChatController extends GetxController {
                 MessagePopup.error(e);
               }
             } catch (e) {
-              MessagePopup.error(e);
+              MessagePopup.error('err_data_transfer'.l10n);
               rethrow;
             }
           } else {
-            MessagePopup.error('err_no_text_no_attachment_and_reply'.l10n);
+            closeEditing();
           }
         },
         onChanged: () {
