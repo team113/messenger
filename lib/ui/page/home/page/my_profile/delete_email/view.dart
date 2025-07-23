@@ -90,11 +90,11 @@ class DeleteEmailView extends StatelessWidget {
                     ),
                     label: hasPassword
                         ? 'label_password_or_one_time_code'.l10n
-                        : 'label_one_time_code'.l10n,
+                        : 'label_one_time_password'.l10n,
                     floatingLabelBehavior: FloatingLabelBehavior.always,
                     hint: hasPassword
                         ? 'label_enter_password_or_code'.l10n
-                        : 'label_one_time_code_hint'.l10n,
+                        : 'label_enter_code'.l10n,
                   );
                 }),
                 const SizedBox(height: 25),

@@ -85,17 +85,15 @@ class AudioUtilsImpl {
 
   /// Plays the provided [sound] once.
   Future<void> once(AudioSource sound) async {
+    Log.debug('once($sound)', '$runtimeType');
+
     ensureInitialized();
 
     if (PlatformUtils.isWeb) {
-      final String url = switch (sound.kind) {
-        AudioSourceKind.asset => (sound as AssetAudioSource).asset,
-        AudioSourceKind.file => '',
-        AudioSourceKind.url => (sound as UrlAudioSource).url,
-      };
+      final String url = sound.direct;
 
       if (url.isNotEmpty) {
-        await WebUtils.play('$url?${Pubspec.ref}');
+        await (WebUtils.play('$url?${Pubspec.ref}')).listen((_) {}).asFuture();
       }
     } else if (_isMobile) {
       await _jaPlayer?.setAudioSource(sound.source);
@@ -112,8 +110,11 @@ class AudioUtilsImpl {
     AudioSource music, {
     Duration fade = Duration.zero,
   }) {
+    Log.debug('play($music)', '$runtimeType');
+
     StreamController? controller = _players[music];
     StreamSubscription? position;
+    StreamSubscription? playback;
 
     if (controller == null) {
       ja.AudioPlayer? jaPlayer;
@@ -122,6 +123,16 @@ class AudioUtilsImpl {
 
       controller = StreamController.broadcast(
         onListen: () async {
+          if (PlatformUtils.isWeb) {
+            playback?.cancel();
+            playback = WebUtils.play(
+              '${music.direct}?${Pubspec.ref}',
+              loop: true,
+            ).listen((_) {});
+
+            return;
+          }
+
           try {
             if (_isMobile) {
               jaPlayer = ja.AudioPlayer();
@@ -174,6 +185,11 @@ class AudioUtilsImpl {
           }
         },
         onCancel: () async {
+          if (PlatformUtils.isWeb) {
+            playback?.cancel();
+            return;
+          }
+
           _players.remove(music);
           position?.cancel();
           timer?.cancel();
@@ -195,6 +211,8 @@ class AudioUtilsImpl {
   ///
   /// Only meaningful on mobile devices.
   Future<void> setSpeaker(AudioSpeakerKind speaker) async {
+    Log.debug('setSpeaker($speaker)', '$runtimeType');
+
     if (_isMobile && _speaker != speaker) {
       _speaker = speaker;
       await _setSpeaker();
@@ -205,6 +223,8 @@ class AudioUtilsImpl {
   ///
   /// Only meaningful on mobile devices.
   Future<void> setDefaultSpeaker() async {
+    Log.debug('setDefaultSpeaker()', '$runtimeType');
+
     if (_isMobile) {
       final AudioSession session = await AudioSession.instance;
       final Set<AudioDevice> devices = await session.getDevices(
@@ -242,6 +262,8 @@ class AudioUtilsImpl {
   ///
   /// Should only be called via [setSpeaker].
   Future<void> _setSpeaker() async {
+    Log.debug('_setSpeaker()', '$runtimeType');
+
     // If the [_mutex] is locked, the output device is already being set.
     if (_mutex.isLocked) {
       return;
@@ -433,5 +455,12 @@ extension on AudioSource {
     AudioSourceKind.url => ja.AudioSource.uri(
       Uri.parse((this as UrlAudioSource).url),
     ),
+  };
+
+  /// Returns an actual URL corresponding to this [AudioSource].
+  String get direct => switch (kind) {
+    AudioSourceKind.asset => (this as AssetAudioSource).asset,
+    AudioSourceKind.file => (this as FileAudioSource).file,
+    AudioSourceKind.url => (this as UrlAudioSource).url,
   };
 }

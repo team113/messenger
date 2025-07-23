@@ -275,7 +275,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   state: c.email,
                   label: 'label_email'.l10n,
-                  hint: 'example@domain.com',
+                  hint: 'label_email_example'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
@@ -287,7 +287,7 @@ class LoginView extends StatelessWidget {
 
                     return PrimaryButton(
                       onPressed: enabled ? c.email.submit : null,
-                      title: 'btn_proceed'.l10n,
+                      title: 'btn_send_one_time_code'.l10n,
                     );
                   }),
                 ),
@@ -366,7 +366,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
                   state: c.emailCode,
-                  label: 'label_one_time_code'.l10n,
+                  label: 'label_one_time_password'.l10n,
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
@@ -458,7 +458,7 @@ class LoginView extends StatelessWidget {
 
             case LoginViewStage.signInWithEmail:
               header = ModalPopupHeader(
-                text: 'label_sign_in'.l10n,
+                text: 'label_sign_in_with_one_time_code'.l10n,
                 onBack: () {
                   c.stage.value = LoginViewStage.signIn;
                   c.email.unsubmit();
@@ -469,7 +469,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   state: c.email,
                   label: 'label_email'.l10n,
-                  hint: 'example@domain.com',
+                  hint: 'label_email_example'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
@@ -481,7 +481,7 @@ class LoginView extends StatelessWidget {
 
                     return PrimaryButton(
                       onPressed: enabled ? c.email.submit : null,
-                      title: 'btn_proceed'.l10n,
+                      title: 'btn_send_one_time_code'.l10n,
                     );
                   }),
                 ),
@@ -491,7 +491,7 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.signInWithEmailCode:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signInWithEmail,
-                text: 'label_sign_in'.l10n,
+                text: 'label_sign_in_with_one_time_code'.l10n,
               );
 
               children = [
@@ -531,7 +531,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
                   state: c.emailCode,
-                  label: 'label_one_time_code'.l10n,
+                  label: 'label_one_time_password'.l10n,
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
@@ -575,7 +575,7 @@ class LoginView extends StatelessWidget {
                 SignButton(
                   key: const Key('EmailButton'),
                   title: 'btn_email'.l10n,
-                  subtitle: 'label_one_time_code'.l10n,
+                  subtitle: 'label_one_time_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithEmail,
                   icon: const SvgIcon(SvgIcons.email),
@@ -672,16 +672,6 @@ class LoginView extends StatelessWidget {
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms3'.l10n,
-            style: style.fonts.small.regular.secondary,
-          ),
-          TextSpan(
-            text: 'alert_by_proceeding_you_accept_terms4'.l10n,
-            style: style.fonts.small.regular.primary,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => TermsOfUseView.show(context),
-          ),
-          TextSpan(
-            text: 'alert_by_proceeding_you_accept_terms5'.l10n,
             style: style.fonts.small.regular.secondary,
           ),
         ],

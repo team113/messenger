@@ -38,6 +38,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'account_is_not_accessible/view.dart';
 import 'controller.dart';
 import 'widget/animated_logo.dart';
 import 'widget/cupertino_button.dart';
@@ -124,7 +125,7 @@ class AuthView extends StatelessWidget {
         // flickering.
         List<Widget> header = [
           Text(
-            'label_messenger'.l10n,
+            'label_messenger1'.l10n,
             style: style.fonts.largest.regular.secondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
@@ -132,7 +133,7 @@ class AuthView extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'label_by_gapopa'.l10n,
+            'label_messenger2'.l10n,
             style: style.fonts.large.regular.secondary,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
@@ -166,11 +167,20 @@ class AuthView extends StatelessWidget {
 
                     onTap: () async {
                       if (expired) {
-                        await LoginView.show(
-                          context,
-                          initial: LoginViewStage.signIn,
-                          myUser: e,
-                        );
+                        final hasPasswordOrEmail =
+                            e.hasPassword ||
+                            e.emails.confirmed.isNotEmpty ||
+                            e.phones.confirmed.isNotEmpty;
+
+                        if (hasPasswordOrEmail) {
+                          await LoginView.show(
+                            context,
+                            initial: LoginViewStage.signIn,
+                            myUser: e,
+                          );
+                        } else {
+                          await AccountIsNotAccessibleView.show(context, e);
+                        }
                       } else {
                         await c.signInAs(e);
                       }
@@ -183,41 +193,76 @@ class AuthView extends StatelessWidget {
                           child: child,
                         ),
                         onPressed: () async {
+                          final bool hasPassword = e.hasPassword;
+                          final bool canRecover =
+                              e.emails.confirmed.isNotEmpty ||
+                              e.phones.confirmed.isNotEmpty;
+
                           final result = await MessagePopup.alert(
-                            'btn_logout'.l10n,
-                            description: [
-                              TextSpan(
-                                style: style.fonts.medium.regular.secondary,
-                                children: [
-                                  TextSpan(
-                                    text: 'alert_are_you_sure_want_to_log_out1'
-                                        .l10n,
-                                  ),
-                                  TextSpan(
-                                    style:
-                                        style.fonts.medium.regular.onBackground,
-                                    text: '${e.name ?? e.num}',
-                                  ),
-                                  TextSpan(
-                                    text: 'alert_are_you_sure_want_to_log_out2'
-                                        .l10n,
-                                  ),
-                                  if (!e.hasPassword) ...[
-                                    const TextSpan(text: '\n\n'),
-                                    TextSpan(
-                                      text: 'label_password_not_set'.l10n,
-                                    ),
-                                  ],
-                                  if (e.emails.confirmed.isEmpty &&
-                                      e.phones.confirmed.isEmpty) ...[
-                                    const TextSpan(text: '\n\n'),
-                                    TextSpan(
-                                      text: 'label_email_or_phone_not_set'.l10n,
-                                    ),
-                                  ],
-                                ],
+                            'btn_remove_account'.l10n,
+                            additional: [
+                              Center(
+                                child: Text(
+                                  '${e.name ?? e.num}',
+                                  style:
+                                      style.fonts.normal.regular.onBackground,
+                                ),
                               ),
+
+                              if (!hasPassword || !canRecover)
+                                const SizedBox(height: 16),
+
+                              if (!hasPassword)
+                                RichText(
+                                  text: TextSpan(
+                                    style: style.fonts.small.regular.secondary,
+                                    children: [
+                                      TextSpan(
+                                        text: 'label_password_not_set1'.l10n,
+                                        style: style
+                                            .fonts
+                                            .small
+                                            .regular
+                                            .onBackground,
+                                      ),
+                                      TextSpan(
+                                        text: 'label_password_not_set2'.l10n,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                              if (!hasPassword && !canRecover)
+                                const SizedBox(height: 16),
+
+                              if (!canRecover) ...[
+                                RichText(
+                                  text: TextSpan(
+                                    style: style.fonts.small.regular.secondary,
+                                    children: [
+                                      TextSpan(
+                                        text: 'label_email_or_phone_not_set1'
+                                            .l10n,
+                                      ),
+                                      TextSpan(
+                                        text: 'label_email_or_phone_not_set2'
+                                            .l10n,
+                                        style: style
+                                            .fonts
+                                            .small
+                                            .regular
+                                            .onBackground,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ],
+                            button: (context) => MessagePopup.deleteButton(
+                              context,
+                              label: 'btn_remove_account'.l10n,
+                              icon: SvgIcons.removeFromCallWhite,
+                            ),
                           );
 
                           if (result == true) {
@@ -237,6 +282,11 @@ class AuthView extends StatelessWidget {
                         Text(
                           'label_sign_in_required'.l10n,
                           style: style.fonts.small.regular.danger,
+                        )
+                      else
+                        Text(
+                          'label_signed_in'.l10n,
+                          style: style.fonts.small.regular.secondary,
                         ),
 
                       // TODO: Uncomment, when [MyUser]s will receive their
@@ -285,32 +335,38 @@ class AuthView extends StatelessWidget {
                 Obx(() {
                   return OutlinedRoundedButton(
                     key: const Key('StartButton'),
-                    maxWidth: 210,
+                    maxWidth: 240,
                     height: 46,
                     leading: Transform.translate(
                       offset: const Offset(4, 0),
                       child: const SvgIcon(SvgIcons.guest),
                     ),
                     onPressed: c.authStatus.value.isEmpty ? c.register : () {},
-                    child: Text('btn_guest'.l10n),
+                    child: Text(
+                      'btn_guest'.l10n,
+                      style: style.fonts.medium.regular.onBackground,
+                    ),
                   );
                 }),
                 const SizedBox(height: 15),
                 OutlinedRoundedButton(
                   key: const Key('RegisterButton'),
-                  maxWidth: 210,
+                  maxWidth: 240,
                   height: 46,
                   leading: Transform.translate(
                     offset: const Offset(3, 0),
                     child: const SvgIcon(SvgIcons.register),
                   ),
                   onPressed: () => LoginView.show(context),
-                  child: Text('btn_sign_up'.l10n),
+                  child: Text(
+                    'btn_sign_up'.l10n,
+                    style: style.fonts.medium.regular.onBackground,
+                  ),
                 ),
                 const SizedBox(height: 15),
                 OutlinedRoundedButton(
                   key: const Key('SignInButton'),
-                  maxWidth: 210,
+                  maxWidth: 240,
                   height: 46,
                   leading: Transform.translate(
                     offset: const Offset(4, 0),
@@ -318,7 +374,10 @@ class AuthView extends StatelessWidget {
                   ),
                   onPressed: () =>
                       LoginView.show(context, initial: LoginViewStage.signIn),
-                  child: Text('btn_sign_in'.l10n),
+                  child: Text(
+                    'btn_sign_in'.l10n,
+                    style: style.fonts.medium.regular.onBackground,
+                  ),
                 ),
                 const SizedBox(height: 15),
               ];

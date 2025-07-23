@@ -240,7 +240,7 @@ class ContactsTabView extends StatelessWidget {
                       actions: [
                         ContextMenuButton(
                           key: const Key('SelectContactsButton'),
-                          label: 'btn_select_and_delete'.l10n,
+                          label: 'btn_select'.l10n,
                           onPressed: c.toggleSelecting,
                           trailing: const SvgIcon(SvgIcons.select),
                           inverted: const SvgIcon(SvgIcons.selectWhite),

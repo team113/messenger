@@ -40,14 +40,17 @@ class BlocklistRecordWidget extends StatelessWidget {
       children: [
         Paddings.basic(
           InfoTile(
-            title: 'label_date'.l10n,
+            title: 'label_block_date'.l10n,
             content: record.at.val.toLocal().yMdHm,
           ),
         ),
         if (record.reason != null) ...[
           const SizedBox(height: 8),
           Paddings.basic(
-            InfoTile(title: 'label_reason'.l10n, content: record.reason!.val),
+            InfoTile(
+              title: 'label_block_reason'.l10n,
+              content: record.reason!.val,
+            ),
           ),
         ],
         if (onUnblock != null) ...[

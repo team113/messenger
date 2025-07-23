@@ -24,6 +24,7 @@ import 'package:get/get.dart';
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/auth/account_is_not_accessible/view.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
@@ -192,7 +193,7 @@ class AccountsView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
                   state: c.emailCode,
-                  label: 'label_one_time_code'.l10n,
+                  label: 'label_one_time_password'.l10n,
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
@@ -228,7 +229,7 @@ class AccountsView extends StatelessWidget {
                 ReactiveTextField(
                   state: c.email,
                   label: 'label_email'.l10n,
-                  hint: 'example@domain.com',
+                  hint: 'label_email_example'.l10n,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
                 ),
@@ -237,16 +238,9 @@ class AccountsView extends StatelessWidget {
                   child: Obx(() {
                     final bool enabled = !c.email.isEmpty.value;
 
-                    return OutlinedRoundedButton(
+                    return PrimaryButton(
                       onPressed: enabled ? c.email.submit : null,
-                      color: style.colors.primary,
-                      maxWidth: double.infinity,
-                      child: Text(
-                        'btn_proceed'.l10n,
-                        style: enabled
-                            ? style.fonts.medium.regular.onPrimary
-                            : style.fonts.medium.regular.onBackground,
-                      ),
+                      title: 'btn_send_one_time_code'.l10n,
                     );
                   }),
                 ),
@@ -352,11 +346,23 @@ class AccountsView extends StatelessWidget {
                           ? null
                           : () async {
                               if (expired) {
-                                await LoginView.show(
-                                  context,
-                                  initial: LoginViewStage.signIn,
-                                  myUser: myUser,
-                                );
+                                final hasPasswordOrEmail =
+                                    myUser.hasPassword ||
+                                    myUser.emails.confirmed.isNotEmpty ||
+                                    myUser.phones.confirmed.isNotEmpty;
+
+                                if (hasPasswordOrEmail) {
+                                  await LoginView.show(
+                                    context,
+                                    initial: LoginViewStage.signIn,
+                                    myUser: myUser,
+                                  );
+                                } else {
+                                  await AccountIsNotAccessibleView.show(
+                                    context,
+                                    myUser,
+                                  );
+                                }
                               } else {
                                 Navigator.of(context).pop();
                                 await c.switchTo(myUser.id);
@@ -379,47 +385,78 @@ class AccountsView extends StatelessWidget {
                             child: child,
                           ),
                           onPressed: () async {
+                            final bool hasPassword = myUser.hasPassword;
+                            final bool canRecover =
+                                myUser.emails.confirmed.isNotEmpty ||
+                                myUser.phones.confirmed.isNotEmpty;
+
                             final bool? result = await MessagePopup.alert(
-                              'btn_logout'.l10n,
-                              description: [
-                                TextSpan(
-                                  style: style.fonts.medium.regular.secondary,
-                                  children: [
-                                    TextSpan(
-                                      text:
-                                          'alert_are_you_sure_want_to_log_out1'
-                                              .l10n,
-                                    ),
-                                    TextSpan(
-                                      style: style
-                                          .fonts
-                                          .medium
-                                          .regular
-                                          .onBackground,
-                                      text: '${myUser.name ?? myUser.num}',
-                                    ),
-                                    TextSpan(
-                                      text:
-                                          'alert_are_you_sure_want_to_log_out2'
-                                              .l10n,
-                                    ),
-                                    if (!myUser.hasPassword) ...[
-                                      const TextSpan(text: '\n\n'),
-                                      TextSpan(
-                                        text: 'label_password_not_set'.l10n,
-                                      ),
-                                    ],
-                                    if (myUser.emails.confirmed.isEmpty &&
-                                        myUser.phones.confirmed.isEmpty) ...[
-                                      const TextSpan(text: '\n\n'),
-                                      TextSpan(
-                                        text:
-                                            'label_email_or_phone_not_set'.l10n,
-                                      ),
-                                    ],
-                                  ],
+                              'btn_remove_account'.l10n,
+                              additional: [
+                                Center(
+                                  child: Text(
+                                    '${myUser.name ?? myUser.num}',
+                                    style:
+                                        style.fonts.normal.regular.onBackground,
+                                  ),
                                 ),
+
+                                if (!hasPassword || !canRecover)
+                                  const SizedBox(height: 16),
+
+                                if (!hasPassword)
+                                  RichText(
+                                    text: TextSpan(
+                                      style:
+                                          style.fonts.small.regular.secondary,
+                                      children: [
+                                        TextSpan(
+                                          text: 'label_password_not_set1'.l10n,
+                                          style: style
+                                              .fonts
+                                              .small
+                                              .regular
+                                              .onBackground,
+                                        ),
+                                        TextSpan(
+                                          text: 'label_password_not_set2'.l10n,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                if (!hasPassword && !canRecover)
+                                  const SizedBox(height: 16),
+
+                                if (!canRecover) ...[
+                                  RichText(
+                                    text: TextSpan(
+                                      style:
+                                          style.fonts.small.regular.secondary,
+                                      children: [
+                                        TextSpan(
+                                          text: 'label_email_or_phone_not_set1'
+                                              .l10n,
+                                        ),
+                                        TextSpan(
+                                          text: 'label_email_or_phone_not_set2'
+                                              .l10n,
+                                          style: style
+                                              .fonts
+                                              .small
+                                              .regular
+                                              .onBackground,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ],
+                              button: (context) => MessagePopup.deleteButton(
+                                context,
+                                label: 'btn_remove_account'.l10n,
+                                icon: SvgIcons.removeFromCallWhite,
+                              ),
                             );
 
                             if (result == true) {
@@ -443,6 +480,11 @@ class AccountsView extends StatelessWidget {
                           Text(
                             'label_sign_in_required'.l10n,
                             style: style.fonts.small.regular.danger,
+                          )
+                        else
+                          Text(
+                            'label_signed_in'.l10n,
+                            style: style.fonts.small.regular.secondary,
                           ),
 
                         // TODO: Uncomment, when [MyUser]s will receive their

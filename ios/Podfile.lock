@@ -118,7 +118,7 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - instrumentisto-libwebrtc-bin (136.0.7103.92)
+  - instrumentisto-libwebrtc-bin (138.0.7204.100)
   - integration_test (0.0.1):
     - Flutter
   - irondash_engine_context (0.0.1):
@@ -126,10 +126,10 @@ PODS:
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
-  - medea_flutter_webrtc (0.14.0):
+  - medea_flutter_webrtc (0.15.1):
     - Flutter
-    - instrumentisto-libwebrtc-bin (= 136.0.7103.92)
-  - medea_jason (0.9.1):
+    - instrumentisto-libwebrtc-bin (= 138.0.7204.100)
+  - medea_jason (0.11.0):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
     - Flutter
@@ -157,11 +157,11 @@ PODS:
   - SDWebImage (5.21.1):
     - SDWebImage/Core (= 5.21.1)
   - SDWebImage/Core (5.21.1)
-  - Sentry/HybridSDK (8.46.0)
-  - sentry_flutter (8.14.2):
+  - Sentry/HybridSDK (8.52.1)
+  - sentry_flutter (9.4.1):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.46.0)
+    - Sentry/HybridSDK (= 8.52.1)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -368,12 +368,12 @@ SPEC CHECKSUMS:
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
   image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
-  instrumentisto-libwebrtc-bin: 16b8b2d319afc89fbc4527275ad3726a8ae3e201
+  instrumentisto-libwebrtc-bin: 522036a664b313c1102578ed9489f9fcff3be1b4
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   irondash_engine_context: 8e58ca8e0212ee9d1c7dc6a42121849986c88486
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
-  medea_flutter_webrtc: c6c3f1b5b3193c549d9520414c62e47b1dfbd2cf
-  medea_jason: 36b5aa477692e0e2e1560e3f212d241406ff3156
+  medea_flutter_webrtc: b321871bb759df49c25ffaf2871606bc43f1b442
+  medea_jason: ce490beea3fb2e1080956de5be9dfbd22a407003
   media_kit_libs_ios_video: 5a18affdb97d1f5d466dc79988b13eff6c5e2854
   media_kit_video: 1746e198cb697d1ffb734b1d05ec429d1fcd1474
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
@@ -385,8 +385,8 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   screen_brightness_ios: 28c5fbdb40634de44f86025d84470158ad4df48c
   SDWebImage: f29024626962457f3470184232766516dee8dfea
-  Sentry: da60d980b197a46db0b35ea12cb8f39af48d8854
-  sentry_flutter: 27892878729f42701297c628eb90e7c6529f3684
+  Sentry: 2cbbe3592f30050c60e916c63c7f5a2fa584005e
+  sentry_flutter: 1802094c8f8dc5f0d733a77eeb91068b9abf9d76
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   SQLite.swift: a107c734115fea616a4ad31371d39f1637e8de56
