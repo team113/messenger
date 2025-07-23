@@ -19,7 +19,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - Desktop:
-    - Redesign routes switching animation. ([#1336], [#1311])
+    - Route switching animation. ([#1336], [#1311])
 - UI:
     - Chat page:
         - Redesigned editing mode. ([#1327])
