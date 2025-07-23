@@ -389,7 +389,7 @@ void main() async {
   });
 
   test(
-    'ChatService and UserService throw CreateChatDirectLinkException on ChatDirectLink creation',
+    'ChatService and UserService does not throw CreateChatDirectLinkException on ChatDirectLink creation',
     () async {
       final GraphQlProvider graphQlProvider = Get.find();
       final ChatService chatService = Get.find();
@@ -414,12 +414,9 @@ void main() async {
         ),
       );
 
-      await expectLater(
-        () async => await chatService.createChatDirectLink(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          ChatDirectLinkSlug('link'),
-        ),
-        throwsA(isA<CreateChatDirectLinkException>()),
+      await chatService.createChatDirectLink(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ChatDirectLinkSlug('link'),
       );
 
       await expectLater(

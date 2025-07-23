@@ -28,7 +28,13 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
-    show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence, CropAreaInput;
+    show
+        AddUserEmailErrorCode,
+        AddUserPhoneErrorCode,
+        Presence,
+        CropAreaInput,
+        UpdateUserAvatarErrorCode,
+        UpdateUserCallCoverErrorCode;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
@@ -383,10 +389,10 @@ class MyProfileController extends GetxController {
 
             if (myUser.value!.phones.confirmed.contains(phone) ||
                 myUser.value?.phones.unconfirmed == phone) {
-              s.error.value = 'err_you_already_add_this_phone'.l10n;
+              s.error.value = 'err_you_already_add_this_email'.l10n;
             }
           } on FormatException {
-            s.error.value = 'err_incorrect_phone'.l10n;
+            s.error.value = 'err_incorrect_input'.l10n;
           }
         }
       },
@@ -874,11 +880,33 @@ class MyProfileController extends GetxController {
         _myUserService.updateCallCover(file),
       ]);
     } on UpdateUserAvatarException catch (e) {
-      MessagePopup.error(e);
+      switch (e.code) {
+        case UpdateUserAvatarErrorCode.invalidCropCoordinates:
+        case UpdateUserAvatarErrorCode.invalidCropPoints:
+          MessagePopup.error('err_data_transfer'.l10n);
+
+        case UpdateUserAvatarErrorCode.malformed:
+        case UpdateUserAvatarErrorCode.unsupportedFormat:
+        case UpdateUserAvatarErrorCode.invalidSize:
+        case UpdateUserAvatarErrorCode.invalidDimensions:
+        case UpdateUserAvatarErrorCode.artemisUnknown:
+          MessagePopup.error(e);
+      }
     } on UpdateUserCallCoverException catch (e) {
-      MessagePopup.error(e);
+      switch (e.code) {
+        case UpdateUserCallCoverErrorCode.invalidCropCoordinates:
+        case UpdateUserCallCoverErrorCode.invalidCropPoints:
+          MessagePopup.error('err_data_transfer'.l10n);
+
+        case UpdateUserCallCoverErrorCode.malformed:
+        case UpdateUserCallCoverErrorCode.unsupportedFormat:
+        case UpdateUserCallCoverErrorCode.invalidSize:
+        case UpdateUserCallCoverErrorCode.invalidDimensions:
+        case UpdateUserCallCoverErrorCode.artemisUnknown:
+          MessagePopup.error(e);
+      }
     } catch (e) {
-      MessagePopup.error(e);
+      MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
     }
   }

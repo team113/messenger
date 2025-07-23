@@ -470,7 +470,7 @@ class ChatsTabView extends StatelessWidget {
                                   break;
 
                                 case SearchCategory.contact:
-                                  text = 'label_contact'.l10n;
+                                  text = 'label_user'.l10n;
                                   break;
 
                                 case SearchCategory.user:
