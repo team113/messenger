@@ -24,7 +24,11 @@ import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
-    show ChatCallFinishReason, ChatKind, PostChatMessageErrorCode;
+    show
+        ChatCallFinishReason,
+        ChatKind,
+        PostChatMessageErrorCode,
+        ReadChatErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -45,7 +49,11 @@ import '/provider/drift/chat_member.dart';
 import '/provider/drift/chat.dart';
 import '/provider/drift/draft.dart';
 import '/provider/gql/exceptions.dart'
-    show ConnectionException, PostChatMessageException, StaleVersionException;
+    show
+        ConnectionException,
+        PostChatMessageException,
+        StaleVersionException,
+        ReadChatException;
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
@@ -644,6 +652,10 @@ class RxChatImpl extends RxChat {
   Future<void> read(ChatItemId untilId) async {
     Log.debug('read($untilId)', '$runtimeType($id)');
 
+    if (untilId.isLocal) {
+      return;
+    }
+
     int firstUnreadIndex = 0;
 
     if (firstUnread != null) {
@@ -686,6 +698,21 @@ class RxChatImpl extends RxChat {
             _lastReadItemCursor =
                 item?.cursor ?? _lastReadItemCursor ?? dto.lastReadItemCursor;
             dto.lastReadItemCursor = _lastReadItemCursor;
+          } on ReadChatException catch (e) {
+            switch (e.code) {
+              case ReadChatErrorCode.unknownChat:
+                await _chatRepository.remove(id);
+                break;
+
+              case ReadChatErrorCode.unknownChatItem:
+                if (!untilId.isLocal) {
+                  await remove(untilId);
+                }
+                break;
+
+              case ReadChatErrorCode.artemisUnknown:
+                rethrow;
+            }
           } catch (_) {
             chat.update((e) => e?..lastReadItem = lastReadItem);
             unreadCount.value = chat.value.unreadCount;

@@ -106,6 +106,9 @@
       }
     }
   </style>
+  <script>
+    let audioContext;
+  </script>
 </head>
 
 <body>
@@ -190,6 +193,16 @@
     var click = document.onclick;
     document.onclick = function () {
       Notification.requestPermission();
+
+      if (audioContext == null) {
+        try {
+          audioContext = new AudioContext();
+          console.log('`AudioContext` is populated, thus `AudioUtils` should play sounds via autoplay.');
+        } catch (e) {
+          console.log(`Failed to create "AudioContext" due to: ${e}`);
+        }
+      }
+
       if (click) {
         click();
       }

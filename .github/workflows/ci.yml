@@ -626,6 +626,7 @@ jobs:
                      clang
                      zip
                      xz-utils
+                     default-jdk
 
       - run: git config --global --add safe.directory '*'
 

@@ -649,10 +649,16 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
+
               final ChatService chatService = deps.put(
                 ChatService(chatRepository, Get.find()),
               );
-              deps.put(CallService(Get.find(), chatService, callRepository));
+
+              final CallService callService = deps.put(
+                CallService(Get.find(), chatService, callRepository),
+              );
+              callService.onChatRemoved = chatRepository.remove;
+
               deps.put(BlocklistService(blocklistRepository));
 
               return deps;
@@ -901,12 +907,16 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               );
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
+
               final ChatService chatService = deps.put(
                 ChatService(chatRepository, Get.find()),
               );
+
               final CallService callService = deps.put(
                 CallService(Get.find(), chatService, callRepository),
               );
+              callService.onChatRemoved = chatRepository.remove;
+
               deps.put(BlocklistService(blocklistRepository));
 
               deps.put(
@@ -993,23 +1003,25 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Widget build(BuildContext context) {
-    return LifecycleObserver(
-      onStateChange: (v) => _state.lifecycle.value = v,
-      child: Listener(
-        onPointerDown: (_) => PlatformUtils.keepActive(),
-        onPointerHover: (_) => PlatformUtils.keepActive(),
-        onPointerSignal: (_) => PlatformUtils.keepActive(),
-        child: Scaffold(
-          body: Navigator(
-            key: navigatorKey,
-            observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
-            pages: _pages,
-            onDidRemovePage: (Page<Object?> page) {
-              final bool success = page.canPop;
-              if (success) {
-                _state.pop(page.name);
-              }
-            },
+    return SentryDisplayWidget(
+      child: LifecycleObserver(
+        onStateChange: (v) => _state.lifecycle.value = v,
+        child: Listener(
+          onPointerDown: (_) => PlatformUtils.keepActive(),
+          onPointerHover: (_) => PlatformUtils.keepActive(),
+          onPointerSignal: (_) => PlatformUtils.keepActive(),
+          child: Scaffold(
+            body: Navigator(
+              key: navigatorKey,
+              observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
+              pages: _pages,
+              onDidRemovePage: (Page<Object?> page) {
+                final bool success = page.canPop;
+                if (success) {
+                  _state.pop(page.name);
+                }
+              },
+            ),
           ),
         ),
       ),

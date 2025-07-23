@@ -26,7 +26,8 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '/api/backend/schema.dart' show CropAreaInput, PointInput;
+import '/api/backend/schema.dart'
+    show CropAreaInput, PointInput, UpdateChatAvatarErrorCode;
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
@@ -298,7 +299,20 @@ class ChatInfoController extends GetxController {
 
       avatarUpload.value = RxStatus.empty();
     } on UpdateChatAvatarException catch (e) {
-      avatarUpload.value = RxStatus.error(e.toMessage());
+      switch (e.code) {
+        case UpdateChatAvatarErrorCode.dialog:
+        case UpdateChatAvatarErrorCode.invalidCropCoordinates:
+        case UpdateChatAvatarErrorCode.invalidCropPoints:
+        case UpdateChatAvatarErrorCode.unknownChat:
+          avatarUpload.value = RxStatus.error('err_data_transfer'.l10n);
+
+        case UpdateChatAvatarErrorCode.malformed:
+        case UpdateChatAvatarErrorCode.unsupportedFormat:
+        case UpdateChatAvatarErrorCode.invalidSize:
+        case UpdateChatAvatarErrorCode.invalidDimensions:
+        case UpdateChatAvatarErrorCode.artemisUnknown:
+          avatarUpload.value = RxStatus.error(e.toMessage());
+      }
     } catch (e) {
       avatarUpload.value = RxStatus.empty();
       MessagePopup.error(e);

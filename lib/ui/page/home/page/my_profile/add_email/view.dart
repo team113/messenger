@@ -62,13 +62,7 @@ class AddEmailView extends StatelessWidget {
       init: AddEmailController(Get.find(), email: email, timeout: timeout),
       builder: (AddEmailController c) {
         return Obx(() {
-          final Widget header = ModalPopupHeader(
-            text: switch (c.page.value) {
-              AddEmailPage.add => 'label_add_email'.l10n,
-              AddEmailPage.confirm ||
-              AddEmailPage.success => 'label_confirm_email'.l10n,
-            },
-          );
+          final Widget header = ModalPopupHeader(text: 'label_add_email'.l10n);
 
           final List<Widget> children = switch (c.page.value) {
             AddEmailPage.add => [
@@ -111,14 +105,10 @@ class AddEmailView extends StatelessWidget {
               },
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Obx(() {
-                  return Text(
-                    c.resent.value
-                        ? 'label_add_email_confirmation_sent_again'.l10n
-                        : 'label_add_email_confirmation_sent'.l10n,
-                    style: style.fonts.small.regular.secondary,
-                  );
-                }),
+                child: Text(
+                  'label_add_email_confirmation_sent'.l10n,
+                  style: style.fonts.small.regular.secondary,
+                ),
               ),
               const SizedBox(height: 25),
               ReactiveTextField(
@@ -168,7 +158,7 @@ class AddEmailView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
-                  'label_email_confirmed'.l10n,
+                  'label_add_email_confirmed'.l10n,
                   textAlign: TextAlign.center,
                   style: style.fonts.small.regular.secondary,
                 ),

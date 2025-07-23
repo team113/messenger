@@ -39,12 +39,16 @@
 -dontwarn androidx.compose.ui.semantics.SemanticsActions
 -dontwarn androidx.compose.ui.semantics.SemanticsConfiguration
 -dontwarn androidx.compose.ui.semantics.SemanticsConfigurationKt
+-dontwarn androidx.compose.ui.semantics.SemanticsModifierKt
 -dontwarn androidx.compose.ui.semantics.SemanticsProperties
 -dontwarn androidx.compose.ui.semantics.SemanticsPropertyKey
+-dontwarn androidx.compose.ui.semantics.SemanticsPropertyReceiver
 -dontwarn androidx.compose.ui.text.TextLayoutInput
 -dontwarn androidx.compose.ui.text.TextLayoutResult
 -dontwarn androidx.compose.ui.text.TextStyle
 -dontwarn androidx.compose.ui.unit.IntSize
+-dontwarn androidx.compose.ui.unit.TextUnit
+-dontwarn androidx.compose.ui.unit.TextUnit$Companion
 -dontwarn androidx.window.extensions.area.ExtensionWindowAreaPresentation
 -dontwarn androidx.window.extensions.layout.DisplayFeature
 -dontwarn androidx.window.extensions.layout.FoldingFeature
