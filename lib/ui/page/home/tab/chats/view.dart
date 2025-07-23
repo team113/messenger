@@ -1038,6 +1038,8 @@ class ChatsTabView extends StatelessWidget {
                                   child: Text(
                                     'btn_cancel'.l10n,
                                     style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ),
@@ -1055,6 +1057,8 @@ class ChatsTabView extends StatelessWidget {
                                   child: Text(
                                     'btn_create'.l10n,
                                     style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ),
@@ -1086,6 +1090,8 @@ class ChatsTabView extends StatelessWidget {
                                   child: Text(
                                     'btn_read_all'.l10n,
                                     style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ),
@@ -1105,6 +1111,8 @@ class ChatsTabView extends StatelessWidget {
                                   child: Text(
                                     'btn_hide'.l10n,
                                     style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ),
@@ -1125,6 +1133,8 @@ class ChatsTabView extends StatelessWidget {
                                   child: Text(
                                     'btn_delete'.l10n,
                                     style: style.fonts.normal.regular.danger,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ),
