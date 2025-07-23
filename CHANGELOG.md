@@ -25,7 +25,9 @@ All user visible changes to this project will be documented in this file. This p
         - Slider with ticks. ([#1330])
     - Chats tab:
         - Group creating and chats selecting buttons. ([#1333])
-    - Redesigned delete account page. ([#1339])
+    - Delete account page:
+        - added missing l10n labels. ([#1339])
+        - redesigned confirmation modal. ([#])
     - Login modal:
         - Accept any identifier instead of e-mail only during sign in via e-mail. ([#1339])
 
