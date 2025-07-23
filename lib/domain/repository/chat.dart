@@ -136,7 +136,9 @@ abstract class AbstractChatRepository {
 
   /// Marks all the [chats] as read for the authenticated [MyUser] until their
   /// [Chat.lastItem]s available.
-  Future<void> readAll();
+  ///
+  /// If [ids] are provided, then only specified [Chat]s will be read.
+  Future<void> readAll(List<ChatId>? ids);
 
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> editChatMessage(

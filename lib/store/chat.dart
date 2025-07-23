@@ -733,12 +733,16 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<void> readAll() async {
-    Log.debug('readAll()', '$runtimeType');
+  Future<void> readAll(List<ChatId>? ids) async {
+    Log.debug('readAll($ids)', '$runtimeType');
 
     final List<Future> futures = [];
 
     for (var e in chats.values) {
+      if (ids?.contains(e.id) == false) {
+        continue;
+      }
+
       final ChatItem? last = e.lastItem ?? e.chat.value.lastItem;
       final int unread = e.unreadCount.value;
 
