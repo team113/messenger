@@ -290,7 +290,11 @@ class MediaUtilsImpl {
   /// Does nothing on non-Android operating systems.
   Future<void> ensureForegroundService() async {
     Log.debug('ensureForegroundService()', '$runtimeType');
-    await WebUtils.setupForegroundService();
+
+    // TODO: Google Play doesn't allow applications to have foreground services
+    //       without declarations that require video URLs demonstrating
+    //       __working__ foreground service features usage.
+    // await WebUtils.setupForegroundService();
   }
 
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
