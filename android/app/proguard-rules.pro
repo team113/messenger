@@ -68,7 +68,3 @@
 -dontwarn org.conscrypt.Conscrypt
 -dontwarn org.conscrypt.OpenSSLProvider
 -dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
-
-# Medea Flutter WebRTC
--keep class com.instrumentisto.medea_flutter_webrtc.** { *; }
--keep class org.webrtc.** { *; }
