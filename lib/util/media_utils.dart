@@ -284,6 +284,15 @@ class MediaUtilsImpl {
         .toList();
   }
 
+  /// Ensures foreground service is running to support receiving microphone
+  /// input when application is in background.
+  ///
+  /// Does nothing on non-Android operating systems.
+  Future<void> ensureForegroundService() async {
+    Log.debug('ensureForegroundService()', '$runtimeType');
+    await WebUtils.setupForegroundService();
+  }
+
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   MediaStreamSettings _mediaStreamSettings({
