@@ -182,7 +182,7 @@ class LogView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  e.at.toStamp,
+                                  e.at.toUtc().toStamp,
                                   style: style.fonts.small.regular.onBackground,
                                 ),
                                 SizedBox(width: 4),
