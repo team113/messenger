@@ -72,6 +72,9 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="default"/>
+        <service android:name="com.instrumentisto.medea_flutter_webrtc.ForegroundCallService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback|microphone|camera" />
     </application>
     <queries>
         <intent>
