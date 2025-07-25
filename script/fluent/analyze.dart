@@ -59,7 +59,7 @@ import 'package:analyzer/dart/ast/visitor.dart';
 /// - 66, when input files can't be found (including empty `--src` folder).
 Future<void> main(List<String> argv) async {
   // Parse arguments.
-  final cli = ArgParser()
+  final ArgParser cli = ArgParser()
     ..addMultiOption(
       'ignore',
       abbr: 'i',
@@ -98,9 +98,9 @@ Future<void> main(List<String> argv) async {
     return;
   }
 
-  final ftlPathOrDir = args['ftl'] as String;
-  final srcDir = args['src'] as String;
-  final ignoreRegExps = (args['ignore'] as List<String>)
+  final String ftlPathOrDir = args['ftl'] as String;
+  final String srcDir = args['src'] as String;
+  final List<RegExp> ignoreRegExps = (args['ignore'] as List<String>)
       .map(RegExp.new)
       .toList();
 
@@ -170,6 +170,23 @@ Future<void> main(List<String> argv) async {
     stdout.writeln('  • $l');
   }
 
+  // Look for labels not present in the [ftlLabels], but present in the
+  // [projectLabels].
+  final Set<String> missed = projectLabels
+      .difference(ftlLabels)
+      .difference(ignored);
+
+  if (missed.isNotEmpty) {
+    stdout.writeln();
+    stdout.writeln(
+      '⚠️ There seems to be ${missed.length} labels not present in `.ftl` files! ⚠️\n'
+      'Be sure to check those:',
+    );
+    for (final l in missed.toList()..sort()) {
+      stdout.writeln('  • $l');
+    }
+  }
+
   // Prevents stdout and stderr streams' outputs from mixing.
   await stdout.flush();
 
@@ -220,19 +237,39 @@ Future<Set<String>> _parseFtlFile(String path) async {
   return labels;
 }
 
-/// Grabs every simple [String] literal (no interpolation) in a compilation
-/// unit.
+/// Grabs and collects all [l10n] and [l10nfmt] referenced [String]s.
 class _StringLiteralCollector extends RecursiveAstVisitor<void> {
   /// [Set] of [String] literals found during visiting the node.
   final Set<String> findings = <String>{};
 
   @override
-  void visitSimpleStringLiteral(SimpleStringLiteral node) {
-    // Trim quotes.
-    final rawString = node.toString();
-    final string = rawString.substring(1, rawString.length - 1);
+  void visitPropertyAccess(PropertyAccess node) {
+    if (node.propertyName.name == 'l10n') {
+      final target = node.target;
 
-    findings.add(string);
-    super.visitSimpleStringLiteral(node);
+      if (target is SimpleStringLiteral) {
+        findings.add(target.stringValue ?? '');
+      } else if (target is AdjacentStrings) {
+        final value = target.strings.map((s) => s.stringValue).join();
+        findings.add(value);
+      }
+    }
+
+    super.visitPropertyAccess(node);
+  }
+
+  @override
+  void visitMethodInvocation(MethodInvocation node) {
+    if (node.methodName.name == 'l10nfmt') {
+      final target = node.target;
+
+      if (target is SimpleStringLiteral) {
+        findings.add(target.stringValue ?? '');
+      } else if (target is AdjacentStrings) {
+        findings.add(target.strings.map((s) => s.stringValue).join());
+      }
+    }
+
+    super.visitMethodInvocation(node);
   }
 }

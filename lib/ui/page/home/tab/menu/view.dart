@@ -122,11 +122,11 @@ class MenuTabView extends StatelessWidget {
                   child: Obx(() {
                     final bool hasMultipleAccounts = c.profiles.length > 1;
                     final String label = hasMultipleAccounts
-                        ? 'btn_change_account_desc'
-                        : 'btn_add_account_with_desc';
+                        ? 'btn_change_account_desc'.l10n
+                        : 'btn_add_account_with_desc'.l10n;
 
                     return Text(
-                      label.l10n,
+                      label,
                       style: style.fonts.small.regular.primary,
                       textAlign: TextAlign.center,
                     );

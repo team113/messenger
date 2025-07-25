@@ -123,7 +123,11 @@ class _DownloadButtonState extends State<DownloadButton> {
     final style = Theme.of(context).style;
 
     return FieldButton(
-      text: widget.title.l10n,
+      text: switch (widget.title) {
+        'btn_install_ios' => 'btn_install_ios'.l10n,
+        'btn_install_android' => 'btn_install_android'.l10n,
+        (_) => widget.title,
+      },
       onPressed: widget.link == null || _progress != null
           ? null
           : widget.download

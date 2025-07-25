@@ -152,7 +152,7 @@ class AddChatMemberController extends GetxController {
     chat.value = fetched is RxChat? ? fetched : await fetched;
 
     if (chat.value == null) {
-      MessagePopup.error('err_unknown_page'.l10n);
+      MessagePopup.error('label_unknown_page'.l10n);
       pop?.call();
     }
   }

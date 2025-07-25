@@ -678,25 +678,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final String phrase1, phrase2;
         if (action.avatar == null) {
-          phrase1 = 'label_avatar_removed1';
-          phrase2 = 'label_avatar_removed2';
+          phrase1 = 'label_avatar_removed1'.l10nfmt(args);
+          phrase2 = 'label_avatar_removed2'.l10nfmt(args);
         } else {
-          phrase1 = 'label_avatar_updated1';
-          phrase2 = 'label_avatar_updated2';
+          phrase1 = 'label_avatar_updated1'.l10nfmt(args);
+          phrase2 = 'label_avatar_updated2'.l10nfmt(args);
         }
 
         content = Text.rich(
           TextSpan(
             children: [
               TextSpan(
-                text: phrase1.l10nfmt(args),
+                text: phrase1,
                 recognizer: TapGestureRecognizer()
                   ..onTap = () => widget.onUserPressed(user),
               ),
-              TextSpan(
-                text: phrase2.l10nfmt(args),
-                style: style.systemMessageStyle,
-              ),
+              TextSpan(text: phrase2, style: style.systemMessageStyle),
             ],
             style: style.systemMessagePrimary,
           ),
