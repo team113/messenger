@@ -33,6 +33,7 @@ class CustomPage extends Page {
     return _CupertinoPageRoute(
       settings: this,
       pageBuilder: (_, __, ___) => child,
+      instant: !context.isNarrow,
     );
   }
 }
@@ -41,10 +42,16 @@ class CustomPage extends Page {
 ///
 /// Uses a [FadeUpwardsPageTransitionsBuilder] on Android.
 class _CupertinoPageRoute<T> extends PageRoute<T> {
-  _CupertinoPageRoute({super.settings, required this.pageBuilder})
-    : matchingBuilder = PlatformUtils.isAndroid
-          ? const FadeUpwardsPageTransitionsBuilder()
-          : const CustomCupertinoPageTransitionsBuilder();
+  _CupertinoPageRoute({
+    super.settings,
+    required this.pageBuilder,
+    bool instant = false,
+  }) : transitionDuration = instant
+           ? Duration.zero
+           : const Duration(milliseconds: 400),
+       matchingBuilder = PlatformUtils.isAndroid
+           ? const FadeUpwardsPageTransitionsBuilder()
+           : const CustomCupertinoPageTransitionsBuilder();
 
   /// [PageTransitionsBuilder] transition animation.
   final PageTransitionsBuilder matchingBuilder;
@@ -62,7 +69,7 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
   bool get maintainState => true;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 400);
+  final Duration transitionDuration;
 
   @override
   Widget buildPage(
