@@ -1006,19 +1006,6 @@ class SvgIcons {
     height: 50,
   );
 
-  static const List<SvgData> head = [
-    SvgData('assets/images/logo/head_0.svg', width: 206.33, height: 220.68),
-    SvgData('assets/images/logo/head_1.svg', width: 206.33, height: 220.68),
-    SvgData('assets/images/logo/head_2.svg', width: 206.33, height: 220.68),
-    SvgData('assets/images/logo/head_3.svg', width: 206.33, height: 220.68),
-    SvgData('assets/images/logo/head_4.svg', width: 206.33, height: 220.68),
-    SvgData('assets/images/logo/head_5.svg', width: 206.33, height: 220.68),
-    SvgData('assets/images/logo/head_6.svg', width: 206.33, height: 220.68),
-    SvgData('assets/images/logo/head_7.svg', width: 206.33, height: 220.68),
-    SvgData('assets/images/logo/head_8.svg', width: 206.33, height: 220.68),
-    SvgData('assets/images/logo/head_9.svg', width: 206.33, height: 220.68),
-  ];
-
   static const SvgData fullscreenEnterSmall = SvgData(
     'assets/icons/fullscreen_enter_small.svg',
     width: 13,
@@ -1283,30 +1270,6 @@ class SvgIcons {
     'assets/icons/clean_history_white.svg',
     width: 17.21,
     height: 18,
-  );
-
-  static const SvgData addContact = SvgData(
-    'assets/icons/add_contact.svg',
-    width: 21.01,
-    height: 19.43,
-  );
-
-  static const SvgData addContactWhite = SvgData(
-    'assets/icons/add_contact_white.svg',
-    width: 21.01,
-    height: 19.43,
-  );
-
-  static const SvgData deleteContact = SvgData(
-    'assets/icons/delete_contact.svg',
-    width: 21.01,
-    height: 19.43,
-  );
-
-  static const SvgData deleteContactWhite = SvgData(
-    'assets/icons/delete_contact_white.svg',
-    width: 21.01,
-    height: 19.43,
   );
 
   static const SvgData group = SvgData(

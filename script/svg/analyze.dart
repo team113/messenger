@@ -35,165 +35,123 @@ import 'package:analyzer/dart/ast/visitor.dart';
 /// - 0, on success.
 /// - 1, when unused `SvgIcons` are found.
 void main() async {
-  const String pathToSvgIcons = 'lib/ui/widget/svg/svgs.dart';
-  const String rootDir = 'lib/';
+  const String svgsSource = 'lib/ui/widget/svg/svgs.dart';
 
-  // Collect project files.
-  final List<File> dartFiles = await Directory(rootDir)
-      .list(recursive: true)
-      .where(
-        (file) =>
-            file is File &&
-            file.path.endsWith('.dart') &&
-            // File containing [SvgIcons] isn't considered a Dart source file.
-            file.path != pathToSvgIcons,
-      )
-      .cast<File>()
-      .toList();
-
-  // Collect defined [SvgIcons].
   stdout.write('Scanning `SvgIcons` class...');
 
-  final Map<String, List<String>> svgIconsPropsMap = _parseSvgIconsClass(
-    pathToSvgIcons,
-  );
-  final Set<String> definedSvgIconsProps = svgIconsPropsMap.keys.toSet();
+  // Collect defined [SvgIcons].
+  final Map<String, String> assets = _parseIcons(svgsSource);
+  final Set<String> keys = assets.keys.toSet();
 
   stdout.writeln(' done.');
 
   // Collect used [SvgIcons] class properties.
   stdout.write('Scanning `SvgIcons` used...');
 
-  final Set<String> usedSvgIconsProps = <String>{};
-  for (final file in dartFiles) {
-    final Set<String> newProps = _parseSvgIconsUsedProps(file);
-    usedSvgIconsProps.addAll(newProps);
+  // Collect project files.
+  final List<File> dartFiles = await Directory('lib/')
+      .list(recursive: true)
+      .where(
+        (file) =>
+            file is File &&
+            file.path.endsWith('.dart') &&
+            // File containing [SvgIcons] isn't considered a Dart source file.
+            file.path != svgsSource,
+      )
+      .cast<File>()
+      .toList();
+
+  final Set<String> icons = <String>{};
+  for (final File file in dartFiles) {
+    icons.addAll(_parseFile(file));
   }
 
   stdout.writeln(' done.');
   stdout.writeln();
 
   // Differentiate and report.
-  final Set<String> unused = definedSvgIconsProps.difference(usedSvgIconsProps);
+  final Set<String> unused = keys.difference(icons);
 
-  stdout.writeln('Icons unused: ${unused.length}');
-  for (final asset in unused) {
-    final List<String> svgPaths = svgIconsPropsMap[asset]!;
-    final String type = svgPaths.length > 1 ? 'List<SvgData>' : 'SvgData';
-
-    stdout.writeln('  • SvgIcons.$asset ($type $asset)');
-
-    for (final svgPath in svgPaths) {
-      stdout.writeln('    - $svgPath');
-    }
+  stdout.writeln('SVGs unused: ${unused.length}');
+  for (final String asset in unused) {
+    stdout.writeln('• SvgIcons.$asset(${assets[asset]})');
   }
-
   stdout.writeln();
 
   // Prevents stdout and stderr streams' outputs from mixing.
   await stdout.flush();
 
   if (unused.isNotEmpty) {
-    stderr.writeln('⛔️ Unused icons are found. Remove them.');
+    stderr.writeln('⛔️ Unused SVGs are found. Remove them.');
     exit(1);
   }
 
-  stdout.writeln('\n✅ Unused icons were not found.');
+  stdout.writeln('✅ Unused SVGs were not found.');
   exit(0);
 }
 
-/// Returns all the found [SvgIcons] found in [file].
-Set<String> _parseSvgIconsUsedProps(File file) {
+/// Returns all the found [SvgIcons] in the provided [file].
+Set<String> _parseFile(File file) {
   final CompilationUnit fileUnit = parseFile(
     path: file.path,
     featureSet: FeatureSet.latestLanguageVersion(),
   ).unit;
 
-  final visitor = _SvgIconsPropsVisitor();
+  final _SvgIconsVisitor visitor = _SvgIconsVisitor();
   fileUnit.visitChildren(visitor);
+
   return visitor.properties;
 }
 
-/// Parses [SvgIcons] class and returns [Map] of property names to `.svg`
-/// paths.
-Map<String, List<String>> _parseSvgIconsClass(String path) {
-  final fileUnit = parseFile(
+/// Parses [SvgIcons] class and returns [Map] of properties with their assets.
+Map<String, String> _parseIcons(String path) {
+  final CompilationUnit unit = parseFile(
     path: path,
     featureSet: FeatureSet.latestLanguageVersion(),
   ).unit;
 
-  final visitor = _SvgIconsDeclarationVisitor();
-  fileUnit.visitChildren(visitor);
-  return visitor.propertyToPaths;
+  final _SvgIconsDeclarationVisitor visitor = _SvgIconsDeclarationVisitor();
+  unit.visitChildren(visitor);
+
+  return visitor.assets;
 }
 
-/// Visitor collecting properties of the [SvgIcons] class.
-///
-/// Handles two patterns:
-///
-/// 1. Declaration of [SvgData]:
-///
-/// ```dart
-/// static const SvgData callTurnVideoOffWhite = SvgData(
-///   'path/to/asset.svg',
-///   width: x,
-///   height: y,
-/// );
-/// ```
-///
-/// 2. Declaration of [List] of [SvgData]:
-///
-/// ```dart
-/// static const List<SvgData> head = [
-///   SvgData('path/to/asset/x1.svg'),
-///   // ...
-///   SvgData('path/to/asset/x2.svg'),
-/// ];
-/// ```
+/// Visitor collecting [SvgIcons] themselves.
 class _SvgIconsDeclarationVisitor extends RecursiveAstVisitor<void> {
-  /// [Map] associating property name from [SvgIcons] with their `.svg` asset
-  /// paths.
-  ///
-  /// The paths list contains one entry for a single [SvgData] declaration,
-  /// multiple entries for a [List] of [SvgData].
-  final Map<String, List<String>> propertyToPaths = {};
+  /// [Map] of [SvgIcons] to their corresponding [String] asset.
+  final Map<String, String> assets = {};
 
   @override
   void visitFieldDeclaration(FieldDeclaration node) {
-    if (!node.isStatic || !node.fields.isConst) return;
+    // Look only for static constant fields, as this is how icons are defined:
+    //
+    // ```dart
+    // static const SvgData chatAudioCall = SvgData(/* ... */);
+    // ```
+    if (!node.isStatic || !node.fields.isConst) {
+      return;
+    }
 
     for (final variable in node.fields.variables) {
-      final String propertyName = variable.name.lexeme;
-      final Expression? propertyInit = variable.initializer;
+      final String name = variable.name.lexeme;
+      final Expression? initializer = variable.initializer;
 
-      if (propertyInit == null) {
+      if (initializer == null) {
         continue;
       }
 
-      // When parsing an init like `x = SvgData(...)`, the child entities will
-      // be the type (`SvgData`) and its arguments list (`(...)`). For a list,
-      // they will be the brackets and the elements within then.
-      for (final child in propertyInit.childEntities) {
-        final String tokenString = child.toString();
-
-        // Assume path is inside single-quotes.
-        //
-        // Example: 'assets/images/logo/head_3.svg'.
-        final int indexStart = tokenString.indexOf("'");
-        final int indexEnd = tokenString.lastIndexOf("'");
-
-        // Check for valid .svg path.
-        if (indexStart != -1 && indexStart != indexEnd) {
-          // Both ends are exclusive to trim quotes.
-          final path = tokenString.substring(indexStart + 1, indexEnd);
-          if (!path.endsWith('.svg')) {
-            continue;
-          }
-
-          // Safely map property name to path.
-          propertyToPaths.putIfAbsent(propertyName, () => []).add(path);
-        }
-      }
+      // Initializer looks like comma separated parameters list:
+      //
+      // ```dart
+      // SvgData('assets/icons/add_contact.svg', width: 21.01, height: 19.43)
+      // ```
+      //
+      // We only are interested in the first parameter (the asset).
+      assets[name] = initializer
+          .toString()
+          .replaceFirst('SvgData(', '')
+          .split(',')
+          .first;
     }
 
     super.visitFieldDeclaration(node);
@@ -207,19 +165,14 @@ class _SvgIconsDeclarationVisitor extends RecursiveAstVisitor<void> {
 /// ```dart
 /// ProfileTab.legal => const SvgIcon(SvgIcons.menuLegal),
 /// ```
-///
-/// From this chunk of code visitor collects `menuLegal`.
-class _SvgIconsPropsVisitor extends RecursiveAstVisitor {
+class _SvgIconsVisitor extends RecursiveAstVisitor {
   /// [Set] of [SvgIcons] property names found during visiting the node.
   final Set<String> properties = <String>{};
 
   @override
   visitPrefixedIdentifier(PrefixedIdentifier node) {
-    final String prefixName = node.prefix.name;
-    final String propertyName = node.identifier.name;
-
-    if (prefixName == 'SvgIcons') {
-      properties.add(propertyName);
+    if (node.prefix.name == 'SvgIcons') {
+      properties.add(node.identifier.name);
     }
 
     return super.visitPrefixedIdentifier(node);
