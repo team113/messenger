@@ -169,6 +169,7 @@ class AuthRepository extends DisposableInterface
   Future<void> deleteSession({
     SessionId? id,
     UserPassword? password,
+    ConfirmationCode? code,
     DeviceToken? token,
     AccessTokenSecret? accessToken,
   }) async {

@@ -69,6 +69,7 @@ class DeleteSessionView extends StatelessWidget {
     return GetBuilder(
       init: DeleteSessionController(
         Get.find(),
+        Get.find(),
         pop: context.popModal,
         sessions: sessions,
       ),
@@ -110,6 +111,10 @@ class DeleteSessionView extends StatelessWidget {
               break;
 
             case DeleteSessionStage.confirm:
+              final bool hasPassword = c.myUser.value?.hasPassword == true;
+              final bool hasEmail =
+                  c.myUser.value?.emails.confirmed.isNotEmpty == true;
+
               children = [
                 ModalPopupHeader(text: 'label_terminate_sessions'.l10n),
                 const SizedBox(height: 13),
@@ -118,48 +123,80 @@ class DeleteSessionView extends StatelessWidget {
                     padding: ModalPopup.padding(context),
                     shrinkWrap: true,
                     children: [
-                      Text(
-                        'label_enter_password_or_one_time_code'.l10n,
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                      const SizedBox(height: 21),
-                      Obx(() {
-                        return ReactiveTextField(
-                          key: const Key('PasswordField'),
-                          state: c.password,
-                          label: 'label_password_or_one_time_code'.l10n,
-                          hint: 'label_enter_password_or_code'.l10n,
-                          obscure: c.obscurePassword.value,
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          onSuffixPressed: c.obscurePassword.toggle,
-                          treatErrorAsStatus: false,
-                          trailing: Center(
-                            child: SvgIcon(
-                              c.obscurePassword.value
-                                  ? SvgIcons.visibleOff
-                                  : SvgIcons.visibleOn,
+                      if (hasEmail) ...[
+                        Text(
+                          hasPassword
+                              ? 'label_enter_password_or_one_time_code'.l10n
+                              : 'label_enter_one_time_code'.l10n,
+                          style: style.fonts.small.regular.secondary,
+                        ),
+                        const SizedBox(height: 14),
+                      ],
+                      if (hasEmail || hasPassword) ...[
+                        const SizedBox(height: 7),
+                        Obx(() {
+                          return ReactiveTextField(
+                            key: const Key('PasswordField'),
+                            state: c.password,
+                            label: hasEmail && hasPassword
+                                ? 'label_password_or_one_time_code'.l10n
+                                : hasEmail
+                                ? 'label_one_time_code'.l10n
+                                : 'label_password'.l10n,
+                            hint: hasEmail && hasPassword
+                                ? 'label_enter_password_or_code'.l10n
+                                : hasEmail
+                                ? 'label_enter_code'.l10n
+                                : 'label_enter_password'.l10n,
+                            obscure: c.obscurePassword.value,
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            onSuffixPressed: c.obscurePassword.toggle,
+                            treatErrorAsStatus: false,
+                            trailing: Center(
+                              child: SvgIcon(
+                                c.obscurePassword.value
+                                    ? SvgIcons.visibleOff
+                                    : SvgIcons.visibleOn,
+                              ),
                             ),
-                          ),
-                        );
-                      }),
-                      const SizedBox(height: 21),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Expanded(
-                            child: Obx(() {
-                              return PrimaryButton(
-                                key: const Key('ProceedButton'),
-                                onPressed: c.password.isEmpty.isTrue
+                          );
+                        }),
+                        const SizedBox(height: 21),
+                      ],
+                      Obx(() {
+                        return Row(
+                          children: [
+                            if (hasEmail) ...[
+                              Expanded(
+                                child: PrimaryButton(
+                                  key: const Key('Resend'),
+                                  onPressed: c.resendEmailTimeout.value == 0
+                                      ? c.sendConfirmationCode
+                                      : null,
+                                  title: c.resendEmailTimeout.value == 0
+                                      ? 'label_resend'.l10n
+                                      : 'label_resend_timeout'.l10nfmt({
+                                          'timeout': c.resendEmailTimeout.value,
+                                        }),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                            ],
+                            Expanded(
+                              child: PrimaryButton(
+                                key: const Key('Proceed'),
+                                danger: true,
+                                onPressed:
+                                    c.password.isEmpty.isTrue &&
+                                        (hasEmail || hasPassword)
                                     ? null
                                     : c.password.submit,
-                                danger: true,
                                 title: 'btn_terminate'.l10n,
-                              );
-                            }),
-                          ),
-                        ],
-                      ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -171,6 +208,12 @@ class DeleteSessionView extends StatelessWidget {
               children = [
                 ModalPopupHeader(text: 'label_terminate_sessions'.l10n),
                 const SizedBox(height: 13),
+                Text(
+                  'label_sessions_terminated'.l10n,
+                  textAlign: TextAlign.center,
+                  style: style.fonts.small.regular.secondary,
+                ),
+                const SizedBox(height: 25),
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: PrimaryButton(

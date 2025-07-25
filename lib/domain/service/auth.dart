@@ -485,16 +485,22 @@ class AuthService extends DisposableService {
   Future<String?> deleteSession({
     SessionId? id,
     UserPassword? password,
+    ConfirmationCode? code,
     bool force = false,
     bool keepData = true,
   }) async {
     Log.debug(
-      'deleteSession($id, $password, force: $force, keepData: $keepData)',
+      'deleteSession($id, password: ${password?.obscured}, code: $code, force: $force, keepData: $keepData)',
       '$runtimeType',
     );
 
     if (id != null) {
-      await _authRepository.deleteSession(id: id, password: password);
+      await _authRepository.deleteSession(
+        id: id,
+        password: password,
+        code: code,
+      );
+
       return null;
     }
 
