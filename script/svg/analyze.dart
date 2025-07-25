@@ -170,7 +170,7 @@ class _SvgIconsVisitor extends RecursiveAstVisitor {
   final Set<String> properties = <String>{};
 
   @override
-  visitPrefixedIdentifier(PrefixedIdentifier node) {
+  dynamic visitPrefixedIdentifier(PrefixedIdentifier node) {
     if (node.prefix.name == 'SvgIcons') {
       properties.add(node.identifier.name);
     }
