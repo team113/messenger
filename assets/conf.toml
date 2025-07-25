@@ -117,7 +117,7 @@
 # Maximum allowed amount of the log entries to keep in RAM.
 #
 # Default:
-#   amount = 2048
+#   amount = 4096
 
 [link]
 # Prefix of the direct chat link URL.

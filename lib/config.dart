@@ -108,7 +108,7 @@ class Config {
   static me.LogLevel logLevel = me.LogLevel.info;
 
   /// Maximum allowed [Log.maxLogs] amount of log entries to keep.
-  static int logAmount = 2048;
+  static int logAmount = 4096;
 
   /// URL of a Sparkle Appcast XML file.
   ///
@@ -239,7 +239,7 @@ class Config {
 
     logAmount = const bool.hasEnvironment('SOCAPP_LOG_AMOUNT')
         ? const int.fromEnvironment('SOCAPP_LOG_AMOUNT')
-        : (document['log']?['amount'] ?? 2048);
+        : (document['log']?['amount'] ?? 4096);
 
     appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
         ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
