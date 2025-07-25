@@ -1849,6 +1849,19 @@ class OngoingCall {
     Log.debug('_initLocalMedia()', '$runtimeType');
 
     try {
+      await MediaUtils.ensureForegroundService();
+    } catch (e) {
+      // Still proceed with initialization, as foreground service won't break
+      // anything while application is in foreground - it just won't allow
+      // microphone input to be transmitted to the recipients while application
+      // is in background.
+      Log.error(
+        'Unable to enable foreground service due to: $e',
+        '$runtimeType',
+      );
+    }
+
+    try {
       if (hasAudio || audioState.value.isEnabled) {
         await Permission.microphone.request();
       }

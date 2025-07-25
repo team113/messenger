@@ -96,7 +96,7 @@ $token
 
 ================= Logs =================
 
-${Log.logs.map((e) => '[${e.at.toStamp}] [${e.level.name}] ${e.text}').join('\n')}
+${Log.logs.map((e) => '[${e.at.toUtc().toStamp}] [${e.level.name}] ${e.text}').join('\n')}
 
 ========================================
 ''';

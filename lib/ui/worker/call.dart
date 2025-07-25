@@ -165,10 +165,12 @@ class CallWorker extends DisposableService {
   /// Indicator whether this device's [Locale] contains a China country code.
   bool get _isChina => Platform.localeName.contains('CN');
 
+  // TODO: [FlutterCallkitIncoming] currently conflicts with `medea_jason`
+  //       on Android devices making calls to do unexpected things when enabled.
   /// Indicates whether [FlutterCallkitIncoming] should be considered active.
   bool get _isCallKit =>
       !PlatformUtils.isWeb &&
-      ((PlatformUtils.isIOS && !_isChina) || PlatformUtils.isAndroid);
+      ((PlatformUtils.isIOS && !_isChina) /*|| PlatformUtils.isAndroid*/ );
 
   @override
   void onInit() {
