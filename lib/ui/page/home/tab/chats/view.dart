@@ -391,11 +391,7 @@ class ChatsTabView extends StatelessWidget {
                       );
                     } else {
                       child = SafeScrollbar(
-                        bottom: false,
                         controller: c.search.value!.scrollController,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(40),
-                        ),
                         child: ListView.builder(
                           key: const Key('GroupCreating'),
                           controller: c.search.value!.scrollController,
@@ -700,7 +696,6 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       child = SafeScrollbar(
                         controller: c.scrollController,
-                        bottom: c.selecting.isFalse,
                         child: AnimationLimiter(
                           key: const Key('Chats'),
                           child: Obx(() {
@@ -958,9 +953,7 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                                 SliverPadding(
                                   padding: EdgeInsets.only(
-                                    bottom: c.selecting.isTrue
-                                        ? 0
-                                        : CustomNavigationBar.height,
+                                    bottom: CustomNavigationBar.height,
                                     left: 10,
                                     right: 10,
                                   ),
@@ -1015,132 +1008,144 @@ class ChatsTabView extends StatelessWidget {
                     ),
                   );
                 }),
-                bottomNavigationBar: SizedBox(
-                  height: 57,
-                  child: Obx(() {
-                    if (c.groupCreating.value) {
-                      return BottomPaddedRow(
-                        spacer: (_) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: style.colors.onBackgroundOpacity13,
-                            ),
-                            width: 1,
-                            height: 24,
-                          );
-                        },
-                        children: [
-                          WidgetButton(
-                            onPressed: c.closeGroupCreating,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  10,
-                                  6.5,
-                                  10,
-                                  6.5,
-                                ),
-                                child: Text(
-                                  'btn_cancel'.l10n,
-                                  style: style.fonts.normal.regular.primary,
+                extendBody: true,
+                bottomNavigationBar: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Obx(() {
+                      if (c.groupCreating.value) {
+                        return BottomPaddedRow(
+                          spacer: (_) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: style.colors.onBackgroundOpacity13,
+                              ),
+                              width: 1,
+                              height: 24,
+                            );
+                          },
+                          children: [
+                            WidgetButton(
+                              onPressed: c.closeGroupCreating,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    6.5,
+                                    10,
+                                    6.5,
+                                  ),
+                                  child: Text(
+                                    'btn_cancel'.l10n,
+                                    style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                            WidgetButton(
+                              onPressed: c.createGroup,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    6.5,
+                                    10,
+                                    6.5,
+                                  ),
+                                  child: Text(
+                                    'btn_create'.l10n,
+                                    style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      } else if (c.selecting.value) {
+                        return BottomPaddedRow(
+                          spacer: (_) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: style.colors.onBackgroundOpacity13,
+                              ),
+                              width: 1,
+                              height: 24,
+                            );
+                          },
+                          children: [
+                            WidgetButton(
+                              onPressed: c.readAll,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    6.5,
+                                    10,
+                                    6.5,
+                                  ),
+                                  child: Text(
+                                    'btn_read_all'.l10n,
+                                    style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            WidgetButton(
+                              onPressed: c.selectedChats.isEmpty
+                                  ? null
+                                  : () => _hideChats(context, c),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    6.5,
+                                    10,
+                                    6.5,
+                                  ),
+                                  child: Text(
+                                    'btn_hide'.l10n,
+                                    style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            WidgetButton(
+                              key: const Key('DeleteChatsButton'),
+                              onPressed: c.selectedChats.isEmpty
+                                  ? null
+                                  : () => _hideChats(context, c),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    6.5,
+                                    10,
+                                    6.5,
+                                  ),
+                                  child: Text(
+                                    'btn_delete'.l10n,
+                                    style: style.fonts.normal.regular.danger,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
 
-                          WidgetButton(
-                            onPressed: c.createGroup,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  10,
-                                  6.5,
-                                  10,
-                                  6.5,
-                                ),
-                                child: Text(
-                                  'btn_create'.l10n,
-                                  style: style.fonts.normal.regular.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    } else if (c.selecting.value) {
-                      return BottomPaddedRow(
-                        spacer: (_) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: style.colors.onBackgroundOpacity13,
-                            ),
-                            width: 1,
-                            height: 24,
-                          );
-                        },
-                        children: [
-                          WidgetButton(
-                            onPressed: c.readAll,
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  10,
-                                  6.5,
-                                  10,
-                                  6.5,
-                                ),
-                                child: Text(
-                                  'btn_read_all'.l10n,
-                                  style: style.fonts.normal.regular.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          WidgetButton(
-                            onPressed: c.selectedChats.isEmpty
-                                ? null
-                                : () => _hideChats(context, c),
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  10,
-                                  6.5,
-                                  10,
-                                  6.5,
-                                ),
-                                child: Text(
-                                  'btn_hide'.l10n,
-                                  style: style.fonts.normal.regular.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          WidgetButton(
-                            key: const Key('DeleteChatsButton'),
-                            onPressed: c.selectedChats.isEmpty
-                                ? null
-                                : () => _hideChats(context, c),
-                            child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  10,
-                                  6.5,
-                                  10,
-                                  6.5,
-                                ),
-                                child: Text(
-                                  'btn_delete'.l10n,
-                                  style: style.fonts.normal.regular.danger,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-
-                    return const SizedBox();
-                  }),
+                      return const SizedBox();
+                    }),
+                  ],
                 ),
               );
             }),

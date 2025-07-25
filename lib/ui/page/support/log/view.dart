@@ -82,7 +82,10 @@ class LogView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ModalPopupHeader(text: 'Version: ${Pubspec.ref}'),
+                ModalPopupHeader(
+                  text: 'Version: ${Pubspec.ref}',
+                  onBack: context.isMobile ? Navigator.of(context).pop : null,
+                ),
                 Flexible(
                   child: Scrollbar(
                     controller: c.scrollController,
