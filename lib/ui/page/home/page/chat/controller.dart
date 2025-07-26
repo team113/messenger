@@ -346,6 +346,9 @@ class ChatController extends GetxController {
   /// [Timer] deleting the [_bottomLoader] from the [elements] list.
   Timer? _bottomLoaderEndTimer;
 
+  /// [Timer] for debouncing scroll position saves.
+  Timer? _scrollPositionSaveTimer;
+
   /// Indicator whether the [_loadMessages] is already invoked during the
   /// current frame.
   bool _messagesAreLoading = false;
@@ -590,6 +593,9 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
+    // Save current scroll position before closing
+    _saveCurrentScrollPosition();
+    
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _selectingWorker?.dispose();
@@ -604,6 +610,7 @@ class ChatController extends GetxController {
     _stickyTimer?.cancel();
     _bottomLoaderStartTimer?.cancel();
     _bottomLoaderEndTimer?.cancel();
+    _scrollPositionSaveTimer?.cancel();
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
@@ -861,9 +868,18 @@ class ChatController extends GetxController {
 
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
+    print('_fetchChat() called with id: $id, current chat: ${chat?.id}');
     ISentrySpan span = _ready.startChild('fetch');
 
     try {
+      // Save scroll position of previous chat before switching to new one
+      if (chat != null && chat!.id != id) {
+        print('Switching from chat ${chat!.id} to $id, saving scroll position');
+        _saveCurrentScrollPosition();
+      } else {
+        print('No scroll position save needed: chat=${chat?.id}, id=$id');
+      }
+      
       _ignorePositionChanges = true;
 
       status.value = RxStatus.loading();
@@ -1000,9 +1016,19 @@ class ChatController extends GetxController {
                 }
 
                 _determineFirstUnread();
-                var result = _calculateListViewIndex();
-                initIndex = result.index;
-                initOffset = result.offset;
+                
+                // Check if we have a saved scroll position that should override the calculated one
+                final savedPosition = _chatService.getScrollPosition(chat!.id);
+                if (savedPosition != null && savedPosition.index >= 0) {
+                  print('Using saved scroll position: index=${savedPosition.index}, offset=${savedPosition.offset}');
+                  initIndex = savedPosition.index;
+                  initOffset = savedPosition.offset;
+                } else {
+                  var result = _calculateListViewIndex();
+                  initIndex = result.index;
+                  initOffset = result.offset;
+                  print('Using calculated scroll position: index=${result.index}, offset=${result.offset}');
+                }
 
                 Future.delayed(Duration(milliseconds: 500), _updateFabStates);
               }
@@ -1025,9 +1051,20 @@ class ChatController extends GetxController {
 
           if (chat!.status.value.isSuccess) {
             _determineFirstUnread();
-            final result = _calculateListViewIndex();
-            initIndex = result.index;
-            initOffset = result.offset;
+            
+            // Check if we have a saved scroll position that should override the calculated one
+            final savedPosition = _chatService.getScrollPosition(chat!.id);
+            if (savedPosition != null && savedPosition.index >= 0) {
+              print('Using saved scroll position: index=${savedPosition.index}, offset=${savedPosition.offset}');
+              initIndex = savedPosition.index;
+              initOffset = savedPosition.offset;
+            } else {
+              final result = _calculateListViewIndex();
+              initIndex = result.index;
+              initOffset = result.offset;
+              print('Using calculated scroll position: index=${result.index}, offset=${result.offset}');
+            }
+            
             status.value = RxStatus.loadingMore();
           }
 
@@ -2084,6 +2121,12 @@ class ChatController extends GetxController {
       _updateSticky();
       _updateFabStates();
       _loadMessages();
+      
+      // Debounce scroll position saving to avoid excessive saves
+      _scrollPositionSaveTimer?.cancel();
+      _scrollPositionSaveTimer = Timer(const Duration(milliseconds: 500), () {
+        _saveCurrentScrollPosition();
+      });
     }
   }
 
@@ -2404,6 +2447,49 @@ class ChatController extends GetxController {
     if (search.focus.hasFocus == false && search.text.isEmpty == true) {
       toggleSearch(true);
     }
+  }
+
+  /// Saves the current scroll position to [ChatService] for this chat.
+  void _saveCurrentScrollPosition() {
+    print('_saveCurrentScrollPosition called for chat: ${chat?.id}');
+    
+    if (chat?.id == null) {
+      print('No chat ID available');
+      return;
+    }
+    
+    if (elements.isEmpty) {
+      print('Elements list is empty');
+      return;
+    }
+    
+    if (!listController.hasClients) {
+      print('List controller has no clients');
+      return;
+    }
+
+    final position = listController.position;
+    if (!position.hasContentDimensions) {
+      print('Position has no content dimensions');
+      return;
+    }
+
+    // Calculate index based on current scroll position
+    // Since the list is reversed, we need to handle this carefully
+    final scrollFromBottom = position.maxScrollExtent - position.pixels;
+    final itemHeight = position.maxScrollExtent / elements.length;
+    final topIndex = (scrollFromBottom / itemHeight).floor();
+    final offset = scrollFromBottom % itemHeight;
+    
+    final clampedIndex = topIndex.clamp(0, elements.length - 1);
+    
+    print('Saving scroll position for chat ${chat!.id}: index=$clampedIndex, offset=$offset');
+    
+    _chatService.saveScrollPosition(
+      chat!.id,
+      clampedIndex,
+      offset,
+    );
   }
 }
 
