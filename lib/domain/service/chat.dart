@@ -238,6 +238,13 @@ class ChatService extends DisposableService {
     await _chatRepository.readChat(chatId, untilId);
   }
 
+  /// Marks all the [chats] as read for the authenticated [MyUser] until their
+  /// [Chat.lastItem]s available.
+  Future<void> readAll(List<ChatId>? ids) async {
+    Log.debug('readAll()', '$runtimeType');
+    await _chatRepository.readAll(ids);
+  }
+
   /// Edits the specified [ChatMessage] posted by the authenticated [MyUser].
   Future<void> editChatMessage(
     ChatMessage item, {

@@ -129,6 +129,9 @@ external bool _locksAvailable();
 @JS('webSaveAs')
 external JSPromise<JSAny?> _webSaveAs(web.Blob blob, JSString name);
 
+@JS('audioContext')
+web.AudioContext? _context;
+
 /// Helper providing access to features having different implementations in
 /// browser and on native platforms.
 class WebUtils {
@@ -339,6 +342,9 @@ class WebUtils {
   static Client? get httpClient {
     return null;
   }
+
+  /// Indicates whether browser is considering to have connectivity status.
+  static bool get isOnLine => web.window.navigator.onLine;
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
@@ -830,22 +836,71 @@ class WebUtils {
   }
 
   /// Plays the provided [asset].
-  static Future<void> play(String asset) async {
-    final web.AudioContext context = web.AudioContext();
-    final web.AudioBufferSourceNode source = context.createBufferSource();
+  ///
+  /// If the returned [Stream] is canceled, then the playback stops.
+  static Stream<void> play(String asset, {bool loop = false}) {
+    Log.debug('play($asset, loop: $loop)', 'WebUtils');
 
-    final Response bytes = await (await PlatformUtils.dio).get(
-      'assets/assets/$asset',
-      options: Options(responseType: ResponseType.bytes),
+    StreamController? controller;
+    StreamSubscription? onEnded;
+    web.AudioBufferSourceNode? node;
+
+    controller = StreamController(
+      onListen: () async {
+        _context ??= web.AudioContext();
+        if (_context?.state == 'suspended') {
+          Log.debug(
+            'play($asset, loop: $loop) -> _context?.state == `suspended`, resuming',
+            'WebUtils',
+          );
+
+          await (_context?.resume())?.toDart;
+        }
+
+        if (controller?.hasListener == false) {
+          return;
+        }
+
+        if (_context == null) {
+          throw Exception('AudioContext is `null`, cannot `play($asset)`');
+        }
+
+        final web.AudioBufferSourceNode source = _context!.createBufferSource();
+
+        final Response bytes = await (await PlatformUtils.dio).get(
+          'assets/assets/$asset',
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        if (controller?.hasListener == false) {
+          return;
+        }
+
+        final JSPromise<web.AudioBuffer> audioBuffer = _context!
+            .decodeAudioData((bytes.data as Uint8List).buffer.toJS);
+
+        node = source;
+        source.buffer = await audioBuffer.toDart;
+
+        if (controller?.hasListener == false) {
+          return;
+        }
+
+        source.loop = loop;
+        source.connect(_context!.destination);
+        source.start();
+        onEnded = source.onEnded.listen((_) {
+          controller?.close();
+        });
+      },
+      onCancel: () {
+        onEnded?.cancel();
+        node?.stop();
+        controller?.close();
+      },
     );
 
-    final JSPromise<web.AudioBuffer> audioBuffer = context.decodeAudioData(
-      (bytes.data as Uint8List).buffer.toJS,
-    );
-
-    source.buffer = await audioBuffer.toDart;
-    source.connect(context.destination);
-    source.start();
+    return controller.stream;
   }
 
   /// Returns the `User-Agent` header to put in the network queries.
@@ -899,6 +954,14 @@ class WebUtils {
     );
 
     await promise.toDart;
+  }
+
+  /// Ensures foreground service is running to support receiving microphone
+  /// input when application is in background.
+  ///
+  /// Does nothing on non-Android operating systems.
+  static Future<void> setupForegroundService() async {
+    // No-op.
   }
 
   /// Handles the [key] event to invoke [_keyHandlers] related to it.

@@ -803,11 +803,11 @@ class ChatController extends GetxController {
                 MessagePopup.error(e);
               }
             } catch (e) {
-              MessagePopup.error(e);
+              MessagePopup.error('err_data_transfer'.l10n);
               rethrow;
             }
           } else {
-            MessagePopup.error('err_no_text_no_attachment_and_reply'.l10n);
+            closeEditing();
           }
         },
         onChanged: () {
@@ -2636,7 +2636,7 @@ extension ChatCallFinishReasonL10n on ChatCallFinishReason {
       case ChatCallFinishReason.serverDecision:
         return 'label_chat_call_ended'.l10n;
       case ChatCallFinishReason.moved:
-        return 'label_chat_call_moved'.l10n;
+        return 'label_chat_call_ended'.l10n;
       case ChatCallFinishReason.artemisUnknown:
         return null;
     }

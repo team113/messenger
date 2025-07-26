@@ -33,7 +33,6 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
-import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
@@ -44,7 +43,6 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
@@ -134,7 +132,13 @@ class ChatsTabView extends StatelessWidget {
                       child = Align(
                         key: const Key('3'),
                         alignment: Alignment.centerLeft,
-                        child: Text('btn_select_and_delete'.l10n),
+                        child: Obx(() {
+                          return Text(
+                            'label_selected'.l10nfmt({
+                              'count': c.selectedChats.length,
+                            }),
+                          );
+                        }),
                       );
                     } else {
                       final Widget synchronization;
@@ -233,7 +237,7 @@ class ChatsTabView extends StatelessWidget {
                         actions: [
                           ContextMenuButton(
                             key: const Key('SelectChatsButton'),
-                            label: 'btn_select_and_delete'.l10n,
+                            label: 'btn_select'.l10n,
                             onPressed: c.toggleSelecting,
                             trailing: const SvgIcon(SvgIcons.select),
                             inverted: const SvgIcon(SvgIcons.selectWhite),
@@ -387,11 +391,7 @@ class ChatsTabView extends StatelessWidget {
                       );
                     } else {
                       child = SafeScrollbar(
-                        bottom: false,
                         controller: c.search.value!.scrollController,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(40),
-                        ),
                         child: ListView.builder(
                           key: const Key('GroupCreating'),
                           controller: c.search.value!.scrollController,
@@ -466,7 +466,7 @@ class ChatsTabView extends StatelessWidget {
                                   break;
 
                                 case SearchCategory.contact:
-                                  text = 'label_contact'.l10n;
+                                  text = 'label_user'.l10n;
                                   break;
 
                                 case SearchCategory.user:
@@ -696,7 +696,6 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       child = SafeScrollbar(
                         controller: c.scrollController,
-                        bottom: c.selecting.isFalse,
                         child: AnimationLimiter(
                           key: const Key('Chats'),
                           child: Obx(() {
@@ -954,9 +953,7 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                                 SliverPadding(
                                   padding: EdgeInsets.only(
-                                    bottom: c.selecting.isTrue
-                                        ? 0
-                                        : CustomNavigationBar.height,
+                                    bottom: CustomNavigationBar.height,
                                     left: 10,
                                     right: 10,
                                   ),
@@ -1011,45 +1008,136 @@ class ChatsTabView extends StatelessWidget {
                     ),
                   );
                 }),
+                extendBody: true,
                 bottomNavigationBar: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Obx(() {
                       if (c.groupCreating.value) {
                         return BottomPaddedRow(
+                          spacer: (_) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: style.colors.onBackgroundOpacity13,
+                              ),
+                              width: 1,
+                              height: 24,
+                            );
+                          },
                           children: [
-                            FieldButton(
+                            WidgetButton(
                               onPressed: c.closeGroupCreating,
-                              child: Text(
-                                'btn_cancel'.l10n,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    6.5,
+                                    10,
+                                    6.5,
+                                  ),
+                                  child: Text(
+                                    'btn_cancel'.l10n,
+                                    style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ),
                             ),
-                            PrimaryButton(
+                            WidgetButton(
                               onPressed: c.createGroup,
-                              title: 'btn_create'.l10n,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    6.5,
+                                    10,
+                                    6.5,
+                                  ),
+                                  child: Text(
+                                    'btn_create'.l10n,
+                                    style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         );
                       } else if (c.selecting.value) {
                         return BottomPaddedRow(
+                          spacer: (_) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: style.colors.onBackgroundOpacity13,
+                              ),
+                              width: 1,
+                              height: 24,
+                            );
+                          },
                           children: [
-                            FieldButton(
-                              onPressed: c.toggleSelecting,
-                              child: Text(
-                                'btn_cancel'.l10n,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
+                            WidgetButton(
+                              onPressed: c.readAll,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    6.5,
+                                    10,
+                                    6.5,
+                                  ),
+                                  child: Text(
+                                    'btn_read_all'.l10n,
+                                    style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ),
                             ),
-                            PrimaryButton(
+                            WidgetButton(
+                              onPressed: c.selectedChats.isEmpty
+                                  ? null
+                                  : () => _hideChats(context, c),
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    6.5,
+                                    10,
+                                    6.5,
+                                  ),
+                                  child: Text(
+                                    'btn_hide'.l10n,
+                                    style: style.fonts.normal.regular.primary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            WidgetButton(
                               key: const Key('DeleteChatsButton'),
                               onPressed: c.selectedChats.isEmpty
                                   ? null
                                   : () => _hideChats(context, c),
-                              danger: true,
-                              title: 'btn_delete'.l10n,
+                              child: Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    10,
+                                    6.5,
+                                    10,
+                                    6.5,
+                                  ),
+                                  child: Text(
+                                    'btn_delete'.l10n,
+                                    style: style.fonts.normal.regular.danger,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         );

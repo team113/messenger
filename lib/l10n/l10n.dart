@@ -36,18 +36,12 @@ class L10n {
   /// First [Language] in the list is guaranteed to be English.
   static List<Language> languages = const [
     Language('English', Locale('en', 'US')),
+    Language('Español', Locale('es', 'ES')),
     Language('Русский', Locale('ru', 'RU')),
   ];
 
   /// [FluentBundle] providing translation.
   static FluentBundle _bundle = FluentBundle('');
-
-  /// Phrases to pass to the [_bundle], that shouldn't be localized.
-  static const Map<String, String> _phrases = {
-    'label_by_gapopa': 'by Gapopa',
-    'label_messenger_by_gapopa': 'Messenger by Gapopa',
-    'label_messenger': 'Messenger',
-  };
 
   /// Initializes this [L10n] with the default [Locale] of the device, or
   /// optionally with the provided [Language].
@@ -85,10 +79,7 @@ class L10n {
       chosen.value = lang;
 
       _bundle = FluentBundle(lang.toString())
-        ..addMessages(await PlatformUtils.loadString('assets/l10n/$lang.ftl'))
-        ..addMessages(
-          _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
-        );
+        ..addMessages(await PlatformUtils.loadString('assets/l10n/$lang.ftl'));
       if (refresh) {
         await Get.forceAppUpdate();
       }
@@ -306,8 +297,8 @@ extension L10nProfileTabExtension on ProfileTab {
       ProfileTab.confidential => 'label_confidentiality'.l10n,
       ProfileTab.devices => 'label_linked_devices'.l10n,
       ProfileTab.download => 'label_download_and_update'.l10n,
-      ProfileTab.danger => 'label_danger_zone'.l10n,
-      ProfileTab.legal => 'label_legal_information'.l10n,
+      ProfileTab.danger => 'btn_delete_account'.l10n,
+      ProfileTab.legal => 'label_terms_and_privacy_policy'.l10n,
       ProfileTab.support => 'btn_help'.l10n,
       ProfileTab.logout => 'btn_logout'.l10n,
     };

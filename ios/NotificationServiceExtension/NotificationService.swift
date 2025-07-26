@@ -116,25 +116,25 @@ class NotificationService: UNNotificationServiceExtension {
 
         var fresh = creds
 
-        // if Date() > creds.access.expireAt.val {
-        if #available(iOS 12.0, macOS 12.0, *) {
-          if let refreshed = await refreshToken(creds: creds) {
-            fresh = refreshed
+        if Date() > creds.access.expireAt.val {
+          if #available(iOS 12.0, macOS 12.0, *) {
+            if let refreshed = await refreshToken(creds: creds) {
+              fresh = refreshed
 
-            let encoder = JSONEncoder()
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSX"
-            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-            encoder.dateEncodingStrategy = .formatted(dateFormatter)
+              let encoder = JSONEncoder()
+              let dateFormatter = DateFormatter()
+              dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSX"
+              dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+              dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+              encoder.dateEncodingStrategy = .formatted(dateFormatter)
 
-            let jsonData = try! encoder.encode(refreshed)
-            let json = String(data: jsonData, encoding: String.Encoding.utf8)
+              let jsonData = try! encoder.encode(refreshed)
+              let json = String(data: jsonData, encoding: String.Encoding.utf8)
 
-            try! db.run(tokens.insert(or: .replace, userId <- accountId, credentials <- json!))
+              try! db.run(tokens.insert(or: .replace, userId <- accountId, credentials <- json!))
+            }
           }
         }
-        // }
 
         if #available(iOS 12.0, macOS 12.0, *) {
           await sendDelivery(creds: fresh, chatId: chatId)
@@ -163,6 +163,12 @@ class NotificationService: UNNotificationServiceExtension {
                       refreshToken {
                           secret
                           expiresAt
+                      }
+                      session {
+                        id
+                        userAgent
+                        ip
+                        lastActivatedAt
                       }
                       user {
                           id
@@ -206,6 +212,12 @@ class NotificationService: UNNotificationServiceExtension {
             refresh: Token(
               secret: response.data.refreshSession.refreshToken.secret,
               expireAt: DateType(val: response.data.refreshSession.refreshToken.expiresAt)
+            ),
+            session: Session(
+              id: response.data.refreshSession.session.id,
+              userAgent: response.data.refreshSession.session.userAgent,
+              ip: response.data.refreshSession.session.ip,
+              lastActivatedAt: DateType(val: response.data.refreshSession.session.lastActivatedAt)
             ),
             userId: response.data.refreshSession.user.id
           )
@@ -260,6 +272,7 @@ class NotificationService: UNNotificationServiceExtension {
   struct Credentials: Codable {
     let access: Token
     let refresh: Token
+    let session: Session
     let userId: String
   }
 
@@ -270,6 +283,13 @@ class NotificationService: UNNotificationServiceExtension {
 
   struct DateType: Codable {
     let val: Date
+  }
+
+  struct Session: Codable {
+    let id: String
+    let userAgent: String
+    let ip: String
+    let lastActivatedAt: DateType
   }
 
   struct RefreshSessionResponse: Decodable {
@@ -283,12 +303,20 @@ class NotificationService: UNNotificationServiceExtension {
   struct RefreshSessionResponseDataCredentials: Decodable {
     let accessToken: RefreshSessionResponseDataToken
     let refreshToken: RefreshSessionResponseDataToken
+    let session: RefreshSessionResponseDataSession
     let user: RefreshSessionResponseDataCredentialsUser
   }
 
   struct RefreshSessionResponseDataToken: Decodable {
     let secret: String
     let expiresAt: Date
+  }
+
+  struct RefreshSessionResponseDataSession: Decodable {
+    let id: String
+    let userAgent: String
+    let ip: String
+    let lastActivatedAt: Date
   }
 
   struct RefreshSessionResponseDataCredentialsUser: Decodable {

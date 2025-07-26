@@ -15,10 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/contact.dart';
-import 'package:messenger/ui/page/home/tab/contacts/controller.dart';
 
 import '../parameters/position_status.dart';
 import '../world/custom_world.dart';
@@ -36,16 +34,18 @@ final StepDefinitionGeneric seeContactPosition =
         await context.world.appDriver.waitUntil(() async {
           await context.world.appDriver.waitForAppToSettle();
 
-          final controller = Get.find<ContactsTabController>();
-          final ChatContactId contactId = context.world.contacts[name]!;
+          return false;
 
-          switch (status) {
-            case PositionStatus.first:
-              return controller.contacts.first.id == contactId;
+          // final controller = Get.find<ContactsTabController>();
+          // final ChatContactId contactId = context.world.contacts[name]!;
 
-            case PositionStatus.last:
-              return controller.contacts.last.id == contactId;
-          }
+          // switch (status) {
+          //   case PositionStatus.first:
+          //     return controller.contacts.first.id == contactId;
+
+          //   case PositionStatus.last:
+          //     return controller.contacts.last.id == contactId;
+          // }
         });
       },
     );

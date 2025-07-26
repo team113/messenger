@@ -712,25 +712,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           if (action.name != null) 'name': action.name?.val,
         };
 
-        final String phrase1, phrase2;
-        if (action.name == null) {
-          phrase1 = 'label_name_removed1';
-          phrase2 = 'label_name_removed2';
-        } else {
-          phrase1 = 'label_name_updated1';
-          phrase2 = 'label_name_updated2';
-        }
-
         content = Text.rich(
           TextSpan(
             children: [
               TextSpan(
-                text: phrase1.l10nfmt(args),
+                text: 'label_name_updated1'.l10nfmt(args),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () => widget.onUserPressed(user),
               ),
               TextSpan(
-                text: phrase2.l10nfmt(args),
+                text: 'label_name_updated2'.l10nfmt(args),
                 style: style.systemMessageStyle,
               ),
             ],
@@ -1593,9 +1584,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 description: [
                                   if (!deletable && !isMonolog)
                                     TextSpan(
-                                      text:
-                                          'label_this_message_will_be_deleted_only_for_you'
-                                              .l10n,
+                                      text: 'label_message_will_deleted_for_you'
+                                          .l10n,
                                     ),
                                 ],
                                 additional: [

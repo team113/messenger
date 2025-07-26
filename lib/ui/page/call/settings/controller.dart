@@ -67,6 +67,7 @@ class CallSettingsController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+
     _call.value.enumerateDevices();
     _stateWorker = ever(_call.value.state, (state) {
       if (state == OngoingCallState.ended) {
@@ -110,7 +111,7 @@ class CallSettingsController extends GetxController {
     switch (level) {
       case NoiseSuppressionLevelWithOff.off:
         await _call.value.applyVoiceProcessing(noiseSuppression: false);
-        await _settingsRepo.setNoiseSuppression(false);
+        await _settingsRepo.setNoiseSuppression(enabled: false);
         break;
 
       case NoiseSuppressionLevelWithOff.low:
@@ -121,9 +122,10 @@ class CallSettingsController extends GetxController {
           noiseSuppression: true,
           noiseSuppressionLevel: level.toLevel(),
         );
-
-        await _settingsRepo.setNoiseSuppression(true);
-        await _settingsRepo.setNoiseSuppressionLevel(level.toLevel());
+        await _settingsRepo.setNoiseSuppression(
+          enabled: true,
+          level: level.toLevel(),
+        );
         break;
     }
   }

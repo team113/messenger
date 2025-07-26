@@ -6,17 +6,40 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.6.0] · 2025-??-??
+## [0.6.0] · 2025-07-25
 [0.6.0]: /../../tree/v0.6.0
 
 [Diff](/../../compare/v0.5.3...v0.6.0) | [Milestone](/../../milestone/43)
 
+### Added
+
+- UI:
+    - Spanish localization. ([#1333])
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned editing mode. ([#1327])
+    - Profile page:
+        - Slider with ticks. ([#1330])
+    - Chats tab:
+        - Group creating and chats selecting buttons. ([#1333])
+    - Redesigned delete account page. ([#1339])
+    - Login modal:
+        - Accept any identifier instead of e-mail only during sign in via e-mail. ([#1339])
+
 ### Fixed
 
 - iOS:
-    - Authorization sometimes being lost when receiving push notifications. ([#1326])
+    - Authorization sometimes being lost when receiving push notifications. ([#1331], [#1326])
 
 [#1326]: /../../pull/1326
+[#1327]: /../../pull/1327
+[#1330]: /../../pull/1330
+[#1331]: /../../pull/1331
+[#1333]: /../../pull/1333
+[#1339]: /../../pull/1339
 
 
 

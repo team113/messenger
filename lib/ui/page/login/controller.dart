@@ -88,6 +88,9 @@ class LoginController extends GetxController {
   /// [TextFieldState] for [ConfirmationCode] for [UserEmail] input.
   late final TextFieldState emailCode;
 
+  /// [TextFieldState] for an [UserNum], [UserLogin] or [UserEmail] text input.
+  late final TextFieldState identifier;
+
   /// [LoginView] stage to go back to.
   LoginViewStage? returnTo;
 
@@ -99,6 +102,9 @@ class LoginController extends GetxController {
 
   /// Indicator whether the [repeatPassword] should be obscured.
   final RxBool obscureRepeatPassword = RxBool(true);
+
+  /// Indicator whether the [emailCode] should be obscured.
+  final RxBool obscureCode = RxBool(true);
 
   /// Indicator whether the password has been reset.
   final RxBool recovered = RxBool(false);
@@ -325,11 +331,11 @@ class LoginController extends GetxController {
               break;
 
             default:
-              s.error.value = 'err_wrong_recovery_code'.l10n;
+              s.error.value = 'err_wrong_code'.l10n;
               break;
           }
         } on FormatException catch (_) {
-          s.error.value = 'err_wrong_recovery_code'.l10n;
+          s.error.value = 'err_wrong_code'.l10n;
           s.status.value = RxStatus.empty();
           ++codeAttempts;
           if (codeAttempts >= 3) {
@@ -341,6 +347,53 @@ class LoginController extends GetxController {
           s.error.value = 'err_data_transfer'.l10n;
           s.status.value = RxStatus.empty();
           s.unsubmit();
+          rethrow;
+        }
+      },
+    );
+
+    identifier = TextFieldState(
+      onSubmitted: (s) async {
+        final UserLogin? userLogin = UserLogin.tryParse(s.text);
+        final UserNum? userNum = UserNum.tryParse(s.text);
+        final UserEmail? userEmail = UserEmail.tryParse(s.text);
+        final UserPhone? userPhone = UserPhone.tryParse(s.text);
+
+        emailCode.clear();
+
+        final LoginViewStage previous = stage.value;
+
+        stage.value = switch (stage.value) {
+          LoginViewStage.signInWithEmail => LoginViewStage.signInWithEmailCode,
+          (_) => LoginViewStage.signUpWithEmailCode,
+        };
+
+        try {
+          if (userLogin != null ||
+              userNum != null ||
+              userEmail != null ||
+              userPhone != null) {
+            await _authService.createConfirmationCode(
+              email: userEmail,
+              login: userLogin,
+              num: userNum,
+              phone: userPhone,
+            );
+          }
+
+          s.unsubmit();
+        } on AddUserEmailException catch (e) {
+          s.error.value = e.toMessage();
+          _setResendEmailTimer(false);
+
+          stage.value = previous;
+        } catch (_) {
+          s.resubmitOnError.value = true;
+          s.error.value = 'err_data_transfer'.l10n;
+          _setResendEmailTimer(false);
+          s.unsubmit();
+
+          stage.value = previous;
           rethrow;
         }
       },
@@ -464,13 +517,6 @@ class LoginController extends GetxController {
 
     _recoveryLogin = _recoveryNum = _recoveryPhone = _recoveryEmail = null;
 
-    if (recovery.text.isEmpty) {
-      recovery.status.value = RxStatus.empty();
-      recovery.editable.value = true;
-      recovery.error.value = 'err_account_not_found'.l10n;
-      return;
-    }
-
     // Parse the [recovery] input.
     try {
       _recoveryNum = UserNum(recovery.text);
@@ -491,21 +537,22 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _authService.createConfirmationCode(
-        login: _recoveryLogin,
-        num: _recoveryNum,
-        email: _recoveryEmail,
-        phone: _recoveryPhone,
-        locale: L10n.chosen.value?.toString(),
-      );
+      if (_recoveryLogin != null ||
+          _recoveryNum != null ||
+          _recoveryEmail != null ||
+          _recoveryPhone != null) {
+        await _authService.createConfirmationCode(
+          login: _recoveryLogin,
+          num: _recoveryNum,
+          email: _recoveryEmail,
+          phone: _recoveryPhone,
+          locale: L10n.chosen.value?.toString(),
+        );
+      }
 
       stage.value = LoginViewStage.recoveryCode;
       recovery.status.value = RxStatus.success();
       recovery.editable.value = false;
-    } on FormatException {
-      recovery.error.value = 'err_account_not_found'.l10n;
-    } on ArgumentError {
-      recovery.error.value = 'err_account_not_found'.l10n;
     } catch (e) {
       recovery.unsubmit();
       recovery.resubmitOnError.value = true;
@@ -544,9 +591,9 @@ class LoginController extends GetxController {
       recoveryCode.status.value = RxStatus.success();
       stage.value = LoginViewStage.recoveryPassword;
     } on FormatException {
-      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
+      recoveryCode.error.value = 'err_wrong_code'.l10n;
     } on ArgumentError {
-      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
+      recoveryCode.error.value = 'err_wrong_code'.l10n;
     } on ValidateConfirmationCodeException catch (e) {
       recoveryCode.error.value = e.toMessage();
     } catch (e) {
@@ -626,7 +673,7 @@ class LoginController extends GetxController {
         case UpdateUserPasswordErrorCode.wrongCode:
           recoveryCode.error.value = 'err_wrong_code'.l10n;
         case UpdateUserPasswordErrorCode.confirmationRequired:
-          repeatPassword.error.value = 'err_confirmation_required'.l10n;
+          repeatPassword.error.value = 'err_data_transfer'.l10n;
         case UpdateUserPasswordErrorCode.artemisUnknown:
           repeatPassword.error.value = 'err_unknown'.l10n;
       }
@@ -647,7 +694,32 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.createConfirmationCode(email: UserEmail(email.text));
+      switch (stage.value) {
+        case LoginViewStage.signInWithEmailCode:
+          final UserLogin? userLogin = UserLogin.tryParse(identifier.text);
+          final UserNum? userNum = UserNum.tryParse(identifier.text);
+          final UserEmail? userEmail = UserEmail.tryParse(identifier.text);
+          final UserPhone? userPhone = UserPhone.tryParse(identifier.text);
+
+          if (userLogin != null ||
+              userNum != null ||
+              userEmail != null ||
+              userPhone != null) {
+            await _authService.createConfirmationCode(
+              email: userEmail,
+              login: userLogin,
+              num: userNum,
+              phone: userPhone,
+            );
+          }
+          break;
+
+        default:
+          await _authService.createConfirmationCode(
+            email: UserEmail(email.text),
+          );
+          break;
+      }
     } on AddUserEmailException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {

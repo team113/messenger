@@ -82,7 +82,10 @@ class LogView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ModalPopupHeader(text: 'Version: ${Pubspec.ref}'),
+                ModalPopupHeader(
+                  text: 'Version: ${Pubspec.ref}',
+                  onBack: context.isMobile ? Navigator.of(context).pop : null,
+                ),
                 Flexible(
                   child: Scrollbar(
                     controller: c.scrollController,
@@ -168,6 +171,10 @@ class LogView extends StatelessWidget {
                               },
                               child: SvgIcon(SvgIcons.copy),
                             ),
+                            trailing: WidgetButton(
+                              onPressed: c.clearLogs,
+                              child: SvgIcon(SvgIcons.delete19),
+                            ),
                             title: Text('Logs'),
                           ),
                           ...Log.logs.map((e) {
@@ -175,7 +182,7 @@ class LogView extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  e.at.toStamp,
+                                  e.at.toUtc().toStamp,
                                   style: style.fonts.small.regular.onBackground,
                                 ),
                                 SizedBox(width: 4),
@@ -281,6 +288,8 @@ class LogView extends StatelessWidget {
 
   /// Builds the technical information about current [Session].
   Widget _session(BuildContext context, LogController c) {
+    final style = Theme.of(context).style;
+
     final session = c.sessions
         ?.firstWhereOrNull((e) => e.session.value.id == c.sessionId)
         ?.session
@@ -303,6 +312,13 @@ class LogView extends StatelessWidget {
         ),
         Text('ID: ${c.sessionId}'),
         Text('$session'),
+        ListTile(
+          title: Text(
+            'Force `refreshSession()` to occur',
+            style: style.fonts.small.regular.primary,
+          ),
+          onTap: c.refreshSession,
+        ),
       ],
     );
   }

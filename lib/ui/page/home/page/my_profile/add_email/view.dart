@@ -62,13 +62,7 @@ class AddEmailView extends StatelessWidget {
       init: AddEmailController(Get.find(), email: email, timeout: timeout),
       builder: (AddEmailController c) {
         return Obx(() {
-          final Widget header = ModalPopupHeader(
-            text: switch (c.page.value) {
-              AddEmailPage.add => 'label_add_email'.l10n,
-              AddEmailPage.confirm ||
-              AddEmailPage.success => 'label_confirm_email'.l10n,
-            },
-          );
+          final Widget header = ModalPopupHeader(text: 'label_add_email'.l10n);
 
           final List<Widget> children = switch (c.page.value) {
             AddEmailPage.add => [
@@ -77,7 +71,7 @@ class AddEmailView extends StatelessWidget {
                 key: Key('EmailField'),
                 state: c.emailField,
                 label: 'label_email'.l10n,
-                hint: 'example@domain.com',
+                hint: 'label_email_example'.l10n,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 style: style.fonts.normal.regular.onBackground,
                 treatErrorAsStatus: false,
@@ -111,22 +105,18 @@ class AddEmailView extends StatelessWidget {
               },
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Obx(() {
-                  return Text(
-                    c.resent.value
-                        ? 'label_add_email_confirmation_sent_again'.l10n
-                        : 'label_add_email_confirmation_sent'.l10n,
-                    style: style.fonts.small.regular.secondary,
-                  );
-                }),
+                child: Text(
+                  'label_add_email_confirmation_sent'.l10n,
+                  style: style.fonts.small.regular.secondary,
+                ),
               ),
               const SizedBox(height: 25),
               ReactiveTextField(
                 key: const Key('ConfirmationCode'),
                 state: c.code,
-                label: 'label_one_time_code'.l10n,
+                label: 'label_one_time_password'.l10n,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
-                hint: 'label_one_time_code_hint'.l10n,
+                hint: 'label_enter_code'.l10n,
                 formatters: [FilteringTextInputFormatter.digitsOnly],
                 type: TextInputType.number,
               ),
@@ -168,7 +158,7 @@ class AddEmailView extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
-                  'label_email_confirmed'.l10n,
+                  'label_add_email_confirmed'.l10n,
                   textAlign: TextAlign.center,
                   style: style.fonts.small.regular.secondary,
                 ),

@@ -69,6 +69,9 @@ class AccountsController extends GetxController {
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
 
+  /// Indicator whether the [emailCode] should be obscured.
+  final RxBool obscureCode = RxBool(true);
+
   /// Amount of [signIn] unsuccessful submitting attempts.
   int signInAttempts = 0;
 
@@ -244,7 +247,7 @@ class AccountsController extends GetxController {
               break;
           }
         } on FormatException catch (_) {
-          s.error.value = 'err_wrong_recovery_code'.l10n;
+          s.error.value = 'err_wrong_code'.l10n;
           s.status.value = RxStatus.empty();
           ++codeAttempts;
           if (codeAttempts >= 3) {

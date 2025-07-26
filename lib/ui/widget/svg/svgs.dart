@@ -284,14 +284,14 @@ class SvgIcons {
 
   static const SvgData enter = SvgData(
     'assets/icons/enter.svg',
-    width: 20.21,
-    height: 25,
+    width: 24,
+    height: 24,
   );
 
   static const SvgData guest = SvgData(
     'assets/icons/one_time.svg',
-    width: 19.88,
-    height: 26,
+    width: 24,
+    height: 24,
   );
 
   static const SvgData email = SvgData(
@@ -1789,6 +1789,12 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData reportGrey = SvgData(
+    'assets/icons/report_grey.svg',
+    width: 18,
+    height: 18,
+  );
+
   static const SvgData delete19 = SvgData(
     'assets/icons/delete19.svg',
     width: 19,
@@ -2171,5 +2177,17 @@ class SvgIcons {
     'assets/icons/call_unmute_white.svg',
     width: 19,
     height: 19,
+  );
+
+  static const SvgData attachmentClose = SvgData(
+    'assets/icons/attachment_close.svg',
+    width: 8,
+    height: 8,
+  );
+
+  static const SvgData removeFromCallWhite = SvgData(
+    'assets/icons/remove_from_call_white.svg',
+    width: 21.36,
+    height: 20.51,
   );
 }

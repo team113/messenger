@@ -69,7 +69,7 @@ class UserView extends StatelessWidget {
               ),
               body: Center(
                 child: c.status.value.isEmpty
-                    ? Text('err_unknown_user'.l10n)
+                    ? Text('label_unknown_page'.l10n)
                     : const CustomProgressIndicator(),
               ),
             );
@@ -341,26 +341,6 @@ class UserView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-
-        // TODO: Uncomment, when contacts are implemented.
-        // ActionButton(
-        //   text: contact
-        //       ? 'btn_delete_from_contacts'.l10n
-        //       : 'btn_add_to_contacts'.l10n,
-        //   onPressed: contact ? c.removeFromContacts : c.addToContacts,
-        //   trailing: SvgIcon(
-        //     contact ? SvgIcons.deleteContact16 : SvgIcons.addContact16,
-        //   ),
-        // ),
-        // ActionButton(
-        //   text: favorite
-        //       ? 'btn_delete_from_favorites'.l10n
-        //       : 'btn_add_to_favorites'.l10n,
-        //   onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
-        //   trailing: SvgIcon(
-        //     favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
-        //   ),
-        // ),
         ActionButton(
           key: favorite
               ? const Key('UnfavoriteButton')
@@ -434,14 +414,19 @@ class UserView extends StatelessWidget {
         ReactiveTextField(
           state: c.reason,
           label: 'label_reason'.l10n,
+          hint: 'label_reason_hint'.l10n,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
           formatters: [LengthLimitingTextInputFormatter(100)],
         ),
       ],
       button: (context) {
         return Obx(() {
+          final bool enabled = c.reason.error.value == null;
+
           return PrimaryButton(
             key: const Key('Proceed'),
-            onPressed: c.reason.error.value == null
+            danger: true,
+            onPressed: enabled
                 ? () {
                     if (c.reason.error.value != null) {
                       return;
@@ -450,7 +435,8 @@ class UserView extends StatelessWidget {
                     Navigator.of(context).pop(true);
                   }
                 : null,
-            title: 'btn_proceed'.l10n,
+            title: 'btn_block'.l10n,
+            leading: SvgIcon(enabled ? SvgIcons.blockWhite : SvgIcons.block),
           );
         });
       },
@@ -477,16 +463,26 @@ class UserView extends StatelessWidget {
       ],
       additional: [
         const SizedBox(height: 25),
-        ReactiveTextField(state: c.reporting, label: 'label_reason'.l10n),
+        ReactiveTextField(
+          state: c.reporting,
+          label: 'label_reason'.l10n,
+          hint: 'label_reason_hint'.l10n,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+        ),
       ],
       button: (context) {
         return Obx(() {
-          return PrimaryButton(
-            title: 'btn_proceed'.l10n,
-            onPressed: c.reporting.isEmpty.value
-                ? null
-                : () => Navigator.of(context).pop(true),
-          );
+          return Obx(() {
+            final bool enabled = !c.reporting.isEmpty.value;
+
+            return PrimaryButton(
+              title: 'btn_report'.l10n,
+              onPressed: enabled ? () => Navigator.of(context).pop(true) : null,
+              leading: SvgIcon(
+                enabled ? SvgIcons.reportWhite : SvgIcons.reportGrey,
+              ),
+            );
+          });
         });
       },
     );

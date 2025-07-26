@@ -24,6 +24,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/session/controller.dart';
 import '/ui/page/home/page/user/controller.dart';
+import '/ui/page/home/tab/chats/widget/periodic_builder.dart';
 import '/ui/widget/svg/svg.dart';
 
 /// Visual representation of a [RxSession].
@@ -66,6 +67,8 @@ class SessionTileWidget extends StatelessWidget {
                 child: SvgIcon(switch (session.userAgent.system) {
                   'macOS' => SvgIcons.userAgentMacOs,
                   'iOS' => SvgIcons.userAgentIOs,
+                  'iPadOS' => SvgIcons.userAgentIOs,
+                  'watchOS' => SvgIcons.userAgentIOs,
                   'Android' => SvgIcons.userAgentAndroid,
                   'Linux' => SvgIcons.userAgentLinux,
                   'Windows' => SvgIcons.userAgentWindows,
@@ -88,13 +91,18 @@ class SessionTileWidget extends StatelessWidget {
                     style: style.fonts.small.regular.onBackground,
                   ),
                   SizedBox(height: 4),
-                  Text(
-                    'label_city_country_activated_at'.l10nfmt({
-                      'city': geo?.city ?? '',
-                      'country': geo?.country ?? '',
-                      'at': session.lastActivatedAt.val.toDifferenceAgo(),
-                    }),
-                    style: style.fonts.small.regular.secondary,
+                  PeriodicBuilder(
+                    period: Duration(minutes: 1),
+                    builder: (_) {
+                      return Text(
+                        'label_city_country_activated_at'.l10nfmt({
+                          'city': geo?.city ?? '',
+                          'country': geo?.country ?? '',
+                          'at': session.lastActivatedAt.val.toDifferenceAgo(),
+                        }),
+                        style: style.fonts.small.regular.secondary,
+                      );
+                    },
                   ),
                 ],
               ),

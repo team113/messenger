@@ -195,7 +195,7 @@ class NotChatMemberException extends GraphQlException {
   String toString() => 'NotChatMemberException()';
 
   @override
-  String toMessage() => 'err_not_member'.l10n;
+  String toMessage() => toString();
 }
 
 /// Specific [GraphQlException] thrown on `STALE_VERSION` extension code.
@@ -277,11 +277,11 @@ class CreateDialogException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case CreateDialogChatErrorCode.blocked:
         return 'err_blocked'.l10n;
+
       case CreateDialogChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case CreateDialogChatErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
 
+      case CreateDialogChatErrorCode.unknownUser:
       case CreateDialogChatErrorCode.useMonolog:
         return toString();
     }
@@ -304,13 +304,14 @@ class CreateGroupChatException
   String toMessage() {
     switch (code) {
       case CreateGroupChatErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+        return toString();
 
       case CreateGroupChatErrorCode.wrongMembersCount:
         return 'err_wrong_members_count'.l10n;
 
       case CreateGroupChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+
       case CreateGroupChatErrorCode.blocked:
         return 'err_blocked_by_multiple'.l10n;
     }
@@ -334,10 +335,10 @@ class RemoveChatMemberException
     switch (code) {
       case RemoveChatMemberErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+
       case RemoveChatMemberErrorCode.notGroup:
-        return 'err_not_group'.l10n;
       case RemoveChatMemberErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return toString();
     }
   }
 }
@@ -357,10 +358,11 @@ class StartChatCallException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case StartChatCallErrorCode.blocked:
         return 'err_blocked'.l10n;
+
       case StartChatCallErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case StartChatCallErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+        return toString();
+
       case StartChatCallErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -403,10 +405,10 @@ class LeaveChatCallException with LocalizedExceptionMixin implements Exception {
   @override
   String toMessage() {
     switch (code) {
-      case LeaveChatCallErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case LeaveChatCallErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+
+      case LeaveChatCallErrorCode.unknownChat:
       case LeaveChatCallErrorCode.unknownDevice:
         return toString();
     }
@@ -510,7 +512,7 @@ class UpdateUserPasswordException
       case UpdateUserPasswordErrorCode.wrongCode:
         return 'err_wrong_code'.l10n;
       case UpdateUserPasswordErrorCode.confirmationRequired:
-        return 'err_confirmation_required'.l10n;
+        return toString();
       case UpdateUserPasswordErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -559,14 +561,14 @@ class AddChatMemberException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case AddChatMemberErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case AddChatMemberErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+
       case AddChatMemberErrorCode.blocked:
         return 'err_blocked'.l10n;
+
+      case AddChatMemberErrorCode.unknownUser:
       case AddChatMemberErrorCode.notGroup:
-        return 'err_not_group'.l10n;
       case AddChatMemberErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return toString();
     }
   }
 }
@@ -584,11 +586,10 @@ class RenameChatException with LocalizedExceptionMixin implements Exception {
   @override
   String toMessage() {
     switch (code) {
-      case RenameChatErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case RenameChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
 
+      case RenameChatErrorCode.unknownChat:
       case RenameChatErrorCode.dialog:
         return toString();
     }
@@ -614,20 +615,14 @@ class PostChatMessageException
         return 'err_blocked'.l10n;
 
       case PostChatMessageErrorCode.noTextAndNoAttachment:
+      case PostChatMessageErrorCode.unknownAttachment:
+      case PostChatMessageErrorCode.wrongAttachmentsCount:
+      case PostChatMessageErrorCode.unknownReplyingChatItem:
+      case PostChatMessageErrorCode.wrongReplyingChatItemsCount:
+      case PostChatMessageErrorCode.unknownChat:
+      case PostChatMessageErrorCode.unknownUser:
         return toString();
 
-      case PostChatMessageErrorCode.wrongAttachmentsCount:
-        return 'err_wrong_attachments_items_count'.l10n;
-      case PostChatMessageErrorCode.wrongReplyingChatItemsCount:
-        return 'err_wrong_replying_item_count'.l10n;
-      case PostChatMessageErrorCode.unknownAttachment:
-        return 'err_unknown_attachment'.l10n;
-      case PostChatMessageErrorCode.unknownReplyingChatItem:
-        return 'err_unknown_replying_chat_item'.l10n;
-      case PostChatMessageErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
-      case PostChatMessageErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
       case PostChatMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -649,8 +644,9 @@ class HideChatException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case HideChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+
       case HideChatErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return toString();
     }
   }
 }
@@ -671,7 +667,8 @@ class UpdateChatContactNameException
   String toMessage() {
     switch (code) {
       case UpdateChatContactNameErrorCode.unknownChatContact:
-        return 'err_unknown_contact'.l10n;
+        return toString();
+
       case UpdateChatContactNameErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -693,10 +690,13 @@ class AddUserEmailException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case AddUserEmailErrorCode.artemisUnknown:
         return 'err_data_transfer'.l10n;
+
       case AddUserEmailErrorCode.occupied:
         return 'err_email_occupied'.l10n;
+
       case AddUserEmailErrorCode.wrongCode:
         return 'err_wrong_code'.l10n;
+
       case AddUserEmailErrorCode.tooMany:
         return 'err_too_many_emails'.l10n;
 
@@ -748,10 +748,10 @@ class ReadChatException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case ReadChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+
       case ReadChatErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case ReadChatErrorCode.unknownChatItem:
-        return 'err_unknown_chat_item'.l10n;
+        return toString();
     }
   }
 }
@@ -771,8 +771,9 @@ class HideChatItemException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case HideChatItemErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+
       case HideChatItemErrorCode.unknownChatItem:
-        return 'err_unknown_chat_item'.l10n;
+        return toString();
     }
   }
 }
@@ -798,10 +799,10 @@ class DeleteChatMessageException
       case DeleteChatMessageErrorCode.notAuthor:
       case DeleteChatMessageErrorCode.quoted:
       case DeleteChatMessageErrorCode.read:
-        return 'err_message_cannot_be_deleted'.l10n;
+        return 'err_message_was_read'.l10n;
 
       case DeleteChatMessageErrorCode.unknownChatItem:
-        return 'err_unknown_chat_item'.l10n;
+        return toString();
     }
   }
 }
@@ -827,10 +828,10 @@ class DeleteChatForwardException
       case DeleteChatForwardErrorCode.notAuthor:
       case DeleteChatForwardErrorCode.quoted:
       case DeleteChatForwardErrorCode.read:
-        return 'err_message_cannot_be_deleted'.l10n;
+        return 'err_message_was_read'.l10n;
 
       case DeleteChatForwardErrorCode.unknownChatItem:
-        return 'err_unknown_chat_item'.l10n;
+        return toString();
     }
   }
 }
@@ -909,10 +910,10 @@ class CreateChatDirectLinkException
         return 'err_unknown'.l10n;
       case CreateChatDirectLinkErrorCode.occupied:
         return 'err_chat_direct_link_occupied'.l10n;
+
       case CreateChatDirectLinkErrorCode.notGroup:
-        return 'err_not_group'.l10n;
       case CreateChatDirectLinkErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return toString();
     }
   }
 }
@@ -934,10 +935,10 @@ class DeleteChatDirectLinkException
     switch (code) {
       case DeleteChatDirectLinkErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+
       case DeleteChatDirectLinkErrorCode.notGroup:
-        return 'err_not_group'.l10n;
       case DeleteChatDirectLinkErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return toString();
     }
   }
 }
@@ -984,22 +985,19 @@ class EditChatMessageException
     switch (code) {
       case EditChatMessageErrorCode.uneditable:
         return 'err_uneditable_message'.l10n;
+
       case EditChatMessageErrorCode.blocked:
         return 'err_blocked'.l10n;
-      case EditChatMessageErrorCode.notAuthor:
-        return 'err_not_author'.l10n;
-      case EditChatMessageErrorCode.wrongAttachmentsCount:
-        return 'err_wrong_attachments_items_count'.l10n;
-      case EditChatMessageErrorCode.wrongReplyingChatItemsCount:
-        return 'err_wrong_replying_item_count'.l10n;
-      case EditChatMessageErrorCode.unknownAttachment:
-        return 'err_unknown_attachment'.l10n;
+
       case EditChatMessageErrorCode.unknownReplyingChatItem:
-        return 'err_unknown_replying_chat_item'.l10n;
       case EditChatMessageErrorCode.unknownChatItem:
-        return 'err_unknown_chat_item'.l10n;
+      case EditChatMessageErrorCode.wrongReplyingChatItemsCount:
+      case EditChatMessageErrorCode.wrongAttachmentsCount:
+      case EditChatMessageErrorCode.unknownAttachment:
+      case EditChatMessageErrorCode.notAuthor:
       case EditChatMessageErrorCode.noTextAndNoAttachment:
-        return 'err_no_text_and_no_attachment'.l10n;
+        return toString();
+
       case EditChatMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1022,9 +1020,9 @@ class UpdateUserAvatarException
   String toMessage() {
     switch (code) {
       case UpdateUserAvatarErrorCode.invalidCropCoordinates:
-        return toString();
       case UpdateUserAvatarErrorCode.invalidCropPoints:
-        return 'err_invalid_crop_points'.l10n;
+        return toString();
+
       case UpdateUserAvatarErrorCode.malformed:
         return 'err_uploaded_file_malformed'.l10n;
       case UpdateUserAvatarErrorCode.unsupportedFormat:
@@ -1055,9 +1053,9 @@ class UpdateUserCallCoverException
   String toMessage() {
     switch (code) {
       case UpdateUserCallCoverErrorCode.invalidCropCoordinates:
-        return toString();
       case UpdateUserCallCoverErrorCode.invalidCropPoints:
-        return 'err_invalid_crop_points'.l10n;
+        return toString();
+
       case UpdateUserCallCoverErrorCode.malformed:
         return 'err_uploaded_file_malformed'.l10n;
       case UpdateUserCallCoverErrorCode.unsupportedFormat:
@@ -1147,24 +1145,17 @@ class ForwardChatItemsException
     switch (code) {
       case ForwardChatItemsErrorCode.blocked:
         return 'err_blocked'.l10n;
-      case ForwardChatItemsErrorCode.noTextAndNoAttachment:
-        return 'err_no_text_and_no_attachment'.l10n;
+
       case ForwardChatItemsErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case ForwardChatItemsErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
-
       case ForwardChatItemsErrorCode.unknownForwardedAttachment:
-        return 'err_unknown_forwarded_attachment'.l10n;
-
+      case ForwardChatItemsErrorCode.noTextAndNoAttachment:
       case ForwardChatItemsErrorCode.wrongItemsCount:
       case ForwardChatItemsErrorCode.unsupportedForwardedItem:
+      case ForwardChatItemsErrorCode.unknownAttachment:
+      case ForwardChatItemsErrorCode.unknownForwardedItem:
         return toString();
 
-      case ForwardChatItemsErrorCode.unknownForwardedItem:
-        return 'err_unknown_forwarded_item'.l10n;
-      case ForwardChatItemsErrorCode.unknownAttachment:
-        return 'err_unknown_attachment'.l10n;
       case ForwardChatItemsErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1186,12 +1177,6 @@ class UpdateChatAvatarException
   @override
   String toMessage() {
     switch (code) {
-      case UpdateChatAvatarErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
-      case UpdateChatAvatarErrorCode.invalidCropCoordinates:
-        return toString();
-      case UpdateChatAvatarErrorCode.invalidCropPoints:
-        return 'err_invalid_crop_points'.l10n;
       case UpdateChatAvatarErrorCode.malformed:
         return 'err_uploaded_file_malformed'.l10n;
       case UpdateChatAvatarErrorCode.unsupportedFormat:
@@ -1203,6 +1188,9 @@ class UpdateChatAvatarException
       case UpdateChatAvatarErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
 
+      case UpdateChatAvatarErrorCode.unknownChat:
+      case UpdateChatAvatarErrorCode.invalidCropCoordinates:
+      case UpdateChatAvatarErrorCode.invalidCropPoints:
       case UpdateChatAvatarErrorCode.dialog:
         return toString();
     }
@@ -1225,14 +1213,12 @@ class ToggleChatMuteException
   String toMessage() {
     switch (code) {
       case ToggleChatMuteErrorCode.tooShort:
+      case ToggleChatMuteErrorCode.monolog:
+      case ToggleChatMuteErrorCode.unknownChat:
         return toString();
 
-      case ToggleChatMuteErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case ToggleChatMuteErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case ToggleChatMuteErrorCode.monolog:
-        return toString();
     }
   }
 }
@@ -1251,7 +1237,8 @@ class FavoriteChatException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case FavoriteChatErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return toString();
+
       case FavoriteChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1274,7 +1261,8 @@ class UnfavoriteChatException
   String toMessage() {
     switch (code) {
       case UnfavoriteChatErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return toString();
+
       case UnfavoriteChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1297,7 +1285,8 @@ class FavoriteChatContactException
   String toMessage() {
     switch (code) {
       case FavoriteChatContactErrorCode.unknownChatContact:
-        return 'err_unknown_chat'.l10n;
+        return toString();
+
       case FavoriteChatContactErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1320,7 +1309,8 @@ class UnfavoriteChatContactException
   String toMessage() {
     switch (code) {
       case UnfavoriteChatContactErrorCode.unknownChatContact:
-        return 'err_unknown_chat'.l10n;
+        return toString();
+
       case UnfavoriteChatContactErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1341,7 +1331,8 @@ class BlockUserException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case BlockUserErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+        return toString();
+
       case BlockUserErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1362,7 +1353,8 @@ class UnblockUserException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case UnblockUserErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+        return toString();
+
       case UnblockUserErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1384,10 +1376,10 @@ class ClearChatException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case ClearChatErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+
       case ClearChatErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case ClearChatErrorCode.unknownChatItem:
-        return 'err_unknown_chat_item'.l10n;
+        return toString();
     }
   }
 }
@@ -1409,12 +1401,11 @@ class RemoveChatCallMemberException
     switch (code) {
       case RemoveChatCallMemberErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
+
       case RemoveChatCallMemberErrorCode.notGroup:
-        return 'err_not_group'.l10n;
       case RemoveChatCallMemberErrorCode.notMember:
-        return 'err_not_member'.l10n;
       case RemoveChatCallMemberErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return toString();
     }
   }
 }
@@ -1468,7 +1459,7 @@ class DeleteSessionException with LocalizedExceptionMixin implements Exception {
       case DeleteSessionErrorCode.wrongCode:
         return 'err_wrong_code'.l10n;
       case DeleteSessionErrorCode.confirmationRequired:
-        return 'err_confirmation_required'.l10n;
+        return toString();
       case DeleteSessionErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1510,7 +1501,7 @@ class DeleteMyUserException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case DeleteMyUserErrorCode.confirmationRequired:
-        return 'err_confirmation_required'.l10n;
+        return toString();
       case DeleteMyUserErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
       case DeleteMyUserErrorCode.wrongCode:
@@ -1537,7 +1528,7 @@ class RemoveUserEmailException
   String toMessage() {
     switch (code) {
       case RemoveUserEmailErrorCode.confirmationRequired:
-        return 'err_confirmation_required'.l10n;
+        return toString();
       case RemoveUserEmailErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
       case RemoveUserEmailErrorCode.wrongCode:
@@ -1564,7 +1555,7 @@ class RemoveUserPhoneException
   String toMessage() {
     switch (code) {
       case RemoveUserPhoneErrorCode.confirmationRequired:
-        return 'err_confirmation_required'.l10n;
+        return toString();
       case RemoveUserPhoneErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
       case RemoveUserPhoneErrorCode.wrongCode:
@@ -1614,11 +1605,10 @@ class UpdateWelcomeMessageException
   String toMessage() {
     switch (code) {
       case UpdateWelcomeMessageErrorCode.wrongAttachmentsCount:
-        return 'err_wrong_attachments_items_count'.l10n;
       case UpdateWelcomeMessageErrorCode.unknownAttachment:
-        return 'err_unknown_attachment'.l10n;
       case UpdateWelcomeMessageErrorCode.noTextAndNoAttachment:
-        return 'err_no_text_and_no_attachment'.l10n;
+        return toString();
+
       case UpdateWelcomeMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }

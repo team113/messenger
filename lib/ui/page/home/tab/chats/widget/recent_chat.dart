@@ -267,22 +267,6 @@ class RecentChatTile extends StatelessWidget {
               ),
             ],
             actions: [
-              if (chat.isDialog && inContacts != null && onContact != null) ...[
-                if (inContacts!.call() == true)
-                  ContextMenuButton(
-                    label: 'btn_delete_from_contacts'.l10n,
-                    onPressed: () => onContact?.call(false),
-                    trailing: const SvgIcon(SvgIcons.deleteContact),
-                    inverted: const SvgIcon(SvgIcons.deleteContactWhite),
-                  )
-                else
-                  ContextMenuButton(
-                    label: 'btn_add_to_contacts'.l10n,
-                    onPressed: () => onContact?.call(true),
-                    trailing: const SvgIcon(SvgIcons.addContact),
-                    inverted: const SvgIcon(SvgIcons.addContactWhite),
-                  ),
-              ],
               if (chat.favoritePosition != null && onUnfavorite != null)
                 ContextMenuButton(
                   key: const Key('UnfavoriteButton'),
@@ -731,11 +715,7 @@ class RecentChatTile extends StatelessWidget {
                   'name': action.name?.val,
                 };
 
-                if (action.name == null) {
-                  return Text('label_name_removed'.l10nfmt(args));
-                } else {
-                  return Text('label_name_updated'.l10nfmt(args));
-                }
+                return Text('label_name_updated'.l10nfmt(args));
               });
               break;
           }
@@ -745,7 +725,11 @@ class RecentChatTile extends StatelessWidget {
           subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
         }
       } else {
-        subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
+        if (chat.isMonolog) {
+          subtitle = [Flexible(child: Text('label_no_notes'.l10n))];
+        } else {
+          subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
+        }
       }
 
       return DefaultTextStyle(

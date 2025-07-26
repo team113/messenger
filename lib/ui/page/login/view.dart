@@ -23,14 +23,12 @@ import 'package:get/get.dart';
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import 'controller.dart';
-import 'privacy_policy/view.dart';
 import 'terms_of_use/view.dart';
 import 'widget/sign_button.dart';
 
@@ -94,10 +92,9 @@ class LoginView extends StatelessWidget {
               );
 
               children = [
-                const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: style.fonts.normal.regular.secondary,
+                  style: style.fonts.small.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -276,7 +273,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   state: c.email,
                   label: 'label_email'.l10n,
-                  hint: 'example@domain.com',
+                  hint: 'label_email_example'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
@@ -288,7 +285,10 @@ class LoginView extends StatelessWidget {
 
                     return PrimaryButton(
                       onPressed: enabled ? c.email.submit : null,
-                      title: 'btn_proceed'.l10n,
+                      title: 'btn_send_one_time_code'.l10n,
+                      leading: SvgIcon(
+                        enabled ? SvgIcons.emailWhite : SvgIcons.emailGrey,
+                      ),
                     );
                   }),
                 ),
@@ -331,44 +331,29 @@ class LoginView extends StatelessWidget {
               );
 
               children = [
-                Text.rich(
-                  'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text})
-                      .parseLinks([], style.fonts.normal.regular.primary),
-                  style: style.fonts.normal.regular.onBackground,
+                Center(child: Text(c.email.text)),
+                SizedBox(height: 20),
+                Text(
+                  'label_add_email_confirmation_sent'.l10n,
+                  style: style.fonts.small.regular.secondary,
                 ),
-                const SizedBox(height: 16),
-                Obx(() {
-                  return Text(
-                    c.resendEmailTimeout.value == 0
-                        ? 'label_did_not_receive_code'.l10n
-                        : 'label_code_sent_again'.l10n,
-                    style: style.fonts.normal.regular.onBackground,
-                  );
-                }),
-                Obx(() {
-                  final bool enabled = c.resendEmailTimeout.value == 0;
-
-                  return WidgetButton(
-                    onPressed: enabled ? c.resendEmail : null,
-                    child: Text(
-                      enabled
-                          ? 'btn_resend_code'.l10n
-                          : 'label_wait_seconds'.l10nfmt({
-                              'for': c.resendEmailTimeout.value,
-                            }),
-                      style: enabled
-                          ? style.fonts.normal.regular.primary
-                          : style.fonts.normal.regular.onBackground,
-                    ),
-                  );
-                }),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
                   state: c.emailCode,
-                  label: 'label_one_time_code'.l10n,
+                  label: 'label_one_time_password'.l10n,
                   type: TextInputType.number,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  hint: 'label_enter_code'.l10n,
+                  obscure: c.obscureCode.value,
+                  onSuffixPressed: c.obscureCode.toggle,
+                  trailing: Center(
+                    child: SvgIcon(
+                      c.obscureCode.value
+                          ? SvgIcons.visibleOff
+                          : SvgIcons.visibleOn,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
@@ -377,14 +362,28 @@ class LoginView extends StatelessWidget {
                       c.codeTimeout.value == 0 &&
                       c.authStatus.value.isEmpty;
 
-                  return PrimaryButton(
-                    key: const Key('Proceed'),
-                    title: c.codeTimeout.value == 0
-                        ? 'btn_send'.l10n
-                        : 'label_wait_seconds'.l10nfmt({
-                            'for': c.codeTimeout.value,
-                          }),
-                    onPressed: enabled ? c.emailCode.submit : null,
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: PrimaryButton(
+                          key: const Key('Resend'),
+                          onPressed: enabled ? c.resendEmail : null,
+                          title: c.resendEmailTimeout.value == 0
+                              ? 'label_resend'.l10n
+                              : 'label_resend_timeout'.l10nfmt({
+                                  'timeout': c.resendEmailTimeout.value,
+                                }),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: PrimaryButton(
+                          key: const Key('Proceed'),
+                          onPressed: c.emailCode.submit,
+                          title: 'btn_sign_up'.l10n,
+                        ),
+                      ),
+                    ],
                   );
                 }),
               ];
@@ -459,7 +458,7 @@ class LoginView extends StatelessWidget {
 
             case LoginViewStage.signInWithEmail:
               header = ModalPopupHeader(
-                text: 'label_sign_in'.l10n,
+                text: 'label_sign_in_with_one_time_code'.l10n,
                 onBack: () {
                   c.stage.value = LoginViewStage.signIn;
                   c.email.unsubmit();
@@ -468,9 +467,9 @@ class LoginView extends StatelessWidget {
 
               children = [
                 ReactiveTextField(
-                  state: c.email,
-                  label: 'label_email'.l10n,
-                  hint: 'example@domain.com',
+                  state: c.identifier,
+                  label: 'label_identifier'.l10n,
+                  hint: 'label_sign_in_input'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
@@ -478,11 +477,14 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Center(
                   child: Obx(() {
-                    final bool enabled = !c.email.isEmpty.value;
+                    final bool enabled = !c.identifier.isEmpty.value;
 
                     return PrimaryButton(
-                      onPressed: enabled ? c.email.submit : null,
-                      title: 'btn_proceed'.l10n,
+                      onPressed: enabled ? c.identifier.submit : null,
+                      title: 'btn_send_one_time_code'.l10n,
+                      leading: SvgIcon(
+                        enabled ? SvgIcons.emailWhite : SvgIcons.emailGrey,
+                      ),
                     );
                   }),
                 ),
@@ -492,48 +494,33 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.signInWithEmailCode:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signInWithEmail,
-                text: 'label_sign_in'.l10n,
+                text: 'label_sign_in_with_one_time_code'.l10n,
               );
 
               children = [
-                Text.rich(
-                  'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text})
-                      .parseLinks([], style.fonts.normal.regular.primary),
-                  style: style.fonts.normal.regular.onBackground,
+                Center(child: Text(c.identifier.text)),
+                SizedBox(height: 20),
+                Text(
+                  'label_add_email_confirmation_sent'.l10n,
+                  style: style.fonts.small.regular.secondary,
                 ),
-                const SizedBox(height: 16),
-                Obx(() {
-                  return Text(
-                    c.resendEmailTimeout.value == 0
-                        ? 'label_did_not_receive_code'.l10n
-                        : 'label_code_sent_again'.l10n,
-                    style: style.fonts.normal.regular.onBackground,
-                  );
-                }),
-                Obx(() {
-                  final bool enabled = c.resendEmailTimeout.value == 0;
-
-                  return WidgetButton(
-                    onPressed: enabled ? c.resendEmail : null,
-                    child: Text(
-                      enabled
-                          ? 'btn_resend_code'.l10n
-                          : 'label_wait_seconds'.l10nfmt({
-                              'for': c.resendEmailTimeout.value,
-                            }),
-                      style: enabled
-                          ? style.fonts.normal.regular.primary
-                          : style.fonts.normal.regular.onBackground,
-                    ),
-                  );
-                }),
                 const SizedBox(height: 25),
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
                   state: c.emailCode,
-                  label: 'label_one_time_code'.l10n,
+                  label: 'label_one_time_password'.l10n,
                   type: TextInputType.number,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  hint: 'label_enter_code'.l10n,
+                  obscure: c.obscureCode.value,
+                  onSuffixPressed: c.obscureCode.toggle,
+                  trailing: Center(
+                    child: SvgIcon(
+                      c.obscureCode.value
+                          ? SvgIcons.visibleOff
+                          : SvgIcons.visibleOn,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
@@ -542,14 +529,28 @@ class LoginView extends StatelessWidget {
                       c.codeTimeout.value == 0 &&
                       c.authStatus.value.isEmpty;
 
-                  return PrimaryButton(
-                    key: const Key('Proceed'),
-                    title: c.codeTimeout.value == 0
-                        ? 'btn_send'.l10n
-                        : 'label_wait_seconds'.l10nfmt({
-                            'for': c.codeTimeout.value,
-                          }),
-                    onPressed: enabled ? c.emailCode.submit : null,
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: PrimaryButton(
+                          key: const Key('Resend'),
+                          onPressed: enabled ? c.resendEmail : null,
+                          title: c.resendEmailTimeout.value == 0
+                              ? 'label_resend'.l10n
+                              : 'label_resend_timeout'.l10nfmt({
+                                  'timeout': c.resendEmailTimeout.value,
+                                }),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: PrimaryButton(
+                          key: const Key('Proceed'),
+                          onPressed: c.emailCode.submit,
+                          title: 'btn_sign_in'.l10n,
+                        ),
+                      ),
+                    ],
                   );
                 }),
               ];
@@ -576,7 +577,7 @@ class LoginView extends StatelessWidget {
                 SignButton(
                   key: const Key('EmailButton'),
                   title: 'btn_email'.l10n,
-                  subtitle: 'label_one_time_code'.l10n,
+                  subtitle: 'label_one_time_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithEmail,
                   icon: const SvgIcon(SvgIcons.email),
@@ -673,16 +674,6 @@ class LoginView extends StatelessWidget {
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms3'.l10n,
-            style: style.fonts.small.regular.secondary,
-          ),
-          TextSpan(
-            text: 'alert_by_proceeding_you_accept_terms4'.l10n,
-            style: style.fonts.small.regular.primary,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => PrivacyPolicy.show(context),
-          ),
-          TextSpan(
-            text: 'alert_by_proceeding_you_accept_terms5'.l10n,
             style: style.fonts.small.regular.secondary,
           ),
         ],

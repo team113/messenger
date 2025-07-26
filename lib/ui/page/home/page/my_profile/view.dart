@@ -21,7 +21,6 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:pwa_install/pwa_install.dart';
@@ -43,9 +42,7 @@ import '/l10n/l10n.dart';
 import '/pubspec.g.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/call/widget/fit_view.dart';
-import '/ui/page/erase/view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
@@ -55,14 +52,13 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
-import '/ui/page/login/privacy_policy/view.dart';
-import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/line_divider.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/safe_area/safe_area.dart';
+import '/ui/widget/styled_slider.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/upgrade_popup/view.dart';
@@ -389,10 +385,10 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
       );
 
     case ProfileTab.danger:
-      return block(children: [_danger(context, c)]);
+      return const SizedBox();
 
     case ProfileTab.legal:
-      return block(children: [_legal(context, c)]);
+      return const SizedBox();
 
     case ProfileTab.support:
       return const SizedBox();
@@ -560,7 +556,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             key: Key('LoginField'),
             state: c.login,
             label: 'label_login'.l10n,
-            hint: 'unique_login',
+            hint: 'label_login_example'.l10n,
             prefixText: '@',
             prefixStyle: c.login.isEmpty.value
                 ? style.fonts.medium.regular.secondary.copyWith(
@@ -591,28 +587,25 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
         ),
         const SizedBox(height: 21),
         ...widgets,
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            FieldButton(
-              key: Key(
-                unconfirmed == null ? 'AddEmailButton' : 'VerifyEmailButton',
-              ),
-              text: unconfirmed == null
-                  ? 'label_add_email'.l10n
-                  : 'btn_confirm_email'.l10n,
-              onPressed: unconfirmed == null && emails.length >= 2
-                  ? null
-                  : () => AddEmailView.show(context, email: unconfirmed),
-
-              maxLines: 2,
-              trailing: unconfirmed == null && emails.length >= 2
-                  ? const SvgIcon(SvgIcons.emailGrey)
-                  : const SvgIcon(SvgIcons.emailWhite),
-              warning: true,
+        // Don't display the button when there's already 2 added emails.
+        if (unconfirmed != null || emails.length < 2)
+          FieldButton(
+            key: Key(
+              unconfirmed == null ? 'AddEmailButton' : 'VerifyEmailButton',
             ),
-          ],
-        ),
+            text: unconfirmed == null
+                ? 'label_add_email'.l10n
+                : 'btn_confirm_email'.l10n,
+            onPressed: unconfirmed == null && emails.length >= 2
+                ? null
+                : () => AddEmailView.show(context, email: unconfirmed),
+
+            maxLines: 2,
+            trailing: unconfirmed == null && emails.length >= 2
+                ? const SvgIcon(SvgIcons.emailGrey)
+                : const SvgIcon(SvgIcons.emailWhite),
+            warning: true,
+          ),
         const SizedBox(height: 6),
       ],
     );
@@ -869,9 +862,6 @@ Widget _media(BuildContext context, MyProfileController c) {
           LineDivider('label_noise_suppression'.l10n),
           SizedBox(height: 8),
           Obx(() {
-            final List<NoiseSuppressionLevelWithOff?> values =
-                NoiseSuppressionLevelWithOff.values;
-
             NoiseSuppressionLevelWithOff? level =
                 c.media.value?.noiseSuppression != true
                 ? NoiseSuppressionLevelWithOff.off
@@ -883,89 +873,28 @@ Widget _media(BuildContext context, MyProfileController c) {
                       );
             level ??= NoiseSuppressionLevelWithOff.off;
 
-            // Position of the current level on the slider as a percentage.
-            final percentage =
-                (100 * (1 / (values.length - 1)) * values.indexOf(level));
-
-            return SizedBox(
-              height: 70,
-              child: Transform.translate(
-                offset: Offset(0, 12),
-                child: FlutterSlider(
-                  handlerHeight: 24,
-                  handler: FlutterSliderHandler(child: const SizedBox()),
-                  values: [percentage],
-                  tooltip: FlutterSliderTooltip(disabled: true),
-                  fixedValues: values.mapIndexed((i, e) {
-                    return FlutterSliderFixedValue(
-                      percent: ((i / (values.length - 1)) * 100).round(),
-                      value: e,
-                    );
-                  }).toList(),
-                  trackBar: FlutterSliderTrackBar(
-                    inactiveTrackBar: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: style.colors.onBackgroundOpacity13,
-                    ),
-                    activeTrackBar: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: style.colors.primaryHighlight,
-                    ),
-                  ),
-                  onDragCompleted: (i, lower, upper) {
-                    if (lower is NoiseSuppressionLevelWithOff) {
-                      c.setNoiseSuppression(lower);
-                    } else if (upper is NoiseSuppressionLevelWithOff) {
-                      c.setNoiseSuppression(upper);
-                    }
+            return StyledSlider(
+              value: level,
+              values: NoiseSuppressionLevelWithOff.values,
+              labelBuilder: (_, value) {
+                return Text(
+                  textAlign: TextAlign.center,
+                  switch (value) {
+                    NoiseSuppressionLevelWithOff.off =>
+                      'label_noise_suppression_disabled'.l10n,
+                    NoiseSuppressionLevelWithOff.low =>
+                      'label_noise_suppression_low'.l10n,
+                    NoiseSuppressionLevelWithOff.moderate =>
+                      'label_noise_suppression_medium'.l10n,
+                    NoiseSuppressionLevelWithOff.high =>
+                      'label_noise_suppression_high'.l10n,
+                    NoiseSuppressionLevelWithOff.veryHigh =>
+                      'label_noise_suppression_very_high'.l10n,
                   },
-                  hatchMark: FlutterSliderHatchMark(
-                    labelsDistanceFromTrackBar: -48,
-                    labels: [
-                      FlutterSliderHatchMarkLabel(
-                        percent: 0,
-                        label: Text(
-                          textAlign: TextAlign.center,
-                          'label_disabled'.l10n,
-                          style: style.fonts.smaller.regular.secondary,
-                        ),
-                      ),
-                      FlutterSliderHatchMarkLabel(
-                        percent: 25,
-                        label: Text(
-                          textAlign: TextAlign.center,
-                          'label_low'.l10n,
-                          style: style.fonts.smaller.regular.secondary,
-                        ),
-                      ),
-                      FlutterSliderHatchMarkLabel(
-                        percent: 50,
-                        label: Text(
-                          textAlign: TextAlign.center,
-                          'label_medium'.l10n,
-                          style: style.fonts.smaller.regular.secondary,
-                        ),
-                      ),
-                      FlutterSliderHatchMarkLabel(
-                        percent: 75,
-                        label: Text(
-                          textAlign: TextAlign.center,
-                          'label_high'.l10n,
-                          style: style.fonts.smaller.regular.secondary,
-                        ),
-                      ),
-                      FlutterSliderHatchMarkLabel(
-                        percent: 100,
-                        label: Text(
-                          textAlign: TextAlign.center,
-                          'label_very_high'.l10n,
-                          style: style.fonts.smaller.regular.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                  style: style.fonts.smaller.regular.secondary,
+                );
+              },
+              onCompleted: c.setNoiseSuppression,
             );
           }),
         ],
@@ -1478,20 +1407,6 @@ Widget _downloads(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.danger] section.
-Widget _danger(BuildContext context, MyProfileController c) {
-  return Column(
-    children: [
-      FieldButton(
-        key: const Key('DeleteAccount'),
-        text: 'btn_delete_account'.l10n,
-        onPressed: () => _deleteAccount(c, context),
-        danger: true,
-      ),
-    ],
-  );
-}
-
 /// Returns the contents of a [ProfileTab.storage] section.
 Widget _storage(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
@@ -1502,13 +1417,6 @@ Widget _storage(BuildContext context, MyProfileController c) {
       (CacheWorker.instance.info.value.maxSize?.toDouble() ??
           (values.last * GB)) /
       GB;
-
-  var index = values.indexWhere((e) => gbs <= e);
-  if (index == -1) {
-    index = values.length - 1;
-  }
-
-  final v = (index / (values.length - 1) * 100).round();
 
   /// One megabyte in bytes.
   // ignore: constant_identifier_names
@@ -1533,7 +1441,9 @@ Widget _storage(BuildContext context, MyProfileController c) {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${(size / MB).toPrecision(2)} MB',
+                    'label_mb'.l10nfmt({
+                      'amount': '${(size / MB).toPrecision(2)}',
+                    }),
                     style: style.fonts.small.regular.secondary,
                   ),
                 ],
@@ -1557,108 +1467,33 @@ Widget _storage(BuildContext context, MyProfileController c) {
 
         return Align(
           alignment: Alignment.centerLeft,
-          child: Text('label_cache_limit_gb'.l10nfmt({'gb': '${max ~/ GB}'})),
+          child: Text(
+            'label_cache_limit_gb'.l10nfmt({
+              'gb': '${max ~/ GB == 64 ? 'label_no_limit'.l10n : max ~/ GB}',
+            }),
+          ),
         );
       }),
-      SizedBox(
-        height: 70,
-        child: Transform.translate(
-          offset: Offset(0, 12),
-          child: FlutterSlider(
-            handlerHeight: 24,
-            handler: FlutterSliderHandler(child: const SizedBox()),
-            values: [v.toDouble()],
-            tooltip: FlutterSliderTooltip(disabled: true),
-            fixedValues: values.mapIndexed((i, e) {
-              return FlutterSliderFixedValue(
-                percent: ((i / (values.length - 1)) * 100).round(),
-                value: e * GB,
-              );
-            }).toList(),
-            trackBar: FlutterSliderTrackBar(
-              inactiveTrackBar: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: style.colors.onBackgroundOpacity13,
-              ),
-              activeTrackBar: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: style.colors.primaryHighlight,
-              ),
-            ),
-            onDragCompleted: (i, lower, upper) {
-              double? value;
-
-              if (lower is double) {
-                value = lower;
-              } else if (upper is double) {
-                value = upper;
-              }
-
-              if (value != null) {
-                if (value == 64.0 * GB) {
-                  CacheWorker.instance.setMaxSize(null);
-                } else {
-                  CacheWorker.instance.setMaxSize(value.round());
-                }
-              }
+      StyledSlider(
+        value: values[values.indexWhere((e) => gbs <= e)],
+        values: values,
+        labelBuilder: (_, value) {
+          return Text(
+            textAlign: TextAlign.center,
+            switch (value) {
+              64 => 'label_no_limit'.l10n,
+              (_) => 'label_count_gb'.l10nfmt({'count': value}),
             },
-            hatchMark: FlutterSliderHatchMark(
-              labelsDistanceFromTrackBar: -48,
-              density: 0.5,
-              labels: [
-                FlutterSliderHatchMarkLabel(
-                  percent: 0,
-                  label: Text(
-                    'label_count_gb'.l10nfmt({'count': 0}),
-                    style: style.fonts.smaller.regular.secondary,
-                  ),
-                ),
-                FlutterSliderHatchMarkLabel(
-                  percent: 16,
-                  label: Text(
-                    'label_count_gb'.l10nfmt({'count': 2}),
-                    style: style.fonts.smaller.regular.secondary,
-                  ),
-                ),
-                FlutterSliderHatchMarkLabel(
-                  percent: 32,
-                  label: Text(
-                    'label_count_gb'.l10nfmt({'count': 4}),
-                    style: style.fonts.smaller.regular.secondary,
-                  ),
-                ),
-                FlutterSliderHatchMarkLabel(
-                  percent: 49,
-                  label: Text(
-                    'label_count_gb'.l10nfmt({'count': 8}),
-                    style: style.fonts.smaller.regular.secondary,
-                  ),
-                ),
-                FlutterSliderHatchMarkLabel(
-                  percent: 66,
-                  label: Text(
-                    'label_count_gb'.l10nfmt({'count': 16}),
-                    style: style.fonts.smaller.regular.secondary,
-                  ),
-                ),
-                FlutterSliderHatchMarkLabel(
-                  percent: 83,
-                  label: Text(
-                    'label_count_gb'.l10nfmt({'count': 32}),
-                    style: style.fonts.smaller.regular.secondary,
-                  ),
-                ),
-                FlutterSliderHatchMarkLabel(
-                  percent: 100,
-                  label: Text(
-                    'label_no_limit'.l10n,
-                    style: style.fonts.smaller.regular.secondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+            style: style.fonts.smaller.regular.secondary,
+          );
+        },
+        onCompleted: (value) {
+          if (value == 64) {
+            CacheWorker.instance.setMaxSize(null);
+          } else {
+            CacheWorker.instance.setMaxSize((value * GB).round());
+          }
+        },
       ),
       Obx(() {
         if (c.downloadsDirectory.value == null) {
@@ -1702,31 +1537,6 @@ Widget _storage(BuildContext context, MyProfileController c) {
         );
       }),
       SizedBox(height: 8),
-    ],
-  );
-}
-
-/// Returns the buttons for legal related information displaying.
-Widget _legal(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
-  return Column(
-    children: [
-      Center(
-        child: StyledCupertinoButton(
-          label: 'btn_terms_and_conditions'.l10n,
-          style: style.fonts.small.regular.primary,
-          onPressed: () => TermsOfUseView.show(context),
-        ),
-      ),
-      const SizedBox(height: 12),
-      Center(
-        child: StyledCupertinoButton(
-          label: 'btn_privacy_policy'.l10n,
-          style: style.fonts.small.regular.primary,
-          onPressed: () => PrivacyPolicy.show(context),
-        ),
-      ),
     ],
   );
 }
@@ -1849,11 +1659,4 @@ Future<void> _deleteEmail(
   if (result == true) {
     await c.deleteEmail(email);
   }
-}
-
-/// Opens a confirmation popup deleting the [MyUser]'s account.
-Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
-  await Navigator.of(
-    context,
-  ).push(MaterialPageRoute(builder: (_) => const EraseView()));
 }

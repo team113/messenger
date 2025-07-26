@@ -48,7 +48,7 @@ class ActionButton extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 9),
       child: FieldButton(
         onPressed: onPressed,
         text: text,

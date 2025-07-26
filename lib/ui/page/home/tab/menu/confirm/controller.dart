@@ -140,12 +140,12 @@ class ConfirmLogoutController extends GetxController {
     }
 
     if (password.text.isEmpty) {
-      password.error.value = 'err_password_empty'.l10n;
+      password.error.value = 'err_input_empty'.l10n;
       return;
     }
 
     if (repeat.text.isEmpty) {
-      repeat.error.value = 'err_repeat_password_empty'.l10n;
+      repeat.error.value = 'err_input_empty'.l10n;
       return;
     }
 

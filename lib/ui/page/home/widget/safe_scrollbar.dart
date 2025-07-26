@@ -33,7 +33,6 @@ class SafeScrollbar extends StatelessWidget {
     required this.child,
     this.top = true,
     this.bottom = true,
-    this.borderRadius,
     this.controller,
   });
 
@@ -44,9 +43,6 @@ class SafeScrollbar extends StatelessWidget {
   /// Indicator whether to avoid system intrusions on the bottom side of the
   /// screen.
   final bool bottom;
-
-  /// [BorderRadius] to clip the [child] with.
-  final BorderRadius? borderRadius;
 
   /// Optional [ScrollController] used in a [Scrollbar].
   ///
@@ -65,11 +61,11 @@ class SafeScrollbar extends StatelessWidget {
             top: top ? CustomAppBar.height - 5 : 0,
             bottom: bottom
                 ? CustomNavigationBar.height + (CustomSafeArea.isPwa ? 25 : 0)
-                : 0,
+                : 12,
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.only(top: 12, bottom: 8),
           child: child,
         ),
       );
@@ -88,14 +84,11 @@ class SafeScrollbar extends StatelessWidget {
         ),
       ),
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.circular(40),
-        ),
         margin: EdgeInsets.only(
           top: top ? padding.top + 5 + 5 : 0,
           bottom: bottom ? padding.bottom + 5 + 5 : 0,
         ),
-        clipBehavior: Clip.hardEdge,
+        clipBehavior: Clip.none,
         child: controller == null
             ? child
             : Scrollbar(controller: controller, child: child),

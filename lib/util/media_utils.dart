@@ -284,6 +284,19 @@ class MediaUtilsImpl {
         .toList();
   }
 
+  /// Ensures foreground service is running to support receiving microphone
+  /// input when application is in background.
+  ///
+  /// Does nothing on non-Android operating systems.
+  Future<void> ensureForegroundService() async {
+    Log.debug('ensureForegroundService()', '$runtimeType');
+
+    // TODO: Google Play doesn't allow applications to have foreground services
+    //       without declarations that require video URLs demonstrating
+    //       __working__ foreground service features usage.
+    // await WebUtils.setupForegroundService();
+  }
+
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   MediaStreamSettings _mediaStreamSettings({
@@ -509,6 +522,24 @@ enum NoiseSuppressionLevelWithOff {
       moderate => NoiseSuppressionLevel.moderate,
       high => NoiseSuppressionLevel.high,
       veryHigh => NoiseSuppressionLevel.veryHigh,
+    };
+  }
+}
+
+/// Extention adding conversion of [NoiseSuppressionLevel] to
+/// [NoiseSuppressionLevelWithOff].
+extension NoiseSuppressionLevelToOff on NoiseSuppressionLevel {
+  /// Converts this [NoiseSuppressionLevelWithOff] to actual
+  /// [NoiseSuppressionLevel].
+  NoiseSuppressionLevelWithOff toLevelWithOff([bool enabled = true]) {
+    return switch (enabled) {
+      false => NoiseSuppressionLevelWithOff.off,
+      true => switch (this) {
+        NoiseSuppressionLevel.low => NoiseSuppressionLevelWithOff.low,
+        NoiseSuppressionLevel.moderate => NoiseSuppressionLevelWithOff.moderate,
+        NoiseSuppressionLevel.high => NoiseSuppressionLevelWithOff.high,
+        NoiseSuppressionLevel.veryHigh => NoiseSuppressionLevelWithOff.veryHigh,
+      },
     };
   }
 }

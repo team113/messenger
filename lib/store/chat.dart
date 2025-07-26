@@ -71,7 +71,9 @@ import '/provider/gql/exceptions.dart'
         ToggleChatMuteException,
         UnfavoriteChatException,
         UpdateChatAvatarException,
-        UploadAttachmentException;
+        UploadAttachmentException,
+        CreateChatDirectLinkException,
+        CreateDialogException;
 import '/provider/gql/graphql.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
@@ -380,11 +382,26 @@ class ChatRepository extends DisposableInterface
         return await ensureRemoteMonolog();
       }
 
-      final ChatData chat = _chat(
-        await _graphQlProvider.createDialogChat(chatId.userId),
-      );
+      try {
+        final ChatData chat = _chat(
+          await _graphQlProvider.createDialogChat(chatId.userId),
+        );
 
-      return _putEntry(chat);
+        return _putEntry(chat);
+      } on CreateDialogException catch (e) {
+        switch (e.code) {
+          case CreateDialogChatErrorCode.artemisUnknown:
+          case CreateDialogChatErrorCode.blocked:
+            rethrow;
+
+          case CreateDialogChatErrorCode.unknownUser:
+            return null;
+
+          case CreateDialogChatErrorCode.useMonolog:
+            // No-op, should be retrieved via [get] below.
+            break;
+        }
+      }
     }
 
     return await get(chatId);
@@ -419,6 +436,7 @@ class ChatRepository extends DisposableInterface
     final ChatData chat = _chat(
       await _graphQlProvider.createGroupChat(memberIds, name: name),
     );
+
     return _putEntry(chat);
   }
 
@@ -697,7 +715,8 @@ class ChatRepository extends DisposableInterface
             rethrow;
 
           case HideChatErrorCode.unknownChat:
-          // No-op.
+            // No-op.
+            break;
         }
       }
     } catch (_) {
@@ -711,6 +730,28 @@ class ChatRepository extends DisposableInterface
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
     Log.debug('readChat($chatId, $untilId)', '$runtimeType');
     await chats[chatId]?.read(untilId);
+  }
+
+  @override
+  Future<void> readAll(List<ChatId>? ids) async {
+    Log.debug('readAll($ids)', '$runtimeType');
+
+    final List<Future> futures = [];
+
+    for (var e in chats.values) {
+      if (ids?.contains(e.id) == false) {
+        continue;
+      }
+
+      final ChatItem? last = e.lastItem ?? e.chat.value.lastItem;
+      final int unread = e.unreadCount.value;
+
+      if (unread != 0 && last != null) {
+        futures.add(e.read(last.id));
+      }
+    }
+
+    await Future.wait(futures);
   }
 
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
@@ -795,6 +836,26 @@ class ChatRepository extends DisposableInterface
             ? null
             : ChatMessageRepliesInput(kw$new: repliesTo.changed),
       );
+    } on EditChatMessageException catch (e) {
+      switch (e.code) {
+        case EditChatMessageErrorCode.uneditable:
+        case EditChatMessageErrorCode.blocked:
+        case EditChatMessageErrorCode.unknownAttachment:
+        case EditChatMessageErrorCode.artemisUnknown:
+        case EditChatMessageErrorCode.wrongAttachmentsCount:
+        case EditChatMessageErrorCode.unknownReplyingChatItem:
+        case EditChatMessageErrorCode.wrongReplyingChatItemsCount:
+          rethrow;
+
+        case EditChatMessageErrorCode.unknownChatItem:
+          chats[message.chatId]?.remove(message.id);
+          break;
+
+        case EditChatMessageErrorCode.notAuthor:
+        case EditChatMessageErrorCode.noTextAndNoAttachment:
+          // No-op.
+          break;
+      }
     } catch (_) {
       if (item?.value is ChatMessage) {
         item?.update((c) {
@@ -1035,9 +1096,25 @@ class ChatRepository extends DisposableInterface
   ) async {
     Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
 
-    // Don't do optimism, as [slug] might be occupied, thus shouldn't set the
-    // link right away.
-    await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
+    try {
+      // Don't do optimism, as [slug] might be occupied, thus shouldn't set the
+      // link right away.
+      await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
+    } on CreateChatDirectLinkException catch (e) {
+      switch (e.code) {
+        case CreateChatDirectLinkErrorCode.artemisUnknown:
+        case CreateChatDirectLinkErrorCode.occupied:
+          rethrow;
+
+        case CreateChatDirectLinkErrorCode.notGroup:
+          // No-op.
+          return;
+
+        case CreateChatDirectLinkErrorCode.unknownChat:
+          await remove(chatId);
+          return;
+      }
+    }
 
     final RxChatImpl? chat = chats[chatId];
     chat?.chat.update(
