@@ -474,6 +474,56 @@ class ChatService extends DisposableService {
     Log.debug('clearChat($id, $untilId)', '$runtimeType');
     await _chatRepository.clearChat(id, untilId);
   }
+
+  /// In-memory storage for chat scroll positions.
+  /// This is intentionally not persistent to meet the requirement that
+  /// scroll positions should not be saved when closing the application.
+  final Map<ChatId, ChatScrollPosition> _scrollPositions = {};
+
+  /// Saves the scroll position for a specific chat.
+  void saveScrollPosition(
+    ChatId chatId,
+    int index,
+    double offset,
+  ) {
+    print('ChatService.saveScrollPosition called: chatId=$chatId, index=$index, offset=$offset');
+    _scrollPositions[chatId] = ChatScrollPosition(
+      index: index,
+      offset: offset,
+    );
+    print('ScrollPositions now contains ${_scrollPositions.length} entries');
+  }
+
+  /// Retrieves the saved scroll position for a specific chat.
+  ChatScrollPosition? getScrollPosition(ChatId chatId) {
+    final position = _scrollPositions[chatId];
+    print('ChatService.getScrollPosition called for $chatId: ${position != null ? "index=${position.index}, offset=${position.offset}" : "not found"}');
+    return position;
+  }
+
+  /// Clears the scroll position for a specific chat.
+  void clearScrollPosition(ChatId chatId) {
+    _scrollPositions.remove(chatId);
+  }
+
+  /// Clears all saved scroll positions.
+  void clearAllScrollPositions() {
+    _scrollPositions.clear();
+  }
+}
+
+/// Represents a saved scroll position in a chat.
+class ChatScrollPosition {
+  const ChatScrollPosition({
+    required this.index,
+    required this.offset,
+  });
+
+  /// The index of the item that was visible at the top of the scroll view.
+  final int index;
+
+  /// The offset within the item at [index].
+  final double offset;
 }
 
 /// Extension adding a route from the [router] comparison with a [Chat].
