@@ -6,10 +6,26 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.6.0] · 2025-07-25
+## [0.6.0] · 2025-??-??
 [0.6.0]: /../../tree/v0.6.0
 
-[Diff](/../../compare/v0.5.3...v0.6.0) | [Milestone](/../../milestone/43)
+[Diff](/../../compare/v0.5.4...v0.6.0) | [Milestone](/../../milestone/44)
+
+### Changed
+
+- Desktop:
+    - Route switching animation. ([#1336], [#1311])
+
+[#1311]: /../../issue/1311
+[#1336]: /../../pull/1336
+
+
+
+
+## [0.5.4] · 2025-07-25
+[0.5.4]: /../../tree/v0.5.4
+
+[Diff](/../../compare/v0.5.3...v0.5.4) | [Milestone](/../../milestone/43)
 
 ### Added
 
