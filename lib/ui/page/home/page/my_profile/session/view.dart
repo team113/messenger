@@ -184,7 +184,7 @@ class DeleteSessionView extends StatelessWidget {
                             ],
                             Expanded(
                               child: PrimaryButton(
-                                key: const Key('Proceed'),
+                                key: const Key('ProceedButton'),
                                 danger: true,
                                 onPressed:
                                     c.password.isEmpty.isTrue &&

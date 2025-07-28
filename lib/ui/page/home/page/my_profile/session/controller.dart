@@ -149,7 +149,7 @@ class DeleteSessionController extends GetxController {
     super.onInit();
   }
 
-  /// Sends a [ConfirmationCode] to confirm the [deleteAccount].
+  /// Sends a [ConfirmationCode] to confirm the [AuthService.deleteSession].
   Future<void> sendConfirmationCode() async {
     _setResendEmailTimer();
 
