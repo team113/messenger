@@ -15,9 +15,13 @@ All user visible changes to this project will be documented in this file. This p
 
 - Desktop:
     - Route switching animation. ([#1336], [#1311])
+- UI:
+    - Profile page:
+        - Redesigned session delete modals. ([#1344])
 
 [#1311]: /../../issue/1311
 [#1336]: /../../pull/1336
+[#1344]: /../../pull/1344
 
 
 
