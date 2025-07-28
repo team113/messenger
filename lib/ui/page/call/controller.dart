@@ -515,18 +515,20 @@ class CallController extends GetxController {
       'state': state.value.name,
     };
 
+    bool isOutgoing =
+        (outgoing || state.value == OngoingCallState.local) && !started;
+    if (isOutgoing) {
+      args['type'] = 'outgoing';
+    } else if (withVideo) {
+      args['type'] = 'video';
+    } else {
+      args['type'] = 'audio';
+    }
+
     switch (state.value) {
       case OngoingCallState.local:
       case OngoingCallState.pending:
-        bool isOutgoing =
-            (outgoing || state.value == OngoingCallState.local) && !started;
-        if (isOutgoing) {
-          args['type'] = 'outgoing';
-        } else if (withVideo) {
-          args['type'] = 'video';
-        } else {
-          args['type'] = 'audio';
-        }
+        // No-op.
         break;
 
       case OngoingCallState.active:

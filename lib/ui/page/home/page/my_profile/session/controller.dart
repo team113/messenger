@@ -15,18 +15,21 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:apple_product_name/apple_product_name.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/session.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
@@ -40,7 +43,8 @@ enum DeleteSessionStage { info, confirm, done }
 /// Controller of a [DeleteSessionView].
 class DeleteSessionController extends GetxController {
   DeleteSessionController(
-    this._authService, {
+    this._authService,
+    this._myUserService, {
     this.pop,
     this.sessions = const [],
   });
@@ -61,23 +65,24 @@ class DeleteSessionController extends GetxController {
   /// Current [DeleteSessionStage] being displayed.
   final Rx<DeleteSessionStage> stage = Rx(DeleteSessionStage.info);
 
+  /// Timeout of a [sendConfirmationCode] next invoke attempt.
+  final RxInt resendEmailTimeout = RxInt(0);
+
   /// [AuthService] used to delete a [Session].
   final AuthService _authService;
+
+  /// [MyUserService] maintaining the [MyUser].
+  final MyUserService _myUserService;
+
+  /// [Timer] used to disable resend code button [resendEmailTimeout].
+  Timer? _resendEmailTimer;
+
+  /// Returns the currently authenticated [MyUser].
+  Rx<MyUser?> get myUser => _myUserService.myUser;
 
   @override
   void onInit() {
     password = TextFieldState(
-      onChanged: (s) {
-        password.error.value = null;
-
-        if (s.text.isNotEmpty) {
-          try {
-            UserPassword(s.text);
-          } on FormatException {
-            s.error.value = 'err_password_incorrect'.l10n;
-          }
-        }
-      },
       onSubmitted: (s) async {
         if (s.error.value != null || s.status.value.isLoading) {
           return;
@@ -86,15 +91,41 @@ class DeleteSessionController extends GetxController {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
 
+        final bool hasEmail = myUser.value?.emails.confirmed.isNotEmpty == true;
+
         try {
-          final List<Future> futures = sessions
-              .map(
-                (e) => _authService.deleteSession(
+          final List<Future> futures = [
+            ...sessions.map((e) {
+              final code = ConfirmationCode.tryParse(s.text);
+
+              if (code == null || !hasEmail) {
+                return _authService.deleteSession(
                   id: e.id,
-                  password: UserPassword(s.text),
-                ),
-              )
-              .toList();
+                  password: s.text.isEmpty ? null : UserPassword(s.text),
+                );
+              }
+
+              // Otherwise first try the parsed [ConfirmationCode].
+              return Future(() async {
+                try {
+                  await _authService.deleteSession(id: e.id, code: code);
+                } on DeleteSessionException catch (ex) {
+                  switch (ex.code) {
+                    // If wrong, then perhaps it may be a password instead?
+                    case DeleteSessionErrorCode.wrongCode:
+                      await _authService.deleteSession(
+                        id: e.id,
+                        password: s.text.isEmpty ? null : UserPassword(s.text),
+                      );
+                      break;
+
+                    default:
+                      rethrow;
+                  }
+                }
+              });
+            }),
+          ];
 
           await Future.wait(futures);
 
@@ -111,7 +142,44 @@ class DeleteSessionController extends GetxController {
       },
     );
 
+    if (myUser.value?.emails.confirmed.isNotEmpty == true) {
+      sendConfirmationCode();
+    }
+
     super.onInit();
+  }
+
+  /// Sends a [ConfirmationCode] to confirm the [AuthService.deleteSession].
+  Future<void> sendConfirmationCode() async {
+    _setResendEmailTimer();
+
+    try {
+      await _authService.createConfirmationCode();
+    } catch (e) {
+      password.resubmitOnError.value = true;
+      password.error.value = 'err_data_transfer'.l10n;
+      _setResendEmailTimer(false);
+      rethrow;
+    }
+  }
+
+  /// Starts or stops the [_resendEmailTimer] based on [enabled] value.
+  void _setResendEmailTimer([bool enabled = true]) {
+    if (enabled) {
+      resendEmailTimeout.value = 30;
+      _resendEmailTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        resendEmailTimeout.value--;
+        if (resendEmailTimeout.value <= 0) {
+          resendEmailTimeout.value = 0;
+          _resendEmailTimer?.cancel();
+          _resendEmailTimer = null;
+        }
+      });
+    } else {
+      resendEmailTimeout.value = 0;
+      _resendEmailTimer?.cancel();
+      _resendEmailTimer = null;
+    }
   }
 }
 

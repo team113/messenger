@@ -90,7 +90,10 @@ class BlocklistView extends StatelessWidget {
                   } else if (blocklist.isEmpty) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Text('label_no_users'.l10n),
+                      child: Text(
+                        'label_no_users'.l10n,
+                        style: style.fonts.small.regular.secondary,
+                      ),
                     );
                   } else {
                     return Scrollbar(
