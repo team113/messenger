@@ -15,8 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js");
 
 firebase.initializeApp({
   apiKey: "AIzaSyBbttYFbYjucn8BY-p5tlWomcd5V9h8zWc",
@@ -59,6 +59,20 @@ messaging.onMessage(async (payload) => {
       }
     }
   }
+
+  // Otherwise that's a normal push notification.
+  else {
+    // Try to set a badge, if available.
+    if (navigator.setAppBadge) {
+      let unreadCount = 1;
+
+      if (unreadCount && unreadCount > 0) {
+        navigator.setAppBadge(unreadCount);
+      } else {
+        navigator.clearAppBadge();
+      }
+    }
+  }
 });
 
 messaging.onBackgroundMessage(async (payload) => {
@@ -89,6 +103,20 @@ messaging.onBackgroundMessage(async (payload) => {
 
       for (var notification of notifications) {
         notification.close();
+      }
+    }
+  }
+
+  // Otherwise that's a normal push notification.
+  else {
+    // Try to set a badge, if available.
+    if (navigator.setAppBadge) {
+      let unreadCount = 1;
+
+      if (unreadCount && unreadCount > 0) {
+        navigator.setAppBadge(unreadCount);
+      } else {
+        navigator.clearAppBadge();
       }
     }
   }

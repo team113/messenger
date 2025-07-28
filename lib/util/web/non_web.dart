@@ -508,6 +508,11 @@ class WebUtils {
     // No-op.
   }
 
+  /// Refreshes the current browser's page.
+  static void setBadge(int count) async {
+    // No-op.
+  }
+
   /// Ensures foreground service is running to support receiving microphone
   /// input when application is in background.
   ///

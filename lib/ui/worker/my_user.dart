@@ -15,9 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_native_badge/flutter_native_badge.dart';
 import 'package:get/get.dart';
-import 'package:windows_taskbar/windows_taskbar.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/service/disposable_service.dart';
@@ -55,7 +53,6 @@ class MyUserWorker extends DisposableService {
 
   @override
   void onClose() {
-    _updateBadge(0);
     _worker?.dispose();
     router.prefix.value = null;
     _updateBadge(0);
@@ -67,34 +64,7 @@ class MyUserWorker extends DisposableService {
     if (_lastUnreadChatsCount != count) {
       _lastUnreadChatsCount = count;
 
-      if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
-        try {
-          if (count == 0) {
-            await WindowsTaskbar.resetOverlayIcon();
-          } else {
-            final String number = count > 9 ? '9+' : '$count';
-            await WindowsTaskbar.setOverlayIcon(
-              ThumbnailToolbarAssetIcon(
-                'assets/icons/notification/$number.ico',
-              ),
-            );
-          }
-        } catch (_) {
-          // No-op.
-        }
-      } else {
-        try {
-          if (await FlutterNativeBadge.isSupported()) {
-            if (count == 0) {
-              await FlutterNativeBadge.clearBadgeCount();
-            } else {
-              await FlutterNativeBadge.setBadgeCount(count);
-            }
-          }
-        } catch (_) {
-          // No-op.
-        }
-      }
+      await PlatformUtils.setAppBadge(count);
 
       router.prefix.value = count == 0 ? null : '($count)';
 

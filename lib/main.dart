@@ -214,7 +214,6 @@ Future<void> main() async {
     options.tracesSampleRate = 1.0;
     options.sampleRate = 1.0;
     options.release = '${Pubspec.name}@${Pubspec.ref}';
-    options.debug = true;
     options.diagnosticLevel = SentryLevel.info;
     options.enablePrintBreadcrumbs = true;
     options.maxBreadcrumbs = 512;
