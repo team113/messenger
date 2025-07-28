@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_custom_cursor/cursor_manager.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
+import 'package:flutter_native_badge/flutter_native_badge.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
@@ -32,6 +33,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:windows_taskbar/windows_taskbar.dart';
 import 'package:xdg_directories/xdg_directories.dart';
 
 import '/config.dart';
@@ -823,6 +825,42 @@ class PlatformUtilsImpl {
     }
 
     return null;
+  }
+
+  /// Refreshes the current browser's page.
+  Future<void> setAppBadge(int count) async {
+    Log.debug('setAppBadge($count)', '$runtimeType');
+
+    if (isWeb) {
+      return WebUtils.setBadge(count);
+    }
+
+    if (isWindows) {
+      try {
+        if (count == 0) {
+          await WindowsTaskbar.resetOverlayIcon();
+        } else {
+          final String number = count > 9 ? '9+' : '$count';
+          await WindowsTaskbar.setOverlayIcon(
+            ThumbnailToolbarAssetIcon('assets/icons/notification/$number.ico'),
+          );
+        }
+      } catch (_) {
+        // No-op.
+      }
+    }
+
+    try {
+      if (await FlutterNativeBadge.isSupported()) {
+        if (count == 0) {
+          await FlutterNativeBadge.clearBadgeCount();
+        } else {
+          await FlutterNativeBadge.setBadgeCount(count);
+        }
+      }
+    } catch (_) {
+      // No-op.
+    }
   }
 }
 
