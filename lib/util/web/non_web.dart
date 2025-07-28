@@ -29,6 +29,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:http/http.dart' show Client;
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart' as jason;
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -505,5 +506,23 @@ class WebUtils {
   /// Downloads the provided [bytes] as a blob file.
   static Future<void> downloadBlob(String name, Uint8List bytes) async {
     // No-op.
+  }
+
+  /// Ensures foreground service is running to support receiving microphone
+  /// input when application is in background.
+  ///
+  /// Does nothing on non-Android operating systems.
+  static Future<void> setupForegroundService() async {
+    if (!PlatformUtils.isAndroid) {
+      return;
+    }
+
+    await webrtc.setupForegroundService(
+      webrtc.ForegroundServiceConfig(
+        enabled: true,
+        notificationText: 'Call',
+        notificationOngoing: true,
+      ),
+    );
   }
 }

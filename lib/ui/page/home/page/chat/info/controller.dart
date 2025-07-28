@@ -26,7 +26,8 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '/api/backend/schema.dart' show CropAreaInput, PointInput;
+import '/api/backend/schema.dart'
+    show CropAreaInput, PointInput, UpdateChatAvatarErrorCode;
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
@@ -164,6 +165,10 @@ class ChatInfoController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   );
 
+  /// [Sentry] span of [_ready] intended to be populated during [_applyChat] and
+  /// [_fetchMembers].
+  ISentrySpan? _fetched;
+
   /// [Timer] resetting the [highlight] value after the [_highlightTimeout] has
   /// passed.
   Timer? _highlightTimer;
@@ -208,13 +213,25 @@ class ChatInfoController extends GetxController {
       },
     );
 
-    super.onInit();
-  }
+    _fetched?.finish();
+    _fetched = _ready.startChild('fetch');
 
-  @override
-  void onReady() {
-    _fetchChat();
-    super.onReady();
+    try {
+      final FutureOr<RxChat?> fetched = _chatService.get(chatId);
+
+      if (fetched is RxChat?) {
+        _applyChat(fetched);
+      } else {
+        status.value = RxStatus.loading();
+        fetched.then(_applyChat);
+      }
+    } catch (e) {
+      _ready.throwable = e;
+      _ready.finish(status: const SpanStatus.internalError());
+      rethrow;
+    }
+
+    super.onInit();
   }
 
   @override
@@ -298,7 +315,20 @@ class ChatInfoController extends GetxController {
 
       avatarUpload.value = RxStatus.empty();
     } on UpdateChatAvatarException catch (e) {
-      avatarUpload.value = RxStatus.error(e.toMessage());
+      switch (e.code) {
+        case UpdateChatAvatarErrorCode.dialog:
+        case UpdateChatAvatarErrorCode.invalidCropCoordinates:
+        case UpdateChatAvatarErrorCode.invalidCropPoints:
+        case UpdateChatAvatarErrorCode.unknownChat:
+          avatarUpload.value = RxStatus.error('err_data_transfer'.l10n);
+
+        case UpdateChatAvatarErrorCode.malformed:
+        case UpdateChatAvatarErrorCode.unsupportedFormat:
+        case UpdateChatAvatarErrorCode.invalidSize:
+        case UpdateChatAvatarErrorCode.invalidDimensions:
+        case UpdateChatAvatarErrorCode.artemisUnknown:
+          avatarUpload.value = RxStatus.error(e.toMessage());
+      }
     } catch (e) {
       avatarUpload.value = RxStatus.empty();
       MessagePopup.error(e);
@@ -610,64 +640,63 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Fetches the [chat].
-  Future<void> _fetchChat() async {
-    status.value = RxStatus.loading();
+  /// Applies the provided [RxChat] to the [chat] initializing all its
+  /// listeners, etc.
+  void _applyChat(RxChat? chat) {
+    this.chat = chat;
 
-    ISentrySpan span = _ready.startChild('fetch');
+    if (chat == null) {
+      status.value = RxStatus.empty();
+    } else {
+      _chatSubscription = chat.updates.listen((_) {});
 
-    try {
-      final FutureOr<RxChat?> fetched = _chatService.get(chatId);
-      chat = fetched is RxChat? ? fetched : await fetched;
+      name.unchecked = chat.chat.value.name?.val;
 
-      if (chat == null) {
-        status.value = RxStatus.empty();
-      } else {
-        _chatSubscription = chat!.updates.listen((_) {});
+      _worker = ever(chat.chat, (Chat chat) {
+        if (!name.focus.hasFocus &&
+            !name.changed.value &&
+            name.editable.value) {
+          name.unchecked = chat.name?.val;
+        }
+      });
 
-        name.unchecked = chat!.chat.value.name?.val;
+      _membersSubscription = chat.members.items.changes.listen((event) {
+        switch (event.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            // No-op.
+            break;
 
-        _worker = ever(chat!.chat, (Chat chat) {
-          if (!name.focus.hasFocus &&
-              !name.changed.value &&
-              name.editable.value) {
-            name.unchecked = chat.name?.val;
-          }
-        });
+          case OperationKind.removed:
+            _scrollListener();
+            break;
+        }
+      });
 
-        _membersSubscription = chat!.members.items.changes.listen((event) {
-          switch (event.op) {
-            case OperationKind.added:
-            case OperationKind.updated:
-              // No-op.
-              break;
+      status.value = RxStatus.success();
+      _fetched?.finish();
 
-            case OperationKind.removed:
-              _scrollListener();
-              break;
-          }
-        });
+      SchedulerBinding.instance.addPostFrameCallback((_) => _fetchMembers());
+    }
+  }
 
-        status.value = RxStatus.success();
+  /// Ensures the [RxChat.members] are fetched.
+  Future<void> _fetchMembers() async {
+    // If [RxChat.members] has next.
+    if (chat!.members.hasNext.value) {
+      _fetched = _ready.startChild('members.around');
 
-        span.finish();
-        span = _ready.startChild('members.around');
+      _ready.setTag(
+        'members',
+        '${chat!.members.length >= chat!.members.perPage}',
+      );
 
-        _ready.setTag(
-          'members',
-          '${chat!.members.length >= chat!.members.perPage}',
-        );
+      await chat!.members.around();
 
-        await chat!.members.around();
+      _fetched?.finish();
+      _fetched = null;
 
-        span.finish();
-
-        SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
-      }
-    } catch (e) {
-      _ready.throwable = e;
-      _ready.finish(status: const SpanStatus.internalError());
-      rethrow;
+      SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
     }
   }
 

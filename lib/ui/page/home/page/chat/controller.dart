@@ -139,6 +139,8 @@ class ChatController extends GetxController {
   /// - `status.isLoading`, meaning [chat] is being fetched from the service.
   /// - `status.isEmpty`, meaning [chat] with specified [id] was not found.
   /// - `status.isSuccess`, meaning [chat] is successfully fetched.
+  /// - `status.isLoadingMore`, meaning [chat] is already displayed and an
+  ///   additional data is being fetched.
   Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
   /// [RxObsSplayTreeMap] of the [ListElement]s to display.
@@ -803,11 +805,11 @@ class ChatController extends GetxController {
                 MessagePopup.error(e);
               }
             } catch (e) {
-              MessagePopup.error(e);
+              MessagePopup.error('err_data_transfer'.l10n);
               rethrow;
             }
           } else {
-            MessagePopup.error('err_no_text_no_attachment_and_reply'.l10n);
+            closeEditing();
           }
         },
         onChanged: () {

@@ -741,7 +741,22 @@ class ChatsTabController extends GetxController {
 
   /// Reads all the [RxChat]s in the [chats] list.
   Future<void> readAll() async {
-    _chatService.readAll();
+    final Future<void> future = _chatService.readAll(
+      selecting.value
+          ? selectedChats.isEmpty
+                ? null
+                : selectedChats
+          : null,
+    );
+
+    toggleSelecting();
+
+    try {
+      await future;
+    } catch (e) {
+      MessagePopup.error('err_data_transfer'.l10n);
+      rethrow;
+    }
   }
 
   /// Enables and initializes or disables and disposes the [search].

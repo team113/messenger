@@ -956,6 +956,14 @@ class WebUtils {
     await promise.toDart;
   }
 
+  /// Ensures foreground service is running to support receiving microphone
+  /// input when application is in background.
+  ///
+  /// Does nothing on non-Android operating systems.
+  static Future<void> setupForegroundService() async {
+    // No-op.
+  }
+
   /// Handles the [key] event to invoke [_keyHandlers] related to it.
   static bool _handleBindKeys(KeyEvent key) {
     if (key is KeyUpEvent) {

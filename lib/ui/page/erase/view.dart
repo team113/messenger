@@ -116,7 +116,8 @@ class EraseView extends StatelessWidget {
         children = const [Center(child: CircularProgressIndicator())];
       } else if (c.authStatus.value.isEmpty) {
         children = [
-          Text('label_personal_data_deletion_authorize'.l10n),
+          const SizedBox(height: 25),
+          Text('label_sign_in'.l10n),
           const SizedBox(height: 25),
           ReactiveTextField(
             key: const Key('UsernameField'),
@@ -184,42 +185,40 @@ class EraseView extends StatelessWidget {
   Future<void> _deleteAccount(BuildContext context, EraseController c) async {
     final style = Theme.of(context).style;
 
-    final bool? result = await MessagePopup.alert(
-      'label_delete_account'.l10n,
-      description: [
-        TextSpan(
-          text: 'alert_account_will_be_deleted1'.l10n,
-          style: style.fonts.small.regular.secondary,
+    if (c.myUser?.value?.emails.confirmed.isNotEmpty == true ||
+        c.myUser?.value?.hasPassword == true) {
+      await ConfirmDeleteView.show(context);
+    } else {
+      final bool? result = await MessagePopup.alert(
+        'label_delete_account'.l10n,
+        description: [
+          TextSpan(
+            text: 'alert_account_will_be_deleted1'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+          TextSpan(
+            text:
+                c.myUser?.value?.name?.val ??
+                c.myUser?.value?.login?.val ??
+                c.myUser?.value?.num.toString() ??
+                'dot'.l10n * 3,
+            style: style.fonts.small.regular.onBackground,
+          ),
+          TextSpan(
+            text: 'alert_account_will_be_deleted2'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+        ],
+        button: (context) => MessagePopup.deleteButton(
+          context,
+          key: Key('Proceed'),
+          icon: SvgIcons.none,
+          label: 'btn_confirm'.l10n,
         ),
-        TextSpan(
-          text:
-              c.myUser?.value?.name?.val ??
-              c.myUser?.value?.login?.val ??
-              c.myUser?.value?.num.toString() ??
-              'dot'.l10n * 3,
-          style: style.fonts.small.regular.onBackground,
-        ),
-        TextSpan(
-          text: 'alert_account_will_be_deleted2'.l10n,
-          style: style.fonts.small.regular.secondary,
-        ),
-      ],
-      button: (context) => MessagePopup.deleteButton(
-        context,
-        key: Key('Proceed'),
-        icon: SvgIcons.none,
-        label: 'btn_confirm'.l10n,
-      ),
-    );
+      );
 
-    if (result == true) {
-      if (context.mounted) {
-        if (c.myUser?.value?.emails.confirmed.isNotEmpty == true ||
-            c.myUser?.value?.hasPassword == true) {
-          await ConfirmDeleteView.show(context);
-        } else {
-          await c.deleteAccount();
-        }
+      if (result == true) {
+        await c.deleteAccount();
       }
     }
   }

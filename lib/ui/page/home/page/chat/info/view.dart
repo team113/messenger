@@ -77,12 +77,12 @@ class ChatInfoView extends StatelessWidget {
         return Obx(() {
           if (c.status.value.isLoading) {
             return Scaffold(
-              appBar: AppBar(),
+              appBar: CustomAppBar(title: _bar(c, context)),
               body: const Center(child: CustomProgressIndicator()),
             );
           } else if (!c.status.value.isSuccess) {
             return Scaffold(
-              appBar: AppBar(),
+              appBar: CustomAppBar(title: _bar(c, context)),
               body: Center(child: Text('label_no_chat_found'.l10n)),
             );
           }
