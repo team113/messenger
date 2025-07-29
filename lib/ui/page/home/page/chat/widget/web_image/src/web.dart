@@ -183,7 +183,7 @@ class _WebImageState extends State<WebImage> {
         } else {
           throw Exception('Image `HEAD` request failed');
         }
-      }, _cancelToken);
+      }, cancel: _cancelToken);
     } on OperationCanceledException {
       // No-op.
     }

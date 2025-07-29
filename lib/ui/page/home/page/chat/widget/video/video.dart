@@ -255,7 +255,7 @@ class _VideoViewState extends State<VideoView> {
             rethrow;
           }
         }
-      }, _cancelToken);
+      }, cancel: _cancelToken);
     } on OperationCanceledException {
       // No-op.
     }

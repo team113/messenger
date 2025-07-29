@@ -80,6 +80,7 @@ import '/store/model/chat_item.dart';
 import '/store/pagination/combined_pagination.dart';
 import '/store/pagination/graphql.dart';
 import '/store/user.dart';
+import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -415,7 +416,9 @@ class ChatRepository extends DisposableInterface
     Log.debug('ensureRemoteMonolog($name)', '$runtimeType');
 
     final ChatData chatData = _chat(
-      await _graphQlProvider.createMonologChat(name: name),
+      await Backoff.run(() async {
+        return await _graphQlProvider.createMonologChat(name: name);
+      }, retryIf: (e) => e.isNetworkRelated),
     );
     final RxChatImpl chat = await _putEntry(chatData);
 
@@ -558,7 +561,9 @@ class ChatRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.renameChat(id, name);
+        await Backoff.run(() async {
+          await _graphQlProvider.renameChat(id, name);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on RenameChatException catch (e) {
         switch (e.code) {
           case RenameChatErrorCode.unknownChat:
@@ -601,7 +606,9 @@ class ChatRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.addChatMember(chatId, userId);
+        await Backoff.run(() async {
+          await _graphQlProvider.addChatMember(chatId, userId);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on AddChatMemberException catch (e) {
         switch (e.code) {
           case AddChatMemberErrorCode.artemisUnknown:
@@ -649,7 +656,9 @@ class ChatRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.removeChatMember(chatId, userId);
+        await Backoff.run(() async {
+          await _graphQlProvider.removeChatMember(chatId, userId);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on RemoveChatMemberException catch (e) {
         switch (e.code) {
           case RemoveChatMemberErrorCode.artemisUnknown:
@@ -708,7 +717,9 @@ class ChatRepository extends DisposableInterface
       // [Chat.isHidden] will be changed by [RxChatImpl]'s own remote event
       // handler. Chat will be removed from [paginated] via [RxChatImpl].
       try {
-        await _graphQlProvider.hideChat(id);
+        await Backoff.run(() async {
+          await _graphQlProvider.hideChat(id);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on HideChatException catch (e) {
         switch (e.code) {
           case HideChatErrorCode.artemisUnknown:
@@ -758,7 +769,10 @@ class ChatRepository extends DisposableInterface
   /// authenticated [MyUser].
   Future<void> readUntil(ChatId chatId, ChatItemId untilId) async {
     Log.debug('readUntil($chatId, $untilId)', '$runtimeType');
-    await _graphQlProvider.readChat(chatId, untilId);
+
+    await Backoff.run(() async {
+      await _graphQlProvider.readChat(chatId, untilId);
+    }, retryIf: (e) => e.isNetworkRelated);
   }
 
   @override
@@ -824,18 +838,22 @@ class ChatRepository extends DisposableInterface
         );
       }
 
-      await _graphQlProvider.editChatMessage(
-        message.id,
-        text: text == null ? null : ChatMessageTextInput(kw$new: text.changed),
-        attachments: attachments == null
-            ? null
-            : ChatMessageAttachmentsInput(
-                kw$new: attachments.changed.map((e) => e.id).toList(),
-              ),
-        repliesTo: repliesTo == null
-            ? null
-            : ChatMessageRepliesInput(kw$new: repliesTo.changed),
-      );
+      await Backoff.run(() async {
+        await _graphQlProvider.editChatMessage(
+          message.id,
+          text: text == null
+              ? null
+              : ChatMessageTextInput(kw$new: text.changed),
+          attachments: attachments == null
+              ? null
+              : ChatMessageAttachmentsInput(
+                  kw$new: attachments.changed.map((e) => e.id).toList(),
+                ),
+          repliesTo: repliesTo == null
+              ? null
+              : ChatMessageRepliesInput(kw$new: repliesTo.changed),
+        );
+      }, retryIf: (e) => e.isNetworkRelated);
     } on EditChatMessageException catch (e) {
       switch (e.code) {
         case EditChatMessageErrorCode.uneditable:
@@ -887,7 +905,9 @@ class ChatRepository extends DisposableInterface
 
       try {
         try {
-          await _graphQlProvider.deleteChatMessage(message.id);
+          await Backoff.run(() async {
+            await _graphQlProvider.deleteChatMessage(message.id);
+          }, retryIf: (e) => e.isNetworkRelated);
         } on DeleteChatMessageException catch (e) {
           switch (e.code) {
             case DeleteChatMessageErrorCode.notAuthor:
@@ -939,7 +959,9 @@ class ChatRepository extends DisposableInterface
 
       try {
         try {
-          await _graphQlProvider.deleteChatForward(forward.id);
+          await Backoff.run(() async {
+            await _graphQlProvider.deleteChatForward(forward.id);
+          }, retryIf: (e) => e.isNetworkRelated);
         } on DeleteChatForwardException catch (e) {
           switch (e.code) {
             case DeleteChatForwardErrorCode.artemisUnknown:
@@ -986,7 +1008,9 @@ class ChatRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.hideChatItem(id);
+        await Backoff.run(() async {
+          await _graphQlProvider.hideChatItem(id);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on HideChatItemException catch (e) {
         switch (e.code) {
           case HideChatItemErrorCode.unknownChatItem:
@@ -1099,7 +1123,9 @@ class ChatRepository extends DisposableInterface
     try {
       // Don't do optimism, as [slug] might be occupied, thus shouldn't set the
       // link right away.
-      await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
+      await Backoff.run(() async {
+        await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
+      }, retryIf: (e) => e.isNetworkRelated);
     } on CreateChatDirectLinkException catch (e) {
       switch (e.code) {
         case CreateChatDirectLinkErrorCode.artemisUnknown:
@@ -1136,7 +1162,9 @@ class ChatRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.deleteChatDirectLink(groupId: groupId);
+        await Backoff.run(() async {
+          await _graphQlProvider.deleteChatDirectLink(groupId: groupId);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on DeleteChatDirectLinkException catch (e) {
         switch (e.code) {
           case DeleteChatDirectLinkErrorCode.artemisUnknown:
@@ -1176,6 +1204,8 @@ class ChatRepository extends DisposableInterface
     }
 
     try {
+      // TODO: Implement posting local [ChatForward]s with sending status:
+      //       https://github.com/team113/messenger/issues/1347
       await _graphQlProvider.forwardChatItems(
         from,
         to,
@@ -1268,12 +1298,14 @@ class ChatRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.updateChatAvatar(
-          id,
-          file: file == null ? null : upload,
-          crop: crop,
-          onSendProgress: onSendProgress,
-        );
+        await Backoff.run(() async {
+          await _graphQlProvider.updateChatAvatar(
+            id,
+            file: file == null ? null : upload,
+            crop: crop,
+            onSendProgress: onSendProgress,
+          );
+        }, retryIf: (e) => e.isNetworkRelated);
       } on UpdateChatAvatarException catch (e) {
         switch (e.code) {
           case UpdateChatAvatarErrorCode.unknownChat:
@@ -1314,7 +1346,9 @@ class ChatRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.toggleChatMute(id, muting);
+        await Backoff.run(() async {
+          await _graphQlProvider.toggleChatMute(id, muting);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on ToggleChatMuteException catch (e) {
         switch (e.code) {
           case ToggleChatMuteErrorCode.tooShort:
@@ -1530,7 +1564,9 @@ class ChatRepository extends DisposableInterface
       if (id.isLocalWith(me)) {
         _localMonologFavoritePosition = newPosition;
         final ChatData monolog = _chat(
-          await _graphQlProvider.createMonologChat(),
+          await Backoff.run(() async {
+            return await _graphQlProvider.createMonologChat();
+          }, retryIf: (e) => e.isNetworkRelated),
         );
 
         id = monolog.chat.value.id;
@@ -1587,7 +1623,9 @@ class ChatRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.unfavoriteChat(id);
+        await Backoff.run(() async {
+          await _graphQlProvider.unfavoriteChat(id);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on UnfavoriteChatException catch (e) {
         switch (e.code) {
           case UnfavoriteChatErrorCode.unknownChat:
@@ -1641,7 +1679,9 @@ class ChatRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.clearChat(id, until);
+        await Backoff.run(() async {
+          await _graphQlProvider.clearChat(id, until);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on ClearChatException catch (e) {
         switch (e.code) {
           case ClearChatErrorCode.artemisUnknown:

@@ -141,7 +141,7 @@ class Pagination<T, C, K> {
       try {
         final Page<T, C>? page = await Backoff.run(
           () => provider.init(key, perPage),
-          _cancelToken,
+          cancel: _cancelToken,
         );
         Log.debug(
           'init(key: $key)... \n'
@@ -190,7 +190,7 @@ class Pagination<T, C, K> {
       try {
         final Page<T, C>? page = await Backoff.run(
           () => provider.around(key, cursor, perPage),
-          _cancelToken,
+          cancel: _cancelToken,
         );
 
         Log.debug(
@@ -248,7 +248,7 @@ class Pagination<T, C, K> {
               try {
                 final Page<T, C>? page = await Backoff.run(
                   () => provider.after(onKey(items.last), endCursor, perPage),
-                  _cancelToken,
+                  cancel: _cancelToken,
                 );
                 Log.debug(
                   'next()... fetched ${page?.edges.length} items',
@@ -310,7 +310,7 @@ class Pagination<T, C, K> {
                 final Page<T, C>? page = await Backoff.run(
                   () =>
                       provider.before(onKey(items.first), startCursor, perPage),
-                  _cancelToken,
+                  cancel: _cancelToken,
                 );
                 Log.debug(
                   'previous()... fetched ${page?.edges.length} items',

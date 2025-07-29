@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -151,6 +152,29 @@ class _DownloadButtonState extends State<DownloadButton> {
 
                 if (file != null) {
                   MessagePopup.success('label_file_downloaded'.l10n);
+                }
+              } on DioException catch (e) {
+                if (mounted) {
+                  setState(() => _progress = null);
+                }
+
+                // Try to open the link, if a connection error happens.
+                switch (e.type) {
+                  case DioExceptionType.connectionTimeout:
+                  case DioExceptionType.sendTimeout:
+                  case DioExceptionType.receiveTimeout:
+                  case DioExceptionType.badCertificate:
+                  case DioExceptionType.badResponse:
+                  case DioExceptionType.connectionError:
+                    await launchUrlString(widget.link!);
+                    break;
+
+                  case DioExceptionType.cancel:
+                    // No-op.
+                    break;
+
+                  case DioExceptionType.unknown:
+                    rethrow;
                 }
               } finally {
                 if (mounted) {

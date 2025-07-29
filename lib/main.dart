@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
-import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -27,14 +26,11 @@ import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:universal_io/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'api/backend/schema.dart';
@@ -59,7 +55,6 @@ import 'provider/drift/settings.dart';
 import 'provider/drift/skipped_version.dart';
 import 'provider/drift/window.dart';
 import 'provider/geo/geo.dart';
-import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
@@ -220,19 +215,48 @@ Future<void> main() async {
     options.enableTimeToFullDisplayTracing = true;
     options.enableAppHangTracking = true;
     options.beforeSend = (SentryEvent event, Hint? hint) {
-      final exception = event.exceptions?.firstOrNull?.throwable;
+      final SentryException? sentryException = event.exceptions?.firstOrNull;
+      final dynamic exception = sentryException?.throwable;
 
       // Connection related exceptions shouldn't be logged.
-      if (exception is ConnectionException ||
-          exception is SocketException ||
-          exception is WebSocketException ||
-          exception is WebSocketChannelException ||
-          exception is HttpException ||
-          exception is ClientException ||
-          exception is DioException ||
-          exception is TimeoutException ||
-          exception is ResubscriptionRequiredException) {
-        return null;
+      if (exception is Exception && exception.isNetworkRelated) {
+        final Exception unreachable = UnreachableException();
+
+        return SentryEvent(
+          eventId: event.eventId,
+          timestamp: event.timestamp,
+          modules: event.modules,
+          tags: event.tags,
+          fingerprint: event.fingerprint,
+          breadcrumbs: event.breadcrumbs,
+          exceptions: [
+            SentryException(
+              type: sentryException?.type,
+              value: unreachable.toString(),
+              stackTrace: sentryException?.stackTrace,
+              mechanism: sentryException?.mechanism,
+              throwable: unreachable,
+            ),
+          ],
+          threads: event.threads,
+          sdk: event.sdk,
+          platform: event.platform,
+          logger: event.logger,
+          serverName: event.serverName,
+          release: event.release,
+          dist: event.dist,
+          environment: event.environment,
+          message: event.message,
+          transaction: event.transaction,
+          throwable: event.throwable,
+          level: event.level,
+          culprit: event.culprit,
+          user: event.user,
+          contexts: event.contexts,
+          request: event.request,
+          debugMeta: event.debugMeta,
+          type: event.type,
+        );
       }
 
       // [Backoff] related exceptions shouldn't be logged.

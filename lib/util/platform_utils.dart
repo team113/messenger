@@ -521,7 +521,7 @@ class PlatformUtilsImpl {
             } catch (e) {
               onError(e);
             }
-          }, cancelToken);
+          }, cancel: cancelToken);
         } else {
           File? file;
 
@@ -541,7 +541,7 @@ class PlatformUtilsImpl {
               }
 
               return null;
-            }, cancelToken);
+            }, cancel: cancelToken);
           }
 
           if (file == null) {
@@ -580,7 +580,7 @@ class PlatformUtilsImpl {
                 } catch (e) {
                   onError(e);
                 }
-              }, cancelToken);
+              }, cancel: cancelToken);
             } else {
               await file.writeAsBytes(data);
             }
