@@ -140,9 +140,11 @@ class Log {
         return;
       }
 
+      final DateTime at = DateTime.now();
+
       // Fixes `setState() or markNeedsBuild() called during build`.
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        logs.add(LogEntry(level, text, DateTime.now()));
+        logs.add(LogEntry(level, text, at));
         while (logs.length > maxLogs) {
           logs.removeAt(0);
         }

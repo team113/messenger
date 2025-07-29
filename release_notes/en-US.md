@@ -1,3 +1,6 @@
-- Added voice processing settings for calls.
-- Redesigned popups for email adding and password changing.
+- Added Spanish language.
+- Redesigned message editing mode in chat.
+- Redesigned sliders in settings on profile page.
+- Redesigned group creation and chats selection.
+- Redesigned delete account page and modals.
 - Bug fixes and performance improvements.

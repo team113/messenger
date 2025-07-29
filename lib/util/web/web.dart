@@ -107,6 +107,15 @@ external JSAny? msFullscreenElement;
 @JS('cleanIndexedDB')
 external JSPromise<JSAny?> cleanIndexedDB(String? except);
 
+@JS('navigator.setAppBadge')
+external void setAppBadge(int count);
+
+@JS('navigator.clearAppBadge')
+external void clearAppBadge();
+
+@JS('navigator.setAppBadge')
+external JSFunction? setAppBadgeClosure;
+
 @JS('window.isPopup')
 external bool _isPopup;
 
@@ -954,6 +963,30 @@ class WebUtils {
     );
 
     await promise.toDart;
+  }
+
+  /// Ensures foreground service is running to support receiving microphone
+  /// input when application is in background.
+  ///
+  /// Does nothing on non-Android operating systems.
+  static Future<void> setupForegroundService() async {
+    // No-op.
+  }
+
+  /// Refreshes the current browser's page.
+  static void setBadge(int count) {
+    Log.debug(
+      'setAppBadge($count) -> closure is `null`? ${setAppBadgeClosure == null}',
+      'WebUtils',
+    );
+
+    if (setAppBadgeClosure != null) {
+      if (count > 0) {
+        setAppBadge(count);
+      } else {
+        clearAppBadge();
+      }
+    }
   }
 
   /// Handles the [key] event to invoke [_keyHandlers] related to it.
