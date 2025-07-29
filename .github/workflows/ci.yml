@@ -70,6 +70,7 @@ jobs:
 
       - run: make flutter.analyze
       - run: make flutter.analyze.fluent
+      - run: make flutter.analyze.svg
 
   dartfmt:
     runs-on: ubuntu-latest

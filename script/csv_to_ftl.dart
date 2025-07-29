@@ -87,6 +87,7 @@ void main(List<String> arguments) async {
   stdout.writeln('FTL files generated!');
 }
 
+/// Adds a formatted `.ftl` [key]-[value] pair to the provided [buffer].
 void writeFtlEntry(StringBuffer buffer, String key, String value) {
   final List<String> lines = const LineSplitter().convert(value);
 
@@ -100,7 +101,7 @@ void writeFtlEntry(StringBuffer buffer, String key, String value) {
   }
 }
 
-/// Proper CSV parser that handles quoted newlines and commas.
+/// Parses CSV files and handles quoted newlines and commas.
 List<List<String>> parseCsv(String input) {
   final List<List<String>> rows = <List<String>>[];
   final List<String> fields = <String>[];
