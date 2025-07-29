@@ -2451,26 +2451,26 @@ class ChatController extends GetxController {
 
   /// Saves the current scroll position to [ChatService] for this chat.
   void _saveCurrentScrollPosition() {
-    print('_saveCurrentScrollPosition called for chat: ${chat?.id}');
+    Log.debug('_saveCurrentScrollPosition called for chat: ${chat?.id}', '$runtimeType');
     
     if (chat?.id == null) {
-      print('No chat ID available');
+      Log.debug('No chat ID available', '$runtimeType');
       return;
     }
     
     if (elements.isEmpty) {
-      print('Elements list is empty');
+      Log.debug('Elements list is empty', '$runtimeType');
       return;
     }
     
     if (!listController.hasClients) {
-      print('List controller has no clients');
+      Log.debug('List controller has no clients', '$runtimeType');
       return;
     }
 
     final position = listController.position;
     if (!position.hasContentDimensions) {
-      print('Position has no content dimensions');
+      Log.debug('Position has no content dimensions', '$runtimeType');
       return;
     }
 
@@ -2483,7 +2483,7 @@ class ChatController extends GetxController {
     
     final clampedIndex = topIndex.clamp(0, elements.length - 1);
     
-    print('Saving scroll position for chat ${chat!.id}: index=$clampedIndex, offset=$offset');
+    Log.debug('Saving scroll position for chat ${chat!.id}: index=$clampedIndex, offset=$offset', '$runtimeType');
     
     _chatService.saveScrollPosition(
       chat!.id,

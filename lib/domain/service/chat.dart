@@ -486,18 +486,18 @@ class ChatService extends DisposableService {
     int index,
     double offset,
   ) {
-    print('ChatService.saveScrollPosition called: chatId=$chatId, index=$index, offset=$offset');
+    Log.debug('saveScrollPosition($chatId, $index, $offset)', '$runtimeType');
     _scrollPositions[chatId] = ChatScrollPosition(
       index: index,
       offset: offset,
     );
-    print('ScrollPositions now contains ${_scrollPositions.length} entries');
+    Log.debug('ScrollPositions now contains ${_scrollPositions.length} entries', '$runtimeType');
   }
 
   /// Retrieves the saved scroll position for a specific chat.
   ChatScrollPosition? getScrollPosition(ChatId chatId) {
     final position = _scrollPositions[chatId];
-    print('ChatService.getScrollPosition called for $chatId: ${position != null ? "index=${position.index}, offset=${position.offset}" : "not found"}');
+    Log.debug('getScrollPosition($chatId): ${position != null ? "index=${position.index}, offset=${position.offset}" : "not found"}', '$runtimeType');
     return position;
   }
 
