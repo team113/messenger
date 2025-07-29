@@ -285,6 +285,7 @@ class AuthRepository extends DisposableInterface
     final response = await Backoff.run(() async {
       return await _graphQlProvider.useChatDirectLink(slug);
     }, retryIf: (e) => e.isNetworkRelated);
+
     return response.chat.toModel();
   }
 
