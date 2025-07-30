@@ -1744,6 +1744,7 @@ class ChatController extends GetxController {
                   throw e;
                 }
               },
+              cancelOnError: true,
             );
       }
 
