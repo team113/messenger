@@ -172,4 +172,4 @@
 # URL address of IP address discovering API server.
 #
 # Default:
-#    endpoint = "https://api.ipify.org?format=json"
+#   endpoint = "https://api.ipify.org?format=json"
