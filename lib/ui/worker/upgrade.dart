@@ -23,6 +23,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 
@@ -120,14 +121,27 @@ class UpgradeWorker extends DisposableService {
       await activeDownload.value?.start();
       activeDownload.value = releaseDownload;
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.cancel) {
-        activeDownload.value?.cancel();
-        activeDownload.value = null;
-      } else {
-        activeDownload.value?.cancel();
-        activeDownload.value = null;
-        MessagePopup.error(e);
-        rethrow;
+      switch (e.type) {
+        case DioExceptionType.cancel:
+          activeDownload.value?.cancel();
+          activeDownload.value = null;
+          break;
+
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+        case DioExceptionType.badCertificate:
+        case DioExceptionType.badResponse:
+        case DioExceptionType.connectionError:
+        case DioExceptionType.unknown:
+          activeDownload.value?.cancel();
+          activeDownload.value = null;
+          try {
+            await launchUrlString(release.url);
+          } catch (e) {
+            MessagePopup.error(e);
+            rethrow;
+          }
       }
     } catch (e) {
       activeDownload.value?.cancel();

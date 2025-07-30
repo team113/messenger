@@ -195,9 +195,13 @@ class UserRepository extends DisposableInterface
 
     try {
       try {
-        await Backoff.run(() async {
-          await _graphQlProvider.blockUser(id, reason);
-        }, retryIf: (e) => e.isNetworkRelated);
+        await Backoff.run(
+          () async {
+            await _graphQlProvider.blockUser(id, reason);
+          },
+          retryIf: (e) => e.isNetworkRelated,
+          retries: 10,
+        );
       } on BlockUserException catch (e) {
         switch (e.code) {
           case BlockUserErrorCode.unknownUser:
@@ -232,9 +236,13 @@ class UserRepository extends DisposableInterface
 
     try {
       try {
-        await Backoff.run(() async {
-          await _graphQlProvider.unblockUser(id);
-        }, retryIf: (e) => e.isNetworkRelated);
+        await Backoff.run(
+          () async {
+            await _graphQlProvider.unblockUser(id);
+          },
+          retryIf: (e) => e.isNetworkRelated,
+          retries: 10,
+        );
       } on UnblockUserException catch (e) {
         switch (e.code) {
           case UnblockUserErrorCode.unknownUser:

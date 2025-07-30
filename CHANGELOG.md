@@ -19,9 +19,17 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Redesigned session delete modals. ([#1344])
 
+### Fixed
+
+- UI:
+    - Chats tab:
+        - Infinite typing indicator occurring sometimes. ([#1350], [#1348])
+
 [#1311]: /../../issue/1311
 [#1336]: /../../pull/1336
 [#1344]: /../../pull/1344
+[#1348]: /../../issue/1348
+[#1350]: /../../pull/1350
 
 
 

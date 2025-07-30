@@ -726,6 +726,7 @@ class SubscriptionHandle {
     _backoff?.cancel();
     _backoffDuration = Duration.zero;
     _subscription?.cancel();
+    _cancel(_connection);
   }
 
   /// Subscribes to the events.
@@ -739,7 +740,16 @@ class SubscriptionHandle {
         _cancel(_connection);
         _connection = null;
 
+        if (!_controller.hasListener) {
+          return;
+        }
+
         _connection = await _listen(_options);
+
+        if (!_controller.hasListener) {
+          return cancel();
+        }
+
         _subscription = _connection?.stream.listen(
           (e) {
             if (_backoff != null) {

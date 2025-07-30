@@ -37,11 +37,16 @@ class Backoff {
 
   /// Returns result of the provided [callback] using the exponential backoff
   /// algorithm on any errors.
+  ///
+  /// [retries] specified to `0` means infinite retrying.
   static Future<T> run<T>(
     FutureOr<T> Function() callback, {
     CancelToken? cancel,
     bool Function(Object e) retryIf = _defaultRetryIf,
+    int retries = 0,
   }) async {
+    int index = 0;
+
     final CancelableOperation operation = CancelableOperation.fromFuture(
       Future(() async {
         Duration backoff = Duration.zero;
@@ -56,6 +61,11 @@ class Backoff {
             return await callback();
           } catch (e, _) {
             if (!retryIf(e)) {
+              rethrow;
+            }
+
+            ++index;
+            if (retries > 0 && index >= retries) {
               rethrow;
             }
 

@@ -282,9 +282,13 @@ class AuthRepository extends DisposableInterface
   Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', '$runtimeType');
 
-    final response = await Backoff.run(() async {
-      return await _graphQlProvider.useChatDirectLink(slug);
-    }, retryIf: (e) => e.isNetworkRelated);
+    final response = await Backoff.run(
+      () async {
+        return await _graphQlProvider.useChatDirectLink(slug);
+      },
+      retryIf: (e) => e.isNetworkRelated,
+      retries: 10,
+    );
 
     return response.chat.toModel();
   }
