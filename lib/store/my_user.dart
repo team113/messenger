@@ -190,9 +190,13 @@ class MyUserRepository extends DisposableInterface
       saved: () async => (await _active)?.value.name,
       value: name,
       mutation: (v, _) async {
-        return await Backoff.run(() async {
-          return await _graphQlProvider.updateUserName(v);
-        }, retryIf: (e) => e.isNetworkRelated);
+        return await Backoff.run(
+          () async {
+            return await _graphQlProvider.updateUserName(v);
+          },
+          retryIf: (e) => e.isNetworkRelated,
+          retries: 10,
+        );
       },
       update: (v, _) => myUser.update((u) => u?.name = v),
     );
@@ -208,9 +212,13 @@ class MyUserRepository extends DisposableInterface
       saved: () async => (await _active)?.value.status,
       value: status,
       mutation: (v, _) async {
-        return await Backoff.run(() async {
-          return await _graphQlProvider.updateUserStatus(v);
-        }, retryIf: (e) => e.isNetworkRelated);
+        return await Backoff.run(
+          () async {
+            return await _graphQlProvider.updateUserStatus(v);
+          },
+          retryIf: (e) => e.isNetworkRelated,
+          retries: 10,
+        );
       },
       update: (v, _) => myUser.update((u) => u?.status = v),
     );
@@ -226,9 +234,13 @@ class MyUserRepository extends DisposableInterface
       saved: () async => (await _active)?.value.bio,
       value: bio,
       mutation: (v, _) async {
-        return await Backoff.run(() async {
-          return await _graphQlProvider.updateUserBio(v);
-        }, retryIf: (e) => e.isNetworkRelated);
+        return await Backoff.run(
+          () async {
+            return await _graphQlProvider.updateUserBio(v);
+          },
+          retryIf: (e) => e.isNetworkRelated,
+          retries: 10,
+        );
       },
       update: (v, _) => myUser.update((u) => u?.bio = v),
     );
@@ -240,9 +252,13 @@ class MyUserRepository extends DisposableInterface
 
     // Don't do optimism, as [login] might be occupied, thus shouldn't set the
     // login right away.
-    await Backoff.run(() async {
-      await _graphQlProvider.updateUserLogin(login);
-    }, retryIf: (e) => e.isNetworkRelated);
+    await Backoff.run(
+      () async {
+        await _graphQlProvider.updateUserLogin(login);
+      },
+      retryIf: (e) => e.isNetworkRelated,
+      retries: 10,
+    );
   }
 
   @override
@@ -255,9 +271,13 @@ class MyUserRepository extends DisposableInterface
       saved: () async => (await _active)?.value.presence,
       value: presence,
       mutation: (v, _) async {
-        return await Backoff.run(() async {
-          return await _graphQlProvider.updateUserPresence(v ?? presence);
-        }, retryIf: (e) => e.isNetworkRelated);
+        return await Backoff.run(
+          () async {
+            return await _graphQlProvider.updateUserPresence(v ?? presence);
+          },
+          retryIf: (e) => e.isNetworkRelated,
+          retries: 10,
+        );
       },
       update: (v, _) => myUser.update((u) => u?.presence = v ?? presence),
     );
@@ -316,24 +336,28 @@ class MyUserRepository extends DisposableInterface
         );
       }
 
-      await Backoff.run(() async {
-        await _graphQlProvider.updateWelcomeMessage(
-          reset
-              ? null
-              : WelcomeMessageInput(
-                  text: text == null
-                      ? null
-                      : ChatMessageTextInput(
-                          kw$new: text.val.isEmpty ? null : text,
-                        ),
-                  attachments: attachments == null
-                      ? null
-                      : ChatMessageAttachmentsInput(
-                          kw$new: attachments.map((e) => e.id).toList(),
-                        ),
-                ),
-        );
-      }, retryIf: (e) => e.isNetworkRelated);
+      await Backoff.run(
+        () async {
+          await _graphQlProvider.updateWelcomeMessage(
+            reset
+                ? null
+                : WelcomeMessageInput(
+                    text: text == null
+                        ? null
+                        : ChatMessageTextInput(
+                            kw$new: text.val.isEmpty ? null : text,
+                          ),
+                    attachments: attachments == null
+                        ? null
+                        : ChatMessageAttachmentsInput(
+                            kw$new: attachments.map((e) => e.id).toList(),
+                          ),
+                  ),
+          );
+        },
+        retryIf: (e) => e.isNetworkRelated,
+        retries: 10,
+      );
     } catch (_) {
       myUser.update((u) => u?..welcomeMessage = previous);
       rethrow;
@@ -602,9 +626,13 @@ class MyUserRepository extends DisposableInterface
 
     // Don't do optimism, as [slug] might be occupied, thus shouldn't set the
     // link right away.
-    await Backoff.run(() async {
-      await _graphQlProvider.createUserDirectLink(slug);
-    }, retryIf: (e) => e.isNetworkRelated);
+    await Backoff.run(
+      () async {
+        await _graphQlProvider.createUserDirectLink(slug);
+      },
+      retryIf: (e) => e.isNetworkRelated,
+      retries: 10,
+    );
 
     myUser.update(
       (u) => u?.chatDirectLink = ChatDirectLink(
@@ -623,9 +651,13 @@ class MyUserRepository extends DisposableInterface
     myUser.update((u) => u?.chatDirectLink = null);
 
     try {
-      await Backoff.run(() async {
-        await _graphQlProvider.deleteUserDirectLink();
-      }, retryIf: (e) => e.isNetworkRelated);
+      await Backoff.run(
+        () async {
+          await _graphQlProvider.deleteUserDirectLink();
+        },
+        retryIf: (e) => e.isNetworkRelated,
+        retries: 10,
+      );
     } catch (_) {
       myUser.update((u) => u?.chatDirectLink = link);
       rethrow;
@@ -680,13 +712,17 @@ class MyUserRepository extends DisposableInterface
     }
 
     try {
-      await Backoff.run(() async {
-        await _graphQlProvider.updateUserAvatar(
-          upload,
-          crop,
-          onSendProgress: onSendProgress,
-        );
-      }, retryIf: (e) => e.isNetworkRelated);
+      await Backoff.run(
+        () async {
+          await _graphQlProvider.updateUserAvatar(
+            upload,
+            crop,
+            onSendProgress: onSendProgress,
+          );
+        },
+        retryIf: (e) => e.isNetworkRelated,
+        retries: 10,
+      );
     } catch (_) {
       if (file == null) {
         myUser.update((u) => u?.avatar = avatar);
@@ -705,15 +741,21 @@ class MyUserRepository extends DisposableInterface
       saved: () async => (await _active)?.value.muted,
       value: mute,
       mutation: (duration, _) async {
-        return await Backoff.run(() async {
-          return await _graphQlProvider.toggleMyUserMute(
-            duration == null
-                ? null
-                : Muting(
-                    duration: duration.forever == true ? null : duration.until,
-                  ),
-          );
-        }, retryIf: (e) => e.isNetworkRelated);
+        return await Backoff.run(
+          () async {
+            return await _graphQlProvider.toggleMyUserMute(
+              duration == null
+                  ? null
+                  : Muting(
+                      duration: duration.forever == true
+                          ? null
+                          : duration.until,
+                    ),
+            );
+          },
+          retryIf: (e) => e.isNetworkRelated,
+          retries: 10,
+        );
       },
       update: (v, _) => myUser.update((u) => u?.muted = v),
     );
@@ -763,13 +805,17 @@ class MyUserRepository extends DisposableInterface
     }
 
     try {
-      await Backoff.run(() async {
-        await _graphQlProvider.updateUserCallCover(
-          upload,
-          null,
-          onSendProgress: onSendProgress,
-        );
-      }, retryIf: (e) => e.isNetworkRelated);
+      await Backoff.run(
+        () async {
+          await _graphQlProvider.updateUserCallCover(
+            upload,
+            null,
+            onSendProgress: onSendProgress,
+          );
+        },
+        retryIf: (e) => e.isNetworkRelated,
+        retries: 10,
+      );
     } catch (_) {
       if (file == null) {
         myUser.update((u) => u?.callCover = callCover);
@@ -782,9 +828,13 @@ class MyUserRepository extends DisposableInterface
   Future<void> refresh() async {
     Log.debug('refresh()', '$runtimeType');
 
-    final response = await Backoff.run(() async {
-      return await _graphQlProvider.getMyUser();
-    }, retryIf: (e) => e.isNetworkRelated);
+    final response = await Backoff.run(
+      () async {
+        return await _graphQlProvider.getMyUser();
+      },
+      retryIf: (e) => e.isNetworkRelated,
+      retries: 10,
+    );
 
     if (response.myUser != null) {
       _setMyUser(response.myUser!.toDto(), ignoreVersion: true);
