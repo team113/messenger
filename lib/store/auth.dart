@@ -34,6 +34,7 @@ import '/provider/drift/credentials.dart';
 import '/provider/drift/my_user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
+import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 
@@ -281,7 +282,10 @@ class AuthRepository extends DisposableInterface
   Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', '$runtimeType');
 
-    final response = await _graphQlProvider.useChatDirectLink(slug);
+    final response = await Backoff.run(() async {
+      return await _graphQlProvider.useChatDirectLink(slug);
+    }, retryIf: (e) => e.isNetworkRelated);
+
     return response.chat.toModel();
   }
 

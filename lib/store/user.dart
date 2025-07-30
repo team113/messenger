@@ -41,6 +41,7 @@ import '/store/model/user.dart';
 import '/store/pagination.dart';
 import '/store/pagination/graphql.dart';
 import '/store/user_rx.dart';
+import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import 'event/blocklist.dart';
@@ -194,7 +195,9 @@ class UserRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.blockUser(id, reason);
+        await Backoff.run(() async {
+          await _graphQlProvider.blockUser(id, reason);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on BlockUserException catch (e) {
         switch (e.code) {
           case BlockUserErrorCode.unknownUser:
@@ -229,7 +232,9 @@ class UserRepository extends DisposableInterface
 
     try {
       try {
-        await _graphQlProvider.unblockUser(id);
+        await Backoff.run(() async {
+          await _graphQlProvider.unblockUser(id);
+        }, retryIf: (e) => e.isNetworkRelated);
       } on UnblockUserException catch (e) {
         switch (e.code) {
           case UnblockUserErrorCode.unknownUser:

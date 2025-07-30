@@ -248,7 +248,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
               rethrow;
             }
           }
-        }, _cancelToken);
+        }, cancel: _cancelToken);
       } on OperationCanceledException {
         // No-op.
       }

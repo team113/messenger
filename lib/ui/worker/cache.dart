@@ -208,7 +208,7 @@ class CacheWorker extends DisposableService {
             } else {
               throw Exception('Data is not loaded');
             }
-          }, cancelToken);
+          }, cancel: cancelToken);
 
           switch (responseType) {
             case CacheResponseType.file:

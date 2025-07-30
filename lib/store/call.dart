@@ -48,6 +48,7 @@ import '/provider/gql/exceptions.dart'
         RemoveChatCallMemberException;
 import '/provider/gql/graphql.dart';
 import '/store/user.dart';
+import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
@@ -300,12 +301,14 @@ class CallRepository extends DisposableInterface
 
     calls[call.value.chatId.value] = call;
 
-    final response = await _graphQlProvider.startChatCall(
-      call.value.chatId.value,
-      call.value.creds!,
-      call.value.videoState.value == LocalTrackState.enabling ||
-          call.value.videoState.value == LocalTrackState.enabled,
-    );
+    final response = await Backoff.run(() async {
+      return await _graphQlProvider.startChatCall(
+        call.value.chatId.value,
+        call.value.creds!,
+        call.value.videoState.value == LocalTrackState.enabling ||
+            call.value.videoState.value == LocalTrackState.enabled,
+      );
+    }, retryIf: (e) => e.isNetworkRelated);
 
     call.value.deviceId = response.deviceId;
 
@@ -373,10 +376,12 @@ class CallRepository extends DisposableInterface
     }
 
     try {
-      final response = await _graphQlProvider.joinChatCall(
-        ongoing.value.chatId.value,
-        ongoing.value.creds!,
-      );
+      final response = await Backoff.run(() async {
+        return await _graphQlProvider.joinChatCall(
+          ongoing!.value.chatId.value,
+          ongoing.value.creds!,
+        );
+      }, retryIf: (e) => e.isNetworkRelated);
 
       ongoing.value.deviceId = response.deviceId;
 
@@ -408,7 +413,9 @@ class CallRepository extends DisposableInterface
     Log.debug('leave($chatId, $deviceId)', '$runtimeType');
 
     try {
-      await _graphQlProvider.leaveChatCall(chatId, deviceId);
+      await Backoff.run(() async {
+        await _graphQlProvider.leaveChatCall(chatId, deviceId);
+      }, retryIf: (e) => e.isNetworkRelated);
     } on LeaveChatCallException catch (e) {
       switch (e.code) {
         case LeaveChatCallErrorCode.unknownDevice:
@@ -427,7 +434,9 @@ class CallRepository extends DisposableInterface
     Log.debug('decline($chatId)', '$runtimeType');
 
     try {
-      await _graphQlProvider.declineChatCall(chatId);
+      await Backoff.run(() async {
+        await _graphQlProvider.declineChatCall(chatId);
+      }, retryIf: (e) => e.isNetworkRelated);
     } on DeclineChatCallException catch (e) {
       switch (e.code) {
         case DeclineChatCallErrorCode.alreadyJoined:
@@ -451,7 +460,9 @@ class CallRepository extends DisposableInterface
     Log.debug('toggleHand($chatId, $raised)', '$runtimeType');
 
     try {
-      await _graphQlProvider.toggleChatCallHand(chatId, raised);
+      await Backoff.run(() async {
+        await _graphQlProvider.toggleChatCallHand(chatId, raised);
+      }, retryIf: (e) => e.isNetworkRelated);
     } on ToggleChatCallHandException catch (e) {
       switch (e.code) {
         case ToggleChatCallHandErrorCode.notCallMember:
@@ -486,7 +497,9 @@ class CallRepository extends DisposableInterface
     }
 
     try {
-      await _graphQlProvider.redialChatCallMember(chatId, memberId);
+      await Backoff.run(() async {
+        await _graphQlProvider.redialChatCallMember(chatId, memberId);
+      }, retryIf: (e) => e.isNetworkRelated);
     } on RedialChatCallMemberException catch (e) {
       switch (e.code) {
         case RedialChatCallMemberErrorCode.notCallMember:
@@ -516,7 +529,9 @@ class CallRepository extends DisposableInterface
 
     try {
       // TODO: Implement optimism, if possible.
-      await _graphQlProvider.removeChatCallMember(chatId, userId);
+      await Backoff.run(() async {
+        await _graphQlProvider.removeChatCallMember(chatId, userId);
+      }, retryIf: (e) => e.isNetworkRelated);
     } on RemoveChatCallMemberException catch (e) {
       switch (e.code) {
         case RemoveChatCallMemberErrorCode.artemisUnknown:

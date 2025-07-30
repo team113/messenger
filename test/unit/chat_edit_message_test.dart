@@ -363,8 +363,10 @@ void main() async {
 
       Get.put(chatProvider);
 
-      expect(
-        () async => await chatService.editChatMessage(
+      dynamic exception;
+
+      try {
+        await chatService.editChatMessage(
           ChatMessage(
             const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
             const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -375,9 +377,12 @@ void main() async {
             PreciseDateTime.now(),
           ),
           text: const ChatMessageTextInput(ChatMessageText('new text')),
-        ),
-        throwsA(isA<EditChatMessageException>()),
-      );
+        );
+      } catch (e) {
+        exception = e;
+      }
+
+      expect(exception.runtimeType, EditChatMessageException);
 
       await Future.delayed(Duration.zero);
 

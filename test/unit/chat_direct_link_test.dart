@@ -478,10 +478,15 @@ void main() async {
         ),
       );
 
-      expect(
-        () => authService.useChatDirectLink(ChatDirectLinkSlug('link')),
-        throwsA(isA<UseChatDirectLinkException>()),
-      );
+      dynamic exception;
+
+      try {
+        await authService.useChatDirectLink(ChatDirectLinkSlug('link'));
+      } catch (e) {
+        exception = e;
+      }
+
+      expect(exception.runtimeType, UseChatDirectLinkException);
 
       verify(graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')));
     },

@@ -409,13 +409,18 @@ void main() async {
 
       final ChatService chatService = await init(graphQlProvider);
 
-      expect(
-        () async => await chatService.addChatMember(
+      dynamic exception;
+
+      try {
+        await chatService.addChatMember(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-        ),
-        throwsA(isA<AddChatMemberException>()),
-      );
+        );
+      } catch (e) {
+        exception = e;
+      }
+
+      expect(exception.runtimeType, AddChatMemberException);
 
       await Future.delayed(Duration.zero);
 
