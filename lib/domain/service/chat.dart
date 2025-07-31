@@ -511,8 +511,11 @@ class ChatService extends DisposableService {
   /// has been saved for the given [chatId].
   ChatScrollPosition? getScrollPosition(ChatId chatId) {
     final position = _scrollPositions[chatId];
+    final positionInfo = position != null 
+        ? 'index=${position.index}, offset=${position.offset}' 
+        : 'not found';
     Log.debug(
-      'getScrollPosition($chatId): ${position != null ? 'index=${position.index}, offset=${position.offset}' : 'not found'}',
+      'getScrollPosition($chatId): $positionInfo',
       '$runtimeType',
     );
     return position;
