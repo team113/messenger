@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 
@@ -29,15 +30,15 @@ void main() {
 
     test('_saveCurrentScrollPosition calls ChatService.saveScrollPosition', () {
       // Arrange
-      final chatId = const ChatId('test-chat');
-      const index = 15;
-      const offset = 200.0;
+      const ChatId chatId = ChatId('test-chat');
+      const int index = 15;
+      const double offset = 200.0;
 
       // Act - Simulate what ChatController._saveCurrentScrollPosition() does
       chatService.saveScrollPosition(chatId, index, offset);
 
       // Assert
-      final savedPosition = chatService.getScrollPosition(chatId);
+      final ChatScrollPosition? savedPosition = chatService.getScrollPosition(chatId);
       expect(savedPosition, isNotNull);
       expect(savedPosition!.index, equals(index));
       expect(savedPosition.offset, equals(offset));
@@ -45,9 +46,9 @@ void main() {
 
     test('scroll position integration with multiple chat switches', () {
       // Arrange
-      final chatId1 = const ChatId('chat-1');
-      final chatId2 = const ChatId('chat-2');
-      final chatId3 = const ChatId('chat-3');
+      const ChatId chatId1 = ChatId('chat-1');
+      const ChatId chatId2 = ChatId('chat-2');
+      const ChatId chatId3 = ChatId('chat-3');
 
       // Act - Simulate switching between multiple chats and saving positions
       chatService.saveScrollPosition(chatId1, 10, 100.0);
@@ -58,9 +59,9 @@ void main() {
       chatService.saveScrollPosition(chatId1, 15, 150.0);
 
       // Assert
-      final position1 = chatService.getScrollPosition(chatId1);
-      final position2 = chatService.getScrollPosition(chatId2);
-      final position3 = chatService.getScrollPosition(chatId3);
+      final ChatScrollPosition? position1 = chatService.getScrollPosition(chatId1);
+      final ChatScrollPosition? position2 = chatService.getScrollPosition(chatId2);
+      final ChatScrollPosition? position3 = chatService.getScrollPosition(chatId3);
 
       expect(position1!.index, equals(15)); // Updated position
       expect(position1.offset, equals(150.0));
@@ -74,15 +75,15 @@ void main() {
 
     test('scroll position restoration flow', () {
       // Arrange
-      final chatId = const ChatId('restoration-test');
-      const savedIndex = 30;
-      const savedOffset = 350.5;
+      const ChatId chatId = ChatId('restoration-test');
+      const int savedIndex = 30;
+      const double savedOffset = 350.5;
 
       // Act - Save position when leaving chat
       chatService.saveScrollPosition(chatId, savedIndex, savedOffset);
 
       // Simulate returning to the chat and retrieving position
-      final restoredPosition = chatService.getScrollPosition(chatId);
+      final ChatScrollPosition? restoredPosition = chatService.getScrollPosition(chatId);
 
       // Assert
       expect(restoredPosition, isNotNull);
@@ -92,8 +93,8 @@ void main() {
 
     test('scroll position cleanup on chat clear', () {
       // Arrange
-      final chatId1 = const ChatId('cleanup-test-1');
-      final chatId2 = const ChatId('cleanup-test-2');
+      const ChatId chatId1 = ChatId('cleanup-test-1');
+      const ChatId chatId2 = ChatId('cleanup-test-2');
 
       chatService.saveScrollPosition(chatId1, 10, 100.0);
       chatService.saveScrollPosition(chatId2, 20, 200.0);
@@ -112,7 +113,7 @@ void main() {
 
     test('scroll position debouncing simulation', () {
       // Arrange
-      final chatId = const ChatId('debounce-test');
+      const ChatId chatId = ChatId('debounce-test');
 
       // Act - Simulate rapid scroll position updates (debouncing scenario)
       chatService.saveScrollPosition(chatId, 1, 10.0);
@@ -122,32 +123,32 @@ void main() {
       chatService.saveScrollPosition(chatId, 5, 50.0); // Final position
 
       // Assert - Only the last position should be saved
-      final finalPosition = chatService.getScrollPosition(chatId);
+      final ChatScrollPosition? finalPosition = chatService.getScrollPosition(chatId);
       expect(finalPosition!.index, equals(5));
       expect(finalPosition.offset, equals(50.0));
     });
 
     test('scroll position with extreme values', () {
       // Arrange
-      final chatId = const ChatId('extreme-values-test');
+      const ChatId chatId = ChatId('extreme-values-test');
 
       // Test boundary values that might occur in real usage
-      const maxIndex = 2147483647; // Max int32
-      const maxOffset = 1.7976931348623157e+308; // Near max double
+      const int maxIndex = 2147483647; // Max int32
+      const double maxOffset = 1.7976931348623157e+308; // Near max double
 
       // Act
       chatService.saveScrollPosition(chatId, maxIndex, maxOffset);
 
       // Assert
-      final position = chatService.getScrollPosition(chatId);
+      final ChatScrollPosition? position = chatService.getScrollPosition(chatId);
       expect(position!.index, equals(maxIndex));
       expect(position.offset, equals(maxOffset));
     });
 
     test('scroll position memory management simulation', () {
       // Arrange - Simulate many chats to test memory usage
-      const numberOfChats = 100;
-      final chatIds = List.generate(
+      const int numberOfChats = 100;
+      final List<ChatId> chatIds = List.generate(
         numberOfChats,
         (index) => ChatId('memory-test-chat-$index'),
       );
@@ -159,7 +160,7 @@ void main() {
 
       // Assert - All positions should be retrievable
       for (int i = 0; i < numberOfChats; i++) {
-        final position = chatService.getScrollPosition(chatIds[i]);
+        final ChatScrollPosition? position = chatService.getScrollPosition(chatIds[i]);
         expect(position, isNotNull);
         expect(position!.index, equals(i));
         expect(position.offset, equals(i * 10.0));
@@ -176,7 +177,10 @@ void main() {
   });
 }
 
-/// Test implementation of ChatService that only includes scroll position functionality
+/// Test implementation of ChatService that only includes scroll position functionality.
+///
+/// This simplified version of ChatService is used for testing scroll position
+/// functionality in integration scenarios without the complexity of the full service.
 class TestChatService {
   /// In-memory storage for chat scroll positions.
   final Map<ChatId, ChatScrollPosition> _scrollPositions = {};

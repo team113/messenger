@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 
@@ -29,15 +30,15 @@ void main() {
 
     test('saveScrollPosition stores position correctly', () {
       // Arrange
-      final chatId = const ChatId('test-chat-id');
-      const index = 10;
-      const offset = 150.5;
+      const ChatId chatId = ChatId('test-chat-id');
+      const int index = 10;
+      const double offset = 150.5;
 
       // Act
       chatService.saveScrollPosition(chatId, index, offset);
 
       // Assert
-      final retrievedPosition = chatService.getScrollPosition(chatId);
+      final ChatScrollPosition? retrievedPosition = chatService.getScrollPosition(chatId);
       expect(retrievedPosition, isNotNull);
       expect(retrievedPosition!.index, equals(index));
       expect(retrievedPosition.offset, equals(offset));
@@ -45,10 +46,10 @@ void main() {
 
     test('getScrollPosition returns null for non-existent chat', () {
       // Arrange
-      final chatId = const ChatId('non-existent-chat');
+      const ChatId chatId = ChatId('non-existent-chat');
 
       // Act
-      final position = chatService.getScrollPosition(chatId);
+      final ChatScrollPosition? position = chatService.getScrollPosition(chatId);
 
       // Assert
       expect(position, isNull);
@@ -56,14 +57,14 @@ void main() {
 
     test('getScrollPosition returns correct position for existing chat', () {
       // Arrange
-      final chatId = const ChatId('existing-chat');
-      const index = 25;
-      const offset = 75.3;
+      const ChatId chatId = ChatId('existing-chat');
+      const int index = 25;
+      const double offset = 75.3;
 
       chatService.saveScrollPosition(chatId, index, offset);
 
       // Act
-      final position = chatService.getScrollPosition(chatId);
+      final ChatScrollPosition? position = chatService.getScrollPosition(chatId);
 
       // Assert
       expect(position, isNotNull);
@@ -73,8 +74,8 @@ void main() {
 
     test('clearScrollPosition removes position for specific chat', () {
       // Arrange
-      final chatId1 = const ChatId('chat-1');
-      final chatId2 = const ChatId('chat-2');
+      const ChatId chatId1 = ChatId('chat-1');
+      const ChatId chatId2 = ChatId('chat-2');
 
       chatService.saveScrollPosition(chatId1, 10, 50.0);
       chatService.saveScrollPosition(chatId2, 20, 100.0);
@@ -89,9 +90,9 @@ void main() {
 
     test('clearAllScrollPositions removes all positions', () {
       // Arrange
-      final chatId1 = const ChatId('chat-1');
-      final chatId2 = const ChatId('chat-2');
-      final chatId3 = const ChatId('chat-3');
+      const ChatId chatId1 = ChatId('chat-1');
+      const ChatId chatId2 = ChatId('chat-2');
+      const ChatId chatId3 = ChatId('chat-3');
 
       chatService.saveScrollPosition(chatId1, 10, 50.0);
       chatService.saveScrollPosition(chatId2, 20, 100.0);
@@ -108,13 +109,13 @@ void main() {
 
     test('saveScrollPosition overwrites existing position', () {
       // Arrange
-      final chatId = const ChatId('test-chat');
+      const ChatId chatId = ChatId('test-chat');
 
       // Save initial position
       chatService.saveScrollPosition(chatId, 10, 50.0);
 
       // Verify initial position
-      var position = chatService.getScrollPosition(chatId);
+      ChatScrollPosition? position = chatService.getScrollPosition(chatId);
       expect(position!.index, equals(10));
       expect(position.offset, equals(50.0));
 
@@ -129,9 +130,9 @@ void main() {
 
     test('multiple chats can have different scroll positions', () {
       // Arrange
-      final chatId1 = const ChatId('chat-1');
-      final chatId2 = const ChatId('chat-2');
-      final chatId3 = const ChatId('chat-3');
+      const ChatId chatId1 = ChatId('chat-1');
+      const ChatId chatId2 = ChatId('chat-2');
+      const ChatId chatId3 = ChatId('chat-3');
 
       // Act
       chatService.saveScrollPosition(chatId1, 5, 25.5);
@@ -139,9 +140,9 @@ void main() {
       chatService.saveScrollPosition(chatId3, 30, 200.2);
 
       // Assert
-      final position1 = chatService.getScrollPosition(chatId1);
-      final position2 = chatService.getScrollPosition(chatId2);
-      final position3 = chatService.getScrollPosition(chatId3);
+      final ChatScrollPosition? position1 = chatService.getScrollPosition(chatId1);
+      final ChatScrollPosition? position2 = chatService.getScrollPosition(chatId2);
+      final ChatScrollPosition? position3 = chatService.getScrollPosition(chatId3);
 
       expect(position1!.index, equals(5));
       expect(position1.offset, equals(25.5));
@@ -155,11 +156,11 @@ void main() {
 
     test('scroll positions handle edge values correctly', () {
       // Arrange
-      final chatId = const ChatId('edge-values-chat');
+      const ChatId chatId = ChatId('edge-values-chat');
 
       // Test with zero values
       chatService.saveScrollPosition(chatId, 0, 0.0);
-      var position = chatService.getScrollPosition(chatId);
+      ChatScrollPosition? position = chatService.getScrollPosition(chatId);
       expect(position!.index, equals(0));
       expect(position.offset, equals(0.0));
 
@@ -187,7 +188,7 @@ void main() {
 
     test('scroll positions are not persistent across service instances', () {
       // Arrange
-      final chatId = const ChatId('persistence-test');
+      const ChatId chatId = ChatId('persistence-test');
       chatService.saveScrollPosition(chatId, 10, 50.0);
 
       // Verify position exists
@@ -202,7 +203,7 @@ void main() {
 
     test('clearScrollPosition handles non-existent chat gracefully', () {
       // Arrange
-      final nonExistentChatId = const ChatId('non-existent');
+      const ChatId nonExistentChatId = ChatId('non-existent');
 
       // Act & Assert - should not throw an exception
       expect(
@@ -214,15 +215,15 @@ void main() {
 
     test('scroll position values maintain precision', () {
       // Arrange
-      final chatId = const ChatId('precision-test');
-      const index = 42;
-      const offset = 123.456789;
+      const ChatId chatId = ChatId('precision-test');
+      const int index = 42;
+      const double offset = 123.456789;
 
       // Act
       chatService.saveScrollPosition(chatId, index, offset);
 
       // Assert
-      final position = chatService.getScrollPosition(chatId);
+      final ChatScrollPosition? position = chatService.getScrollPosition(chatId);
       expect(position!.index, equals(index));
       expect(position.offset, equals(offset));
     });
@@ -231,7 +232,7 @@ void main() {
       'saveScrollPosition with same chatId multiple times updates correctly',
       () {
         // Arrange
-        final chatId = const ChatId('update-test');
+        const ChatId chatId = ChatId('update-test');
 
         // Act & Assert - Multiple updates
         chatService.saveScrollPosition(chatId, 1, 10.0);
@@ -250,9 +251,9 @@ void main() {
 
     test('ChatScrollPosition equality and hashCode', () {
       // Arrange
-      const position1 = ChatScrollPosition(index: 10, offset: 50.5);
-      const position2 = ChatScrollPosition(index: 10, offset: 50.5);
-      const position3 = ChatScrollPosition(index: 11, offset: 50.5);
+      const ChatScrollPosition position1 = ChatScrollPosition(index: 10, offset: 50.5);
+      const ChatScrollPosition position2 = ChatScrollPosition(index: 10, offset: 50.5);
+      const ChatScrollPosition position3 = ChatScrollPosition(index: 11, offset: 50.5);
 
       // Assert
       expect(position1.index, equals(position2.index));
@@ -262,7 +263,10 @@ void main() {
   });
 }
 
-/// Test implementation of ChatService that only includes scroll position functionality
+/// Test implementation of ChatService that only includes scroll position functionality.
+///
+/// This simplified version of ChatService is used for testing scroll position
+/// functionality in isolation without the complexity of the full service.
 class TestChatService {
   /// In-memory storage for chat scroll positions.
   final Map<ChatId, ChatScrollPosition> _scrollPositions = {};
