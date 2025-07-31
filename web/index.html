@@ -163,6 +163,17 @@
           );
         });
       }
+
+      // Disable refresh page behaviour, as it will break the call.
+      window.addEventListener('keydown', function (e) {
+        if (e.key === 'F5') {
+          e.preventDefault();
+        }
+
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'r') {
+          e.preventDefault();
+        }
+      });
     }
   </script>
 
