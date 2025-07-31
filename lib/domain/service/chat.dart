@@ -482,6 +482,10 @@ class ChatService extends DisposableService {
   }
 
   /// Saves the scroll position for a specific chat.
+  ///
+  /// The [index] represents the item index and [offset] represents the
+  /// pixel offset within that item. These values will be used to restore
+  /// the scroll position when returning to this chat.
   void saveScrollPosition(
     ChatId chatId,
     int index,
@@ -502,6 +506,9 @@ class ChatService extends DisposableService {
   }
 
   /// Retrieves the saved scroll position for a specific chat.
+  ///
+  /// Returns the [ChatScrollPosition] if found, or `null` if no position
+  /// has been saved for the given [chatId].
   ChatScrollPosition? getScrollPosition(ChatId chatId) {
     final position = _scrollPositions[chatId];
     Log.debug(
@@ -512,11 +519,17 @@ class ChatService extends DisposableService {
   }
 
   /// Clears the scroll position for a specific chat.
+  ///
+  /// Removes the saved scroll position for the given [chatId], if it exists.
+  /// Subsequent calls to [getScrollPosition] for this chat will return `null`.
   void clearScrollPosition(ChatId chatId) {
     _scrollPositions.remove(chatId);
   }
 
   /// Clears all saved scroll positions.
+  ///
+  /// Removes all stored scroll positions for all chats. This is typically
+  /// called when performing cleanup operations.
   void clearAllScrollPositions() {
     _scrollPositions.clear();
   }

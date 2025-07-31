@@ -2471,6 +2471,10 @@ class ChatController extends GetxController {
   }
 
   /// Saves the current scroll position to [ChatService] for this chat.
+  ///
+  /// Calculates the current scroll position based on the list controller's
+  /// state and stores it using [ChatService.saveScrollPosition]. The position
+  /// will be restored when the user returns to this chat.
   void _saveCurrentScrollPosition() {
     Log.debug(
       '_saveCurrentScrollPosition called for chat: ${chat?.id}',
