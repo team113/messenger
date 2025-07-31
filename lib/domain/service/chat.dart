@@ -48,6 +48,12 @@ class ChatService extends DisposableService {
   /// [AuthService] to get an authorized user.
   final AuthService _authService;
 
+  /// In-memory storage for chat scroll positions.
+  ///
+  /// This is intentionally not persistent to meet the requirement that scroll
+  /// positions should not be saved when closing the application.
+  final Map<ChatId, ChatScrollPosition> _scrollPositions = {};
+
   /// Returns the [RxStatus] of the [paginated] initialization.
   Rx<RxStatus> get status => _chatRepository.status;
 
@@ -475,29 +481,33 @@ class ChatService extends DisposableService {
     await _chatRepository.clearChat(id, untilId);
   }
 
-  /// In-memory storage for chat scroll positions.
-  /// This is intentionally not persistent to meet the requirement that
-  /// scroll positions should not be saved when closing the application.
-  final Map<ChatId, ChatScrollPosition> _scrollPositions = {};
-
   /// Saves the scroll position for a specific chat.
   void saveScrollPosition(
     ChatId chatId,
     int index,
     double offset,
   ) {
-    Log.debug('saveScrollPosition($chatId, $index, $offset)', '$runtimeType');
+    Log.debug(
+      'saveScrollPosition($chatId, $index, $offset)',
+      '$runtimeType',
+    );
     _scrollPositions[chatId] = ChatScrollPosition(
       index: index,
       offset: offset,
     );
-    Log.debug('ScrollPositions now contains ${_scrollPositions.length} entries', '$runtimeType');
+    Log.debug(
+      'ScrollPositions now contains ${_scrollPositions.length} entries',
+      '$runtimeType',
+    );
   }
 
   /// Retrieves the saved scroll position for a specific chat.
   ChatScrollPosition? getScrollPosition(ChatId chatId) {
     final position = _scrollPositions[chatId];
-    Log.debug('getScrollPosition($chatId): ${position != null ? "index=${position.index}, offset=${position.offset}" : "not found"}', '$runtimeType');
+    Log.debug(
+      'getScrollPosition($chatId): ${position != null ? 'index=${position.index}, offset=${position.offset}' : 'not found'}',
+      '$runtimeType',
+    );
     return position;
   }
 
