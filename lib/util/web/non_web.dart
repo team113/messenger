@@ -257,7 +257,8 @@ class WebUtils {
   /// Prints a string representation of the provided [object] to the console as
   /// an error.
   static void consoleError(Object? object) {
-    // No-op.
+    // ignore: avoid_print
+    print('\x1B[31m$object\x1B[0m');
   }
 
   /// Requests the permission to use a camera and holds it until unsubscribed.
