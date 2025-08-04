@@ -75,243 +75,238 @@ import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
 Future<void> main() async {
-  final Stopwatch watch = Stopwatch()..start();
+  await runZonedGuarded(
+    () async {
+      final Stopwatch watch = Stopwatch()..start();
 
-  await Config.init();
+      await Config.init();
 
-  me.Log.options = me.LogOptions(
-    level: Config.logLevel,
+      me.Log.options = me.LogOptions(
+        level: Config.logLevel,
 
-    // Browsers collect timestamps for log themselves.
-    timeStamp: !PlatformUtils.isWeb,
-    dateStamp: !PlatformUtils.isWeb,
-  );
-
-  Log.maxLogs = Config.logAmount;
-
-  // Initializes and runs the [App].
-  Future<void> appRunner() async {
-    MediaKit.ensureInitialized();
-    WebUtils.setPathUrlStrategy();
-
-    Get.putOrGet<CommonDriftProvider>(
-      () => CommonDriftProvider.from(
-        Get.putOrGet(() => CommonDatabase(), permanent: true),
-      ),
-      permanent: true,
-    );
-
-    final myUserProvider = Get.put(MyUserDriftProvider(Get.find()));
-    Get.put(SettingsDriftProvider(Get.find()));
-    Get.put(BackgroundDriftProvider(Get.find()));
-    Get.put(GeoLocationDriftProvider(Get.find()));
-    Get.put(LockDriftProvider(Get.find()));
-
-    if (!PlatformUtils.isWeb) {
-      Get.put(WindowRectDriftProvider(Get.find()));
-      Get.put(CacheDriftProvider(Get.find()));
-      Get.put(DownloadDriftProvider(Get.find()));
-      Get.put(SkippedVersionDriftProvider(Get.find()));
-    }
-
-    final accountProvider = Get.put(AccountDriftProvider(Get.find()));
-    await accountProvider.init();
-
-    final credentialsProvider = Get.put(CredentialsDriftProvider(Get.find()));
-    await credentialsProvider.init();
-
-    if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
-      await windowManager.ensureInitialized();
-      await windowManager.setMinimumSize(const Size(400, 400));
-
-      final WindowRectDriftProvider? preferences =
-          Get.findOrNull<WindowRectDriftProvider>();
-      final WindowPreferences? prefs = await preferences?.read();
-
-      if (prefs?.size != null) {
-        await windowManager.setSize(prefs!.size!);
-      }
-
-      if (prefs?.position != null) {
-        await windowManager.setPosition(prefs!.position!);
-      }
-
-      await windowManager.show();
-
-      WebUtils.registerScheme().onError((_, __) => false);
-
-      Get.put(WindowWorker(preferences));
-    }
-
-    final graphQlProvider = Get.put(GraphQlProvider());
-    Get.put(GeoLocationProvider());
-
-    final authRepository = Get.put<AbstractAuthRepository>(
-      AuthRepository(graphQlProvider, myUserProvider, Get.find()),
-    );
-    final authService = Get.put(
-      AuthService(authRepository, Get.find(), Get.find(), Get.find()),
-    );
-
-    Uri? initial;
-    try {
-      final AppLinks links = AppLinks();
-      initial = await links.getInitialLink();
-      Log.debug('initial -> $initial', 'AppLinks');
-
-      _linkSubscription?.cancel();
-      _linkSubscription = links.uriLinkStream.listen((uri) async {
-        Log.debug('uriLinkStream -> $uri', 'AppLinks');
-        router.delegate.setNewRoutePath(
-          await router.parser.parseRouteInformation(RouteInformation(uri: uri)),
-        );
-      });
-    } catch (e) {
-      // No-op.
-    }
-
-    router = RouterState(
-      authService,
-      initial: initial == null ? null : RouteInformation(uri: initial),
-    );
-
-    try {
-      PWAInstall().setup(
-        installCallback: () {
-          Log.debug('PWA is detected as installed', 'PWAInstall()');
-          WebUtils.hasPwa = true;
-        },
+        // Browsers collect timestamps for log themselves.
+        timeStamp: !PlatformUtils.isWeb,
+        dateStamp: !PlatformUtils.isWeb,
       );
-    } catch (_) {
-      // No-op.
-    }
 
-    await authService.init();
-    await L10n.init();
+      Log.maxLogs = Config.logAmount;
 
-    Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
-    Get.put(UpgradeWorker(Get.findOrNull()));
-    Get.put(LogWorker());
-
-    WebUtils.deleteLoader();
-
-    runApp(App(key: UniqueKey()));
-  }
-
-  // No need to initialize the Sentry if no DSN is provided, otherwise useless
-  // messages are printed to the console every time the application starts.
-  if (Config.sentryDsn.isEmpty || kDebugMode) {
-    return appRunner();
-  }
-
-  await SentryFlutter.init((options) {
-    options.dsn = Config.sentryDsn;
-    options.tracesSampleRate = 1.0;
-    options.sampleRate = 1.0;
-    options.release = '${Pubspec.name}@${Pubspec.ref}';
-    options.diagnosticLevel = SentryLevel.info;
-    options.enablePrintBreadcrumbs = true;
-    options.maxBreadcrumbs = 512;
-    options.enableTimeToFullDisplayTracing = true;
-    options.enableAppHangTracking = true;
-    options.beforeSend = (SentryEvent event, Hint? hint) {
-      final SentryException? sentryException = event.exceptions?.firstOrNull;
-      final dynamic exception = sentryException?.throwable;
-
-      // Connection related exceptions shouldn't be logged.
-      if (exception is Exception && exception.isNetworkRelated) {
-        final Exception unreachable = UnreachableException();
-
-        return SentryEvent(
-          eventId: event.eventId,
-          timestamp: event.timestamp,
-          modules: event.modules,
-          tags: event.tags,
-          fingerprint: event.fingerprint,
-          breadcrumbs: event.breadcrumbs,
-          exceptions: [
-            SentryException(
-              type: sentryException?.type,
-              value: unreachable.toString(),
-              stackTrace: sentryException?.stackTrace,
-              mechanism: sentryException?.mechanism,
-              throwable: unreachable,
-            ),
-          ],
-          threads: event.threads,
-          sdk: event.sdk,
-          platform: event.platform,
-          logger: event.logger,
-          serverName: event.serverName,
-          release: event.release,
-          dist: event.dist,
-          environment: event.environment,
-          message: event.message,
-          transaction: event.transaction,
-          throwable: event.throwable,
-          level: event.level,
-          culprit: event.culprit,
-          user: event.user,
-          contexts: event.contexts,
-          request: event.request,
-          debugMeta: event.debugMeta,
-          type: event.type,
-        );
+      // No need to initialize the Sentry if no DSN is provided, otherwise
+      // useless messages are printed to the console every time the application
+      // starts.
+      if (Config.sentryDsn.isEmpty || kDebugMode) {
+        return _runApp();
       }
 
-      // [Backoff] related exceptions shouldn't be logged.
-      if (exception is OperationCanceledException ||
-          exception.toString() == 'Data is not loaded') {
-        return null;
-      }
+      await SentryFlutter.init((options) {
+        options.dsn = Config.sentryDsn;
+        options.tracesSampleRate = 1.0;
+        options.sampleRate = 1.0;
+        options.release = '${Pubspec.name}@${Pubspec.ref}';
+        options.diagnosticLevel = SentryLevel.info;
+        options.enablePrintBreadcrumbs = true;
+        options.maxBreadcrumbs = 512;
+        options.enableTimeToFullDisplayTracing = true;
+        options.enableAppHangTracking = true;
+        options.enableLogs = true;
+        options.beforeSend = (SentryEvent event, Hint? hint) {
+          // Modules are meaningless in Flutter.
+          event.modules = {};
 
-      return event;
-    };
+          final SentryException? sentryException =
+              event.exceptions?.firstOrNull;
+          final dynamic exception = sentryException?.throwable;
 
-    // ignore: invalid_use_of_internal_member
-    options.log =
-        (
-          SentryLevel level,
-          String message, {
-          String? logger,
-          Object? exception,
-          StackTrace? stackTrace,
-        }) {
-          if (exception != null) {
-            if (stackTrace == null) {
-              stackTrace = StackTrace.current;
-            } else {
-              stackTrace = FlutterError.demangleStackTrace(stackTrace);
-            }
+          // Connection related exceptions shouldn't be logged.
+          if (exception is Exception && exception.isNetworkRelated) {
+            final Exception unreachable = UnreachableException();
 
-            final Iterable<String> lines = stackTrace
-                .toString()
-                .trimRight()
-                .split('\n')
-                .take(100);
-
-            Log.error(
-              [
-                exception.toString(),
-                if (lines.where((e) => e.isNotEmpty).isNotEmpty)
-                  FlutterError.defaultStackFilter(lines).join('\n'),
-              ].join('\n'),
+            return SentryEvent(
+              eventId: event.eventId,
+              timestamp: event.timestamp,
+              modules: event.modules,
+              tags: event.tags,
+              fingerprint: event.fingerprint,
+              breadcrumbs: event.breadcrumbs,
+              exceptions: [
+                SentryException(
+                  type: 'UnreachableException',
+                  value: unreachable.toString(),
+                  stackTrace: sentryException?.stackTrace,
+                  mechanism: sentryException?.mechanism,
+                  throwable: unreachable,
+                ),
+              ],
+              threads: event.threads,
+              sdk: event.sdk,
+              platform: event.platform,
+              logger: event.logger,
+              serverName: event.serverName,
+              release: event.release,
+              dist: event.dist,
+              environment: event.environment,
+              message: event.message,
+              transaction: event.transaction,
+              throwable: event.throwable,
+              level: event.level,
+              culprit: event.culprit,
+              user: event.user,
+              contexts: event.contexts,
+              request: event.request,
+              debugMeta: event.debugMeta,
+              type: event.type,
             );
           }
+
+          // [Backoff] related exceptions shouldn't be logged.
+          if (exception is OperationCanceledException ||
+              exception.toString() == 'Data is not loaded') {
+            return null;
+          }
+
+          return event;
         };
-  }, appRunner: appRunner);
+      });
 
-  // Transaction indicating Flutter engine has rasterized the first frame.
-  final ISentrySpan ready = Sentry.startTransaction(
-    'ui.app.ready',
-    'ui',
-    autoFinishAfter: const Duration(minutes: 2),
-    startTimestamp: DateTime.now().subtract(watch.elapsed),
-  )..startChild('ready');
+      // Transaction indicating Flutter engine has rasterized the first frame.
+      final ISentrySpan ready = Sentry.startTransaction(
+        'ui.app.ready',
+        'ui',
+        autoFinishAfter: const Duration(minutes: 2),
+        startTimestamp: DateTime.now().subtract(watch.elapsed),
+      )..startChild('ready');
 
-  WidgetsBinding.instance.waitUntilFirstFrameRasterized.then(
-    (_) => ready.finish(),
+      WidgetsBinding.instance.waitUntilFirstFrameRasterized.then(
+        (_) => ready.finish(),
+      );
+
+      await _runApp();
+    },
+    (error, stackTrace) {
+      // If Sentry is enabled, then report the exception.
+      if (Config.sentryDsn.isNotEmpty && !kDebugMode) {
+        WebUtils.consoleError(
+          'Uncaught (in promise) DartError: $error\n'
+          '${stackTrace.toString().split('\n').where((e) => e.isNotEmpty).map((e) => '    at $e\n').join()}',
+        );
+
+        Sentry.captureException(error, stackTrace: stackTrace);
+      }
+      // Otherwise rethrow the exception to the parent `Zone`.
+      else {
+        Zone.root.handleUncaughtError(error, stackTrace);
+      }
+    },
   );
+}
+
+/// Initializes the dependencies and runs the [App].
+Future<void> _runApp() async {
+  MediaKit.ensureInitialized();
+  WebUtils.setPathUrlStrategy();
+
+  Get.putOrGet<CommonDriftProvider>(
+    () => CommonDriftProvider.from(
+      Get.putOrGet(() => CommonDatabase(), permanent: true),
+    ),
+    permanent: true,
+  );
+
+  final myUserProvider = Get.put(MyUserDriftProvider(Get.find()));
+  Get.put(SettingsDriftProvider(Get.find()));
+  Get.put(BackgroundDriftProvider(Get.find()));
+  Get.put(GeoLocationDriftProvider(Get.find()));
+  Get.put(LockDriftProvider(Get.find()));
+
+  if (!PlatformUtils.isWeb) {
+    Get.put(WindowRectDriftProvider(Get.find()));
+    Get.put(CacheDriftProvider(Get.find()));
+    Get.put(DownloadDriftProvider(Get.find()));
+    Get.put(SkippedVersionDriftProvider(Get.find()));
+  }
+
+  final accountProvider = Get.put(AccountDriftProvider(Get.find()));
+  await accountProvider.init();
+
+  final credentialsProvider = Get.put(CredentialsDriftProvider(Get.find()));
+  await credentialsProvider.init();
+
+  if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
+    await windowManager.ensureInitialized();
+    await windowManager.setMinimumSize(const Size(400, 400));
+
+    final WindowRectDriftProvider? preferences =
+        Get.findOrNull<WindowRectDriftProvider>();
+    final WindowPreferences? prefs = await preferences?.read();
+
+    if (prefs?.size != null) {
+      await windowManager.setSize(prefs!.size!);
+    }
+
+    if (prefs?.position != null) {
+      await windowManager.setPosition(prefs!.position!);
+    }
+
+    await windowManager.show();
+
+    WebUtils.registerScheme().onError((_, __) => false);
+
+    Get.put(WindowWorker(preferences));
+  }
+
+  final graphQlProvider = Get.put(GraphQlProvider());
+  Get.put(GeoLocationProvider());
+
+  final authRepository = Get.put<AbstractAuthRepository>(
+    AuthRepository(graphQlProvider, myUserProvider, Get.find()),
+  );
+  final authService = Get.put(
+    AuthService(authRepository, Get.find(), Get.find(), Get.find()),
+  );
+
+  Uri? initial;
+  try {
+    final AppLinks links = AppLinks();
+    initial = await links.getInitialLink();
+    Log.debug('initial -> $initial', 'AppLinks');
+
+    _linkSubscription?.cancel();
+    _linkSubscription = links.uriLinkStream.listen((uri) async {
+      Log.debug('uriLinkStream -> $uri', 'AppLinks');
+      router.delegate.setNewRoutePath(
+        await router.parser.parseRouteInformation(RouteInformation(uri: uri)),
+      );
+    });
+  } catch (e) {
+    // No-op.
+  }
+
+  router = RouterState(
+    authService,
+    initial: initial == null ? null : RouteInformation(uri: initial),
+  );
+
+  try {
+    PWAInstall().setup(
+      installCallback: () {
+        Log.debug('PWA is detected as installed', 'PWAInstall()');
+        WebUtils.hasPwa = true;
+      },
+    );
+  } catch (_) {
+    // No-op.
+  }
+
+  await authService.init();
+  await L10n.init();
+
+  Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
+  Get.put(UpgradeWorker(Get.findOrNull()));
+  Get.put(LogWorker());
+
+  WebUtils.deleteLoader();
+
+  runApp(App(key: UniqueKey()));
 }
 
 /// Initializes the [FlutterCallkitIncoming] and displays an incoming call
@@ -604,7 +599,7 @@ class App extends StatelessWidget {
       data: MediaQuery.of(
         context,
       ).copyWith(textScaler: const TextScaler.linear(1)),
-      child: GetMaterialApp.router(
+      child: MaterialApp.router(
         routerDelegate: router.delegate,
         routeInformationParser: router.parser,
         routeInformationProvider: router.provider,

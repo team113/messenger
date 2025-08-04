@@ -93,7 +93,7 @@ dependencies:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
   screen_brightness: any
-  sentry_flutter: ^9.5.0
+  sentry_flutter: ^9.6.0
   share_plus: ^11.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1

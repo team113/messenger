@@ -91,10 +91,7 @@ class Log {
     if (!kDebugMode && Config.sentryDsn.isNotEmpty) {
       try {
         await Sentry.addBreadcrumb(
-          Breadcrumb.console(
-            message: '[$tag] $message',
-            level: SentryLevel.debug,
-          ),
+          Breadcrumb.console(message: '[$tag] $message', level: level),
         );
       } catch (_) {
         // No-op.
