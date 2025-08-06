@@ -142,3 +142,43 @@ class SingleItemPaginated<K, T> extends Paginated<K, T> {
     // No-op.
   }
 }
+
+/// [Paginated] with a fixed list of items.
+class FixedItemsPaginated<K, T> extends Paginated<K, T> {
+  FixedItemsPaginated(Map<K, T> values) {
+    items.addAll(values);
+  }
+
+  @override
+  RxBool get hasNext => RxBool(false);
+
+  @override
+  RxBool get hasPrevious => RxBool(false);
+
+  @override
+  RxBool get nextLoading => RxBool(false);
+
+  @override
+  RxBool get previousLoading => RxBool(false);
+
+  @override
+  int get perPage => 1;
+
+  @override
+  Future<void> ensureInitialized() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> clear() async {}
+
+  @override
+  Future<void> next() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> previous() async {
+    // No-op.
+  }
+}

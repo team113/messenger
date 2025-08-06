@@ -49,6 +49,8 @@ import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/retry_image.dart';
+import '/ui/page/player/controller.dart';
+import '/ui/page/player/view.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/checkbox_button.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -130,7 +132,7 @@ class ChatItemWidget extends StatefulWidget {
   final void Function()? onDelete;
 
   /// Callback, called when a reply action of this [ChatItem] is triggered.
-  final void Function()? onReply;
+  final void Function(ChatItem)? onReply;
 
   /// Callback, called when an edit action of this [ChatItem] is triggered.
   final void Function()? onEdit;
@@ -181,35 +183,37 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Returns a visual representation of the provided media-[Attachment].
   static Widget mediaAttachment(
-    BuildContext context,
-    Attachment e,
-    Iterable<Attachment> media, {
+    BuildContext context, {
+    required Attachment attachment,
+
     GlobalKey? key,
     ChatItem? item,
     Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery,
     Future<void> Function(ChatItem?)? onError,
     bool filled = true,
+    void Function(MediaItem)? onReply,
+    void Function(MediaItem)? onShare,
   }) {
     final style = Theme.of(context).style;
 
-    final bool isLocal = e is LocalAttachment;
+    final bool isLocal = attachment is LocalAttachment;
 
     final bool isVideo;
     if (isLocal) {
-      isVideo = e.file.isVideo;
+      isVideo = attachment.file.isVideo;
     } else {
       isVideo = e is FileAttachment;
     }
 
-    Widget attachment;
+    Widget child;
     if (isVideo) {
-      attachment = Stack(
+      child = Stack(
         alignment: Alignment.center,
         fit: filled ? StackFit.expand : StackFit.loose,
         children: [
           MediaAttachment(
             key: key,
-            attachment: e,
+            attachment: attachment,
             height: 300,
             onError: () async => await onError?.call(null),
           ),
@@ -231,19 +235,16 @@ class ChatItemWidget extends StatefulWidget {
         ],
       );
     } else {
-      attachment = MediaAttachment(
+      child = MediaAttachment(
         key: key,
-        attachment: e,
+        attachment: attachment,
         width: filled ? double.infinity : null,
         height: filled ? double.infinity : null,
         onError: () async => await onError?.call(null),
       );
 
       if (!isLocal) {
-        attachment = KeyedSubtree(
-          key: const Key('SentImage'),
-          child: attachment,
-        );
+        child = KeyedSubtree(key: const Key('SentImage'), child: child);
       }
     }
 
@@ -262,13 +263,15 @@ class ChatItemWidget extends StatefulWidget {
                     return;
                   }
 
-                  GalleryPopup.show(
-                    context: context,
-                    gallery: ChatGallery(
+                  PlayerView.show(
+                    context,
+                    gallery: PaginatedGallery(
                       paginated: onGallery(),
-                      initial: (item, e),
+                      initial: (item, attachment),
                       rect: key,
                       onForbidden: onError,
+                      onReply: onReply,
+                      onShare: onShare,
                     ),
                   );
                 },
@@ -276,15 +279,15 @@ class ChatItemWidget extends StatefulWidget {
             alignment: Alignment.center,
             children: [
               filled
-                  ? Positioned.fill(child: attachment)
+                  ? Positioned.fill(child: child)
                   : Container(
                       constraints: const BoxConstraints(minWidth: 300),
                       width: double.infinity,
-                      child: attachment,
+                      child: child,
                     ),
               ElasticAnimatedSwitcher(
-                key: Key('AttachmentStatus_${e.id}'),
-                child: !isLocal || e.status.value == SendingStatus.sent
+                key: Key('AttachmentStatus_${attachment.id}'),
+                child: !isLocal || attachment.status.value == SendingStatus.sent
                     ? Container(key: const Key('Sent'))
                     : Container(
                         constraints: filled
@@ -293,14 +296,14 @@ class ChatItemWidget extends StatefulWidget {
                                 minHeight: 300,
                               )
                             : null,
-                        child: e.status.value == SendingStatus.sending
+                        child: attachment.status.value == SendingStatus.sending
                             ? SizedBox(
                                 width: 60,
                                 height: 60,
                                 child: Center(
                                   child: CircularProgressIndicator(
                                     key: const Key('Sending'),
-                                    value: e.progress.value,
+                                    value: attachment.progress.value,
                                     backgroundColor: style.colors.onPrimary,
                                     strokeWidth: 10,
                                   ),
@@ -870,8 +873,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: media.length == 1
                   ? ChatItemWidget.mediaAttachment(
                       context,
-                      media.first,
-                      media,
+                      attachment: media.first,
                       item: widget.item.value,
                       filled: false,
                       key: _galleryKeys[0],
@@ -887,8 +889,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             .mapIndexed(
                               (i, e) => ChatItemWidget.mediaAttachment(
                                 context,
-                                e,
-                                media,
+                                attachment: e,
                                 item: widget.item.value,
                                 key: _galleryKeys[i],
                                 onError: widget.onAttachmentError,
@@ -1478,7 +1479,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 : 'btn_reply_message'.l10n,
                             trailing: const SvgIcon(SvgIcons.reply),
                             inverted: const SvgIcon(SvgIcons.replyWhite),
-                            onPressed: widget.onReply,
+                            onPressed: () =>
+                                widget.onReply?.call(widget.item.value),
                           ),
                           if (item is ChatMessage)
                             ContextMenuButton(
@@ -1830,7 +1832,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ((_offset.dx - offset.dx < 30 + delta) ||
                 (!_offsetWasBigger && isBigger))) {
           PlatformUtils.haptic(kind: HapticKind.light);
-          widget.onReply?.call();
+          widget.onReply?.call(widget.item.value);
         }
 
         _offsetWasBigger = isBigger;

@@ -98,6 +98,11 @@ class CommonDatabase extends _$CommonDatabase {
         if (a != b) {
           bool migrated = false;
 
+          if (a >= 7 && b <= 6) {
+            await m.addColumn(settings, settings.videoVolume);
+            migrated = true;
+          }
+
           if (a >= 6 && b <= 5) {
             await m.addColumn(settings, settings.noiseSuppression);
             await m.addColumn(settings, settings.noiseSuppressionLevel);

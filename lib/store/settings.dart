@@ -238,6 +238,12 @@ class SettingsRepository extends DisposableInterface
     await _set(settings: (e) => e..muteKeys = keys?.toList());
   }
 
+  @override
+  Future<void> setVideoVolume(double volume) async {
+    Log.debug('setVideoVolume($volume)', '$runtimeType');
+    await _set(settings: (e) => e..videoVolume = volume);
+  }
+
   /// Stores the provided [ApplicationSettings] and [MediaSettings] to the local
   /// storage.
   Future<void> _set({

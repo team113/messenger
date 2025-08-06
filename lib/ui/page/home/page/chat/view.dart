@@ -976,13 +976,11 @@ class ChatView extends StatelessWidget {
                   getItem: c.getItem,
                   onHide: () => c.hideChatItem(e.value),
                   onDelete: () => c.deleteMessage(e.value),
-                  onReply: () {
+                  onReply: (item) {
                     final field = c.edit.value ?? c.send;
 
-                    if (field.replied.any((i) => i.value.id == e.value.id)) {
-                      field.replied.removeWhere(
-                        (i) => i.value.id == e.value.id,
-                      );
+                    if (field.replied.any((i) => i.value.id == item.id)) {
+                      field.replied.removeWhere((i) => i.value.id == item.id);
                     } else {
                       field.replied.add(e);
                     }
@@ -1693,8 +1691,7 @@ class ChatView extends StatelessWidget {
                   WithGlobalKey((_, key) {
                     return ChatItemWidget.mediaAttachment(
                       context,
-                      media.first,
-                      media,
+                      attachment: media.first,
                       filled: false,
                       item: item,
                       onGallery: onGallery,
@@ -1711,8 +1708,8 @@ class ChatView extends StatelessWidget {
                         return WithGlobalKey((_, key) {
                           return ChatItemWidget.mediaAttachment(
                             context,
-                            e,
-                            media,
+                            attachment: e,
+
                             item: item,
                             onGallery: onGallery,
                             key: key,

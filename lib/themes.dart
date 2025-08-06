@@ -48,6 +48,7 @@ part 'themes.g.dart';
       'primaryHighlightLightest',
       'secondary',
     ],
+    'bold': ['onPrimary'],
   },
   'normal': {
     'bold': ['onBackground', 'onPrimary'],
