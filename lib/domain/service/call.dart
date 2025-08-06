@@ -281,7 +281,11 @@ class CallService extends DisposableService {
 
     final Rx<OngoingCall>? call = _callRepository[chatId];
     if (call != null) {
-      await _callRepository.toggleHand(chatId, raised);
+      final ChatCallDeviceId? deviceId = call.value.deviceId;
+
+      if (deviceId != null) {
+        await _callRepository.toggleHand(chatId, deviceId, raised);
+      }
     }
   }
 
@@ -317,11 +321,19 @@ class CallService extends DisposableService {
       '$runtimeType',
     );
 
-    await _callRepository.transformDialogCallIntoGroupCall(
-      chatId,
-      additionalMemberIds,
-      groupName,
-    );
+    final Rx<OngoingCall>? call = _callRepository[chatId];
+
+    if (call != null) {
+      final ChatCallDeviceId? deviceId = call.value.deviceId;
+      if (deviceId != null) {
+        await _callRepository.transformDialogCallIntoGroupCall(
+          chatId,
+          deviceId,
+          additionalMemberIds,
+          groupName,
+        );
+      }
+    }
   }
 
   /// Returns heartbeat subscription used to keep [MyUser] in an [OngoingCall].

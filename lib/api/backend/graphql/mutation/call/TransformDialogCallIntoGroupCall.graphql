@@ -17,11 +17,13 @@
 
 mutation TransformDialogCallIntoGroupCall(
     $chatId: ChatId!,
+    $deviceId: ChatCallDeviceId!
     $additionalMemberIds: [UserId!]!,
     $groupName: ChatName,
 ) {
     transformDialogCallIntoGroupCall(
         chatId: $chatId,
+        deviceId: $deviceId,
         additionalMemberIds: $additionalMemberIds,
         groupName: $groupName,
     ) {
