@@ -2,10 +2,12 @@ version: 2
 updates:
   - package-ecosystem: docker
     directory: /
+    labels: ["enhancement", "docker", "k::dependencies"]
     schedule:
       interval: daily
 
   - package-ecosystem: github-actions
     directory: /
+    labels: ["enhancement", "github_actions", "k::dependencies"]
     schedule:
       interval: weekly
