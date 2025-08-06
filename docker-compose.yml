@@ -87,6 +87,26 @@ services:
     environment:
       DATABASE_URL: postgres://root@127.0.0.1:26257/defaultdb?sslmode=disable
     network_mode: service:cockroachdb
+  vault:
+    container_name: ${COMPOSE_PROJECT_NAME}-vault
+    image: ${COMPOSE_VAULT}
+    command: ["vault", "server", "-config=/vault/config/local.json"]
+    environment:
+      VAULT_ADDR: http://localhost:8200  # for entrypoint and CLI
+    cap_add:
+      - IPC_LOCK   # required for HashiCorp Vault to lock memory on CI
+    ports:
+      - 8200:8200  # vault http
+    volumes:
+      - ./.cache/vault/data/:/vault/file/:Z
+      - ./.cache/vault/secrets/:/vault/secrets/:Z
+      - ./dev/vault/:/vault/config/:ro,Z
+    healthcheck:
+      test: vault status
+      start_period: 15s  # wait for vault initialization
+      interval: 5s
+      timeout: 5s
+      retries: 5
   baza-storage:
     container_name: ${COMPOSE_PROJECT_NAME}-baza-storage
     image: ghcr.io/instrumentisto/baza:0.2
