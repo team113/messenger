@@ -379,7 +379,7 @@ class GraphQlClient {
     try {
       final T result = await fn();
 
-      if (_errored) {
+      if (_errored || !connected.value) {
         _reportException(null);
         _errored = false;
       }
