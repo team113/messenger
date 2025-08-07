@@ -116,6 +116,8 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
     this.inverted,
     this.enlarged,
     this.onPressed,
+    this.spacer,
+    this.spacerInverted,
   });
 
   /// Label of this [ContextMenuButton].
@@ -136,6 +138,12 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
   /// Callback, called when button is pressed.
   final void Function()? onPressed;
 
+  /// Optional leading widget to display.
+  final Widget? spacer;
+
+  /// Optional [spacer] widget to display when hovered instead of [spacer].
+  final Widget? spacerInverted;
+
   @override
   State<ContextMenuButton> createState() => _ContextMenuButtonState();
 }
@@ -143,7 +151,7 @@ class ContextMenuButton extends StatefulWidget with ContextMenuItem {
 /// State of the [ContextMenuButton] used to implement hover effect.
 class _ContextMenuButtonState extends State<ContextMenuButton> {
   /// Indicator whether mouse is hovered over this button.
-  bool isMouseOver = false;
+  bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
@@ -152,15 +160,15 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
     final bool isMobile = widget.enlarged ?? context.isMobile;
 
     return GestureDetector(
-      onTapDown: (_) => setState(() => isMouseOver = true),
+      onTapDown: (_) => setState(() => _hovered = true),
       onTapUp: (_) {
-        setState(() => isMouseOver = false);
+        setState(() => _hovered = false);
         widget.onPressed?.call();
       },
-      onTapCancel: () => setState(() => isMouseOver = false),
+      onTapCancel: () => setState(() => _hovered = false),
       child: MouseRegion(
-        onEnter: (_) => setState(() => isMouseOver = true),
-        onExit: (_) => setState(() => isMouseOver = false),
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
         child: Container(
           padding: isMobile
               ? EdgeInsets.fromLTRB(
@@ -176,7 +184,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
             borderRadius: isMobile
                 ? style.contextMenuRadius
                 : BorderRadius.circular(7),
-            color: isMouseOver && widget.onPressed != null
+            color: _hovered && widget.onPressed != null
                 ? isMobile
                       ? style.contextMenuHoveredColor
                       : style.colors.primary
@@ -201,7 +209,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       scale: 0.8,
                       child: Align(
                         alignment: Alignment.center,
-                        child: isMouseOver && widget.onPressed != null
+                        child: _hovered && widget.onPressed != null
                             ? (widget.inverted ?? widget.trailing)
                             : widget.trailing,
                       ),
@@ -217,7 +225,7 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                                   .normal
                                   .regular
                                   .secondaryHighlightDarkest
-                            : (isMouseOver && !isMobile
+                            : (_hovered && !isMobile
                                   ? style.fonts.normal.regular.onPrimary
                                   : style.fonts.normal.regular.onBackground))
                         .copyWith(
@@ -226,6 +234,44 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                               : style.fonts.small.regular.onBackground.fontSize,
                         ),
               ),
+              if (widget.spacer != null) ...[
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: DefaultTextStyle(
+                      style:
+                          (widget.onPressed == null
+                                  ? style
+                                        .fonts
+                                        .normal
+                                        .regular
+                                        .secondaryHighlightDarkest
+                                  : (_hovered && !isMobile
+                                        ? style.fonts.normal.regular.onPrimary
+                                        : style.fonts.normal.regular.primary))
+                              .copyWith(
+                                fontSize: isMobile
+                                    ? style
+                                          .fonts
+                                          .medium
+                                          .regular
+                                          .onBackground
+                                          .fontSize
+                                    : style
+                                          .fonts
+                                          .small
+                                          .regular
+                                          .onBackground
+                                          .fontSize,
+                              ),
+                      textAlign: TextAlign.end,
+                      child: _hovered && widget.onPressed != null
+                          ? widget.spacerInverted ?? widget.spacer!
+                          : widget.spacer!,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

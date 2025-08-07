@@ -53,6 +53,7 @@ class Settings extends Table {
   BoolColumn get autoGainControl => boolean().nullable()();
   BoolColumn get highPassFilter => boolean().nullable()();
   TextColumn get muteKeys => text().nullable()();
+  RealColumn get videoVolume => real().nullable()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [DtoSettings].
@@ -178,6 +179,7 @@ extension _SettingsDb on DtoSettings {
             .replaceFirst('[', '')
             .replaceFirst(']', '')
             .split(', '),
+        videoVolume: e.videoVolume ?? 100,
       ),
       media: MediaSettings(
         audioDevice: e.audioDevice,
@@ -217,6 +219,7 @@ extension _SettingsDb on DtoSettings {
       autoGainControl: media.autoGainControl,
       highPassFilter: media.highPassFilter,
       muteKeys: application.muteKeys?.toString(),
+      videoVolume: application.videoVolume,
     );
   }
 }

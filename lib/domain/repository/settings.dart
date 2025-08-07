@@ -104,4 +104,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
   Future<void> setMuteKeys(List<String>? keys);
+
+  /// Sets the [ApplicationSettings.videoVolume] value.
+  Future<void> setVideoVolume(double volume);
 }

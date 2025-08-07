@@ -27,6 +27,7 @@ class ApplicationSettings {
     this.callButtonsPosition = CallButtonsPosition.appBar,
     this.workWithUsTabEnabled = true,
     this.muteKeys,
+    this.videoVolume = 100,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -59,6 +60,9 @@ class ApplicationSettings {
   /// String representation of the [HotKey]s used to mute/unmute [OngoingCall]s.
   List<String>? muteKeys;
 
+  /// Volume that should be applied a video being played.
+  double videoVolume;
+
   @override
   bool operator ==(Object other) {
     return other is ApplicationSettings &&
@@ -70,7 +74,8 @@ class ApplicationSettings {
         pinnedActions.toString() == other.pinnedActions.toString() &&
         callButtonsPosition == other.callButtonsPosition &&
         workWithUsTabEnabled == other.workWithUsTabEnabled &&
-        muteKeys?.toString() == other.muteKeys?.toString();
+        muteKeys?.toString() == other.muteKeys?.toString() &&
+        videoVolume == other.videoVolume;
   }
 
   @override
@@ -84,6 +89,7 @@ class ApplicationSettings {
     callButtonsPosition,
     workWithUsTabEnabled,
     muteKeys.toString(),
+    videoVolume,
   );
 }
 

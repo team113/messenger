@@ -171,6 +171,8 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     BoxShape shape = BoxShape.circle,
+    bool isOnline = false,
+    bool isAway = false,
   }) => AvatarWidget(
     key: key,
     avatar: user?.avatar,
@@ -179,6 +181,8 @@ class AvatarWidget extends StatelessWidget {
     radius: radius,
     opacity: opacity,
     shape: shape,
+    isOnline: isOnline,
+    isAway: isAway,
   );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].

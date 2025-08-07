@@ -990,8 +990,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                       child: media.length == 1
                           ? ChatItemWidget.mediaAttachment(
                               context,
-                              media.first,
-                              media,
+                              attachment: media.first,
                               filled: false,
                             )
                           : SizedBox(
@@ -1003,8 +1002,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                                     .mapIndexed(
                                       (i, e) => ChatItemWidget.mediaAttachment(
                                         context,
-                                        e,
-                                        media,
+                                        attachment: e,
                                       ),
                                     )
                                     .toList(),

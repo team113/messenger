@@ -76,9 +76,15 @@ class _ProgressBarState extends State<ProgressBar> {
   @override
   void initState() {
     _position = widget.controller.player.state.position;
-    _positionSubscription = widget.controller.player.stream.position.listen(
-      (e) => _position = e,
-    );
+    _positionSubscription = widget.controller.player.stream.position.listen((
+      e,
+    ) {
+      _position = e;
+
+      if (mounted) {
+        setState(() {});
+      }
+    });
 
     super.initState();
   }
@@ -95,9 +101,9 @@ class _ProgressBarState extends State<ProgressBar> {
 
     final child = Center(
       child: Container(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
         color: style.colors.transparent,
+        width: double.infinity,
+        height: 24,
         child: StreamBuilder(
           stream: widget.controller.player.stream.buffer,
           initialData: widget.controller.player.state.buffer,

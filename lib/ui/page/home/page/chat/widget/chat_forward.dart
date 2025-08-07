@@ -444,8 +444,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             media.length == 1
                 ? ChatItemWidget.mediaAttachment(
                     context,
-                    media.first,
-                    media,
+                    attachment: media.first,
                     item: msg,
                     key: _galleryKeys[msg.id]?.firstOrNull,
                     onGallery: menu
@@ -465,8 +464,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           .mapIndexed(
                             (i, e) => ChatItemWidget.mediaAttachment(
                               context,
-                              e,
-                              media,
+                              attachment: e,
                               item: msg,
                               key: _galleryKeys[msg.id]?[i],
                               onGallery: menu
@@ -750,8 +748,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               child: media.length == 1
                   ? ChatItemWidget.mediaAttachment(
                       context,
-                      media.first,
-                      media,
+                      attachment: media.first,
                       item: item,
                       key: _galleryKeys[item.id]?.lastOrNull,
                       onGallery: menu
@@ -771,8 +768,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             .mapIndexed(
                               (i, e) => ChatItemWidget.mediaAttachment(
                                 context,
-                                e,
-                                media,
+                                attachment: e,
                                 item: item,
                                 key: _galleryKeys[item.id]?[i],
                                 onGallery: menu

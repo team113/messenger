@@ -20,6 +20,9 @@ import 'dart:collection';
 import 'map.dart';
 
 /// Self-sorting observable [Map].
+///
+/// Please note that [V] values must implement [Comparable], otherwise adding or
+/// removing of the items can behave in an unexpected way.
 class SortedObsMap<K, V> extends MapMixin<K, V> {
   SortedObsMap([Comparator<V>? compare])
     : _compare = compare ?? _defaultCompare<V>();
@@ -61,7 +64,6 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
   @override
   operator []=(K key, V value) {
     _values.remove(_keys[key]);
-
     _values.add(value);
     _keys[key] = value;
   }

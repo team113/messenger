@@ -27,7 +27,9 @@ import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/domain/service/session.dart';
 import '/pubspec.g.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/util/log.dart';
+import '/util/platform_utils.dart';
 
 /// Controller of a [LogView].
 class LogController extends GetxController {
@@ -40,6 +42,9 @@ class LogController extends GetxController {
 
   /// [ScrollController] to use in a [ListView].
   final ScrollController scrollController = ScrollController();
+
+  /// [PlatformUtilsImpl.userAgent] string.
+  final RxnString userAgent = RxnString();
 
   /// [AuthService] used to retrieve the current [sessionId].
   final AuthService _authService;
@@ -69,6 +74,12 @@ class LogController extends GetxController {
   /// being active.
   bool? get pushNotifications => _notificationService?.pushNotifications;
 
+  @override
+  void onInit() {
+    PlatformUtils.userAgent.then((e) => userAgent.value = e);
+    super.onInit();
+  }
+
   /// Returns a report of the technical information and [Log]s.
   String report() {
     final Session? session = sessions
@@ -81,6 +92,8 @@ class LogController extends GetxController {
 
 Created at: ${DateTime.now()}
 Application: ${Pubspec.ref}
+User-Agent: ${userAgent.value}
+Is PWA: ${CustomSafeArea.isPwa}
 
 MyUser:
 ${myUser?.toJson()}
