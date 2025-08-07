@@ -17,6 +17,8 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart';
@@ -27,6 +29,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/session.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
 import '/provider/gql/exceptions.dart';
@@ -38,7 +41,12 @@ import 'disposable_service.dart';
 
 /// Service controlling incoming and outgoing [OngoingCall]s.
 class CallService extends DisposableService {
-  CallService(this._authService, this._chatService, this._callRepository);
+  CallService(
+    this._authService,
+    this._chatService,
+    this._callRepository,
+    this._sessionRepository,
+  );
 
   /// Callback, called when a [Chat] with provided [ChatId] should be removed.
   Future<void> Function(ChatId id)? onChatRemoved;
@@ -52,11 +60,44 @@ class CallService extends DisposableService {
   /// Repository of [OngoingCall]s collection.
   final AbstractCallRepository _callRepository;
 
+  /// [AbstractSessionRepository] for checking connectivity status.
+  final AbstractSessionRepository _sessionRepository;
+
+  /// [StreamSubscription] for [AbstractSessionRepository.connected] changes to
+  /// trigger reconnection of [OngoingCall]s.
+  StreamSubscription<Set<ConnectivityResult>>? _onConnectivityChanged;
+
   /// Unmodifiable map of the currently displayed [OngoingCall]s.
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callRepository.calls;
 
   /// Returns ID of the authenticated [MyUser].
   UserId get me => _authService.credentials.value!.userId;
+
+  @override
+  void onInit() {
+    Set<ConnectivityResult> previous = {};
+
+    _onConnectivityChanged = _sessionRepository.connectivity.listen((results) {
+      if (previous.isEmpty) {
+        previous = results.toSet();
+      } else {
+        if (!const SetEquality().equals(previous, results)) {
+          // Connectivity has changed, should trigger reconnection.
+          for (var _ in calls.values) {
+            // TODO: `medea_jason` should expose API for reconnection?
+            // e.value.reconnect();
+          }
+        }
+      }
+    });
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _onConnectivityChanged?.cancel();
+    super.onClose();
+  }
 
   /// Starts an [OngoingCall] in a [Chat] with the given [chatId].
   Future<void> call(

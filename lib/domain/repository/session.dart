@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/session.dart';
@@ -26,6 +27,15 @@ abstract class AbstractSessionRepository {
 
   /// Indicates whether the current device is connected to any network.
   RxBool get connected;
+
+  /// [Stream] of [ConnectivityResult]s describing how this device is currently
+  /// connected to a network.
+  ///
+  /// Result is omitted again every time network is changed.
+  ///
+  /// Intended to be used to monitor network changes to trigger reconnects
+  /// before some ping-based systems notice that connection is lost.
+  Stream<Set<ConnectivityResult>> get connectivity;
 
   /// Fetches the [IpGeoLocation] of the provided [ip].
   ///
