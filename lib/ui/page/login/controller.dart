@@ -310,9 +310,31 @@ class LoginController extends GetxController {
     emailCode = TextFieldState(
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
+
         try {
+          UserLogin? userLogin;
+          UserNum? userNum;
+          UserEmail? userEmail;
+          UserPhone? userPhone;
+
+          switch (stage.value) {
+            case LoginViewStage.signUpWithEmailCode:
+              userEmail = UserEmail.tryParse(email.text);
+              break;
+
+            default:
+              userLogin = UserLogin.tryParse(identifier.text);
+              userNum = UserNum.tryParse(identifier.text);
+              userEmail = UserEmail.tryParse(identifier.text);
+              userPhone = UserPhone.tryParse(identifier.text);
+              break;
+          }
+
           await _authService.signIn(
-            email: UserEmail(email.text),
+            email: userEmail,
+            login: userLogin,
+            num: userNum,
+            phone: userPhone,
             code: ConfirmationCode(emailCode.text),
           );
 
@@ -367,6 +389,8 @@ class LoginController extends GetxController {
           LoginViewStage.signInWithEmail => LoginViewStage.signInWithEmailCode,
           (_) => LoginViewStage.signUpWithEmailCode,
         };
+
+        _setResendEmailTimer();
 
         try {
           if (userLogin != null ||
