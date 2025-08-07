@@ -233,7 +233,7 @@ btn_upload = Загрузить
 btn_video_call = Видеозвонок
 btn_work_with_us = Работайте с нами
 colon_space = :{" "}
-comma_space = , {" "}
+comma_space = ,{" "}
 dot = .
 email_confirmation_code =
     Код: {$token}
