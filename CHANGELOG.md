@@ -6,7 +6,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.6.0] · 2025-??-??
+## [0.6.0] · 2025-08-07
 [0.6.0]: /../../tree/v0.6.0
 
 [Diff](/../../compare/v0.5.4...v0.6.0) | [Milestone](/../../milestone/44)
@@ -24,12 +24,16 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chats tab:
         - Infinite typing indicator occurring sometimes. ([#1350], [#1348])
+    - Login modal:
+        - Inability to sign in with one-time password. ([#1357], [#1358])
 
-[#1311]: /../../issue/1311
+[#1311]: /../../issues/1311
 [#1336]: /../../pull/1336
 [#1344]: /../../pull/1344
-[#1348]: /../../issue/1348
+[#1348]: /../../issues/1348
 [#1350]: /../../pull/1350
+[#1357]: /../../pull/1357
+[#1358]: /../../issues/1358
 
 
 

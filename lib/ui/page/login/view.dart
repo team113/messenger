@@ -525,8 +525,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Obx(() {
                   final bool enabled =
-                      !c.emailCode.isEmpty.value &&
-                      c.codeTimeout.value == 0 &&
+                      c.resendEmailTimeout.value == 0 &&
                       c.authStatus.value.isEmpty;
 
                   return Row(
@@ -546,7 +545,11 @@ class LoginView extends StatelessWidget {
                       Expanded(
                         child: PrimaryButton(
                           key: const Key('Proceed'),
-                          onPressed: c.emailCode.submit,
+                          onPressed:
+                              !c.emailCode.isEmpty.value &&
+                                  c.authStatus.value.isEmpty
+                              ? c.emailCode.submit
+                              : null,
                           title: 'btn_sign_in'.l10n,
                         ),
                       ),

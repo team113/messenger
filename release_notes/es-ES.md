@@ -1,0 +1,3 @@
+- Rediseño de los modales para eliminar sesiones.
+- Rediseño de la animación al cambiar de ruta.
+- Corrección de errores y mejoras de rendimiento.
