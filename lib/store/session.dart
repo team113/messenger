@@ -454,6 +454,14 @@ class SessionRepository extends DisposableInterface
     }
 
     try {
+      // TODO: Implement `WebUtils.connectivity` stream getter to check:
+      //       ```js
+      //       navigator.connection.addEventListener('change', () => {
+      //         console.log("Network connection changed", navigator.connection.type);
+      //       });
+      //       ```
+      //
+      // [Connectivity.onConnectivityChanged] only checks `navigator.onLine`.
       apply(await Connectivity().checkConnectivity());
       _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
         apply,
