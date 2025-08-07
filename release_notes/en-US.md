@@ -1,6 +1,3 @@
-- Added Spanish language.
-- Redesigned message editing mode in chat.
-- Redesigned sliders in settings on profile page.
-- Redesigned group creation and chats selection.
-- Redesigned delete account page and modals.
+- Redesigned session deletion modals.
+- Redesigned route switching animation.
 - Bug fixes and performance improvements.
