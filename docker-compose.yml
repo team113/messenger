@@ -31,10 +31,11 @@ services:
     environment:
       CONF.MODE.DEBUG: "true"
       CONF.DB.COCKROACHDB.HOST: cockroachdb
+      CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST.STUN.MAIN: 127.0.0.1:3478
+      CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST.TURN.MAIN: 127.0.0.1:3478
       CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.HTTP.PUBLIC_URL: ws://localhost/api/medea/ws
-      CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.WEBRTC.TCP.PUBLIC_ADDR: 127.0.0.1:19305
-      CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.WEBRTC.UDP.PUBLIC_ADDR: 127.0.0.1:19305
-      CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST: 127.0.0.1:3478
+      CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.WEBRTC.TCP.PUBLIC_ADDR.MAIN: 127.0.0.1:19305
+      CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.WEBRTC.UDP.PUBLIC_ADDR.MAIN: 127.0.0.1:19305
       CONF.PUSH.FCM.SA_KEY: ${COMPOSE_PUSH_FCM_SA_KEY}
       CONF.PUSH.APNS.TEAM_ID: ${COMPOSE_PUSH_APNS_TEAM_ID}
       CONF.PUSH.APNS.KEY_ID: ${COMPOSE_PUSH_APNS_KEY_ID}
@@ -86,6 +87,26 @@ services:
     environment:
       DATABASE_URL: postgres://root@127.0.0.1:26257/defaultdb?sslmode=disable
     network_mode: service:cockroachdb
+  vault:
+    container_name: ${COMPOSE_PROJECT_NAME}-vault
+    image: ${COMPOSE_VAULT}
+    command: ["vault", "server", "-config=/vault/config/local.json"]
+    environment:
+      VAULT_ADDR: http://localhost:8200  # for entrypoint and CLI
+    cap_add:
+      - IPC_LOCK   # required for HashiCorp Vault to lock memory on CI
+    ports:
+      - 8200:8200  # vault http
+    volumes:
+      - ./.cache/vault/data/:/vault/file/:Z
+      - ./.cache/vault/secrets/:/vault/secrets/:Z
+      - ./dev/vault/:/vault/config/:ro,Z
+    healthcheck:
+      test: vault status
+      start_period: 15s  # wait for vault initialization
+      interval: 5s
+      timeout: 5s
+      retries: 5
   baza-storage:
     container_name: ${COMPOSE_PROJECT_NAME}-baza-storage
     image: ghcr.io/instrumentisto/baza:0.2

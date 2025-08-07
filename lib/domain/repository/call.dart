@@ -99,12 +99,17 @@ abstract class AbstractCallRepository {
 
   /// Raises/lowers a hand of the authenticated [MyUser] in the specified
   /// [ChatCall].
-  Future<void> toggleHand(ChatId chatId, bool raised);
+  Future<void> toggleHand(
+    ChatId chatId,
+    ChatCallDeviceId deviceId,
+    bool raised,
+  );
 
   /// Moves an ongoing [ChatCall] in a [Chat]-dialog to a newly created
   /// [Chat]-group, optionally adding new members.
   Future<void> transformDialogCallIntoGroupCall(
     ChatId chatId,
+    ChatCallDeviceId deviceId,
     List<UserId> additionalMemberIds,
     ChatName? groupName,
   );

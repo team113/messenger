@@ -17,10 +17,12 @@
 
 mutation ToggleCallHand(
     $chatId: ChatId!
+    $deviceId: ChatCallDeviceId!
     $raised: Boolean!
 ) {
     toggleChatCallHand(
         chatId: $chatId
+        deviceId: $deviceId
         raised: $raised
     ) {
         __typename

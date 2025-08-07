@@ -472,13 +472,17 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Future<void> toggleHand(ChatId chatId, bool raised) async {
-    Log.debug('toggleHand($chatId, $raised)', '$runtimeType');
+  Future<void> toggleHand(
+    ChatId chatId,
+    ChatCallDeviceId deviceId,
+    bool raised,
+  ) async {
+    Log.debug('toggleHand($chatId, $deviceId, $raised)', '$runtimeType');
 
     try {
       await Backoff.run(
         () async {
-          await _graphQlProvider.toggleChatCallHand(chatId, raised);
+          await _graphQlProvider.toggleChatCallHand(chatId, deviceId, raised);
         },
         retryIf: (e) => e.isNetworkRelated,
         retries: 10,
@@ -580,17 +584,19 @@ class CallRepository extends DisposableInterface
   @override
   Future<void> transformDialogCallIntoGroupCall(
     ChatId chatId,
+    ChatCallDeviceId deviceId,
     List<UserId> additionalMemberIds,
     ChatName? groupName,
   ) async {
     Log.debug(
-      'transformDialogCallIntoGroupCall($chatId, $additionalMemberIds, $groupName)',
+      'transformDialogCallIntoGroupCall($chatId, $deviceId, $additionalMemberIds, $groupName)',
       '$runtimeType',
     );
 
     try {
       await _graphQlProvider.transformDialogCallIntoGroupCall(
         chatId,
+        deviceId,
         additionalMemberIds,
         groupName,
       );
@@ -871,6 +877,7 @@ class CallRepository extends DisposableInterface
         node.at,
         node.call.toModel(),
         node.user.toModel(),
+        node.deviceId,
       );
     } else if (e.$$typename == 'EventChatCallMoved') {
       final node = e as ChatCallEventsVersionedMixin$Events$EventChatCallMoved;
@@ -901,6 +908,7 @@ class CallRepository extends DisposableInterface
         node.at,
         node.call.toModel(),
         node.user.toModel(),
+        node.deviceId,
       );
     } else if (e.$$typename == 'EventChatCallDeclined') {
       final node =
