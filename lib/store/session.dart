@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -97,6 +98,10 @@ class SessionRepository extends DisposableInterface
   /// [connected] changes.
   StreamSubscription? _connectivitySubscription;
 
+  /// [StreamController] of [ConnectivityResult]s to use in [connectivity].
+  final StreamController<Set<ConnectivityResult>> _connectivityController =
+      StreamController.broadcast();
+
   /// [IpAddress] of this device.
   IpAddress? _ip;
 
@@ -113,6 +118,11 @@ class SessionRepository extends DisposableInterface
   /// Indicator whether the [GraphQlProvider] reported that the GraphQL server
   /// isn't down.
   bool _hasGraphQl = true;
+
+  @override
+  Stream<Set<ConnectivityResult>> get connectivity {
+    return _connectivityController.stream;
+  }
 
   @override
   void onInit() {
@@ -414,11 +424,15 @@ class SessionRepository extends DisposableInterface
       connected.value = _hasNetwork && _hasGraphQl;
     });
 
+    Set<ConnectivityResult> previous = {};
+
     void apply(List<ConnectivityResult> result) {
       Log.debug(
         'Connectivity().onConnectivityChanged -> $result',
         '$runtimeType',
       );
+
+      _connectivityController.add(result.toSet());
 
       _hasNetwork =
           result.contains(ConnectivityResult.wifi) ||
@@ -428,6 +442,15 @@ class SessionRepository extends DisposableInterface
           result.contains(ConnectivityResult.other);
 
       connected.value = _hasNetwork && _hasGraphQl;
+
+      if (previous.isEmpty) {
+        previous = result.toSet();
+      } else {
+        if (!const SetEquality().equals(previous, result.toSet())) {
+          // Connectivity has changed, should trigger reconnection.
+          _graphQlProvider.reconnect();
+        }
+      }
     }
 
     try {

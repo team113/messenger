@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.0...v0.7.0) | [Milestone](/../../milestone/45)
+
+### Fixed
+
+- Network:
+    - Long reconnection when changing network configuration. ([#1362], [#1360])
+
+[#1360]: /../../issue/1360
+[#1362]: /../../pull/1362
+
+
+
+
 ## [0.6.0] · 2025-??-??
 [0.6.0]: /../../tree/v0.6.0
 
