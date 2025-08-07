@@ -233,7 +233,7 @@ btn_upload = Subir
 btn_video_call = Videollamada
 btn_work_with_us = Trabaje con nosotros
 colon_space = :{" "}
-comma_space = , {" "}
+comma_space = ,{" "}
 dot = .
 email_confirmation_code =
     Código: {$token}

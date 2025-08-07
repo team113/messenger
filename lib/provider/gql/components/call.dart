@@ -414,11 +414,19 @@ mixin CallGraphQlMixin {
   /// [MyUser] has raised/lowered his hand already.
   Future<ChatCallEventsVersionedMixin?> toggleChatCallHand(
     ChatId chatId,
+    ChatCallDeviceId deviceId,
     bool raised,
   ) async {
-    Log.debug('toggleChatCallHand($chatId, $raised)', '$runtimeType');
+    Log.debug(
+      'toggleChatCallHand($chatId, $deviceId, $raised)',
+      '$runtimeType',
+    );
 
-    final variables = ToggleCallHandArguments(chatId: chatId, raised: raised);
+    final variables = ToggleCallHandArguments(
+      chatId: chatId,
+      deviceId: deviceId,
+      raised: raised,
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ToggleCallHand',
@@ -516,16 +524,18 @@ mixin CallGraphQlMixin {
   /// [Chat]-group.
   Future<ChatEventsVersionedMixin?> transformDialogCallIntoGroupCall(
     ChatId chatId,
+    ChatCallDeviceId deviceId,
     List<UserId> additionalMemberIds,
     ChatName? groupName,
   ) async {
     Log.debug(
-      'transformDialogCallIntoGroupCall($chatId, $additionalMemberIds, $groupName)',
+      'transformDialogCallIntoGroupCall($chatId, $deviceId, $additionalMemberIds, $groupName)',
       '$runtimeType',
     );
 
     final variables = TransformDialogCallIntoGroupCallArguments(
       chatId: chatId,
+      deviceId: deviceId,
       additionalMemberIds: additionalMemberIds,
       groupName: groupName,
     );

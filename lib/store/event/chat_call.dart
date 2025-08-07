@@ -251,6 +251,7 @@ class EventChatCallHandLowered extends ChatCallEvent {
     super.at,
     this.call,
     this.user,
+    this.deviceId,
   );
 
   /// [ChatCall] the [ChatMember]'s hand being lowered in.
@@ -258,6 +259,9 @@ class EventChatCallHandLowered extends ChatCallEvent {
 
   /// [User] representing the [ChatMember] who lowered a hand in the [ChatCall].
   final User user;
+
+  /// ID of the [ChatMember]'s device where his hand being lowered from.
+  final ChatCallDeviceId deviceId;
 
   @override
   ChatCallEventKind get kind => ChatCallEventKind.handLowered;
@@ -308,6 +312,7 @@ class EventChatCallHandRaised extends ChatCallEvent {
     super.at,
     this.call,
     this.user,
+    this.deviceId,
   );
 
   /// [ChatCall] the [ChatMember]'s hand being raised in.
@@ -315,6 +320,9 @@ class EventChatCallHandRaised extends ChatCallEvent {
 
   /// [User] representing the [ChatMember] who raised a hand in the [ChatCall].
   final User user;
+
+  /// ID of the [ChatMember]'s device where his hand being raised from.
+  final ChatCallDeviceId deviceId;
 
   @override
   ChatCallEventKind get kind => ChatCallEventKind.handRaised;

@@ -97,6 +97,7 @@ fragment ChatCallEventsVersioned on ChatCallEventsVersioned {
                 __typename
                 ...User
             }
+            deviceId
         }
         ... on EventChatCallMoved {
             call {
@@ -127,6 +128,7 @@ fragment ChatCallEventsVersioned on ChatCallEventsVersioned {
                 __typename
                 ...User
             }
+            deviceId
         }
         ... on EventChatCallDeclined {
             call {
