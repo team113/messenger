@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
@@ -228,9 +229,10 @@ class AuthRepository extends DisposableInterface
   @override
   Future<Credentials> refreshSession(
     RefreshTokenSecret secret, {
+    RefreshSessionSecrets? input,
     bool reconnect = true,
   }) {
-    Log.debug('refreshSession($secret)', '$runtimeType');
+    Log.debug('refreshSession($secret, input: $input)', '$runtimeType');
 
     return _graphQlProvider.clientGuard.protect(() async {
       try {
@@ -239,8 +241,18 @@ class AuthRepository extends DisposableInterface
         // No-op, as this is expected.
       }
 
+      final query = await _graphQlProvider.refreshSession(
+        secret,
+        input: input == null
+            ? null
+            : RefreshSessionSecretsInput(
+                accessToken: input.access,
+                refreshToken: input.refresh,
+              ),
+      );
+
       final response =
-          (await _graphQlProvider.refreshSession(secret)).refreshSession
+          query.refreshSession
               as RefreshSession$Mutation$RefreshSession$CreateSessionOk;
 
       if (reconnect) {

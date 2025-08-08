@@ -224,6 +224,104 @@ fromDartListNullableAccessTokenSecretNullableToGraphQLListNullableAccessTokenSec
     )
     .toList();
 
+// AccessTokenSecretInput
+
+AccessTokenSecretInput
+fromGraphQLAccessTokenSecretInputToDartAccessTokenSecretInput(String v) =>
+    AccessTokenSecretInput(v);
+String fromDartAccessTokenSecretInputToGraphQLAccessTokenSecretInput(
+  AccessTokenSecretInput v,
+) => v.toString();
+List<AccessTokenSecretInput>
+fromGraphQLListAccessTokenSecretInputToDartListAccessTokenSecretInput(
+  List<Object?> v,
+) => v
+    .map(
+      (e) => fromGraphQLAccessTokenSecretInputToDartAccessTokenSecretInput(
+        e as String,
+      ),
+    )
+    .toList();
+List<String>
+fromDartListAccessTokenSecretInputToGraphQLListAccessTokenSecretInput(
+  List<AccessTokenSecretInput> v,
+) => v
+    .map(
+      (e) => fromDartAccessTokenSecretInputToGraphQLAccessTokenSecretInput(e),
+    )
+    .toList();
+List<AccessTokenSecretInput>?
+fromGraphQLListNullableAccessTokenSecretInputToDartListNullableAccessTokenSecretInput(
+  List<Object?>? v,
+) => v
+    ?.map(
+      (e) => fromGraphQLAccessTokenSecretInputToDartAccessTokenSecretInput(
+        e as String,
+      ),
+    )
+    .toList();
+List<String>?
+fromDartListNullableAccessTokenSecretInputToGraphQLListNullableAccessTokenSecretInput(
+  List<AccessTokenSecretInput>? v,
+) => v
+    ?.map(
+      (e) => fromDartAccessTokenSecretInputToGraphQLAccessTokenSecretInput(e),
+    )
+    .toList();
+
+AccessTokenSecretInput?
+fromGraphQLAccessTokenSecretInputNullableToDartAccessTokenSecretInputNullable(
+  String? v,
+) => v == null ? null : AccessTokenSecretInput(v);
+String?
+fromDartAccessTokenSecretInputNullableToGraphQLAccessTokenSecretInputNullable(
+  AccessTokenSecretInput? v,
+) => v?.toString();
+List<AccessTokenSecretInput?>
+fromGraphQLListAccessTokenSecretInputNullableToDartListAccessTokenSecretInputNullable(
+  List<Object?> v,
+) => v
+    .map(
+      (e) =>
+          fromGraphQLAccessTokenSecretInputNullableToDartAccessTokenSecretInputNullable(
+            e as String?,
+          ),
+    )
+    .toList();
+List<String?>
+fromDartListAccessTokenSecretInputNullableToGraphQLListAccessTokenSecretInputNullable(
+  List<AccessTokenSecretInput?> v,
+) => v
+    .map(
+      (e) =>
+          fromDartAccessTokenSecretInputNullableToGraphQLAccessTokenSecretInputNullable(
+            e,
+          ),
+    )
+    .toList();
+List<AccessTokenSecretInput?>?
+fromGraphQLListNullableAccessTokenSecretInputNullableToDartListNullableAccessTokenSecretInputNullable(
+  List<Object?>? v,
+) => v
+    ?.map(
+      (e) =>
+          fromGraphQLAccessTokenSecretInputNullableToDartAccessTokenSecretInputNullable(
+            e as String?,
+          ),
+    )
+    .toList();
+List<String?>?
+fromDartListNullableAccessTokenSecretInputNullableToGraphQLListNullableAccessTokenSecretInputNullable(
+  List<AccessTokenSecretInput?>? v,
+) => v
+    ?.map(
+      (e) =>
+          fromDartAccessTokenSecretInputNullableToGraphQLAccessTokenSecretInputNullable(
+            e,
+          ),
+    )
+    .toList();
+
 // UserAgent
 
 UserAgent fromGraphQLUserAgentToDartUserAgent(String v) => UserAgent(v);
@@ -353,6 +451,104 @@ fromDartListNullableRefreshTokenSecretNullableToGraphQLListNullableRefreshTokenS
     ?.map(
       (e) =>
           fromDartRefreshTokenSecretNullableToGraphQLRefreshTokenSecretNullable(
+            e,
+          ),
+    )
+    .toList();
+
+// RefreshTokenSecretInput
+
+RefreshTokenSecretInput
+fromGraphQLRefreshTokenSecretInputToDartRefreshTokenSecretInput(String v) =>
+    RefreshTokenSecretInput(v);
+String fromDartRefreshTokenSecretInputToGraphQLRefreshTokenSecretInput(
+  RefreshTokenSecretInput v,
+) => v.val;
+List<RefreshTokenSecretInput>
+fromGraphQLListRefreshTokenSecretInputToDartListRefreshTokenSecretInput(
+  List<Object?> v,
+) => v
+    .map(
+      (e) => fromGraphQLRefreshTokenSecretInputToDartRefreshTokenSecretInput(
+        e as String,
+      ),
+    )
+    .toList();
+List<String>
+fromDartListRefreshTokenSecretInputToGraphQLListRefreshTokenSecretInput(
+  List<RefreshTokenSecretInput> v,
+) => v
+    .map(
+      (e) => fromDartRefreshTokenSecretInputToGraphQLRefreshTokenSecretInput(e),
+    )
+    .toList();
+List<RefreshTokenSecretInput>?
+fromGraphQLListNullableRefreshTokenSecretInputToDartListNullableRefreshTokenSecretInput(
+  List<Object?>? v,
+) => v
+    ?.map(
+      (e) => fromGraphQLRefreshTokenSecretInputToDartRefreshTokenSecretInput(
+        e as String,
+      ),
+    )
+    .toList();
+List<String>?
+fromDartListNullableRefreshTokenSecretInputToGraphQLListNullableRefreshTokenSecretInput(
+  List<RefreshTokenSecretInput>? v,
+) => v
+    ?.map(
+      (e) => fromDartRefreshTokenSecretInputToGraphQLRefreshTokenSecretInput(e),
+    )
+    .toList();
+
+RefreshTokenSecretInput?
+fromGraphQLRefreshTokenSecretInputNullableToDartRefreshTokenSecretInputNullable(
+  String? v,
+) => v == null ? null : RefreshTokenSecretInput(v);
+String?
+fromDartRefreshTokenSecretInputNullableToGraphQLRefreshTokenSecretInputNullable(
+  RefreshTokenSecretInput? v,
+) => v?.val;
+List<RefreshTokenSecretInput?>
+fromGraphQLListRefreshTokenSecretInputNullableToDartListRefreshTokenSecretInputNullable(
+  List<Object?> v,
+) => v
+    .map(
+      (e) =>
+          fromGraphQLRefreshTokenSecretInputNullableToDartRefreshTokenSecretInputNullable(
+            e as String?,
+          ),
+    )
+    .toList();
+List<String?>
+fromDartListRefreshTokenSecretInputNullableToGraphQLListRefreshTokenSecretInputNullable(
+  List<RefreshTokenSecretInput?> v,
+) => v
+    .map(
+      (e) =>
+          fromDartRefreshTokenSecretInputNullableToGraphQLRefreshTokenSecretInputNullable(
+            e,
+          ),
+    )
+    .toList();
+List<RefreshTokenSecretInput?>?
+fromGraphQLListNullableRefreshTokenSecretInputNullableToDartListNullableRefreshTokenSecretInputNullable(
+  List<Object?>? v,
+) => v
+    ?.map(
+      (e) =>
+          fromGraphQLRefreshTokenSecretInputNullableToDartRefreshTokenSecretInputNullable(
+            e as String?,
+          ),
+    )
+    .toList();
+List<String?>?
+fromDartListNullableRefreshTokenSecretInputNullableToGraphQLListNullableRefreshTokenSecretInputNullable(
+  List<RefreshTokenSecretInput?>? v,
+) => v
+    ?.map(
+      (e) =>
+          fromDartRefreshTokenSecretInputNullableToGraphQLRefreshTokenSecretInputNullable(
             e,
           ),
     )

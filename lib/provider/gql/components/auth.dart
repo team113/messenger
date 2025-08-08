@@ -247,11 +247,12 @@ mixin AuthGraphQlMixin {
   /// Each time creates a new [AccessToken] and generates a new
   /// [RefreshTokenSecret] for the [RefreshToken].
   Future<RefreshSession$Mutation> refreshSession(
-    RefreshTokenSecret secret,
-  ) async {
-    Log.debug('refreshSession($secret)', '$runtimeType');
+    RefreshTokenSecret secret, {
+    RefreshSessionSecretsInput? input,
+  }) async {
+    Log.debug('refreshSession($secret, input: $input)', '$runtimeType');
 
-    final variables = RefreshSessionArguments(secret: secret);
+    final variables = RefreshSessionArguments(secret: secret, kw$new: input);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'RefreshSession',

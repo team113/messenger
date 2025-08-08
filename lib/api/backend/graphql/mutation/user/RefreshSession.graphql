@@ -15,8 +15,14 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation RefreshSession($secret: RefreshTokenSecret!) {
-    refreshSession(secret: $secret) {
+mutation RefreshSession(
+    $secret: RefreshTokenSecret!
+    $new: RefreshSessionSecretsInput
+) {
+    refreshSession(
+        secret: $secret
+        new: $new
+    ) {
         __typename
         ... on CreateSessionOk {
             user {
