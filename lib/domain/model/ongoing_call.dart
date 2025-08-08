@@ -2525,7 +2525,10 @@ abstract class RtcRenderer {
 /// Convenience wrapper around a [webrtc.VideoRenderer].
 class RtcVideoRenderer extends RtcRenderer {
   RtcVideoRenderer(MediaTrack track) : super(track.getTrack()) {
-    Log.debug('RtcVideoRenderer()', '$runtimeType');
+    Log.debug(
+      'RtcVideoRenderer() -> ${_delegate.videoWidth}x${_delegate.videoHeight}',
+      '$runtimeType',
+    );
 
     if (track is LocalMediaTrack) {
       autoRotate = false;

@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
@@ -231,7 +232,7 @@ class AuthRepository extends DisposableInterface
     RefreshSessionSecrets? input,
     bool reconnect = true,
   }) {
-    Log.debug('refreshSession($secret)', '$runtimeType');
+    Log.debug('refreshSession($secret, input: $input)', '$runtimeType');
 
     return _graphQlProvider.clientGuard.protect(() async {
       try {

@@ -687,7 +687,7 @@ class AuthService extends DisposableService {
     final bool areCurrent = userId == this.userId;
 
     Log.debug(
-      'refreshSession($userId |-> $attempt) with `isLocked`: $isLocked',
+      'refreshSession($userId |-> $attempt) with `isLocked` ($isLocked) and `failed` ($_failed)',
       '$runtimeType',
     );
 

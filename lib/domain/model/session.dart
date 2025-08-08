@@ -324,18 +324,20 @@ class RefreshSessionSecrets {
   factory RefreshSessionSecrets.generate() {
     return RefreshSessionSecrets._(
       RefreshTokenSecretInput(
-        base64Encode(
-          List.generate(32, (_) => Random.secure().nextInt(1 << 32)),
-        ),
+        base64Encode(List.generate(32, (_) => Random.secure().nextInt(255))),
       ),
       AccessTokenSecretInput(
-        base64Encode(
-          List.generate(32, (_) => Random.secure().nextInt(1 << 32)),
-        ),
+        base64Encode(List.generate(32, (_) => Random.secure().nextInt(255))),
       ),
     );
   }
 
+  /// [RefreshTokenSecretInput] itself.
   final RefreshTokenSecretInput refresh;
+
+  /// [AccessTokenSecretInput] itself.
   final AccessTokenSecretInput access;
+
+  @override
+  String toString() => 'RefreshSessionSecrets($refresh, $access)';
 }
