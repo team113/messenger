@@ -1,3 +1,20 @@
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+//                       <https://github.com/team113>
+//
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Affero General Public License v3.0 as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+// more details.
+//
+// You should have received a copy of the GNU Affero General Public License v3.0
+// along with this program. If not, see
+// <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'dart:math';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
@@ -8,6 +25,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:video_player/video_player.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -27,7 +45,6 @@ import '/ui/page/home/page/chat/widget/video/widget/video_progress_bar.dart';
 import '/ui/page/home/page/chat/widget/video/widget/video_volume_bar.dart'
     show ProgressBarColors, VideoVolumeBar;
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -138,46 +155,26 @@ class PlayerView extends StatelessWidget {
         physics: c.viewportIsTransformed.value
             ? NeverScrollableScrollPhysics()
             : null,
-        controller: c.pages,
+        controller: c.vertical,
         scrollDirection: Axis.vertical,
-        children: [...c.source.values.map((e) => _item(context, c, e))],
+        children: [...c.posts.map((e) => _post(context, c, e))],
       );
     });
   }
 
-  Widget _item(BuildContext context, PlayerController c, MediaItem item) {
-    ReactivePageController? controller = c.slides[item.id];
-    if (controller == null) {
-      controller = ReactivePageController()..init();
-      c.slides[item.id] = controller;
-    }
-
-    return InitCallback(
-      callback: () {
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          if (controller?.controller.hasClients == true) {
-            controller?.index.value = controller.controller.page?.round() ?? 0;
-          }
-        });
-      },
-      child: PageView(
-        physics: c.viewportIsTransformed.value
-            ? NeverScrollableScrollPhysics()
-            : null,
-        controller: controller.controller,
-        children: [
-          ...item.attachments.map((e) => _attachment(context, c, item, e)),
-        ],
-      ),
+  Widget _post(BuildContext context, PlayerController c, Post post) {
+    return PageView(
+      physics: c.viewportIsTransformed.value
+          ? NeverScrollableScrollPhysics()
+          : null,
+      controller: post.horizontal,
+      children: [...post.items.map((e) => _attachment(context, c, e))],
     );
   }
 
-  Widget _attachment(
-    BuildContext context,
-    PlayerController c,
-    MediaItem item,
-    Attachment attachment,
-  ) {
+  Widget _attachment(BuildContext context, PlayerController c, PostItem item) {
+    final Attachment attachment = item.attachment;
+
     if (attachment is ImageAttachment) {
       return InteractiveViewer(
         transformationController: c.transformationController,
@@ -208,11 +205,7 @@ class PlayerView extends StatelessWidget {
           loop: true,
           onController: (e) {
             SchedulerBinding.instance.addPostFrameCallback((_) {
-              if (e != null) {
-                c.videos[item.id] = e;
-              } else {
-                c.videos.remove(item.id);
-              }
+              item.video.value = e;
             });
           },
         );
@@ -283,9 +276,8 @@ class PlayerView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final MediaItem? item = c.source.items[c.key.value];
-      final ReactivePageController? controller = c.slides[c.key.value];
-      if (item == null || controller == null || item.attachments.length < 2) {
+      final Post? post = c.post;
+      if (post == null || post.items.length < 2) {
         return SizedBox();
       }
 
@@ -303,8 +295,8 @@ class PlayerView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: DotsIndicator(
-                dotsCount: item.attachments.length,
-                position: controller.index.value.toDouble(),
+                dotsCount: post.items.length,
+                position: post.index.value.toDouble(),
                 animate: true,
                 mainAxisSize: MainAxisSize.min,
                 decorator: DotsDecorator(
@@ -330,8 +322,7 @@ class PlayerView extends StatelessWidget {
     final bool isMobile = context.isMobile;
 
     return Obx(() {
-      // final MediaItem? item = c.source.items[c.key.value];
-      final VideoController? video = c.videos[c.key.value];
+      final VideoPlayerController? video = c.item?.video.value;
 
       return Stack(
         children: [
@@ -491,7 +482,8 @@ class PlayerView extends StatelessWidget {
                       c.side.toggle();
 
                       if (isMobile) {
-                        final VideoController? video = c.videos[c.key.value];
+                        final VideoPlayerController? video =
+                            c.item?.video.value;
                         video?.player.pause();
                       }
                     }
@@ -535,8 +527,7 @@ class PlayerView extends StatelessWidget {
     BoxConstraints constraints,
   ) {
     return Obx(() {
-      // final MediaItem? item = c.source.items[c.key.value];
-      final VideoController? video = c.videos[c.key.value];
+      final VideoPlayerController? video = c.item?.video.value;
 
       return Stack(
         clipBehavior: Clip.none,
@@ -708,7 +699,7 @@ class PlayerView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final VideoController? video = c.videos[c.key.value];
+      final VideoPlayerController? video = c.item?.video.value;
       if (video == null) {
         return SizedBox();
       }
@@ -826,8 +817,7 @@ class PlayerView extends StatelessWidget {
     BoxConstraints constraints,
   ) {
     return Obx(() {
-      // final MediaItem? item = c.source.items[c.key.value];
-      final VideoController? video = c.videos[c.key.value];
+      final VideoPlayerController? video = c.item?.video.value;
 
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -856,8 +846,13 @@ class PlayerView extends StatelessWidget {
     BoxConstraints constraints,
   ) {
     return Obx(() {
-      final MediaItem? item = c.source.items[c.key.value];
-      final VideoController? video = c.videos[c.key.value];
+      final Post? post = c.post;
+      final ChatItemId? itemId = post?.itemId;
+      final VideoPlayerController? video = c.item?.video.value;
+
+      final bool canReact = itemId != null && onReact != null;
+      final bool canReply = itemId != null && onReply != null;
+      final bool canShare = itemId != null && onShare != null;
 
       return Row(
         mainAxisSize: MainAxisSize.max,
@@ -869,7 +864,6 @@ class PlayerView extends StatelessWidget {
               onPressed: video == null
                   ? null
                   : () {
-                      // _cancelAndRestartTimer();
                       if (video.player.state.volume == 0) {
                         video.player.setVolume(c.latestVolume ?? 0.5);
                       } else {
@@ -882,9 +876,9 @@ class PlayerView extends StatelessWidget {
           ),
 
           Opacity(
-            opacity: item != null && onReact != null ? 1 : 0.5,
+            opacity: canReact ? 1 : 0.5,
             child: WidgetButton(
-              onPressed: item != null && onReact != null
+              onPressed: canReact
                   ? () {
                       // TODO: Toggle reactions.
                     }
@@ -894,11 +888,11 @@ class PlayerView extends StatelessWidget {
           ),
 
           Opacity(
-            opacity: item != null && onReply != null ? 1 : 0.5,
+            opacity: canReply ? 1 : 0.5,
             child: WidgetButton(
-              onPressed: item != null && onReply != null
+              onPressed: canReply
                   ? () {
-                      onReply?.call(item);
+                      // onReply?.call(itemId);
                       Navigator.of(context).pop();
                     }
                   : null,
@@ -907,10 +901,12 @@ class PlayerView extends StatelessWidget {
           ),
 
           Opacity(
-            opacity: item != null && onShare != null ? 1 : 0.5,
+            opacity: canShare ? 1 : 0.5,
             child: WidgetButton(
-              onPressed: item != null && onShare != null
-                  ? () => onShare?.call(item)
+              onPressed: canShare
+                  ? () {
+                      // onShare?.call(item);
+                    }
                   : null,
               child: SvgIcon(SvgIcons.videoShare),
             ),
@@ -1154,7 +1150,7 @@ class PlayerView extends StatelessWidget {
                       c.side.value = false;
                     }
 
-                    c.pages.animateToPage(
+                    c.vertical.animateToPage(
                       i,
                       duration: Duration(milliseconds: 250),
                       curve: Curves.ease,

@@ -109,6 +109,7 @@ dependencies:
   url_launcher: ^6.1.12
   uuid: ^4.3.3
   vibration: ^3.1.2
+  video_player: ^2.10.0
   wakelock_plus: ^1.1.4
   web_socket_channel: ^3.0.1
   web: ">=0.5.1 <2.0.0"
