@@ -8,6 +8,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'package:mutex/mutex.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../../util/obs/obs.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/application_settings.dart';
@@ -16,16 +17,13 @@ import '/domain/repository/settings.dart';
 import '/util/platform_utils.dart';
 
 class MediaItem implements Comparable<MediaItem> {
-  MediaItem(this.attachments, this.item, {this.video});
+  MediaItem(this.attachments, this.item);
 
   final List<Attachment> attachments;
   final ChatItem? item;
 
   String get id =>
       item?.key.toString() ?? 'a_${attachments.map((e) => e.id.val).join('_')}';
-
-  VideoController? video;
-  PageController? slides;
 
   @override
   bool operator ==(Object other) {
@@ -74,8 +72,7 @@ class PlayerController extends GetxController {
   /// [ItemScrollController] of the page's [ScrollablePositionedList].
   final ItemScrollController itemScrollController = ItemScrollController();
 
-  final RxMap<String, VideoController> videos = RxMap();
-  final Map<String, ReactivePageController> slides = {};
+  final Map<String, Page> items = {};
 
   /// Latest volume value for [VideoController] being displayed.
   double? latestVolume;
@@ -126,14 +123,19 @@ class PlayerController extends GetxController {
     pages = PageController(initialPage: _index);
     index = RxInt(pages.initialPage);
 
-    slides[key.value] ??= ReactivePageController(initialPage: initialIndex)
-      ..init();
+    for (var e in source.items.values) {
+      if (!items.containsKey(e.id)) {
+        items[e.id] = Page(e)..init();
+      }
+    }
+
+    items[key.value] ??= Page(initialPage: initialIndex)..init();
 
     print('onInit() -> index: ${index.value}, key: ${key.value}');
     print('onInit() -> IDs: ${source.values.map((e) => e.id)}');
 
     _sourceSubscription?.cancel();
-    _sourceSubscription = source.items.changes.listen((_) {
+    _sourceSubscription = source.items.changes.listen((e) {
       final int previous = index.value;
 
       index.value = _index;
@@ -153,6 +155,27 @@ class PlayerController extends GetxController {
           '_sourceSubscription -> index: ${index.value}, key: ${key.value}',
         );
       }
+
+      switch (e.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          final MediaItem? item = e.value;
+          if (item != null) {
+            if (!items.containsKey(item.id)) {
+              items[item.id] = Page(item)..init();
+            }
+          }
+          break;
+
+        case OperationKind.removed:
+          items.remove(e.key)?.dispose();
+
+          final MediaItem? item = e.value;
+          if (item != null) {
+            items.remove(item.id)?.dispose();
+          }
+          break;
+      }
     });
 
     HardwareKeyboard.instance.addHandler(_keyboardHandler);
@@ -166,7 +189,7 @@ class PlayerController extends GetxController {
     pages.removeListener(_pageListener);
     _sourceSubscription?.cancel();
 
-    for (var e in slides.values) {
+    for (var e in items.values) {
       e.dispose();
     }
 
@@ -258,7 +281,9 @@ class PlayerController extends GetxController {
           return true;
 
         case LogicalKeyboardKey.arrowLeft:
-          final VideoController? video = videos[key.value];
+          final Page? page = items[key.value];
+          final VideoController? video = page?.videos[page.index.value];
+
           if (video != null) {
             final int seconds = video.player.state.position.inSeconds;
             video.player.seek(Duration(seconds: max(seconds - 5, 0)));
@@ -266,7 +291,7 @@ class PlayerController extends GetxController {
           }
 
           final MediaItem? item = source.items[key.value];
-          final ReactivePageController? controller = slides[key.value];
+          final Page? controller = items[key.value];
 
           if (item != null &&
               controller != null &&
@@ -298,7 +323,7 @@ class PlayerController extends GetxController {
           }
 
           final MediaItem? item = source.items[key.value];
-          final ReactivePageController? controller = slides[key.value];
+          final ReactivePageController? controller = items[key.value];
 
           if (item != null &&
               controller != null &&
@@ -359,12 +384,15 @@ class PlayerController extends GetxController {
   }
 }
 
-class ReactivePageController {
-  ReactivePageController({int initialPage = 0})
+class Page {
+  Page(this.item, {int initialPage = 0})
     : controller = PageController(initialPage: initialPage, keepPage: false),
       index = RxInt(initialPage);
 
+  final MediaItem item;
+
   final PageController controller;
+  final Map<AttachmentId, VideoController> videos = {};
   final RxInt index;
 
   void init() {
