@@ -99,6 +99,7 @@ abstract class AbstractAuthRepository {
   /// [token] right away.
   Future<Credentials> refreshSession(
     RefreshTokenSecret secret, {
+    RefreshSessionSecrets? input,
     bool reconnect,
   });
 

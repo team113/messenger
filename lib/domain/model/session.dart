@@ -15,6 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model/my_user.dart';
@@ -174,6 +177,22 @@ class AccessTokenSecret extends NewType<String> {
   String toJson() => val;
 }
 
+/// Input for creating a [AccessTokenSecret].
+///
+/// Must represent 32 random bytes encoded as valid `Base64` string.
+///
+/// Use a cryptographically secure random generator to produce array of bytes
+/// for this value.
+class AccessTokenSecretInput extends NewType<String> {
+  const AccessTokenSecretInput(super.val);
+
+  /// Constructs a [AccessTokenSecretInput] from the provided [val].
+  factory AccessTokenSecretInput.fromJson(String val) = AccessTokenSecretInput;
+
+  /// Returns a [String] representing this [AccessTokenSecretInput].
+  String toJson() => val;
+}
+
 /// Token used for refreshing a [Session].
 @JsonSerializable()
 class RefreshToken {
@@ -218,6 +237,23 @@ class RefreshTokenSecret extends NewType<String> {
   factory RefreshTokenSecret.fromJson(String val) = RefreshTokenSecret;
 
   /// Returns a [String] representing this [RefreshTokenSecret].
+  String toJson() => val;
+}
+
+/// Input for creating a [RefreshTokenSecret].
+///
+/// Must represent 32 random bytes encoded as valid `Base64` string.
+///
+/// Use a cryptographically secure random generator to produce array of bytes
+/// for this value.
+class RefreshTokenSecretInput extends NewType<String> {
+  const RefreshTokenSecretInput(super.val);
+
+  /// Constructs a [RefreshTokenSecretInput] from the provided [val].
+  factory RefreshTokenSecretInput.fromJson(String val) =
+      RefreshTokenSecretInput;
+
+  /// Returns a [String] representing this [RefreshTokenSecretInput].
   String toJson() => val;
 }
 
@@ -279,4 +315,27 @@ class Credentials {
   @override
   String toString() =>
       'Credentials(userId: $userId, sessionId: ${session.id}, access: $access refresh: $refresh)';
+}
+
+/// [RefreshTokenSecretInput] and [AccessTokenSecretInput].
+class RefreshSessionSecrets {
+  RefreshSessionSecrets._(this.refresh, this.access);
+
+  factory RefreshSessionSecrets.generate() {
+    return RefreshSessionSecrets._(
+      RefreshTokenSecretInput(
+        base64Encode(
+          List.generate(32, (_) => Random.secure().nextInt(1 << 32)),
+        ),
+      ),
+      AccessTokenSecretInput(
+        base64Encode(
+          List.generate(32, (_) => Random.secure().nextInt(1 << 32)),
+        ),
+      ),
+    );
+  }
+
+  final RefreshTokenSecretInput refresh;
+  final AccessTokenSecretInput access;
 }
