@@ -121,6 +121,9 @@ class AuthService extends DisposableService {
   /// over and over again.
   Duration _refreshRetryDelay = _initialRetryDelay;
 
+  /// [RefreshSessionSecrets] to use during [refreshSession].
+  RefreshSessionSecrets? _failed;
+
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
@@ -684,11 +687,14 @@ class AuthService extends DisposableService {
     final bool areCurrent = userId == this.userId;
 
     Log.debug(
-      'refreshSession($userId |-> $attempt) with `isLocked`: $isLocked',
+      'refreshSession($userId |-> $attempt) with `isLocked` ($isLocked) and `failed` ($_failed)',
       '$runtimeType',
     );
 
     LockIdentifier? dbLock;
+
+    final RefreshSessionSecrets secrets =
+        _failed ?? RefreshSessionSecrets.generate();
 
     try {
       // Acquire a database lock to prevent multiple refreshes of the same
@@ -883,6 +889,7 @@ class AuthService extends DisposableService {
         try {
           final Credentials data = await _authRepository.refreshSession(
             oldCreds.refresh.secret,
+            input: secrets,
             reconnect: areCurrent,
           );
 
@@ -890,6 +897,8 @@ class AuthService extends DisposableService {
             'refreshSession($userId |-> $attempt): success 🎉 -> writing to `drift`... ✍️',
             '$runtimeType',
           );
+
+          _failed = null;
 
           if (areCurrent) {
             await _authorized(data);
@@ -932,6 +941,7 @@ class AuthService extends DisposableService {
       await _lockProvider.release(dbLock);
     } on RefreshSessionException catch (_) {
       _refreshRetryDelay = _initialRetryDelay;
+      _failed = null;
 
       if (dbLock != null) {
         await _lockProvider.release(dbLock);
@@ -943,6 +953,8 @@ class AuthService extends DisposableService {
         'refreshSession($userId |-> $attempt): ⛔️ exception occurred: $e',
         '$runtimeType',
       );
+
+      _failed = secrets;
 
       if (dbLock != null) {
         await _lockProvider.release(dbLock);
