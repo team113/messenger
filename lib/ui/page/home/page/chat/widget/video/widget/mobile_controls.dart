@@ -122,7 +122,8 @@ class _MobileControlsState extends State<MobileControls>
               return buffering.data!
                   ? const Center(child: CustomProgressIndicator())
                   : CenteredPlayPause(
-                      widget.controller,
+                      isCompleted: widget.controller.player.state.completed,
+                      isPlaying: widget.controller.player.state.playing,
                       size: 56,
                       show: !_dragging && !_hideStuff,
                       onPressed: _playPause,
@@ -230,7 +231,10 @@ class _MobileControlsState extends State<MobileControls>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      CurrentPosition(widget.controller),
+                      CurrentPosition(
+                        position: widget.controller.player.state.position,
+                        duration: widget.controller.player.state.duration,
+                      ),
                       VolumeButton(
                         widget.controller,
                         height: widget.barHeight,
@@ -260,7 +264,13 @@ class _MobileControlsState extends State<MobileControls>
                       children: [
                         Expanded(
                           child: ProgressBar(
-                            widget.controller,
+                            buffer: widget.controller.player.state.buffer,
+                            duration: widget.controller.player.state.duration,
+                            position: widget.controller.player.state.position,
+                            isPlaying: widget.controller.player.state.playing,
+                            onPause: widget.controller.player.pause,
+                            onPlay: widget.controller.player.play,
+                            seekTo: widget.controller.player.seek,
                             drawShadow: false,
                             onDragStart: () {
                               setState(() => _dragging = true);

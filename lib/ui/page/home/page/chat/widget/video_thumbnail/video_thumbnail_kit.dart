@@ -20,11 +20,14 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
+import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
-import '/util/log.dart';
+import '/util/platform_utils.dart';
 
 /// Thumbnail displaying the first frame of the provided video.
 class VideoThumbnail extends StatefulWidget {
@@ -90,12 +93,18 @@ class VideoThumbnail extends StatefulWidget {
 /// [VideoController].
 class _VideoThumbnailState extends State<VideoThumbnail> {
   /// [Player] opening and maintaining the video to use in [_controller].
-  VideoPlayerController? _controller;
+  final Player _player = Player();
+
+  /// [VideoController] to display the first frame of the video.
+  late final VideoController _controller = VideoController(
+    _player,
+    configuration: const VideoControllerConfiguration(
+      enableHardwareAcceleration: true,
+    ),
+  );
 
   /// [CancelToken] for cancelling the [VideoThumbnail.url] header fetching.
   CancelToken? _cancelToken;
-
-  String? _error;
 
   @override
   void initState() {
@@ -105,7 +114,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   @override
   void dispose() {
-    _controller?.dispose();
+    _controller.player.dispose();
     _cancelToken?.cancel();
     super.dispose();
   }
@@ -123,58 +132,63 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    double width = widget.width ?? 300;
-    double height = widget.height ?? 300;
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      child: StreamBuilder(
+        stream: _player.stream.width,
+        builder: (_, __) {
+          double width = 300;
+          double height = 300;
 
-    if (_error != null) {
-      return SizedBox(
-        width: width,
-        height: height,
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                border: style.systemMessageBorder,
-                color: style.systemMessageColor,
-              ),
-              child: Text('$_error', style: style.systemMessageStyle),
+          if (widget.width != null && widget.height != null) {
+            width = widget.width!;
+            height = widget.height!;
+          } else if (_player.state.width != null) {
+            width = _player.state.width!.toDouble();
+            height = _player.state.height!.toDouble();
+
+            if (widget.height != null) {
+              width = width * widget.height! / height;
+              height = widget.height!;
+            }
+          }
+
+          return SizedBox(
+            width: width,
+            height: height,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                ClipRect(
+                  child: SizedBox(
+                    width: _player.state.width?.toDouble() ?? width,
+                    height: _player.state.height?.toDouble() ?? height,
+                    child: IgnorePointer(
+                      child: Video(
+                        controller: _controller,
+                        fit: BoxFit.cover,
+                        controls: (_) => const SizedBox(),
+                      ),
+                    ),
+                  ),
+                ),
+
+                ContextMenuInterceptor(child: const SizedBox()),
+
+                // [Container] for receiving pointer events over this
+                // [VideoThumbnail], since the [ContextMenuInterceptor] above
+                // intercepts them.
+                Container(color: style.colors.transparent),
+              ],
             ),
-          ),
-        ),
-      );
-    }
-
-    if (_controller == null || _controller?.value.isInitialized == false) {
-      return SizedBox(
-        width: width,
-        height: height,
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    return SizedBox(
-      width: width / _controller!.value.aspectRatio,
-      height: height,
-      child: ClipRect(
-        child: FittedBox(
-          fit: BoxFit.cover,
-          child: SizedBox.fromSize(
-            size: _controller!.value.size,
-            child: IgnorePointer(child: VideoPlayer(_controller!)),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
-    _cancelToken?.cancel();
-    _cancelToken = CancelToken();
-
     Uint8List? bytes = widget.bytes;
     File? file;
 
@@ -182,73 +196,62 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       file = File(widget.path!);
     }
 
+    if (bytes == null &&
+        file == null &&
+        widget.checksum != null &&
+        CacheWorker.instance.exists(widget.checksum!)) {
+      final CacheEntry cache = await CacheWorker.instance.get(
+        checksum: widget.checksum!,
+        responseType: CacheResponseType.file,
+      );
+
+      bytes = cache.bytes;
+      file = cache.file;
+    } else if (bytes != null) {
+      file = await CacheWorker.instance.add(bytes) ?? file;
+    }
+
     try {
-      _controller?.dispose();
-
       if (file != null) {
-        _controller = VideoPlayerController.file(
-          file,
-          videoPlayerOptions: VideoPlayerOptions(
-            webOptions: VideoPlayerWebOptions(
-              allowContextMenu: false,
-              allowRemotePlayback: false,
-            ),
-          ),
-        );
-
-        await _controller?.initialize();
+        await _player.open(Media(file.path), play: false);
       } else if (bytes != null) {
-        // TODO: Implement.
-        // _controller = VideoPlayerController.contentUri(Uri.parse(widget.url));
-        //  await _controller?.initialize();
-        throw UnimplementedError();
+        await _player.open(await Media.memory(bytes), play: false);
       } else {
-        _controller = VideoPlayerController.networkUrl(
-          Uri.parse(widget.url!),
-          videoPlayerOptions: VideoPlayerOptions(
-            webOptions: VideoPlayerWebOptions(
-              allowContextMenu: false,
-              allowRemotePlayback: false,
-            ),
-          ),
-        );
+        await _player.open(Media(widget.url!), play: false);
+      }
+    } catch (_) {
+      // No-op.
+    }
 
+    if (widget.url != null && bytes == null) {
+      _cancelToken?.cancel();
+      _cancelToken = CancelToken();
+
+      bool shouldReload = false;
+
+      try {
         await Backoff.run(() async {
           try {
-            await _controller?.initialize();
+            await (await PlatformUtils.dio).head(widget.url!);
+
+            // Reinitialize the [_controller] if an unexpected error was
+            // thrown.
+            if (shouldReload) {
+              await _player.open(Media(widget.url!), play: false);
+            }
           } catch (e) {
             if (e is DioException && e.response?.statusCode == 403) {
               widget.onError?.call();
               _cancelToken?.cancel();
             } else {
-              Log.error(
-                'Unable to load thumbnail of `${widget.url}`: $e',
-                '$runtimeType',
-              );
-
-              _error = e.toString();
-              if (mounted) {
-                setState(() {});
-              }
-
+              shouldReload = true;
               rethrow;
             }
           }
         }, cancel: _cancelToken);
+      } on OperationCanceledException {
+        // No-op.
       }
-    } on OperationCanceledException {
-      // No-op.
-    } catch (e) {
-      Log.error(
-        'Unable to load thumbnail of `${widget.url}`: $e',
-        '$runtimeType',
-      );
-
-      _error = e.toString();
-    }
-
-    if (mounted) {
-      setState(() {});
     }
   }
 }

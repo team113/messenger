@@ -27,7 +27,7 @@ class ApplicationSettings {
     this.callButtonsPosition = CallButtonsPosition.appBar,
     this.workWithUsTabEnabled = true,
     this.muteKeys,
-    this.videoVolume = 100,
+    this.videoVolume = 1,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the

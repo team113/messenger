@@ -24,6 +24,8 @@ import 'package:video_player/video_player.dart';
 
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/backoff.dart';
+import '/util/log.dart';
 
 /// Video player with controls.
 class VideoPlayback extends StatefulWidget {
@@ -36,6 +38,7 @@ class VideoPlayback extends StatefulWidget {
     this.volume,
     this.onVolumeChanged,
     this.loop = false,
+    this.autoplay = true,
   });
 
   /// URL of the video to display.
@@ -53,6 +56,7 @@ class VideoPlayback extends StatefulWidget {
   final double? volume;
   final void Function(double)? onVolumeChanged;
   final bool loop;
+  final bool autoplay;
 
   @override
   State<VideoPlayback> createState() => _VideoPlaybackState();
@@ -71,12 +75,12 @@ class _VideoPlaybackState extends State<VideoPlayback> {
 
   StreamSubscription? _volumeSubscription;
 
+  String? _error;
+  double? _volume;
+
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _initVideo();
-    });
-
+    _initVideo();
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
 
     super.initState();
@@ -85,6 +89,7 @@ class _VideoPlaybackState extends State<VideoPlayback> {
   @override
   void dispose() {
     widget.onController?.call(null);
+    _controller?.removeListener(_listener);
     _loading?.cancel();
     _controller?.dispose();
     _cancelToken?.cancel();
@@ -106,6 +111,23 @@ class _VideoPlaybackState extends State<VideoPlayback> {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    if (_error != null) {
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              border: style.systemMessageBorder,
+              color: style.systemMessageColor,
+            ),
+            child: Text('$_error', style: style.systemMessageStyle),
+          ),
+        ),
+      );
+    }
 
     if (_controller != null && _controller?.value.isInitialized == true) {
       return AspectRatio(
@@ -138,52 +160,67 @@ class _VideoPlaybackState extends State<VideoPlayback> {
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url));
+    _controller?.removeListener(_listener);
+    _controller?.dispose();
+    _controller = VideoPlayerController.networkUrl(
+      Uri.parse(widget.url),
+      videoPlayerOptions: VideoPlayerOptions(
+        webOptions: VideoPlayerWebOptions(
+          allowContextMenu: false,
+          allowRemotePlayback: false,
+        ),
+      ),
+    );
+    _controller?.addListener(_listener);
+
     widget.onController?.call(_controller);
 
-    // _volumeSubscription?.cancel();
-    // _volumeSubscription = _controller.player.stream.volume.listen((e) {
-    //   widget.onVolumeChanged?.call(e);
-    // });
+    _cancelToken?.cancel();
+    _cancelToken = CancelToken();
 
     try {
-      if (widget.volume != null) {
-        await _controller?.setVolume(widget.volume!);
-      }
+      await Backoff.run(() async {
+        try {
+          if (widget.volume != null) {
+            await _controller?.setVolume(widget.volume!);
+          }
 
-      if (widget.loop) {
-        await _controller?.setLooping(true);
-      }
-    } catch (_) {
+          if (widget.loop) {
+            await _controller?.setLooping(true);
+          }
+
+          await _controller?.initialize();
+
+          if (widget.autoplay) {
+            await _controller?.play();
+          }
+        } catch (e) {
+          Log.error(
+            'Unable to load video of `${widget.url}`: $e',
+            '$runtimeType',
+          );
+
+          _error = e.toString();
+
+          rethrow;
+        }
+
+        if (mounted) {
+          setState(() {});
+        }
+      }, cancel: _cancelToken);
+    } on OperationCanceledException {
       // No-op.
     }
+  }
 
-    setState(() {});
+  void _listener() {
+    if (_controller != null && _controller?.value.volume != _volume) {
+      if (_volume != null) {
+        widget.onVolumeChanged?.call(_controller!.value.volume);
+      }
 
-    // _cancelToken?.cancel();
-    // _cancelToken = CancelToken();
-
-    // bool shouldReload = false;
-
-    // try {
-    //   await Backoff.run(() async {
-    //     try {
-    //       await (await PlatformUtils.dio).head(widget.url);
-    //       if (shouldReload) {
-    //         // Reinitialize the [_controller] if an unexpected error was thrown.
-    //         await _controller.player.open(Media(widget.url));
-    //       }
-    //     } catch (e) {
-    //       if (e is DioException && e.response?.statusCode == 403) {
-    //         widget.onError?.call();
-    //       } else {
-    //         shouldReload = true;
-    //         rethrow;
-    //       }
-    //     }
-    //   }, cancel: _cancelToken);
-    // } on OperationCanceledException {
-    //   // No-op.
-    // }
+      _volume = _controller?.value.volume;
+    }
   }
 }

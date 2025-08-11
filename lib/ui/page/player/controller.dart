@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -70,9 +71,9 @@ class PlayerController extends GetxController {
     this._settingsRepository, {
     this.shouldClose,
     required this.source,
-    String? initialKey,
+    this.initialKey = '',
     this.initialIndex = 0,
-  }) : key = RxString(initialKey ?? '');
+  }) : key = RxString(initialKey);
 
   final void Function()? shouldClose;
 
@@ -102,6 +103,7 @@ class PlayerController extends GetxController {
       TransformationController();
   final RxBool viewportIsTransformed = RxBool(false);
 
+  final String initialKey;
   final int initialIndex;
 
   final AbstractSettingsRepository _settingsRepository;
@@ -153,13 +155,14 @@ class PlayerController extends GetxController {
 
   @override
   void onInit() {
-    vertical = PageController(initialPage: _index);
-    index = RxInt(vertical.initialPage);
-
     for (var e in source.items.values) {
       posts.add(Post.fromMediaItem(e)..init());
     }
     posts.sort();
+
+    index = RxInt(max(0, posts.indexWhere((e) => e.id == key.value)));
+
+    vertical = PageController(initialPage: _index);
 
     _sourceSubscription?.cancel();
     _sourceSubscription = source.items.changes.listen((e) {
@@ -202,9 +205,17 @@ class PlayerController extends GetxController {
           });
           break;
       }
+
+      index.value = max(0, posts.indexWhere((e) => e.id == key.value));
+      if (vertical.hasClients && (vertical.page ?? 0) != index.value) {
+        _ignorePageListener = true;
+        vertical.jumpToPage(index.value);
+        _ignorePageListener = false;
+      }
     });
 
     HardwareKeyboard.instance.addHandler(_keyboardHandler);
+    BackButtonInterceptor.add(_backHandler);
     vertical.addListener(_pageListener);
     super.onInit();
   }
@@ -212,6 +223,7 @@ class PlayerController extends GetxController {
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_keyboardHandler);
+    BackButtonInterceptor.remove(_backHandler);
     vertical.removeListener(_pageListener);
     _sourceSubscription?.cancel();
 
@@ -233,11 +245,11 @@ class PlayerController extends GetxController {
   void playPause() {
     interface.value = true;
 
-    final VideoPlayerController? video = item?.video.value;
+    final ReactivePlayerController? video = item?.video.value;
     if (video != null) {
-      final bool isFinished = video.value.isCompleted;
+      final bool isFinished = video.isCompleted.value;
 
-      if (video.value.isPlaying) {
+      if (video.isPlaying.value) {
         video.pause();
       } else {
         if (isFinished) {
@@ -319,9 +331,9 @@ class PlayerController extends GetxController {
             return true;
           }
 
-          final VideoPlayerController? video = item?.video.value;
+          final ReactivePlayerController? video = item?.video.value;
           if (video != null) {
-            final int seconds = video.value.position.inSeconds;
+            final int seconds = video.position.value.inSeconds;
             video.seekTo(Duration(seconds: max(seconds - 5, 0)));
             return true;
           }
@@ -342,12 +354,12 @@ class PlayerController extends GetxController {
             return true;
           }
 
-          final VideoPlayerController? video = item?.video.value;
+          final ReactivePlayerController? video = item?.video.value;
           if (video != null) {
-            final int seconds = video.value.position.inSeconds;
+            final int seconds = video.position.value.inSeconds;
             video.seekTo(
               Duration(
-                seconds: min(seconds + 5, video.value.duration.inSeconds),
+                seconds: min(seconds + 5, video.duration.value.inSeconds),
               ),
             );
             return true;
@@ -372,27 +384,39 @@ class PlayerController extends GetxController {
     return false;
   }
 
+  bool _backHandler(bool _, RouteInfo __) {
+    shouldClose?.call();
+    return true;
+  }
+
   void _pageListener() {
     if (vertical.hasClients && !_ignorePageListener) {
       final rounded = vertical.page?.round() ?? 0;
 
       if (rounded != index.value) {
         index.value = rounded;
-
-        // for (var e in slides.values) {
-        //   e.controller.
-        // }
-
-        // if (scrollController.hasClients) {
-        //   itemScrollController.scrollTo(
-        //     index: index.value,
-        //     duration: Duration(milliseconds: 100),
-        //     curve: Curves.ease,
-        //     alignment: 0,
-        //   );
-        // }
-
         key.value = source.values.elementAtOrNull(rounded)?.id ?? key.value;
+
+        for (var i = 0; i < posts.length; ++i) {
+          if (i == index.value) {
+            posts[i].items
+                .where((e) => e.video.value != null)
+                .firstOrNull
+                ?.video
+                .value
+                ?.play();
+          } else {
+            for (var e in posts[i].items) {
+              e.video.value?.pause();
+            }
+          }
+        }
+
+        final Post? items = posts.elementAtOrNull(index.value);
+        for (var e in items?.items ?? <PostItem>[]) {
+          e.video.value?.play();
+        }
+
         print('_pageListener() -> index: ${index.value}, key: ${key.value}');
       }
     }
@@ -452,6 +476,9 @@ class Post implements Comparable<Post> {
 
   void dispose() {
     horizontal.removeListener(_pageListener);
+    for (var e in items) {
+      e.dispose();
+    }
   }
 
   @override
@@ -498,7 +525,7 @@ class PostItem {
 
   final Attachment attachment;
 
-  final Rx<VideoPlayerController?> video = Rx(null);
+  final Rx<ReactivePlayerController?> video = Rx(null);
 
   @override
   int get hashCode => attachment.hashCode;
@@ -508,8 +535,68 @@ class PostItem {
     return other is PostItem && other.attachment == attachment;
   }
 
+  void dispose() {
+    video.value?.dispose();
+  }
+
   @override
   String toString() {
     return 'PostItem($attachment, video: $video)';
+  }
+}
+
+class ReactivePlayerController {
+  ReactivePlayerController(this.controller) {
+    controller.addListener(_listener);
+  }
+
+  final VideoPlayerController controller;
+
+  final RxList<DurationRange> buffered = RxList();
+  final RxBool isBuffering = RxBool(true);
+  final RxBool isLooping = RxBool(false);
+  final RxBool isPlaying = RxBool(false);
+  final RxBool isCompleted = RxBool(false);
+  final Rx<Size> size = Rx(Size.zero);
+  final Rx<Duration> position = Rx(Duration.zero);
+  final Rx<Duration> duration = Rx(Duration.zero);
+  final RxDouble volume = RxDouble(0);
+
+  void dispose() {
+    controller.removeListener(_listener);
+  }
+
+  Future<void> play() async {
+    await controller.play();
+  }
+
+  Future<void> pause() async {
+    await controller.pause();
+  }
+
+  Future<void> seekTo(Duration to) async {
+    await controller.seekTo(to);
+  }
+
+  Future<void> setRate(double speed) async {
+    controller.setPlaybackSpeed(speed);
+  }
+
+  Future<void> setVolume(double volume) async {
+    controller.setVolume(volume);
+  }
+
+  void _listener() {
+    buffered.value = controller.value.buffered;
+    isBuffering.value = controller.value.isInitialized
+        ? controller.value.isBuffering
+        : true;
+    isLooping.value = controller.value.isLooping;
+    isPlaying.value = controller.value.isPlaying;
+    isCompleted.value = controller.value.isCompleted;
+    size.value = controller.value.size;
+    position.value = controller.value.position;
+    duration.value = controller.value.duration;
+    volume.value = controller.value.volume;
   }
 }

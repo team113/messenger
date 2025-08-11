@@ -179,7 +179,7 @@ extension _SettingsDb on DtoSettings {
             .replaceFirst('[', '')
             .replaceFirst(']', '')
             .split(', '),
-        videoVolume: e.videoVolume ?? 100,
+        videoVolume: e.videoVolume ?? 1,
       ),
       media: MediaSettings(
         audioDevice: e.audioDevice,

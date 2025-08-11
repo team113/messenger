@@ -18,15 +18,22 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
 import 'video_volume_bar.dart';
 
 /// Draggable video progress bar.
 class ProgressBar extends StatefulWidget {
-  const ProgressBar(
-    this.controller, {
+  const ProgressBar({
+    this.buffer = Duration.zero,
+    this.duration = Duration.zero,
+    this.position = Duration.zero,
+    this.isPlaying = false,
+    this.onPause,
+    this.onPlay,
+    this.seekTo,
+
+    //
     this.onDragEnd,
     this.onDragStart,
     this.onDragUpdate,
@@ -36,8 +43,13 @@ class ProgressBar extends StatefulWidget {
     this.drawShadow = true,
   });
 
-  /// [VideoController] controlling the [Video] player functionality.
-  final VideoController controller;
+  final Duration buffer;
+  final Duration duration;
+  final Duration position;
+  final bool isPlaying;
+  final void Function()? onPause;
+  final void Function()? onPlay;
+  final Future<void> Function(Duration)? seekTo;
 
   /// Callback, called when progress drag started.
   final Function()? onDragStart;
@@ -66,33 +78,18 @@ class _ProgressBarState extends State<ProgressBar> {
   /// Indicator whether video was playing when `dragStart` event triggered.
   bool _controllerWasPlaying = false;
 
-  /// Current position of this [ProgressBar].
   late Duration _position;
-
-  /// [StreamSubscription] for the [VideoController] position changes updating
-  /// the [_position].
-  StreamSubscription? _positionSubscription;
 
   @override
   void initState() {
-    _position = widget.controller.player.state.position;
-    _positionSubscription = widget.controller.player.stream.position.listen((
-      e,
-    ) {
-      _position = e;
-
-      if (mounted) {
-        setState(() {});
-      }
-    });
-
+    _position = widget.position;
     super.initState();
   }
 
   @override
-  void dispose() {
-    _positionSubscription?.cancel();
-    super.dispose();
+  void didUpdateWidget(ProgressBar oldWidget) {
+    _position = widget.position;
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -104,39 +101,33 @@ class _ProgressBarState extends State<ProgressBar> {
         color: style.colors.transparent,
         width: double.infinity,
         height: 24,
-        child: StreamBuilder(
-          stream: widget.controller.player.stream.buffer,
-          initialData: widget.controller.player.state.buffer,
-          builder: (_, buffer) {
-            return MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: CustomPaint(
-                painter: _ProgressBarPainter(
-                  duration: widget.controller.player.state.duration,
-                  position: _position,
-                  buffered: buffer.data!,
-                  colors: ProgressBarColors(
-                    played: style.colors.primary,
-                    handle: style.colors.primary,
-                    buffered: style.colors.background.withValues(alpha: 0.5),
-                    background: style.colors.secondary.withValues(alpha: 0.5),
-                  ),
-                  barHeight: widget.barHeight,
-                  handleHeight: widget.handleHeight,
-                  drawShadow: widget.drawShadow,
-                ),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: CustomPaint(
+            painter: _ProgressBarPainter(
+              duration: widget.duration,
+              position: _position,
+              buffered: widget.buffer,
+              colors: ProgressBarColors(
+                played: style.colors.primary,
+                handle: style.colors.primary,
+                buffered: style.colors.background.withValues(alpha: 0.5),
+                background: style.colors.secondary.withValues(alpha: 0.5),
               ),
-            );
-          },
+              barHeight: widget.barHeight,
+              handleHeight: widget.handleHeight,
+              drawShadow: widget.drawShadow,
+            ),
+          ),
         ),
       ),
     );
 
     return GestureDetector(
       onHorizontalDragStart: (DragStartDetails details) {
-        _controllerWasPlaying = widget.controller.player.state.playing;
+        _controllerWasPlaying = widget.isPlaying;
         if (_controllerWasPlaying) {
-          widget.controller.player.pause();
+          widget.onPause?.call();
         }
 
         widget.onDragStart?.call();
@@ -148,10 +139,10 @@ class _ProgressBarState extends State<ProgressBar> {
         widget.onDragUpdate?.call();
       },
       onHorizontalDragEnd: (DragEndDetails details) async {
-        await widget.controller.player.seek(_position);
+        await widget.seekTo?.call(_position);
 
         if (_controllerWasPlaying) {
-          widget.controller.player.play();
+          widget.onPlay?.call();
         }
 
         widget.onDragEnd?.call();
@@ -160,7 +151,7 @@ class _ProgressBarState extends State<ProgressBar> {
         _position = _relativePosition(details.globalPosition);
         setState(() {});
 
-        widget.controller.player.seek(_position);
+        widget.seekTo?.call(_position);
       },
       child: child,
     );
@@ -172,7 +163,7 @@ class _ProgressBarState extends State<ProgressBar> {
     final Offset position = box.globalToLocal(globalPosition);
     if (position.dx > 0) {
       final double relative = position.dx / box.size.width;
-      return widget.controller.player.state.duration * relative;
+      return widget.duration * relative;
     } else {
       return Duration.zero;
     }

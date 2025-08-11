@@ -86,7 +86,8 @@ class VolumeOverlay extends StatelessWidget {
                             child: MouseRegion(
                               cursor: SystemMouseCursors.click,
                               child: VideoVolumeBar(
-                                controller,
+                                volume: controller.player.state.volume,
+                                onSetVolume: controller.player.setVolume,
                                 onDragStart: onDragStart,
                                 onDragEnd: onDragEnd,
                                 colors: ProgressBarColors(

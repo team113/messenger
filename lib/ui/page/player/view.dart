@@ -23,9 +23,7 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:video_player/video_player.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -81,10 +79,17 @@ class PlayerView extends StatelessWidget {
     final ModalRoute<T> route;
 
     if (context.isMobile) {
+      final style = Theme.of(context).style;
+
       route = MaterialPageRoute<T>(
         builder: (BuildContext context) {
-          return CustomSafeArea(
-            child: Material(type: MaterialType.transparency, child: gallery),
+          return Material(
+            type: MaterialType.canvas,
+            color: style.colors.onBackground,
+            child: Scaffold(
+              backgroundColor: style.colors.onBackground,
+              body: CustomSafeArea(child: gallery),
+            ),
           );
         },
       );
@@ -124,7 +129,7 @@ class PlayerView extends StatelessWidget {
     return GetBuilder(
       init: PlayerController(
         Get.find(),
-        initialKey: initialKey,
+        initialKey: initialKey ?? '',
         initialIndex: initialIndex,
         source: source,
         shouldClose: Navigator.of(context).pop,
@@ -168,11 +173,16 @@ class PlayerView extends StatelessWidget {
           ? NeverScrollableScrollPhysics()
           : null,
       controller: post.horizontal,
-      children: [...post.items.map((e) => _attachment(context, c, e))],
+      children: [...post.items.map((e) => _attachment(context, c, post, e))],
     );
   }
 
-  Widget _attachment(BuildContext context, PlayerController c, PostItem item) {
+  Widget _attachment(
+    BuildContext context,
+    PlayerController c,
+    Post post,
+    PostItem item,
+  ) {
     final Attachment attachment = item.attachment;
 
     if (attachment is ImageAttachment) {
@@ -203,9 +213,20 @@ class PlayerView extends StatelessWidget {
           volume: c.settings.value?.videoVolume,
           onVolumeChanged: c.setVideoVolume,
           loop: true,
+          autoplay: false,
           onController: (e) {
             SchedulerBinding.instance.addPostFrameCallback((_) {
-              item.video.value = e;
+              item.video.value?.dispose();
+
+              if (e == null) {
+                item.video.value = null;
+              } else {
+                item.video.value = ReactivePlayerController(e);
+
+                if (c.index.value == c.posts.indexOf(post)) {
+                  item.video.value?.play();
+                }
+              }
             });
           },
         );
@@ -322,7 +343,7 @@ class PlayerView extends StatelessWidget {
     final bool isMobile = context.isMobile;
 
     return Obx(() {
-      final VideoPlayerController? video = c.item?.video.value;
+      final ReactivePlayerController? video = c.item?.video.value;
 
       return Stack(
         children: [
@@ -346,41 +367,29 @@ class PlayerView extends StatelessWidget {
             MouseRegion(
               hitTestBehavior: HitTestBehavior.translucent,
               cursor: SystemMouseCursors.click,
-              child: StreamBuilder(
-                stream: video.player.stream.buffering,
-                initialData: video.player.state.buffering,
-                builder: (_, buffering) {
-                  return buffering.data!
-                      ? const Center(child: CustomProgressIndicator())
-                      : StreamBuilder(
-                          stream: video.player.stream.playing,
-                          initialData: video.player.state.playing,
-                          builder: (_, playing) => Obx(() {
-                            return CenteredPlayPause(
-                              video,
-                              show:
-                                  c.interface.value && !(playing.data ?? true),
-                              onPressed: c.playPause,
-                            );
-                          }),
-                        );
-                },
-              ),
+              child: Obx(() {
+                if (video.isBuffering.value) {
+                  return const Center(child: CustomProgressIndicator());
+                }
+
+                return CenteredPlayPause(
+                  show: c.interface.value && !video.isPlaying.value,
+                  isCompleted: video.isCompleted.value,
+                  isPlaying: video.isPlaying.value,
+                  onPressed: c.playPause,
+                );
+              }),
             ),
 
             if (isMobile) ...[
               Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
-                  onTapDown: (_) {
-                    video.player.setRate(0.5);
-                  },
-                  onTapUp: (_) {
-                    video.player.setRate(1);
-                  },
+                  onTapDown: (_) => video.setRate(0.5),
+                  onTapUp: (_) => video.setRate(1),
                   onDoubleTap: () {
-                    final int seconds = video.player.state.position.inSeconds;
-                    video.player.seek(Duration(seconds: max(seconds - 5, 0)));
+                    final int seconds = video.position.value.inSeconds;
+                    video.seekTo(Duration(seconds: max(seconds - 5, 0)));
                   },
                   child: Container(
                     height: double.infinity,
@@ -392,19 +401,15 @@ class PlayerView extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
-                  onTapDown: (_) {
-                    video.player.setRate(2);
-                  },
-                  onTapUp: (_) {
-                    video.player.setRate(1);
-                  },
+                  onTapDown: (_) => video.setRate(2),
+                  onTapUp: (_) => video.setRate(1),
                   onDoubleTap: () {
-                    final int seconds = video.player.state.position.inSeconds;
-                    video.player.seek(
+                    final int seconds = video.position.value.inSeconds;
+                    video.seekTo(
                       Duration(
                         seconds: min(
                           seconds + 5,
-                          video.player.state.duration.inSeconds,
+                          video.duration.value.inSeconds,
                         ),
                       ),
                     );
@@ -482,9 +487,9 @@ class PlayerView extends StatelessWidget {
                       c.side.toggle();
 
                       if (isMobile) {
-                        final VideoPlayerController? video =
+                        final ReactivePlayerController? video =
                             c.item?.video.value;
-                        video?.player.pause();
+                        video?.pause();
                       }
                     }
                   : null,
@@ -527,7 +532,7 @@ class PlayerView extends StatelessWidget {
     BoxConstraints constraints,
   ) {
     return Obx(() {
-      final VideoPlayerController? video = c.item?.video.value;
+      final ReactivePlayerController? video = c.item?.video.value;
 
       return Stack(
         clipBehavior: Clip.none,
@@ -562,18 +567,18 @@ class PlayerView extends StatelessWidget {
               bottom: 44,
               left: 0,
               right: 0,
-              child: ProgressBar(
-                handleHeight: 1,
-                video,
-                onDragStart: () {
-                  // setState(() => _dragging = true);
-                  // _hideTimer?.cancel();
-                },
-                onDragEnd: () {
-                  // setState(() => _dragging = false);
-                  // _startHideTimer();
-                },
-              ),
+              child: Obx(() {
+                return ProgressBar(
+                  handleHeight: 1,
+                  buffer: video.buffered.firstOrNull?.end ?? Duration.zero,
+                  duration: video.duration.value,
+                  position: video.position.value,
+                  isPlaying: video.isPlaying.value,
+                  onPause: video.pause,
+                  onPlay: video.play,
+                  seekTo: video.seekTo,
+                );
+              }),
             ),
         ],
       );
@@ -596,35 +601,42 @@ class PlayerView extends StatelessWidget {
 
       return WidgetButton(
         onPressed: c.expanded.toggle,
-        child: Column(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-              child: Row(
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  AvatarWidget.fromUser(
-                    user,
-                    radius: AvatarRadius.small,
-                    isOnline: user.online && user.presence == Presence.present,
-                    isAway: user.online && user.presence == Presence.away,
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      user.title,
-                      style: style.fonts.medium.bold.onPrimary,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    child: Row(
+                      children: [
+                        AvatarWidget.fromUser(
+                          user,
+                          radius: AvatarRadius.small,
+                          isOnline:
+                              user.online && user.presence == Presence.present,
+                          isAway: user.online && user.presence == Presence.away,
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            user.title,
+                            style: style.fonts.medium.bold.onPrimary,
+                          ),
+                        ),
+                        Opacity(opacity: 0, child: _position(context, c)),
+                      ],
                     ),
                   ),
-                  Opacity(opacity: 0, child: _position(context, c)),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(20, text != null ? 8 : 0, 20, 4),
-              child: Row(
-                children: [
-                  Expanded(
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      20,
+                      text != null ? 8 : 0,
+                      20,
+                      4,
+                    ),
                     child: Obx(() {
                       return AnimatedSizeAndFade(
                         fadeDuration: Duration(milliseconds: 250),
@@ -685,10 +697,10 @@ class PlayerView extends StatelessWidget {
                       );
                     }),
                   ),
-                  Opacity(opacity: 0, child: _position(context, c)),
                 ],
               ),
             ),
+            Opacity(opacity: 0, child: _position(context, c)),
           ],
         ),
       );
@@ -699,20 +711,14 @@ class PlayerView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final VideoPlayerController? video = c.item?.video.value;
+      final ReactivePlayerController? video = c.item?.video.value;
       if (video == null) {
         return SizedBox();
       }
 
-      return StreamBuilder(
-        stream: video.player.stream.position,
-        initialData: video.player.state.position,
-        builder: (_, position) {
-          return Text(
-            '${position.data?.hhMmSs()} / ${video.player.state.duration.hhMmSs()}',
-            style: style.fonts.normal.regular.onPrimary,
-          );
-        },
+      return Text(
+        '${video.position.value.hhMmSs()} / ${video.duration.value.hhMmSs()}',
+        style: style.fonts.normal.regular.onPrimary,
       );
     });
   }
@@ -774,7 +780,7 @@ class PlayerView extends StatelessWidget {
   Widget _volume(
     BuildContext context,
     PlayerController c,
-    VideoController controller,
+    ReactivePlayerController controller,
   ) {
     final style = Theme.of(context).style;
 
@@ -783,11 +789,11 @@ class PlayerView extends StatelessWidget {
         WidgetButton(
           onPressed: () {
             // _cancelAndRestartTimer();
-            if (controller.player.state.volume == 0) {
-              controller.player.setVolume(c.latestVolume ?? 0.5);
+            if (controller.volume.value == 0) {
+              controller.setVolume(c.latestVolume ?? 0.5);
             } else {
-              c.latestVolume = controller.player.state.volume;
-              controller.player.setVolume(0.0);
+              c.latestVolume = controller.volume.value;
+              controller.setVolume(0.0);
             }
           },
           child: SvgIcon(SvgIcons.volume),
@@ -795,9 +801,8 @@ class PlayerView extends StatelessWidget {
         SizedBox(width: 12),
         Expanded(
           child: VideoVolumeBar(
-            controller,
-            onDragStart: () {},
-            onDragEnd: () {},
+            volume: controller.volume.value,
+            onSetVolume: controller.setVolume,
             handleHeight: 8,
             colors: ProgressBarColors(
               played: style.colors.onPrimary,
@@ -817,16 +822,23 @@ class PlayerView extends StatelessWidget {
     BoxConstraints constraints,
   ) {
     return Obx(() {
-      final VideoPlayerController? video = c.item?.video.value;
+      final ReactivePlayerController? video = c.item?.video.value;
 
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(width: 7),
           if (video != null) ...[
-            CustomPlayPause(video, height: 48, onTap: c.playPause),
+            CustomPlayPause(
+              video.isPlaying.value,
+              height: 48,
+              onTap: c.playPause,
+            ),
             const SizedBox(width: 12),
-            CurrentPosition(video),
+            CurrentPosition(
+              position: video.position.value,
+              duration: video.duration.value,
+            ),
             const SizedBox(width: 36),
             SizedBox(width: 100, child: _volume(context, c, video)),
           ],
@@ -848,7 +860,7 @@ class PlayerView extends StatelessWidget {
     return Obx(() {
       final Post? post = c.post;
       final ChatItemId? itemId = post?.itemId;
-      final VideoPlayerController? video = c.item?.video.value;
+      final ReactivePlayerController? video = c.item?.video.value;
 
       final bool canReact = itemId != null && onReact != null;
       final bool canReply = itemId != null && onReply != null;
@@ -864,11 +876,11 @@ class PlayerView extends StatelessWidget {
               onPressed: video == null
                   ? null
                   : () {
-                      if (video.player.state.volume == 0) {
-                        video.player.setVolume(c.latestVolume ?? 0.5);
+                      if (video.volume.value == 0) {
+                        video.setVolume(c.latestVolume ?? 0.5);
                       } else {
-                        c.latestVolume = video.player.state.volume;
-                        video.player.setVolume(0.0);
+                        c.latestVolume = video.volume.value;
+                        video.setVolume(0.0);
                       }
                     },
               child: SvgIcon(SvgIcons.volume),

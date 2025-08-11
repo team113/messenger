@@ -16,17 +16,16 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
 import 'animated_play_pause.dart';
 
 /// Custom-styled [AnimatedPlayPause] displaying a state of the [controller].
 class CustomPlayPause extends StatelessWidget {
-  const CustomPlayPause(this.controller, {super.key, this.height, this.onTap});
+  const CustomPlayPause(this.playing, {super.key, this.height, this.onTap});
 
   /// [VideoController] controlling the [Video] player functionality.
-  final VideoController controller;
+  final bool playing;
 
   /// Height of this [CustomPlayPause].
   final double? height;
@@ -45,16 +44,10 @@ class CustomPlayPause extends StatelessWidget {
         child: Container(
           height: height,
           color: style.colors.transparent,
-          child: StreamBuilder(
-            stream: controller.player.stream.playing,
-            initialData: controller.player.state.playing,
-            builder: (_, playing) {
-              return AnimatedPlayPause(
-                playing.data!,
-                size: 21,
-                color: style.colors.onPrimary,
-              );
-            },
+          child: AnimatedPlayPause(
+            playing,
+            size: 21,
+            color: style.colors.onPrimary,
           ),
         ),
       ),

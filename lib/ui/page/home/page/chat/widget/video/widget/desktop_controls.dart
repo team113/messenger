@@ -188,7 +188,7 @@ class _DesktopControlsState extends State<DesktopControls>
                 return buffering.data!
                     ? const Center(child: CustomProgressIndicator())
                     : CenteredPlayPause(
-                        widget.controller,
+                        isCompleted: widget.controller.player.state.completed,
                         show:
                             (!_dragging && !_hideStuff || _showInterface) &&
                             !widget.controller.player.state.playing,
@@ -256,16 +256,25 @@ class _DesktopControlsState extends State<DesktopControls>
                 children: [
                   const SizedBox(width: 7),
                   CustomPlayPause(
-                    widget.controller,
+                    widget.controller.player.state.playing,
                     height: widget.barHeight,
                     onTap: _playPause,
                   ),
                   const SizedBox(width: 12),
-                  CurrentPosition(widget.controller),
+                  CurrentPosition(
+                    position: widget.controller.player.state.position,
+                    duration: widget.controller.player.state.duration,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ProgressBar(
-                      widget.controller,
+                      buffer: widget.controller.player.state.buffer,
+                      duration: widget.controller.player.state.duration,
+                      position: widget.controller.player.state.position,
+                      isPlaying: widget.controller.player.state.playing,
+                      onPause: widget.controller.player.pause,
+                      onPlay: widget.controller.player.play,
+                      seekTo: widget.controller.player.seek,
                       onDragStart: () {
                         setState(() => _dragging = true);
                         _hideTimer?.cancel();
