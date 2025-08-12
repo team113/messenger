@@ -37,6 +37,7 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
+    this.fit = BoxFit.contain,
   }) : bytes = null,
        path = null;
 
@@ -47,6 +48,7 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
+    this.fit = BoxFit.contain,
   }) : url = null,
        checksum = null,
        path = null;
@@ -58,6 +60,7 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
+    this.fit = BoxFit.contain,
   }) : url = null,
        checksum = null,
        bytes = null;
@@ -79,6 +82,8 @@ class VideoThumbnail extends StatefulWidget {
 
   /// Optional width this [VideoThumbnail] occupies.
   final double? width;
+
+  final BoxFit fit;
 
   /// Callback, called on the video loading errors.
   final Future<void> Function()? onError;
@@ -163,7 +168,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     }
 
     return SizedBox(
-      width: width / _controller!.value.aspectRatio,
+      width: switch (widget.fit) {
+        BoxFit.contain => width / _controller!.value.aspectRatio,
+        (_) => width,
+      },
       height: height,
       child: ClipRect(
         child: FittedBox(
@@ -268,15 +276,33 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     try {
       await Backoff.run(() async {
         try {
+          Log.debug('_ensureReachable() -> fetching HEAD...', '$runtimeType');
+
           await (await PlatformUtils.dio).head(widget.url!);
+
+          Log.debug(
+            '_ensureReachable() -> fetching HEAD... done!',
+            '$runtimeType',
+          );
         } catch (e) {
+          Log.debug(
+            '_ensureReachable() -> fetching HEAD... ⛔️ failed with $e',
+            '$runtimeType',
+          );
+
           if (e is DioException && e.response?.statusCode == 403) {
             _headerToken?.cancel();
 
-            await widget.onError?.call();
-
-            if (mounted) {
-              setState(() {});
+            if (widget.onError == null) {
+              Log.warning(
+                '_ensureReachable() -> HEAD has failed with 403, yet no `onError` handler was provided, thus the resource cannot be recovered!',
+                '$runtimeType',
+              );
+            } else {
+              await widget.onError?.call();
+              if (mounted) {
+                setState(() {});
+              }
             }
           } else {
             rethrow;

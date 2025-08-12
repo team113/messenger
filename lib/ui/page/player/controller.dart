@@ -29,6 +29,7 @@ import 'package:mutex/mutex.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../domain/repository/chat.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item_quote.dart';
@@ -459,10 +460,14 @@ class PlayerController extends GetxController {
     final ChatItemId? itemId = post.itemId;
 
     if (chatId != null && itemId != null) {
-      final chat = await _chatService?.get(chatId);
-      final single = await chat?.single(itemId);
+      final RxChat? chat = await _chatService?.get(chatId);
+      final Paginated<ChatItemId, Rx<ChatItem>>? single = await chat?.single(
+        itemId,
+      );
+
       await single?.around();
-      final item = single?.values.firstOrNull;
+
+      final Rx<ChatItem>? item = single?.values.firstOrNull;
 
       if (chat != null && single != null && item != null) {
         await chat.updateAttachments(item.value);
@@ -597,6 +602,30 @@ class PlayerController extends GetxController {
         final Post? items = posts.elementAtOrNull(index.value);
         for (var e in items?.items ?? <PostItem>[]) {
           e.video.value?.play();
+        }
+
+        if (index.value <= 1) {
+          if (!source.previousLoading.value) {
+            Log.debug(
+              '`index.value` has reached top, thus trying to load previous page, hasPrevious: ${source.hasPrevious.value}',
+              '$runtimeType',
+            );
+
+            if (source.hasPrevious.value) {
+              source.previous();
+            }
+          }
+        } else if (index.value >= posts.length - 2) {
+          if (!source.nextLoading.value) {
+            Log.debug(
+              '`index.value` has reached bottom, thus trying to load next page, hasNext: ${source.hasNext.value}',
+              '$runtimeType',
+            );
+
+            if (source.hasNext.value) {
+              source.next();
+            }
+          }
         }
 
         print('_pageListener() -> index: ${index.value}, key: ${key.value}');

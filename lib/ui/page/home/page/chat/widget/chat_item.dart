@@ -184,7 +184,6 @@ class ChatItemWidget extends StatefulWidget {
   static Widget mediaAttachment(
     BuildContext context, {
     required Attachment attachment,
-
     GlobalKey? key,
     ChatItem? item,
     Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery,

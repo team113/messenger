@@ -98,9 +98,31 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
   /// Initial [MediaItem] to display in a [PlayerView] widget.
   MediaItem? _initial;
 
-  final FixedItemsPaginated<String, MediaItem> _paginated = FixedItemsPaginated(
-    {},
-  );
+  late final FixedItemsPaginated<String, MediaItem> _paginated =
+      FixedItemsPaginated(
+        {},
+        onNext: () async {
+          _paginated.nextLoading.value = true;
+
+          try {
+            await widget.paginated?.next();
+            _paginated.hasNext.value = widget.paginated?.hasNext.value ?? false;
+          } finally {
+            _paginated.nextLoading.value = false;
+          }
+        },
+        onPrevious: () async {
+          _paginated.previousLoading.value = true;
+
+          try {
+            await widget.paginated?.previous();
+            _paginated.hasPrevious.value =
+                widget.paginated?.hasPrevious.value ?? false;
+          } finally {
+            _paginated.previousLoading.value = false;
+          }
+        },
+      );
 
   @override
   void initState() {
@@ -108,9 +130,16 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
       if (_initial != null) ...{_initial!.id: _initial!},
     });
 
+    _paginated.hasNext.value = widget.paginated?.hasNext.value ?? false;
+    _paginated.hasPrevious.value = widget.paginated?.hasPrevious.value ?? false;
+
     // After the initial page is fetched, try to fetch the previous one and set
     // the [_initial] to `null` so it doesn't mess the indexes in [PlayerView].
     widget.paginated?.around().then((_) async {
+      _paginated.hasNext.value = widget.paginated?.hasNext.value ?? false;
+      _paginated.hasPrevious.value =
+          widget.paginated?.hasPrevious.value ?? false;
+
       if (mounted) {
         _initial = null;
         setState(() {});
@@ -131,6 +160,12 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
     }
 
     _subscription = widget.paginated?.items.changes.listen((e) {
+      final bool hasNext = widget.paginated?.hasNext.value ?? false;
+      final bool hasPrevious = widget.paginated?.hasPrevious.value ?? false;
+
+      _paginated.hasNext.value = hasNext;
+      _paginated.hasPrevious.value = hasPrevious;
+
       switch (e.op) {
         case OperationKind.added:
         case OperationKind.updated:

@@ -166,6 +166,8 @@ class _VideoPlaybackState extends State<VideoPlayback> {
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
+    Log.debug('_initVideo() for `${widget.url}`', '$runtimeType');
+
     _controller?.removeListener(_listener);
     _controller?.dispose();
     _controller = VideoPlayerController.networkUrl(
@@ -195,14 +197,24 @@ class _VideoPlaybackState extends State<VideoPlayback> {
             await _controller?.setLooping(true);
           }
 
+          Log.debug(
+            '_initVideo() -> await _controller?.initialize()...',
+            '$runtimeType',
+          );
+
           await _controller?.initialize();
+
+          Log.debug(
+            '_initVideo() -> await _controller?.initialize()... done!',
+            '$runtimeType',
+          );
 
           if (widget.autoplay) {
             await _controller?.play();
           }
         } catch (e) {
           Log.error(
-            'Unable to load video of `${widget.url}`: $e',
+            'Unable to load video for `${widget.url}`: $e',
             '$runtimeType',
           );
 
@@ -223,21 +235,41 @@ class _VideoPlaybackState extends State<VideoPlayback> {
   /// Fetches the header of [VideoThumbnail.url] to ensure that the URL is
   /// reachable.
   Future<void> _ensureReachable() async {
+    Log.debug('_ensureReachable()', '$runtimeType');
+
     _headerToken?.cancel();
     _headerToken = CancelToken();
 
     try {
       await Backoff.run(() async {
         try {
+          Log.debug('_ensureReachable() -> fetching HEAD...', '$runtimeType');
+
           await (await PlatformUtils.dio).head(widget.url);
+
+          Log.debug(
+            '_ensureReachable() -> fetching HEAD... done!',
+            '$runtimeType',
+          );
         } catch (e) {
+          Log.debug(
+            '_ensureReachable() -> fetching HEAD... ⛔️ failed with $e',
+            '$runtimeType',
+          );
+
           if (e is DioException && e.response?.statusCode == 403) {
             _headerToken?.cancel();
 
-            await widget.onError?.call();
-
-            if (mounted) {
-              setState(() {});
+            if (widget.onError == null) {
+              Log.warning(
+                '_ensureReachable() -> HEAD has failed with 403, yet no `onError` handler was provided, thus the resource cannot be recovered!',
+                '$runtimeType',
+              );
+            } else {
+              await widget.onError?.call();
+              if (mounted) {
+                setState(() {});
+              }
             }
           } else {
             rethrow;

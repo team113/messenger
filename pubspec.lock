@@ -2501,6 +2501,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.0"
+  video_player_web_hls:
+    dependency: "direct main"
+    description:
+      name: video_player_web_hls
+      sha256: "0b494ad7a185d4a4e6ab998e342d408ee1fa0938fec0e27ee6ce2b361d6b458a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
   vm_service:
     dependency: transitive
     description:

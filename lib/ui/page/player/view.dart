@@ -428,6 +428,34 @@ class PlayerView extends StatelessWidget {
               ),
             ],
           ],
+
+          Obx(() {
+            if (!c.source.nextLoading.value) {
+              return SizedBox();
+            }
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 32),
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: CustomProgressIndicator.primary(),
+              ),
+            );
+          }),
+
+          Obx(() {
+            if (!c.source.previousLoading.value) {
+              return SizedBox();
+            }
+
+            return Padding(
+              padding: const EdgeInsets.only(top: 32),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: CustomProgressIndicator.primary(),
+              ),
+            );
+          }),
         ],
       );
     });
@@ -1173,7 +1201,7 @@ class PlayerView extends StatelessWidget {
 
           Expanded(
             child: Obx(() {
-              final medias = c.source.values.mapIndexed((i, e) {
+              final medias = c.posts.mapIndexed((i, e) {
                 return WidgetButton(
                   onPressed: () {
                     if (isMobile) {
@@ -1193,7 +1221,7 @@ class PlayerView extends StatelessWidget {
                       alignment: Alignment.centerLeft,
                       children: [
                         MediaAttachment(
-                          attachment: e.attachments.first,
+                          attachment: e.items.first.attachment,
                           fit: BoxFit.cover,
                           width: isMobile
                               ? constraints.maxWidth
@@ -1201,6 +1229,7 @@ class PlayerView extends StatelessWidget {
                           height: isMobile
                               ? constraints.maxWidth
                               : constraints.maxWidth / 5,
+                          onError: () async => await c.reload(e),
                         ),
                         if (!isMobile && selected)
                           Container(

@@ -213,6 +213,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
                 attachment.file.bytes.value!,
                 height: widget.height,
                 width: widget.width,
+                fit: widget.fit ?? BoxFit.contain,
               );
             }
           });
@@ -221,6 +222,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
             attachment.file.path!,
             height: widget.height,
             width: widget.width,
+            fit: widget.fit ?? BoxFit.contain,
           );
         }
       } else {
@@ -230,6 +232,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           height: widget.height,
           width: widget.width,
           onError: widget.onError,
+          fit: widget.fit ?? BoxFit.contain,
         );
       }
     }
