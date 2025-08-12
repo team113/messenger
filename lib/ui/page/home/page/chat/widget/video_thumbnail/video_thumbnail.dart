@@ -25,6 +25,7 @@ import 'package:video_player/video_player.dart';
 import '/themes.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
+import '/util/platform_utils.dart';
 
 /// Thumbnail displaying the first frame of the provided video.
 class VideoThumbnail extends StatefulWidget {
@@ -92,14 +93,18 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// [Player] opening and maintaining the video to use in [_controller].
   VideoPlayerController? _controller;
 
-  /// [CancelToken] for cancelling the [VideoThumbnail.url] header fetching.
+  /// [CancelToken] for cancelling the [VideoPlayerController] initialization.
   CancelToken? _cancelToken;
+
+  /// [CancelToken] for cancelling the [VideoThumbnail.url] header fetching.
+  CancelToken? _headerToken;
 
   String? _error;
 
   @override
   void initState() {
     _initVideo();
+    _ensureReachable();
     super.initState();
   }
 
@@ -107,6 +112,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   void dispose() {
     _controller?.dispose();
     _cancelToken?.cancel();
+    _headerToken?.cancel();
     super.dispose();
   }
 
@@ -114,6 +120,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   void didUpdateWidget(VideoThumbnail oldWidget) {
     if (oldWidget.bytes != widget.bytes || oldWidget.url != widget.url) {
       _initVideo();
+      _ensureReachable();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -249,6 +256,35 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  /// Fetches the header of [VideoThumbnail.url] to ensure that the URL is
+  /// reachable.
+  Future<void> _ensureReachable() async {
+    _headerToken?.cancel();
+    _headerToken = CancelToken();
+
+    try {
+      await Backoff.run(() async {
+        try {
+          await (await PlatformUtils.dio).head(widget.url!);
+        } catch (e) {
+          if (e is DioException && e.response?.statusCode == 403) {
+            _headerToken?.cancel();
+
+            await widget.onError?.call();
+
+            if (mounted) {
+              setState(() {});
+            }
+          } else {
+            rethrow;
+          }
+        }
+      }, cancel: _cancelToken);
+    } on OperationCanceledException {
+      // No-op.
     }
   }
 }

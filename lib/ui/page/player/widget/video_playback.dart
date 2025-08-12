@@ -26,6 +26,7 @@ import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
+import '/util/platform_utils.dart';
 
 /// Video player with controls.
 class VideoPlayback extends StatefulWidget {
@@ -67,8 +68,11 @@ class _VideoPlaybackState extends State<VideoPlayback> {
   /// [Timer] for displaying the loading animation when non-`null`.
   Timer? _loading;
 
-  /// [CancelToken] for cancelling the [VideoView.url] header fetching.
+  /// [CancelToken] for cancelling the [VideoView.url] fetching.
   CancelToken? _cancelToken;
+
+  /// [CancelToken] for cancelling the [VideoView.url] header fetching.
+  CancelToken? _headerToken;
 
   /// [VideoPlayerController] to display the video.
   VideoPlayerController? _controller;
@@ -81,6 +85,7 @@ class _VideoPlaybackState extends State<VideoPlayback> {
   @override
   void initState() {
     _initVideo();
+    _ensureReachable();
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
 
     super.initState();
@@ -93,6 +98,7 @@ class _VideoPlaybackState extends State<VideoPlayback> {
     _loading?.cancel();
     _controller?.dispose();
     _cancelToken?.cancel();
+    _headerToken?.cancel();
     _volumeSubscription?.cancel();
     super.dispose();
   }
@@ -101,6 +107,7 @@ class _VideoPlaybackState extends State<VideoPlayback> {
   void didUpdateWidget(VideoPlayback oldWidget) {
     if (oldWidget.url != widget.url) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
+        _ensureReachable();
         await _initVideo();
       });
     }
@@ -206,6 +213,35 @@ class _VideoPlaybackState extends State<VideoPlayback> {
 
         if (mounted) {
           setState(() {});
+        }
+      }, cancel: _cancelToken);
+    } on OperationCanceledException {
+      // No-op.
+    }
+  }
+
+  /// Fetches the header of [VideoThumbnail.url] to ensure that the URL is
+  /// reachable.
+  Future<void> _ensureReachable() async {
+    _headerToken?.cancel();
+    _headerToken = CancelToken();
+
+    try {
+      await Backoff.run(() async {
+        try {
+          await (await PlatformUtils.dio).head(widget.url);
+        } catch (e) {
+          if (e is DioException && e.response?.statusCode == 403) {
+            _headerToken?.cancel();
+
+            await widget.onError?.call();
+
+            if (mounted) {
+              setState(() {});
+            }
+          } else {
+            rethrow;
+          }
         }
       }, cancel: _cancelToken);
     } on OperationCanceledException {

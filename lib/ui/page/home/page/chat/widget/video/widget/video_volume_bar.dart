@@ -106,7 +106,6 @@ class VideoVolumeBar extends StatelessWidget {
     final box = context.findRenderObject()! as RenderBox;
     final Offset tapPos = box.globalToLocal(globalPosition);
     final double relative = tapPos.dx / box.size.width;
-    print('${relative.clamp(0, 1)}');
     onSetVolume?.call(relative.clamp(0, 1));
   }
 }

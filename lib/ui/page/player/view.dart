@@ -31,6 +31,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -50,6 +51,7 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/get.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/video_playback.dart';
@@ -129,6 +131,7 @@ class PlayerView extends StatelessWidget {
     return GetBuilder(
       init: PlayerController(
         Get.find(),
+        Get.findOrNull<ChatService>(),
         initialKey: initialKey ?? '',
         initialIndex: initialIndex,
         source: source,
@@ -202,6 +205,7 @@ class PlayerView extends StatelessWidget {
             height: double.infinity,
             checksum: attachment.original.checksum,
             fit: BoxFit.contain,
+            onForbidden: () async => await c.reload(post),
           ),
         ),
       );
@@ -212,6 +216,7 @@ class PlayerView extends StatelessWidget {
           checksum: attachment.original.checksum,
           volume: c.settings.value?.videoVolume,
           onVolumeChanged: c.setVideoVolume,
+          onError: () async => await c.reload(post),
           loop: true,
           autoplay: false,
           onController: (e) {

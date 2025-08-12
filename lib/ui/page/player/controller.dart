@@ -31,13 +31,17 @@ import 'package:video_player/video_player.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/settings.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/ui/worker/cache.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -72,7 +76,8 @@ class MediaItem implements Comparable<MediaItem> {
 
 class PlayerController extends GetxController {
   PlayerController(
-    this._settingsRepository, {
+    this._settingsRepository,
+    this._chatService, {
     this.shouldClose,
     required this.source,
     this.initialKey = '',
@@ -111,6 +116,10 @@ class PlayerController extends GetxController {
   final int initialIndex;
 
   final AbstractSettingsRepository _settingsRepository;
+  final ChatService? _chatService;
+
+  Worker? _volumeDebounce;
+  final RxDouble _volume = RxDouble(-1);
 
   bool _isFullscreen = false;
   final Mutex _fullscreenMutex = Mutex();
@@ -159,6 +168,8 @@ class PlayerController extends GetxController {
 
   @override
   void onInit() {
+    Log.debug('onInit()', '$runtimeType');
+
     for (var e in source.items.values) {
       posts.add(Post.fromMediaItem(e)..init());
     }
@@ -170,18 +181,6 @@ class PlayerController extends GetxController {
 
     _sourceSubscription?.cancel();
     _sourceSubscription = source.items.changes.listen((e) {
-      // final int previous = index.value;
-
-      // index.value = _index;
-
-      // if (previous != index.value) {
-      //   key.value = source.values.elementAtOrNull(index.value)?.id ?? key.value;
-
-      //   _ignorePageListener = true;
-      //   vertical.jumpToPage(index.value);
-      //   _ignorePageListener = false;
-      // }
-
       switch (e.op) {
         case OperationKind.added:
         case OperationKind.updated:
@@ -193,7 +192,7 @@ class PlayerController extends GetxController {
               posts.sort();
             } else {
               // TODO: Update the item.
-              // existing.description =item.d
+              // existing.description = item.d;
             }
           }
           break;
@@ -218,6 +217,10 @@ class PlayerController extends GetxController {
       }
     });
 
+    _volumeDebounce = debounce(_volume, (value) async {
+      await _settingsRepository.setVideoVolume(value);
+    }, time: Duration(milliseconds: 200));
+
     HardwareKeyboard.instance.addHandler(_keyboardHandler);
     BackButtonInterceptor.add(_backHandler);
     vertical.addListener(_pageListener);
@@ -226,6 +229,10 @@ class PlayerController extends GetxController {
 
   @override
   void onClose() {
+    Log.debug('onClose()', '$runtimeType');
+
+    _volumeDebounce?.dispose();
+
     HardwareKeyboard.instance.removeHandler(_keyboardHandler);
     BackButtonInterceptor.remove(_backHandler);
     vertical.removeListener(_pageListener);
@@ -243,10 +250,12 @@ class PlayerController extends GetxController {
   }
 
   Future<void> setVideoVolume(double volume) async {
-    await _settingsRepository.setVideoVolume(volume);
+    _volume.value = volume;
   }
 
   void playPause() {
+    Log.debug('playPause()', '$runtimeType');
+
     interface.value = true;
 
     final ReactivePlayerController? video = item?.video.value;
@@ -266,6 +275,8 @@ class PlayerController extends GetxController {
   }
 
   Future<void> toggleFullscreen() async {
+    Log.debug('toggleFullscreen()', '$runtimeType');
+
     if (_fullscreenMutex.isLocked) {
       return;
     }
@@ -282,6 +293,8 @@ class PlayerController extends GetxController {
   }
 
   Future<void> next() async {
+    Log.debug('next()', '$runtimeType');
+
     if (!hasNextPage) {
       return;
     }
@@ -309,6 +322,8 @@ class PlayerController extends GetxController {
 
   /// Downloads the provided [PostItem].
   Future<void> download(PostItem item, {String? to}) async {
+    Log.debug('download($item)', '$runtimeType');
+
     try {
       try {
         await CacheWorker.instance
@@ -339,13 +354,15 @@ class PlayerController extends GetxController {
             : 'label_video_downloaded'.l10n,
       );
     } catch (_) {
-      MessagePopup.error('err_could_not_download'.l10n);
+      MessagePopup.error('${'err_could_not_download'.l10n}\n\n$e');
       rethrow;
     }
   }
 
   /// Downloads the provided [GalleryItem] using `save as` dialog.
   Future<void> downloadAs(PostItem item) async {
+    Log.debug('downloadAs($item)', '$runtimeType');
+
     try {
       final String? to = await FilePicker.platform.saveFile(
         fileName: item.attachment.original.name,
@@ -366,6 +383,8 @@ class PlayerController extends GetxController {
 
   /// Downloads the provided [GalleryItem] and saves it to the gallery.
   Future<void> saveToGallery(PostItem item) async {
+    Log.debug('saveToGallery($item)', '$runtimeType');
+
     // Tries downloading the [item].
     Future<void> download() async {
       await PlatformUtils.saveToGallery(
@@ -405,6 +424,8 @@ class PlayerController extends GetxController {
   }
 
   Future<void> share(PostItem item) async {
+    Log.debug('share($item)', '$runtimeType');
+
     try {
       try {
         await PlatformUtils.share(
@@ -428,6 +449,39 @@ class PlayerController extends GetxController {
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
       rethrow;
+    }
+  }
+
+  Future<void> reload(Post post) async {
+    Log.debug('reload($post)', '$runtimeType');
+
+    final ChatId? chatId = post.chatId;
+    final ChatItemId? itemId = post.itemId;
+
+    if (chatId != null && itemId != null) {
+      final chat = await _chatService?.get(chatId);
+      final single = await chat?.single(itemId);
+      await single?.around();
+      final item = single?.values.firstOrNull;
+
+      if (chat != null && single != null && item != null) {
+        await chat.updateAttachments(item.value);
+
+        final ChatItem message = item.value;
+
+        if (message is ChatMessage) {
+          post.items.value = message.attachments
+              .map((e) => PostItem(e))
+              .toList();
+        } else if (message is ChatForward) {
+          final quote = message.quote;
+          if (quote is ChatMessageQuote) {
+            post.items.value = quote.attachments
+                .map((e) => PostItem(e))
+                .toList();
+          }
+        }
+      }
     }
   }
 
@@ -555,6 +609,7 @@ class Post implements Comparable<Post> {
   Post({
     required this.id,
     this.itemId,
+    this.chatId,
     List<PostItem> items = const [],
     int initial = 0,
     this.author,
@@ -574,6 +629,7 @@ class Post implements Comparable<Post> {
     return Post(
       id: item.id,
       itemId: item.item?.id,
+      chatId: item.item?.chatId,
       items: item.attachments.map((e) => PostItem(e)).toList(),
       initial: 0,
       author: item.item?.author,
@@ -584,6 +640,7 @@ class Post implements Comparable<Post> {
 
   final String id;
   final ChatItemId? itemId;
+  final ChatId? chatId;
 
   final User? author;
   ChatMessageText? description;
