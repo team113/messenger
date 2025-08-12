@@ -692,9 +692,7 @@ class AuthService extends DisposableService {
     );
 
     LockIdentifier? dbLock;
-
-    final RefreshSessionSecrets secrets =
-        _failed ?? RefreshSessionSecrets.generate();
+    RefreshSessionSecrets? secrets;
 
     try {
       // Acquire a database lock to prevent multiple refreshes of the same
@@ -887,6 +885,7 @@ class AuthService extends DisposableService {
         }
 
         try {
+          secrets = _failed ?? RefreshSessionSecrets.generate();
           final Credentials data = await _authRepository.refreshSession(
             oldCreds.refresh.secret,
             input: secrets,
