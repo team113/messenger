@@ -628,7 +628,10 @@ class PlayerController extends GetxController {
           }
         }
 
-        print('_pageListener() -> index: ${index.value}, key: ${key.value}');
+        Log.debug(
+          '_pageListener() -> index: ${index.value}, key: ${key.value}',
+          '$runtimeType',
+        );
       }
     }
   }
