@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -25,11 +26,13 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/widget/chat_gallery.dart';
+import '/ui/page/player/controller.dart';
+import '/ui/page/player/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
 import 'avatar.dart';
-import 'gallery_popup.dart';
 
 /// Circular big [Avatar] with optional manipulation buttons.
 class BigAvatarWidget extends StatefulWidget {
@@ -114,7 +117,7 @@ class BigAvatarWidget extends StatefulWidget {
 
 /// State of a [BigAvatarWidget] maintaining the [_avatarKey].
 class _BigAvatarWidgetState extends State<BigAvatarWidget> {
-  /// [GlobalKey] of an [AvatarWidget] to display [GalleryPopup] from.
+  /// [GlobalKey] of an [AvatarWidget] to display [PlayerView] from.
   final GlobalKey _avatarKey = GlobalKey();
 
   @override
@@ -265,19 +268,20 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
         onPressed: avatar == null
             ? widget.onUpload
             : () async {
-                await GalleryPopup.show(
-                  context: context,
-                  gallery: GalleryPopup(
-                    initialKey: _avatarKey,
-                    children: [
-                      GalleryItem.image(
-                        avatar!.original.url,
-                        avatar.original.name,
-                        width: avatar.original.width,
-                        height: avatar.original.height,
-                        checksum: avatar.original.checksum,
-                        thumbhash: avatar.big.thumbhash,
-                      ),
+                await PlayerView.show(
+                  context,
+                  gallery: RegularGallery(
+                    items: [
+                      MediaItem([
+                        ImageAttachment(
+                          id: AttachmentId.local(),
+                          original: avatar!.original,
+                          filename: '${DateTime.now()}',
+                          big: avatar.big,
+                          medium: avatar.medium,
+                          small: avatar.small,
+                        ),
+                      ], null),
                     ],
                   ),
                 );

@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 
-import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/global_key.dart';
 
 export 'view.dart';
 

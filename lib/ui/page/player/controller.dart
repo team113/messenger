@@ -20,10 +20,11 @@ import 'dart:math';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 import 'package:mutex/mutex.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:video_player/video_player.dart';
@@ -35,6 +36,9 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/settings.dart';
+import '/l10n/l10n.dart';
+import '/ui/worker/cache.dart';
+import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
@@ -301,6 +305,130 @@ class PlayerController extends GetxController {
 
   Future<void> openPopup() async {
     //
+  }
+
+  /// Downloads the provided [PostItem].
+  Future<void> download(PostItem item, {String? to}) async {
+    try {
+      try {
+        await CacheWorker.instance
+            .download(
+              item.attachment.original.url,
+              item.attachment.original.name,
+              item.attachment.original.size,
+              checksum: item.attachment.original.checksum,
+              to: to,
+            )
+            .future;
+      } catch (_) {
+        // TODO: Implement.
+        // if (item.onError != null) {
+        //   await item.onError?.call();
+        //   return SchedulerBinding.instance.addPostFrameCallback((_) {
+        //     item = widget.children[_page];
+        //     _download(item, to: to);
+        //   });
+        // } else {
+        rethrow;
+        // }
+      }
+
+      MessagePopup.success(
+        item.attachment is ImageAttachment
+            ? 'label_image_downloaded'.l10n
+            : 'label_video_downloaded'.l10n,
+      );
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Downloads the provided [GalleryItem] using `save as` dialog.
+  Future<void> downloadAs(PostItem item) async {
+    try {
+      final String? to = await FilePicker.platform.saveFile(
+        fileName: item.attachment.original.name,
+        type: item.attachment is ImageAttachment
+            ? FileType.image
+            : FileType.video,
+        lockParentWindow: true,
+      );
+
+      if (to != null) {
+        await download(item, to: to);
+      }
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
+    }
+  }
+
+  /// Downloads the provided [GalleryItem] and saves it to the gallery.
+  Future<void> saveToGallery(PostItem item) async {
+    // Tries downloading the [item].
+    Future<void> download() async {
+      await PlatformUtils.saveToGallery(
+        item.attachment.original.url,
+        item.attachment.original.name,
+        checksum: item.attachment.original.checksum,
+        size: item.attachment.original.size,
+        isImage: item.attachment is ImageAttachment,
+      );
+
+      MessagePopup.success(
+        item.attachment is ImageAttachment
+            ? 'label_image_saved_to_gallery'.l10n
+            : 'label_video_saved_to_gallery'.l10n,
+      );
+    }
+
+    try {
+      try {
+        await download();
+      } on DioException catch (_) {
+        // TODO: Implement.
+        // if (item.onError != null && e.response?.statusCode == 403) {
+        //   await item.onError?.call();
+        //   await Future.delayed(Duration.zero);
+        //   await download();
+        // } else {
+        rethrow;
+        // }
+      }
+    } on UnsupportedError catch (_) {
+      MessagePopup.error('err_unsupported_format'.l10n);
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
+    }
+  }
+
+  Future<void> share(PostItem item) async {
+    try {
+      try {
+        await PlatformUtils.share(
+          item.attachment.original.url,
+          item.attachment.original.name,
+          checksum: item.attachment.original.checksum,
+        );
+      } catch (_) {
+        // TODO: Implement.
+        // if (item.onError != null) {
+        //   await item.onError?.call();
+        //   await PlatformUtils.share(
+        //     item.link,
+        //     item.name,
+        //     checksum: item.checksum,
+        //   );
+        // } else {
+        rethrow;
+        // }
+      }
+    } catch (_) {
+      MessagePopup.error('err_could_not_download'.l10n);
+      rethrow;
+    }
   }
 
   bool _keyboardHandler(KeyEvent event) {

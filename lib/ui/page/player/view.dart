@@ -508,7 +508,20 @@ class PlayerView extends StatelessWidget {
           ContextMenuRegion(
             actions: [
               ContextMenuButton(label: 'Find in chat', onPressed: () {}),
-              ContextMenuButton(label: 'Save', onPressed: () {}),
+              ContextMenuButton(
+                label: 'btn_save'.l10n,
+                onPressed: () async {
+                  final PostItem? item = c.item;
+
+                  if (item != null) {
+                    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+                      await c.saveToGallery(item);
+                    } else {
+                      await c.download(item);
+                    }
+                  }
+                },
+              ),
               ContextMenuButton(
                 label: 'Hide interface',
                 onPressed: c.interface.toggle,

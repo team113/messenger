@@ -21,7 +21,7 @@ import 'package:get/get.dart';
 import '../controller.dart';
 import '../widget/more_button.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/global_key.dart';
 import '/util/platform_utils.dart';
 
 /// Visual representation of the [MessageFieldController.panel].

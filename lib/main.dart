@@ -202,6 +202,7 @@ Future<void> main() async {
 
 /// Initializes the dependencies and runs the [App].
 Future<void> _runApp() async {
+  WebUtils.registerWith();
   VideoPlayerMediaKit.ensureInitialized(
     android: false, // media_kit_libs_android_video
     iOS: true, // media_kit_libs_ios_video

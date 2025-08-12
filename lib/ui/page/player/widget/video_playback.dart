@@ -139,8 +139,7 @@ class _VideoPlaybackState extends State<VideoPlayback> {
     return GestureDetector(
       key: Key(_loading != null ? 'Box' : 'Loading'),
       onTap: () {
-        // Intercept `onTap` event to prevent [GalleryPopup]
-        // closing.
+        // Intercept `onTap` event to prevent [PlayerView] closing.
       },
       child: Center(
         child: Container(

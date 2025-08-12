@@ -28,8 +28,8 @@ import 'package:get/get.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
+import '/util/global_key.dart';
 import '/util/platform_utils.dart';
 
 /// Animated context menu optimized and decorated for mobile screens.

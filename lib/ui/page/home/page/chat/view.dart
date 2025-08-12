@@ -1668,7 +1668,7 @@ class ChatView extends StatelessWidget {
       attachments: media.toList(),
     );
 
-    // Returns a [SingleItemPaginated] to display in a [GalleryPopup].
+    // Returns a [SingleItemPaginated] to display in a [PlayerView].
     Paginated<ChatItemId, Rx<ChatItem>> onGallery() {
       return SingleItemPaginated(const ChatItemId('dummy'), Rx(item))..around();
     }
@@ -1709,7 +1709,6 @@ class ChatView extends StatelessWidget {
                           return ChatItemWidget.mediaAttachment(
                             context,
                             attachment: e,
-
                             item: item,
                             onGallery: onGallery,
                             key: key,

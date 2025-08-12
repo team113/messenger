@@ -47,14 +47,14 @@ import '/provider/gql/exceptions.dart'
     show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
 import '/ui/page/call/participant/controller.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/audio_utils.dart';
+import '/util/fixed_timer.dart';
+import '/util/global_key.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '/util/fixed_timer.dart';
 import '/util/web/web_utils.dart';
 import 'component/common.dart';
 import 'screen_share/view.dart';

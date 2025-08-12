@@ -47,7 +47,6 @@ import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/page/player/controller.dart';
 import '/ui/page/player/view.dart';
@@ -142,7 +141,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a gallery list is required.
   ///
-  /// If not specified, then [GalleryPopup] won't open when [ImageAttachment] is
+  /// If not specified, then [PlayerView] won't open when [ImageAttachment] is
   /// tapped.
   final Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery;
 
@@ -347,7 +346,7 @@ class ChatItemWidget extends StatefulWidget {
 /// State of a [ChatItemWidget] maintaining the [GlobalKey]s for gallery and
 /// machinery for a swipe gesture.
 class _ChatItemWidgetState extends State<ChatItemWidget> {
-  /// [GlobalKey]s of [Attachment]s used to animate a [GalleryPopup] from/to
+  /// [GlobalKey]s of [Attachment]s used to animate a [PlayerView] from/to
   /// corresponding [Widget].
   List<GlobalKey> _galleryKeys = [];
 

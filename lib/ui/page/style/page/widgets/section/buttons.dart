@@ -24,7 +24,6 @@ import '/themes.dart';
 import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/call/widget/call_button.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/widget/gallery_button.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/page/home/widget/unblock_button.dart';
@@ -243,39 +242,6 @@ class ButtonsSection {
               asset: SvgIcons.callScreenShareOn,
               hinted: true,
               onPressed: () {},
-            ),
-          ],
-        ),
-      ),
-      Headline(
-        headline: 'GalleryButton',
-        background: style.colors.primaryAuxiliaryOpacity25,
-        bottom: false,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GalleryButton(
-              onPressed: () {},
-              child: Icon(
-                Icons.close_rounded,
-                color: style.colors.onPrimary,
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 32),
-            GalleryButton(onPressed: () {}, icon: SvgIcons.fullscreenEnter),
-            const SizedBox(width: 32),
-            GalleryButton(
-              onPressed: () {},
-              child: Padding(
-                padding: const EdgeInsets.only(left: 1),
-                child: Icon(
-                  Icons.keyboard_arrow_right_rounded,
-                  color: style.colors.onPrimary,
-                  size: 36,
-                ),
-              ),
             ),
           ],
         ),

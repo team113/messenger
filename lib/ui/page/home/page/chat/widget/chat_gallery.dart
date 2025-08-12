@@ -53,7 +53,7 @@ class RegularGallery extends StatelessWidget {
   }
 }
 
-/// [GalleryPopup] displaying the provided [Paginated] of [Attachment]s.
+/// [PlayerView] displaying the provided [Paginated] of [Attachment]s.
 class PaginatedGallery extends StatefulWidget {
   const PaginatedGallery({
     super.key,
@@ -65,14 +65,14 @@ class PaginatedGallery extends StatefulWidget {
     this.onShare,
   });
 
-  /// [Paginated] to display in a [GalleryPopup].
+  /// [Paginated] to display in a [PlayerView].
   final Paginated<ChatItemId, Rx<ChatItem>>? paginated;
 
   /// Initial [Attachment] and a [ChatItem] containing it to display initially
-  /// in a [GalleryPopup].
+  /// in a [PlayerView].
   final (ChatItem?, Attachment)? initial;
 
-  /// [GlobalKey] of the widget to display [GalleryPopup] expanding from.
+  /// [GlobalKey] of the widget to display [PlayerView] expanding from.
   final GlobalKey? rect;
 
   /// Callback, called when an [Attachment] loading fails with a forbidden
@@ -109,8 +109,7 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
     });
 
     // After the initial page is fetched, try to fetch the previous one and set
-    // the [_initial] to `null` so it doesn't mess the indexes in
-    // [GalleryPopup].
+    // the [_initial] to `null` so it doesn't mess the indexes in [PlayerView].
     widget.paginated?.around().then((_) async {
       if (mounted) {
         _initial = null;

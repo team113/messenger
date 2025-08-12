@@ -24,7 +24,6 @@ import 'package:path/path.dart' as p;
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/file.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -33,8 +32,10 @@ import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/message_field/widget/chat_button.dart';
 import '/ui/page/home/page/chat/message_field/widget/close_button.dart';
+import '/ui/page/home/page/chat/widget/chat_gallery.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
+import '/ui/page/player/controller.dart';
+import '/ui/page/player/view.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
@@ -313,36 +314,14 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                   final int index = c.attachments.indexWhere(
                     (m) => m.value == e,
                   );
+
                   if (index != -1) {
-                    GalleryPopup.show(
-                      context: context,
-                      gallery: GalleryPopup(
-                        initial: index,
-                        initialKey: key,
-                        onTrashPressed: (int i) {
-                          c.attachments.removeWhere(
-                            (o) => o.value == attachments[i],
-                          );
-                        },
-                        children: attachments.map((o) {
-                          if (o is ImageAttachment) {
-                            return GalleryItem.image(
-                              o.original.url,
-                              o.filename,
-                              size: o.original.size,
-                              width: (o.original as ImageFile).width,
-                              height: (o.original as ImageFile).height,
-                              checksum: o.original.checksum,
-                              thumbhash: o.big.thumbhash,
-                            );
-                          }
-                          return GalleryItem.video(
-                            o.original.url,
-                            o.filename,
-                            size: o.original.size,
-                            checksum: o.original.checksum,
-                          );
-                        }).toList(),
+                    PlayerView.show(
+                      context,
+                      gallery: RegularGallery(
+                        items: attachments
+                            .map((e) => MediaItem([e], null))
+                            .toList(),
                       ),
                     );
                   }

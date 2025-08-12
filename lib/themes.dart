@@ -959,7 +959,7 @@ class Palette {
 
   /// 50% opacity of the [onSecondary] color.
   ///
-  /// Used for [CallButton]s and [GalleryPopup] buttons.
+  /// Used for [CallButton]s buttons.
   final Color onSecondaryOpacity50;
 
   /// 20% opacity of the [onSecondary] color.
