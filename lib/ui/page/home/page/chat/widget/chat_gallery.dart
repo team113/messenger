@@ -253,9 +253,10 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
       }
     }
 
-    final MediaItem media = MediaItem(attachments, item);
-    _paginated.items[media.id] = media;
-
-    setState(() {});
+    if (attachments.isNotEmpty) {
+      final MediaItem media = MediaItem(attachments, item);
+      _paginated.items[media.id] = media;
+      setState(() {});
+    }
   }
 }
