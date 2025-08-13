@@ -71,7 +71,7 @@ class PlayerView extends StatelessWidget {
   /// [Paginated] of [MediaItem]s being the source of [Post]s.
   final Paginated<String, MediaItem> source;
 
-  /// Initial [Post.id] of the [vertical] controller.
+  /// Initial [Post.id] of the [PlayerController.vertical] controller.
   final String? initialKey;
 
   /// Initial index of a [Post.horizontal] controller.
