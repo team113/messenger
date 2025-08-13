@@ -65,14 +65,16 @@ class PlayerView extends StatelessWidget {
     this.onReply,
     this.onShare,
     this.onReact,
+    this.onScrollTo,
   });
 
   final Paginated<String, MediaItem> source;
   final String? initialKey;
   final int initialIndex;
-  final void Function(MediaItem)? onReply;
-  final void Function(MediaItem)? onShare;
-  final void Function(MediaItem, String)? onReact;
+  final void Function(Post)? onReply;
+  final void Function(Post)? onShare;
+  final void Function(Post, String)? onReact;
+  final void Function(Post)? onScrollTo;
 
   static Future<T?> show<T>(
     BuildContext context, {
@@ -191,23 +193,48 @@ class PlayerView extends StatelessWidget {
     final Attachment attachment = item.attachment;
 
     if (attachment is ImageAttachment) {
-      return InteractiveViewer(
-        transformationController: c.transformationController,
-        onInteractionStart: (_) {
-          c.viewportIsTransformed.value = true;
-        },
-        onInteractionEnd: (e) {
-          c.viewportIsTransformed.value =
-              c.transformationController.value.forward.z > 1;
-        },
-        child: Center(
-          child: RetryImage(
-            attachment.original.url,
-            width: double.infinity,
-            height: double.infinity,
-            checksum: attachment.original.checksum,
-            fit: BoxFit.contain,
-            onForbidden: () async => await c.reload(post),
+      return ContextMenuRegion(
+        actions: [
+          ContextMenuButton(
+            label: 'btn_copy'.l10n,
+            onPressed: () async => await c.copy(post, item),
+          ),
+
+          if (!PlatformUtils.isWeb && PlatformUtils.isMobile) ...[
+            ContextMenuButton(
+              label: 'btn_save_to_gallery'.l10n,
+              onPressed: () async => await c.saveToGallery(item),
+            ),
+          ] else ...[
+            ContextMenuButton(
+              label: 'btn_download'.l10n,
+              onPressed: () async => await c.download(item),
+            ),
+            if (PlatformUtils.isDesktop)
+              ContextMenuButton(
+                label: 'btn_download_as'.l10n,
+                onPressed: () async => await c.downloadAs(item),
+              ),
+          ],
+        ],
+        child: InteractiveViewer(
+          transformationController: c.transformationController,
+          onInteractionStart: (_) {
+            c.viewportIsTransformed.value = true;
+          },
+          onInteractionEnd: (e) {
+            c.viewportIsTransformed.value =
+                c.transformationController.value.forward.z > 1;
+          },
+          child: Center(
+            child: RetryImage(
+              attachment.original.url,
+              width: double.infinity,
+              height: double.infinity,
+              checksum: attachment.original.checksum,
+              fit: BoxFit.contain,
+              onForbidden: () async => await c.reload(post),
+            ),
           ),
         ),
       );
@@ -359,7 +386,7 @@ class PlayerView extends StatelessWidget {
             behavior: HitTestBehavior.translucent,
             onTap: c.playPause,
             onDoubleTap: c.toggleFullscreen,
-            onLongPress: () => c.interface.value = false,
+            onLongPress: c.interface.toggle,
 
             // Required for the [GestureDetector]s to take the full
             // width and height.
@@ -473,7 +500,7 @@ class PlayerView extends StatelessWidget {
 
     return Container(
       height: 60,
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
       decoration: BoxDecoration(color: Color(0x4B333333)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -542,7 +569,17 @@ class PlayerView extends StatelessWidget {
           const SizedBox(width: 12),
           ContextMenuRegion(
             actions: [
-              ContextMenuButton(label: 'Find in chat', onPressed: () {}),
+              if (onScrollTo != null)
+                ContextMenuButton(
+                  label: 'btn_find_in_chat'.l10n,
+                  onPressed: () {
+                    final Post? post = c.post;
+                    if (post != null) {
+                      onScrollTo?.call(post);
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
               ContextMenuButton(
                 label: 'btn_save'.l10n,
                 onPressed: () async {
@@ -558,17 +595,16 @@ class PlayerView extends StatelessWidget {
                 },
               ),
               ContextMenuButton(
-                label: 'Hide interface',
+                label: 'btn_hide_interface'.l10n,
                 onPressed: c.interface.toggle,
               ),
             ],
             enablePrimaryTap: true,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+              padding: const EdgeInsets.fromLTRB(12, 21, 24, 21),
               child: SvgIcon(SvgIcons.moreWhite),
             ),
           ),
-          const SizedBox(width: 12),
         ],
       ),
     );
@@ -907,12 +943,12 @@ class PlayerView extends StatelessWidget {
   ) {
     return Obx(() {
       final Post? post = c.post;
-      final ChatItemId? itemId = post?.itemId;
+      final ChatItem? item = post?.item;
       final ReactivePlayerController? video = c.item?.video.value;
 
-      final bool canReact = itemId != null && onReact != null;
-      final bool canReply = itemId != null && onReply != null;
-      final bool canShare = itemId != null && onShare != null;
+      final bool canReact = item != null && onReact != null;
+      final bool canReply = item != null && onReply != null;
+      final bool canShare = item != null && onShare != null;
 
       return Row(
         mainAxisSize: MainAxisSize.max,
@@ -952,7 +988,7 @@ class PlayerView extends StatelessWidget {
             child: WidgetButton(
               onPressed: canReply
                   ? () {
-                      // onReply?.call(itemId);
+                      onReply?.call(post!);
                       Navigator.of(context).pop();
                     }
                   : null,
@@ -965,7 +1001,7 @@ class PlayerView extends StatelessWidget {
             child: WidgetButton(
               onPressed: canShare
                   ? () {
-                      // onShare?.call(item);
+                      onShare?.call(post!);
                     }
                   : null,
               child: SvgIcon(SvgIcons.videoShare),
@@ -984,103 +1020,116 @@ class PlayerView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final bool hasLabels = constraints.maxWidth > 700;
-    final MediaItem? item = c.source.items[c.key.value];
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Opacity(
-          opacity: c.hasPreviousPage ? 1 : 0.5,
-          child: WidgetButton(
-            onPressed: c.hasPreviousPage ? c.previous : null,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgIcon(SvgIcons.videoPrevious),
-                if (hasLabels) ...[
-                  SizedBox(width: 6),
-                  Text(
-                    'btn_previous'.l10n,
-                    style: style.fonts.small.regular.onPrimary,
-                  ),
+        Obx(() {
+          return Opacity(
+            opacity: c.hasPreviousPage.value ? 1 : 0.5,
+            child: WidgetButton(
+              onPressed: c.hasPreviousPage.value ? c.previous : null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgIcon(SvgIcons.videoPrevious),
+                  if (hasLabels) ...[
+                    SizedBox(width: 6),
+                    Text(
+                      'btn_previous'.l10n,
+                      style: style.fonts.small.regular.onPrimary,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        }),
 
         SizedBox(width: 20),
 
-        Opacity(
-          opacity: c.hasNextPage ? 1 : 0.5,
-          child: WidgetButton(
-            onPressed: c.hasNextPage ? c.next : null,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgIcon(SvgIcons.videoNext),
-                if (hasLabels) ...[
-                  SizedBox(width: 6),
-                  Text(
-                    'btn_next'.l10n,
-                    style: style.fonts.small.regular.onPrimary,
-                  ),
+        Obx(() {
+          return Opacity(
+            opacity: c.hasNextPage.value ? 1 : 0.5,
+            child: WidgetButton(
+              onPressed: c.hasNextPage.value ? c.next : null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgIcon(SvgIcons.videoNext),
+                  if (hasLabels) ...[
+                    SizedBox(width: 6),
+                    Text(
+                      'btn_next'.l10n,
+                      style: style.fonts.small.regular.onPrimary,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        }),
 
         SizedBox(width: 20),
 
-        Opacity(
-          opacity: item != null && onShare != null ? 1 : 0.5,
-          child: WidgetButton(
-            onPressed: item != null && onShare != null
-                ? () => onShare?.call(item)
-                : null,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgIcon(SvgIcons.videoShare),
-                if (hasLabels) ...[
-                  SizedBox(width: 6),
-                  Text(
-                    'btn_share'.l10n,
-                    style: style.fonts.small.regular.onPrimary,
-                  ),
+        Obx(() {
+          final Post? post = c.posts.elementAtOrNull(c.index.value);
+          final ChatItem? item = post?.item;
+          final bool canShare = post != null && item != null && onShare != null;
+
+          return Opacity(
+            opacity: canShare ? 1 : 0.5,
+            child: WidgetButton(
+              onPressed: canShare ? () => onShare?.call(post) : null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgIcon(SvgIcons.videoShare),
+                  if (hasLabels) ...[
+                    SizedBox(width: 6),
+                    Text(
+                      'btn_share'.l10n,
+                      style: style.fonts.small.regular.onPrimary,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        }),
 
         SizedBox(width: 20),
 
-        Opacity(
-          opacity: item != null && onReply != null ? 1 : 0.5,
-          child: WidgetButton(
-            onPressed: item != null && onReply != null
-                ? () {
-                    onReply?.call(item);
-                    Navigator.of(context).pop();
-                  }
-                : null,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SvgIcon(SvgIcons.videoReply),
-                if (hasLabels) ...[
-                  SizedBox(width: 6),
-                  Text(
-                    'btn_reply'.l10n,
-                    style: style.fonts.small.regular.onPrimary,
-                  ),
+        Obx(() {
+          final Post? post = c.posts.elementAtOrNull(c.index.value);
+          final ChatItem? item = post?.item;
+          final bool canReply = post != null && item != null && onReply != null;
+
+          return Opacity(
+            opacity: canReply ? 1 : 0.5,
+            child: WidgetButton(
+              onPressed: canReply
+                  ? () {
+                      onReply?.call(post);
+                      Navigator.of(context).pop();
+                    }
+                  : null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgIcon(SvgIcons.videoReply),
+                  if (hasLabels) ...[
+                    SizedBox(width: 6),
+                    Text(
+                      'btn_reply'.l10n,
+                      style: style.fonts.small.regular.onPrimary,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        }),
 
         SizedBox(width: 20),
 

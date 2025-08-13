@@ -17,12 +17,14 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/src/file_picker.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:get/get.dart';
 import 'package:messenger/util/platform_utils.dart';
+import 'package:super_clipboard/super_clipboard.dart';
 
 /// Mocked [PlatformUtilsImpl] to use in the tests.
 class PlatformUtilsMock extends PlatformUtilsImpl {
@@ -63,7 +65,11 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   }
 
   @override
-  Future<void> copy({String? text}) => Future.sync(() => clipboard = text);
+  Future<void> copy({
+    String? text,
+    SimpleFileFormat? format,
+    Uint8List? data,
+  }) => Future.sync(() => clipboard = text);
 
   @override
   void keepActive([bool active = true]) {

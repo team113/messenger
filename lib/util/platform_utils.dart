@@ -32,6 +32,7 @@ import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
+import 'package:super_clipboard/super_clipboard.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 import 'package:xdg_directories/xdg_directories.dart';
@@ -660,9 +661,32 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Stores the provided [text] on the [Clipboard].
-  Future<void> copy({required String text}) async {
-    await Clipboard.setData(ClipboardData(text: text));
+  /// Stores the provided [text] or [data] on the [Clipboard].
+  Future<void> copy({
+    String? text,
+    SimpleFileFormat? format,
+    Uint8List? data,
+  }) async {
+    if (text != null) {
+      await Clipboard.setData(ClipboardData(text: text));
+    } else if (data != null && format != null) {
+      final clipboard = SystemClipboard.instance;
+      if (clipboard == null) {
+        return;
+      }
+
+      String? extension =
+          (format.mimeTypes?.lastOrNull ?? format.fallbackFormats.lastOrNull)
+              ?.split('/')
+              .last;
+      extension ??= '.bin';
+
+      final item = DataWriterItem(
+        suggestedName: '${DateTime.now().millisecondsSinceEpoch}.$extension',
+      );
+      item.add(format(data));
+      await clipboard.write([item]);
+    }
   }
 
   /// Keeps the [_isActive] status as [active].

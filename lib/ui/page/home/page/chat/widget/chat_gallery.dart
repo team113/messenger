@@ -36,16 +36,20 @@ class RegularGallery extends StatelessWidget {
     this.items = const [],
     this.onReply,
     this.onShare,
+    this.onScrollTo,
   });
 
   /// [MediaItem]s themselves.
   final List<MediaItem> items;
 
-  /// Callback, called when a reply action within [MediaItem] is triggered.
-  final void Function(MediaItem)? onReply;
+  /// Callback, called when a reply action within [Post] is triggered.
+  final void Function(Post)? onReply;
 
-  /// Callback, called when a share action within [MediaItem] is triggered.
-  final void Function(MediaItem)? onShare;
+  /// Callback, called when a share action within [Post] is triggered.
+  final void Function(Post)? onShare;
+
+  /// Callback, called when a scroll to [Post] action is triggered.
+  final void Function(Post)? onScrollTo;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +59,7 @@ class RegularGallery extends StatelessWidget {
       }),
       onReply: onReply,
       onShare: onShare,
+      onScrollTo: onScrollTo,
     );
   }
 }
@@ -68,6 +73,7 @@ class PaginatedGallery extends StatefulWidget {
     this.onForbidden,
     this.onReply,
     this.onShare,
+    this.onScrollTo,
   });
 
   /// [Paginated] to display in a [PlayerView].
@@ -81,11 +87,14 @@ class PaginatedGallery extends StatefulWidget {
   /// network error.
   final FutureOr<void> Function(ChatItem?)? onForbidden;
 
-  /// Callback, called when a reply action within [MediaItem] is triggered.
-  final void Function(MediaItem)? onReply;
+  /// Callback, called when a reply action within [Post] is triggered.
+  final void Function(Post)? onReply;
 
-  /// Callback, called when a reply action within [MediaItem] is triggered.
-  final void Function(MediaItem)? onShare;
+  /// Callback, called when a reply action within [Post] is triggered.
+  final void Function(Post)? onShare;
+
+  /// Callback, called when a scroll to [Post] action is triggered.
+  final void Function(Post)? onScrollTo;
 
   @override
   State<PaginatedGallery> createState() => _PaginatedGalleryState();
@@ -202,6 +211,7 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
       source: _paginated,
       onReply: widget.onReply,
       onShare: widget.onShare,
+      onScrollTo: widget.onScrollTo,
       initialKey: widget.initial?.$1?.key.toString(),
       initialIndex: _parseInitialIndex(widget.initial?.$1),
     );

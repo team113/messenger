@@ -96,6 +96,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onSelect,
     this.onUserPressed = _defaultOnUserPressed,
     this.onDragging,
+    this.onAnimateTo,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -177,6 +178,9 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called whenever this [ChatItemWidget] is being dragged.
   final void Function(bool)? onDragging;
 
+  /// Callback, called when the provided [ChatItem] should be scrolled to.
+  final void Function(ChatItem)? onAnimateTo;
+
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
 
@@ -189,8 +193,9 @@ class ChatItemWidget extends StatefulWidget {
     Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery,
     Future<void> Function(ChatItem?)? onError,
     bool filled = true,
-    void Function(MediaItem)? onReply,
-    void Function(MediaItem)? onShare,
+    void Function(Post)? onReply,
+    void Function(Post)? onShare,
+    void Function(Post)? onScrollTo,
   }) {
     final style = Theme.of(context).style;
 
@@ -269,6 +274,7 @@ class ChatItemWidget extends StatefulWidget {
                       onForbidden: onError,
                       onReply: onReply,
                       onShare: onShare,
+                      onScrollTo: onScrollTo,
                     ),
                   );
                 },
@@ -868,15 +874,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               duration: const Duration(milliseconds: 500),
               opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: media.length == 1
-                  ? ChatItemWidget.mediaAttachment(
-                      context,
-                      attachment: media.first,
-                      item: widget.item.value,
-                      filled: false,
-                      key: _galleryKeys[0],
-                      onError: widget.onAttachmentError,
-                      onGallery: menu ? null : widget.onGallery,
-                    )
+                  ? _buildAttachment(media.first, filled: false, menu: menu)
                   : SizedBox(
                       width: media.length * 120,
                       height: max(media.length * 60, 300),
@@ -884,14 +882,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         dividerColor: style.colors.transparent,
                         children: media
                             .mapIndexed(
-                              (i, e) => ChatItemWidget.mediaAttachment(
-                                context,
-                                attachment: e,
-                                item: widget.item.value,
-                                key: _galleryKeys[i],
-                                onError: widget.onAttachmentError,
-                                onGallery: menu ? null : widget.onGallery,
-                              ),
+                              (i, e) => _buildAttachment(e, menu: menu, i: i),
                             )
                             .toList(),
                       ),
@@ -1856,6 +1847,31 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       widget.onDragging?.call(false);
       setState(() {});
     }
+  }
+
+  /// Builds a [ChatItemWidget.mediaAttachment].
+  Widget _buildAttachment(
+    Attachment e, {
+    int i = 0,
+    bool filled = false,
+    bool menu = false,
+  }) {
+    return ChatItemWidget.mediaAttachment(
+      context,
+      attachment: e,
+      item: widget.item.value,
+      filled: filled,
+      key: _galleryKeys[i],
+      onError: widget.onAttachmentError,
+      onGallery: menu ? null : widget.onGallery,
+      onReply: (e) => widget.onReply?.call(e.item!),
+      onShare: (e) async {
+        await ChatForwardView.show(context, widget.item.value.chatId, [
+          ChatItemQuoteInput(item: e.item!),
+        ]);
+      },
+      onScrollTo: (e) => widget.onAnimateTo?.call(e.item!),
+    );
   }
 }
 

@@ -27,16 +27,16 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:super_clipboard/super_clipboard.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../../domain/repository/chat.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/chat.dart';
@@ -98,12 +98,15 @@ class PlayerController extends GetxController {
   final RxBool expanded = RxBool(false);
   final RxBool interface = RxBool(true);
 
+  final RxBool hasNextPage = RxBool(false);
+  final RxBool hasPreviousPage = RxBool(false);
+
   final GlobalKey scrollableKey = GlobalKey();
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [ItemScrollController] of the page's [ScrollablePositionedList].
+  /// [ItemScrollController] of the [ScrollablePositionedList].
   final ItemScrollController itemScrollController = ItemScrollController();
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
@@ -139,18 +142,6 @@ class PlayerController extends GetxController {
   /// Returns the current [ApplicationSettings].
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
-
-  /// Indicates whether the [vertical] has a next page.
-  bool get hasNextPage {
-    final double? page = vertical.page;
-    return page != null && page.round() < source.length - 1;
-  }
-
-  /// Indicates whether the [vertical] has a previous page.
-  bool get hasPreviousPage {
-    final double? page = vertical.page;
-    return page != null && page.round() > 0;
-  }
 
   /// Returns the currently displayed [post],
   Post? get post {
@@ -239,6 +230,9 @@ class PlayerController extends GetxController {
         vertical.jumpToPage(index.value);
         _ignorePageListener = false;
       }
+
+      hasPreviousPage.value = index.value > 0;
+      hasNextPage.value = index.value < posts.length - 1;
     });
 
     _volumeDebounce = debounce(_volume, (value) async {
@@ -323,7 +317,7 @@ class PlayerController extends GetxController {
   Future<void> next() async {
     Log.debug('next()', '$runtimeType');
 
-    if (!hasNextPage) {
+    if (!hasNextPage.value) {
       return;
     }
 
@@ -335,7 +329,7 @@ class PlayerController extends GetxController {
 
   /// Moves the [vertical] to a previous [Post].
   Future<void> previous() async {
-    if (!hasPreviousPage) {
+    if (!hasPreviousPage.value) {
       return;
     }
 
@@ -410,6 +404,55 @@ class PlayerController extends GetxController {
     } catch (_) {
       MessagePopup.error('err_could_not_download'.l10n);
       rethrow;
+    }
+  }
+
+  /// Puts the provided [PostItem] to the copy buffer.
+  Future<void> copy(Post post, PostItem item) async {
+    Log.debug('copy($item)', '$runtimeType');
+
+    final String extension = item.attachment.original.name
+        .split('.')
+        .last
+        .toLowerCase();
+
+    final SimpleFileFormat? format = switch (extension) {
+      'jpg' || 'jpeg' => Formats.jpeg,
+      'png' => Formats.png,
+      'svg' => Formats.svg,
+      'gif' => Formats.gif,
+      'tiff' => Formats.tiff,
+      'bmp' => Formats.bmp,
+      'webp' => Formats.webp,
+      (_) => null,
+    };
+
+    if (format != null) {
+      try {
+        final response = await (await PlatformUtils.dio).get(
+          item.attachment.original.url,
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        final bytes = response.data;
+        if (bytes is Uint8List) {
+          await PlatformUtils.copy(format: format, data: bytes);
+          MessagePopup.success('label_copied'.l10n);
+        }
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 403) {
+          reload(post);
+        } else {
+          Log.error('copy() -> $e', '$runtimeType');
+        }
+
+        MessagePopup.error('err_data_transfer'.l10n);
+      } catch (e) {
+        Log.error('copy() -> $e', '$runtimeType');
+        MessagePopup.error('err_data_transfer'.l10n);
+      }
+    } else {
+      MessagePopup.error('Unsupported format: $extension');
     }
   }
 
@@ -491,23 +534,22 @@ class PlayerController extends GetxController {
   Future<void> reload(Post post) async {
     Log.debug('reload($post)', '$runtimeType');
 
-    final ChatId? chatId = post.chatId;
-    final ChatItemId? itemId = post.itemId;
+    final ChatItem? item = post.item;
 
-    if (chatId != null && itemId != null) {
-      final RxChat? chat = await _chatService?.get(chatId);
+    if (item != null) {
+      final RxChat? chat = await _chatService?.get(item.chatId);
       final Paginated<ChatItemId, Rx<ChatItem>>? single = await chat?.single(
-        itemId,
+        item.id,
       );
 
       await single?.around();
 
-      final Rx<ChatItem>? item = single?.values.firstOrNull;
+      final Rx<ChatItem>? node = single?.values.firstOrNull;
 
-      if (chat != null && single != null && item != null) {
-        await chat.updateAttachments(item.value);
+      if (chat != null && single != null && node != null) {
+        await chat.updateAttachments(node.value);
 
-        final ChatItem message = item.value;
+        final ChatItem message = node.value;
 
         if (message is ChatMessage) {
           post.items.value = message.attachments
@@ -626,6 +668,9 @@ class PlayerController extends GetxController {
 
     if (vertical.hasClients && !_ignorePageListener) {
       final int rounded = pageOrZero.round();
+
+      hasPreviousPage.value = pageOrZero.round() > 0;
+      hasNextPage.value = pageOrZero.round() < posts.length - 1;
 
       if (_lastPageValue != null) {
         if (pageOrZero > _lastPageValue!) {
@@ -767,8 +812,7 @@ class PlayerController extends GetxController {
 class Post implements Comparable<Post> {
   Post({
     required this.id,
-    this.itemId,
-    this.chatId,
+    this.item,
     List<PostItem> items = const [],
     int initial = 0,
     this.author,
@@ -788,9 +832,8 @@ class Post implements Comparable<Post> {
 
     return Post(
       id: item.id,
-      itemId: item.item?.id,
-      chatId: item.item?.chatId,
-      items: item.attachments.map((e) => PostItem(e)).toList(),
+      item: item.item,
+      items: item.attachments.map(PostItem.new).toList(),
       initial: initial,
       author: item.item?.author,
       description: message?.text,
@@ -801,11 +844,8 @@ class Post implements Comparable<Post> {
   /// ID of this [Post].
   final String id;
 
-  /// [ChatItemId] representing this [Post].
-  final ChatItemId? itemId;
-
-  /// [ChatId] in which this [Post] is posted.
-  final ChatId? chatId;
+  /// [ChatItem] representing this [Post].
+  final ChatItem? item;
 
   /// [User] who is an author of this [Post], if any.
   final User? author;

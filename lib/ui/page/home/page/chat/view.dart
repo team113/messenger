@@ -982,7 +982,20 @@ class ChatView extends StatelessWidget {
                     if (field.replied.any((i) => i.value.id == item.id)) {
                       field.replied.removeWhere((i) => i.value.id == item.id);
                     } else {
-                      field.replied.add(e);
+                      final ListElement? element =
+                          c.elements[ListElementId(item.at, item.id)];
+
+                      if (element is ChatMessageElement) {
+                        field.replied.add(element.item);
+                      } else if (element is ChatInfoElement) {
+                        field.replied.add(element.item);
+                      } else if (element is ChatCallElement) {
+                        field.replied.add(element.item);
+                      } else if (element is ChatForwardElement) {
+                        field.replied.add(
+                          element.note.value ?? element.forwards.first,
+                        );
+                      }
                     }
                   },
                   onCopy: (text) {
@@ -991,6 +1004,9 @@ class ChatView extends StatelessWidget {
                     } else {
                       c.copyText(text);
                     }
+                  },
+                  onAnimateTo: (item) async {
+                    await c.animateTo(item.id, item: item);
                   },
                   onRepliedTap: (q) async {
                     if (q.original != null) {
@@ -1090,8 +1106,30 @@ class ChatView extends StatelessWidget {
 
                     await Future.wait(futures);
                   },
-                  onReply: () {
+                  onReply: (item) {
                     final MessageFieldController field = c.edit.value ?? c.send;
+
+                    if (item != null) {
+                      if (field.replied.any((i) => i.value.id == item.id)) {
+                        field.replied.removeWhere((i) => i.value.id == item.id);
+                      } else {
+                        final ListElement? element =
+                            c.elements[ListElementId(item.at, item.id)];
+
+                        if (element is ChatMessageElement) {
+                          field.replied.add(element.item);
+                        } else if (element is ChatInfoElement) {
+                          field.replied.add(element.item);
+                        } else if (element is ChatCallElement) {
+                          field.replied.add(element.item);
+                        } else if (element is ChatForwardElement) {
+                          field.replied.add(
+                            element.note.value ?? element.forwards.first,
+                          );
+                        }
+                      }
+                      return;
+                    }
 
                     if (element.forwards.any(
                           (e) => field.replied.any(
@@ -1166,6 +1204,9 @@ class ChatView extends StatelessWidget {
                     c.selected.add(element);
                   },
                   onDragging: (e) => c.isDraggingItem.value = e,
+                  onAnimateTo: (item) async {
+                    await c.animateTo(item.id, item: item);
+                  },
                 ),
               ),
             );

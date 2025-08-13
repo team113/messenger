@@ -82,6 +82,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.onAttachmentError,
     this.onSelect,
     this.onDragging,
+    this.onAnimateTo,
   });
 
   /// Reactive value of a [Chat] these [forwards] are posted in.
@@ -116,7 +117,7 @@ class ChatForwardWidget extends StatefulWidget {
   final void Function()? onDelete;
 
   /// Callback, called when a reply action of these [forwards] is triggered.
-  final void Function()? onReply;
+  final void Function(ChatItem?)? onReply;
 
   /// Callback, called when an edit action of these [forwards] is triggered.
   final void Function()? onEdit;
@@ -144,6 +145,9 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// Callback, called whenever this [ChatForwardWidget] is being dragged.
   final void Function(bool)? onDragging;
+
+  /// Callback, called when the provided [ChatItem] should be scrolled to.
+  final void Function(ChatItem)? onAnimateTo;
 
   @override
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
@@ -441,19 +445,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           SizedBox(height: quote.attachments.isNotEmpty ? 6 : 3),
           if (media.isNotEmpty) ...[
             media.length == 1
-                ? ChatItemWidget.mediaAttachment(
-                    context,
-                    attachment: media.first,
-                    item: msg,
-                    key: _galleryKeys[msg.id]?.firstOrNull,
-                    onGallery: menu
-                        ? null
-                        : widget.onGallery == null
-                        ? null
-                        : () => widget.onGallery!.call(msg),
-                    onError: widget.onAttachmentError,
-                    filled: false,
-                  )
+                ? _buildAttachment(media.first, msg, menu: menu, filled: false)
                 : SizedBox(
                     width: media.length * 120,
                     height: max(media.length * 60, 300),
@@ -461,18 +453,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       dividerColor: style.colors.transparent,
                       children: media
                           .mapIndexed(
-                            (i, e) => ChatItemWidget.mediaAttachment(
-                              context,
-                              attachment: e,
-                              item: msg,
-                              key: _galleryKeys[msg.id]?[i],
-                              onGallery: menu
-                                  ? null
-                                  : widget.onGallery == null
-                                  ? null
-                                  : () => widget.onGallery!.call(msg),
-                              onError: widget.onAttachmentError,
-                            ),
+                            (i, e) =>
+                                _buildAttachment(e, msg, i: i, menu: menu),
                           )
                           .toList(),
                     ),
@@ -745,17 +727,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               duration: const Duration(milliseconds: 500),
               opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: media.length == 1
-                  ? ChatItemWidget.mediaAttachment(
-                      context,
-                      attachment: media.first,
-                      item: item,
-                      key: _galleryKeys[item.id]?.lastOrNull,
-                      onGallery: menu
-                          ? null
-                          : widget.onGallery == null
-                          ? null
-                          : () => widget.onGallery!.call(item),
-                      onError: widget.onAttachmentError,
+                  ? _buildAttachment(
+                      media.first,
+                      item,
+                      menu: menu,
                       filled: false,
                     )
                   : SizedBox(
@@ -765,18 +740,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         dividerColor: style.colors.transparent,
                         children: media
                             .mapIndexed(
-                              (i, e) => ChatItemWidget.mediaAttachment(
-                                context,
-                                attachment: e,
-                                item: item,
-                                key: _galleryKeys[item.id]?[i],
-                                onGallery: menu
-                                    ? null
-                                    : widget.onGallery == null
-                                    ? null
-                                    : () => widget.onGallery!.call(item),
-                                onError: widget.onAttachmentError,
-                              ),
+                              (i, e) =>
+                                  _buildAttachment(e, item, i: i, menu: menu),
                             )
                             .toList(),
                       ),
@@ -1000,7 +965,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               : 'btn_reply_message'.l10n,
                           trailing: const SvgIcon(SvgIcons.reply),
                           inverted: const SvgIcon(SvgIcons.replyWhite),
-                          onPressed: widget.onReply,
+                          onPressed: () => widget.onReply?.call(null),
                         ),
                         ContextMenuButton(
                           key: const Key('ForwardButton'),
@@ -1300,7 +1265,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             ((_offset.dx - offset.dx < 30 + delta) ||
                 (!_offsetWasBigger && isBigger))) {
           PlatformUtils.haptic(kind: HapticKind.light);
-          widget.onReply?.call();
+          widget.onReply?.call(null);
         }
 
         _offsetWasBigger = isBigger;
@@ -1327,5 +1292,39 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       widget.onDragging?.call(false);
       setState(() {});
     }
+  }
+
+  /// Builds a [ChatItemWidget.mediaAttachment].
+  Widget _buildAttachment(
+    Attachment e,
+    ChatItem item, {
+    int i = 0,
+    bool filled = false,
+    bool menu = false,
+  }) {
+    return ChatItemWidget.mediaAttachment(
+      context,
+      attachment: e,
+      item: item,
+      filled: filled,
+      key: _galleryKeys[item.id]?.elementAtOrNull(i),
+      onGallery: menu
+          ? null
+          : widget.onGallery == null
+          ? null
+          : () => widget.onGallery!.call(item),
+      onError: widget.onAttachmentError,
+      onReply: (e) {
+        widget.onReply?.call(item);
+      },
+      onShare: (e) async {
+        await ChatForwardView.show(context, item.chatId, [
+          ChatItemQuoteInput(item: e.item!),
+        ]);
+      },
+      onScrollTo: (e) {
+        widget.onAnimateTo?.call(e.item!);
+      },
+    );
   }
 }
