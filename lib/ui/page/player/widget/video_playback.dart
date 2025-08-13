@@ -54,9 +54,16 @@ class VideoPlayback extends StatefulWidget {
   /// Callback, called on the [VideoPlayerController] initialization errors.
   final FutureOr<void> Function()? onError;
 
+  /// Volume to start playing the video with.
   final double? volume;
+
+  /// Callback, called when the volume of video changes.
   final void Function(double)? onVolumeChanged;
+
+  /// Indicator whether video should loop.
   final bool loop;
+
+  /// Indicator whether video should autoplay.
   final bool autoplay;
 
   @override
@@ -77,9 +84,10 @@ class _VideoPlaybackState extends State<VideoPlayback> {
   /// [VideoPlayerController] to display the video.
   VideoPlayerController? _controller;
 
-  StreamSubscription? _volumeSubscription;
-
+  /// Text of an error happened during [_initVideo], if any.
   String? _error;
+
+  /// Current volume of a video.
   double? _volume;
 
   @override
@@ -99,7 +107,6 @@ class _VideoPlaybackState extends State<VideoPlayback> {
     _controller?.dispose();
     _cancelToken?.cancel();
     _headerToken?.cancel();
-    _volumeSubscription?.cancel();
     super.dispose();
   }
 
@@ -232,7 +239,7 @@ class _VideoPlaybackState extends State<VideoPlayback> {
     }
   }
 
-  /// Fetches the header of [VideoThumbnail.url] to ensure that the URL is
+  /// Fetches the header of [VideoPlayback.url] to ensure that the URL is
   /// reachable.
   Future<void> _ensureReachable() async {
     Log.debug('_ensureReachable()', '$runtimeType');
@@ -281,6 +288,7 @@ class _VideoPlaybackState extends State<VideoPlayback> {
     }
   }
 
+  /// Changes the current [_volume] and invokes [VideoPlayback.onVolumeChanged].
   void _listener() {
     if (_controller != null && _controller?.value.volume != _volume) {
       if (_volume != null) {

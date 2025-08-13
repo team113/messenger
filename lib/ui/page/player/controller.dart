@@ -47,34 +47,6 @@ import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
-class MediaItem implements Comparable<MediaItem> {
-  MediaItem(this.attachments, this.item);
-
-  final List<Attachment> attachments;
-  final ChatItem? item;
-
-  String get id =>
-      item?.key.toString() ?? 'a_${attachments.map((e) => e.id.val).join('_')}';
-
-  @override
-  bool operator ==(Object other) {
-    return other is MediaItem && id == other.id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
-
-  @override
-  String toString() {
-    return 'MediaItem($id)';
-  }
-
-  @override
-  int compareTo(MediaItem other) {
-    return id.compareTo(other.id);
-  }
-}
-
 /// Controller of a [PlayerView].
 class PlayerController extends GetxController {
   PlayerController(
@@ -86,57 +58,107 @@ class PlayerController extends GetxController {
     this.initialIndex = 0,
   }) : key = RxString(initialKey);
 
+  /// Callback, called when a [PlayerView] this controller attached to should
+  /// close.
   final void Function()? shouldClose;
 
+  /// [Paginated] of [MediaItem]s being the source of [posts].
   final Paginated<String, MediaItem> source;
+
+  /// [Post]s to display.
   final RxList<Post> posts = RxList();
+
+  /// [Post.id] of the currently displayed [Post] from [posts].
   final RxString key;
+
+  /// Index of the currently displayed [Post] from [posts].
   late final RxInt index;
 
+  /// Indicator whether side gallery should be displayed.
   final RxBool side = RxBool(false);
-  final RxBool displaySide = RxBool(false);
+
+  /// Indicator whether [Post.description] and meta information should be
+  /// expanded.
   final RxBool expanded = RxBool(false);
+
+  /// Indicator whether interface should be visible.
   final RxBool interface = RxBool(true);
 
+  /// Indicator whether [vertical] has next page.
   final RxBool hasNextPage = RxBool(false);
+
+  /// Indicator whether [vertical] has previous page.
   final RxBool hasPreviousPage = RxBool(false);
 
+  /// [GlobalKey] of a [ScrollablePositionedList] for side gallery used to keep
+  /// rebuilds from rebuilding the list.
   final GlobalKey scrollableKey = GlobalKey();
 
-  /// [ScrollController] to pass to a [Scrollbar].
+  /// [ScrollController] to pass to a [ScrollablePositionedList] for side
+  /// gallery.
   final ScrollController scrollController = ScrollController();
 
-  /// [ItemScrollController] of the [ScrollablePositionedList].
+  /// [ItemScrollController] of a [ScrollablePositionedList] of side gallery.
   final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// [ItemPositionsListener] of a [ScrollablePositionedList] listening for side
+  /// gallery changes.
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
 
   /// Latest volume value for [VideoPlayerController] being displayed.
   double? latestVolume;
 
+  /// [PageController] controlling the [PageView] of [posts].
   late final PageController vertical;
+
+  /// [TransformationController] of a [InteractiveViewer].
   final TransformationController transformationController =
       TransformationController();
+
+  /// Indicator whether [InteractiveViewer] has any transformations.
   final RxBool viewportIsTransformed = RxBool(false);
 
+  /// Initial [Post.id] of the [vertical] controller.
   final String initialKey;
+
+  /// Initial index of a [Post.horizontal] controller.
   final int initialIndex;
 
+  /// [AbstractSettingsRepository] for storing the
+  /// [ApplicationSettings.videoVolume].
   final AbstractSettingsRepository _settingsRepository;
+
+  /// [ChatService] used to refresh [Attachment]s in [Post]s.
   final ChatService? _chatService;
 
+  /// [Worker] listening for [_volume] changes to invoke
+  /// [AbstractSettingsRepository.setVideoVolume].
   Worker? _volumeDebounce;
+
+  /// Volume set during [setVideoVolume].
   final RxDouble _volume = RxDouble(-1);
 
+  /// Indicator whether [toggleFullscreen] is toggled.
   bool _isFullscreen = false;
+
+  /// [Mutex] guarding [toggleFullscreen].
   final Mutex _fullscreenMutex = Mutex();
 
+  /// Indicator whether [_pageListener] should ignore the changes.
   bool _ignorePageListener = false;
 
+  /// [StreamSubscription] listening for [source] changes to add or remove new
+  /// [posts].
   StreamSubscription? _sourceSubscription;
 
+  /// Last [PageController.page] of [vertical] used to determine its changes.
   double? _lastPageValue;
+
+  /// Last [PageController.page] rounded used to determine its changes.
   int? _currentPageIndex;
+
+  /// Indicator whether [PageController.page] is changing forward or backward.
   bool? _scrollingForward;
 
   /// Returns the current [ApplicationSettings].
@@ -184,7 +206,13 @@ class PlayerController extends GetxController {
     posts.sort();
 
     index = RxInt(max(0, posts.indexWhere((e) => e.id == key.value)));
-    vertical = PageController(initialPage: _index, keepPage: false);
+
+    vertical = PageController(
+      initialPage: _index,
+      keepPage: false,
+      viewportFraction: 1.05,
+    );
+
     _currentPageIndex = _index;
 
     _sourceSubscription?.cancel();
@@ -1040,5 +1068,38 @@ class ReactivePlayerController {
     position.value = controller.value.position;
     duration.value = controller.value.duration;
     volume.value = controller.value.volume;
+  }
+}
+
+/// [ChatItem] with its [Attachment]s.
+class MediaItem implements Comparable<MediaItem> {
+  MediaItem(this.attachments, this.item);
+
+  /// [Attachment] themselves.
+  final List<Attachment> attachments;
+
+  /// [ChatItem] itself.
+  final ChatItem? item;
+
+  /// Returns the ID of this [MediaItem].
+  String get id =>
+      item?.key.toString() ?? 'a_${attachments.map((e) => e.id.val).join('_')}';
+
+  @override
+  bool operator ==(Object other) {
+    return other is MediaItem && id == other.id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() {
+    return 'MediaItem($id)';
+  }
+
+  @override
+  int compareTo(MediaItem other) {
+    return id.compareTo(other.id);
   }
 }

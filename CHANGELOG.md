@@ -33,7 +33,6 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Profile page:
         - Redesigned session delete modals. ([#1344])
-    - Redesigned media player.
 
 ### Fixed
 

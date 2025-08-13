@@ -94,7 +94,7 @@ class VideoThumbnail extends StatefulWidget {
 }
 
 /// State of a [VideoThumbnail], used to initialize and dispose a
-/// [VideoController].
+/// [VideoPlayerController].
 class _VideoThumbnailState extends State<VideoThumbnail> {
   /// [VideoPlayerController] opening and maintaining the video itself.
   VideoPlayerController? _controller;
@@ -216,8 +216,6 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
         await _controller?.initialize();
       } else if (bytes != null) {
         // TODO: Implement.
-        // _controller = VideoPlayerController.contentUri(Uri.parse(widget.url));
-        //  await _controller?.initialize();
         throw UnimplementedError();
       } else {
         _controller = VideoPlayerController.networkUrl(

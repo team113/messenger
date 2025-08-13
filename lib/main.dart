@@ -203,13 +203,19 @@ Future<void> main() async {
 /// Initializes the dependencies and runs the [App].
 Future<void> _runApp() async {
   WebUtils.registerWith();
+
   VideoPlayerMediaKit.ensureInitialized(
-    android: false, // media_kit_libs_android_video
-    iOS: true, // media_kit_libs_ios_video
-    macOS: true, // media_kit_libs_macos_video
-    windows: true, // media_kit_libs_windows_video
-    linux: true, // media_kit_libs_linux
+    android: false,
     web: false,
+
+    // `AVPlayer` used by `video_player` does not support parsing URLs without
+    // file extension in it.
+    iOS: true,
+    macOS: true,
+
+    // `video_player` does not support neither Windows nor Linux.
+    windows: true,
+    linux: true,
   );
 
   WebUtils.setPathUrlStrategy();

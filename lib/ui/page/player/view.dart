@@ -30,7 +30,6 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
-import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -56,6 +55,7 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/video_playback.dart';
 
+/// View for displaying [Post]s.
 class PlayerView extends StatelessWidget {
   const PlayerView({
     super.key,
@@ -68,14 +68,28 @@ class PlayerView extends StatelessWidget {
     this.onScrollTo,
   });
 
+  /// [Paginated] of [MediaItem]s being the source of [Post]s.
   final Paginated<String, MediaItem> source;
+
+  /// Initial [Post.id] of the [vertical] controller.
   final String? initialKey;
+
+  /// Initial index of a [Post.horizontal] controller.
   final int initialIndex;
+
+  /// Callback, called when reply of the [Post] is called.
   final void Function(Post)? onReply;
+
+  /// Callback, called when share of the [Post] is called.
   final void Function(Post)? onShare;
+
+  /// Callback, called when react of the [Post] is called.
   final void Function(Post, String)? onReact;
+
+  /// Callback, called when scroll to the [Post] is called.
   final void Function(Post)? onScrollTo;
 
+  /// Displays the provided [gallery] in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     required Widget gallery,
@@ -159,19 +173,28 @@ class PlayerView extends StatelessWidget {
     );
   }
 
+  /// Builds the visual representation of the [Post]s list.
   Widget _content(BuildContext context, PlayerController c) {
     return Obx(() {
-      return PageView(
+      return PageView.builder(
         physics: c.viewportIsTransformed.value
             ? NeverScrollableScrollPhysics()
             : null,
         controller: c.vertical,
         scrollDirection: Axis.vertical,
-        children: [...c.posts.map((e) => _post(context, c, e))],
+        itemCount: c.posts.length,
+        itemBuilder: (context, i) {
+          return FractionallySizedBox(
+            heightFactor: 1 / c.vertical.viewportFraction,
+            child: _post(context, c, c.posts.elementAt(i)),
+          );
+        },
+        // children: [...c.posts.map((e) => _post(context, c, e))],
       );
     });
   }
 
+  /// Builds the visual representation of the [Post.items] list.
   Widget _post(BuildContext context, PlayerController c, Post post) {
     return Obx(() {
       return PageView(
@@ -184,6 +207,7 @@ class PlayerView extends StatelessWidget {
     });
   }
 
+  /// Builds the [item] visual representation.
   Widget _attachment(
     BuildContext context,
     PlayerController c,
@@ -270,6 +294,7 @@ class PlayerView extends StatelessWidget {
     return Center(child: Text('Unsupported'));
   }
 
+  /// Builds the interface to display over the [_content].
   Widget _interface(
     BuildContext context,
     PlayerController c,
@@ -317,7 +342,6 @@ class PlayerView extends StatelessWidget {
                 duration: Duration(milliseconds: 200),
                 curve: Curves.ease,
                 offset: Offset(c.side.value ? 0 : 1, 0),
-                onEnd: () => c.displaySide.value = c.side.value,
                 child: _side(context, c, constraints),
               );
             }),
@@ -327,6 +351,7 @@ class PlayerView extends StatelessWidget {
     );
   }
 
+  /// Builds the [DotsDecorator] displaying the [Post.horizontal] item.
   Widget _dots(BuildContext context, PlayerController c) {
     final style = Theme.of(context).style;
 
@@ -367,6 +392,7 @@ class PlayerView extends StatelessWidget {
     });
   }
 
+  /// Builds an overlay to display over the current [PostItem].
   Widget _overlay(
     BuildContext context,
     PlayerController c,
@@ -490,6 +516,7 @@ class PlayerView extends StatelessWidget {
     });
   }
 
+  /// Builds the top header of the [_interface].
   Widget _top(
     BuildContext context,
     PlayerController c,
@@ -545,7 +572,6 @@ class PlayerView extends StatelessWidget {
             child: WidgetButton(
               onPressed: c.source.length > 1
                   ? () {
-                      c.displaySide.value = true;
                       c.side.toggle();
 
                       if (isMobile) {
@@ -610,6 +636,7 @@ class PlayerView extends StatelessWidget {
     );
   }
 
+  /// Builds the bottom header of the [_interface].
   Widget _bottom(
     BuildContext context,
     PlayerController c,
@@ -669,6 +696,7 @@ class PlayerView extends StatelessWidget {
     });
   }
 
+  /// Builds an expandable [Post.description] with its meta data.
   Widget _description(BuildContext context, PlayerController c) {
     final style = Theme.of(context).style;
 
@@ -791,6 +819,8 @@ class PlayerView extends StatelessWidget {
     });
   }
 
+  /// Builds a [Text] with current position of [ReactivePlayerController], if
+  /// any is visible right now.
   Widget _position(BuildContext context, PlayerController c) {
     final style = Theme.of(context).style;
 
@@ -807,6 +837,7 @@ class PlayerView extends StatelessWidget {
     });
   }
 
+  /// Builds an expandable [_mobileBar] or [_desktopBar].
   Widget _bar(
     BuildContext context,
     PlayerController c,
@@ -861,6 +892,7 @@ class PlayerView extends StatelessWidget {
     );
   }
 
+  /// Builds the volume controls for the [controller].
   Widget _volume(
     BuildContext context,
     PlayerController c,
@@ -872,7 +904,6 @@ class PlayerView extends StatelessWidget {
       children: [
         WidgetButton(
           onPressed: () {
-            // _cancelAndRestartTimer();
             if (controller.volume.value == 0) {
               controller.setVolume(c.latestVolume ?? 0.5);
             } else {
@@ -900,6 +931,7 @@ class PlayerView extends StatelessWidget {
     );
   }
 
+  /// Builds a bottom controls for desktop-styled [_bottom].
   Widget _desktopBar(
     BuildContext context,
     PlayerController c,
@@ -936,6 +968,7 @@ class PlayerView extends StatelessWidget {
     });
   }
 
+  /// Builds a bottom controls for mobile-styled [_bottom].
   Widget _mobileBar(
     BuildContext context,
     PlayerController c,
@@ -1012,6 +1045,7 @@ class PlayerView extends StatelessWidget {
     });
   }
 
+  /// Builds the buttons controlling the previous/next scrolling, etc.
   Widget _buttons(
     BuildContext context,
     PlayerController c,
@@ -1141,6 +1175,7 @@ class PlayerView extends StatelessWidget {
     );
   }
 
+  /// Builds a side gallery.
   Widget _side(
     BuildContext context,
     PlayerController c,
@@ -1330,44 +1365,4 @@ class PlayerView extends StatelessWidget {
       ),
     );
   }
-}
-
-class MediaAuthor {
-  MediaAuthor({required this.builder});
-
-  factory MediaAuthor.fromRxUser(RxUser user) {
-    return MediaAuthor(
-      builder: (_) {
-        return Obx(() {
-          return Row(
-            children: [
-              AvatarWidget.fromRxUser(user, radius: AvatarRadius.small),
-              Text(user.title),
-            ],
-          );
-        });
-      },
-    );
-  }
-
-  factory MediaAuthor.fromUser(User user) {
-    return MediaAuthor(
-      builder: (_) {
-        return Row(
-          children: [
-            AvatarWidget.fromUser(
-              user,
-              radius: AvatarRadius.small,
-              isOnline: user.online && user.presence == Presence.present,
-              isAway: user.online && user.presence == Presence.away,
-            ),
-            SizedBox(width: 8),
-            Text(user.title),
-          ],
-        );
-      },
-    );
-  }
-
-  final Widget Function(BuildContext context) builder;
 }
