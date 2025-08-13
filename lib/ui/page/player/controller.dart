@@ -75,6 +75,7 @@ class MediaItem implements Comparable<MediaItem> {
   }
 }
 
+/// Controller of a [PlayerView].
 class PlayerController extends GetxController {
   PlayerController(
     this._settingsRepository,
@@ -107,7 +108,7 @@ class PlayerController extends GetxController {
   final ItemPositionsListener itemPositionsListener =
       ItemPositionsListener.create();
 
-  /// Latest volume value for [VideoController] being displayed.
+  /// Latest volume value for [VideoPlayerController] being displayed.
   double? latestVolume;
 
   late final PageController vertical;
@@ -135,23 +136,28 @@ class PlayerController extends GetxController {
   int? _currentPageIndex;
   bool? _scrollingForward;
 
+  /// Returns the current [ApplicationSettings].
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
 
+  /// Indicates whether the [vertical] has a next page.
   bool get hasNextPage {
     final double? page = vertical.page;
     return page != null && page.round() < source.length - 1;
   }
 
+  /// Indicates whether the [vertical] has a previous page.
   bool get hasPreviousPage {
     final double? page = vertical.page;
     return page != null && page.round() > 0;
   }
 
+  /// Returns the currently displayed [post],
   Post? get post {
     return posts.elementAtOrNull(index.value);
   }
 
+  /// Returns the currently displayed [item],
   PostItem? get item {
     final Post? current = post;
     if (current == null) {
@@ -161,6 +167,7 @@ class PlayerController extends GetxController {
     return current.items.elementAtOrNull(current.index.value);
   }
 
+  /// Returns an index of the [key] within the [source].
   int get _index {
     final int index = source.values.toList().indexWhere(
       (e) => e.id == key.value,
@@ -266,10 +273,12 @@ class PlayerController extends GetxController {
     super.onClose();
   }
 
+  /// Stores the provided [volume] as the default one for all video players.
   Future<void> setVideoVolume(double volume) async {
     _volume.value = volume;
   }
 
+  /// Plays or pauses the currently displayed video, if any.
   void playPause() {
     Log.debug('playPause()', '$runtimeType');
 
@@ -291,6 +300,7 @@ class PlayerController extends GetxController {
     }
   }
 
+  /// Toggles fullscreen of the application on and off.
   Future<void> toggleFullscreen() async {
     Log.debug('toggleFullscreen()', '$runtimeType');
 
@@ -309,6 +319,7 @@ class PlayerController extends GetxController {
     });
   }
 
+  /// Moves the [vertical] to a next [Post].
   Future<void> next() async {
     Log.debug('next()', '$runtimeType');
 
@@ -322,6 +333,7 @@ class PlayerController extends GetxController {
     );
   }
 
+  /// Moves the [vertical] to a previous [Post].
   Future<void> previous() async {
     if (!hasPreviousPage) {
       return;
@@ -333,8 +345,11 @@ class PlayerController extends GetxController {
     );
   }
 
+  /// Opens this [PlayerView] as a separate window.
+  ///
+  /// Only meaningful for the Web platform currently.
   Future<void> openPopup() async {
-    //
+    // TODO: Implement.
   }
 
   /// Downloads the provided [PostItem].
@@ -376,7 +391,7 @@ class PlayerController extends GetxController {
     }
   }
 
-  /// Downloads the provided [GalleryItem] using `save as` dialog.
+  /// Downloads the provided [PostItem] using `save as` dialog.
   Future<void> downloadAs(PostItem item) async {
     Log.debug('downloadAs($item)', '$runtimeType');
 
@@ -398,7 +413,7 @@ class PlayerController extends GetxController {
     }
   }
 
-  /// Downloads the provided [GalleryItem] and saves it to the gallery.
+  /// Downloads the provided [PostItem] and saves it to the gallery.
   Future<void> saveToGallery(PostItem item) async {
     Log.debug('saveToGallery($item)', '$runtimeType');
 
@@ -440,6 +455,7 @@ class PlayerController extends GetxController {
     }
   }
 
+  /// Invokes [PlatformUtilsImpl.share] for the provided [item].
   Future<void> share(PostItem item) async {
     Log.debug('share($item)', '$runtimeType');
 
@@ -469,6 +485,9 @@ class PlayerController extends GetxController {
     }
   }
 
+  /// Fetches the [ChatItem] of the provided [post] to update its [Attachment]s.
+  ///
+  /// Should be invoked in case some of those [Attachment]s are expired.
   Future<void> reload(Post post) async {
     Log.debug('reload($post)', '$runtimeType');
 
@@ -506,6 +525,9 @@ class PlayerController extends GetxController {
     }
   }
 
+  /// Parses the provided [event] to invoke [playPause], [previous], etc.
+  ///
+  /// Intended to be a handler of [HardwareKeyboard].
   bool _keyboardHandler(KeyEvent event) {
     if (event is KeyDownEvent) {
       switch (event.logicalKey) {
@@ -587,11 +609,18 @@ class PlayerController extends GetxController {
     return false;
   }
 
+  /// Invokes [shouldClose] and returns `true`.
+  ///
+  /// Intended to be used as a [BackButtonInterceptor] handler.
   bool _backHandler(bool _, RouteInfo __) {
     shouldClose?.call();
     return true;
   }
 
+  /// Sets the values and variables according to the current [vertical] page.
+  ///
+  /// Intended to be a listener that is invoked on any [vertical] position
+  /// changing.
   void _pageListener() {
     final double pageOrZero = vertical.page ?? 0;
 
@@ -605,6 +634,7 @@ class PlayerController extends GetxController {
           _scrollingForward = false;
         }
       }
+
       _lastPageValue = pageOrZero;
 
       if (_currentPageIndex != null) {
@@ -733,6 +763,7 @@ class PlayerController extends GetxController {
   }
 }
 
+/// Single entity to display in a [PlayerView].
 class Post implements Comparable<Post> {
   Post({
     required this.id,
@@ -747,6 +778,7 @@ class Post implements Comparable<Post> {
        horizontal = Rx(PageController(initialPage: initial, keepPage: false)),
        index = RxInt(initial);
 
+  /// Constructs a [Post] from the provided [MediaItem].
   factory Post.fromMediaItem(MediaItem item, {int initial = 0}) {
     ChatMessage? message;
 
@@ -766,27 +798,43 @@ class Post implements Comparable<Post> {
     );
   }
 
+  /// ID of this [Post].
   final String id;
+
+  /// [ChatItemId] representing this [Post].
   final ChatItemId? itemId;
+
+  /// [ChatId] in which this [Post] is posted.
   final ChatId? chatId;
 
+  /// [User] who is an author of this [Post], if any.
   final User? author;
+
+  /// Description of this [Post], if any.
   ChatMessageText? description;
+
+  /// [PreciseDateTime] this [Post] was posted at.
   final PreciseDateTime? postedAt;
 
+  /// [PageController] for controlling the horizontal switching of [items],
   final Rx<PageController> horizontal;
+
+  /// Current index of [items] in [horizontal].
   final RxInt index;
 
+  /// [PostItem]s of this [Post].
   final RxList<PostItem> items;
 
   @override
   int get hashCode =>
       Object.hashAll([id, author, description, postedAt, index.value, items]);
 
+  /// Initializes this [Post].
   void init() {
     horizontal.value.addListener(_pageListener);
   }
 
+  /// Disposes this [Post].
   void dispose() {
     horizontal.value.removeListener(_pageListener);
     for (var e in items) {
@@ -794,6 +842,7 @@ class Post implements Comparable<Post> {
     }
   }
 
+  /// Resets the current [horizontal].
   void reattach() {
     horizontal.value.removeListener(_pageListener);
     horizontal.value = PageController(initialPage: 0);
@@ -832,6 +881,7 @@ class Post implements Comparable<Post> {
     return id.compareTo(other.id);
   }
 
+  /// Sets the [index] according to the [horizontal].
   void _pageListener() {
     if (horizontal.value.hasClients) {
       final rounded = horizontal.value.page?.round() ?? 0;
@@ -840,11 +890,14 @@ class Post implements Comparable<Post> {
   }
 }
 
+/// Single item of [Post] represented with an [Attachment].
 class PostItem {
   PostItem(this.attachment);
 
+  /// [Attachment] itself.
   final Attachment attachment;
 
+  /// [ReactivePlayerController] of the video, if this [attachment] is one.
   final Rx<ReactivePlayerController?> video = Rx(null);
 
   @override
@@ -855,6 +908,7 @@ class PostItem {
     return other is PostItem && other.attachment == attachment;
   }
 
+  /// Disposes this [PostItem].
   void dispose() {
     video.value?.dispose();
   }
@@ -865,47 +919,75 @@ class PostItem {
   }
 }
 
+/// Reactive [VideoPlayerController].
 class ReactivePlayerController {
   ReactivePlayerController(this.controller) {
     controller.addListener(_listener);
   }
 
+  /// [VideoPlayerController] itself.
   final VideoPlayerController controller;
 
+  /// Currently buffered ranges.
   final RxList<DurationRange> buffered = RxList();
+
+  /// Indicator whether the video is buffering.
   final RxBool isBuffering = RxBool(true);
+
+  /// Indicator whether the video is looped.
   final RxBool isLooping = RxBool(false);
+
+  /// Indicator whether the video is playing.
   final RxBool isPlaying = RxBool(false);
+
+  /// Indicator whether the video is completed.
   final RxBool isCompleted = RxBool(false);
+
+  /// [Size] of the currently loaded video.
   final Rx<Size> size = Rx(Size.zero);
+
+  /// Current playback position.
   final Rx<Duration> position = Rx(Duration.zero);
+
+  /// Total duration of the video.
   final Rx<Duration> duration = Rx(Duration.zero);
+
+  /// Current volume of the playback.
   final RxDouble volume = RxDouble(0);
 
+  /// Disposes this [ReactivePlayerController].
   void dispose() {
     controller.removeListener(_listener);
   }
 
+  /// Starts playing the video.
+  ///
+  /// If the video is at the end, this method starts playing from the beginning.
   Future<void> play() async {
     await controller.play();
   }
 
+  /// Pauses the video.
   Future<void> pause() async {
     await controller.pause();
   }
 
-  Future<void> seekTo(Duration to) async {
-    await controller.seekTo(to);
+  /// Sets the video's current timestamp to be at [moment].
+  Future<void> seekTo(Duration moment) async {
+    await controller.seekTo(moment);
   }
 
+  /// Sets the playback speed of video.
   Future<void> setRate(double speed) async {
     controller.setPlaybackSpeed(speed);
   }
 
+  /// Sets the audio volume of video.
   Future<void> setVolume(double volume) async {
     controller.setVolume(volume);
   }
 
+  /// Updates the parameters according to the state of [controller].
   void _listener() {
     buffered.value = controller.value.buffered;
     isBuffering.value = controller.value.isInitialized

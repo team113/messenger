@@ -83,6 +83,7 @@ class VideoThumbnail extends StatefulWidget {
   /// Optional width this [VideoThumbnail] occupies.
   final double? width;
 
+  /// [BoxFit] to prefer displaying this [VideoThumbnail] as.
   final BoxFit fit;
 
   /// Callback, called on the video loading errors.
@@ -95,7 +96,7 @@ class VideoThumbnail extends StatefulWidget {
 /// State of a [VideoThumbnail], used to initialize and dispose a
 /// [VideoController].
 class _VideoThumbnailState extends State<VideoThumbnail> {
-  /// [Player] opening and maintaining the video to use in [_controller].
+  /// [VideoPlayerController] opening and maintaining the video itself.
   VideoPlayerController? _controller;
 
   /// [CancelToken] for cancelling the [VideoPlayerController] initialization.
@@ -104,6 +105,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// [CancelToken] for cancelling the [VideoThumbnail.url] header fetching.
   CancelToken? _headerToken;
 
+  /// Error message, if any.
   String? _error;
 
   @override

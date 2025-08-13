@@ -37,7 +37,10 @@ class VideoVolumeBar extends StatelessWidget {
     this.drawShadow = false,
   }) : colors = colors ?? ProgressBarColors();
 
+  /// Volume to display as the current within this [VideoVolumeBar].
   final double volume;
+
+  /// Callback, called when the [volume] changes.
   final void Function(double)? onSetVolume;
 
   /// [ProgressBarColors] theme of this [VideoVolumeBar].

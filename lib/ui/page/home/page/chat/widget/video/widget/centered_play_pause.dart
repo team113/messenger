@@ -31,7 +31,10 @@ class CenteredPlayPause extends StatelessWidget {
     this.show = true,
   });
 
+  /// Indicator whether an [Icons.replay] should be displayed.
   final bool isCompleted;
+
+  /// Indicator whether [AnimatedPlayPause] should display a play or pause icon.
   final bool isPlaying;
 
   /// Size of this [CenteredPlayPause].

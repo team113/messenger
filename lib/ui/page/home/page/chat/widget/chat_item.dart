@@ -266,7 +266,6 @@ class ChatItemWidget extends StatefulWidget {
                     gallery: PaginatedGallery(
                       paginated: onGallery(),
                       initial: (item, attachment),
-                      rect: key,
                       onForbidden: onError,
                       onReply: onReply,
                       onShare: onShare,

@@ -24,7 +24,7 @@ import 'animated_play_pause.dart';
 class CustomPlayPause extends StatelessWidget {
   const CustomPlayPause(this.playing, {super.key, this.height, this.onTap});
 
-  /// [VideoController] controlling the [Video] player functionality.
+  /// Indicator whether this icon should display a playing icon.
   final bool playing;
 
   /// Height of this [CustomPlayPause].

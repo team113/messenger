@@ -32,8 +32,6 @@ class ProgressBar extends StatefulWidget {
     this.onPause,
     this.onPlay,
     this.seekTo,
-
-    //
     this.onDragEnd,
     this.onDragStart,
     this.onDragUpdate,
@@ -43,12 +41,25 @@ class ProgressBar extends StatefulWidget {
     this.drawShadow = true,
   });
 
+  /// [Duration] that should be displayed as a buffered (greyed out) section.
   final Duration buffer;
+
+  /// Whole total [Duration] to calculate [buffer] and [position] relative to.
   final Duration duration;
+
+  /// Current relative position to display.
   final Duration position;
+
+  /// Indicator whether this [ProgressBar] is considered playing.
   final bool isPlaying;
+
+  /// Callback, called when pause should happen.
   final void Function()? onPause;
+
+  /// Callback, called when play should happen.
   final void Function()? onPlay;
+
+  /// Callback, called when seeking should happen.
   final Future<void> Function(Duration)? seekTo;
 
   /// Callback, called when progress drag started.
@@ -78,6 +89,7 @@ class _ProgressBarState extends State<ProgressBar> {
   /// Indicator whether video was playing when `dragStart` event triggered.
   bool _controllerWasPlaying = false;
 
+  /// Current position of this [ProgressBar].
   late Duration _position;
 
   @override

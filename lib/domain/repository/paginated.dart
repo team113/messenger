@@ -154,7 +154,10 @@ class FixedItemsPaginated<K, T> extends Paginated<K, T> {
     items.addAll(values);
   }
 
+  /// Callback, called when [next] is invoked.
   final Future<void> Function()? onNext;
+
+  /// Callback, called when [previous] is invoked.
   final Future<void> Function()? onPrevious;
 
   @override

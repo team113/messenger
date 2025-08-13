@@ -28,7 +28,10 @@ class CurrentPosition extends StatelessWidget {
     this.position = Duration.zero,
   });
 
+  /// Current relative position.
   final Duration position;
+
+  /// Whole [Duration] to display [position] relative to.
   final Duration duration;
 
   @override

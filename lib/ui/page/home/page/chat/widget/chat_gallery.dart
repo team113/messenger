@@ -29,6 +29,7 @@ import '/ui/page/player/controller.dart';
 import '/ui/page/player/view.dart';
 import '/util/obs/obs.dart';
 
+/// [PlayerView] with the fixed [MediaItem]s list.
 class RegularGallery extends StatelessWidget {
   const RegularGallery({
     super.key,
@@ -37,8 +38,13 @@ class RegularGallery extends StatelessWidget {
     this.onShare,
   });
 
+  /// [MediaItem]s themselves.
   final List<MediaItem> items;
+
+  /// Callback, called when a reply action within [MediaItem] is triggered.
   final void Function(MediaItem)? onReply;
+
+  /// Callback, called when a share action within [MediaItem] is triggered.
   final void Function(MediaItem)? onShare;
 
   @override
@@ -59,7 +65,6 @@ class PaginatedGallery extends StatefulWidget {
     super.key,
     this.paginated,
     this.initial,
-    this.rect,
     this.onForbidden,
     this.onReply,
     this.onShare,
@@ -72,22 +77,21 @@ class PaginatedGallery extends StatefulWidget {
   /// in a [PlayerView].
   final (ChatItem?, Attachment)? initial;
 
-  /// [GlobalKey] of the widget to display [PlayerView] expanding from.
-  final GlobalKey? rect;
-
   /// Callback, called when an [Attachment] loading fails with a forbidden
   /// network error.
   final FutureOr<void> Function(ChatItem?)? onForbidden;
 
+  /// Callback, called when a reply action within [MediaItem] is triggered.
   final void Function(MediaItem)? onReply;
+
+  /// Callback, called when a reply action within [MediaItem] is triggered.
   final void Function(MediaItem)? onShare;
 
   @override
   State<PaginatedGallery> createState() => _PaginatedGalleryState();
 }
 
-/// State of a [PaginatedGallery] updating the [GalleryItem.link]s on fetching
-/// errors.
+/// State of a [PaginatedGallery] updating the [MediaItem]s on fetching errors.
 class _PaginatedGalleryState extends State<PaginatedGallery> {
   /// [Paginated.updates] subscription keeping it alive.
   StreamSubscription? _updates;
@@ -98,6 +102,8 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
   /// Initial [MediaItem] to display in a [PlayerView] widget.
   MediaItem? _initial;
 
+  /// [FixedItemsPaginated] of the [MediaItem]s converted from the source
+  /// [Paginated] of [ChatItem]s.
   late final FixedItemsPaginated<String, MediaItem> _paginated =
       FixedItemsPaginated(
         {},
@@ -201,6 +207,8 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
     );
   }
 
+  /// Returns an index of [Attachment] considered as the initial one from the
+  /// provided [item].
   int _parseInitialIndex(ChatItem? item) {
     if (item is! ChatMessage) {
       return 0;
