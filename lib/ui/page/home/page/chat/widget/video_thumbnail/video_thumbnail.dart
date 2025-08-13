@@ -231,6 +231,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
         await Backoff.run(() async {
           try {
             await _controller?.initialize();
+
+            if (mounted) {
+              setState(() {});
+            }
           } catch (e) {
             if (e is DioException && e.response?.statusCode == 403) {
               widget.onError?.call();
@@ -284,6 +288,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
             '_ensureReachable() -> fetching HEAD... done!',
             '$runtimeType',
           );
+
+          if (mounted) {
+            setState(() {});
+          }
         } catch (e) {
           Log.debug(
             '_ensureReachable() -> fetching HEAD... ⛔️ failed with $e',

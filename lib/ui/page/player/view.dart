@@ -171,13 +171,15 @@ class PlayerView extends StatelessWidget {
   }
 
   Widget _post(BuildContext context, PlayerController c, Post post) {
-    return PageView(
-      physics: c.viewportIsTransformed.value
-          ? NeverScrollableScrollPhysics()
-          : null,
-      controller: post.horizontal,
-      children: [...post.items.map((e) => _attachment(context, c, post, e))],
-    );
+    return Obx(() {
+      return PageView(
+        physics: c.viewportIsTransformed.value
+            ? NeverScrollableScrollPhysics()
+            : null,
+        controller: post.horizontal.value,
+        children: [...post.items.map((e) => _attachment(context, c, post, e))],
+      );
+    });
   }
 
   Widget _attachment(
@@ -1217,11 +1219,16 @@ class PlayerView extends StatelessWidget {
                   child: Obx(() {
                     final selected = c.index.value == i;
 
+                    final PostItem? item = e.items.firstOrNull;
+                    if (item == null) {
+                      return const SizedBox();
+                    }
+
                     return Stack(
                       alignment: Alignment.centerLeft,
                       children: [
                         MediaAttachment(
-                          attachment: e.items.first.attachment,
+                          attachment: item.attachment,
                           fit: BoxFit.cover,
                           width: isMobile
                               ? constraints.maxWidth
@@ -1258,6 +1265,7 @@ class PlayerView extends StatelessWidget {
                 key: c.scrollableKey,
                 scrollController: c.scrollController,
                 itemScrollController: c.itemScrollController,
+                itemPositionsListener: c.itemPositionsListener,
                 itemCount: medias.length,
                 itemBuilder: (_, i) {
                   if (i == -1) {

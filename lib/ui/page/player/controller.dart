@@ -104,6 +104,8 @@ class PlayerController extends GetxController {
 
   /// [ItemScrollController] of the page's [ScrollablePositionedList].
   final ItemScrollController itemScrollController = ItemScrollController();
+  final ItemPositionsListener itemPositionsListener =
+      ItemPositionsListener.create();
 
   /// Latest volume value for [VideoController] being displayed.
   double? latestVolume;
@@ -128,6 +130,10 @@ class PlayerController extends GetxController {
   bool _ignorePageListener = false;
 
   StreamSubscription? _sourceSubscription;
+
+  double? _lastPageValue;
+  int? _currentPageIndex;
+  bool? _scrollingForward;
 
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
@@ -171,14 +177,17 @@ class PlayerController extends GetxController {
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
-    for (var e in source.items.values) {
-      posts.add(Post.fromMediaItem(e)..init());
+    for (var e in source.values) {
+      final bool initial = e.id == key.value;
+      posts.add(
+        Post.fromMediaItem(e, initial: initial ? initialIndex : 0)..init(),
+      );
     }
     posts.sort();
 
     index = RxInt(max(0, posts.indexWhere((e) => e.id == key.value)));
-
-    vertical = PageController(initialPage: _index);
+    vertical = PageController(initialPage: _index, keepPage: false);
+    _currentPageIndex = _index;
 
     _sourceSubscription?.cancel();
     _sourceSubscription = source.items.changes.listen((e) {
@@ -186,10 +195,17 @@ class PlayerController extends GetxController {
         case OperationKind.added:
         case OperationKind.updated:
           final MediaItem? item = e.value;
+
           if (item != null) {
             final Post? existing = posts.firstWhereOrNull((p) => p.id == e.key);
             if (existing == null) {
-              posts.add(Post.fromMediaItem(item)..init());
+              final bool initial = item.id == key.value;
+              final Post post = Post.fromMediaItem(
+                item,
+                initial: initial ? initialIndex : 0,
+              );
+
+              posts.add(post..init());
               posts.sort();
             } else {
               // TODO: Update the item.
@@ -509,8 +525,8 @@ class PlayerController extends GetxController {
           final Post? current = post;
 
           if (current != null && current.items.length >= 2) {
-            if ((current.horizontal.page ?? 0).round() > 0) {
-              current.horizontal.previousPage(
+            if ((current.horizontal.value.page ?? 0).round() > 0) {
+              current.horizontal.value.previousPage(
                 duration: Duration(milliseconds: 200),
                 curve: Curves.ease,
               );
@@ -531,9 +547,9 @@ class PlayerController extends GetxController {
           final Post? current = post;
 
           if (current != null && current.items.length >= 2) {
-            if ((current.horizontal.page ?? 0).round() <
+            if ((current.horizontal.value.page ?? 0).round() <
                 current.items.length - 1) {
-              current.horizontal.nextPage(
+              current.horizontal.value.nextPage(
                 duration: Duration(milliseconds: 200),
                 curve: Curves.ease,
               );
@@ -577,10 +593,52 @@ class PlayerController extends GetxController {
   }
 
   void _pageListener() {
+    final double pageOrZero = vertical.page ?? 0;
+
     if (vertical.hasClients && !_ignorePageListener) {
-      final rounded = vertical.page?.round() ?? 0;
+      final int rounded = pageOrZero.round();
+
+      if (_lastPageValue != null) {
+        if (pageOrZero > _lastPageValue!) {
+          _scrollingForward = true;
+        } else if (pageOrZero < _lastPageValue!) {
+          _scrollingForward = false;
+        }
+      }
+      _lastPageValue = pageOrZero;
+
+      if (_currentPageIndex != null) {
+        if (_scrollingForward == true && pageOrZero >= _currentPageIndex! + 1) {
+          _currentPageIndex = pageOrZero.floor();
+
+          if (_currentPageIndex! > 0) {
+            final Post? page = posts.elementAtOrNull(_currentPageIndex! - 1);
+            page?.reattach();
+          }
+
+          Log.debug(
+            'Previous page fully gone (forward) → now at $_currentPageIndex',
+            '$runtimeType',
+          );
+        }
+
+        if (_scrollingForward == false &&
+            pageOrZero <= _currentPageIndex! - 1) {
+          _currentPageIndex = pageOrZero.ceil();
+
+          final Post? page = posts.elementAtOrNull(_currentPageIndex!);
+          page?.reattach();
+
+          Log.debug(
+            'Previous page fully gone (backward) → now at $_currentPageIndex',
+            '$runtimeType',
+          );
+        }
+      }
 
       if (rounded != index.value) {
+        final int previous = index.value;
+
         index.value = rounded;
         key.value = source.values.elementAtOrNull(rounded)?.id ?? key.value;
 
@@ -602,6 +660,44 @@ class PlayerController extends GetxController {
         final Post? items = posts.elementAtOrNull(index.value);
         for (var e in items?.items ?? <PostItem>[]) {
           e.video.value?.play();
+        }
+
+        final ItemPosition? firstOrNull =
+            itemPositionsListener.itemPositions.value.firstOrNull;
+
+        final ItemPosition? lastOrNull =
+            itemPositionsListener.itemPositions.value.lastOrNull;
+
+        // If it's the scroll up.
+        if (previous > index.value) {
+          if (firstOrNull != null) {
+            final bool firstAndPartial =
+                firstOrNull.index == index.value &&
+                firstOrNull.itemLeadingEdge < 0;
+
+            if (firstAndPartial || index.value < firstOrNull.index) {
+              itemScrollController.scrollTo(
+                index: index.value,
+                duration: Duration(milliseconds: 200),
+              );
+            }
+          }
+        }
+        // If it's the scroll down.
+        else if (previous < index.value) {
+          if (lastOrNull != null) {
+            final bool lastAndPartial =
+                lastOrNull.index == index.value &&
+                lastOrNull.itemTrailingEdge > 0;
+
+            if (lastAndPartial || index.value > lastOrNull.index) {
+              itemScrollController.scrollTo(
+                index: index.value,
+                duration: Duration(milliseconds: 200),
+                alignment: 0.5,
+              );
+            }
+          }
         }
 
         if (index.value <= 1) {
@@ -648,10 +744,10 @@ class Post implements Comparable<Post> {
     this.description,
     this.postedAt,
   }) : items = RxList(items),
-       horizontal = PageController(initialPage: initial, keepPage: false),
+       horizontal = Rx(PageController(initialPage: initial, keepPage: false)),
        index = RxInt(initial);
 
-  factory Post.fromMediaItem(MediaItem item) {
+  factory Post.fromMediaItem(MediaItem item, {int initial = 0}) {
     ChatMessage? message;
 
     if (item.item is ChatMessage) {
@@ -663,7 +759,7 @@ class Post implements Comparable<Post> {
       itemId: item.item?.id,
       chatId: item.item?.chatId,
       items: item.attachments.map((e) => PostItem(e)).toList(),
-      initial: 0,
+      initial: initial,
       author: item.item?.author,
       description: message?.text,
       postedAt: item.item?.at,
@@ -678,7 +774,7 @@ class Post implements Comparable<Post> {
   ChatMessageText? description;
   final PreciseDateTime? postedAt;
 
-  final PageController horizontal;
+  final Rx<PageController> horizontal;
   final RxInt index;
 
   final RxList<PostItem> items;
@@ -688,14 +784,21 @@ class Post implements Comparable<Post> {
       Object.hashAll([id, author, description, postedAt, index.value, items]);
 
   void init() {
-    horizontal.addListener(_pageListener);
+    horizontal.value.addListener(_pageListener);
   }
 
   void dispose() {
-    horizontal.removeListener(_pageListener);
+    horizontal.value.removeListener(_pageListener);
     for (var e in items) {
       e.dispose();
     }
+  }
+
+  void reattach() {
+    horizontal.value.removeListener(_pageListener);
+    horizontal.value = PageController(initialPage: 0);
+    index.value = 0;
+    horizontal.value.addListener(_pageListener);
   }
 
   @override
@@ -730,8 +833,8 @@ class Post implements Comparable<Post> {
   }
 
   void _pageListener() {
-    if (horizontal.hasClients) {
-      final rounded = horizontal.page?.round() ?? 0;
+    if (horizontal.value.hasClients) {
+      final rounded = horizontal.value.page?.round() ?? 0;
       index.value = rounded;
     }
   }
