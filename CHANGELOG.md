@@ -14,9 +14,16 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
-    - Redesigned media player. ([#1356])
+    - Redesigned media player. ([#1367], [#1356])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Text in forwarded messages not being selectable. ([#1367])
 
 [#1356]: /../../pull/1356
+[#1367]: /../../pull/1367
 
 
 

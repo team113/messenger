@@ -418,34 +418,48 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             3) %
                         style.colors.userColors.length];
 
-              return Row(
-                children: [
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 12, right: 9),
-                      child: SelectionText.rich(
-                        TextSpan(
-                          text: user?.title ?? 'dot'.l10n * 3,
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () =>
-                                router.user(quote.author, push: true),
-                        ),
-                        selectable: PlatformUtils.isDesktop || menu,
-                        onChanged: (a) => _selection = a,
-                        style: style.fonts.medium.regular.onBackground.copyWith(
-                          color: color,
+              return WidgetButton(
+                onPressed: () => router.user(quote.author, push: true),
+                child: Row(
+                  children: [
+                    SizedBox(width: 6),
+                    AvatarWidget.fromRxUser(
+                      user,
+                      radius: AvatarRadius.big,
+                      badge: false,
+                      constraints: BoxConstraints(
+                        maxWidth: AvatarRadius.big.toDouble(),
+                        maxHeight: AvatarRadius.big.toDouble(),
+                      ),
+                    ),
+                    SizedBox(width: 6),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 9),
+                        child: SelectionText(
+                          user?.title ?? 'dot'.l10n * 3,
+                          selectable: PlatformUtils.isDesktop || menu,
+                          onChanged: (a) => _selection = a,
+                          style: style.fonts.medium.regular.onBackground
+                              .copyWith(color: color),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),
           SizedBox(height: quote.attachments.isNotEmpty ? 6 : 3),
           if (media.isNotEmpty) ...[
             media.length == 1
-                ? _buildAttachment(media.first, msg, menu: menu, filled: false)
+                ? _buildAttachment(
+                    media.first,
+                    msg,
+                    menu: menu,
+                    filled: false,
+                    cover: quote.text != null,
+                  )
                 : SizedBox(
                     width: media.length * 120,
                     height: max(media.length * 60, 300),
@@ -604,62 +618,59 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 500),
           opacity: _isRead || !_fromMe ? 1 : 0.55,
-          child: WidgetButton(
-            onPressed: menu ? null : () => widget.onForwardedTap?.call(msg),
-            child: Stack(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Container(
-                        margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                        child: IntrinsicWidth(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: content,
-                          ),
+          child: Stack(
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                      child: IntrinsicWidth(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: content,
                         ),
                       ),
                     ),
-                  ],
-                ),
-                Positioned(
-                  right: timeInBubble ? 6 : 8,
-                  bottom: 4,
-                  child: timeInBubble
-                      ? ConditionalBackdropFilter(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: const EdgeInsets.only(left: 4, right: 4),
-                            decoration: BoxDecoration(
-                              color: style.colors.onBackgroundOpacity27,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: MessageTimestamp(
-                              at: quote.at,
-                              date: true,
-                              fontSize: style
-                                  .fonts
-                                  .smaller
-                                  .regular
-                                  .onBackground
-                                  .fontSize,
-                              inverted: true,
-                            ),
+                  ),
+                ],
+              ),
+              Positioned(
+                right: timeInBubble ? 6 : 8,
+                bottom: 4,
+                child: timeInBubble
+                    ? ConditionalBackdropFilter(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 4, right: 4),
+                          decoration: BoxDecoration(
+                            color: style.colors.onBackgroundOpacity27,
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        )
-                      : MessageTimestamp(
-                          at: quote.at,
-                          date: true,
-                          fontSize:
-                              style.fonts.smaller.regular.onBackground.fontSize,
+                          child: MessageTimestamp(
+                            at: quote.at,
+                            date: true,
+                            fontSize: style
+                                .fonts
+                                .smaller
+                                .regular
+                                .onBackground
+                                .fontSize,
+                            inverted: true,
+                          ),
                         ),
-                ),
-              ],
-            ),
+                      )
+                    : MessageTimestamp(
+                        at: quote.at,
+                        date: true,
+                        fontSize:
+                            style.fonts.smaller.regular.onBackground.fontSize,
+                      ),
+              ),
+            ],
           ),
         ),
       );
@@ -732,6 +743,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       item,
                       menu: menu,
                       filled: false,
+                      cover: text != null,
                     )
                   : SizedBox(
                       width: media.length * 120,
@@ -1299,7 +1311,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
     Attachment e,
     ChatItem item, {
     int i = 0,
-    bool filled = false,
+    bool filled = true,
+    bool cover = false,
     bool menu = false,
   }) {
     return ChatItemWidget.mediaAttachment(
@@ -1307,6 +1320,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       attachment: e,
       item: item,
       filled: filled,
+      cover: cover,
       key: _galleryKeys[item.id]?.elementAtOrNull(i),
       onGallery: menu
           ? null

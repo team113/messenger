@@ -687,6 +687,7 @@ label_media_microphone = Micrófono
 label_media_no_device_available = No hay dispositivos disponibles
 label_media_output = Altavoz
 label_media_section_hint = Micrófono, altavoz, cámara
+label_media_semicolon_amount = Medio: {$amount}
 label_message = Mensaje
 label_message_will_deleted_for_you = El mensaje será eliminado solo para Usted
 label_messages_will_deleted_for_you = Los mensajes serán eliminados solo para Usted
@@ -759,6 +760,7 @@ label_personal_data_deletion_description5 =
     - su biografía;
     - todos sus e-mails;
     - todos sus números de teléfono.
+label_photos_semicolon_amount = Fotos: {$amount}
 label_presence_away = Away
 label_presence_present = En línea
 label_profile = Perfil
@@ -918,6 +920,7 @@ label_video_call =
 label_video_downloaded = Video descargado
 label_video_downloading = Video descargando...
 label_video_saved_to_gallery = Video guardado en la galería
+label_videos_semicolon_amount = Vídeos: {$amount}
 label_visits_count = Clicks: {$count}
 label_voice_processing = Procesamiento de voz
 label_wait_seconds = Espere {$for} s

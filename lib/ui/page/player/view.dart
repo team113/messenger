@@ -28,13 +28,14 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/fit_wrap.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/page/chat/widget/video/widget/centered_play_pause.dart';
 import '/ui/page/home/page/chat/widget/video/widget/custom_play_pause.dart';
@@ -53,6 +54,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/get.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'gallery/view.dart';
 import 'widget/video_playback.dart';
 
 /// View for displaying [Post]s.
@@ -60,6 +62,7 @@ class PlayerView extends StatelessWidget {
   const PlayerView({
     super.key,
     required this.source,
+    this.resourceId,
     this.initialKey,
     this.initialIndex = 0,
     this.onReply,
@@ -70,6 +73,9 @@ class PlayerView extends StatelessWidget {
 
   /// [Paginated] of [MediaItem]s being the source of [Post]s.
   final Paginated<String, MediaItem> source;
+
+  /// [ResourceId] from where the [source] is coming from.
+  final ResourceId? resourceId;
 
   /// Initial [Post.id] of the [PlayerController.vertical] controller.
   final String? initialKey;
@@ -106,7 +112,7 @@ class PlayerView extends StatelessWidget {
             color: style.colors.onBackground,
             child: Scaffold(
               backgroundColor: style.colors.onBackground,
-              body: CustomSafeArea(child: gallery),
+              body: gallery,
             ),
           );
         },
@@ -152,6 +158,7 @@ class PlayerView extends StatelessWidget {
         initialIndex: initialIndex,
         source: source,
         shouldClose: Navigator.of(context).pop,
+        resourceId: resourceId,
       ),
       builder: (PlayerController c) {
         return SizedBox(
@@ -216,55 +223,25 @@ class PlayerView extends StatelessWidget {
   ) {
     final Attachment attachment = item.attachment;
 
-    if (attachment is ImageAttachment) {
-      return ContextMenuRegion(
-        actions: [
-          ContextMenuButton(
-            label: 'btn_copy'.l10n,
-            onPressed: () async => await c.copy(post, item),
-          ),
+    Widget? child;
+    bool isVideo = false;
 
-          if (!PlatformUtils.isWeb && PlatformUtils.isMobile) ...[
-            ContextMenuButton(
-              label: 'btn_save_to_gallery'.l10n,
-              onPressed: () async => await c.saveToGallery(item),
-            ),
-          ] else ...[
-            ContextMenuButton(
-              label: 'btn_download'.l10n,
-              onPressed: () async => await c.download(item),
-            ),
-            if (PlatformUtils.isDesktop)
-              ContextMenuButton(
-                label: 'btn_download_as'.l10n,
-                onPressed: () async => await c.downloadAs(item),
-              ),
-          ],
-        ],
-        child: InteractiveViewer(
-          transformationController: c.transformationController,
-          onInteractionStart: (_) {
-            c.viewportIsTransformed.value = true;
-          },
-          onInteractionEnd: (e) {
-            c.viewportIsTransformed.value =
-                c.transformationController.value.forward.z > 1;
-          },
-          child: Center(
-            child: RetryImage(
-              attachment.original.url,
-              width: double.infinity,
-              height: double.infinity,
-              checksum: attachment.original.checksum,
-              fit: BoxFit.contain,
-              onForbidden: () async => await c.reload(post),
-            ),
-          ),
+    if (attachment is ImageAttachment) {
+      child = Center(
+        child: RetryImage(
+          attachment.original.url,
+          width: double.infinity,
+          height: double.infinity,
+          checksum: attachment.original.checksum,
+          fit: BoxFit.contain,
+          onForbidden: () async => await c.reload(post),
         ),
       );
     } else if (attachment is FileAttachment) {
       if (attachment.isVideo) {
-        return VideoPlayback(
+        isVideo = true;
+
+        child = VideoPlayback(
           attachment.original.url,
           checksum: attachment.original.checksum,
           volume: c.settings.value?.videoVolume,
@@ -291,7 +268,48 @@ class PlayerView extends StatelessWidget {
       }
     }
 
-    return Center(child: Text('Unsupported'));
+    if (child != null) {
+      return ContextMenuRegion(
+        actions: [
+          if (!isVideo)
+            ContextMenuButton(
+              label: 'btn_copy'.l10n,
+              onPressed: () async => await c.copy(post, item),
+            ),
+
+          if (!PlatformUtils.isWeb && PlatformUtils.isMobile) ...[
+            ContextMenuButton(
+              label: 'btn_save_to_gallery'.l10n,
+              onPressed: () async => await c.saveToGallery(item),
+            ),
+          ] else ...[
+            ContextMenuButton(
+              label: 'btn_download'.l10n,
+              onPressed: () async => await c.download(item),
+            ),
+
+            if (!PlatformUtils.isWeb && PlatformUtils.isDesktop)
+              ContextMenuButton(
+                label: 'btn_download_as'.l10n,
+                onPressed: () async => await c.downloadAs(item),
+              ),
+          ],
+        ],
+        child: InteractiveViewer(
+          transformationController: c.transformationController,
+          onInteractionStart: (_) {
+            c.viewportIsTransformed.value = true;
+          },
+          onInteractionEnd: (e) {
+            c.viewportIsTransformed.value =
+                c.transformationController.value.forward.z > 1;
+          },
+          child: child,
+        ),
+      );
+    }
+
+    return SizedBox();
   }
 
   /// Builds the interface to display over the [_content].
@@ -429,7 +447,7 @@ class PlayerView extends StatelessWidget {
               cursor: SystemMouseCursors.click,
               child: Obx(() {
                 if (video.isBuffering.value) {
-                  return const Center(child: CustomProgressIndicator());
+                  return const SizedBox();
                 }
 
                 return CenteredPlayPause(
@@ -525,9 +543,16 @@ class PlayerView extends StatelessWidget {
     final style = Theme.of(context).style;
     final bool isMobile = context.isMobile;
 
+    final EdgeInsets padding = MediaQuery.paddingOf(context);
+
     return Container(
-      height: 60,
-      padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+      height: 60 + padding.top,
+      padding: EdgeInsets.fromLTRB(
+        5 + padding.left,
+        padding.top,
+        5 + padding.right,
+        0,
+      ),
       decoration: BoxDecoration(color: Color(0x4B333333)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -571,13 +596,15 @@ class PlayerView extends StatelessWidget {
             opacity: c.source.length > 1 ? 1 : 0.5,
             child: WidgetButton(
               onPressed: c.source.length > 1
-                  ? () {
-                      c.side.toggle();
-
+                  ? () async {
                       if (isMobile) {
                         final ReactivePlayerController? video =
                             c.item?.video.value;
                         video?.pause();
+
+                        await GalleryView.show(context, controller: c);
+                      } else {
+                        c.side.toggle();
                       }
                     }
                   : null,
@@ -642,6 +669,8 @@ class PlayerView extends StatelessWidget {
     PlayerController c,
     BoxConstraints constraints,
   ) {
+    final EdgeInsets padding = MediaQuery.of(context).padding;
+
     return Obx(() {
       final ReactivePlayerController? video = c.item?.video.value;
 
@@ -654,7 +683,12 @@ class PlayerView extends StatelessWidget {
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 16, 57 + 16),
+              padding: EdgeInsets.fromLTRB(
+                0,
+                0,
+                16 + padding.right,
+                57 + 16 + padding.bottom,
+              ),
               child: _position(context, c),
             ),
           ),
@@ -675,7 +709,7 @@ class PlayerView extends StatelessWidget {
 
           if (video != null)
             Positioned(
-              bottom: 44,
+              bottom: 44 + padding.bottom,
               left: 0,
               right: 0,
               child: Obx(() {
@@ -697,7 +731,11 @@ class PlayerView extends StatelessWidget {
   }
 
   /// Builds an expandable [Post.description] with its meta data.
-  Widget _description(BuildContext context, PlayerController c) {
+  Widget _description(
+    BuildContext context,
+    PlayerController c, {
+    bool bottom = true,
+  }) {
     final style = Theme.of(context).style;
 
     return Obx(() {
@@ -711,109 +749,124 @@ class PlayerView extends StatelessWidget {
       final User user = message.author;
       final String? text = message is ChatMessage ? message.text?.val : null;
 
-      return WidgetButton(
-        onPressed: c.expanded.toggle,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                    child: Row(
-                      children: [
-                        AvatarWidget.fromUser(
-                          user,
-                          radius: AvatarRadius.small,
-                          isOnline:
-                              user.online && user.presence == Presence.present,
-                          isAway: user.online && user.presence == Presence.away,
-                        ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            user.title,
-                            style: style.fonts.medium.bold.onPrimary,
+      final EdgeInsets padding = MediaQuery.of(context).padding;
+
+      return Padding(
+        padding: EdgeInsets.fromLTRB(
+          padding.left,
+          0,
+          padding.right,
+          bottom ? padding.bottom : 0,
+        ),
+        child: WidgetButton(
+          onPressed: c.expanded.toggle,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                      child: Row(
+                        children: [
+                          AvatarWidget.fromUser(
+                            user,
+                            radius: AvatarRadius.small,
+                            isOnline:
+                                user.online &&
+                                user.presence == Presence.present,
+                            isAway:
+                                user.online && user.presence == Presence.away,
                           ),
-                        ),
-                        Opacity(opacity: 0, child: _position(context, c)),
-                      ],
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              user.title,
+                              style: style.fonts.medium.bold.onPrimary,
+                            ),
+                          ),
+                          Opacity(opacity: 0, child: _position(context, c)),
+                        ],
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      20,
-                      text != null ? 8 : 0,
-                      20,
-                      4,
-                    ),
-                    child: Obx(() {
-                      return AnimatedSizeAndFade(
-                        fadeDuration: Duration(milliseconds: 250),
-                        sizeDuration: Duration(milliseconds: 250),
-                        fadeInCurve: Curves.ease,
-                        fadeOutCurve: Curves.ease,
-                        alignment: Alignment.center,
-                        child: c.expanded.value
-                            ? Column(
-                                key: Key('Expanded'),
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (text != null)
-                                    Text(
-                                      text,
-                                      style:
-                                          style.fonts.normal.regular.onPrimary,
-                                      maxLines: null,
-                                    ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        20,
+                        text != null ? 8 : 0,
+                        20,
+                        4,
+                      ),
+                      child: Obx(() {
+                        return AnimatedSizeAndFade(
+                          fadeDuration: Duration(milliseconds: 250),
+                          sizeDuration: Duration(milliseconds: 250),
+                          fadeInCurve: Curves.ease,
+                          fadeOutCurve: Curves.ease,
+                          alignment: Alignment.center,
+                          child: c.expanded.value
+                              ? Column(
+                                  key: Key('Expanded'),
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (text != null)
                                       Text(
-                                        message.at.val.toRelative(),
+                                        text,
                                         style: style
                                             .fonts
                                             .normal
                                             .regular
-                                            .onPrimary
-                                            .copyWith(
-                                              color: style
-                                                  .colors
-                                                  .onPrimaryOpacity50,
-                                            ),
+                                            .onPrimary,
+                                        maxLines: null,
                                       ),
-                                      Spacer(),
-                                      Opacity(
-                                        opacity: 0,
-                                        child: _position(context, c),
-                                      ),
-                                    ],
+                                    SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          message.at.val.toRelative(),
+                                          style: style
+                                              .fonts
+                                              .normal
+                                              .regular
+                                              .onPrimary
+                                              .copyWith(
+                                                color: style
+                                                    .colors
+                                                    .onPrimaryOpacity50,
+                                              ),
+                                        ),
+                                        Spacer(),
+                                        Opacity(
+                                          opacity: 0,
+                                          child: _position(context, c),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              : text == null
+                              ? SizedBox(width: double.infinity)
+                              : Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    key: Key('Short'),
+                                    text,
+                                    style: style.fonts.normal.regular.onPrimary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ],
-                              )
-                            : text == null
-                            ? SizedBox(width: double.infinity)
-                            : Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  key: Key('Short'),
-                                  text,
-                                  style: style.fonts.normal.regular.onPrimary,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                      );
-                    }),
-                  ),
-                ],
+                        );
+                      }),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Opacity(opacity: 0, child: _position(context, c)),
-          ],
+              Opacity(opacity: 0, child: _position(context, c)),
+            ],
+          ),
         ),
       );
     });
@@ -845,9 +898,11 @@ class PlayerView extends StatelessWidget {
   ) {
     final bool isMobile = context.isMobile;
 
+    final EdgeInsets padding = MediaQuery.paddingOf(context);
+
     return AnimatedContainer(
       duration: Duration(milliseconds: 250),
-      padding: const EdgeInsets.all(5),
+      padding: EdgeInsets.fromLTRB(5, 5, 5, 5 + padding.bottom),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: c.expanded.value
@@ -878,7 +933,10 @@ class PlayerView extends StatelessWidget {
             fadeOutCurve: Curves.ease,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(0, 16 + 12 + 16, 0, 0),
-              child: Opacity(opacity: 0, child: _description(context, c)),
+              child: Opacity(
+                opacity: 0,
+                child: _description(context, c, bottom: false),
+              ),
             ),
           ),
           SizedBox(
@@ -911,7 +969,13 @@ class PlayerView extends StatelessWidget {
               controller.setVolume(0.0);
             }
           },
-          child: SvgIcon(SvgIcons.volume),
+          child: Obx(() {
+            return SvgIcon(
+              controller.volume.value == 0
+                  ? SvgIcons.volumeMuted
+                  : SvgIcons.volume,
+            );
+          }),
         ),
         SizedBox(width: 12),
         Expanded(
@@ -1000,7 +1064,18 @@ class PlayerView extends StatelessWidget {
                         video.setVolume(0.0);
                       }
                     },
-              child: SvgIcon(SvgIcons.volume),
+              child: SizedBox(
+                width: 24,
+                child: video == null
+                    ? SvgIcon(SvgIcons.volume)
+                    : Obx(() {
+                        return SvgIcon(
+                          video.volume.value == 0
+                              ? SvgIcons.volumeMuted
+                              : SvgIcons.volume,
+                        );
+                      }),
+              ),
             ),
           ),
 
@@ -1182,9 +1257,6 @@ class PlayerView extends StatelessWidget {
     BoxConstraints constraints,
   ) {
     final style = Theme.of(context).style;
-    final bool isMobile = context.isMobile;
-
-    final width = isMobile ? constraints.maxWidth : constraints.maxWidth / 5;
 
     final Widget selectedSpacer = Padding(
       padding: const EdgeInsets.only(left: 8.0),
@@ -1200,6 +1272,7 @@ class PlayerView extends StatelessWidget {
         .expand((e) => e.attachments)
         .whereType<ImageAttachment>()
         .length;
+
     final int videos = c.source.values
         .expand((e) => e.attachments)
         .whereType<FileAttachment>()
@@ -1207,141 +1280,130 @@ class PlayerView extends StatelessWidget {
 
     return Container(
       height: constraints.maxHeight,
-      width: width,
-      decoration: BoxDecoration(
-        color: isMobile ? style.colors.background : Color(0x4B333333),
-      ),
+      width: constraints.maxWidth / 5,
+      decoration: BoxDecoration(color: Color(0x4B333333)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-            child: Row(
-              children: [
-                if (isMobile) ...[
-                  WidgetButton(
-                    onPressed: () => c.side.value = false,
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(16, 18, 16, 18),
-                      child: Row(children: [SvgIcon(SvgIcons.back)]),
+          Row(
+            children: [
+              SizedBox(width: 6),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'btn_gallery'.l10n,
+                      style: style.fonts.medium.regular.onPrimary,
                     ),
-                  ),
-                  AvatarWidget(radius: AvatarRadius.medium),
-                  SizedBox(width: 8),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (isMobile) ...[
-                        Text(
-                          'tester',
-                          style: style.fonts.medium.regular.onBackground,
-                        ),
-                      ] else ...[
-                        Text(
-                          'Gallery',
-                          style: style.fonts.medium.regular.onPrimary,
-                        ),
-                      ],
-                      SizedBox(height: 2),
-                      Text(
-                        'Media: ${c.source.length}',
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                    ],
-                  ),
+                    SizedBox(height: 2),
+                    Text(
+                      'label_media_semicolon_amount'.l10nfmt({
+                        'amount': c.posts.length,
+                      }),
+                      style: style.fonts.small.regular.secondary,
+                    ),
+                  ],
                 ),
-                ContextMenuRegion(
+              ),
+              Obx(() {
+                return ContextMenuRegion(
                   actions: [
                     ContextMenuButton(
-                      label: 'Photos: $photos',
-                      onPressed: () {},
-                      spacer: selectedSpacer,
-                      spacerInverted: selectedInverted,
+                      label: 'label_photos_semicolon_amount'.l10nfmt({
+                        'amount': photos,
+                      }),
+                      onPressed: c.includePhotos.toggle,
+                      spacer: c.includePhotos.value ? selectedSpacer : null,
+                      spacerInverted: c.includePhotos.value
+                          ? selectedInverted
+                          : null,
                     ),
                     ContextMenuButton(
-                      label: 'Videos: $videos',
-                      onPressed: () {},
-                      spacer: selectedSpacer,
-                      spacerInverted: selectedInverted,
-                    ),
-                    ContextMenuButton(
-                      label: 'Clips: $videos',
-                      onPressed: c.interface.toggle,
-                      spacer: selectedSpacer,
-                      spacerInverted: selectedInverted,
+                      label: 'label_videos_semicolon_amount'.l10nfmt({
+                        'amount': videos,
+                      }),
+                      onPressed: c.includeVideos.toggle,
+                      spacer: c.includeVideos.value ? selectedSpacer : null,
+                      spacerInverted: c.includeVideos.value
+                          ? selectedInverted
+                          : null,
                     ),
                   ],
                   enablePrimaryTap: true,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                    child: isMobile
-                        ? SvgIcon(SvgIcons.more)
-                        : SvgIcon(SvgIcons.moreWhite),
+                    padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
+                    child: SvgIcon(SvgIcons.moreWhite),
                   ),
-                ),
-              ],
-            ),
+                );
+              }),
+            ],
           ),
-
           Expanded(
             child: Obx(() {
-              final medias = c.posts.mapIndexed((i, e) {
-                return WidgetButton(
-                  onPressed: () {
-                    if (isMobile) {
-                      c.side.value = false;
-                    }
-
-                    c.vertical.animateToPage(
-                      i,
-                      duration: Duration(milliseconds: 250),
-                      curve: Curves.ease,
-                    );
-                  },
-                  child: Obx(() {
-                    final selected = c.index.value == i;
-
+              final Iterable<Widget> medias = c.posts
+                  .where((e) {
                     final PostItem? item = e.items.firstOrNull;
                     if (item == null) {
-                      return const SizedBox();
+                      return false;
                     }
 
-                    return Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        MediaAttachment(
-                          attachment: item.attachment,
-                          fit: BoxFit.cover,
-                          width: isMobile
-                              ? constraints.maxWidth
-                              : constraints.maxWidth / 5,
-                          height: isMobile
-                              ? constraints.maxWidth
-                              : constraints.maxWidth / 5,
-                          onError: () async => await c.reload(e),
-                        ),
-                        if (!isMobile && selected)
-                          Container(
-                            width: max(2, min(constraints.maxWidth / 100, 10)),
-                            height: isMobile ? null : constraints.maxWidth / 5,
-                            decoration: BoxDecoration(
-                              color: style.colors.primary,
-                            ),
-                          ),
-                      ],
-                    );
-                  }),
-                );
-              });
+                    if (item.attachment is ImageAttachment) {
+                      return c.includePhotos.value;
+                    } else {
+                      return c.includeVideos.value;
+                    }
+                  })
+                  .mapIndexed((i, e) {
+                    return WidgetButton(
+                      onPressed: () {
+                        c.vertical.animateToPage(
+                          i,
+                          duration: Duration(milliseconds: 250),
+                          curve: Curves.ease,
+                        );
+                      },
+                      child: Obx(() {
+                        final bool selected = c.index.value == i;
 
-              if (isMobile) {
-                return FitWrap(
-                  maxSize: constraints.maxWidth / 3,
-                  spacing: 2,
-                  alignment: WrapAlignment.start,
-                  children: medias.toList(),
+                        final PostItem? item = e.items.firstOrNull;
+                        if (item == null) {
+                          return const SizedBox();
+                        }
+
+                        return Stack(
+                          alignment: Alignment.centerLeft,
+                          children: [
+                            MediaAttachment(
+                              attachment: item.attachment,
+                              fit: BoxFit.cover,
+                              width: constraints.maxWidth / 5,
+                              height: constraints.maxWidth / 5,
+                              onError: () async => await c.reload(e),
+                            ),
+                            if (selected)
+                              Container(
+                                width: max(
+                                  2,
+                                  min(constraints.maxWidth / 100, 10),
+                                ),
+                                height: constraints.maxWidth / 5,
+                                decoration: BoxDecoration(
+                                  color: style.colors.primary,
+                                ),
+                              ),
+                          ],
+                        );
+                      }),
+                    );
+                  });
+
+              if (medias.isEmpty) {
+                return Center(
+                  child: Text(
+                    'label_nothing_found'.l10n,
+                    style: style.fonts.small.regular.secondary,
+                  ),
                 );
               }
 
@@ -1365,4 +1427,18 @@ class PlayerView extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Resource ID that [Post]s are coming from in [PlayerView].
+class ResourceId {
+  const ResourceId({this.chatId});
+
+  /// [ChatId] of the resource.
+  final ChatId? chatId;
+}
+
+/// Resource that [Post]s are coming from in [PlayerView].
+class Resource {
+  /// [RxChat] of the resource.
+  final Rx<RxChat?> chat = Rx(null);
 }

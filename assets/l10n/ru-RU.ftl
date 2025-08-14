@@ -698,6 +698,7 @@ label_media_microphone = Микрофон
 label_media_no_device_available = Нет доступных устройств
 label_media_output = Спикер
 label_media_section_hint = Микрофон, спикер, камера
+label_media_semicolon_amount = Медиа: {$amount}
 label_message = Сообщение
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас
 label_messages_will_deleted_for_you = Сообщения будут удалены только для Вас
@@ -770,6 +771,7 @@ label_personal_data_deletion_description5 =
     - Ваша биография;
     - все Ваши e-mail'ы;
     - все Ваши номера телефонов.
+label_photos_semicolon_amount = Фото: {$amount}
 label_presence_away = Отошёл
 label_presence_present = Онлайн
 label_profile = Профиль
@@ -931,6 +933,7 @@ label_video_call = Видеозвонок{$by ->
 label_video_downloaded = Видео загружено
 label_video_downloading = Видео загружается...
 label_video_saved_to_gallery = Видео сохранено в галерею
+label_videos_semicolon_amount = Видео: {$amount}
 label_visits_count = Кликов: {$count}
 label_voice_processing = Обработка голоса
 label_wait_seconds = Подождите {$for} с

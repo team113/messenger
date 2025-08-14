@@ -685,6 +685,7 @@ label_media_microphone = Microphone
 label_media_no_device_available = No device is available
 label_media_output = Speaker
 label_media_section_hint = Microphone, speaker, camera
+label_media_semicolon_amount = Media: {$amount}
 label_message = Message
 label_message_will_deleted_for_you = The message will be deleted only for you
 label_messages_will_deleted_for_you = The messages will be deleted only for you
@@ -757,6 +758,7 @@ label_personal_data_deletion_description5 =
     - your biography;
     - all of your emails;
     - all of your phone numbers.
+label_photos_semicolon_amount = Photos: {$amount}
 label_presence_away = Away
 label_presence_present = Online
 label_profile = Profile
@@ -915,6 +917,7 @@ label_video_call = Video call{$by ->
 label_video_downloaded = Video downloaded
 label_video_downloading = Video is downloading...
 label_video_saved_to_gallery = Video saved to gallery
+label_videos_semicolon_amount = Videos: {$amount}
 label_visits_count = Clicks: {$count}
 label_voice_processing = Voice processing
 label_wait_seconds = Wait {$for} s

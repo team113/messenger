@@ -193,6 +193,7 @@ class ChatItemWidget extends StatefulWidget {
     Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery,
     Future<void> Function(ChatItem?)? onError,
     bool filled = true,
+    bool cover = false,
     void Function(Post)? onReply,
     void Function(Post)? onShare,
     void Function(Post)? onScrollTo,
@@ -205,51 +206,20 @@ class ChatItemWidget extends StatefulWidget {
     if (isLocal) {
       isVideo = attachment.file.isVideo;
     } else {
-      isVideo = e is FileAttachment;
+      isVideo = attachment is! ImageAttachment;
     }
 
-    Widget child;
-    if (isVideo) {
-      child = Stack(
-        alignment: Alignment.center,
-        fit: filled ? StackFit.expand : StackFit.loose,
-        children: [
-          MediaAttachment(
-            key: key,
-            attachment: attachment,
-            height: 300,
-            onError: () async => await onError?.call(null),
-          ),
-          Center(
-            child: Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: style.colors.onBackgroundOpacity50,
-              ),
-              child: Icon(
-                Icons.play_arrow,
-                color: style.colors.onPrimary,
-                size: 48,
-              ),
-            ),
-          ),
-        ],
-      );
-    } else {
-      child = MediaAttachment(
+    final Widget child = KeyedSubtree(
+      key: !isLocal ? const Key('SentImage') : null,
+      child: MediaAttachment(
         key: key,
         attachment: attachment,
-        width: filled ? double.infinity : null,
+        width: (cover && isVideo) || filled ? double.infinity : null,
         height: filled ? double.infinity : null,
         onError: () async => await onError?.call(null),
-      );
-
-      if (!isLocal) {
-        child = KeyedSubtree(key: const Key('SentImage'), child: child);
-      }
-    }
+        autoplay: !filled,
+      ),
+    );
 
     return Padding(
       padding: EdgeInsets.zero,
@@ -270,6 +240,7 @@ class ChatItemWidget extends StatefulWidget {
                     context,
                     gallery: PaginatedGallery(
                       paginated: onGallery(),
+                      resourceId: ResourceId(chatId: item?.chatId),
                       initial: (item, attachment),
                       onForbidden: onError,
                       onReply: onReply,
@@ -874,7 +845,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               duration: const Duration(milliseconds: 500),
               opacity: _isRead || !_fromMe ? 1 : 0.55,
               child: media.length == 1
-                  ? _buildAttachment(media.first, filled: false, menu: menu)
+                  ? _buildAttachment(
+                      media.first,
+                      filled: false,
+                      menu: menu,
+                      cover: _text != null,
+                    )
                   : SizedBox(
                       width: media.length * 120,
                       height: max(media.length * 60, 300),
@@ -1853,14 +1829,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _buildAttachment(
     Attachment e, {
     int i = 0,
-    bool filled = false,
+    bool filled = true,
     bool menu = false,
+    bool cover = false,
   }) {
     return ChatItemWidget.mediaAttachment(
       context,
       attachment: e,
       item: widget.item.value,
       filled: filled,
+      cover: cover,
       key: _galleryKeys[i],
       onError: widget.onAttachmentError,
       onGallery: menu ? null : widget.onGallery,
