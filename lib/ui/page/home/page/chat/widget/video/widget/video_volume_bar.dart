@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 
 import '/routes.dart';
 import '/themes.dart';
@@ -25,9 +24,10 @@ import '/themes.dart';
 ///
 /// Use [RotatedBox] to rotate it vertically.
 class VideoVolumeBar extends StatelessWidget {
-  VideoVolumeBar(
-    this.controller, {
+  VideoVolumeBar({
     super.key,
+    this.volume = 0,
+    this.onSetVolume,
     ProgressBarColors? colors,
     this.onDragEnd,
     this.onDragStart,
@@ -37,8 +37,11 @@ class VideoVolumeBar extends StatelessWidget {
     this.drawShadow = false,
   }) : colors = colors ?? ProgressBarColors();
 
-  /// [VideoController] used to control the volume.
-  final VideoController controller;
+  /// Volume to display as the current within this [VideoVolumeBar].
+  final double volume;
+
+  /// Callback, called when the [volume] changes.
+  final void Function(double)? onSetVolume;
 
   /// [ProgressBarColors] theme of this [VideoVolumeBar].
   final ProgressBarColors colors;
@@ -84,20 +87,14 @@ class VideoVolumeBar extends StatelessWidget {
               height: constraints.biggest.height,
               width: constraints.biggest.width,
               color: style.colors.transparent,
-              child: StreamBuilder(
-                stream: controller.player.stream.volume,
-                initialData: controller.player.state.volume,
-                builder: (_, volume) {
-                  return CustomPaint(
-                    painter: ProgressBarPainter(
-                      volume: volume.data! / 100,
-                      colors: colors,
-                      barHeight: barHeight,
-                      handleHeight: handleHeight,
-                      drawShadow: drawShadow,
-                    ),
-                  );
-                },
+              child: CustomPaint(
+                painter: ProgressBarPainter(
+                  volume: volume,
+                  colors: colors,
+                  barHeight: barHeight,
+                  handleHeight: handleHeight,
+                  drawShadow: drawShadow,
+                ),
               ),
             ),
           );
@@ -112,7 +109,7 @@ class VideoVolumeBar extends StatelessWidget {
     final box = context.findRenderObject()! as RenderBox;
     final Offset tapPos = box.globalToLocal(globalPosition);
     final double relative = tapPos.dx / box.size.width;
-    controller.player.setVolume(relative.clamp(0, 1) * 100);
+    onSetVolume?.call(relative.clamp(0, 1));
   }
 }
 

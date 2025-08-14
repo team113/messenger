@@ -531,4 +531,10 @@ class WebUtils {
       ),
     );
   }
+
+  /// Registers the plugins having separate implementations for web and non-web
+  /// platforms.
+  static void registerWith() {
+    // No-op.
+  }
 }

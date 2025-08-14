@@ -20,13 +20,11 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:media_kit/media_kit.dart';
-import 'package:media_kit_video/media_kit_video.dart';
+import 'package:video_player/video_player.dart';
 
 import '/themes.dart';
-import '/ui/widget/menu_interceptor/menu_interceptor.dart';
-import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 
 /// Thumbnail displaying the first frame of the provided video.
@@ -39,6 +37,7 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
+    this.fit = BoxFit.contain,
   }) : bytes = null,
        path = null;
 
@@ -49,6 +48,7 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
+    this.fit = BoxFit.contain,
   }) : url = null,
        checksum = null,
        path = null;
@@ -60,6 +60,7 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
+    this.fit = BoxFit.contain,
   }) : url = null,
        checksum = null,
        bytes = null;
@@ -82,6 +83,9 @@ class VideoThumbnail extends StatefulWidget {
   /// Optional width this [VideoThumbnail] occupies.
   final double? width;
 
+  /// [BoxFit] to prefer displaying this [VideoThumbnail] as.
+  final BoxFit fit;
+
   /// Callback, called on the video loading errors.
   final Future<void> Function()? onError;
 
@@ -90,32 +94,32 @@ class VideoThumbnail extends StatefulWidget {
 }
 
 /// State of a [VideoThumbnail], used to initialize and dispose a
-/// [VideoController].
+/// [VideoPlayerController].
 class _VideoThumbnailState extends State<VideoThumbnail> {
-  /// [Player] opening and maintaining the video to use in [_controller].
-  final Player _player = Player();
+  /// [VideoPlayerController] opening and maintaining the video itself.
+  VideoPlayerController? _controller;
 
-  /// [VideoController] to display the first frame of the video.
-  late final VideoController _controller = VideoController(
-    _player,
-    configuration: const VideoControllerConfiguration(
-      enableHardwareAcceleration: true,
-    ),
-  );
+  /// [CancelToken] for cancelling the [VideoPlayerController] initialization.
+  CancelToken? _cancelToken;
 
   /// [CancelToken] for cancelling the [VideoThumbnail.url] header fetching.
-  CancelToken? _cancelToken;
+  CancelToken? _headerToken;
+
+  /// Error message, if any.
+  String? _error;
 
   @override
   void initState() {
     _initVideo();
+    _ensureReachable();
     super.initState();
   }
 
   @override
   void dispose() {
-    _controller.player.dispose();
+    _controller?.dispose();
     _cancelToken?.cancel();
+    _headerToken?.cancel();
     super.dispose();
   }
 
@@ -123,6 +127,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   void didUpdateWidget(VideoThumbnail oldWidget) {
     if (oldWidget.bytes != widget.bytes || oldWidget.url != widget.url) {
       _initVideo();
+      _ensureReachable();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -132,63 +137,61 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 200),
-      child: StreamBuilder(
-        stream: _player.stream.width,
-        builder: (_, __) {
-          double width = 300;
-          double height = 300;
+    double width = widget.width ?? 300;
+    double height = widget.height ?? 300;
 
-          if (widget.width != null && widget.height != null) {
-            width = widget.width!;
-            height = widget.height!;
-          } else if (_player.state.width != null) {
-            width = _player.state.width!.toDouble();
-            height = _player.state.height!.toDouble();
-
-            if (widget.height != null) {
-              width = width * widget.height! / height;
-              height = widget.height!;
-            }
-          }
-
-          return SizedBox(
-            width: width,
-            height: height,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                ClipRect(
-                  child: SizedBox(
-                    width: _player.state.width?.toDouble() ?? width,
-                    height: _player.state.height?.toDouble() ?? height,
-                    child: IgnorePointer(
-                      child: Video(
-                        controller: _controller,
-                        fit: BoxFit.cover,
-                        controls: (_) => const SizedBox(),
-                      ),
-                    ),
-                  ),
-                ),
-
-                ContextMenuInterceptor(child: const SizedBox()),
-
-                // [Container] for receiving pointer events over this
-                // [VideoThumbnail], since the [ContextMenuInterceptor] above
-                // intercepts them.
-                Container(color: style.colors.transparent),
-              ],
+    if (_error != null) {
+      return SizedBox(
+        width: width,
+        height: height,
+        child: Padding(
+          padding: const EdgeInsets.all(4),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                border: style.systemMessageBorder,
+                color: style.systemMessageColor,
+              ),
+              child: Text('$_error', style: style.systemMessageStyle),
             ),
-          );
-        },
+          ),
+        ),
+      );
+    }
+
+    if (_controller == null || _controller?.value.isInitialized == false) {
+      return SizedBox(
+        width: width,
+        height: height,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return SizedBox(
+      width: switch (widget.fit) {
+        BoxFit.contain => width / _controller!.value.aspectRatio,
+        (_) => width,
+      },
+      height: height,
+      child: ClipRect(
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox.fromSize(
+            size: _controller!.value.size,
+            child: IgnorePointer(child: VideoPlayer(_controller!)),
+          ),
+        ),
       ),
     );
   }
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
+    _cancelToken?.cancel();
+    _cancelToken = CancelToken();
+
     Uint8List? bytes = widget.bytes;
     File? file;
 
@@ -196,62 +199,126 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       file = File(widget.path!);
     }
 
-    if (bytes == null &&
-        file == null &&
-        widget.checksum != null &&
-        CacheWorker.instance.exists(widget.checksum!)) {
-      final CacheEntry cache = await CacheWorker.instance.get(
-        checksum: widget.checksum!,
-        responseType: CacheResponseType.file,
-      );
-
-      bytes = cache.bytes;
-      file = cache.file;
-    } else if (bytes != null) {
-      file = await CacheWorker.instance.add(bytes) ?? file;
-    }
-
     try {
+      _controller?.dispose();
+
       if (file != null) {
-        await _player.open(Media(file.path), play: false);
+        _controller = VideoPlayerController.file(
+          file,
+          videoPlayerOptions: VideoPlayerOptions(
+            webOptions: VideoPlayerWebOptions(
+              allowContextMenu: false,
+              allowRemotePlayback: false,
+            ),
+          ),
+        );
+
+        await _controller?.initialize();
       } else if (bytes != null) {
-        await _player.open(await Media.memory(bytes), play: false);
+        // TODO: Implement.
+        throw UnimplementedError();
       } else {
-        await _player.open(Media(widget.url!), play: false);
-      }
-    } catch (_) {
-      // No-op.
-    }
+        _controller = VideoPlayerController.networkUrl(
+          Uri.parse(widget.url!),
+          videoPlayerOptions: VideoPlayerOptions(
+            webOptions: VideoPlayerWebOptions(
+              allowContextMenu: false,
+              allowRemotePlayback: false,
+            ),
+          ),
+        );
 
-    if (widget.url != null && bytes == null) {
-      _cancelToken?.cancel();
-      _cancelToken = CancelToken();
-
-      bool shouldReload = false;
-
-      try {
         await Backoff.run(() async {
           try {
-            await (await PlatformUtils.dio).head(widget.url!);
+            await _controller?.initialize();
 
-            // Reinitialize the [_controller] if an unexpected error was
-            // thrown.
-            if (shouldReload) {
-              await _player.open(Media(widget.url!), play: false);
+            if (mounted) {
+              setState(() {});
             }
           } catch (e) {
             if (e is DioException && e.response?.statusCode == 403) {
               widget.onError?.call();
               _cancelToken?.cancel();
             } else {
-              shouldReload = true;
+              Log.error(
+                'Unable to load thumbnail of `${widget.url}`: $e',
+                '$runtimeType',
+              );
+
+              _error = e.toString();
+              if (mounted) {
+                setState(() {});
+              }
+
               rethrow;
             }
           }
         }, cancel: _cancelToken);
-      } on OperationCanceledException {
-        // No-op.
       }
+    } on OperationCanceledException {
+      // No-op.
+    } catch (e) {
+      Log.error(
+        'Unable to load thumbnail of `${widget.url}`: $e',
+        '$runtimeType',
+      );
+
+      _error = e.toString();
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  /// Fetches the header of [VideoThumbnail.url] to ensure that the URL is
+  /// reachable.
+  Future<void> _ensureReachable() async {
+    _headerToken?.cancel();
+    _headerToken = CancelToken();
+
+    try {
+      await Backoff.run(() async {
+        try {
+          Log.debug('_ensureReachable() -> fetching HEAD...', '$runtimeType');
+
+          await (await PlatformUtils.dio).head(widget.url!);
+
+          Log.debug(
+            '_ensureReachable() -> fetching HEAD... done!',
+            '$runtimeType',
+          );
+
+          if (mounted) {
+            setState(() {});
+          }
+        } catch (e) {
+          Log.debug(
+            '_ensureReachable() -> fetching HEAD... ⛔️ failed with $e',
+            '$runtimeType',
+          );
+
+          if (e is DioException && e.response?.statusCode == 403) {
+            _headerToken?.cancel();
+
+            if (widget.onError == null) {
+              Log.warning(
+                '_ensureReachable() -> HEAD has failed with 403, yet no `onError` handler was provided, thus the resource cannot be recovered!',
+                '$runtimeType',
+              );
+            } else {
+              await widget.onError?.call();
+              if (mounted) {
+                setState(() {});
+              }
+            }
+          } else {
+            rethrow;
+          }
+        }
+      }, cancel: _cancelToken);
+    } on OperationCanceledException {
+      // No-op.
     }
   }
 }

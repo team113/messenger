@@ -30,14 +30,14 @@ import '/ui/page/call/widget/animated_participant.dart';
 import '/ui/page/call/widget/call_button.dart';
 import '/ui/page/call/widget/call_title.dart';
 import '/ui/page/call/widget/chat_info_card.dart';
-import '/ui/page/call/widget/dock.dart';
 import '/ui/page/call/widget/dock_decorator.dart';
+import '/ui/page/call/widget/dock.dart';
 import '/ui/page/call/widget/drop_box.dart';
 import '/ui/page/call/widget/launchpad.dart';
 import '/ui/page/call/widget/raised_hand.dart';
 import '/ui/page/call/widget/reorderable_fit.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/global_key.dart';
 
 /// [Routes.style] call section.
 class CallSection {

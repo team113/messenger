@@ -142,3 +142,54 @@ class SingleItemPaginated<K, T> extends Paginated<K, T> {
     // No-op.
   }
 }
+
+/// [Paginated] with a fixed list of items.
+class FixedItemsPaginated<K, T> extends Paginated<K, T> {
+  FixedItemsPaginated(
+    Map<K, T> values, {
+    this.onNext,
+    this.onPrevious,
+    this.perPage = 1,
+  }) {
+    items.addAll(values);
+  }
+
+  /// Callback, called when [next] is invoked.
+  final Future<void> Function()? onNext;
+
+  /// Callback, called when [previous] is invoked.
+  final Future<void> Function()? onPrevious;
+
+  @override
+  final RxBool hasNext = RxBool(false);
+
+  @override
+  final RxBool hasPrevious = RxBool(false);
+
+  @override
+  final RxBool nextLoading = RxBool(false);
+
+  @override
+  final RxBool previousLoading = RxBool(false);
+
+  @override
+  int perPage;
+
+  @override
+  Future<void> ensureInitialized() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> clear() async {}
+
+  @override
+  Future<void> next() async {
+    await onNext?.call();
+  }
+
+  @override
+  Future<void> previous() async {
+    await onPrevious?.call();
+  }
+}

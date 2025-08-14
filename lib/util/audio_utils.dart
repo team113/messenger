@@ -19,10 +19,8 @@ import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart' as ja;
-import 'package:media_kit/media_kit.dart' hide AudioDevice;
 import 'package:mutex/mutex.dart';
 
-import '/config.dart';
 import '/pubspec.g.dart';
 import '/util/media_utils.dart';
 import 'log.dart';
@@ -37,15 +35,8 @@ AudioUtilsImpl AudioUtils = AudioUtilsImpl();
 
 /// Helper providing direct access to audio playback related resources.
 class AudioUtilsImpl {
-  /// [Player] lazily initialized to play sounds [once].
-  Player? _player;
-
   /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
   /// platforms.
-  ///
-  /// [ja.AudioPlayer] is used on mobile platforms due to it accounting
-  /// [AudioSession] preferences (e.g. switching audio output for mobiles),
-  /// which [Player] doesn't do.
   ja.AudioPlayer? _jaPlayer;
 
   /// [StreamController]s of [AudioSource]s added in [play].
@@ -64,13 +55,9 @@ class AudioUtilsImpl {
   /// when playing [once].
   void ensureInitialized() {
     try {
-      if (_isMobile) {
-        // Set `handleAudioSessionActivation` to `false` to avoid stopping
-        // background audio on [once].
-        _jaPlayer ??= ja.AudioPlayer(handleAudioSessionActivation: false);
-      } else {
-        _player ??= Player();
-      }
+      // Set `handleAudioSessionActivation` to `false` to avoid stopping
+      // background audio on [once].
+      _jaPlayer ??= ja.AudioPlayer(handleAudioSessionActivation: false);
     } catch (e) {
       // If [Player] isn't available on the current platform, this throws a
       // `null check operator used on a null value`.
@@ -95,11 +82,9 @@ class AudioUtilsImpl {
       if (url.isNotEmpty) {
         await (WebUtils.play('$url?${Pubspec.ref}')).listen((_) {}).asFuture();
       }
-    } else if (_isMobile) {
+    } else {
       await _jaPlayer?.setAudioSource(sound.source);
       await _jaPlayer?.play();
-    } else {
-      await _player?.open(sound.media);
     }
   }
 
@@ -113,12 +98,10 @@ class AudioUtilsImpl {
     Log.debug('play($music)', '$runtimeType');
 
     StreamController? controller = _players[music];
-    StreamSubscription? position;
     StreamSubscription? playback;
 
     if (controller == null) {
       ja.AudioPlayer? jaPlayer;
-      Player? player;
       Timer? timer;
 
       controller = StreamController.broadcast(
@@ -134,11 +117,7 @@ class AudioUtilsImpl {
           }
 
           try {
-            if (_isMobile) {
-              jaPlayer = ja.AudioPlayer();
-            } else {
-              player = Player();
-            }
+            jaPlayer = ja.AudioPlayer();
           } catch (e) {
             // If [Player] isn't available on the current platform, this throws
             // a `null check operator used on a null value`.
@@ -150,26 +129,12 @@ class AudioUtilsImpl {
             }
           }
 
-          if (_isMobile) {
-            await jaPlayer?.setAudioSource(music.source);
-            await jaPlayer?.setLoopMode(ja.LoopMode.all);
-            await jaPlayer?.play();
-          } else {
-            await player?.open(music.media);
-
-            // TODO: Wait for `media_kit` to improve [PlaylistMode.loop] in Web.
-            if (PlatformUtils.isWeb) {
-              position = player?.stream.completed.listen((e) async {
-                await player?.seek(Duration.zero);
-                await player?.play();
-              });
-            } else {
-              await player?.setPlaylistMode(PlaylistMode.loop);
-            }
-          }
+          await jaPlayer?.setAudioSource(music.source);
+          await jaPlayer?.setLoopMode(ja.LoopMode.all);
+          await jaPlayer?.play();
 
           if (fade != Duration.zero) {
-            await (jaPlayer?.setVolume ?? player?.setVolume)?.call(0);
+            await jaPlayer?.setVolume(0);
 
             timer = Timer.periodic(
               Duration(microseconds: fade.inMicroseconds ~/ 10),
@@ -178,7 +143,6 @@ class AudioUtilsImpl {
                   timer.cancel();
                 } else {
                   await jaPlayer?.setVolume((timer.tick + 1) / 10);
-                  await player?.setVolume(100 * (timer.tick + 1) / 10);
                 }
               },
             );
@@ -191,12 +155,10 @@ class AudioUtilsImpl {
           }
 
           _players.remove(music);
-          position?.cancel();
           timer?.cancel();
 
-          Future<void>? dispose = jaPlayer?.dispose() ?? player?.dispose();
+          Future<void>? dispose = jaPlayer?.dispose();
           jaPlayer = null;
-          player = null;
           await dispose;
         },
       );
@@ -434,18 +396,6 @@ class UrlAudioSource extends AudioSource {
 /// Extension adding conversion from an [AudioSource] to a [Media] or
 /// [ja.AudioSource].
 extension on AudioSource {
-  /// Returns a [Media] corresponding to this [AudioSource].
-  Media get media => switch (kind) {
-    AudioSourceKind.asset =>
-      PlatformUtils.isWeb
-          ? Media(
-              '${Config.origin}/assets/assets/${(this as AssetAudioSource).asset}?${Pubspec.ref}',
-            )
-          : Media('asset:///assets/${(this as AssetAudioSource).asset}'),
-    AudioSourceKind.file => Media('file:///${(this as FileAudioSource).file}'),
-    AudioSourceKind.url => Media((this as UrlAudioSource).url),
-  };
-
   /// Returns a [ja.AudioSource] corresponding to this [AudioSource].
   ja.AudioSource get source => switch (kind) {
     AudioSourceKind.asset => ja.AudioSource.asset(

@@ -27,10 +27,10 @@ import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:log_me/log_me.dart' as me;
-import 'package:media_kit/media_kit.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player_media_kit/video_player_media_kit.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'api/backend/schema.dart';
@@ -202,7 +202,22 @@ Future<void> main() async {
 
 /// Initializes the dependencies and runs the [App].
 Future<void> _runApp() async {
-  MediaKit.ensureInitialized();
+  WebUtils.registerWith();
+
+  VideoPlayerMediaKit.ensureInitialized(
+    android: false,
+    web: false,
+
+    // `AVPlayer` used by `video_player` does not support parsing URLs without
+    // file extension in it.
+    iOS: true,
+    macOS: true,
+
+    // `video_player` does not support neither Windows nor Linux.
+    windows: true,
+    linux: true,
+  );
+
   WebUtils.setPathUrlStrategy();
 
   Get.putOrGet<CommonDriftProvider>(

@@ -34,6 +34,7 @@ import 'package:http/http.dart' show Client;
 import 'package:mutex/mutex.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
+import 'package:video_player_web/video_player_web.dart';
 import 'package:web/web.dart' as web;
 
 import '/config.dart';
@@ -965,14 +966,6 @@ class WebUtils {
     await promise.toDart;
   }
 
-  /// Ensures foreground service is running to support receiving microphone
-  /// input when application is in background.
-  ///
-  /// Does nothing on non-Android operating systems.
-  static Future<void> setupForegroundService() async {
-    // No-op.
-  }
-
   /// Refreshes the current browser's page.
   static void setBadge(int count) {
     Log.debug(
@@ -987,6 +980,20 @@ class WebUtils {
         clearAppBadge();
       }
     }
+  }
+
+  /// Ensures foreground service is running to support receiving microphone
+  /// input when application is in background.
+  ///
+  /// Does nothing on non-Android operating systems.
+  static Future<void> setupForegroundService() async {
+    // No-op.
+  }
+
+  /// Registers the plugins having separate implementations for web and non-web
+  /// platforms.
+  static void registerWith() {
+    VideoPlayerPlugin.registerWith(webPluginRegistrar);
   }
 
   /// Handles the [key] event to invoke [_keyHandlers] related to it.

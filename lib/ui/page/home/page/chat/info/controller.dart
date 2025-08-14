@@ -105,7 +105,7 @@ class ChatInfoController extends GetxController {
   /// [Chat.name] field state.
   late final TextFieldState name;
 
-  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
+  /// [GlobalKey] of an [AvatarWidget] displayed used to open a [PlayerView].
   final GlobalKey avatarKey = GlobalKey();
 
   /// [GlobalKey] of the more [ContextMenuRegion] button.

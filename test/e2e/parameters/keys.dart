@@ -103,7 +103,6 @@ enum WidgetKey {
   ForgotPassword,
   ForwardButton,
   ForwardField,
-  GalleryPopup,
   HideChatButton,
   HomeView,
   Interface,

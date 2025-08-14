@@ -16,34 +16,34 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:media_kit_video/media_kit_video.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
 
 /// Current position and duration of the provided [controller].
 class CurrentPosition extends StatelessWidget {
-  const CurrentPosition(this.controller, {super.key});
+  const CurrentPosition({
+    super.key,
+    this.duration = Duration.zero,
+    this.position = Duration.zero,
+  });
 
-  /// [VideoController] controlling the [Video] player functionality.
-  final VideoController controller;
+  /// Current relative position.
+  final Duration position;
+
+  /// Whole [Duration] to display [position] relative to.
+  final Duration duration;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return StreamBuilder(
-      stream: controller.player.stream.position,
-      initialData: controller.player.state.position,
-      builder: (_, snapshot) {
-        final String position = snapshot.data!.hhMmSs();
-        final String duration = controller.player.state.duration.hhMmSs();
+    final String position = this.position.hhMmSs();
+    final String duration = this.duration.hhMmSs();
 
-        return Text(
-          'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
-          style: style.fonts.small.regular.onPrimary,
-        );
-      },
+    return Text(
+      'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
+      style: style.fonts.small.regular.onPrimary,
     );
   }
 }

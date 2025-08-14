@@ -30,7 +30,7 @@ Feature: Gallery pagination
     And I wait for app to settle
 
     When I tap on last image in chat
-    Then I wait until `GalleryPopup` is present
+    # Then I wait until `GalleryPopup` is present
     And I wait until `LeftButton` is present
     And I wait until `NoRightButton` is present
 
@@ -50,7 +50,7 @@ Feature: Gallery pagination
     And I wait for app to settle
 
     When I tap on last image in chat
-    Then I wait until `GalleryPopup` is present
+    # Then I wait until `GalleryPopup` is present
     And I wait until `LeftButton` is present
     And I wait until `NoRightButton` is present
 

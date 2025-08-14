@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.6.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.0...v0.7.0) | [Milestone](/../../milestone/45)
+
+### Changed
+
+- UI:
+    - Redesigned media player. ([#1356])
+
+[#1356]: /../../pull/1356
+
+
+
+
 ## [0.6.0] · 2025-08-07
 [0.6.0]: /../../tree/v0.6.0
 

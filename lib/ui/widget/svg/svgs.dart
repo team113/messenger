@@ -456,6 +456,12 @@ class SvgIcons {
     height: 9,
   );
 
+  static const SvgData sentBlue = SvgData(
+    'assets/icons/sent_blue.svg',
+    width: 12.42,
+    height: 9,
+  );
+
   static const SvgData sentWhite = SvgData(
     'assets/icons/sent_white.svg',
     width: 12.42,
@@ -683,6 +689,12 @@ class SvgIcons {
 
   static const SvgData more = SvgData(
     'assets/icons/more.svg',
+    width: 4,
+    height: 16,
+  );
+
+  static const SvgData moreWhite = SvgData(
+    'assets/icons/more_white.svg',
     width: 4,
     height: 16,
   );
@@ -1852,5 +1864,59 @@ class SvgIcons {
     'assets/icons/remove_from_call_white.svg',
     width: 21.36,
     height: 20.51,
+  );
+
+  static const SvgData volume = SvgData(
+    'assets/icons/volume.svg',
+    width: 24,
+    height: 24,
+  );
+
+  static const SvgData videoPrevious = SvgData(
+    'assets/icons/video_previous.svg',
+    width: 18,
+    height: 21,
+  );
+
+  static const SvgData videoNext = SvgData(
+    'assets/icons/video_next.svg',
+    width: 18,
+    height: 21,
+  );
+
+  static const SvgData videoShare = SvgData(
+    'assets/icons/video_share.svg',
+    width: 20,
+    height: 20,
+  );
+
+  static const SvgData videoReact = SvgData(
+    'assets/icons/video_react.svg',
+    width: 23,
+    height: 23,
+  );
+
+  static const SvgData videoReply = SvgData(
+    'assets/icons/video_reply.svg',
+    width: 20.32,
+    height: 20.31,
+  );
+
+  static const SvgData videoExpand = SvgData(
+    'assets/icons/video_expand.svg',
+    width: 20,
+    height: 20,
+  );
+
+  static const SvgData mediaGallery = SvgData(
+    'assets/icons/media_gallery.svg',
+    width: 20,
+    height: 20,
+  );
+
+  static const SvgData mediaPopup = SvgData(
+    'assets/icons/media_popup.svg',
+    width: 20,
+    height: 20,
   );
 }

@@ -21,7 +21,7 @@ import 'package:get/get.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/widget/more_button.dart';
 import '/ui/page/home/page/my_profile/welcome_field/controller.dart';
-import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/global_key.dart';
 import '/util/platform_utils.dart';
 
 /// Visual representation of the [WelcomeFieldController.panel].
