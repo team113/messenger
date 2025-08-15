@@ -39,6 +39,7 @@ class MediaAttachment extends StatefulWidget {
     this.height,
     this.fit,
     this.onError,
+    this.autoplay = false,
   });
 
   /// [Attachment] to display.
@@ -55,6 +56,9 @@ class MediaAttachment extends StatefulWidget {
 
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function()? onError;
+
+  /// Indicator whether [VideoThumbnail] should autoplay.
+  final bool autoplay;
 
   @override
   State<MediaAttachment> createState() => _MediaAttachmentState();
@@ -214,6 +218,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
                 height: widget.height,
                 width: widget.width,
                 fit: widget.fit ?? BoxFit.contain,
+                autoplay: widget.autoplay,
               );
             }
           });
@@ -223,6 +228,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
             height: widget.height,
             width: widget.width,
             fit: widget.fit ?? BoxFit.contain,
+            autoplay: widget.autoplay,
           );
         }
       } else {
@@ -233,6 +239,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           width: widget.width,
           onError: widget.onError,
           fit: widget.fit ?? BoxFit.contain,
+          autoplay: widget.autoplay,
         );
       }
     }

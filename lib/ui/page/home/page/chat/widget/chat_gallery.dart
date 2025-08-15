@@ -34,6 +34,7 @@ class RegularGallery extends StatelessWidget {
   const RegularGallery({
     super.key,
     this.items = const [],
+    this.resourceId,
     this.onReply,
     this.onShare,
     this.onScrollTo,
@@ -41,6 +42,9 @@ class RegularGallery extends StatelessWidget {
 
   /// [MediaItem]s themselves.
   final List<MediaItem> items;
+
+  /// [ResourceId] to pass to a [PlayerView].
+  final ResourceId? resourceId;
 
   /// Callback, called when a reply action within [Post] is triggered.
   final void Function(Post)? onReply;
@@ -57,6 +61,7 @@ class RegularGallery extends StatelessWidget {
       source: FixedItemsPaginated({
         for (var e in items) ...{e.id: e},
       }),
+      resourceId: resourceId,
       onReply: onReply,
       onShare: onShare,
       onScrollTo: onScrollTo,
@@ -69,6 +74,7 @@ class PaginatedGallery extends StatefulWidget {
   const PaginatedGallery({
     super.key,
     this.paginated,
+    this.resourceId,
     this.initial,
     this.onForbidden,
     this.onReply,
@@ -78,6 +84,9 @@ class PaginatedGallery extends StatefulWidget {
 
   /// [Paginated] to display in a [PlayerView].
   final Paginated<ChatItemId, Rx<ChatItem>>? paginated;
+
+  /// [ResourceId] to pass to a [PlayerView].
+  final ResourceId? resourceId;
 
   /// Initial [Attachment] and a [ChatItem] containing it to display initially
   /// in a [PlayerView].
@@ -209,6 +218,7 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
   Widget build(BuildContext context) {
     return PlayerView(
       source: _paginated,
+      resourceId: widget.resourceId,
       onReply: widget.onReply,
       onShare: widget.onShare,
       onScrollTo: widget.onScrollTo,

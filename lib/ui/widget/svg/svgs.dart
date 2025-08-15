@@ -1869,7 +1869,19 @@ class SvgIcons {
   static const SvgData volume = SvgData(
     'assets/icons/volume.svg',
     width: 24,
-    height: 24,
+    height: 20,
+  );
+
+  static const SvgData volumeMuted = SvgData(
+    'assets/icons/volume_muted.svg',
+    width: 24,
+    height: 20,
+  );
+
+  static const SvgData volumeMutedSmall = SvgData(
+    'assets/icons/volume_muted_small.svg',
+    width: 14,
+    height: 11,
   );
 
   static const SvgData videoPrevious = SvgData(

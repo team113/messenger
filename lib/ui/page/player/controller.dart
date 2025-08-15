@@ -34,6 +34,7 @@ import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -46,6 +47,7 @@ import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import 'view.dart' show Resource, ResourceId;
 
 /// Controller of a [PlayerView].
 class PlayerController extends GetxController {
@@ -56,6 +58,7 @@ class PlayerController extends GetxController {
     required this.source,
     this.initialKey = '',
     this.initialIndex = 0,
+    this.resourceId,
   }) : key = RxString(initialKey);
 
   /// Callback, called when a [PlayerView] this controller attached to should
@@ -65,8 +68,17 @@ class PlayerController extends GetxController {
   /// [Paginated] of [MediaItem]s being the source of [posts].
   final Paginated<String, MediaItem> source;
 
+  /// [ResourceId] from where the [source] is coming from.
+  final ResourceId? resourceId;
+
+  /// [Resource] from where the [source] is coming from.
+  final Resource resource = Resource();
+
   /// [Post]s to display.
   final RxList<Post> posts = RxList();
+
+  /// [Map] of [GlobalKey]s used to prevent [VideoThumbnail]s from rebuilding.
+  final Map<String, GlobalKey> thumbnails = {};
 
   /// [Post.id] of the currently displayed [Post] from [posts].
   final RxString key;
@@ -89,6 +101,12 @@ class PlayerController extends GetxController {
 
   /// Indicator whether [vertical] has previous page.
   final RxBool hasPreviousPage = RxBool(false);
+
+  /// Indicator whether [posts] displayed should include videos.
+  final RxBool includeVideos = RxBool(true);
+
+  /// Indicator whether [posts] displayed should include photos.
+  final RxBool includePhotos = RxBool(true);
 
   /// [GlobalKey] of a [ScrollablePositionedList] for side gallery used to keep
   /// rebuilds from rebuilding the list.
@@ -266,6 +284,8 @@ class PlayerController extends GetxController {
     _volumeDebounce = debounce(_volume, (value) async {
       await _settingsRepository.setVideoVolume(value);
     }, time: Duration(milliseconds: 200));
+
+    _initResource();
 
     HardwareKeyboard.instance.addHandler(_keyboardHandler);
     BackButtonInterceptor.add(_backHandler);
@@ -592,6 +612,14 @@ class PlayerController extends GetxController {
           }
         }
       }
+    }
+  }
+
+  /// Initializes the [resource] from the [resourceId].
+  Future<void> _initResource() async {
+    final ChatId? chatId = resourceId?.chatId;
+    if (chatId != null) {
+      resource.chat.value = await _chatService?.get(chatId);
     }
   }
 

@@ -271,6 +271,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                 await PlayerView.show(
                   context,
                   gallery: RegularGallery(
+                    resourceId: ResourceId(chatId: widget.chat?.id),
                     items: [
                       MediaItem([
                         ImageAttachment(

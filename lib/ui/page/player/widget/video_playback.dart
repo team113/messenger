@@ -163,9 +163,7 @@ class _VideoPlaybackState extends State<VideoPlayback> {
             color: style.colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: _loading != null
-              ? const SizedBox()
-              : const Center(child: CustomProgressIndicator()),
+          child: const Center(child: CustomProgressIndicator()),
         ),
       ),
     );

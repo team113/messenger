@@ -82,6 +82,7 @@ class AvatarWidget extends StatelessWidget {
     this.label,
     this.onForbidden,
     this.shape = BoxShape.circle,
+    this.constraints,
     this.child,
   });
 
@@ -173,6 +174,7 @@ class AvatarWidget extends StatelessWidget {
     BoxShape shape = BoxShape.circle,
     bool isOnline = false,
     bool isAway = false,
+    BoxConstraints? constraints,
   }) => AvatarWidget(
     key: key,
     avatar: user?.avatar,
@@ -183,6 +185,7 @@ class AvatarWidget extends StatelessWidget {
     shape: shape,
     isOnline: isOnline,
     isAway: isAway,
+    constraints: constraints,
   );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -193,6 +196,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
     bool badge = true,
     BoxShape shape = BoxShape.circle,
+    BoxConstraints? constraints,
   }) {
     if (user == null) {
       return AvatarWidget.fromUser(
@@ -201,6 +205,7 @@ class AvatarWidget extends StatelessWidget {
         radius: radius,
         opacity: opacity,
         shape: shape,
+        constraints: constraints,
       );
     }
 
@@ -215,6 +220,7 @@ class AvatarWidget extends StatelessWidget {
         radius: radius,
         opacity: opacity,
         shape: shape,
+        constraints: constraints,
       ),
     );
   }
@@ -343,6 +349,11 @@ class AvatarWidget extends StatelessWidget {
   /// [BoxShape] of this [AvatarWidget].
   final BoxShape shape;
 
+  /// [BoxConstraints] of the layout this [AvatarWidget] is within.
+  ///
+  /// If `null`, then a [LayoutBuilder] will be constructed to determine these.
+  final BoxConstraints? constraints;
+
   /// [Widget] to display inside this [AvatarWidget].
   ///
   /// No-op, if [avatar] is specified.
@@ -375,108 +386,115 @@ class AvatarWidget extends StatelessWidget {
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
+    if (constraints != null) {
+      return _buildWithConstraints(context, constraints!);
+    }
+
+    return LayoutBuilder(builder: _buildWithConstraints);
+  }
+
+  /// Builds the avatar itself with the provided [constraints].
+  Widget _buildWithConstraints(
+    BuildContext context,
+    BoxConstraints constraints,
+  ) {
     final style = Theme.of(context).style;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final Color gradient;
+    final Color gradient;
 
-        if (color != null) {
-          if (color == 0) {
-            gradient = style.colors.background;
-          } else {
-            gradient = style
-                .colors
-                .userColors[color! % style.colors.userColors.length];
-          }
-        } else if (title != null) {
-          gradient = style
-              .colors
-              .userColors[(title!.hashCode) % style.colors.userColors.length];
-        } else {
-          gradient = style.colors.secondaryBackgroundLightest;
-        }
+    if (color != null) {
+      if (color == 0) {
+        gradient = style.colors.background;
+      } else {
+        gradient =
+            style.colors.userColors[color! % style.colors.userColors.length];
+      }
+    } else if (title != null) {
+      gradient = style
+          .colors
+          .userColors[(title!.hashCode) % style.colors.userColors.length];
+    } else {
+      gradient = style.colors.secondaryBackgroundLightest;
+    }
 
-        double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
-        double minHeight = min(_minDiameter, constraints.smallest.shortestSide);
-        double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
-        double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
+    double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
+    double minHeight = min(_minDiameter, constraints.smallest.shortestSide);
+    double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
+    double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-        final ImageFile? image = maxWidth > 100
-            ? avatar?.big
-            : maxWidth > 46
-            ? avatar?.medium
-            : avatar?.small;
+    final ImageFile? image = maxWidth > 100
+        ? avatar?.big
+        : maxWidth > 46
+        ? avatar?.medium
+        : avatar?.small;
 
-        final Widget defaultAvatar = Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [gradient.lighten(), gradient],
-            ),
-            borderRadius: switch (shape) {
-              BoxShape.circle => null,
-              BoxShape.rectangle => BorderRadius.circular(0.035 * _minDiameter),
-            },
-            shape: shape,
-          ),
-          child: Center(
-            child:
-                label ??
-                SelectionContainer.disabled(
-                  child: Text(
-                    (title ?? '??').initials(),
-                    style: style.fonts.normal.bold.onPrimary.copyWith(
-                      fontSize:
-                          style.fonts.normal.bold.onPrimary.fontSize! *
-                          (maxWidth / 40.0),
-                    ),
-
-                    // Disable the accessibility size settings for this [Text].
-                    textScaler: const TextScaler.linear(1),
-                  ),
+    final Widget defaultAvatar = Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [gradient.lighten(), gradient],
+        ),
+        borderRadius: switch (shape) {
+          BoxShape.circle => null,
+          BoxShape.rectangle => BorderRadius.circular(0.035 * _minDiameter),
+        },
+        shape: shape,
+      ),
+      child: Center(
+        child:
+            label ??
+            SelectionContainer.disabled(
+              child: Text(
+                (title ?? '??').initials(),
+                style: style.fonts.normal.bold.onPrimary.copyWith(
+                  fontSize:
+                      style.fonts.normal.bold.onPrimary.fontSize! *
+                      (maxWidth / 40.0),
                 ),
-          ),
-        );
 
-        return ConstrainedBox(
-          constraints: BoxConstraints(
-            minWidth: minWidth,
-            minHeight: minHeight,
-            maxWidth: maxWidth,
-            maxHeight: maxHeight,
-          ),
-          child: WithBadge(
-            size: maxWidth,
-            online: isOnline,
-            away: isOnline && isAway,
-            child: Stack(
-              children: [
-                if (avatar == null) defaultAvatar,
-                if (avatar != null || child != null)
-                  Positioned.fill(
-                    child: _clip(
-                      child:
-                          child ??
-                          RetryImage(
-                            image!.url,
-                            checksum: image.checksum,
-                            thumbhash: image.thumbhash,
-                            fit: BoxFit.cover,
-                            height: double.infinity,
-                            width: double.infinity,
-                            displayProgress: false,
-                            onForbidden: onForbidden,
-                            loadingBuilder: () => defaultAvatar,
-                          ),
-                    ),
-                  ),
-              ],
+                // Disable the accessibility size settings for this [Text].
+                textScaler: const TextScaler.linear(1),
+              ),
             ),
-          ),
-        );
-      },
+      ),
+    );
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minWidth: minWidth,
+        minHeight: minHeight,
+        maxWidth: maxWidth,
+        maxHeight: maxHeight,
+      ),
+      child: WithBadge(
+        size: maxWidth,
+        online: isOnline,
+        away: isOnline && isAway,
+        child: Stack(
+          children: [
+            if (avatar == null) defaultAvatar,
+            if (avatar != null || child != null)
+              Positioned.fill(
+                child: _clip(
+                  child:
+                      child ??
+                      RetryImage(
+                        image!.url,
+                        checksum: image.checksum,
+                        thumbhash: image.thumbhash,
+                        fit: BoxFit.cover,
+                        height: double.infinity,
+                        width: double.infinity,
+                        displayProgress: false,
+                        onForbidden: onForbidden,
+                        loadingBuilder: () => defaultAvatar,
+                      ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 

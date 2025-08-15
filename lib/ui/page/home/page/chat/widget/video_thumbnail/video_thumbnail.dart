@@ -22,7 +22,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
+import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -38,6 +40,8 @@ class VideoThumbnail extends StatefulWidget {
     this.width,
     this.onError,
     this.fit = BoxFit.contain,
+    this.autoplay = false,
+    this.interface = true,
   }) : bytes = null,
        path = null;
 
@@ -49,6 +53,8 @@ class VideoThumbnail extends StatefulWidget {
     this.width,
     this.onError,
     this.fit = BoxFit.contain,
+    this.autoplay = false,
+    this.interface = true,
   }) : url = null,
        checksum = null,
        path = null;
@@ -61,6 +67,8 @@ class VideoThumbnail extends StatefulWidget {
     this.width,
     this.onError,
     this.fit = BoxFit.contain,
+    this.autoplay = false,
+    this.interface = true,
   }) : url = null,
        checksum = null,
        bytes = null;
@@ -89,6 +97,12 @@ class VideoThumbnail extends StatefulWidget {
   /// Callback, called on the video loading errors.
   final Future<void> Function()? onError;
 
+  /// Indicator whether video should autoplay.
+  final bool autoplay;
+
+  /// Indicator whether duration and additional elements should be displayed.
+  final bool interface;
+
   @override
   State<VideoThumbnail> createState() => _VideoThumbnailState();
 }
@@ -107,6 +121,14 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   /// Error message, if any.
   String? _error;
+
+  /// Indicator whether [VideoThumbnail.onError] was invoked during
+  /// [_initVideo].
+  ///
+  /// This is needed to prevent the spamming of the callback, since
+  /// [VideoPlayerController.initialize] doesn't specify the exact error
+  /// happened during initialization.
+  bool _triedOnError = false;
 
   @override
   void initState() {
@@ -169,9 +191,9 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       );
     }
 
-    return SizedBox(
+    final Widget child = SizedBox(
       width: switch (widget.fit) {
-        BoxFit.contain => width / _controller!.value.aspectRatio,
+        BoxFit.contain => width * _controller!.value.aspectRatio,
         (_) => width,
       },
       height: height,
@@ -185,10 +207,57 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
         ),
       ),
     );
+
+    if (!widget.autoplay && !widget.interface) {
+      return child;
+    }
+
+    return Stack(
+      children: [
+        child,
+
+        if (widget.interface)
+          Positioned(
+            top: 6,
+            left: 6,
+            child: IgnorePointer(
+              child: Container(
+                padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: style.colors.onBackgroundOpacity40,
+                ),
+                child: Text(
+                  '${_controller?.value.duration.hhMmSs()}',
+                  style: style.fonts.smaller.regular.onPrimary,
+                ),
+              ),
+            ),
+          ),
+
+        if (widget.autoplay)
+          Positioned(
+            top: 6,
+            right: 6,
+            child: IgnorePointer(
+              child: Container(
+                padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: style.colors.onBackgroundOpacity40,
+                ),
+                child: SvgIcon(SvgIcons.volumeMutedSmall),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
+    _triedOnError = false;
+
     _cancelToken?.cancel();
     _cancelToken = CancelToken();
 
@@ -214,6 +283,16 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
         );
 
         await _controller?.initialize();
+
+        if (mounted) {
+          setState(() {});
+        }
+
+        if (widget.autoplay) {
+          await _controller?.setVolume(0);
+          await _controller?.setLooping(true);
+          await _controller?.play();
+        }
       } else if (bytes != null) {
         // TODO: Implement.
         throw UnimplementedError();
@@ -235,9 +314,16 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
             if (mounted) {
               setState(() {});
             }
+
+            if (widget.autoplay) {
+              await _controller?.setVolume(0);
+              await _controller?.setLooping(true);
+              await _controller?.play();
+            }
           } catch (e) {
-            if (e is DioException && e.response?.statusCode == 403) {
-              widget.onError?.call();
+            if (!_triedOnError) {
+              _triedOnError = true;
+              await widget.onError?.call();
               _cancelToken?.cancel();
             } else {
               Log.error(
