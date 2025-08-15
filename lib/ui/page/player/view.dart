@@ -610,16 +610,18 @@ class PlayerView extends StatelessWidget {
           if (PlatformUtils.isWeb &&
               !PlatformUtils.isMobile &&
               !WebUtils.isPopup) ...[
-            WidgetButton(
-              onPressed: c.openPopup,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                child: SvgIcon(SvgIcons.mediaPopup),
+            Opacity(
+              opacity: resourceId?.chatId != null ? 1 : 0.5,
+              child: WidgetButton(
+                onPressed: resourceId?.chatId != null ? c.openPopup : null,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                  child: SvgIcon(SvgIcons.mediaPopup),
+                ),
               ),
             ),
             const SizedBox(width: 12),
           ],
-
           Opacity(
             opacity: c.source.length > 1 ? 1 : 0.5,
             child: WidgetButton(

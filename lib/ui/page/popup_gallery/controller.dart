@@ -61,8 +61,8 @@ class PopupGalleryController extends GetxController {
 
   /// Returns a [Paginated] of [ChatItem]s containing a collection of all the
   /// media files of this [chat].
-  Paginated<ChatItemId, Rx<ChatItem>> calculateGallery(ChatItem? item) {
-    return chat.value!.attachments(item: item?.id);
+  Paginated<ChatItemId, Rx<ChatItem>> calculateGallery(ChatItemId? id) {
+    return chat.value!.attachments(item: id);
   }
 
   /// Fetches the [chat].

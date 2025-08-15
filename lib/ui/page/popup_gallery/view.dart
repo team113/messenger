@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -59,10 +60,21 @@ class _PopupChatViewState extends State<PopupGalleryView> {
   /// [Routes.gallery] page dependencies.
   ScopedDependencies? _deps;
 
+  /// [ChatItemKey] for the initial [ChatItem] to display, if any.
+  ChatItemKey? _key;
+
   @override
   void initState() {
     super.initState();
     widget.depsFactory().then((v) => setState(() => _deps = v));
+
+    if (widget.initialKey != null) {
+      try {
+        _key = ChatItemKey.fromString(widget.initialKey!);
+      } catch (_) {
+        // No-op.
+      }
+    }
   }
 
   @override
@@ -88,7 +100,7 @@ class _PopupChatViewState extends State<PopupGalleryView> {
             if (c.chat.value != null) {
               return PaginatedGallery(
                 key: c.key,
-                paginated: c.calculateGallery(null),
+                paginated: c.calculateGallery(_key?.id),
                 resourceId: ResourceId(chatId: widget.chatId),
                 initial: widget.initialKey == null
                     ? null

@@ -991,7 +991,7 @@ class Palette {
   /// color.
   final Color backgroundAuxiliaryLightest;
 
-  /// [Player] background color.
+  /// [PlayerView] background color.
   final Color backgroundGallery;
 
   /// [Color] for elements to put above the [background] color.

@@ -1499,11 +1499,11 @@ class ChatRepository extends DisposableInterface
     return (await _graphQlProvider.chatItem(id)).chatItem?.toDto();
   }
 
-  /// Fetches the [Attachment]s of the provided [item].
-  Future<List<Attachment>> attachments(DtoChatItem item) async {
-    Log.debug('attachments($item)', '$runtimeType');
+  /// Fetches the [Attachment]s of a [ChatItem] with the provided [id].
+  Future<List<Attachment>> attachments(ChatItemId id) async {
+    Log.debug('attachments($id)', '$runtimeType');
 
-    final response = await _graphQlProvider.attachments(item.value.id);
+    final response = await _graphQlProvider.attachments(id);
     return response.chatItem?.toModel() ?? [];
   }
 
