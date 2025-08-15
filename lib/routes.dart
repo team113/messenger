@@ -79,6 +79,7 @@ import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/erase/view.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
+import 'ui/page/popup_gallery/view.dart';
 import 'ui/page/style/view.dart';
 import 'ui/page/support/view.dart';
 import 'ui/page/unknown/view.dart';
@@ -107,6 +108,7 @@ class Routes {
   static const chats = '/chats';
   static const contacts = '/contacts';
   static const erase = '/erase';
+  static const gallery = '/gallery';
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
@@ -660,6 +662,134 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callService.onChatRemoved = chatRepository.remove;
 
               deps.put(BlocklistService(blocklistRepository));
+
+              return deps;
+            },
+          ),
+        ),
+      ];
+    } else if (_state.route.startsWith('${Routes.gallery}/')) {
+      final Uri uri = Uri.parse(_state.route);
+      final ChatId chatId = ChatId(
+        uri.path.replaceFirst('${Routes.gallery}/', ''),
+      );
+
+      final id = router.arguments?['id'];
+      final index = router.arguments?['index'];
+
+      return [
+        MaterialPage(
+          key: ValueKey('GalleryView${chatId.val}'),
+          name: '${Routes.gallery}/${chatId.val}',
+          child: PopupGalleryView(
+            chatId: chatId,
+            initialKey: id is String ? id : null,
+            initialIndex: index is int ? index : 0,
+            depsFactory: () async {
+              final ScopedDependencies deps = ScopedDependencies();
+              final UserId me = _state._auth.userId!;
+
+              final ScopedDriftProvider scoped = deps.put(
+                ScopedDriftProvider.from(deps.put(ScopedDatabase(me))),
+              );
+
+              deps.put(UserDriftProvider(Get.find(), scoped));
+              deps.put(ChatItemDriftProvider(Get.find(), scoped));
+              deps.put(ChatMemberDriftProvider(Get.find(), scoped));
+              deps.put(ChatDriftProvider(Get.find(), scoped));
+              deps.put(BlocklistDriftProvider(Get.find(), scoped));
+              deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
+              deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
+              deps.put(CallRectDriftProvider(Get.find(), scoped));
+              deps.put(MonologDriftProvider(Get.find()));
+              deps.put(DraftDriftProvider(Get.find(), scoped));
+              deps.put(SessionDriftProvider(Get.find(), scoped));
+              await deps.put(VersionDriftProvider(Get.find())).init();
+
+              final AbstractSettingsRepository settingsRepository = deps
+                  .put<AbstractSettingsRepository>(
+                    SettingsRepository(me, Get.find(), Get.find(), Get.find()),
+                  );
+
+              // Should be awaited to ensure [PopupGalleryView] using the stored
+              // settings and not the default ones.
+              await settingsRepository.init();
+
+              // Should be initialized before any [L10n]-dependant entities as
+              // it sets the stored [Language] from the [SettingsRepository].
+              await deps.put(SettingsWorker(settingsRepository)).init();
+
+              final GraphQlProvider graphQlProvider = Get.find();
+              final UserRepository userRepository = UserRepository(
+                graphQlProvider,
+                Get.find(),
+              );
+              deps.put<AbstractUserRepository>(userRepository);
+              final AbstractCallRepository callRepository = deps
+                  .put<AbstractCallRepository>(
+                    CallRepository(
+                      graphQlProvider,
+                      userRepository,
+                      Get.find(),
+                      Get.find(),
+                      settingsRepository,
+                      me: me,
+                    ),
+                  );
+              final AbstractChatRepository chatRepository = deps
+                  .put<AbstractChatRepository>(
+                    ChatRepository(
+                      graphQlProvider,
+                      Get.find(),
+                      Get.find(),
+                      Get.find(),
+                      callRepository,
+                      Get.find(),
+                      userRepository,
+                      Get.find(),
+                      Get.find(),
+                      me: me,
+                    ),
+                  );
+
+              userRepository.getChat = chatRepository.get;
+
+              final AbstractContactRepository contactRepository = deps
+                  .put<AbstractContactRepository>(
+                    ContactRepository(
+                      graphQlProvider,
+                      userRepository,
+                      Get.find(),
+                      me: me,
+                    ),
+                  );
+              userRepository.getContact = contactRepository.get;
+
+              final BlocklistRepository blocklistRepository =
+                  BlocklistRepository(
+                    graphQlProvider,
+                    Get.find(),
+                    userRepository,
+                    Get.find(),
+                    me: me,
+                  );
+              deps.put<AbstractBlocklistRepository>(blocklistRepository);
+              final AbstractMyUserRepository myUserRepository = deps
+                  .put<AbstractMyUserRepository>(
+                    MyUserRepository(
+                      graphQlProvider,
+                      Get.find(),
+                      blocklistRepository,
+                      userRepository,
+                      Get.find(),
+                    ),
+                  );
+
+              deps.put(MyUserService(Get.find(), myUserRepository));
+              deps.put(UserService(userRepository));
+              // deps.put(ContactService(contactRepository));
+
+              deps.put(ChatService(chatRepository, Get.find()));
 
               return deps;
             },

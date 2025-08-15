@@ -40,7 +40,7 @@ dependencies:
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
-  flutter_local_notifications: ^19.2.1
+  flutter_local_notifications: ^19.4.0
   flutter_markdown: ^0.7.1
   flutter_native_badge: ^1.0.5+dev
   flutter_slidable: ^4.0.0
@@ -113,7 +113,7 @@ dependencies:
   wakelock_plus: ^1.1.4
   web_socket_channel: ^3.0.1
   web: ">=0.5.1 <2.0.0"
-  win_toast: ^0.3.0
+  win_toast: ^0.4.0
   win32: ^5.0.6
   win32_registry: ^2.1.0
   window_manager: ^0.4.3

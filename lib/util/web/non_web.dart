@@ -184,6 +184,11 @@ class WebUtils {
     // No-op.
   }
 
+  /// Opens a new popup window at the [Routes.gallery] page with the provided
+  /// [chatId].
+  static bool openPopupGallery(ChatId chatId, {String? id, int? index}) =>
+      false;
+
   /// Opens a new popup window at the [Routes.call] page with the provided
   /// [chatId].
   static bool openPopupCall(
@@ -248,6 +253,9 @@ class WebUtils {
 
   /// Returns the [Rect] stored by the provided [chatId], if any.
   static Rect? getCallRect(ChatId chatId) => null;
+
+  /// Returns the [Rect] stored for a [openPopupGallery].
+  static Rect? getGalleryRect() => null;
 
   /// Downloads the file from the provided [url].
   static Future<void> downloadFile(String url, String name) async {

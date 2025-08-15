@@ -14,7 +14,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
-    - Redesigned media player. ([#1367], [#1356])
+    - Redesigned media player. ([#1368], [#1367], [#1356])
 
 ### Fixed
 
@@ -24,6 +24,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1356]: /../../pull/1356
 [#1367]: /../../pull/1367
+[#1368]: /../../pull/1368
 
 
 

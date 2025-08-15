@@ -534,6 +534,51 @@ class WebUtils {
   /// Clears the browser's storage.
   static void cleanStorage() => web.window.localStorage.clear();
 
+  /// Opens a new popup window at the [Routes.gallery] page with the provided
+  /// [chatId].
+  static bool openPopupGallery(ChatId chatId, {String? id, int? index}) {
+    final int screenW = web.window.screen.width;
+    final int screenH = web.window.screen.height;
+
+    final Rect? prefs = getGalleryRect();
+
+    final width = min(prefs?.width ?? 500, screenW);
+    final height = min(prefs?.height ?? 500, screenH);
+
+    var left = prefs?.left ?? screenW - 50 - width;
+    if (left < 0) {
+      left = 0;
+    } else if (left + width > screenW) {
+      left = screenW - width;
+    }
+
+    var top = prefs?.top ?? 50;
+    if (top < 0) {
+      top = 0;
+    } else if (top + height > screenH) {
+      top = screenH.toDouble() - height;
+    }
+
+    final List<String> parameters = [
+      if (id != null) 'id=$id',
+      if (index != null) 'index=$index',
+    ];
+
+    final String query = parameters.isEmpty ? '' : '?${parameters.join('&')}';
+
+    final web.Window? window = web.window.open(
+      '${Routes.gallery}/$chatId$query',
+      'gallery_${const Uuid().v4()}',
+      'popup=1,width=$width,height=$height,left=$left,top=$top',
+    );
+
+    try {
+      return window?.closed == false;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Opens a new popup window at the [Routes.call] page with the provided
   /// [chatId].
   static bool openPopupCall(
@@ -677,7 +722,17 @@ class WebUtils {
 
   /// Returns the [Rect] stored by the provided [chatId], if any.
   static Rect? getCallRect(ChatId chatId) {
-    var data = web.window.localStorage.getItem('prefs_call_$chatId');
+    final data = web.window.localStorage.getItem('prefs_call_$chatId');
+    if (data != null) {
+      return _RectExtension.fromJson(json.decode(data));
+    }
+
+    return null;
+  }
+
+  /// Returns the [Rect] stored for a [openPopupGallery].
+  static Rect? getGalleryRect() {
+    final data = web.window.localStorage.getItem('gallery_rect');
     if (data != null) {
       return _RectExtension.fromJson(json.decode(data));
     }

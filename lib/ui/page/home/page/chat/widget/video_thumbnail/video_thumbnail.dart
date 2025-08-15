@@ -256,6 +256,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   /// Initializes the [_controller].
   Future<void> _initVideo() async {
+    Log.debug('_initVideo(${widget.url})', '$runtimeType');
+
     _triedOnError = false;
 
     _cancelToken?.cancel();
@@ -360,6 +362,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Fetches the header of [VideoThumbnail.url] to ensure that the URL is
   /// reachable.
   Future<void> _ensureReachable() async {
+    Log.debug('_ensureReachable(${widget.url})', '$runtimeType');
+
     _headerToken?.cancel();
     _headerToken = CancelToken();
 
