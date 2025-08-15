@@ -135,14 +135,14 @@ dev_dependencies:
   flutter_gherkin:
     git:
       url: https://github.com/jonsamwell/flutter_gherkin.git
-      ref: ea59f6376f2d78e5b2140980e74879b862218ea1
+      ref: cd02af097e73d4d066ce143381d9b889e0f19a0b
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
   http_mock_adapter: ^0.6.0
   integration_test:
     sdk: flutter
-  gherkin: ^2.0.8
+  gherkin: ^3.1.0
   json_serializable: ^6.6.2
   mockito: ^5.4.2
   sentry_dart_plugin: ^3.1.1
