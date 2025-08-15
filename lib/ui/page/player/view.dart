@@ -243,29 +243,31 @@ class PlayerView extends StatelessWidget {
       if (attachment.isVideo) {
         isVideo = true;
 
-        child = VideoPlayback(
-          attachment.original.url,
-          checksum: attachment.original.checksum,
-          volume: c.settings.value?.videoVolume,
-          onVolumeChanged: c.setVideoVolume,
-          onError: () async => await c.reload(post),
-          loop: true,
-          autoplay: false,
-          onController: (e) {
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              item.video.value?.dispose();
+        child = Center(
+          child: VideoPlayback(
+            attachment.original.url,
+            checksum: attachment.original.checksum,
+            volume: c.settings.value?.videoVolume,
+            onVolumeChanged: c.setVideoVolume,
+            onError: () async => await c.reload(post),
+            loop: true,
+            autoplay: false,
+            onController: (e) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                item.video.value?.dispose();
 
-              if (e == null) {
-                item.video.value = null;
-              } else {
-                item.video.value = ReactivePlayerController(e);
+                if (e == null) {
+                  item.video.value = null;
+                } else {
+                  item.video.value = ReactivePlayerController(e);
 
-                if (c.index.value == c.posts.indexOf(post)) {
-                  item.video.value?.play();
+                  if (c.index.value == c.posts.indexOf(post)) {
+                    item.video.value?.play();
+                  }
                 }
-              }
-            });
-          },
+              });
+            },
+          ),
         );
       }
     }
