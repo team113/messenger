@@ -40,7 +40,7 @@ dependencies:
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
-  flutter_local_notifications: ^19.2.1
+  flutter_local_notifications: ^19.4.0
   flutter_markdown: ^0.7.1
   flutter_native_badge: ^1.0.5+dev
   flutter_slidable: ^4.0.0
