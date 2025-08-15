@@ -193,6 +193,11 @@ class WebUtils {
     bool withScreen = false,
   }) => false;
 
+  /// Opens a new popup window at the [Routes.gallery] page with the provided
+  /// [chatId].
+  static bool openPopupGallery(ChatId chatId, {String? id, int? index}) =>
+      false;
+
   /// Closes the current window.
   static void closeWindow() {
     // No-op.

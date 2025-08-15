@@ -53,8 +53,10 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/get.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'controller.dart';
 import 'gallery/view.dart';
+import 'widget/notification.dart';
 import 'widget/video_playback.dart';
 
 /// View for displaying [Post]s.
@@ -100,11 +102,11 @@ class PlayerView extends StatelessWidget {
     BuildContext context, {
     required Widget gallery,
   }) async {
+    final style = Theme.of(context).style;
+
     final ModalRoute<T> route;
 
     if (context.isMobile) {
-      final style = Theme.of(context).style;
-
       route = MaterialPageRoute<T>(
         builder: (BuildContext context) {
           return Material(
@@ -119,7 +121,7 @@ class PlayerView extends StatelessWidget {
       );
     } else {
       route = RawDialogRoute<T>(
-        barrierColor: Color(0xF20C0C0C),
+        barrierColor: style.colors.backgroundGallery,
         barrierDismissible: true,
         pageBuilder: (_, __, ___) {
           return CustomSafeArea(
@@ -365,6 +367,29 @@ class PlayerView extends StatelessWidget {
             }),
           ),
         ),
+
+        // If there's any notifications to show, display them.
+        Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 64),
+            child: Obx(() {
+              if (c.notifications.isEmpty) {
+                return const SizedBox();
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: c.notifications.reversed.take(3).map((e) {
+                  return PlayerNotificationWidget(
+                    e,
+                    onClose: () => c.notifications.remove(e),
+                  );
+                }).toList(),
+              );
+            }),
+          ),
+        ),
       ],
     );
   }
@@ -558,7 +583,13 @@ class PlayerView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           WidgetButton(
-            onPressed: Navigator.of(context).pop,
+            onPressed: () {
+              if (WebUtils.isPopup) {
+                WebUtils.closeWindow();
+              } else {
+                Navigator.of(context).pop();
+              }
+            },
             child: Padding(
               padding: EdgeInsets.fromLTRB(16, 18, 16, 18),
               child: Row(
@@ -576,17 +607,14 @@ class PlayerView extends StatelessWidget {
           ),
           Spacer(),
           const SizedBox(width: 12),
-          if (!isMobile) ...[
-            Opacity(
-              opacity: PlatformUtils.isWeb && !PlatformUtils.isMobile ? 1 : 0.5,
-              child: WidgetButton(
-                onPressed: PlatformUtils.isWeb && !PlatformUtils.isMobile
-                    ? c.openPopup
-                    : null,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                  child: SvgIcon(SvgIcons.mediaPopup),
-                ),
+          if (PlatformUtils.isWeb &&
+              !PlatformUtils.isMobile &&
+              !WebUtils.isPopup) ...[
+            WidgetButton(
+              onPressed: c.openPopup,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                child: SvgIcon(SvgIcons.mediaPopup),
               ),
             ),
             const SizedBox(width: 12),

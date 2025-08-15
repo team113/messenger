@@ -265,6 +265,9 @@ err_input_empty = Campo no debe estar vacío
 err_invalid_symbols_in_link = Caracteres inválidos. Solo se permiten: A-z, , -, _ y 0-9
 err_login_occupied = Este nombre de usuario está ocupado
 err_media_devices_are_null = Acceso a dispositivos de multimedia denegado. Asegúrese de que la aplicación tenga permiso para usar dispositivos de media.
+err_media_popup_was_blocked =
+    Ventana emergente bloqueada.
+    Permite que las ventanas emergentes muestren los medios en ventanas separadas.
 err_message_was_read = Mensaje leído
 err_microphone_permission_denied = Acceso al micrófono denegado. Asegúrese de que la aplicación tenga permiso para usar el micrófono.
 err_network = Error al conectar con el servidor

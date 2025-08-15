@@ -265,6 +265,9 @@ err_input_empty = Field must not be empty
 err_invalid_symbols_in_link = Unacceptable characters. The following characters are allowed: A-z, -, _ and 0-9
 err_login_occupied = The login is taken
 err_media_devices_are_null = Access to media devices is denied. Make sure your browser has permission to use media devices.
+err_media_popup_was_blocked =
+    Pop-up blocked.
+    Allow pop-up to display media in a separate window.
 err_message_was_read = Message has been read
 err_microphone_permission_denied = Access to microphone is denied. Make sure application has permission to use microphone.
 err_network = Server connection error

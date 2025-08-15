@@ -90,7 +90,7 @@ class PaginatedGallery extends StatefulWidget {
 
   /// Initial [Attachment] and a [ChatItem] containing it to display initially
   /// in a [PlayerView].
-  final (ChatItem?, Attachment)? initial;
+  final (String, int)? initial;
 
   /// Callback, called when an [Attachment] loading fails with a forbidden
   /// network error.
@@ -222,21 +222,8 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
       onReply: widget.onReply,
       onShare: widget.onShare,
       onScrollTo: widget.onScrollTo,
-      initialKey: widget.initial?.$1?.key.toString(),
-      initialIndex: _parseInitialIndex(widget.initial?.$1),
-    );
-  }
-
-  /// Returns an index of [Attachment] considered as the initial one from the
-  /// provided [item].
-  int _parseInitialIndex(ChatItem? item) {
-    if (item is! ChatMessage) {
-      return 0;
-    }
-
-    return max(
-      0,
-      item.attachments.indexWhere((e) => e.id == widget.initial?.$2.id),
+      initialKey: widget.initial?.$1,
+      initialIndex: widget.initial?.$2 ?? 0,
     );
   }
 

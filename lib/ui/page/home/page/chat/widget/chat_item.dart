@@ -236,12 +236,19 @@ class ChatItemWidget extends StatefulWidget {
                     return;
                   }
 
+                  int initial = 0;
+                  if (item is ChatMessage) {
+                    initial = max(0, item.attachments.indexOf(attachment));
+                  }
+
                   PlayerView.show(
                     context,
                     gallery: PaginatedGallery(
                       paginated: onGallery(),
                       resourceId: ResourceId(chatId: item?.chatId),
-                      initial: (item, attachment),
+                      initial: item == null
+                          ? null
+                          : (item.key.toString(), initial),
                       onForbidden: onError,
                       onReply: onReply,
                       onShare: onShare,

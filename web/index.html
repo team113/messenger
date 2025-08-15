@@ -165,6 +165,18 @@
             })
           );
         });
+      } else if (location.pathname.startsWith('/gallery/')) {
+        window.addEventListener('beforeunload', function (e) {
+          window.localStorage.removeItem('gallery_rect');
+          window.localStorage.setItem('gallery_rect',
+            JSON.stringify({
+              'width': window.innerWidth,
+              'height': window.innerHeight,
+              'left': window.screenX,
+              'top': window.screenY,
+            })
+          );
+        });
       }
 
       // Disable refresh page behaviour, as it will break the call.
