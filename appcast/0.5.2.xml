@@ -1,0 +1,7 @@
+<item><title>0.5.2</title><description xml:lang="en-US"><![CDATA[- Redesigned message delete popups.
+- Updated description and actions list on user page.
+- Updated default order of call buttons in dock.
+- Bug fixes and performance improvements.]]></description> <description xml:lang="ru-RU"><![CDATA[- Обновлено описание и список действий на странице пользователя.
+- Обновлён дизайн окон удаления сообщений.
+- Обновлён стандартный порядок кнопок в доке звонка.
+- Исправления ошибок и улучшения производительности.]]></description><pubDate>Tue, 01 Jul 2025 14:57:54 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
