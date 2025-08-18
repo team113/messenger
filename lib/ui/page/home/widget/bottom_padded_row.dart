@@ -64,7 +64,7 @@ class BottomPaddedRow extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(
-            height: 56 - 18,
+            height: 56 - 18 - 6,
             child: Row(children: widgets),
           ),
           Spacer(),
