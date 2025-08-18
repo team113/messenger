@@ -2090,7 +2090,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: f0855e0cc84f0a8e9e418b1b48d7e51858aa5b59
+      resolved-ref: "815b4a08de889750fc33fe07dc92d4cfdb2c845a"
       url: "https://github.com/lapuske/sound_fonts.git"
     source: git
     version: "0.1.2"
