@@ -47,6 +47,7 @@ import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'view.dart' show Resource, ResourceId;
 
 /// Controller of a [PlayerView].
@@ -143,6 +144,9 @@ class PlayerController extends GetxController {
   /// Initial index of a [Post.horizontal] controller.
   final int initialIndex;
 
+  /// [List] of the currently active [PlayerNotification]s.
+  final RxList<PlayerNotification> notifications = RxList();
+
   /// [AbstractSettingsRepository] for storing the
   /// [ApplicationSettings.videoVolume].
   final AbstractSettingsRepository _settingsRepository;
@@ -178,6 +182,13 @@ class PlayerController extends GetxController {
 
   /// Indicator whether [PageController.page] is changing forward or backward.
   bool? _scrollingForward;
+
+  /// [Timer]s removing items from the [notifications] after the
+  /// [_notificationDuration].
+  final List<Timer> _notificationTimers = [];
+
+  /// [Duration] to display a single [PlayerNotification].
+  static const Duration _notificationDuration = Duration(seconds: 6);
 
   /// Returns the current [ApplicationSettings].
   Rx<ApplicationSettings?> get settings =>
@@ -312,6 +323,11 @@ class PlayerController extends GetxController {
       PlatformUtils.exitFullscreen();
     }
 
+    for (final Timer e in _notificationTimers) {
+      e.cancel();
+    }
+    _notificationTimers.clear();
+
     super.onClose();
   }
 
@@ -391,7 +407,21 @@ class PlayerController extends GetxController {
   ///
   /// Only meaningful for the Web platform currently.
   Future<void> openPopup() async {
-    // TODO: Implement.
+    final ChatId? chatId = resourceId?.chatId;
+
+    if (chatId != null) {
+      final bool hasWindow = WebUtils.openPopupGallery(
+        chatId,
+        id: post?.id,
+        index: post?.index.value,
+      );
+
+      if (!hasWindow) {
+        notify(ErrorNotification(message: 'err_media_popup_was_blocked'.l10n));
+      } else {
+        shouldClose?.call();
+      }
+    }
   }
 
   /// Downloads the provided [PostItem].
@@ -613,6 +643,14 @@ class PlayerController extends GetxController {
         }
       }
     }
+  }
+
+  /// Adds the provided [PlayerNotification] to the [notifications].
+  void notify(PlayerNotification e) {
+    notifications.add(e);
+    _notificationTimers.add(
+      Timer(_notificationDuration, () => notifications.remove(e)),
+    );
   }
 
   /// Initializes the [resource] from the [resourceId].
@@ -1130,4 +1168,24 @@ class MediaItem implements Comparable<MediaItem> {
   int compareTo(MediaItem other) {
     return id.compareTo(other.id);
   }
+}
+
+/// Possible [PlayerNotification] kind.
+enum PlayerNotificationKind { error }
+
+/// Notification of an event happened in [PlayerView].
+abstract class PlayerNotification {
+  /// Returns the [PlayerNotificationKind] of this [PlayerNotification].
+  PlayerNotificationKind get kind;
+}
+
+/// [PlayerNotification] of an error.
+class ErrorNotification extends PlayerNotification {
+  ErrorNotification({required this.message});
+
+  /// Message of this [ErrorNotification] describing the error happened.
+  final String message;
+
+  @override
+  PlayerNotificationKind get kind => PlayerNotificationKind.error;
 }

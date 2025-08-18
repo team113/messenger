@@ -642,7 +642,7 @@ class RxChatImpl extends RxChat {
         return;
       }
 
-      await _updateAttachments(item);
+      await _updateAttachments(item.id, item: item);
       _attachmentGuards.remove(item.id);
     });
   }
@@ -1746,14 +1746,16 @@ class RxChatImpl extends RxChat {
     }
   }
 
-  /// Re-fetches the [Attachment]s of the specified [item] to be up-to-date.
-  Future<void> _updateAttachments(ChatItem item) async {
-    Log.debug('_updateAttachments($item)', '$runtimeType($id)');
+  /// Re-fetches the [Attachment]s of the specified [itemId] to be up-to-date.
+  Future<void> _updateAttachments(ChatItemId itemId, {ChatItem? item}) async {
+    Log.debug('_updateAttachments($itemId)', '$runtimeType($id)');
 
-    final DtoChatItem? stored = await get(item.id);
+    final DtoChatItem? stored = await get(itemId);
     if (stored != null) {
+      item ??= stored.value;
+
       final List<Attachment> response = await _chatRepository.attachments(
-        stored,
+        stored.value.id,
       );
 
       void replace(Attachment a) {
