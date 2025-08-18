@@ -16,6 +16,9 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Redesigned media player. ([#1368], [#1367], [#1356])
 
+- Mobile:
+    - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
+
 ### Fixed
 
 - UI:
@@ -25,6 +28,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1356]: /../../pull/1356
 [#1367]: /../../pull/1367
 [#1368]: /../../pull/1368
+[#1369]: /../../pull/1369
 
 
 
