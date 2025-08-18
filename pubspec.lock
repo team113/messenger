@@ -619,7 +619,7 @@ packages:
     description:
       path: "."
       ref: upgrade-packages
-      resolved-ref: "93bcd31c6854fac4e52417cb51702438f78261ca"
+      resolved-ref: b31ac9b9e6982dca9460e28c2365153627be197b
       url: "https://github.com/SleepySquash/flutter_gherkin.git"
     source: git
     version: "3.0.0-rc.9"
