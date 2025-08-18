@@ -618,11 +618,11 @@ packages:
     dependency: "direct dev"
     description:
       path: "."
-      ref: ea59f6376f2d78e5b2140980e74879b862218ea1
-      resolved-ref: ea59f6376f2d78e5b2140980e74879b862218ea1
+      ref: cd02af097e73d4d066ce143381d9b889e0f19a0b
+      resolved-ref: cd02af097e73d4d066ce143381d9b889e0f19a0b
       url: "https://github.com/jonsamwell/flutter_gherkin.git"
     source: git
-    version: "3.0.0-rc.9"
+    version: "3.0.0-rc.17"
   flutter_hooks:
     dependency: transitive
     description:
@@ -835,10 +835,10 @@ packages:
     dependency: "direct dev"
     description:
       name: gherkin
-      sha256: "7c835be5c28dc50f753caa30b4d8e2204d0617dc56fc019dca0fc70279d779b7"
+      sha256: c3e0c98b305a94ec8c015038529a1c8c6ea3b0953619514e76647407efb66d7f
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.8"
+    version: "3.1.0"
   glob:
     dependency: transitive
     description:

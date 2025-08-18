@@ -65,8 +65,9 @@ class ResetAppHook extends Hook {
   Future<void> onAfterScenario(
     TestConfiguration config,
     String scenario,
-    Iterable<Tag> tags,
-  ) => onBeforeScenario(config, scenario, tags);
+    Iterable<Tag> tags, {
+    bool passed = true,
+  }) => onBeforeScenario(config, scenario, tags);
 
   @override
   Future<void> onAfterRun(TestConfiguration config) async {
