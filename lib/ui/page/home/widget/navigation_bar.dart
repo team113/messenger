@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -25,12 +23,12 @@ import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/context_menu/tile.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'avatar.dart';
@@ -54,7 +52,15 @@ class CustomNavigationBar extends StatefulWidget {
   final Function(int)? onTap;
 
   /// Height of the [CustomNavigationBar].
-  static const double height = 56;
+  static double get height {
+    double padding = 0;
+    if (router.context != null) {
+      padding = MediaQuery.of(router.context!).padding.bottom;
+      padding += CustomSafeArea.isPwa ? 25 : 0;
+    }
+
+    return 56 + padding;
+  }
 
   @override
   State<CustomNavigationBar> createState() => _CustomNavigationBarState();
@@ -94,35 +100,28 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return ClipRect(
-      child: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: style.colors.onBackgroundOpacity13,
-              blurStyle: BlurStyle.outer.workaround,
-            ),
-          ],
-          border: style.cardBorder,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ConditionalBackdropFilter(
-              condition: style.cardBlur > 0,
-              filter: ImageFilter.blur(
-                sigmaX: style.cardBlur,
-                sigmaY: style.cardBlur,
-              ),
-              child: Container(
-                decoration: BoxDecoration(color: style.cardColor),
-                height: CustomNavigationBar.height,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 9,
-                    horizontal: 12,
-                  ),
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: style.colors.onBackgroundOpacity13,
+            blurStyle: BlurStyle.outer.workaround,
+          ),
+        ],
+        border: style.cardBorder,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            decoration: BoxDecoration(color: style.colors.onPrimary),
+            height: CustomNavigationBar.height,
+            padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 56 - 18,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: widget.items.mapIndexed((i, b) {
@@ -145,10 +144,11 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
                     }).toList(),
                   ),
                 ),
-              ),
+                Spacer(),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -202,6 +202,9 @@ class RouterState extends ChangeNotifier {
   /// Indicator whether [HomeView] page navigation should be visible.
   final RxBool navigation = RxBool(true);
 
+  /// Builder building the [NavigationBar] on the [HomeView], if any.
+  final Rx<Widget Function(BuildContext)?> navigator = Rx(null);
+
   /// [ModalRoute]s obscuring any [Navigator] being built.
   final RxList<ModalRoute> obscuring = RxList();
 

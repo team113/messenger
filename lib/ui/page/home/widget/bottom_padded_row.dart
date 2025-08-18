@@ -16,11 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import '/routes.dart';
 import '/themes.dart';
-import '/util/platform_utils.dart';
+import 'navigation_bar.dart';
 
 /// [Row] padded to be at the bottom of the screen expanding its [children].
 class BottomPaddedRow extends StatelessWidget {
@@ -61,15 +59,17 @@ class BottomPaddedRow extends StatelessWidget {
           ),
         ],
       ),
-      padding: EdgeInsets.fromLTRB(
-        8,
-        12,
-        8,
-        PlatformUtils.isMobile && !PlatformUtils.isWeb
-            ? router.context!.mediaQuery.padding.bottom + 7
-            : 12,
+      height: CustomNavigationBar.height,
+      padding: EdgeInsets.fromLTRB(8, 12, 8, 12),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 56 - 18,
+            child: Row(children: widgets),
+          ),
+          Spacer(),
+        ],
       ),
-      child: Row(children: widgets),
     );
   }
 

@@ -35,7 +35,6 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
-import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
@@ -88,7 +87,6 @@ class ChatsTabView extends StatelessWidget {
             }),
             Obx(() {
               return Scaffold(
-                extendBodyBehindAppBar: true,
                 resizeToAvoidBottomInset: false,
                 appBar: CustomAppBar(
                   border:
@@ -390,7 +388,7 @@ class ChatsTabView extends StatelessWidget {
                         child: center,
                       );
                     } else {
-                      child = SafeScrollbar(
+                      child = Scrollbar(
                         controller: c.search.value!.scrollController,
                         child: ListView.builder(
                           key: const Key('GroupCreating'),
@@ -537,7 +535,7 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else if (c.elements.isNotEmpty) {
-                      child = SafeScrollbar(
+                      child = Scrollbar(
                         controller: c.search.value!.scrollController,
                         child: AnimationLimiter(
                           key: const Key('Search'),
@@ -694,7 +692,7 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
                     } else {
-                      child = SafeScrollbar(
+                      child = Scrollbar(
                         controller: c.scrollController,
                         child: AnimationLimiter(
                           key: const Key('Chats'),
@@ -805,8 +803,8 @@ class ChatsTabView extends StatelessWidget {
                               controller: c.scrollController,
                               slivers: [
                                 SliverPadding(
-                                  padding: const EdgeInsets.only(
-                                    top: CustomAppBar.height - 4,
+                                  padding: EdgeInsets.only(
+                                    top: 4,
                                     left: 10,
                                     right: 10,
                                   ),
@@ -953,7 +951,7 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                                 SliverPadding(
                                   padding: EdgeInsets.only(
-                                    bottom: CustomNavigationBar.height,
+                                    bottom: 4,
                                     left: 10,
                                     right: 10,
                                   ),
@@ -1008,145 +1006,6 @@ class ChatsTabView extends StatelessWidget {
                     ),
                   );
                 }),
-                extendBody: true,
-                bottomNavigationBar: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Obx(() {
-                      if (c.groupCreating.value) {
-                        return BottomPaddedRow(
-                          spacer: (_) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: style.colors.onBackgroundOpacity13,
-                              ),
-                              width: 1,
-                              height: 24,
-                            );
-                          },
-                          children: [
-                            WidgetButton(
-                              onPressed: c.closeGroupCreating,
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    10,
-                                    6.5,
-                                    10,
-                                    6.5,
-                                  ),
-                                  child: Text(
-                                    'btn_cancel'.l10n,
-                                    style: style.fonts.normal.regular.primary,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            WidgetButton(
-                              onPressed: c.createGroup,
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    10,
-                                    6.5,
-                                    10,
-                                    6.5,
-                                  ),
-                                  child: Text(
-                                    'btn_create'.l10n,
-                                    style: style.fonts.normal.regular.primary,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      } else if (c.selecting.value) {
-                        return BottomPaddedRow(
-                          spacer: (_) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: style.colors.onBackgroundOpacity13,
-                              ),
-                              width: 1,
-                              height: 24,
-                            );
-                          },
-                          children: [
-                            WidgetButton(
-                              onPressed: c.readAll,
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    10,
-                                    6.5,
-                                    10,
-                                    6.5,
-                                  ),
-                                  child: Text(
-                                    'btn_read_all'.l10n,
-                                    style: style.fonts.normal.regular.primary,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            WidgetButton(
-                              onPressed: c.selectedChats.isEmpty
-                                  ? null
-                                  : () => _hideChats(context, c),
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    10,
-                                    6.5,
-                                    10,
-                                    6.5,
-                                  ),
-                                  child: Text(
-                                    'btn_hide'.l10n,
-                                    style: style.fonts.normal.regular.primary,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            WidgetButton(
-                              key: const Key('DeleteChatsButton'),
-                              onPressed: c.selectedChats.isEmpty
-                                  ? null
-                                  : () => _hideChats(context, c),
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    10,
-                                    6.5,
-                                    10,
-                                    6.5,
-                                  ),
-                                  child: Text(
-                                    'btn_delete'.l10n,
-                                    style: style.fonts.normal.regular.danger,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-
-                      return const SizedBox();
-                    }),
-                  ],
-                ),
               );
             }),
             Positioned(
@@ -1252,8 +1111,120 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
+  /// Builds a [BottomPaddedRow] for selecting the [Chat]s.
+  static Widget selectingBuilder(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    return BottomPaddedRow(
+      spacer: (_) {
+        return Container(
+          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
+          width: 1,
+          height: 24,
+        );
+      },
+      children: [
+        WidgetButton(
+          onPressed: c.readAll,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_read_all'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          onPressed: c.selectedChats.isEmpty
+              ? null
+              : () => _hideChats(context, c),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_hide'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          key: const Key('DeleteChatsButton'),
+          onPressed: c.selectedChats.isEmpty
+              ? null
+              : () => _hideChats(context, c),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_delete'.l10n,
+                style: style.fonts.normal.regular.danger,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds a [BottomPaddedRow] for creating a [Chat]-group.
+  static Widget createGroupBuilder(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    return BottomPaddedRow(
+      spacer: (_) {
+        return Container(
+          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
+          width: 1,
+          height: 24,
+        );
+      },
+      children: [
+        WidgetButton(
+          onPressed: c.closeGroupCreating,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_cancel'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          onPressed: c.createGroup,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_create'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   /// Opens a confirmation popup hiding the selected chats.
-  Future<void> _hideChats(BuildContext context, ChatsTabController c) async {
+  static Future<void> _hideChats(
+    BuildContext context,
+    ChatsTabController c,
+  ) async {
     bool clear = false;
 
     final bool? result = await MessagePopup.alert(
