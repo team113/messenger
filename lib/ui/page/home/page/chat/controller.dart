@@ -489,7 +489,7 @@ class ChatController extends GetxController {
                 ),
               )
               .onError<PostChatMessageException>(
-                (_, __) => _showBlockedPopup(),
+                (_, _) => _showBlockedPopup(),
                 test: (e) => e.code == PostChatMessageErrorCode.blocked,
               )
               .onError<UploadAttachmentException>(
@@ -722,11 +722,11 @@ class ChatController extends GetxController {
             (_) => AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')),
           )
           .onError<PostChatMessageException>(
-            (_, __) => _showBlockedPopup(),
+            (_, _) => _showBlockedPopup(),
             test: (e) => e.code == PostChatMessageErrorCode.blocked,
           )
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
-          .onError<ConnectionException>((_, __) {});
+          .onError<ConnectionException>((_, _) {});
     }
   }
 
@@ -2365,7 +2365,7 @@ class ChatController extends GetxController {
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
-  bool _onBack(bool _, RouteInfo __) {
+  bool _onBack(bool _, RouteInfo _) {
     if (edit.value != null) {
       closeEditing();
       return true;

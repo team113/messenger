@@ -298,7 +298,7 @@ class ParticipantController extends GetxController {
   ///
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true` to intercept back button.
-  bool _onBack(bool _, RouteInfo __) {
+  bool _onBack(bool _, RouteInfo _) {
     pop?.call();
     return true;
   }

@@ -529,8 +529,8 @@ class ChatRepository extends DisposableInterface
         if (e.status.value == SendingStatus.error &&
             (e.upload.value == null || e.upload.value?.isCompleted == true)) {
           uploadAttachment(e)
-              .onError<UploadAttachmentException>((_, __) => e)
-              .onError<ConnectionException>((_, __) => e);
+              .onError<UploadAttachmentException>((_, _) => e)
+              .onError<ConnectionException>((_, _) => e);
         }
       }
 

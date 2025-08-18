@@ -100,11 +100,11 @@ class CombinedPagination<T, K> {
 }
 
 /// Single [CombinedPagination] entry.
-class CombinedPaginationEntry<T, Object, K> {
+class CombinedPaginationEntry<T, O extends Object, K> {
   const CombinedPaginationEntry(this.p, {this.addIf = _defaultOnAdd});
 
   /// [Pagination] itself.
-  final Pagination<T, Object, K> p;
+  final Pagination<T, O, K> p;
 
   /// Callback, indicating whether the provided [T] item should be added to the
   /// [p], or not.

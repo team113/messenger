@@ -34,7 +34,7 @@ class MarkdownWidget extends StatelessWidget {
 
     return MarkdownBody(
       data: body,
-      onTapLink: (_, href, __) async => await launchUrlString(href!),
+      onTapLink: (_, href, _) async => await launchUrlString(href!),
       styleSheet: MarkdownStyleSheet(
         h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
 

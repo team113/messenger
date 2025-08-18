@@ -480,12 +480,12 @@ class Page<T, C> {
   /// Returns a new [Page] with reversed [info].
   Page<T, C> reversed() {
     return Page(
-      List.from(this.edges.reversed),
+      List.from(edges.reversed),
       PageInfo(
-        hasNext: this.info.hasPrevious,
-        hasPrevious: this.info.hasNext,
-        startCursor: this.info.endCursor,
-        endCursor: this.info.startCursor,
+        hasNext: info.hasPrevious,
+        hasPrevious: info.hasNext,
+        startCursor: info.endCursor,
+        endCursor: info.startCursor,
       ),
     );
   }

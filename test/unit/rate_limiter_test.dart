@@ -135,7 +135,7 @@ void main() async {
       futures.add(
         limiter
             .execute(() async => i)
-            .onError<OperationCanceledException>((_, __) => ++exceptions),
+            .onError<OperationCanceledException>((_, _) => ++exceptions),
       );
     }
 
@@ -151,7 +151,7 @@ void main() async {
       futures.add(
         limiter
             .execute(() async => i)
-            .onError<OperationCanceledException>((_, __) => ++exceptions),
+            .onError<OperationCanceledException>((_, _) => ++exceptions),
       );
     }
 
