@@ -498,7 +498,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   ///
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true` to intercept back button.
-  bool _onBack(bool _, RouteInfo __) {
+  bool _onBack(bool _, RouteInfo _) {
     _dismiss(withFeedback: false);
     return true;
   }

@@ -466,7 +466,7 @@ class GraphQlClient {
               )
               .forGraphQL();
 
-          socket.stream = socket.stream.handleError((_, __) => false);
+          socket.stream = socket.stream.handleError((_, _) => false);
 
           _channelSubscription = socket.stream.listen((_) {
             if (!_wsConnected) {

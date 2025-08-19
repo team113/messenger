@@ -69,7 +69,7 @@ class MutedChatsView extends StatelessWidget {
                       return ListView.separated(
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemCount: c.chats.length,
                         itemBuilder: (_, i) {
                           return Obx(() {

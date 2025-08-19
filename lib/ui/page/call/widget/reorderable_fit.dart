@@ -227,7 +227,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
           onAcceptWithDetails: (o) => onAdded?.call(o.data, 0),
           onWillAcceptWithDetails: (b) => onWillAccept?.call(b.data) ?? true,
           onLeave: onLeave,
-          builder: ((_, __, ___) {
+          builder: ((_, _, _) {
             return SizedBox(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,

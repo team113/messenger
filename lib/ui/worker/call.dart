@@ -204,7 +204,7 @@ class CallWorker extends DisposableService {
 
     bool wakelock = _callService.calls.isNotEmpty;
     if (wakelock && !PlatformUtils.isLinux) {
-      WakelockPlus.enable().onError((_, __) => false);
+      WakelockPlus.enable().onError((_, _) => false);
     }
 
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
@@ -231,10 +231,10 @@ class CallWorker extends DisposableService {
     _subscription = _callService.calls.changes.listen((event) async {
       if (!wakelock && _callService.calls.isNotEmpty) {
         wakelock = true;
-        WakelockPlus.enable().onError((_, __) => false);
+        WakelockPlus.enable().onError((_, _) => false);
       } else if (wakelock && _callService.calls.isEmpty) {
         wakelock = false;
-        WakelockPlus.disable().onError((_, __) => false);
+        WakelockPlus.disable().onError((_, _) => false);
       }
 
       switch (event.op) {
@@ -279,19 +279,19 @@ class CallWorker extends DisposableService {
                     if (v == true) {
                       Vibration.vibrate(
                         pattern: [500, 1000],
-                      ).onError((_, __) => false);
+                      ).onError((_, _) => false);
                       _vibrationTimer = Timer.periodic(
                         const Duration(milliseconds: 1500),
                         (timer) {
                           Vibration.vibrate(
                             pattern: [500, 1000],
                             repeat: 0,
-                          ).onError((_, __) => false);
+                          ).onError((_, _) => false);
                         },
                       );
                     }
                   })
-                  .catchError((_, __) {
+                  .catchError((_, _) {
                     // No-op.
                   });
 

@@ -233,7 +233,7 @@ class NotificationService extends DisposableService {
         lang: payload,
         icon: icon?.url ?? image,
         tag: tag,
-      ).onError((_, __) => false);
+      ).onError((_, _) => false);
     } else if (PlatformUtils.isWindows) {
       File? file;
       if (icon != null) {

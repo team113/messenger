@@ -231,7 +231,7 @@ class _RetryImageState extends State<RetryImage> {
           height: widget.height,
           width: widget.width,
           fit: widget.fit,
-          frameBuilder: (_, child, frame, ____) {
+          frameBuilder: (_, child, frame, _) {
             if (frame != null && _imageInitialized == false) {
               Future.delayed(Duration.zero, () {
                 if (context.mounted) {

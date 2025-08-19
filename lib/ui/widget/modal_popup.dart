@@ -127,7 +127,7 @@ abstract class ModalPopup {
       final route = RawDialogRoute<T>(
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
-        pageBuilder: (_, __, ___) {
+        pageBuilder: (_, _, _) {
           final Widget body = Center(
             child: Container(
               constraints: modalConstraints,
@@ -153,7 +153,7 @@ abstract class ModalPopup {
           context,
         ).modalBarrierDismissLabel,
         transitionDuration: const Duration(milliseconds: 300),
-        transitionBuilder: (_, Animation<double> animation, __, Widget child) {
+        transitionBuilder: (_, Animation<double> animation, _, Widget child) {
           return FadeTransition(
             opacity: CurvedAnimation(parent: animation, curve: Curves.linear),
             child: child,

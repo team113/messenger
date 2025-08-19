@@ -32,7 +32,7 @@ class CustomPage extends Page {
   Route createRoute(BuildContext context) {
     return _CupertinoPageRoute(
       settings: this,
-      pageBuilder: (_, __, ___) => child,
+      pageBuilder: (_, _, _) => child,
       instant: !context.isNarrow,
     );
   }
