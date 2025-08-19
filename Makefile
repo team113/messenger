@@ -346,6 +346,7 @@ else
 		--web-port 50000 \
 		--driver=test_driver/integration_test_driver.dart \
 		--target=test/e2e/suite.dart \
+		--no-web-experimental-hot-reload \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v))
 endif
 ifeq ($(start-app),yes)

@@ -108,7 +108,7 @@ class ChatInfoView extends StatelessWidget {
             body: Scrollbar(
               controller: c.scrollController,
               child: ObscuredSelectionArea(
-                contextMenuBuilder: (_, __) => const SizedBox(),
+                contextMenuBuilder: (_, _) => const SizedBox(),
                 child: ScrollablePositionedList.builder(
                   key: const Key('ChatInfoScrollable'),
                   scrollController: c.scrollController,

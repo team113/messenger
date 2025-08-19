@@ -123,7 +123,7 @@ class PlayerView extends StatelessWidget {
       route = RawDialogRoute<T>(
         barrierColor: style.colors.backgroundGallery,
         barrierDismissible: true,
-        pageBuilder: (_, __, ___) {
+        pageBuilder: (_, _, _) {
           return CustomSafeArea(
             child: Material(type: MaterialType.transparency, child: gallery),
           );
@@ -132,7 +132,7 @@ class PlayerView extends StatelessWidget {
           context,
         ).modalBarrierDismissLabel,
         transitionDuration: const Duration(milliseconds: 300),
-        transitionBuilder: (_, Animation<double> animation, __, Widget child) {
+        transitionBuilder: (_, Animation<double> animation, _, Widget child) {
           return FadeTransition(
             opacity: CurvedAnimation(parent: animation, curve: Curves.linear),
             child: child,

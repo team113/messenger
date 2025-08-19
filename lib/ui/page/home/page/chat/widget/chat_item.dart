@@ -321,7 +321,7 @@ class ChatItemWidget extends StatefulWidget {
   }
 
   /// Opens the [User.dialog] chat.
-  static _defaultOnUserPressed(User user) =>
+  static void _defaultOnUserPressed(User user) =>
       router.chat(ChatId.local(user.id), push: true);
 }
 
@@ -1064,7 +1064,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     return _rounded(
       context,
-      (menu, __) => Padding(
+      (menu, _) => Padding(
         padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),

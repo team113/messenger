@@ -935,7 +935,7 @@ class ChatsTabController extends GetxController {
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
-  bool _onBack(bool _, RouteInfo __) {
+  bool _onBack(bool _, RouteInfo _) {
     if (searching.isTrue) {
       closeSearch(!groupCreating.value);
       return true;

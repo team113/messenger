@@ -748,7 +748,7 @@ class PlayerController extends GetxController {
   /// Invokes [shouldClose] and returns `true`.
   ///
   /// Intended to be used as a [BackButtonInterceptor] handler.
-  bool _backHandler(bool _, RouteInfo __) {
+  bool _backHandler(bool _, RouteInfo _) {
     shouldClose?.call();
     return true;
   }

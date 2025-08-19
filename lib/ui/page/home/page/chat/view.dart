@@ -689,7 +689,7 @@ class ChatView extends StatelessWidget {
                           return ObscuredSelectionArea(
                             key: Key('${c.selecting.value}'),
                             onSelectionChanged: (a) => c.selection.value = a,
-                            contextMenuBuilder: (_, __) => const SizedBox(),
+                            contextMenuBuilder: (_, _) => const SizedBox(),
                             selectionControls: EmptyTextSelectionControls(),
                             child: ObscuredMenuInterceptor(child: child),
                           );

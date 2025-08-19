@@ -410,7 +410,7 @@ class MyProfileController extends GetxController {
 
         _myUserService
             .addUserPhone(phone, locale: L10n.chosen.value?.toString())
-            .onError((e, __) {
+            .onError((e, _) {
               s.unchecked = phone.val;
 
               if (e is AddUserPhoneException) {
@@ -466,7 +466,7 @@ class MyProfileController extends GetxController {
 
         _myUserService
             .addUserEmail(email, locale: L10n.chosen.value?.toString())
-            .onError((e, __) {
+            .onError((e, _) {
               s.unchecked = email.val;
 
               if (e is AddUserEmailException) {

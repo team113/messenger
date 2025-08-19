@@ -264,7 +264,7 @@ Future<void> _runApp() async {
 
     await windowManager.show();
 
-    WebUtils.registerScheme().onError((_, __) => false);
+    WebUtils.registerScheme().onError((_, _) => false);
 
     Get.put(WindowWorker(preferences));
   }

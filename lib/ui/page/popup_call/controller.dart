@@ -117,7 +117,7 @@ class PopupCallController extends GetxController {
     });
 
     _tryToConnect();
-    WakelockPlus.enable().onError((_, __) => false);
+    WakelockPlus.enable().onError((_, _) => false);
 
     _pingTimer = Timer.periodic(
       const Duration(milliseconds: 500),
@@ -139,7 +139,7 @@ class PopupCallController extends GetxController {
 
   @override
   void onClose() {
-    WakelockPlus.disable().onError((_, __) => false);
+    WakelockPlus.disable().onError((_, _) => false);
     _storageSubscription?.cancel();
     _pingTimer?.cancel();
     _stateWorker.dispose();

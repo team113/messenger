@@ -103,7 +103,7 @@ class LanguageSelectionView extends StatelessWidget {
                         );
                       });
                     },
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemCount: L10n.languages.length,
                   ),
                 ),

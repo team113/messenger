@@ -443,7 +443,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       },
                       onDragCompleted: () => c.draggedButton.value = null,
                       onDragEnd: (_) => c.draggedButton.value = null,
-                      onDraggableCanceled: (_, __) =>
+                      onDraggableCanceled: (_, _) =>
                           c.draggedButton.value = null,
                       maxSimultaneousDrags: e.isRemovable ? null : 0,
                       dragAnchorStrategy: pointerDragAnchorStrategy,
