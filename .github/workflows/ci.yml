@@ -303,7 +303,7 @@ jobs:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.2'
-        if: ${{ matrix.platform == 'ipa' }}
+        if: ${{ runner.os == 'macos' }}
 
       - name: Configure FCM (Firebase Cloud Messaging)
         env:
