@@ -22,7 +22,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
@@ -41,7 +40,6 @@ import '../widget/participant/widget.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/title_bar.dart';
-import '../widget/video_view.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
