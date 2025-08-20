@@ -272,7 +272,12 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
     try {
       _controller?.dispose();
+      _controller = null;
+    } catch (_) {
+      // No-op.
+    }
 
+    try {
       if (file != null) {
         _controller = VideoPlayerController.file(
           file,
@@ -311,7 +316,17 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
         await Backoff.run(() async {
           try {
+            Log.debug(
+              '_initVideo(${widget.url}) -> await _controller?.initialize()...',
+              '$runtimeType',
+            );
+
             await _controller?.initialize();
+
+            Log.debug(
+              '_initVideo(${widget.url}) -> await _controller?.initialize()... done!',
+              '$runtimeType',
+            );
 
             if (mounted) {
               setState(() {});
@@ -344,7 +359,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
         }, cancel: _cancelToken);
       }
     } on OperationCanceledException {
-      // No-op.
+      Log.debug(
+        '_initVideo(${widget.url}) -> OperationCanceledException',
+        '$runtimeType',
+      );
     } catch (e) {
       Log.error(
         'Unable to load thumbnail of `${widget.url}`: $e',
@@ -406,9 +424,12 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
             rethrow;
           }
         }
-      }, cancel: _cancelToken);
+      }, cancel: _headerToken);
     } on OperationCanceledException {
-      // No-op.
+      Log.debug(
+        '_ensureReachable(${widget.url}) -> OperationCanceledException',
+        '$runtimeType',
+      );
     }
   }
 }
