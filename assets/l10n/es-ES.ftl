@@ -832,6 +832,7 @@ label_screen_sharing = Compartimiento de pantalla
 label_search = Buscar
 label_selected = Seleccionado: {$count}
 label_send_message_hint = Mensaje...
+label_sessions_terminated = Sesión(es) terminada(s)
 label_set_cache_limits = Configurar límites del caché
 label_set_password = Configurar la contraseña
 label_show_call_window = Mostrar la ventana de llamada
