@@ -76,7 +76,6 @@ class PaginatedGallery extends StatefulWidget {
     this.paginated,
     this.resourceId,
     this.initial,
-    this.onForbidden,
     this.onReply,
     this.onShare,
     this.onScrollTo,
@@ -91,10 +90,6 @@ class PaginatedGallery extends StatefulWidget {
   /// Initial [Attachment] and a [ChatItem] containing it to display initially
   /// in a [PlayerView].
   final (String, int)? initial;
-
-  /// Callback, called when an [Attachment] loading fails with a forbidden
-  /// network error.
-  final FutureOr<void> Function(ChatItem?)? onForbidden;
 
   /// Callback, called when a reply action within [Post] is triggered.
   final void Function(Post)? onReply;

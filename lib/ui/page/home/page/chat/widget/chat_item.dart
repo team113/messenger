@@ -249,7 +249,6 @@ class ChatItemWidget extends StatefulWidget {
                       initial: item == null
                           ? null
                           : (item.key.toString(), initial),
-                      onForbidden: onError,
                       onReply: onReply,
                       onShare: onShare,
                       onScrollTo: onScrollTo,
