@@ -63,7 +63,14 @@ Future<void> main(List<String> argv) async {
     ..addMultiOption(
       'ignore',
       abbr: 'i',
-      defaultsTo: ['^email_', '^fcm_'],
+      defaultsTo: [
+        '^email_',
+        '^fcm_',
+
+        // TODO: Remove when WebAssembly performance is fixed.
+        'btn_call_cut_video',
+        'btn_call_do_not_cut_video',
+      ],
       help: 'Labels to ignore in `.ftl` files (supports regular expressions).',
     )
     ..addOption(
