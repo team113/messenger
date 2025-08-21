@@ -64,6 +64,7 @@ dependencies:
   intl: ^0.19.0
   json_annotation: ^4.9.0
   just_audio: ^0.10.4
+  just_audio_windows: ^0.2.2
   log_me: ^0.1.2
   macos_haptic_feedback: ^1.0.0
   material_floating_search_bar: ^0.3.7
