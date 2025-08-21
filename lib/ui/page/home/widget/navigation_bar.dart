@@ -111,44 +111,42 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
         ],
         border: style.cardBorder,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            decoration: BoxDecoration(color: style.colors.onPrimary),
-            height: CustomNavigationBar.height,
-            padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 56 - 18,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: widget.items.mapIndexed((i, b) {
-                      final bool selected = widget.currentIndex == i;
+      child: Container(
+        decoration: BoxDecoration(color: style.cardColor),
+        height: CustomNavigationBar.height,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 56 - 18,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: widget.items.mapIndexed((i, b) {
+                    final bool selected = widget.currentIndex == i;
 
-                      return AnimatedScale(
-                        key: _keys[i],
+                    return AnimatedScale(
+                      key: _keys[i],
+                      duration: const Duration(milliseconds: 150),
+                      curve: Curves.bounceInOut,
+                      scale: selected ? 1.1 : 1,
+                      child: AnimatedOpacity(
                         duration: const Duration(milliseconds: 150),
-                        curve: Curves.bounceInOut,
-                        scale: selected ? 1.1 : 1,
-                        child: AnimatedOpacity(
-                          duration: const Duration(milliseconds: 150),
-                          opacity: selected ? 1 : 0.7,
-                          child: AnimatedButton(
-                            onPressed: () => widget.onTap?.call(i),
-                            child: b,
-                          ),
+                        opacity: selected ? 1 : 0.7,
+                        child: AnimatedButton(
+                          onPressed: () => widget.onTap?.call(i),
+                          child: b,
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    );
+                  }).toList(),
                 ),
-                Spacer(),
-              ],
-            ),
+              ),
+              Spacer(),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

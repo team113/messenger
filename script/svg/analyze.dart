@@ -37,6 +37,14 @@ import 'package:analyzer/dart/ast/visitor.dart';
 void main() async {
   const String svgsSource = 'lib/ui/widget/svg/svgs.dart';
 
+  // TODO: Remove when WebAssembly performance is fixed.
+  final List<RegExp> ignoreRegExps = [
+    'callNotCutVideo',
+    'callNotCutVideoWhite',
+    'callCutVideo',
+    'callCutVideoWhite',
+  ].map(RegExp.new).toList();
+
   stdout.write('Scanning `SvgIcons` class...');
 
   // Collect defined [SvgIcons].
@@ -70,7 +78,11 @@ void main() async {
   stdout.writeln();
 
   // Differentiate and report.
-  final Set<String> unused = keys.difference(icons);
+  final Set<String> ignored = keys
+      .where((key) => ignoreRegExps.any((ignore) => ignore.hasMatch(key)))
+      .toSet();
+
+  final Set<String> unused = keys.difference(icons).difference(ignored);
 
   stdout.writeln('SVGs unused: ${unused.length}');
   for (final String asset in unused) {
