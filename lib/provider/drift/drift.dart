@@ -87,23 +87,22 @@ class CommonDatabase extends _$CommonDatabase {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
-      onUpgrade: (m, a, b) async {
-        Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
+      onUpgrade: (m, from, to) async {
+        Log.info('MigrationStrategy.onUpgrade($from, $to)', '$runtimeType');
 
         if (_closed) {
           return;
         }
 
-        // TODO: Implement proper migrations.
-        if (a != b) {
+        if (from != to) {
           bool migrated = false;
 
-          if (a >= 7 && b <= 6) {
+          if (to >= 7 && from <= 6) {
             await m.addColumn(settings, settings.videoVolume);
             migrated = true;
           }
 
-          if (a >= 6 && b <= 5) {
+          if (to >= 6 && from <= 5) {
             await m.addColumn(settings, settings.noiseSuppression);
             await m.addColumn(settings, settings.noiseSuppressionLevel);
             await m.addColumn(settings, settings.echoCancellation);
@@ -112,31 +111,41 @@ class CommonDatabase extends _$CommonDatabase {
             migrated = true;
           }
 
-          if (a >= 5 && b <= 4) {
+          if (to >= 5 && from <= 4) {
             await m.addColumn(settings, settings.muteKeys);
             migrated = true;
           }
 
-          if (a >= 4 && b <= 3) {
+          if (to >= 4 && from <= 3) {
             await m.addColumn(versions, versions.blocklistVersion);
             await m.addColumn(versions, versions.blocklistCount);
             migrated = true;
           }
 
-          if (a >= 3 && b <= 2) {
+          if (to >= 3 && from <= 2) {
             await m.addColumn(myUsers, myUsers.welcomeMessage);
             migrated = true;
           }
 
-          if (a >= 2 && b <= 1) {
+          if (to >= 2 && from <= 1) {
             await m.addColumn(versions, versions.sessionsListVersion);
             migrated = true;
           }
 
           if (!migrated) {
+            Log.info(
+              'MigrationStrategy.onUpgrade($from, $to) -> migration did not succeed, thus deleting the tables',
+              '$runtimeType',
+            );
+
             for (var e in m.database.allTables) {
               await m.deleteTable(e.actualTableName);
             }
+          } else {
+            Log.info(
+              'MigrationStrategy.onUpgrade($from, $to) -> migration did succeed',
+              '$runtimeType',
+            );
           }
         }
 
