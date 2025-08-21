@@ -22,7 +22,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
@@ -41,7 +40,6 @@ import '../widget/participant/widget.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/title_bar.dart';
-import '../widget/video_view.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -1080,254 +1078,244 @@ Widget _primaryView(CallController c) {
           overlayBuilder: (_DragData data) {
             var participant = data.participant;
 
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                return Obx(() {
-                  bool? muted = participant.member.owner == MediaOwnerKind.local
-                      ? !c.audioState.value.isEnabled
-                      : null;
+            // TODO: Uncomment when WebAssembly performance is fixed.
+            // return LayoutBuilder(
+            //               builder: (context, constraints) {
+            return Obx(() {
+              bool? muted = participant.member.owner == MediaOwnerKind.local
+                  ? !c.audioState.value.isEnabled
+                  : null;
 
-                  bool anyDragIsHappening =
-                      c.secondaryDrags.value != 0 ||
-                      c.primaryDrags.value != 0 ||
-                      c.secondaryDragged.value;
+              bool anyDragIsHappening =
+                  c.secondaryDrags.value != 0 ||
+                  c.primaryDrags.value != 0 ||
+                  c.secondaryDragged.value;
 
-                  bool isHovered =
-                      c.hoveredParticipant.value == participant &&
-                      !anyDragIsHappening;
+              bool isHovered =
+                  c.hoveredParticipant.value == participant &&
+                  !anyDragIsHappening;
 
-                  BoxFit? fit = participant.video.value?.renderer.value == null
-                      ? null
-                      : c.rendererBoxFit[participant
+              // TODO: Uncomment when WebAssembly performance is fixed.
+              // BoxFit? fit = participant.video.value?.renderer.value == null
+              //     ? null
+              //     : c.rendererBoxFit[participant
+              //               .video
+              //               .value
+              //               ?.renderer
+              //               .value!
+              //               .track
+              //               .id()] ??
+              //           RtcVideoView.determineBoxFit(
+              //             participant.video.value?.renderer.value
+              //                 as RtcVideoRenderer,
+              //             participant.source,
+              //             constraints,
+              //             context,
+              //           );
+              return MouseRegion(
+                opaque: false,
+                onEnter: (d) {
+                  if (c.draggedRenderer.value == null) {
+                    c.hoveredParticipant.value = data.participant;
+                    c.hoveredParticipantTimeout = 5;
+                    c.isCursorHidden.value = false;
+                  }
+                },
+                onHover: (d) {
+                  if (c.draggedRenderer.value == null) {
+                    c.hoveredParticipant.value = data.participant;
+                    c.hoveredParticipantTimeout = 5;
+                    c.isCursorHidden.value = false;
+                  }
+                },
+                onExit: (d) {
+                  c.hoveredParticipantTimeout = 0;
+                  c.hoveredParticipant.value = null;
+                  c.isCursorHidden.value = false;
+                },
+                child: AnimatedOpacity(
+                  duration: 200.milliseconds,
+                  opacity: c.draggedRenderer.value == data.participant ? 0 : 1,
+                  child: ContextMenuRegion(
+                    key: ObjectKey(participant),
+                    preventContextMenu: true,
+                    actions: [
+                      // TODO: Uncomment when WebAssembly performance is fixed.
+                      // if (participant.video.value?.renderer.value != null) ...[
+                      //   if (participant.source == MediaSourceKind.device)
+                      //     ContextMenuButton(
+                      //       label: fit == null || fit == BoxFit.cover
+                      //           ? 'btn_call_do_not_cut_video'.l10n
+                      //           : 'btn_call_cut_video'.l10n,
+                      //       onPressed: () {
+                      //         c.rendererBoxFit[participant
+                      //             .video
+                      //             .value!
+                      //             .renderer
+                      //             .value!
+                      //             .track
+                      //             .id()] = fit == null || fit == BoxFit.cover
+                      //             ? BoxFit.contain
+                      //             : BoxFit.cover;
+                      //         if (c.focused.isNotEmpty) {
+                      //           c.focused.refresh();
+                      //         } else {
+                      //           c.remotes.refresh();
+                      //           c.locals.refresh();
+                      //         }
+                      //       },
+                      //       trailing: SvgIcon(
+                      //         fit == null || fit == BoxFit.cover
+                      //             ? SvgIcons.callNotCutVideo
+                      //             : SvgIcons.callCutVideo,
+                      //       ),
+                      //       inverted: SvgIcon(
+                      //         fit == null || fit == BoxFit.cover
+                      //             ? SvgIcons.callNotCutVideoWhite
+                      //             : SvgIcons.callCutVideoWhite,
+                      //       ),
+                      //     ),
+                      // ],
+                      if (c.primary.length == 1)
+                        ContextMenuButton(
+                          label: 'btn_call_uncenter'.l10n,
+                          onPressed: c.focusAll,
+                          trailing: SvgIcon(SvgIcons.callDeCenter),
+                          inverted: SvgIcon(SvgIcons.callDeCenterWhite),
+                        )
+                      else
+                        ContextMenuButton(
+                          label: 'btn_call_center'.l10n,
+                          onPressed: () => c.center(participant),
+                          trailing: SvgIcon(SvgIcons.callCenter),
+                          inverted: SvgIcon(SvgIcons.callCenterWhite),
+                        ),
+                      if (participant.member.id != c.me.id) ...[
+                        if (participant
                                 .video
                                 .value
-                                ?.renderer
-                                .value!
-                                .track
-                                .id()] ??
-                            RtcVideoView.determineBoxFit(
-                              participant.video.value?.renderer.value
-                                  as RtcVideoRenderer,
-                              participant.source,
-                              constraints,
-                              context,
-                            );
-
-                  return MouseRegion(
-                    opaque: false,
-                    onEnter: (d) {
-                      if (c.draggedRenderer.value == null) {
-                        c.hoveredParticipant.value = data.participant;
-                        c.hoveredParticipantTimeout = 5;
-                        c.isCursorHidden.value = false;
-                      }
-                    },
-                    onHover: (d) {
-                      if (c.draggedRenderer.value == null) {
-                        c.hoveredParticipant.value = data.participant;
-                        c.hoveredParticipantTimeout = 5;
-                        c.isCursorHidden.value = false;
-                      }
-                    },
-                    onExit: (d) {
-                      c.hoveredParticipantTimeout = 0;
-                      c.hoveredParticipant.value = null;
-                      c.isCursorHidden.value = false;
-                    },
-                    child: AnimatedOpacity(
-                      duration: 200.milliseconds,
-                      opacity: c.draggedRenderer.value == data.participant
-                          ? 0
-                          : 1,
-                      child: ContextMenuRegion(
-                        key: ObjectKey(participant),
-                        preventContextMenu: true,
-                        actions: [
-                          if (participant.video.value?.renderer.value !=
-                              null) ...[
-                            if (participant.source == MediaSourceKind.device)
-                              ContextMenuButton(
-                                label: fit == null || fit == BoxFit.cover
-                                    ? 'btn_call_do_not_cut_video'.l10n
-                                    : 'btn_call_cut_video'.l10n,
-                                onPressed: () {
-                                  c.rendererBoxFit[participant
-                                          .video
-                                          .value!
-                                          .renderer
-                                          .value!
-                                          .track
-                                          .id()] =
-                                      fit == null || fit == BoxFit.cover
-                                      ? BoxFit.contain
-                                      : BoxFit.cover;
-                                  if (c.focused.isNotEmpty) {
-                                    c.focused.refresh();
-                                  } else {
-                                    c.remotes.refresh();
-                                    c.locals.refresh();
-                                  }
-                                },
-                                trailing: SvgIcon(
-                                  fit == null || fit == BoxFit.cover
-                                      ? SvgIcons.callNotCutVideo
-                                      : SvgIcons.callCutVideo,
-                                ),
-                                inverted: SvgIcon(
-                                  fit == null || fit == BoxFit.cover
-                                      ? SvgIcons.callNotCutVideoWhite
-                                      : SvgIcons.callCutVideoWhite,
-                                ),
-                              ),
-                          ],
-                          if (c.primary.length == 1)
-                            ContextMenuButton(
-                              label: 'btn_call_uncenter'.l10n,
-                              onPressed: c.focusAll,
-                              trailing: SvgIcon(SvgIcons.callDeCenter),
-                              inverted: SvgIcon(SvgIcons.callDeCenterWhite),
-                            )
-                          else
-                            ContextMenuButton(
-                              label: 'btn_call_center'.l10n,
-                              onPressed: () => c.center(participant),
-                              trailing: SvgIcon(SvgIcons.callCenter),
-                              inverted: SvgIcon(SvgIcons.callCenterWhite),
+                                ?.direction
+                                .value
+                                .isEmitting ??
+                            false)
+                          ContextMenuButton(
+                            label:
+                                participant.video.value?.renderer.value != null
+                                ? 'btn_call_disable_video'.l10n
+                                : 'btn_call_enable_video'.l10n,
+                            onPressed: () => c.toggleVideoEnabled(participant),
+                            trailing: SvgIcon(
+                              participant.video.value?.renderer.value != null
+                                  ? SvgIcons.callDisableVideo
+                                  : SvgIcons.callEnableVideo,
                             ),
-                          if (participant.member.id != c.me.id) ...[
-                            if (participant
-                                    .video
-                                    .value
-                                    ?.direction
-                                    .value
-                                    .isEmitting ??
-                                false)
-                              ContextMenuButton(
-                                label:
-                                    participant.video.value?.renderer.value !=
-                                        null
-                                    ? 'btn_call_disable_video'.l10n
-                                    : 'btn_call_enable_video'.l10n,
-                                onPressed: () =>
-                                    c.toggleVideoEnabled(participant),
-                                trailing: SvgIcon(
-                                  participant.video.value?.renderer.value !=
-                                          null
-                                      ? SvgIcons.callDisableVideo
-                                      : SvgIcons.callEnableVideo,
-                                ),
-                                inverted: SvgIcon(
-                                  participant.video.value?.renderer.value !=
-                                          null
-                                      ? SvgIcons.callDisableVideoWhite
-                                      : SvgIcons.callEnableVideoWhite,
-                                ),
-                              ),
-                            if (participant
-                                    .audio
-                                    .value
-                                    ?.direction
-                                    .value
-                                    .isEmitting ??
-                                false)
-                              ContextMenuButton(
-                                label:
-                                    (participant
-                                            .audio
-                                            .value
-                                            ?.direction
-                                            .value
-                                            .isEnabled ==
-                                        true)
-                                    ? 'btn_call_disable_audio'.l10n
-                                    : 'btn_call_enable_audio'.l10n,
-                                onPressed: () =>
-                                    c.toggleAudioEnabled(participant),
-                                trailing: SvgIcon(
-                                  participant
-                                              .audio
-                                              .value
-                                              ?.direction
-                                              .value
-                                              .isEnabled ==
-                                          true
-                                      ? SvgIcons.callDisableAudio
-                                      : SvgIcons.callEnableAudio,
-                                ),
-                                inverted: SvgIcon(
-                                  participant
-                                              .audio
-                                              .value
-                                              ?.direction
-                                              .value
-                                              .isEnabled ==
-                                          true
-                                      ? SvgIcons.callDisableAudioWhite
-                                      : SvgIcons.callEnableAudioWhite,
-                                ),
-                              ),
-                            if (participant.member.isDialing.isFalse)
-                              ContextMenuButton(
-                                label: 'btn_call_remove_participant'.l10n,
-                                onPressed: () => c.removeChatCallMember(
-                                  participant.member.id.userId,
-                                ),
-                                trailing: SvgIcon(SvgIcons.callRemoveFrom),
-                                inverted: SvgIcon(SvgIcons.callRemoveFromWhite),
-                              ),
-                          ] else ...[
-                            ContextMenuButton(
-                              label: c.videoState.value.isEnabled
-                                  ? 'btn_call_video_off'.l10n
-                                  : 'btn_call_video_on'.l10n,
-                              onPressed: c.toggleVideo,
-                              trailing: SvgIcon(
-                                c.videoState.value.isEnabled
-                                    ? SvgIcons.callTurnVideoOff
-                                    : SvgIcons.callTurnVideoOn,
-                              ),
-                              inverted: SvgIcon(
-                                c.videoState.value.isEnabled
-                                    ? SvgIcons.callTurnVideoOffWhite
-                                    : SvgIcons.callTurnVideoOnWhite,
-                              ),
+                            inverted: SvgIcon(
+                              participant.video.value?.renderer.value != null
+                                  ? SvgIcons.callDisableVideoWhite
+                                  : SvgIcons.callEnableVideoWhite,
                             ),
-                            ContextMenuButton(
-                              label: c.audioState.value.isEnabled
-                                  ? 'btn_call_audio_off'.l10n
-                                  : 'btn_call_audio_on'.l10n,
-                              onPressed: c.toggleAudio,
-                              trailing: SvgIcon(
-                                c.audioState.value.isEnabled
-                                    ? SvgIcons.callMute
-                                    : SvgIcons.callUnmute,
-                              ),
-                              inverted: SvgIcon(
-                                c.audioState.value.isEnabled
-                                    ? SvgIcons.callMuteWhite
-                                    : SvgIcons.callUnmuteWhite,
-                              ),
+                          ),
+                        if (participant
+                                .audio
+                                .value
+                                ?.direction
+                                .value
+                                .isEmitting ??
+                            false)
+                          ContextMenuButton(
+                            label:
+                                (participant
+                                        .audio
+                                        .value
+                                        ?.direction
+                                        .value
+                                        .isEnabled ==
+                                    true)
+                                ? 'btn_call_disable_audio'.l10n
+                                : 'btn_call_enable_audio'.l10n,
+                            onPressed: () => c.toggleAudioEnabled(participant),
+                            trailing: SvgIcon(
+                              participant
+                                          .audio
+                                          .value
+                                          ?.direction
+                                          .value
+                                          .isEnabled ==
+                                      true
+                                  ? SvgIcons.callDisableAudio
+                                  : SvgIcons.callEnableAudio,
                             ),
-                          ],
-                        ],
-                        child: IgnorePointer(
-                          child: ParticipantOverlayWidget(
-                            participant,
-                            key: ObjectKey(participant),
-                            muted: muted,
-                            hovered: isHovered,
-                            preferBackdrop:
-                                !c.minimized.value || c.fullscreen.value,
+                            inverted: SvgIcon(
+                              participant
+                                          .audio
+                                          .value
+                                          ?.direction
+                                          .value
+                                          .isEnabled ==
+                                      true
+                                  ? SvgIcons.callDisableAudioWhite
+                                  : SvgIcons.callEnableAudioWhite,
+                            ),
+                          ),
+                        if (participant.member.isDialing.isFalse)
+                          ContextMenuButton(
+                            label: 'btn_call_remove_participant'.l10n,
+                            onPressed: () => c.removeChatCallMember(
+                              participant.member.id.userId,
+                            ),
+                            trailing: SvgIcon(SvgIcons.callRemoveFrom),
+                            inverted: SvgIcon(SvgIcons.callRemoveFromWhite),
+                          ),
+                      ] else ...[
+                        ContextMenuButton(
+                          label: c.videoState.value.isEnabled
+                              ? 'btn_call_video_off'.l10n
+                              : 'btn_call_video_on'.l10n,
+                          onPressed: c.toggleVideo,
+                          trailing: SvgIcon(
+                            c.videoState.value.isEnabled
+                                ? SvgIcons.callTurnVideoOff
+                                : SvgIcons.callTurnVideoOn,
+                          ),
+                          inverted: SvgIcon(
+                            c.videoState.value.isEnabled
+                                ? SvgIcons.callTurnVideoOffWhite
+                                : SvgIcons.callTurnVideoOnWhite,
                           ),
                         ),
+                        ContextMenuButton(
+                          label: c.audioState.value.isEnabled
+                              ? 'btn_call_audio_off'.l10n
+                              : 'btn_call_audio_on'.l10n,
+                          onPressed: c.toggleAudio,
+                          trailing: SvgIcon(
+                            c.audioState.value.isEnabled
+                                ? SvgIcons.callMute
+                                : SvgIcons.callUnmute,
+                          ),
+                          inverted: SvgIcon(
+                            c.audioState.value.isEnabled
+                                ? SvgIcons.callMuteWhite
+                                : SvgIcons.callUnmuteWhite,
+                          ),
+                        ),
+                      ],
+                    ],
+                    child: IgnorePointer(
+                      child: ParticipantOverlayWidget(
+                        participant,
+                        key: ObjectKey(participant),
+                        muted: muted,
+                        hovered: isHovered,
+                        preferBackdrop:
+                            !c.minimized.value || c.fullscreen.value,
                       ),
                     ),
-                  );
-                });
-              },
-            );
+                  ),
+                ),
+              );
+            });
           },
-          decoratorBuilder: (_) => const ParticipantDecoratorWidget(),
           itemConstraints: (_DragData data) {
             final double size = (c.size.longestSide * 0.33).clamp(100, 250);
             return BoxConstraints(maxWidth: size, maxHeight: size);

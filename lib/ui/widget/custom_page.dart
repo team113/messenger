@@ -87,16 +87,14 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
   ) {
     final style = Theme.of(context).style;
 
-    return ClipRect(
-      child: ColoredBox(
-        color: style.colors.transparent,
-        child: matchingBuilder.buildTransitions(
-          this,
-          context,
-          animation,
-          secondaryAnimation,
-          child,
-        ),
+    return ColoredBox(
+      color: style.colors.transparent,
+      child: matchingBuilder.buildTransitions(
+        this,
+        context,
+        animation,
+        secondaryAnimation,
+        child,
       ),
     );
   }
