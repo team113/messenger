@@ -31,7 +31,6 @@ import '/ui/page/call/widget/scaler.dart';
 import '/ui/page/link/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
-import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
 import '/ui/worker/upgrade.dart';
@@ -216,7 +215,6 @@ class _HomeViewState extends State<HomeView> {
                         KeepAlivePage(child: MenuTabView()),
                       ],
                     ),
-                    extendBody: true,
                     bottomNavigationBar: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -305,57 +303,60 @@ class _HomeViewState extends State<HomeView> {
   Widget _navigation(BuildContext context, HomeController c) {
     final style = Theme.of(context).style;
 
-    return CustomSafeArea(
-      child: Obx(() {
-        final List<HomeTab> tabs = c.tabs;
+    return Obx(() {
+      final List<HomeTab> tabs = c.tabs;
 
-        return AnimatedSlider(
-          duration: 300.milliseconds,
-          isOpen: router.navigation.value,
-          beginOffset: const Offset(0.0, 5),
-          translate: false,
-          child: CustomNavigationBar(
-            key: c.panelKey,
-            items: tabs.map((e) {
-              switch (e) {
-                case HomeTab.link:
-                  return const CustomNavigationBarItem.link();
+      return Stack(
+        children: [
+          AnimatedSlider(
+            duration: 300.milliseconds,
+            isOpen: router.navigation.value,
+            beginOffset: const Offset(0.0, 5),
+            translate: false,
+            child: CustomNavigationBar(
+              key: c.panelKey,
+              items: tabs.map((e) {
+                switch (e) {
+                  case HomeTab.link:
+                    return const CustomNavigationBarItem.link();
 
-                case HomeTab.chats:
-                  return Obx(() {
-                    return CustomNavigationBarItem.chats(
-                      unread: c.unreadChats.value.toString(),
-                      danger: c.myUser.value?.muted == null,
-                      selector: c.chatsKey,
-                      onMute: c.toggleMute,
-                    );
-                  });
+                  case HomeTab.chats:
+                    return Obx(() {
+                      return CustomNavigationBarItem.chats(
+                        unread: c.unreadChats.value.toString(),
+                        danger: c.myUser.value?.muted == null,
+                        selector: c.chatsKey,
+                        onMute: c.toggleMute,
+                      );
+                    });
 
-                case HomeTab.menu:
-                  return Obx(() {
-                    return CustomNavigationBarItem.menu(
-                      acceptAuxiliary: style.colors.acceptAuxiliary,
-                      warning: style.colors.warning,
-                      onPresence: c.setPresence,
-                      onAvatar: c.updateAvatar,
-                      selector: c.panelKey,
-                      myUser: c.myUser.value,
-                    );
-                  });
-              }
-            }).toList(),
-            currentIndex: tabs.indexOf(router.tab),
-            onTap: (i) {
-              if (i == 0) {
-                return LinkView.show(context);
-              }
+                  case HomeTab.menu:
+                    return Obx(() {
+                      return CustomNavigationBarItem.menu(
+                        acceptAuxiliary: style.colors.acceptAuxiliary,
+                        warning: style.colors.warning,
+                        onPresence: c.setPresence,
+                        onAvatar: c.updateAvatar,
+                        selector: c.panelKey,
+                        myUser: c.myUser.value,
+                      );
+                    });
+                }
+              }).toList(),
+              currentIndex: tabs.indexOf(router.tab),
+              onTap: (i) {
+                if (i == 0) {
+                  return LinkView.show(context);
+                }
 
-              c.pages.jumpToPage(tabs[i].index);
-            },
+                c.pages.jumpToPage(tabs[i].index);
+              },
+            ),
           ),
-        );
-      }),
-    );
+          ?router.navigator.value?.call(context),
+        ],
+      );
+    });
   }
 
   /// Builds the [HomeController.background] visual representation.

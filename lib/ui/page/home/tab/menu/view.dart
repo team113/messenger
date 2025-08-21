@@ -24,7 +24,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -48,7 +47,6 @@ class MenuTabView extends StatelessWidget {
         final style = Theme.of(context).style;
 
         return Scaffold(
-          extendBodyBehindAppBar: true,
           appBar: CustomAppBar(
             title: ContextMenuRegion(
               selector: c.profileKey,
@@ -135,10 +133,11 @@ class MenuTabView extends StatelessWidget {
               ),
             ],
           ),
-          body: SafeScrollbar(
+          body: Scrollbar(
             controller: c.scrollController,
             child: ListView.builder(
               controller: c.scrollController,
+              padding: EdgeInsets.fromLTRB(0, 4, 0, 4),
               key: const Key('MenuListView'),
               itemCount: ProfileTab.values.length,
               itemBuilder: (context, i) {

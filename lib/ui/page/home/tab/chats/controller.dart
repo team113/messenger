@@ -316,6 +316,7 @@ class ChatsTabController extends GetxController {
     fetching.value?.cancel();
 
     router.navigation.value = true;
+    router.navigator.value = null;
 
     super.onClose();
   }
@@ -402,7 +403,9 @@ class ChatsTabController extends GetxController {
   /// `true`.
   Future<void> hideChats([bool clear = false]) async {
     selecting.value = false;
+
     router.navigation.value = !selecting.value;
+    router.navigator.value = null;
 
     try {
       await Future.wait(selectedChats.map(_chatService.hideChat));
@@ -606,6 +609,8 @@ class ChatsTabController extends GetxController {
     search.value?.search.clear();
     search.value?.query.value = '';
     router.navigation.value = false;
+    router.navigator.value = (context) =>
+        ChatsTabView.createGroupBuilder(context, this);
     search.value?.populate();
   }
 
@@ -614,6 +619,7 @@ class ChatsTabController extends GetxController {
     groupCreating.value = false;
     closeSearch(true);
     router.navigation.value = true;
+    router.navigator.value = null;
   }
 
   /// Creates a [Chat]-group with [SearchController.selectedRecent],
@@ -652,6 +658,14 @@ class ChatsTabController extends GetxController {
   void toggleSelecting() {
     selecting.toggle();
     router.navigation.value = !selecting.value;
+
+    if (selecting.value) {
+      router.navigator.value = (context) =>
+          ChatsTabView.selectingBuilder(context, this);
+    } else {
+      router.navigator.value = null;
+    }
+
     selectedChats.clear();
   }
 

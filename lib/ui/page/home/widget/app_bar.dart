@@ -19,6 +19,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 
@@ -34,6 +35,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.margin = EdgeInsets.zero,
     this.top = true,
     this.borderRadius,
+    this.applySafeArea = true,
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -60,62 +62,84 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// [BorderRadius] to display the borders of this [CustomAppBar] with.
   final BorderRadius? borderRadius;
 
+  /// Indicator whether [SafeArea] should be applied to the bar.
+  final bool applySafeArea;
+
   /// Height of the [CustomAppBar].
-  static const double height = 60;
+  static double get height {
+    double padding = 0;
+    if (router.context != null) {
+      padding = MediaQuery.of(router.context!).padding.top;
+    }
+
+    return 60 + padding;
+  }
+
+  /// Height of the [CustomAppBar] without any safe additions.
+  static double get rawHeight => 60;
 
   @override
-  Size get preferredSize => const Size(double.infinity, height);
+  Size get preferredSize =>
+      Size(double.infinity, applySafeArea ? height : rawHeight);
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    double topPadding = 0;
-    if (top) {
-      topPadding = MediaQuery.of(context).padding.top;
-    }
-
-    return Padding(
-      padding: margin.add(EdgeInsets.only(top: topPadding)),
-      child: Container(
-        height: height,
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          boxShadow: [
-            CustomBoxShadow(
-              blurRadius: 8,
-              color: style.colors.onBackgroundOpacity13,
-              blurStyle: BlurStyle.outer.workaround,
-            ),
-          ],
-        ),
-        child: ConditionalBackdropFilter(
-          condition: style.cardBlur > 0,
-          filter: ImageFilter.blur(
-            sigmaX: style.cardBlur,
-            sigmaY: style.cardBlur,
+    return Container(
+      height: applySafeArea ? height : rawHeight,
+      decoration: BoxDecoration(
+        borderRadius: borderRadius,
+        boxShadow: [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: style.colors.onBackgroundOpacity13,
+            blurStyle: BlurStyle.outer.workaround,
           ),
-          borderRadius: borderRadius,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            decoration: BoxDecoration(
-              borderRadius: borderRadius,
-              border: border ?? style.cardBorder,
-              color: style.cardColor,
-            ),
-            padding: padding,
-            child: Row(
-              children: [
-                ...leading,
-                Expanded(
-                  child: DefaultTextStyle.merge(
-                    style: style.fonts.large.regular.onBackground,
-                    child: Center(child: title ?? const SizedBox.shrink()),
-                  ),
+        ],
+      ),
+      child: ConditionalBackdropFilter(
+        condition: style.cardBlur > 0,
+        filter: ImageFilter.blur(
+          sigmaX: style.cardBlur,
+          sigmaY: style.cardBlur,
+        ),
+        borderRadius: borderRadius,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          decoration: BoxDecoration(
+            borderRadius: borderRadius,
+            border:
+                border ??
+                Border(
+                  top: BorderSide.none,
+                  left: style.cardBorder.left,
+                  right: style.cardBorder.right,
+                  bottom: style.cardBorder.bottom,
                 ),
-                ...actions,
-              ],
-            ),
+            color: style.cardColor,
+          ),
+          padding: padding,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Spacer(),
+              SizedBox(
+                height: 59 - (padding?.top ?? 0) - (padding?.bottom ?? 0),
+                child: Row(
+                  children: [
+                    ...leading,
+                    Expanded(
+                      child: DefaultTextStyle.merge(
+                        style: style.fonts.large.regular.onBackground,
+                        child: Center(child: title ?? const SizedBox.shrink()),
+                      ),
+                    ),
+                    ...actions,
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

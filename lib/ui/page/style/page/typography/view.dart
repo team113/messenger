@@ -46,7 +46,7 @@ class TypographyView extends StatelessWidget {
 
     return ScrollableColumn(
       children: [
-        const SizedBox(height: CustomAppBar.height),
+        SizedBox(height: CustomAppBar.height),
         Block(
           title: 'Font families',
           expanded: true,
