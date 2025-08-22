@@ -34,19 +34,18 @@ import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_gallery.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/init_callback.dart';
+import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/page/player/controller.dart';
 import '/ui/page/player/view.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/future_or_builder.dart';
-import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -68,6 +67,7 @@ class MessageFieldView extends StatelessWidget {
     this.canForward = false,
     this.canAttach = true,
     this.constraints,
+    this.applySafeArea = false,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -97,6 +97,9 @@ class MessageFieldView extends StatelessWidget {
 
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? constraints;
+
+  /// Indicator whether [SafeArea] should be applied to the field.
+  final bool applySafeArea;
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
@@ -153,31 +156,19 @@ class MessageFieldView extends StatelessWidget {
           },
           child: Theme(
             data: theme(context),
-            child: CustomSafeArea(
-              child: Container(
-                key: const Key('SendField'),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    CustomBoxShadow(
-                      blurRadius: 8,
-                      color: style.colors.onBackgroundOpacity13,
-                    ),
-                  ],
-                ),
-                child: ConditionalBackdropFilter(
-                  condition: style.cardBlur > 0,
-                  filter: ImageFilter.blur(
-                    sigmaX: style.cardBlur,
-                    sigmaY: style.cardBlur,
+            child: Container(
+              key: const Key('SendField'),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  CustomBoxShadow(
+                    blurRadius: 8,
+                    color: style.colors.onBackgroundOpacity13,
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildHeader(c, context),
-                      _buildField(c, context),
-                    ],
-                  ),
-                ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [_buildHeader(c, context), _buildField(c, context)],
               ),
             ),
           ),
@@ -451,6 +442,9 @@ class MessageFieldView extends StatelessWidget {
           key: c.fieldKey,
           constraints: const BoxConstraints(minHeight: 56),
           decoration: BoxDecoration(color: style.cardColor),
+          padding: applySafeArea
+              ? EdgeInsets.only(bottom: max(CustomNavigationBar.height - 56, 0))
+              : EdgeInsets.zero,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,

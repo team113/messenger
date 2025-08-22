@@ -44,6 +44,7 @@ import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
+import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -1385,201 +1386,210 @@ class ChatView extends StatelessWidget {
             );
         final bool canDelete = c.selected.isNotEmpty;
 
-        return CustomSafeArea(
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            boxShadow: [
+              CustomBoxShadow(
+                blurRadius: 8,
+                color: style.colors.onBackgroundOpacity13,
+              ),
+            ],
+          ),
           child: Container(
-            decoration: BoxDecoration(
-              borderRadius: style.cardRadius,
-              boxShadow: [
-                CustomBoxShadow(
-                  blurRadius: 8,
-                  color: style.colors.onBackgroundOpacity13,
-                ),
-              ],
-            ),
-            child: Container(
-              constraints: const BoxConstraints(minHeight: 57),
-              decoration: BoxDecoration(color: style.cardColor),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(width: 20),
-                  AnimatedButton(
-                    key: const Key('ForwardButton'),
-                    enabled: canForward,
-                    onPressed: canForward
-                        ? () async {
-                            final items = c.selected.asItems
-                                .map((e) => ChatItemQuoteInput(item: e))
-                                .toList();
+            decoration: BoxDecoration(color: style.cardColor),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 57),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(width: 20),
+                      AnimatedButton(
+                        key: const Key('ForwardButton'),
+                        enabled: canForward,
+                        onPressed: canForward
+                            ? () async {
+                                final items = c.selected.asItems
+                                    .map((e) => ChatItemQuoteInput(item: e))
+                                    .toList();
 
-                            items.sort(
-                              (a, b) => b.item.at.compareTo(a.item.at),
-                            );
-
-                            final result = await ChatForwardView.show(
-                              context,
-                              c.id,
-                              items,
-                            );
-
-                            if (result == true) {
-                              c.selecting.value = false;
-                            }
-                          }
-                        : null,
-                    child: SafeAnimatedSwitcher(
-                      duration: 150.milliseconds,
-                      child: SvgIcon(
-                        key: Key(canForward ? '0' : '1'),
-                        canForward
-                            ? SvgIcons.forward
-                            : SvgIcons.forwardDisabled,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 24),
-                  AnimatedButton(
-                    key: const Key('DeleteButton'),
-                    enabled: canDelete,
-                    onPressed: canDelete
-                        ? () async {
-                            final bool isMonolog =
-                                c.chat?.chat.value.isMonolog ?? false;
-
-                            final bool deletable = c.selected.every((e) {
-                              if (e is ChatMessageElement) {
-                                return e.item.value.author.id == c.me &&
-                                    c.chat?.chat.value.isRead(
-                                          e.item.value,
-                                          c.me,
-                                        ) ==
-                                        false;
-                              } else if (e is ChatForwardElement) {
-                                return e.authorId == c.me &&
-                                    c.chat?.chat.value.isRead(
-                                          e.forwards.first.value,
-                                          c.me,
-                                        ) ==
-                                        false;
-                              } else if (e is ChatInfoElement) {
-                                return false;
-                              } else if (e is ChatCallElement) {
-                                return false;
-                              }
-
-                              return false;
-                            });
-
-                            bool deleteForAll = false;
-
-                            final bool? pressed = await MessagePopup.alert(
-                              c.selected.length > 1
-                                  ? 'label_delete_messages'.l10n
-                                  : 'label_delete_message'.l10n,
-                              description: [
-                                if (!deletable && !isMonolog)
-                                  TextSpan(
-                                    text: c.selected.length > 1
-                                        ? 'label_message_will_deleted_for_you'
-                                              .l10n
-                                        : 'label_messages_will_deleted_for_you'
-                                              .l10n,
-                                  ),
-                              ],
-                              additional: [
-                                if (deletable && !isMonolog)
-                                  StatefulBuilder(
-                                    builder: (context, setState) {
-                                      return RowCheckboxButton(
-                                        key: const Key('DeleteForAll'),
-                                        label: 'label_also_delete_for_everyone'
-                                            .l10n,
-                                        value: deleteForAll,
-                                        onPressed: (e) =>
-                                            setState(() => deleteForAll = e),
-                                      );
-                                    },
-                                  ),
-                              ],
-                              button: MessagePopup.deleteButton,
-                            );
-
-                            if (pressed ?? false) {
-                              if (deletable && (isMonolog || deleteForAll)) {
-                                await Future.wait(
-                                  c.selected.asItems.map(c.deleteMessage),
+                                items.sort(
+                                  (a, b) => b.item.at.compareTo(a.item.at),
                                 );
-                              } else {
-                                await Future.wait(
-                                  c.selected.asItems.map(c.hideChatItem),
+
+                                final result = await ChatForwardView.show(
+                                  context,
+                                  c.id,
+                                  items,
                                 );
-                              }
 
-                              c.selecting.value = false;
-                            }
-                          }
-                        : null,
-                    child: SafeAnimatedSwitcher(
-                      duration: 150.milliseconds,
-                      child: SvgIcon(
-                        key: Key(canDelete ? '0' : '1'),
-                        canDelete
-                            ? SvgIcons.deleteBig
-                            : SvgIcons.deleteBigDisabled,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  const SizedBox(width: 24),
-                  if (c.elements.isEmpty)
-                    const SelectedDot(
-                      selected: false,
-                      inverted: false,
-                      outlined: true,
-                      size: 21,
-                    )
-                  else
-                    Obx(() {
-                      final bool selected = c.elements.values.every((e) {
-                        if (e is ChatMessageElement ||
-                            e is ChatInfoElement ||
-                            e is ChatCallElement ||
-                            e is ChatForwardElement) {
-                          return c.selected.contains(e);
-                        }
-
-                        return true;
-                      });
-
-                      return AnimatedButton(
-                        onPressed: () {
-                          if (selected) {
-                            c.selected.clear();
-                          } else {
-                            for (var e in c.elements.values) {
-                              if (e is ChatMessageElement ||
-                                  e is ChatInfoElement ||
-                                  e is ChatCallElement ||
-                                  e is ChatForwardElement) {
-                                if (!c.selected.contains(e)) {
-                                  c.selected.add(e);
+                                if (result == true) {
+                                  c.selecting.value = false;
                                 }
                               }
-                            }
-                          }
-                        },
-                        child: SelectedDot(
-                          selected: selected,
-                          inverted: false,
-                          outlined: !selected,
-                          size: 21,
+                            : null,
+                        child: SafeAnimatedSwitcher(
+                          duration: 150.milliseconds,
+                          child: SvgIcon(
+                            key: Key(canForward ? '0' : '1'),
+                            canForward
+                                ? SvgIcons.forward
+                                : SvgIcons.forwardDisabled,
+                          ),
                         ),
-                      );
-                    }),
-                  const SizedBox(width: 12),
-                ],
-              ),
+                      ),
+                      const SizedBox(width: 24),
+                      AnimatedButton(
+                        key: const Key('DeleteButton'),
+                        enabled: canDelete,
+                        onPressed: canDelete
+                            ? () async {
+                                final bool isMonolog =
+                                    c.chat?.chat.value.isMonolog ?? false;
+
+                                final bool deletable = c.selected.every((e) {
+                                  if (e is ChatMessageElement) {
+                                    return e.item.value.author.id == c.me &&
+                                        c.chat?.chat.value.isRead(
+                                              e.item.value,
+                                              c.me,
+                                            ) ==
+                                            false;
+                                  } else if (e is ChatForwardElement) {
+                                    return e.authorId == c.me &&
+                                        c.chat?.chat.value.isRead(
+                                              e.forwards.first.value,
+                                              c.me,
+                                            ) ==
+                                            false;
+                                  } else if (e is ChatInfoElement) {
+                                    return false;
+                                  } else if (e is ChatCallElement) {
+                                    return false;
+                                  }
+
+                                  return false;
+                                });
+
+                                bool deleteForAll = false;
+
+                                final bool? pressed = await MessagePopup.alert(
+                                  c.selected.length > 1
+                                      ? 'label_delete_messages'.l10n
+                                      : 'label_delete_message'.l10n,
+                                  description: [
+                                    if (!deletable && !isMonolog)
+                                      TextSpan(
+                                        text: c.selected.length > 1
+                                            ? 'label_message_will_deleted_for_you'
+                                                  .l10n
+                                            : 'label_messages_will_deleted_for_you'
+                                                  .l10n,
+                                      ),
+                                  ],
+                                  additional: [
+                                    if (deletable && !isMonolog)
+                                      StatefulBuilder(
+                                        builder: (context, setState) {
+                                          return RowCheckboxButton(
+                                            key: const Key('DeleteForAll'),
+                                            label:
+                                                'label_also_delete_for_everyone'
+                                                    .l10n,
+                                            value: deleteForAll,
+                                            onPressed: (e) => setState(
+                                              () => deleteForAll = e,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                  ],
+                                  button: MessagePopup.deleteButton,
+                                );
+
+                                if (pressed ?? false) {
+                                  if (deletable &&
+                                      (isMonolog || deleteForAll)) {
+                                    await Future.wait(
+                                      c.selected.asItems.map(c.deleteMessage),
+                                    );
+                                  } else {
+                                    await Future.wait(
+                                      c.selected.asItems.map(c.hideChatItem),
+                                    );
+                                  }
+
+                                  c.selecting.value = false;
+                                }
+                              }
+                            : null,
+                        child: SafeAnimatedSwitcher(
+                          duration: 150.milliseconds,
+                          child: SvgIcon(
+                            key: Key(canDelete ? '0' : '1'),
+                            canDelete
+                                ? SvgIcons.deleteBig
+                                : SvgIcons.deleteBigDisabled,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      const SizedBox(width: 24),
+                      if (c.elements.isEmpty)
+                        const SelectedDot(
+                          selected: false,
+                          inverted: false,
+                          outlined: true,
+                          size: 21,
+                        )
+                      else
+                        Obx(() {
+                          final bool selected = c.elements.values.every((e) {
+                            if (e is ChatMessageElement ||
+                                e is ChatInfoElement ||
+                                e is ChatCallElement ||
+                                e is ChatForwardElement) {
+                              return c.selected.contains(e);
+                            }
+
+                            return true;
+                          });
+
+                          return AnimatedButton(
+                            onPressed: () {
+                              if (selected) {
+                                c.selected.clear();
+                              } else {
+                                for (var e in c.elements.values) {
+                                  if (e is ChatMessageElement ||
+                                      e is ChatInfoElement ||
+                                      e is ChatCallElement ||
+                                      e is ChatForwardElement) {
+                                    if (!c.selected.contains(e)) {
+                                      c.selected.add(e);
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            child: SelectedDot(
+                              selected: selected,
+                              inverted: false,
+                              outlined: !selected,
+                              size: 21,
+                            ),
+                          );
+                        }),
+                      const SizedBox(width: 12),
+                    ],
+                  ),
+                ),
+                SizedBox(height: max(CustomNavigationBar.height - 56, 0)),
+              ],
             ),
           ),
         );
@@ -1599,6 +1609,7 @@ class ChatView extends StatelessWidget {
           onItemPressed: (item) =>
               c.animateTo(item.id, item: item, addToHistory: false),
           onAttachmentError: c.chat?.updateAttachments,
+          applySafeArea: true,
         );
       }
 
@@ -1610,6 +1621,7 @@ class ChatView extends StatelessWidget {
             c.animateTo(item.id, item: item, addToHistory: false),
         canForward: true,
         onAttachmentError: c.chat?.updateAttachments,
+        applySafeArea: true,
       );
     });
   }

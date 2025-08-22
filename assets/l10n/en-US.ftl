@@ -832,6 +832,7 @@ label_screen_sharing = Screen sharing
 label_search = Search
 label_selected = Selected: {$count}
 label_send_message_hint = Message...
+label_sessions_terminated = Session(s) terminated
 label_set_cache_limits = Set cache limits
 label_set_password = Set password
 label_show_call_window = Show call window

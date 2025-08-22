@@ -91,7 +91,7 @@ class ColorsView extends StatelessWidget {
 
     return ScrollableColumn(
       children: [
-        const SizedBox(height: CustomAppBar.height),
+        SizedBox(height: CustomAppBar.height),
         Block(
           title: 'Colors',
           expanded: true,

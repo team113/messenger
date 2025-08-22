@@ -846,6 +846,7 @@ label_screen_sharing = Демонстрация экрана
 label_search = Поиск
 label_selected = Выбрано: {$count}
 label_send_message_hint = Сообщение...
+label_sessions_terminated = Сессия(и) завершена(ы)
 label_set_cache_limits = Установить лимиты кэша
 label_set_password = Установить пароль
 label_show_call_window = Показывать окно звонка
