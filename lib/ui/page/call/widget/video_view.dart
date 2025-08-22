@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:medea_jason/medea_jason.dart';
@@ -39,7 +38,6 @@ class RtcVideoView extends StatefulWidget {
     this.border,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
-    this.onSizeDetermined,
     this.framelessBuilder,
   });
 
@@ -65,9 +63,6 @@ class RtcVideoView extends StatefulWidget {
   /// Indicator whether this video should be placed in an [Offstage] until its
   /// size is determined.
   final bool offstageUntilDetermined;
-
-  /// Callback, called when the video's size is determined.
-  final Function? onSizeDetermined;
 
   /// Indicator whether default context menu is enabled over this video or not.
   ///
@@ -179,10 +174,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.renderer.height.value == 0) {
-      _waitTilSizeDetermined();
-    }
-
     final Widget video = VideoView(
       widget.renderer.inner,
       key: _videoKey,
@@ -190,19 +181,6 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       objectFit: VideoViewObjectFit.cover,
       enableContextMenu: widget.enableContextMenu,
     );
-
-    // Wait for the size to be determined if necessary.
-    if (widget.offstageUntilDetermined) {
-      if (!widget.renderer.canPlay.value) {
-        return Stack(
-          children: [
-            video,
-            if (widget.framelessBuilder != null) widget.framelessBuilder!(),
-            const Center(child: CustomProgressIndicator.big()),
-          ],
-        );
-      }
-    }
 
     // Returns [AspectRatio] of [video] if [respectAspectRatio] or [video]
     // otherwise.
@@ -271,7 +249,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
       child: clipped(fit),
     );
 
-    return LayoutBuilder(
+    final Widget builder = LayoutBuilder(
       builder: (context, constraints) {
         RtcVideoRenderer renderer = widget.renderer;
 
@@ -291,19 +269,24 @@ class _RtcVideoViewState extends State<RtcVideoView> {
         return outlined(fit);
       },
     );
-  }
 
-  /// Recursively waits for the [RtcVideoRenderer]'s size to be determined and
-  /// requests a rebuild when it becomes determined.
-  void _waitTilSizeDetermined() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        if (widget.renderer.height.value == 0) {
-          _waitTilSizeDetermined();
-        } else {
-          setState(() => widget.onSizeDetermined?.call());
+    // Wait for the size to be determined if necessary.
+    if (widget.offstageUntilDetermined) {
+      return Obx(() {
+        if (!widget.renderer.canPlay.value) {
+          return Stack(
+            children: [
+              video,
+              if (widget.framelessBuilder != null) widget.framelessBuilder!(),
+              const Center(child: CustomProgressIndicator.big()),
+            ],
+          );
         }
-      }
-    });
+
+        return builder;
+      });
+    }
+
+    return builder;
   }
 }
