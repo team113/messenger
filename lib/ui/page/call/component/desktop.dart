@@ -1321,7 +1321,8 @@ Widget _primaryView(CallController c) {
             return BoxConstraints(maxWidth: size, maxHeight: size);
           },
           itemBuilder: (_DragData data) {
-            var participant = data.participant;
+            final Participant participant = data.participant;
+
             return Obx(() {
               return ParticipantWidget(
                 participant,
@@ -1329,7 +1330,6 @@ Widget _primaryView(CallController c) {
                 offstageUntilDetermined: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
-                onSizeDetermined: participant.video.value?.renderer.refresh,
                 fit:
                     c.rendererBoxFit[participant
                             .video

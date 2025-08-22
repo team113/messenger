@@ -38,7 +38,6 @@ class ParticipantWidget extends StatelessWidget {
     this.outline,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
-    this.onSizeDetermined,
     this.onHovered,
     this.animate = true,
     this.borderRadius = BorderRadius.zero,
@@ -57,9 +56,6 @@ class ParticipantWidget extends StatelessWidget {
   /// Indicator whether [Participant.video] should be placed in an [Offstage]
   /// until its size is determined.
   final bool offstageUntilDetermined;
-
-  /// Callback, called when the [Participant.video]'s size is determined.
-  final void Function()? onSizeDetermined;
 
   /// Callback, called when this [ParticipantWidget] is being hovered or stops
   /// being hovered.
@@ -117,7 +113,6 @@ class ParticipantWidget extends StatelessWidget {
                         border: outline == null
                             ? null
                             : Border.all(color: outline!),
-                        onSizeDetermined: onSizeDetermined,
                         enableContextMenu: false,
                         respectAspectRatio: respectAspectRatio,
                         offstageUntilDetermined: offstageUntilDetermined,
