@@ -335,7 +335,7 @@ class AuthView extends StatelessWidget {
                 Obx(() {
                   return OutlinedRoundedButton(
                     key: const Key('StartButton'),
-                    maxWidth: 240,
+                    maxWidth: 248,
                     height: 46,
                     leading: Transform.translate(
                       offset: const Offset(4, 0),
@@ -351,7 +351,7 @@ class AuthView extends StatelessWidget {
                 const SizedBox(height: 15),
                 OutlinedRoundedButton(
                   key: const Key('RegisterButton'),
-                  maxWidth: 240,
+                  maxWidth: 248,
                   height: 46,
                   leading: Transform.translate(
                     offset: const Offset(3, 0),
@@ -366,7 +366,7 @@ class AuthView extends StatelessWidget {
                 const SizedBox(height: 15),
                 OutlinedRoundedButton(
                   key: const Key('SignInButton'),
-                  maxWidth: 240,
+                  maxWidth: 248,
                   height: 46,
                   leading: Transform.translate(
                     offset: const Offset(4, 0),
