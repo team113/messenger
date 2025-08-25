@@ -256,6 +256,7 @@ class UserController extends GetxController {
 
   /// On init checking if the chat with this user is in favorites
   Future<void> checkIfTheChatWithUserInFavorites() async {
+    if (user == null) return;
     final chat = await _chatService.getChatByUserId(user!.id);
     if (chat != null && chat.chat.value.favoritePosition != null) {
       _isChatWithUserInFavorites.value = true;
