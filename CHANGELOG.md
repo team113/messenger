@@ -24,6 +24,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Text in forwarded messages not being selectable. ([#1367])
+    - User page:
+        - User page folded tip if in favorites.
 
 [#1356]: /../../pull/1356
 [#1367]: /../../pull/1367
