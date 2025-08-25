@@ -27,6 +27,7 @@ import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import 'folded_corner_wrapper.dart';
 
 /// [Chat] visual representation.
 class ChatTile extends StatelessWidget {
@@ -116,88 +117,94 @@ class ChatTile extends StatelessWidget {
       enabled: enableContextMenu,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
-        child: InkWellWithHover(
-          selectedColor: dimmed
-              ? style.colors.primary.darken(0.03)
-              : style.colors.primary,
-          unselectedColor: dimmed
-              ? style.colors.onPrimaryOpacity50
-              : style.cardColor.darken(darken),
-          selected: selected,
-          hoveredBorder: selected
-              ? style.cardSelectedBorder
-              : style.cardHoveredBorder,
-          border: selected ? style.cardSelectedBorder : style.cardBorder,
-          borderRadius: style.cardRadius,
-          onTap: onTap,
-          unselectedHoverColor: style.cardHoveredColor,
-          selectedHoverColor: dimmed
-              ? style.colors.primary.darken(0.03)
-              : style.colors.primary,
-          folded: chat?.chat.value.favoritePosition != null,
-          child: SizedBox(
-            height: height,
-            child: Padding(
-              key: chat?.chat.value.favoritePosition != null
-                  ? Key('FavoriteIndicator_${chat?.chat.value.id}')
-                  : null,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              child: Row(
-                children: [
-                  avatarBuilder(
-                    AvatarWidget.fromRxChat(
-                      chat,
-                      radius: AvatarRadius.large,
-                      onForbidden: onForbidden,
+        child: FoldedCornerWrapper(
+          fold: chat?.chat.value.favoritePosition != null,
+          radius: style.cardRadius.topLeft.y,
+          child: InkWellWithHover(
+            selectedColor: dimmed
+                ? style.colors.primary.darken(0.03)
+                : style.colors.primary,
+            unselectedColor: dimmed
+                ? style.colors.onPrimaryOpacity50
+                : style.cardColor.darken(darken),
+            selected: selected,
+            hoveredBorder: selected
+                ? style.cardSelectedBorder
+                : style.cardHoveredBorder,
+            border: selected ? style.cardSelectedBorder : style.cardBorder,
+            borderRadius: style.cardRadius,
+            onTap: onTap,
+            unselectedHoverColor: style.cardHoveredColor,
+            selectedHoverColor: dimmed
+                ? style.colors.primary.darken(0.03)
+                : style.colors.primary,
+            child: SizedBox(
+              height: height,
+              child: Padding(
+                key: chat?.chat.value.favoritePosition != null
+                    ? Key('FavoriteIndicator_${chat?.chat.value.id}')
+                    : null,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                child: Row(
+                  children: [
+                    avatarBuilder(
+                      AvatarWidget.fromRxChat(
+                        chat,
+                        radius: AvatarRadius.large,
+                        onForbidden: onForbidden,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  ...leading,
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: titleBuilder(
-                                      Obx(() {
-                                        return Text(
-                                          chat?.title ?? ('dot'.l10n * 3),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                          style: selected
-                                              ? style
-                                                    .fonts
-                                                    .big
-                                                    .regular
-                                                    .onPrimary
-                                              : style
-                                                    .fonts
-                                                    .big
-                                                    .regular
-                                                    .onBackground,
-                                        );
-                                      }),
+                    const SizedBox(width: 12),
+                    ...leading,
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Flexible(
+                                      child: titleBuilder(
+                                        Obx(() {
+                                          return Text(
+                                            chat?.title ?? ('dot'.l10n * 3),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            style: selected
+                                                ? style
+                                                      .fonts
+                                                      .big
+                                                      .regular
+                                                      .onPrimary
+                                                : style
+                                                      .fonts
+                                                      .big
+                                                      .regular
+                                                      .onBackground,
+                                          );
+                                        }),
+                                      ),
                                     ),
-                                  ),
-                                  ...title,
-                                ],
+                                    ...title,
+                                  ],
+                                ),
                               ),
-                            ),
-                            ...status,
-                          ],
-                        ),
-                        ...subtitle,
-                      ],
+                              ...status,
+                            ],
+                          ),
+                          ...subtitle,
+                        ],
+                      ),
                     ),
-                  ),
-                  ...trailing,
-                ],
+                    ...trailing,
+                  ],
+                ),
               ),
             ),
           ),

@@ -187,6 +187,10 @@ class UserController extends GetxController {
   /// [contact] may be fetched with a delay.
   ChatContactId? get contactId => user?.user.value.contacts.firstOrNull?.id;
 
+  final Rx<bool> _isChatWithUserInFavorites = false.obs;
+
+  Rx<bool> get isChatWithUserInFavorites => _isChatWithUserInFavorites;
+
   @override
   void onInit() {
     name = TextFieldState(
@@ -221,6 +225,8 @@ class UserController extends GetxController {
       }
     });
 
+    checkIfTheChatWithUserInFavorites();
+
     super.onInit();
   }
 
@@ -245,6 +251,14 @@ class UserController extends GetxController {
       } finally {
         status.value = RxStatus.success();
       }
+    }
+  }
+
+  /// On init checking if the chat with this user is in favorites
+  Future<void> checkIfTheChatWithUserInFavorites() async {
+    final chat = await _chatService.getChatByUserId(user!.id);
+    if (chat != null && chat.chat.value.favoritePosition != null) {
+      _isChatWithUserInFavorites.value = true;
     }
   }
 
@@ -364,6 +378,7 @@ class UserController extends GetxController {
     try {
       if (dialog != null) {
         await _chatService.favoriteChat(dialog);
+        _isChatWithUserInFavorites.value = true;
       }
     } on FavoriteChatContactException catch (e) {
       MessagePopup.error(e);
@@ -379,6 +394,7 @@ class UserController extends GetxController {
     try {
       if (dialog != null) {
         await _chatService.unfavoriteChat(dialog);
+        _isChatWithUserInFavorites.value = false;
       }
     } on UnfavoriteChatContactException catch (e) {
       MessagePopup.error(e.toMessage());

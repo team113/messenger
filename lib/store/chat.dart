@@ -365,6 +365,24 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
+  FutureOr<RxChat?> getChatByUserId(UserId id) {
+    Log.debug('getChatByUserId($id)', '$runtimeType');
+
+    RxChatImpl? chat = chats.values.firstWhereOrNull((chat) {
+      final members = chat.members;
+      // If there is only two members and the id is equals to one we are searching
+      if (members.items.keys.contains(id) && members.items.keys.length == 2) {
+        return true;
+      }
+      return false;
+    });
+    if (chat != null) {
+      return chat;
+    }
+    return null;
+  }
+
+  @override
   Future<void> remove(ChatId id, {bool force = false}) async {
     Log.debug('remove($id)', '$runtimeType');
 

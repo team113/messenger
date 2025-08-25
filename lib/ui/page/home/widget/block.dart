@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
+import 'folded_corner_wrapper.dart';
 import 'highlighted_container.dart';
 
 /// Stylized grouped section of the provided [children].
@@ -40,6 +41,7 @@ class Block extends StatelessWidget {
     this.headline,
     this.maxWidth = 400,
     this.clipHeight = false,
+    this.folded,
   });
 
   /// Optional header of this [Block].
@@ -93,6 +95,9 @@ class Block extends StatelessWidget {
 
   /// Default [Block.margin] to apply.
   static const EdgeInsets defaultMargin = EdgeInsets.fromLTRB(8, 4, 8, 4);
+
+  /// Indicate if the upper left corner has to be folded. Defaults to `false`.
+  final bool? folded;
 
   @override
   Widget build(BuildContext context) {
@@ -149,31 +154,35 @@ class Block extends StatelessWidget {
           constraints: (expanded ?? context.isNarrow)
               ? null
               : BoxConstraints(maxWidth: maxWidth),
-          child: InputDecorator(
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: background ?? style.messageColor,
-              focusedBorder: border,
-              errorBorder: border,
-              enabledBorder: border,
-              disabledBorder: border,
-              focusedErrorBorder: border,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              border: border,
-            ),
-            child: Stack(
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: _aspected(context, padding),
-                  child: content,
-                ),
-                if (headline != null)
-                  Positioned(
-                    child: Text(headline!, style: _headlineStyle(context)),
+          child: FoldedCornerWrapper(
+            fold: folded ?? false,
+            radius: style.cardRadius.topLeft.y,
+            child: InputDecorator(
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: background ?? style.messageColor,
+                focusedBorder: border,
+                errorBorder: border,
+                enabledBorder: border,
+                disabledBorder: border,
+                focusedErrorBorder: border,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                border: border,
+              ),
+              child: Stack(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: _aspected(context, padding),
+                    child: content,
                   ),
-                ...overlay,
-              ],
+                  if (headline != null)
+                    Positioned(
+                      child: Text(headline!, style: _headlineStyle(context)),
+                    ),
+                  ...overlay,
+                ],
+              ),
             ),
           ),
         ),

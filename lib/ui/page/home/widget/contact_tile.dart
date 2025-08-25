@@ -29,6 +29,7 @@ import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import 'folded_corner_wrapper.dart';
 
 /// Person ([ChatContact] or [User]) visual representation.
 ///
@@ -133,69 +134,75 @@ class ContactTile extends StatelessWidget {
       enabled: enableContextMenu,
       child: Padding(
         padding: margin,
-        child: InkWellWithHover(
-          selectedColor: style.colors.primary,
-          unselectedColor: style.cardColor.darken(darken),
-          selected: selected,
-          hoveredBorder: selected
-              ? style.cardSelectedBorder
-              : style.cardHoveredBorder,
-          border: selected ? style.cardSelectedBorder : style.cardBorder,
-          borderRadius: style.cardRadius,
-          onTap: onTap,
-          unselectedHoverColor: style.cardHoveredColor,
-          selectedHoverColor: style.colors.primary,
-          folded: contact?.contact.value.favoritePosition != null,
-          child: SizedBox(
-            height: dense ? 56 : height,
-            child: Padding(
-              key: contact?.contact.value.favoritePosition != null
-                  ? Key('FavoriteIndicator_${contact?.contact.value.id}')
-                  : null,
-              padding:
-                  padding ??
-                  EdgeInsets.symmetric(horizontal: 12, vertical: dense ? 4 : 6),
-              child: Row(
-                children: [
-                  ...leading,
-                  avatarBuilder(
-                    contact != null
-                        ? AvatarWidget.fromRxContact(
-                            contact,
-                            radius: dense ? AvatarRadius.medium : radius,
-                          )
-                        : user != null
-                        ? AvatarWidget.fromRxUser(
-                            user,
-                            radius: dense ? AvatarRadius.medium : radius,
-                          )
-                        : AvatarWidget.fromMyUser(
-                            myUser,
-                            radius: dense ? AvatarRadius.medium : radius,
-                          ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (contact != null || user != null)
-                          Obx(() {
-                            return _name(
-                              context,
-                              contact: contact?.contact.value,
-                              user: user,
-                            );
-                          })
-                        else
-                          _name(context),
-                        ...subtitle,
-                      ],
+        child: FoldedCornerWrapper(
+          fold: contact?.contact.value.favoritePosition != null,
+          radius: style.cardRadius.topLeft.y,
+          child: InkWellWithHover(
+            selectedColor: style.colors.primary,
+            unselectedColor: style.cardColor.darken(darken),
+            selected: selected,
+            hoveredBorder: selected
+                ? style.cardSelectedBorder
+                : style.cardHoveredBorder,
+            border: selected ? style.cardSelectedBorder : style.cardBorder,
+            borderRadius: style.cardRadius,
+            onTap: onTap,
+            unselectedHoverColor: style.cardHoveredColor,
+            selectedHoverColor: style.colors.primary,
+            child: SizedBox(
+              height: dense ? 56 : height,
+              child: Padding(
+                key: contact?.contact.value.favoritePosition != null
+                    ? Key('FavoriteIndicator_${contact?.contact.value.id}')
+                    : null,
+                padding:
+                    padding ??
+                    EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: dense ? 4 : 6,
                     ),
-                  ),
-                  ...trailing,
-                ],
+                child: Row(
+                  children: [
+                    ...leading,
+                    avatarBuilder(
+                      contact != null
+                          ? AvatarWidget.fromRxContact(
+                              contact,
+                              radius: dense ? AvatarRadius.medium : radius,
+                            )
+                          : user != null
+                          ? AvatarWidget.fromRxUser(
+                              user,
+                              radius: dense ? AvatarRadius.medium : radius,
+                            )
+                          : AvatarWidget.fromMyUser(
+                              myUser,
+                              radius: dense ? AvatarRadius.medium : radius,
+                            ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (contact != null || user != null)
+                            Obx(() {
+                              return _name(
+                                context,
+                                contact: contact?.contact.value,
+                                user: user,
+                              );
+                            })
+                          else
+                            _name(context),
+                          ...subtitle,
+                        ],
+                      ),
+                    ),
+                    ...trailing,
+                  ],
+                ),
               ),
             ),
           ),

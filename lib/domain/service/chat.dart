@@ -102,6 +102,12 @@ class ChatService extends DisposableService {
     return _chatRepository.get(id);
   }
 
+  /// Returns a [RxChat] by the provided user [id].
+  FutureOr<RxChat?> getChatByUserId(UserId id) {
+    Log.debug('getChatByUserId($id)', '$runtimeType');
+    return _chatRepository.getChatByUserId(id);
+  }
+
   /// Fetches the next [paginated] page.
   FutureOr<void> next() async {
     if (_chatRepository.hasNext.value) {

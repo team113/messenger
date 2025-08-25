@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:developer';
+
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -124,8 +126,10 @@ class UserView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final UserBio? bio = c.user?.user.value.bio;
+    log(c.isChatWithUserInFavorites.value.toString());
 
     return Block(
+      folded: c.isChatWithUserInFavorites.value,
       padding: EdgeInsets.fromLTRB(32, 8, 32, 16),
       children: [
         Obx(() {
