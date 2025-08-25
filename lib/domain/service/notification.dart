@@ -28,10 +28,12 @@ import 'package:universal_io/io.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '/api/backend/schema.dart' show PushDeviceToken;
+import '/api/backend/schema.dart'
+    show PushDeviceToken, RegisterPushDeviceErrorCode;
 import '/config.dart';
 import '/domain/model/file.dart';
 import '/domain/model/push_token.dart';
+import '/provider/gql/exceptions.dart' show RegisterPushDeviceException;
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
@@ -580,23 +582,13 @@ class NotificationService extends DisposableService {
 
     if (_token != null) {
       futures.add(
-        _graphQlProvider
-            .registerPushDevice(
-              PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
-              _language,
-            )
-            .then((_) => _pushNotifications = true),
+        _registerWith(PushDeviceToken(fcm: FcmRegistrationToken(_token!))),
       );
     }
 
     if (_apns != null) {
       futures.add(
-        _graphQlProvider
-            .registerPushDevice(
-              PushDeviceToken(apns: ApnsDeviceToken(_apns!)),
-              _language,
-            )
-            .then((_) => _pushNotifications = true),
+        _registerWith(PushDeviceToken(apns: ApnsDeviceToken(_apns!))),
       );
     }
 
@@ -604,15 +596,36 @@ class NotificationService extends DisposableService {
     if (!_isChina) {
       if (_voip != null) {
         futures.add(
-          _graphQlProvider.registerPushDevice(
-            PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
-            _language,
-          ),
+          _registerWith(PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!))),
         );
       }
     }
 
     await Future.wait(futures);
+  }
+
+  /// Registers the device with the provided [token] as a [PushDeviceToken].
+  Future<void> _registerWith(PushDeviceToken token) async {
+    try {
+      await _graphQlProvider.registerPushDevice(token, _language);
+    } on RegisterPushDeviceException catch (e) {
+      switch (e.code) {
+        case RegisterPushDeviceErrorCode.occupied:
+          // Expected, thus no-op.
+          break;
+
+        case RegisterPushDeviceErrorCode.artemisUnknown:
+        case RegisterPushDeviceErrorCode.unknownDeviceToken:
+        case RegisterPushDeviceErrorCode.unavailable:
+        case null:
+          rethrow;
+      }
+    }
+
+    // VoIP notifications shouldn't be considered as push enabled notifications.
+    if (token.apns != null || token.fcm != null) {
+      _pushNotifications = true;
+    }
   }
 
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications.
