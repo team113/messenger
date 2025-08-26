@@ -10,7 +10,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_custom_cursor
   hotkey_manager_windows
   irondash_engine_context
-  just_audio_windows
   medea_flutter_webrtc
   medea_jason
   media_kit_libs_windows_video
