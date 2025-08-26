@@ -187,9 +187,10 @@ class PlayerView extends StatelessWidget {
     return Obx(() {
       return PageView.builder(
         physics:
-            c.viewportIsTransformed.value || !c.zoomInsteadOfScrolling.value
-            ? NeverScrollableScrollPhysics()
-            : null,
+            !c.viewportIsTransformed.value &&
+                (!c.zoomInsteadOfScrolling.value || !PlatformUtils.isWindows)
+            ? null
+            : NeverScrollableScrollPhysics(),
         controller: c.vertical,
         scrollDirection: Axis.vertical,
         itemCount: c.posts.length,
@@ -199,7 +200,6 @@ class PlayerView extends StatelessWidget {
             child: _post(context, c, c.posts.elementAt(i)),
           );
         },
-        // children: [...c.posts.map((e) => _post(context, c, e))],
       );
     });
   }
@@ -209,9 +209,9 @@ class PlayerView extends StatelessWidget {
     return Obx(() {
       return PageView(
         physics:
-            c.viewportIsTransformed.value || !c.zoomInsteadOfScrolling.value
-            ? NeverScrollableScrollPhysics()
-            : null,
+            !c.viewportIsTransformed.value && !c.zoomInsteadOfScrolling.value
+            ? null
+            : NeverScrollableScrollPhysics(),
         controller: post.horizontal.value,
         children: [...post.items.map((e) => _attachment(context, c, post, e))],
       );
