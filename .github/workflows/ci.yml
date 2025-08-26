@@ -293,7 +293,7 @@ jobs:
       - run: make flutter.bundle.rename to=${{ secrets.FCM_BUNDLE_ID }}
         if: ${{ contains('apk appbundle ipa', matrix.platform) }}
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin  # Temurin is cached on GitHub Actions Runners.
           java-version: 21
