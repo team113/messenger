@@ -186,7 +186,8 @@ class PlayerView extends StatelessWidget {
   Widget _content(BuildContext context, PlayerController c) {
     return Obx(() {
       return PageView.builder(
-        physics: c.viewportIsTransformed.value
+        physics:
+            c.viewportIsTransformed.value || !c.zoomInsteadOfScrolling.value
             ? NeverScrollableScrollPhysics()
             : null,
         controller: c.vertical,
@@ -207,7 +208,8 @@ class PlayerView extends StatelessWidget {
   Widget _post(BuildContext context, PlayerController c, Post post) {
     return Obx(() {
       return PageView(
-        physics: c.viewportIsTransformed.value
+        physics:
+            c.viewportIsTransformed.value || !c.zoomInsteadOfScrolling.value
             ? NeverScrollableScrollPhysics()
             : null,
         controller: post.horizontal.value,
