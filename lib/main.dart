@@ -26,6 +26,7 @@ import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:pwa_install/pwa_install.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -216,6 +217,19 @@ Future<void> _runApp() async {
     // `video_player` does not support neither Windows nor Linux.
     windows: true,
     linux: true,
+  );
+
+  JustAudioMediaKit.ensureInitialized(
+    android: false,
+    iOS: false,
+    macOS: false,
+
+    // `just_audio` doesn't support Linux.
+    linux: true,
+
+    // `just_audio` doesn't support Windows. And `just_audio_windows` seems to
+    // crash under Windows in certain cases.
+    windows: true,
   );
 
   WebUtils.setPathUrlStrategy();
