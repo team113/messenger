@@ -299,21 +299,25 @@ class PlayerView extends StatelessWidget {
               ),
           ],
         ],
-        child: InteractiveViewer(
-          transformationController: c.transformationController,
-          onInteractionStart: (_) {
-            c.viewportIsTransformed.value = true;
-          },
-          onInteractionEnd: (e) {
-            c.viewportIsTransformed.value =
-                c.transformationController.value.forward.z > 1;
-          },
-          child: child,
-        ),
+        child: Obx(() {
+          return InteractiveViewer(
+            scaleEnabled:
+                c.zoomInsteadOfScrolling.value || !PlatformUtils.isWindows,
+            transformationController: c.transformationController,
+            onInteractionStart: (_) {
+              c.viewportIsTransformed.value = true;
+            },
+            onInteractionEnd: (e) {
+              c.viewportIsTransformed.value =
+                  c.transformationController.value.forward.z > 1;
+            },
+            child: child ?? const SizedBox(),
+          );
+        }),
       );
     }
 
-    return SizedBox();
+    return const SizedBox();
   }
 
   /// Builds the interface to display over the [_content].
