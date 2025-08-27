@@ -24,11 +24,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Text in forwarded messages not being selectable. ([#1367])
+- Web:
+    - Back/forward buttons appearing in Chrome when swiping back/forward. ([#1386])
 
 [#1356]: /../../pull/1356
 [#1367]: /../../pull/1367
 [#1368]: /../../pull/1368
 [#1369]: /../../pull/1369
+[#1386]: /../../pull/1386
 
 
 
