@@ -109,6 +109,7 @@ class ParticipantWidget extends StatelessWidget {
                         source: participant.source,
                         key: participant.videoKey,
                         fit: fit,
+                        onFit: (fit) => participant.fit.value = fit,
                         borderRadius: borderRadius ?? BorderRadius.circular(10),
                         border: outline == null
                             ? null
