@@ -52,6 +52,7 @@ class RtcVideoView extends StatefulWidget {
   /// [BoxFit] mode of this video.
   final BoxFit? fit;
 
+  /// Callback, called when [BoxFit] is determined.
   final void Function(BoxFit)? onFit;
 
   /// Border radius of this video.
