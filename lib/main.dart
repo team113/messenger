@@ -64,6 +64,7 @@ import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/cache.dart';
 import 'ui/worker/call.dart';
+import 'ui/worker/callkit.dart';
 import 'ui/worker/log.dart';
 import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
@@ -332,6 +333,7 @@ Future<void> _runApp() async {
   Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
   Get.put(UpgradeWorker(Get.findOrNull()));
   Get.put(LogWorker());
+  Get.put(CallKitWorker(authService));
 
   WebUtils.deleteLoader();
 
