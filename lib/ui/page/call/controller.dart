@@ -2317,6 +2317,9 @@ class Participant {
   /// [GlobalKey] of this [Participant]'s [VideoView].
   final GlobalKey videoKey = GlobalKey();
 
+  /// [BoxFit] this [Participant] is rendered with.
+  final Rx<BoxFit?> fit = Rx(null);
+
   /// Returns the [MediaSourceKind] of this [Participant].
   MediaSourceKind get source =>
       video.value?.source ?? audio.value?.source ?? MediaSourceKind.device;

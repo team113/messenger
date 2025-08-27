@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart';
 import 'package:medea_jason/medea_jason.dart';
@@ -35,6 +36,7 @@ class RtcVideoView extends StatefulWidget {
     this.borderRadius,
     this.enableContextMenu = true,
     this.fit,
+    this.onFit,
     this.border,
     this.respectAspectRatio = false,
     this.offstageUntilDetermined = false,
@@ -49,6 +51,8 @@ class RtcVideoView extends StatefulWidget {
 
   /// [BoxFit] mode of this video.
   final BoxFit? fit;
+
+  final void Function(BoxFit)? onFit;
 
   /// Border radius of this video.
   final BorderRadius? borderRadius;
@@ -265,6 +269,12 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           constraints,
           context,
         );
+
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (fit != null) {
+            widget.onFit?.call(fit);
+          }
+        });
 
         return outlined(fit);
       },

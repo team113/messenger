@@ -22,6 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart';
 
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
@@ -1082,36 +1083,28 @@ Widget _primaryView(CallController c) {
             // return LayoutBuilder(
             //               builder: (context, constraints) {
             return Obx(() {
-              bool? muted = participant.member.owner == MediaOwnerKind.local
+              final bool? muted =
+                  participant.member.owner == MediaOwnerKind.local
                   ? !c.audioState.value.isEnabled
                   : null;
 
-              bool anyDragIsHappening =
+              final bool anyDragIsHappening =
                   c.secondaryDrags.value != 0 ||
                   c.primaryDrags.value != 0 ||
                   c.secondaryDragged.value;
 
-              bool isHovered =
+              final bool isHovered =
                   c.hoveredParticipant.value == participant &&
                   !anyDragIsHappening;
 
-              // TODO: Uncomment when WebAssembly performance is fixed.
-              // BoxFit? fit = participant.video.value?.renderer.value == null
-              //     ? null
-              //     : c.rendererBoxFit[participant
-              //               .video
-              //               .value
-              //               ?.renderer
-              //               .value!
-              //               .track
-              //               .id()] ??
-              //           RtcVideoView.determineBoxFit(
-              //             participant.video.value?.renderer.value
-              //                 as RtcVideoRenderer,
-              //             participant.source,
-              //             constraints,
-              //             context,
-              //           );
+              final String? id = participant.video.value?.renderer.value?.track
+                  .id();
+
+              final BoxFit? fit =
+                  participant.video.value?.renderer.value == null
+                  ? null
+                  : c.rendererBoxFit[id] ?? participant.fit.value;
+
               return MouseRegion(
                 opaque: false,
                 onEnter: (d) {
@@ -1140,42 +1133,37 @@ Widget _primaryView(CallController c) {
                     key: ObjectKey(participant),
                     preventContextMenu: true,
                     actions: [
-                      // TODO: Uncomment when WebAssembly performance is fixed.
-                      // if (participant.video.value?.renderer.value != null) ...[
-                      //   if (participant.source == MediaSourceKind.device)
-                      //     ContextMenuButton(
-                      //       label: fit == null || fit == BoxFit.cover
-                      //           ? 'btn_call_do_not_cut_video'.l10n
-                      //           : 'btn_call_cut_video'.l10n,
-                      //       onPressed: () {
-                      //         c.rendererBoxFit[participant
-                      //             .video
-                      //             .value!
-                      //             .renderer
-                      //             .value!
-                      //             .track
-                      //             .id()] = fit == null || fit == BoxFit.cover
-                      //             ? BoxFit.contain
-                      //             : BoxFit.cover;
-                      //         if (c.focused.isNotEmpty) {
-                      //           c.focused.refresh();
-                      //         } else {
-                      //           c.remotes.refresh();
-                      //           c.locals.refresh();
-                      //         }
-                      //       },
-                      //       trailing: SvgIcon(
-                      //         fit == null || fit == BoxFit.cover
-                      //             ? SvgIcons.callNotCutVideo
-                      //             : SvgIcons.callCutVideo,
-                      //       ),
-                      //       inverted: SvgIcon(
-                      //         fit == null || fit == BoxFit.cover
-                      //             ? SvgIcons.callNotCutVideoWhite
-                      //             : SvgIcons.callCutVideoWhite,
-                      //       ),
-                      //     ),
-                      // ],
+                      if (participant.video.value?.renderer.value != null) ...[
+                        if (participant.source == MediaSourceKind.device)
+                          ContextMenuButton(
+                            label: fit == null || fit == BoxFit.cover
+                                ? 'btn_call_do_not_cut_video'.l10n
+                                : 'btn_call_cut_video'.l10n,
+                            onPressed: () {
+                              c.rendererBoxFit[id!] =
+                                  fit == null || fit == BoxFit.cover
+                                  ? BoxFit.contain
+                                  : BoxFit.cover;
+
+                              if (c.focused.isNotEmpty) {
+                                c.focused.refresh();
+                              } else {
+                                c.remotes.refresh();
+                                c.locals.refresh();
+                              }
+                            },
+                            trailing: SvgIcon(
+                              fit == null || fit == BoxFit.cover
+                                  ? SvgIcons.callNotCutVideo
+                                  : SvgIcons.callCutVideo,
+                            ),
+                            inverted: SvgIcon(
+                              fit == null || fit == BoxFit.cover
+                                  ? SvgIcons.callNotCutVideoWhite
+                                  : SvgIcons.callCutVideoWhite,
+                            ),
+                          ),
+                      ],
                       if (c.primary.length == 1)
                         ContextMenuButton(
                           label: 'btn_call_uncenter'.l10n,
