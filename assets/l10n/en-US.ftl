@@ -353,7 +353,7 @@ fcm_message =
             }:{" "}
     }{ $donation ->
         [x] {""}
-        *[other] [{$donation}]{" "}
+        *[other] [G{$donation}]{" "}
     }{ $attachmentsCount ->
           [0] {""}
           *[other] [{$attachmentsType ->
@@ -384,7 +384,7 @@ fcm_message =
 fcm_message_subtitle =
     { $donation ->
         [x] {""}
-        *[other] [{$donation}]
+        *[other] [G{$donation}]
     }
 fcm_missed_cal =
     Missed { $isVideo ->
