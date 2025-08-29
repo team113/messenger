@@ -1060,6 +1060,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                   Get.find(),
                   settingsRepository,
+                  graphQlProvider,
                 ),
               );
 

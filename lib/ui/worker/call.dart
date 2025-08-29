@@ -65,6 +65,7 @@ class CallWorker extends DisposableService {
     this._notificationService,
     this._authService,
     this._settingsRepository,
+    this._graphQlProvider,
   );
 
   /// [CallService] used to get reactive changes of [OngoingCall]s.
@@ -86,6 +87,9 @@ class CallWorker extends DisposableService {
   /// [AbstractSettingsRepository] used to retrieve
   /// [ApplicationSettings.muteKeys].
   final AbstractSettingsRepository _settingsRepository;
+
+  /// [GraphQlProvider] required to access [ChatEvent]s directly.
+  final GraphQlProvider _graphQlProvider;
 
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
@@ -506,13 +510,15 @@ class CallWorker extends DisposableService {
             if (extra != null && credentials != null) {
               final ChatId chatId = ChatId(extra);
 
-              final GraphQlProvider provider = GraphQlProvider();
-              provider.token = credentials.access.secret;
-
               _eventsSubscriptions[chatId]?.cancel();
-              _eventsSubscriptions[chatId] = provider.chatEvents(chatId, null, () => null).listen((
+              _eventsSubscriptions[chatId] = _graphQlProvider.chatEvents(chatId, null, () => null).listen((
                 e,
               ) async {
+                Log.debug(
+                  '_eventsSubscriptions[$chatId] -> $e',
+                  '$runtimeType',
+                );
+
                 final events = ChatEvents$Subscription.fromJson(
                   e.data!,
                 ).chatEvents;
@@ -526,6 +532,7 @@ class CallWorker extends DisposableService {
                     if (call.members.any(
                       (e) => e.user.id == credentials.userId,
                     )) {
+                      _eventsSubscriptions[chatId]?.cancel();
                       await FlutterCallkitIncoming.endCall(
                         chatId.val.base62ToUuid(),
                       );
@@ -541,11 +548,10 @@ class CallWorker extends DisposableService {
                       final node =
                           e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
 
-                      if (_isCallKit) {
-                        await FlutterCallkitIncoming.endCall(
-                          node.call.id.val.base62ToUuid(),
-                        );
-                      }
+                      _eventsSubscriptions[chatId]?.cancel();
+                      await FlutterCallkitIncoming.endCall(
+                        node.call.id.val.base62ToUuid(),
+                      );
                     } else if (e.$$typename == 'EventChatCallMemberJoined') {
                       final node =
                           e
@@ -554,11 +560,10 @@ class CallWorker extends DisposableService {
 
                       if (node.user.id == credentials.userId &&
                           call?.value.connected != true) {
-                        if (_isCallKit) {
-                          await FlutterCallkitIncoming.endCall(
-                            node.call.id.val.base62ToUuid(),
-                          );
-                        }
+                        _eventsSubscriptions[chatId]?.cancel();
+                        await FlutterCallkitIncoming.endCall(
+                          node.call.id.val.base62ToUuid(),
+                        );
                       }
                     } else if (e.$$typename == 'EventChatCallMemberLeft') {
                       var node =
@@ -568,6 +573,7 @@ class CallWorker extends DisposableService {
 
                       if (node.user.id == credentials.userId &&
                           call?.value.connected != true) {
+                        _eventsSubscriptions[chatId]?.cancel();
                         await FlutterCallkitIncoming.endCall(
                           chatId.val.base62ToUuid(),
                         );
@@ -576,11 +582,10 @@ class CallWorker extends DisposableService {
                       final node =
                           e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
                       if (node.user.id == credentials.userId) {
-                        if (_isCallKit) {
-                          await FlutterCallkitIncoming.endCall(
-                            node.call.id.val.base62ToUuid(),
-                          );
-                        }
+                        _eventsSubscriptions[chatId]?.cancel();
+                        await FlutterCallkitIncoming.endCall(
+                          node.call.id.val.base62ToUuid(),
+                        );
                       }
                     } else if (e.$$typename ==
                         'EventChatCallAnswerTimeoutPassed') {
@@ -588,11 +593,10 @@ class CallWorker extends DisposableService {
                           e
                               as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
                       if (node.userId == credentials.userId) {
-                        if (_isCallKit) {
-                          await FlutterCallkitIncoming.endCall(
-                            node.callId.val.base62ToUuid(),
-                          );
-                        }
+                        _eventsSubscriptions[chatId]?.cancel();
+                        await FlutterCallkitIncoming.endCall(
+                          node.callId.val.base62ToUuid(),
+                        );
                       }
                     }
                   }
@@ -600,15 +604,19 @@ class CallWorker extends DisposableService {
               });
 
               // Ensure that we haven't already joined the call.
-              final query = await provider.getChat(chatId);
+              final query = await _graphQlProvider.getChat(chatId);
               final call = query.chat?.ongoingCall;
               if (call != null) {
                 if (call.members.any((e) => e.user.id == credentials.userId)) {
+                  _eventsSubscriptions[chatId]?.cancel();
                   await FlutterCallkitIncoming.endCall(
                     chatId.val.base62ToUuid(),
                   );
                 }
               }
+            } else if (credentials == null) {
+              // We don't have `credentials`, thus no calls should be allowed.
+              await FlutterCallkitIncoming.endAllCalls();
             }
             break;
 
