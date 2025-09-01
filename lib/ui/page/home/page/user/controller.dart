@@ -189,12 +189,7 @@ class UserController extends GetxController {
 
   /// Indicates whether the contact's [chat] is a favorite.
   bool get isFavorite =>
-      _chatService
-          .chats[user?.user.value.dialog]
-          ?.chat
-          .value
-          .favoritePosition !=
-          null;
+      user?.dialog.value?.chat.value.favoritePosition != null;
 
   @override
   void onInit() {
