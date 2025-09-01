@@ -201,6 +201,7 @@ class ChatInfoView extends StatelessWidget {
       }
 
       return Block(
+        folded: c.isFavorite,
         overlay: [
           Positioned(
             top: 16,

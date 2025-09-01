@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/util/platform_utils.dart';
+import 'avatar.dart';
 import 'highlighted_container.dart';
 
 /// Stylized grouped section of the provided [children].
@@ -40,6 +41,7 @@ class Block extends StatelessWidget {
     this.headline,
     this.maxWidth = 400,
     this.clipHeight = false,
+    this.folded = false,
   });
 
   /// Optional header of this [Block].
@@ -87,6 +89,9 @@ class Block extends StatelessWidget {
   ///
   /// Defaults to `false` to avoid extra GPU work.
   final bool clipHeight;
+
+  /// Indicator whether this [Block] should have its corner folded.
+  final bool folded;
 
   /// Default [Block.padding] of its contents.
   static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
@@ -149,30 +154,59 @@ class Block extends StatelessWidget {
           constraints: (expanded ?? context.isNarrow)
               ? null
               : BoxConstraints(maxWidth: maxWidth),
-          child: InputDecorator(
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: background ?? style.messageColor,
-              focusedBorder: border,
-              errorBorder: border,
-              enabledBorder: border,
-              disabledBorder: border,
-              focusedErrorBorder: border,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              border: border,
-            ),
+          child: ClipPath(
+            clipper: folded ? _Clipper(14) : null,
             child: Stack(
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: _aspected(context, padding),
-                  child: content,
-                ),
-                if (headline != null)
-                  Positioned(
-                    child: Text(headline!, style: _headlineStyle(context)),
+                InputDecorator(
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: background ?? style.messageColor,
+                    focusedBorder: border,
+                    errorBorder: border,
+                    enabledBorder: border,
+                    disabledBorder: border,
+                    focusedErrorBorder: border,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                    border: border,
                   ),
-                ...overlay,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: _aspected(context, padding),
+                        child: content,
+                      ),
+                      if (headline != null)
+                        Positioned(
+                          child: Text(
+                            headline!,
+                            style: _headlineStyle(context),
+                          ),
+                        ),
+                      ...overlay,
+                    ],
+                  ),
+                ),
+                if (folded)
+                  Container(
+                    padding: margin,
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: style.colors.primaryHighlightShiniest.darken(0.1),
+                      borderRadius: const BorderRadius.only(
+                        bottomRight: Radius.circular(4),
+                      ),
+                      boxShadow: [
+                        CustomBoxShadow(
+                          color: style.colors.secondaryHighlightDarkest,
+                          blurStyle: BlurStyle.outer.workaround,
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
@@ -223,6 +257,28 @@ class _BottomEdgeClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     return Path()..addRect(Rect.fromLTRB(-_big, 0, _big, size.height));
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
+
+/// [CustomClipper] clipping a top-left corner.
+class _Clipper extends CustomClipper<Path> {
+  const _Clipper(this.radius);
+
+  /// Radius of the corner being clipped.
+  final double radius;
+
+  @override
+  Path getClip(Size size) {
+    final path = Path()
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..lineTo(0, radius)
+      ..lineTo(radius, 0);
+    return path;
   }
 
   @override
