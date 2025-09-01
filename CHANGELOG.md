@@ -3,8 +3,10 @@ Change Log
 
 All user visible changes to this project will be documented in this file. This project uses to [Semantic Versioning 2.0.0].
 
-## [0.7.0] · 2025-??-??
 
+
+
+## [0.7.0] · 2025-??-??
 [0.6.0]: /../../tree/v0.7.0
 
 [Diff](/../../compare/v0.6.0...v0.7.0) | [Milestone](/../../milestone/45)
@@ -13,10 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Redesigned media player. ([#1368], [#1367], [#1356])
-    - User info page:
-        - Set blockfolded whenever chat is favorite ([#1274])
-    - Group chat info page:
-        - Set blockfolded whenever chat is favorite ([#1274])
+    - Display user id with dash. ([#1352])
 
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
@@ -30,17 +29,15 @@ All user visible changes to this project will be documented in this file. This p
     - Back/forward buttons appearing in Chrome when swiping back/forward. ([#1386])
 
 [#1356]: /../../pull/1356
-
 [#1367]: /../../pull/1367
-
 [#1368]: /../../pull/1368
-
 [#1369]: /../../pull/1369
-
 [#1386]: /../../pull/1386
 
-## [0.6.0] · 2025-08-07
 
+
+
+## [0.6.0] · 2025-08-07
 [0.6.0]: /../../tree/v0.6.0
 
 [Diff](/../../compare/v0.5.4...v0.6.0) | [Milestone](/../../milestone/44)
@@ -62,21 +59,17 @@ All user visible changes to this project will be documented in this file. This p
         - Inability to sign in with one-time password. ([#1357], [#1358])
 
 [#1311]: /../../issues/1311
-
 [#1336]: /../../pull/1336
-
 [#1344]: /../../pull/1344
-
 [#1348]: /../../issues/1348
-
 [#1350]: /../../pull/1350
-
 [#1357]: /../../pull/1357
-
 [#1358]: /../../issues/1358
 
-## [0.5.4] · 2025-07-25
 
+
+
+## [0.5.4] · 2025-07-25
 [0.5.4]: /../../tree/v0.5.4
 
 [Diff](/../../compare/v0.5.3...v0.5.4) | [Milestone](/../../milestone/43)
@@ -105,19 +98,16 @@ All user visible changes to this project will be documented in this file. This p
     - Authorization sometimes being lost when receiving push notifications. ([#1331], [#1326])
 
 [#1326]: /../../pull/1326
-
 [#1327]: /../../pull/1327
-
 [#1330]: /../../pull/1330
-
 [#1331]: /../../pull/1331
-
 [#1333]: /../../pull/1333
-
 [#1339]: /../../pull/1339
 
-## [0.5.3] · 2025-07-10
 
+
+
+## [0.5.3] · 2025-07-10
 [0.5.3]: /../../tree/v0.5.3
 
 [Diff](/../../compare/v0.5.2...v0.5.3) | [Milestone](/../../milestone/42)
@@ -141,21 +131,17 @@ All user visible changes to this project will be documented in this file. This p
     - [VoIP] [CallKit] notification still ringing despite already joined call on another device. ([#1320])
 
 [#1264]: /../../issue/1264
-
 [#1287]: /../../pull/1287
-
 [#1293]: /../../issue/1293
-
 [#1296]: /../../pull/1296
-
 [#1319]: /../../pull/1319
-
 [#1320]: /../../pull/1320
-
 [#1323]: /../../pull/1323
 
-## [0.5.2] · 2025-07-01
 
+
+
+## [0.5.2] · 2025-07-01
 [0.5.2]: /../../tree/v0.5.2
 
 [Diff](/../../compare/v0.5.1...v0.5.2) | [Milestone](/../../milestone/41)
@@ -186,31 +172,22 @@ All user visible changes to this project will be documented in this file. This p
     - Web application install button incorrectly stating that [Progressive Web Application (PWA)](PWA) is already installed. ([#1303])
 
 [#1250]: /../../issue/1250
-
 [#1263]: /../../issue/1263
-
 [#1268]: /../../issue/1268
-
 [#1280]: /../../pull/1280
-
 [#1282]: /../../pull/1282
-
 [#1285]: /../../pull/1285
-
 [#1291]: /../../pull/1291
-
 [#1294]: /../../pull/1294
-
 [#1302]: /../../pull/1302
-
 [#1303]: /../../pull/1303
-
 [#1308]: /../../pull/1308
-
 [#1310]: /../../pull/1310
 
-## [0.5.1] · 2025-06-03
 
+
+
+## [0.5.1] · 2025-06-03
 [0.5.1]: /../../tree/v0.5.1
 
 [Diff](/../../compare/v0.5.0...v0.5.1) | [Milestone](/../../milestone/40)
@@ -232,21 +209,17 @@ All user visible changes to this project will be documented in this file. This p
     - Invalid animation when swiping pages back in Safari on iOS. ([#1267])
 
 [#1050]: /../../issues/1050
-
 [#1244]: /../../issues/1244
-
 [#1243]: /../../pull/1243
-
 [#1244]: /../../issues/1244
-
 [#1246]: /../../pull/1246
-
 [#1267]: /../../pull/1267
-
 [#1272]: /../../pull/1272
 
-## [0.5.0] · 2025-05-09
 
+
+
+## [0.5.0] · 2025-05-09
 [0.5.0]: /../../tree/v0.5.0
 
 [Diff](/../../compare/v0.4.3...v0.5.0) | [Milestone](/../../milestone/39)
@@ -259,8 +232,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1238]: /../../pull/1238
 
-## [0.4.3] · 2025-05-06
 
+
+
+## [0.4.3] · 2025-05-06
 [0.4.3]: /../../tree/v0.4.3
 
 [Diff](/../../compare/v0.4.2...v0.4.3) | [Milestone](/../../milestone/38)
@@ -286,25 +261,19 @@ All user visible changes to this project will be documented in this file. This p
     - Microphone devices not being listed in PWA in Safari. ([#1227])
 
 [#1215]: /../../pull/1215
-
 [#1218]: /../../pull/1218
-
 [#1219]: /../../pull/1219
-
 [#1223]: /../../pull/1223
-
 [#1226]: /../../pull/1226
-
 [#1227]: /../../pull/1227
-
 [#1229]: /../../pull/1229
-
 [#1236]: /../../issues/1236
-
 [#1237]: /../../pull/1237
 
-## [0.4.2] · 2025-04-22
 
+
+
+## [0.4.2] · 2025-04-22
 [0.4.2]: /../../tree/v0.4.2
 
 [Diff](/../../compare/v0.4.1...v0.4.2) | [Milestone](/../../milestone/37)
@@ -323,15 +292,14 @@ All user visible changes to this project will be documented in this file. This p
     - Inability to upload drag-n-dropped files to chat. ([#1210], [#1206])
 
 [#1206]: /../../issues/1206
-
 [#1207]: /../../issues/1207
-
 [#1209]: /../../pull/1209
-
 [#1210]: /../../pull/1210
 
-## [0.4.1] · 2025-04-15
 
+
+
+## [0.4.1] · 2025-04-15
 [0.4.1]: /../../tree/v0.4.1
 
 [Diff](/../../compare/v0.4.0...v0.4.1) | [Milestone](/../../milestone/36)
@@ -350,8 +318,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1201]: /../../pull/1201
 
-## [0.4.0] · 2025-04-12
 
+
+
+## [0.4.0] · 2025-04-12
 [0.4.0]: /../../tree/v0.4.0
 
 [Diff](/../../compare/v0.3.3...v0.4.0) | [Milestone](/../../milestone/35)
@@ -388,29 +358,21 @@ All user visible changes to this project will be documented in this file. This p
     - Authorization sometimes being lost when receiving push notifications. ([#1197])
 
 [#1181]: /../../pull/1181
-
 [#1182]: /../../pull/1182
-
 [#1185]: /../../pull/1185
-
 [#1186]: /../../issues/1186
-
 [#1187]: /../../issues/1187
-
 [#1190]: /../../pull/1190
-
 [#1191]: /../../pull/1191
-
 [#1193]: /../../pull/1193
-
 [#1194]: /../../pull/1194
-
 [#1196]: /../../pull/1196
-
 [#1197]: /../../pull/1197
 
-## [0.3.3] · 2025-03-07
 
+
+
+## [0.3.3] · 2025-03-07
 [0.3.3]: /../../tree/v0.3.3
 
 [Diff](/../../compare/v0.3.2...v0.3.3) | [Milestone](/../../milestone/34)
@@ -434,15 +396,14 @@ All user visible changes to this project will be documented in this file. This p
     - Application becoming unresponsive when drag-n-dropping screenshots to chat. ([#1177])
 
 [#1170]: /../../pull/1170
-
 [#1175]: /../../pull/1175
-
 [#1177]: /../../pull/1177
-
 [#1179]: /../../pull/1179
 
-## [0.3.2] · 2025-02-07
 
+
+
+## [0.3.2] · 2025-02-07
 [0.3.2]: /../../tree/v0.3.2
 
 [Diff](/../../compare/v0.3.1...v0.3.2) | [Milestone](/../../milestone/33)
@@ -466,8 +427,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1164]: /../../pull/1164
 
-## [0.3.1] · 2025-02-03
 
+
+
+## [0.3.1] · 2025-02-03
 [0.3.1]: /../../tree/v0.3.1
 
 [Diff](/../../compare/v0.3.0...v0.3.1) | [Milestone](/../../milestone/32)
@@ -490,15 +453,14 @@ All user visible changes to this project will be documented in this file. This p
         - Members count being bigger than actual members number. ([#1159])
 
 [#1142]: /../../pull/1142
-
 [#1157]: /../../pull/1157
-
 [#1158]: /../../pull/1158
-
 [#1159]: /../../pull/1159
 
-## [0.3.0] · 2024-12-25
 
+
+
+## [0.3.0] · 2024-12-25
 [0.3.0]: /../../tree/v0.3.0
 
 [Diff](/../../compare/v0.2.2...v0.3.0) | [Milestone](/../../milestone/31)
@@ -514,21 +476,17 @@ All user visible changes to this project will be documented in this file. This p
         - Image and file attachments drag-n-drop. ([#1140], [#594])
 
 [#530]: /../../issues/530
-
 [#594]: /../../issues/594
-
 [#1130]: /../../pull/1130
-
 [#1139]: /../../pull/1139
-
 [#1140]: /../../pull/1140
-
 [#1141]: /../../pull/1141
-
 [#1143]: /../../pull/1143
 
-## [0.2.2] · 2024-11-01
 
+
+
+## [0.2.2] · 2024-11-01
 [0.2.2]: /../../tree/v0.2.2
 
 [Diff](/../../compare/v0.2.1...v0.2.2) | [Milestone](/../../milestone/30)
@@ -559,31 +517,22 @@ All user visible changes to this project will be documented in this file. This p
     - Invalid camera, microphone and output device names in Firefox. ([#1117])
 
 [#296]: /../../issues/296
-
 [#547]: /../../issues/547
-
 [#568]: /../../issues/568
-
 [#603]: /../../issues/603
-
 [#692]: /../../issues/692
-
 [#1112]: /../../pull/1112
-
 [#1115]: /../../pull/1115
-
 [#1116]: /../../pull/1116
-
 [#1117]: /../../pull/1117
-
 [#1120]: /../../pull/1120
-
 [#1121]: /../../pull/1121
-
 [#1133]: /../../pull/1133
 
-## [0.2.1] · 2024-09-12
 
+
+
+## [0.2.1] · 2024-09-12
 [0.2.1]: /../../tree/v0.2.1
 
 [Diff](/../../compare/v0.2.0...v0.2.1) | [Milestone](/../../milestone/29)
@@ -599,13 +548,13 @@ All user visible changes to this project will be documented in this file. This p
     - Inability to input chat's name during group creation. ([#1103])
 
 [#1103]: /../../pull/1103
-
 [#1105]: /../../pull/1105
-
 [#1108]: /../../pull/1108
 
-## [0.2.0] · 2024-09-04
 
+
+
+## [0.2.0] · 2024-09-04
 [0.2.0]: /../../tree/v0.2.0
 
 [Diff](/../../compare/v0.1.4...v0.2.0) | [Milestone](/../../milestone/28)
@@ -646,49 +595,31 @@ All user visible changes to this project will be documented in this file. This p
     - Application not launching due to `MSVCP140.dll` library being missing. ([#1070])
 
 [#553]: /../../issues/553
-
 [#555]: /../../issues/555
-
 [#896]: /../../issues/896
-
 [#900]: /../../issues/900
-
 [#988]: /../../issues/988
-
 [#995]: /../../pull/995
-
 [#1005]: /../../issues/1005
-
 [#1015]: /../../issues/1015
-
 [#1066]: /../../pull/1066
-
 [#1069]: /../../pull/1069
-
 [#1070]: /../../pull/1070
-
 [#1078]: /../../pull/1078
-
 [#1079]: /../../pull/1079
-
 [#1083]: /../../issues/1083
-
 [#1086]: /../../pull/1086
-
 [#1087]: /../../pull/1087
-
 [#1089]: /../../pull/1089
-
 [#1090]: /../../pull/1090
-
 [#1094]: /../../pull/1094
-
 [#1097]: /../../pull/1097
-
 [#1098]: /../../pull/1098
 
-## [0.1.4] · 2024-07-11
 
+
+
+## [0.1.4] · 2024-07-11
 [0.1.4]: /../../tree/v0.1.4
 
 [Diff](/../../compare/v0.1.3...v0.1.4) | [Milestone](/../../milestone/27)
@@ -700,8 +631,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1055]: /../../pull/1055
 
-## [0.1.3] · 2024-07-04
 
+
+
+## [0.1.3] · 2024-07-04
 [0.1.3]: /../../tree/v0.1.3
 
 [Diff](/../../compare/v0.1.0...v0.1.3) | [Milestone](/../../milestone/26)
@@ -713,11 +646,12 @@ All user visible changes to this project will be documented in this file. This p
         - Blurred previews under single images. ([#1057], [#985])
 
 [#985]: /../../issues/985
-
 [#1057]: /../../pull/1057
 
-## [0.1.0] · 2024-06-27
 
+
+
+## [0.1.0] · 2024-06-27
 [0.1.0]: /../../tree/v0.1.0
 
 [Diff](/../../compare/v0.1.0-alpha.13.5...v0.1.0) | [Milestone](/../../milestone/24)
@@ -745,23 +679,18 @@ All user visible changes to this project will be documented in this file. This p
     - Audio playback stopping when receiving or sending message on iOS. ([#1039], [#968])
 
 [#799]: /../../issues/799
-
 [#800]: /../../issues/800
-
 [#896]: /../../issues/896
-
 [#968]: /../../issues/968
-
 [#973]: /../../pull/973
-
 [#1012]: /../../pull/1012
-
 [#1035]: /../../pull/1035
-
 [#1039]: /../../pull/1039
 
-## [0.1.0-alpha.13.5] · 2024-05-13
 
+
+
+## [0.1.0-alpha.13.5] · 2024-05-13
 [0.1.0-alpha.13.5]: /../../tree/v0.1.0-alpha.13.5
 
 [Diff](/../../compare/v0.1.0-alpha.13.4...v0.1.0-alpha.13.5) | [Milestone](/../../milestone/23)
@@ -794,33 +723,23 @@ All user visible changes to this project will be documented in this file. This p
         - Tapping on image opens gallery when being in context menu. ([#983], [#979])
 
 [#312]: /../../issues/312
-
 [#566]: /../../issues/566
-
 [#896]: /../../issues/896
-
 [#948]: /../../issues/948
-
 [#950]: /../../issues/950
-
 [#973]: /../../pull/973
-
 [#975]: /../../pull/975
-
 [#978]: /../../pull/978
-
 [#979]: /../../issues/979
-
 [#980]: /../../pull/980
-
 [#983]: /../../pull/983
-
 [#986]: /../../pull/986
-
 [#992]: /../../pull/992
 
-## [0.1.0-alpha.13.4] · 2024-04-23
 
+
+
+## [0.1.0-alpha.13.4] · 2024-04-23
 [0.1.0-alpha.13.4]: /../../tree/v0.1.0-alpha.13.4
 
 [Diff](/../../compare/v0.1.0-alpha.13.3...v0.1.0-alpha.13.4) | [Milestone](/../../milestone/22)
@@ -841,11 +760,12 @@ All user visible changes to this project will be documented in this file. This p
         - Removed UI/UX designer vacancy. ([#971])
 
 [#970]: /../../pull/970
-
 [#971]: /../../pull/971
 
-## [0.1.0-alpha.13.3] · 2024-04-19
 
+
+
+## [0.1.0-alpha.13.3] · 2024-04-19
 [0.1.0-alpha.13.3]: /../../tree/v0.1.0-alpha.13.3
 
 [Diff](/../../compare/v0.1.0-alpha.13.2...v0.1.0-alpha.13.3) | [Milestone](/../../milestone/21)
@@ -864,13 +784,13 @@ All user visible changes to this project will be documented in this file. This p
         - Dialogs missing their avatars in some cases. ([#967], [#964])
 
 [#961]: /../../pull/961
-
 [#964]: /../../issues/964
-
 [#967]: /../../pull/967
 
-## [0.1.0-alpha.13.2] · 2024-04-11
 
+
+
+## [0.1.0-alpha.13.2] · 2024-04-11
 [0.1.0-alpha.13.2]: /../../tree/v0.1.0-alpha.13.2
 
 [Diff](/../../compare/v0.1.0-alpha.13.1...v0.1.0-alpha.13.2) | [Milestone](/../../milestone/20)
@@ -883,8 +803,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#944]: /../../pull/944
 
-## [0.1.0-alpha.13.1] · 2024-04-10
 
+
+
+## [0.1.0-alpha.13.1] · 2024-04-10
 [0.1.0-alpha.13.1]: /../../tree/v0.1.0-alpha.13.1
 
 [Diff](/../../compare/v0.1.0-alpha.13...v0.1.0-alpha.13.1) | [Milestone](/../../milestone/19)
@@ -896,11 +818,12 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned app bar. ([#942], [#939])
 
 [#939]: /../../issues/939
-
 [#942]: /../../pull/942
 
-## [0.1.0-alpha.13] · 2024-04-09
 
+
+
+## [0.1.0-alpha.13] · 2024-04-09
 [0.1.0-alpha.13]: /../../tree/v0.1.0-alpha.13
 
 [Diff](/../../compare/v0.1.0-alpha.12.3...v0.1.0-alpha.13) | [Milestone](/../../milestone/18)
@@ -950,65 +873,39 @@ All user visible changes to this project will be documented in this file. This p
     - Missing blurred image previews in gallery. ([#880])
 
 [#455]: /../../issues/455
-
 [#809]: /../../issues/809
-
 [#821]: /../../issues/821
-
 [#851]: /../../issues/851
-
 [#854]: /../../issues/854
-
 [#864]: /../../pull/864
-
 [#868]: /../../pull/868
-
 [#874]: /../../issues/874
-
 [#877]: /../../pull/877
-
 [#880]: /../../pull/880
-
 [#886]: /../../pull/886
-
 [#888]: /../../issues/888
-
 [#890]: /../../pull/890
-
 [#891]: /../../pull/891
-
 [#896]: /../../issues/896
-
 [#897]: /../../pull/897
-
 [#901]: /../../pull/901
-
 [#907]: /../../pull/907
-
 [#909]: /../../issues/909
-
 [#910]: /../../pull/910
-
 [#912]: /../../issues/912
-
 [#914]: /../../pull/914
-
 [#915]: /../../pull/915
-
 [#919]: /../../pull/919
-
 [#928]: /../../issues/928
-
 [#934]: /../../pull/934
-
 [#935]: /../../pull/935
-
 [#937]: /../../pull/937
-
 [#941]: /../../pull/941
 
-## [0.1.0-alpha.12.3] · 2024-02-23
 
+
+
+## [0.1.0-alpha.12.3] · 2024-02-23
 [0.1.0-alpha.12.3]: /../../tree/v0.1.0-alpha.12.3
 
 [Diff](/../../compare/v0.1.0-alpha.12.2...v0.1.0-alpha.12.3) | [Milestone](/../../milestone/17)
@@ -1024,11 +921,12 @@ All user visible changes to this project will be documented in this file. This p
     - Video in calls being loaded indefinitely. ([#840])
 
 [#817]: /../../issues/817
-
 [#840]: /../../pull/840
 
-## [0.1.0-alpha.12.2] · 2024-02-22
 
+
+
+## [0.1.0-alpha.12.2] · 2024-02-22
 [0.1.0-alpha.12.2]: /../../tree/v0.1.0-alpha.12.2
 
 [Diff](/../../compare/v0.1.0-alpha.12.1...v0.1.0-alpha.12.2) | [Milestone](/../../milestone/15)
@@ -1061,31 +959,22 @@ All user visible changes to this project will be documented in this file. This p
     - Inability to view camera, microphone and output devices in Firefox. ([#855])
 
 [#464]: /../../issues/464
-
 [#465]: /../../pull/465
-
 [#812]: /../../issues/812
-
 [#820]: /../../issues/820
-
 [#828]: /../../issues/828
-
 [#831]: /../../issues/831
-
 [#832]: /../../pull/832
-
 [#843]: /../../pull/843
-
 [#848]: /../../pull/848
-
 [#855]: /../../pull/855
-
 [#856]: /../../pull/856
-
 [#863]: /../../pull/863
 
-## [0.1.0-alpha.12.1] · 2024-02-08
 
+
+
+## [0.1.0-alpha.12.1] · 2024-02-08
 [0.1.0-alpha.12.1]: /../../tree/v0.1.0-alpha.12.1
 
 [Diff](/../../compare/v0.1.0-alpha.12...v0.1.0-alpha.12.1) | [Milestone](/../../milestone/16)
@@ -1097,8 +986,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#844]: /../../pull/844
 
-## [0.1.0-alpha.12] · 2024-02-08
 
+
+
+## [0.1.0-alpha.12] · 2024-02-08
 [0.1.0-alpha.12]: /../../tree/v0.1.0-alpha.12
 
 [Diff](/../../compare/v0.1.0-alpha.11.1...v0.1.0-alpha.12) | [Milestone](/../../milestone/14)
@@ -1153,81 +1044,47 @@ All user visible changes to this project will be documented in this file. This p
     - Video popup calls starting without camera enabled. ([#797])
 
 [#573]: /../../issues/573
-
 [#582]: /../../issues/582
-
 [#698]: /../../issues/698
-
 [#699]: /../../issues/699
-
 [#718]: /../../issues/718
-
 [#726]: /../../issues/726
-
 [#743]: /../../issues/743
-
 [#745]: /../../pull/745
-
 [#750]: /../../pull/750
-
 [#756]: /../../pull/756
-
 [#758]: /../../issues/758
-
 [#759]: /../../pull/759
-
 [#763]: /../../pull/763
-
 [#766]: /../../issues/766
-
 [#769]: /../../pull/769
-
 [#771]: /../../pull/771
-
 [#774]: /../../pull/774
-
 [#775]: /../../pull/775
-
 [#776]: /../../pull/776
-
 [#780]: /../../pull/780
-
 [#786]: /../../pull/786
-
 [#787]: /../../issues/787
-
 [#788]: /../../issues/788
-
 [#789]: /../../issues/789
-
 [#790]: /../../issues/790
-
 [#791]: /../../pull/791
-
 [#794]: /../../pull/794
-
 [#796]: /../../pull/796
-
 [#797]: /../../pull/797
-
 [#805]: /../../pull/805
-
 [#808]: /../../issues/808
-
 [#810]: /../../issues/810
-
 [#811]: /../../issues/811
-
 [#816]: /../../pull/816
-
 [#823]: /../../pull/823
-
 [#827]: /../../pull/827
-
 [#837]: /../../pull/837
 
-## [0.1.0-alpha.11.1] · 2023-12-22
 
+
+
+## [0.1.0-alpha.11.1] · 2023-12-22
 [0.1.0-alpha.11.1]: /../../tree/v0.1.0-alpha.11.1
 
 [Diff](/../../compare/v0.1.0-alpha.11...v0.1.0-alpha.11.1) | [Milestone](/../../milestone/13)
@@ -1271,49 +1128,31 @@ All user visible changes to this project will be documented in this file. This p
     - Invalid caller name in popup calls. ([#711])
 
 [#584]: /../../issues/584
-
 [#632]: /../../issues/632
-
 [#654]: /../../issues/654
-
 [#666]: /../../issues/666
-
 [#681]: /../../issues/681
-
 [#697]: /../../pull/697
-
 [#695]: /../../pull/695
-
 [#700]: /../../issues/700
-
 [#702]: /../../pull/702
-
 [#703]: /../../pull/703
-
 [#707]: /../../pull/707
-
 [#710]: /../../issues/710
-
 [#711]: /../../pull/711
-
 [#719]: /../../issues/719
-
 [#730]: /../../pull/730
-
 [#732]: /../../pull/732
-
 [#735]: /../../pull/735
-
 [#736]: /../../pull/736
-
 [#741]: /../../issues/741
-
 [#748]: /../../pull/748
-
 [#757]: /../../pull/757
 
-## [0.1.0-alpha.11] · 2023-11-02
 
+
+
+## [0.1.0-alpha.11] · 2023-11-02
 [0.1.0-alpha.11]: /../../tree/v0.1.0-alpha.11
 
 [Diff](/../../compare/v0.1.0-alpha.10.1...v0.1.0-alpha.11) | [Milestone](/../../milestone/12)
@@ -1342,33 +1181,23 @@ All user visible changes to this project will be documented in this file. This p
         - Save button displaying when login field is empty. ([#672], [#575])
 
 [#557]: /../../issues/557
-
 [#575]: /../../issues/575
-
 [#615]: /../../issues/615
-
 [#634]: /../../issues/634
-
 [#633]: /../../issues/633
-
 [#653]: /../../issues/653
-
 [#662]: /../../pull/662
-
 [#663]: /../../pull/663
-
 [#668]: /../../pull/668
-
 [#671]: /../../pull/671
-
 [#672]: /../../pull/672
-
 [#679]: /../../pull/679
-
 [#688]: /../../pull/688
 
-## [0.1.0-alpha.10.1] · 2023-10-19
 
+
+
+## [0.1.0-alpha.10.1] · 2023-10-19
 [0.1.0-alpha.10.1]: /../../tree/v0.1.0-alpha.10.1
 
 [Diff](/../../compare/v0.1.0-alpha.10...v0.1.0-alpha.10.1) | [Milestone](/../../milestone/11)
@@ -1396,23 +1225,18 @@ All user visible changes to this project will be documented in this file. This p
     - Application crashing when encountering video attachments in chat. ([#656])
 
 [#201]: /../../issues/201
-
 [#202]: /../../pull/202
-
 [#525]: /../../issues/525
-
 [#548]: /../../issues/548
-
 [#628]: /../../pull/628
-
 [#641]: /../../pull/641
-
 [#656]: /../../pull/656
-
 [#657]: /../../pull/657
 
-## [0.1.0-alpha.10] · 2023-10-10
 
+
+
+## [0.1.0-alpha.10] · 2023-10-10
 [0.1.0-alpha.10]: /../../tree/v0.1.0-alpha.10
 
 [Diff](/../../compare/v0.1.0-alpha.9.4...v0.1.0-alpha.10) | [Milestone](/../../milestone/9)
@@ -1449,47 +1273,30 @@ All user visible changes to this project will be documented in this file. This p
     - Fix background flashing after loading. ([#604], [#549])
 
 [#70]: /../../issues/70
-
 [#301]: /../../pull/301
-
 [#370]: /../../issues/370
-
 [#423]: /../../pull/423
-
 [#508]: /../../issues/508
-
 [#533]: /../../pull/533
-
 [#549]: /../../issues/549
-
 [#550]: /../../issues/550
-
 [#551]: /../../issues/551
-
 [#559]: /../../issue/559
-
 [#564]: /../../issues/564
-
 [#587]: /../../pull/587
-
 [#597]: /../../pull/597
-
 [#599]: /../../pull/599
-
 [#604]: /../../pull/604
-
 [#609]: /../../pull/609
-
 [#610]: /../../pull/610
-
 [#613]: /../../pull/613
-
 [#614]: /../../issues/614
-
 [#616]: /../../pull/616
 
-## [0.1.0-alpha.9.4] · 2023-09-04
 
+
+
+## [0.1.0-alpha.9.4] · 2023-09-04
 [0.1.0-alpha.9.4]: /../../tree/v0.1.0-alpha.9.4
 
 [Diff](/../../compare/v0.1.0-alpha.9.3...v0.1.0-alpha.9.4) | [Milestone](/../../milestone/10)
@@ -1501,8 +1308,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#541]: /../../pull/541
 
-## [0.1.0-alpha.9.3] · 2023-09-01
 
+
+
+## [0.1.0-alpha.9.3] · 2023-09-01
 [0.1.0-alpha.9.3]: /../../tree/v0.1.0-alpha.9.3
 
 [Diff](/../../compare/v0.1.0-alpha.9.2...v0.1.0-alpha.9.3) | [Milestone](/../../milestone/8)
@@ -1523,23 +1332,18 @@ All user visible changes to this project will be documented in this file. This p
     - Display online status only when application is active. ([#522])
 
 [#385]: /../../issues/385
-
 [#439]: /../../issues/439
-
 [#492]: /../../pull/492
-
 [#500]: /../../issues/500
-
 [#506]: /../../pull/506
-
 [#513]: /../../pull/513
-
 [#522]: /../../pull/522
-
 [#529]: /../../pull/529
 
-## [0.1.0-alpha.9.2] · 2023-07-28
 
+
+
+## [0.1.0-alpha.9.2] · 2023-07-28
 [0.1.0-alpha.9.2]: /../../tree/v0.1.0-alpha.9.2
 
 [Diff](/../../compare/v0.1.0-alpha.9.1...v0.1.0-alpha.9.2) | [Milestone](/../../milestone/6)
@@ -1552,11 +1356,12 @@ All user visible changes to this project will be documented in this file. This p
     - Default locale not detecting in Safari. ([#491])
 
 [#491]: /../../pull/491
-
 [#496]: /../../pull/496
 
-## [0.1.0-alpha.9.1] · 2023-07-20
 
+
+
+## [0.1.0-alpha.9.1] · 2023-07-20
 [0.1.0-alpha.9.1]: /../../tree/v0.1.0-alpha.9.1
 
 [Diff](/../../compare/v0.1.0-alpha.9...v0.1.0-alpha.9.1) | [Milestone](/../../milestone/7)
@@ -1572,8 +1377,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#487]: /../../pull/487
 
-## [0.1.0-alpha.9] · 2023-07-17
 
+
+
+## [0.1.0-alpha.9] · 2023-07-17
 [0.1.0-alpha.9]: /../../tree/v0.1.0-alpha.9
 
 [Diff](/../../compare/v0.1.0-alpha.8...v0.1.0-alpha.9) | [Milestone](/../../milestone/5)
@@ -1637,99 +1444,56 @@ All user visible changes to this project will be documented in this file. This p
     - Images sometimes not loading. ([#408], [#344])
 
 [#17]: /../../issues/17
-
 [#118]: /../../pull/118
-
 [#258]: /../../issues/258
-
 [#264]: /../../issues/264
-
 [#270]: /../../pull/270
-
 [#281]: /../../issues/281
-
 [#286]: /../../pull/286
-
 [#326]: /../../issues/326
-
 [#333]: /../../pull/333
-
 [#344]: /../../issues/344
-
 [#348]: /../../issues/348
-
 [#356]: /../../pull/356
-
 [#357]: /../../pull/357
-
 [#361]: /../../pull/361
-
 [#362]: /../../pull/362
-
 [#367]: /../../issues/367
-
 [#371]: /../../issues/371
-
 [#375]: /../../pull/375
-
 [#377]: /../../issues/377
-
 [#380]: /../../pull/380
-
 [#388]: /../../pull/388
-
 [#392]: /../../pull/392
-
 [#393]: /../../pull/393
-
 [#399]: /../../pull/399
-
 [#401]: /../../issues/401
-
 [#403]: /../../pull/403
-
 [#405]: /../../pull/405
-
 [#408]: /../../pull/408
-
 [#412]: /../../pull/412
-
 [#418]: /../../issues/418
-
 [#436]: /../../pull/436
-
 [#437]: /../../pull/437
-
 [#438]: /../../issues/438
-
 [#440]: /../../pull/440
-
 [#443]: /../../pull/443
-
 [#445]: /../../pull/445
-
 [#452]: /../../issues/452
-
 [#453]: /../../pull/453
-
 [#454]: /../../pull/454
-
 [#456]: /../../pull/456
-
 [#462]: /../../pull/462
-
 [#463]: /../../pull/463
-
 [#467]: /../../pull/467
-
 [#468]: /../../pull/468
-
 [#470]: /../../pull/470
-
 [#472]: /../../pull/472
 
-## [0.1.0-alpha.8] · 2023-03-07
 
+
+
+## [0.1.0-alpha.8] · 2023-03-07
 [0.1.0-alpha.8]: /../../tree/v0.1.0-alpha.8
 
 [Diff](/../../compare/v0.1.0-alpha.7...v0.1.0-alpha.8) | [Milestone](/../../milestone/4)
@@ -1811,195 +1575,104 @@ All user visible changes to this project will be documented in this file. This p
     - Context menu not opening over video previews. ([#198], [#196])
 
 [#63]: /../../issues/63
-
 [#102]: /../../issues/102
-
 [#126]: /../../issues/126
-
 [#134]: /../../issues/134
-
 [#142]: /../../pull/142
-
 [#164]: /../../pull/164
-
 [#172]: /../../pull/172
-
 [#173]: /../../pull/173
-
 [#181]: /../../issues/181
-
 [#188]: /../../pull/188
-
 [#189]: /../../pull/189
-
 [#190]: /../../issues/190
-
 [#191]: /../../pull/191
-
 [#192]: /../../issues/192
-
 [#193]: /../../pull/193
-
 [#196]: /../../issues/196
-
 [#198]: /../../pull/198
-
 [#199]: /../../issues/199
-
 [#203]: /../../issues/203
-
 [#204]: /../../pull/204
-
 [#205]: /../../issues/205
-
 [#206]: /../../pull/206
-
 [#208]: /../../issues/208
-
 [#209]: /../../issues/209
-
 [#211]: /../../pull/211
-
 [#212]: /../../pull/212
-
 [#214]: /../../issues/214
-
 [#215]: /../../issues/215
-
 [#217]: /../../pull/217
-
 [#218]: /../../pull/218
-
 [#221]: /../../pull/221
-
 [#222]: /../../issues/222
-
 [#223]: /../../issues/223
-
 [#226]: /../../issues/226
-
 [#228]: /../../pull/228
-
 [#229]: /../../issues/229
-
 [#233]: /../../issues/233
-
 [#234]: /../../pull/234
-
 [#235]: /../../pull/235
-
 [#237]: /../../pull/237
-
 [#238]: /../../issues/238
-
 [#241]: /../../pull/241
-
 [#243]: /../../issues/243
-
 [#244]: /../../pull/244
-
 [#245]: /../../pull/245
-
 [#246]: /../../pull/246
-
 [#247]: /../../pull/247
-
 [#249]: /../../pull/249
-
 [#251]: /../../pull/251
-
 [#252]: /../../issues/252
-
 [#253]: /../../issues/253
-
 [#254]: /../../pull/254
-
 [#255]: /../../pull/255
-
 [#256]: /../../issues/256
-
 [#257]: /../../issues/257
-
 [#259]: /../../issues/259
-
 [#260]: /../../pull/260
-
 [#262]: /../../issues/262
-
 [#263]: /../../issues/263
-
 [#265]: /../../pull/265
-
 [#274]: /../../pull/274
-
 [#275]: /../../pull/275
-
 [#276]: /../../pull/276
-
 [#277]: /../../pull/277
-
 [#278]: /../../issues/278
-
 [#283]: /../../issues/283
-
 [#285]: /../../pull/285
-
 [#287]: /../../pull/287
-
 [#288]: /../../pull/288
-
 [#292]: /../../issues/292
-
 [#293]: /../../pull/293
-
 [#295]: /../../issues/295
-
 [#300]: /../../pull/300
-
 [#305]: /../../pull/305
-
 [#309]: /../../issues/309
-
 [#310]: /../../pull/310
-
 [#313]: /../../pull/313
-
 [#316]: /../../pull/316
-
 [#317]: /../../pull/317
-
 [#319]: /../../pull/319
-
 [#323]: /../../pull/323
-
 [#327]: /../../issues/327
-
 [#328]: /../../issues/328
-
 [#330]: /../../issues/330
-
 [#332]: /../../pull/332
-
 [#335]: /../../pull/335
-
 [#336]: /../../pull/336
-
 [#337]: /../../pull/337
-
 [#340]: /../../pull/340
-
 [#342]: /../../pull/342
-
 [#345]: /../../issues/345
-
 [#347]: /../../pull/347
-
 [#350]: /../../pull/350
-
 [#359]: /../../pull/359
 
-## [0.1.0-alpha.7] · 2022-10-27
 
+
+
+## [0.1.0-alpha.7] · 2022-10-27
 [0.1.0-alpha.7]: /../../tree/v0.1.0-alpha.7
 
 [Diff](/../../compare/v0.1.0-alpha.6.1...v0.1.0-alpha.7) | [Milestone](/../../milestone/2)
@@ -2033,47 +1706,30 @@ All user visible changes to this project will be documented in this file. This p
         - Inability to disable certain incoming videos. ([#182], [#179])
 
 [#95]: /../../issues/95
-
 [#96]: /../../pull/96
-
 [#122]: /../../issues/122
-
 [#127]: /../../pull/127
-
 [#128]: /../../issues/128
-
 [#133]: /../../issues/133
-
 [#137]: /../../issues/137
-
 [#146]: /../../issues/146
-
 [#151]: /../../issues/151
-
 [#158]: /../../issues/158
-
 [#159]: /../../pull/159
-
 [#161]: /../../pull/161
-
 [#162]: /../../pull/162
-
 [#163]: /../../pull/163
-
 [#166]: /../../issues/166
-
 [#169]: /../../pull/169
-
 [#170]: /../../pull/170
-
 [#171]: /../../pull/171
-
 [#179]: /../../issues/179
-
 [#182]: /../../pull/182
 
-## [0.1.0-alpha.6.1] · 2022-10-03
 
+
+
+## [0.1.0-alpha.6.1] · 2022-10-03
 [0.1.0-alpha.6.1]: /../../tree/v0.1.0-alpha.6.1
 
 [Diff](/../../compare/v0.1.0-alpha.6...v0.1.0-alpha.6.1) | [Milestone](/../../milestone/3)
@@ -2089,13 +1745,13 @@ All user visible changes to this project will be documented in this file. This p
     - Application not loading due to IndexedDB error. ([#154])
 
 [#132]: /../../issues/132
-
 [#147]: /../../pull/147
-
 [#154]: /../../pull/154
 
-## [0.1.0-alpha.6] · 2022-09-28
 
+
+
+## [0.1.0-alpha.6] · 2022-09-28
 [0.1.0-alpha.6]: /../../tree/v0.1.0-alpha.6
 
 [Diff](/../../compare/3aa35d5bf8ba9728f54db7bf4e21425711097cda...v0.1.0-alpha.6) | [Milestone](/../../milestone/1)
@@ -2157,116 +1813,63 @@ All user visible changes to this project will be documented in this file. This p
         - Prevent device from sleeping. ([#112], [#92])
 
 [#2]: /../../issues/2
-
 [#3]: /../../issues/3
-
 [#4]: /../../issues/4
-
 [#5]: /../../pull/5
-
 [#6]: /../../issues/6
-
 [#7]: /../../pull/7
-
 [#8]: /../../issues/8
-
 [#9]: /../../pull/9
-
 [#11]: /../../issues/11
-
 [#12]: /../../pull/12
-
 [#14]: /../../pull/14
-
 [#15]: /../../pull/15
-
 [#23]: /../../pull/23
-
 [#26]: /../../pull/26
-
 [#29]: /../../pull/29
-
 [#31]: /../../pull/31
-
 [#34]: /../../pull/34
-
 [#35]: /../../pull/35
-
 [#38]: /../../pull/38
-
 [#39]: /../../pull/39
-
 [#41]: /../../issues/41
-
 [#42]: /../../pull/42
-
 [#44]: /../../issues/44
-
 [#45]: /../../pull/45
-
 [#47]: /../../pull/47
-
 [#51]: /../../issues/51
-
 [#53]: /../../pull/53
-
 [#56]: /../../pull/56
-
 [#60]: /../../pull/60
-
 [#72]: /../../pull/72
-
 [#73]: /../../pull/73
-
 [#75]: /../../issues/75
-
 [#76]: /../../issues/76
-
 [#79]: /../../pull/79
-
 [#80]: /../../pull/80
-
 [#82]: /../../issues/82
-
 [#83]: /../../pull/83
-
 [#85]: /../../pull/85
-
 [#89]: /../../pull/89
-
 [#90]: /../../pull/90
-
 [#92]: /../../issues/92
-
 [#100]: /../../issues/100
-
 [#106]: /../../pull/106
-
 [#112]: /../../pull/112
-
 [#115]: /../../pull/115
-
 [#117]: /../../pull/117
-
 [#123]: /../../issues/123
-
 [#129]: /../../pull/129
-
 [#130]: /../../issues/130
-
 [#139]: /../../pull/139
-
 [#148]: /../../pull/148
 
 
+
+
 [CallKit]: https://developer.apple.com/documentation/callkit/
-
 [ConnectionService]: https://developer.android.com/reference/android/telecom/ConnectionService
-
 [Helm]: https://helm.sh
-
 [PWA]: https://en.wikipedia.org/wiki/Progressive_web_app
-
 [Semantic Versioning 2.0.0]: https://semver.org
-
 [VoIP]: https://wikipedia.org/wiki/Voice_over_IP
