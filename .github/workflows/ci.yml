@@ -261,7 +261,7 @@ jobs:
           - macos
           - web
           - windows
-    runs-on: ${{ (contains('ipa macos', matrix.platform) && 'macos-latest')
+    runs-on: ${{ (contains('ipa macos', matrix.platform) && 'macos-14')
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
