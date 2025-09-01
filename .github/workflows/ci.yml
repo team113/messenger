@@ -369,11 +369,6 @@ jobs:
                          -nodes -nocerts -passin pass:$P12_PASSWORD \
           | openssl rsa -out $KEY_PATH
 
-          # Remove Bag Attributes from the resulting key.
-          sed -i '' \
-              '1,/-----BEGIN PRIVATE KEY-----/ { /-----BEGIN PRIVATE KEY-----/!d; }' \
-              $KEY_PATH
-
           # Initialize keychain.
           keychain initialize
 
