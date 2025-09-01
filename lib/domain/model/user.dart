@@ -109,6 +109,7 @@ class User {
 
   Presence? get presence =>
       presenceIndex == null ? null : Presence.values[presenceIndex!];
+
   set presence(Presence? pres) {
     presenceIndex = pres?.index;
   }
@@ -180,7 +181,7 @@ class UserNum extends NewType<String> {
   factory UserNum.fromJson(String val) = UserNum.unchecked;
 
   factory UserNum(String val) {
-    val = val.replaceAll(' ', '');
+    val = val.replaceAll(RegExp(r'[^0-9]+'), '');
 
     if (val.length != 16) {
       throw const FormatException('Must be 16 characters long');
@@ -210,7 +211,7 @@ class UserNum extends NewType<String> {
 
     for (int i = 0; i < val.length; i++) {
       if (i % 4 == 0 && i > 0) {
-        formattedUserNum += 'space'.l10n;
+        formattedUserNum += 'dash'.l10n;
       }
       formattedUserNum += val[i];
     }

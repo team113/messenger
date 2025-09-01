@@ -472,7 +472,7 @@ void main() async {
       );
       await tester.pumpAndSettle(const Duration(seconds: 2));
       expect(find.byKey(const Key('Present')), findsOneWidget);
-      expect(find.text('5769space2360space9862space1822'), findsOneWidget);
+      expect(find.text('5769dash2360dash9862dash1822'), findsOneWidget);
 
       // TODO: Uncomment, when contacts are implemented.
       // await tester.tap(find.byKey(const Key('MoreButton')));

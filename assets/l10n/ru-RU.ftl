@@ -979,3 +979,4 @@ space = {" "}
 space_or_space = {" "} или {" "}
 space_plus_space = {" "} + {" "}
 space_vertical_space = {" "} | {" "}
+dash = -
