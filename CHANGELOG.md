@@ -15,6 +15,10 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Redesigned media player. ([#1368], [#1367], [#1356])
+    - Chat info page:
+        - Display folded indicator when chat is in favorites. ([#1391] [#1274])
+    - User page:
+        - Display folded indicator when user is in favorites. ([#1391], [#1274])
 
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
@@ -27,11 +31,13 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Back/forward buttons appearing in Chrome when swiping back/forward. ([#1386])
 
+[#1274]: /../../issues/1274
 [#1356]: /../../pull/1356
 [#1367]: /../../pull/1367
 [#1368]: /../../pull/1368
 [#1369]: /../../pull/1369
 [#1386]: /../../pull/1386
+[#1391]: /../../pull/1391
 
 
 
