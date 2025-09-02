@@ -662,6 +662,8 @@ class CallWorker extends DisposableService {
         _settingsRepository.applicationSettings.value?.muteHotKey ??
         MuteHotKeyExtension.defaultHotKey;
 
+    _callKitCalls.clear();
+
     super.onInit();
   }
 

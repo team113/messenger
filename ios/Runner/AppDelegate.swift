@@ -135,6 +135,7 @@ import sqlite3
     data.extra = extra
 
     var isAuthorized = true
+    let doReport = true
 
     // Check authorization asynchronously
     if let containerURL = FileManager.default.containerURL(
@@ -181,18 +182,79 @@ import sqlite3
                     }
                   }
                 }
-
               }
+
             }
           } else {
             isAuthorized = false
+          }
+
+          if authorized {
+            // Third, check if CallKit should be displayed at all.
+            var stmt3: OpaquePointer?
+            let atQuery = "SELECT at FROM call_kit_calls WHERE id = ? LIMIT 1"
+
+            if sqlite3_prepare_v2(db, atQuery, -1, &stmt3, nil) == SQLITE_OK {
+              defer { sqlite3_finalize(stmt3) }
+
+              id.withCString { cStr in
+                if sqlite3_bind_text(stmt3, 1, cStr, -1, nil) == SQLITE_OK {
+                  if sqlite3_step(stmt3) == SQLITE_ROW {
+                    if let atCStr = sqlite3_column_text(stmt3, 0) {
+                      let atStr = String(cString: atCStr)
+
+                      if let atInt64 = Int64(atStr) {
+                        // Convert from µs → seconds (Double).
+                        let accountedAt = Date(
+                          timeIntervalSince1970: Double(atInt64) / 1_000_000.0
+                        )
+                        let now = Date()
+
+                        let diff = abs(accountedAt.timeIntervalSince(now))
+                        doReport = diff >= 15
+                      } else {
+                        doReport = true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          if isAuthorized && doReport {
+            var stmt: OpaquePointer?
+            let query = """
+                  INSERT INTO call_kit_calls (id, at)
+                  VALUES (?, ?)
+                  ON CONFLICT(id) DO UPDATE SET at = excluded.at;
+              """
+
+            if sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK {
+              defer { sqlite3_finalize(stmt) }
+
+              // Bind ID.
+              id.withCString { cStr in
+                sqlite3_bind_text(stmt, 1, cStr, -1, nil)
+              }
+
+              // Bind current time in microseconds.
+              let nowMicros = Int64(Date().timeIntervalSince1970 * 1_000_000)
+              sqlite3_bind_int64(stmt, 2, nowMicros)
+
+              if sqlite3_step(stmt) != SQLITE_DONE {
+                print("UPSERT failed: \(String(cString: sqlite3_errmsg(db)))")
+              }
+            } else {
+              print("Prepare failed: \(String(cString: sqlite3_errmsg(db)))")
+            }
           }
         }
       }
     }
 
     DispatchQueue.main.async {
-      if isAuthorized {
+      if isAuthorized && doReport {
         if endedAt != "" {
           SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(data)
         } else {
@@ -200,6 +262,7 @@ import sqlite3
             data, fromPushKit: true)
         }
       }
+
       completion()
     }
   }
