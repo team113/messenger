@@ -15,7 +15,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Redesigned media player. ([#1368], [#1367], [#1356])
-    - Display user id with dash. ([#1352])
+    - Set blockfolded whenever chat is favorite ([#1274], [#1391])
+        - User info page
+        - Group chat info page
+
+[#1274]: /../../issue/1274
+[#1391]: /../../pull/1391
 
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
