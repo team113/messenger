@@ -107,13 +107,6 @@ class User {
   /// Presence of this [User].
   int? presenceIndex;
 
-  Presence? get presence =>
-      presenceIndex == null ? null : Presence.values[presenceIndex!];
-
-  set presence(Presence? pres) {
-    presenceIndex = pres?.index;
-  }
-
   /// Custom text status of this [User].
   UserTextStatus? status;
 
@@ -144,6 +137,15 @@ class User {
   /// Returns text representing the title of this [User].
   String get title =>
       contacts.firstOrNull?.name.val ?? name?.val ?? num.toString();
+
+  /// Returns the [Presence] of this [User].
+  Presence? get presence =>
+      presenceIndex == null ? null : Presence.values[presenceIndex!];
+
+  /// Sets the [Presence] of this [User] to be the provided [pres].
+  set presence(Presence? pres) {
+    presenceIndex = pres?.index;
+  }
 
   @override
   String toString() => '$runtimeType($id)';
@@ -181,7 +183,7 @@ class UserNum extends NewType<String> {
   factory UserNum.fromJson(String val) = UserNum.unchecked;
 
   factory UserNum(String val) {
-    val = val.replaceAll(RegExp(r'[^0-9]+'), '');
+    val = val.replaceAll(_nonDigitsRegExp, '');
 
     if (val.length != 16) {
       throw const FormatException('Must be 16 characters long');
@@ -191,6 +193,9 @@ class UserNum extends NewType<String> {
 
     return UserNum._(val);
   }
+
+  /// [RegExp] matching any amount of non-numeric symbols.
+  static final RegExp _nonDigitsRegExp = RegExp(r'[^0-9]+');
 
   /// Parses the provided [val] as a [UserNum], if [val] meets the validation,
   /// or returns `null` otherwise.
@@ -211,7 +216,7 @@ class UserNum extends NewType<String> {
 
     for (int i = 0; i < val.length; i++) {
       if (i % 4 == 0 && i > 0) {
-        formattedUserNum += 'dash'.l10n;
+        formattedUserNum += 'hyphen'.l10n;
       }
       formattedUserNum += val[i];
     }

@@ -238,7 +238,6 @@ btn_video_call = Видеозвонок
 btn_work_with_us = Работайте с нами
 colon_space = :{" "}
 comma_space = ,{" "}
-dash = -
 dot = .
 email_confirmation_code =
     Код: {$token}
@@ -427,6 +426,7 @@ fcm_user_removed_you =
        *[other] {$userName}
     } исключил Вас из группы
 fcm_webpush_link = /chats/{$chatId}
+hyphen = -
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about_you = О Вас

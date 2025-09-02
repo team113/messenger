@@ -15,8 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Redesigned media player. ([#1368], [#1367], [#1356])
-    - Display Gapopa ID with dash. ([#1393], [#1352])
-
+    - Display Gapopa ID with hyphens instead of spaces. ([#1393], [#1352])
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
 
