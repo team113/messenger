@@ -187,6 +187,10 @@ class UserController extends GetxController {
   /// [contact] may be fetched with a delay.
   ChatContactId? get contactId => user?.user.value.contacts.firstOrNull?.id;
 
+  /// Indicates whether the contact's [chat] is a favorite.
+  bool get isFavorite =>
+      user?.dialog.value?.chat.value.favoritePosition != null;
+
   @override
   void onInit() {
     name = TextFieldState(
