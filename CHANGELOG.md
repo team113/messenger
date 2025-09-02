@@ -16,9 +16,9 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Redesigned media player. ([#1368], [#1367], [#1356])
     - Chat info page:
-        - Add a `folded` flag to indicate that the chat is in favorites. ([#1274], [#1391])
+        - Display folded indicator when chat is in favorites. ([#1391] [#1274])
     - User page:
-        - Add a `folded` flag to indicate that the chat is in favorites. ([#1274], [#1391])
+        - Display folded indicator when user is in favorites. ([#1391], [#1274])
 
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])

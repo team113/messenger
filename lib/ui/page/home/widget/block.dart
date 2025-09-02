@@ -188,6 +188,7 @@ class Block extends StatelessWidget {
                     ],
                   ),
                 ),
+
                 if (folded)
                   Container(
                     padding: margin,
