@@ -31,6 +31,8 @@ import 'package:uuid/uuid.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../domain/model/precise_date_time/precise_date_time.dart';
+import '../../provider/drift/callkit_calls.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat_item.dart';
@@ -66,6 +68,7 @@ class CallWorker extends DisposableService {
     this._authService,
     this._settingsRepository,
     this._graphQlProvider,
+    this._callKitCalls,
   );
 
   /// [CallService] used to get reactive changes of [OngoingCall]s.
@@ -90,6 +93,10 @@ class CallWorker extends DisposableService {
 
   /// [GraphQlProvider] required to access [ChatEvent]s directly.
   final GraphQlProvider _graphQlProvider;
+
+  /// [CallKitCallsDriftProvider] to mark [FlutterCallkitIncoming] calls as
+  /// accounted.
+  final CallKitCallsDriftProvider _callKitCalls;
 
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
@@ -148,6 +155,10 @@ class CallWorker extends DisposableService {
   /// [Worker] reacting on the [ApplicationSettings] changes to rebind the
   /// [_hotKey].
   Worker? _settingsWorker;
+
+  /// [Duration] between [FlutterCallkitIncoming]s displayed to be considered as
+  /// a new call instead of already reported one.
+  static const Duration _accountedTimeout = Duration(seconds: 15);
 
   /// [Duration] indicating the time after which the push notification should be
   /// considered as lost.
@@ -400,15 +411,28 @@ class CallWorker extends DisposableService {
 
           if (_isCallKit) {
             final RxChat? chat = await _chatService.get(c.chatId.value);
+            final String id = (c.call.value?.id.val ?? c.chatId.value.val)
+                .base62ToUuid();
+            bool report = true;
 
-            await FlutterCallkitIncoming.startCall(
-              CallKitParams(
-                nameCaller: chat?.title ?? 'Call',
-                id: (c.call.value?.id.val ?? c.chatId.value.val).base62ToUuid(),
-                handle: c.chatId.value.val,
-                extra: {'chatId': c.chatId.value.val},
-              ),
-            );
+            final PreciseDateTime? accountedAt = await _callKitCalls.read(id);
+            if (accountedAt != null) {
+              report =
+                  accountedAt.val.difference(DateTime.now()).abs() >=
+                  _accountedTimeout;
+            }
+
+            if (report) {
+              _callKitCalls.upsert(id, PreciseDateTime.now());
+              await FlutterCallkitIncoming.startCall(
+                CallKitParams(
+                  nameCaller: chat?.title ?? 'Call',
+                  id: id,
+                  handle: c.chatId.value.val,
+                  extra: {'chatId': c.chatId.value.val},
+                ),
+              );
+            }
           }
           break;
 
