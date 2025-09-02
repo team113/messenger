@@ -15,12 +15,9 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Redesigned media player. ([#1368], [#1367], [#1356])
-    - Set blockfolded whenever chat is favorite ([#1274], [#1391])
+    - Set blockfolded whenever chat is favorite ([#1274](https://github.com/team113/messenger/issues/1274), [#1391](https://github.com/team113/messenger/pull/1391))
         - User info page
         - Group chat info page
-
-[#1274]: /../../issue/1274
-[#1391]: /../../pull/1391
 
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
