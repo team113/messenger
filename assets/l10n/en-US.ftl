@@ -238,6 +238,7 @@ btn_video_call = Video call
 btn_work_with_us = Work with us
 colon_space = :{" "}
 comma_space = ,{" "}
+dash = -
 dot = .
 email_confirmation_code =
     Code: {$token}
@@ -963,4 +964,3 @@ space = {" "}
 space_or_space = {" "} or {" "}
 space_plus_space = {" "} + {" "}
 space_vertical_space = {" "} | {" "}
-dash = -
