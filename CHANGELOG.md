@@ -15,10 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Redesigned media player. ([#1368], [#1367], [#1356])
-    - Display Gapopa ID with dash ([#1393], [#1352]).
-
-[#1393]: /../../pull/1393
-[#1352]: /../../issue/1352
+    - Display Gapopa ID with dash ([#1393](https://github.com/team113/messenger/pull/1393), [#1352](https://github.com/team113/messenger/issues/1352)).
 
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
