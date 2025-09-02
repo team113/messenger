@@ -121,3 +121,29 @@ messaging.onBackgroundMessage(async (payload) => {
     }
   }
 });
+
+
+/// Listens for messages from the main thread.
+/// This runs inside a background service worker, where the browser 
+/// manages notifications independently of the page context. 
+/// In other words, notifications shown here cannot be dismissed 
+/// directly from the web page code.
+self.addEventListener("message", async (event) => {
+  try {
+    const data = event?.data;
+
+    if (typeof data !== "string" || !data.startsWith("closeAll:")) return;
+    // try getting chatId 
+    const chatId = data.split("closeAll:")[1];
+
+    const notifications = await self.registration.getNotifications();
+    for (const notification of notifications) {
+      if (notification?.data?.FCM_MSG?.data?.chatId=== chatId) {
+        console.log("closed from message event", data, JSON.stringify((notification.data)));
+        notification.close();
+      }
+    }
+  } catch (e) {
+    console.error("SW message closeAll error:", e);
+  }
+});

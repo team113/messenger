@@ -32,6 +32,7 @@ import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
+import '/domain/service/notification.dart';
 import '/api/backend/schema.dart'
     hide
         ChatItemQuoteInput,
@@ -106,7 +107,8 @@ class ChatController extends GetxController {
     this._authService,
     this._userService,
     this._settingsRepository,
-    this._contactService, {
+    this._contactService,
+    this._notificationService, {
     this.itemId,
     this.onContext,
   });
@@ -375,6 +377,9 @@ class ChatController extends GetxController {
   /// [Mutex] guarding access to [_typingSubscription].
   final Mutex _typingGuard = Mutex();
 
+  /// Notification service for managing notifications.
+  final NotificationService _notificationService;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -581,7 +586,12 @@ class ChatController extends GetxController {
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
     AudioUtils.ensureInitialized();
-    _fetchChat();
+    _fetchChat().then((_) {
+      // clearing notifications for the current chat after it's loaded
+      _notificationService.clearNotificationsByChatId(
+        chat?.chat.value.id ?? id,
+      );
+    });
 
     if (!PlatformUtils.isMobile) {
       send.field.focus.requestFocus();

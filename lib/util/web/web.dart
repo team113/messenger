@@ -522,6 +522,24 @@ class WebUtils {
     notification.onclick = fn.toJS;
   }
 
+  /// Clears notifications identified by the provided [chatId] via registered
+  /// serviceWorker's.
+  static Future<void> clearNotificationsByChatId(ChatId chatId) async {
+    //  try to postMessage to active registrations if any.
+    try {
+      final registrations = await web.window.navigator.serviceWorker
+          .getRegistrations()
+          .toDart
+          .then((js) => js.toDart);
+
+      for (var registration in registrations) {
+        registration.active?.postMessage('closeAll:$chatId'.toJS);
+      }
+    } catch (_) {
+      // Ignore errors; SW might not be available yet.
+    }
+  }
+
   /// Clears the browser's `IndexedDB`.
   static Future<void> cleanIndexedDb({String? except}) async {
     try {
