@@ -15,9 +15,10 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Redesigned media player. ([#1368], [#1367], [#1356])
-    - Set blockfolded whenever chat is favorite ([#1274](https://github.com/team113/messenger/issues/1274), [#1391](https://github.com/team113/messenger/pull/1391))
-        - User info page
-        - Group chat info page
+    - Chat info page:
+        - Add a `folded` flag to indicate that the chat is in favorites. ([#1274], [#1391])
+    - User page:
+        - Add a `folded` flag to indicate that the chat is in favorites. ([#1274], [#1391])
 
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
@@ -30,12 +31,13 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Back/forward buttons appearing in Chrome when swiping back/forward. ([#1386])
 
+[#1274]: /../../issues/1274
 [#1356]: /../../pull/1356
 [#1367]: /../../pull/1367
 [#1368]: /../../pull/1368
 [#1369]: /../../pull/1369
 [#1386]: /../../pull/1386
-
+[#1391]: /../../pull/1391
 
 
 
