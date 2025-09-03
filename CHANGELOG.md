@@ -14,7 +14,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
-    - Redesigned media player. ([#1368], [#1367], [#1356])
+    - Redesigned media player. ([#1395], [#1368], [#1367], [#1356])
     - Chat info page:
         - Display folded indicator when chat is in favorites. ([#1391] [#1274])
     - User page:
@@ -41,6 +41,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1386]: /../../pull/1386
 [#1391]: /../../pull/1391
 [#1393]: /../../pull/1393
+[#1395]: /../../pull/1395
 
 
 
