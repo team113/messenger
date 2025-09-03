@@ -147,6 +147,10 @@ class PlayerController extends GetxController {
   /// [List] of the currently active [PlayerNotification]s.
   final RxList<PlayerNotification> notifications = RxList();
 
+  /// Indicator whether scrolling of pointer should zoom the
+  /// [transformationController] instead of scrolling.
+  final RxBool zoomInsteadOfScrolling = RxBool(false);
+
   /// [AbstractSettingsRepository] for storing the
   /// [ApplicationSettings.videoVolume].
   final AbstractSettingsRepository _settingsRepository;
@@ -737,7 +741,24 @@ class PlayerController extends GetxController {
 
           return true;
 
+        case LogicalKeyboardKey.controlLeft:
+        case LogicalKeyboardKey.controlRight:
+          zoomInsteadOfScrolling.value = true;
+          return true;
+
         default:
+          // No-op.
+          break;
+      }
+    } else if (event is KeyUpEvent) {
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.controlLeft:
+        case LogicalKeyboardKey.controlRight:
+          zoomInsteadOfScrolling.value = false;
+          return true;
+
+        default:
+          // No-op.
           break;
       }
     }

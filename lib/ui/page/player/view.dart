@@ -186,9 +186,11 @@ class PlayerView extends StatelessWidget {
   Widget _content(BuildContext context, PlayerController c) {
     return Obx(() {
       return PageView.builder(
-        physics: c.viewportIsTransformed.value
-            ? NeverScrollableScrollPhysics()
-            : null,
+        physics:
+            !c.viewportIsTransformed.value &&
+                (!c.zoomInsteadOfScrolling.value || !PlatformUtils.isWindows)
+            ? null
+            : NeverScrollableScrollPhysics(),
         controller: c.vertical,
         scrollDirection: Axis.vertical,
         itemCount: c.posts.length,
@@ -198,7 +200,6 @@ class PlayerView extends StatelessWidget {
             child: _post(context, c, c.posts.elementAt(i)),
           );
         },
-        // children: [...c.posts.map((e) => _post(context, c, e))],
       );
     });
   }
@@ -207,9 +208,10 @@ class PlayerView extends StatelessWidget {
   Widget _post(BuildContext context, PlayerController c, Post post) {
     return Obx(() {
       return PageView(
-        physics: c.viewportIsTransformed.value
-            ? NeverScrollableScrollPhysics()
-            : null,
+        physics:
+            !c.viewportIsTransformed.value && !c.zoomInsteadOfScrolling.value
+            ? null
+            : NeverScrollableScrollPhysics(),
         controller: post.horizontal.value,
         children: [...post.items.map((e) => _attachment(context, c, post, e))],
       );
@@ -299,21 +301,25 @@ class PlayerView extends StatelessWidget {
               ),
           ],
         ],
-        child: InteractiveViewer(
-          transformationController: c.transformationController,
-          onInteractionStart: (_) {
-            c.viewportIsTransformed.value = true;
-          },
-          onInteractionEnd: (e) {
-            c.viewportIsTransformed.value =
-                c.transformationController.value.forward.z > 1;
-          },
-          child: child,
-        ),
+        child: Obx(() {
+          return InteractiveViewer(
+            scaleEnabled:
+                c.zoomInsteadOfScrolling.value || !PlatformUtils.isWindows,
+            transformationController: c.transformationController,
+            onInteractionStart: (_) {
+              c.viewportIsTransformed.value = true;
+            },
+            onInteractionEnd: (e) {
+              c.viewportIsTransformed.value =
+                  c.transformationController.value.forward.z > 1;
+            },
+            child: child ?? const SizedBox(),
+          );
+        }),
       );
     }
 
-    return SizedBox();
+    return const SizedBox();
   }
 
   /// Builds the interface to display over the [_content].
