@@ -28,6 +28,7 @@ import '/ui/widget/svg/svg.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
+import '/util/video_extension.dart';
 
 /// Thumbnail displaying the first frame of the provided video.
 class VideoThumbnail extends StatefulWidget {
@@ -278,86 +279,78 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     }
 
     try {
+      final VideoPlayerOptions options = VideoPlayerOptions(
+        webOptions: VideoPlayerWebOptions(
+          allowContextMenu: false,
+          allowRemotePlayback: false,
+        ),
+      );
+
       if (file != null) {
         _controller = VideoPlayerController.file(
           file,
-          videoPlayerOptions: VideoPlayerOptions(
-            webOptions: VideoPlayerWebOptions(
-              allowContextMenu: false,
-              allowRemotePlayback: false,
-            ),
-          ),
+          videoPlayerOptions: options,
         );
-
-        await _controller?.initialize();
-
-        if (mounted) {
-          setState(() {});
-        }
-
-        if (widget.autoplay) {
-          await _controller?.setVolume(0);
-          await _controller?.setLooping(true);
-          await _controller?.play();
-        }
       } else if (bytes != null) {
-        // TODO: Implement.
-        throw UnimplementedError();
-      } else {
+        _controller = await VideoPlayerControllerExt.bytes(
+          bytes,
+          checksum: widget.checksum,
+          videoPlayerOptions: options,
+        );
+      } else if (widget.url != null) {
         _controller = VideoPlayerController.networkUrl(
           Uri.parse(widget.url!),
-          videoPlayerOptions: VideoPlayerOptions(
-            webOptions: VideoPlayerWebOptions(
-              allowContextMenu: false,
-              allowRemotePlayback: false,
-            ),
-          ),
+          videoPlayerOptions: options,
         );
+      }
 
-        await Backoff.run(() async {
-          try {
-            Log.debug(
-              '_initVideo(${widget.url}) -> await _controller?.initialize()...',
+      await Backoff.run(() async {
+        if (_controller == null) {
+          return;
+        }
+
+        try {
+          Log.debug(
+            '_initVideo(${widget.url}) -> await _controller?.initialize()...',
+            '$runtimeType',
+          );
+
+          await _controller?.initialize();
+
+          Log.debug(
+            '_initVideo(${widget.url}) -> await _controller?.initialize()... done!',
+            '$runtimeType',
+          );
+
+          if (mounted) {
+            setState(() {});
+          }
+
+          if (widget.autoplay) {
+            await _controller?.setVolume(0);
+            await _controller?.setLooping(true);
+            await _controller?.play();
+          }
+        } catch (e) {
+          if (!_triedOnError) {
+            _triedOnError = true;
+            await widget.onError?.call();
+            _cancelToken?.cancel();
+          } else {
+            Log.error(
+              'Unable to load thumbnail of `${widget.url}`: $e',
               '$runtimeType',
             );
 
-            await _controller?.initialize();
-
-            Log.debug(
-              '_initVideo(${widget.url}) -> await _controller?.initialize()... done!',
-              '$runtimeType',
-            );
-
+            _error = e.toString();
             if (mounted) {
               setState(() {});
             }
 
-            if (widget.autoplay) {
-              await _controller?.setVolume(0);
-              await _controller?.setLooping(true);
-              await _controller?.play();
-            }
-          } catch (e) {
-            if (!_triedOnError) {
-              _triedOnError = true;
-              await widget.onError?.call();
-              _cancelToken?.cancel();
-            } else {
-              Log.error(
-                'Unable to load thumbnail of `${widget.url}`: $e',
-                '$runtimeType',
-              );
-
-              _error = e.toString();
-              if (mounted) {
-                setState(() {});
-              }
-
-              rethrow;
-            }
+            rethrow;
           }
-        }, cancel: _cancelToken);
-      }
+        }
+      }, cancel: _cancelToken);
     } on OperationCanceledException {
       Log.debug(
         '_initVideo(${widget.url}) -> OperationCanceledException',
@@ -387,6 +380,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
     try {
       await Backoff.run(() async {
+        if (widget.url == null) {
+          return;
+        }
+
         try {
           Log.debug('_ensureReachable() -> fetching HEAD...', '$runtimeType');
 
