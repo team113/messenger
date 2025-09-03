@@ -1220,6 +1220,12 @@ class RxChatImpl extends RxChat {
             );
           },
           onAdded: (e) async {
+            // If this [ChatItem] is stuck at `sending` status, then it's
+            // probably won't finish, thus mark this message as errored.
+            if (e.value.status.value == SendingStatus.sending) {
+              e.value.status.value = SendingStatus.error;
+            }
+
             await _pagination?.put(e, store: false);
           },
           onRemoved: (e) async {

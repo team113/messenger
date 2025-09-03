@@ -595,12 +595,11 @@ packages:
   flutter_callkit_incoming:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "58fe7c25eaac7acb7861a0a111ce555055a443a5"
-      url: "https://github.com/SleepySquash/flutter_callkit_incoming_android.git"
-    source: git
-    version: "2.5.0"
+      name: flutter_callkit_incoming
+      sha256: "993fb0f0cd990961072f0d13ff815a91773f92bfa1895be17d3366b2225ec9cd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.5.8"
   flutter_custom_cursor:
     dependency: "direct main"
     description:

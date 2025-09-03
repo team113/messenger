@@ -423,15 +423,39 @@ class CallWorker extends DisposableService {
             }
 
             if (report) {
-              _callKitCalls.upsert(id, PreciseDateTime.now());
-              await FlutterCallkitIncoming.startCall(
-                CallKitParams(
-                  nameCaller: chat?.title ?? 'Call',
-                  id: id,
-                  handle: c.chatId.value.val,
-                  extra: {'chatId': c.chatId.value.val},
-                ),
+              final CallKitParams params = CallKitParams(
+                nameCaller: chat?.title ?? 'Call',
+                id: id,
+                handle: c.chatId.value.val,
+                extra: {'chatId': c.chatId.value.val},
               );
+
+              switch (c.state.value) {
+                case OngoingCallState.pending:
+                  Log.debug(
+                    'onInit() -> ${c.state.value.name} -> FlutterCallkitIncoming.showCallkitIncoming($id)',
+                    '$runtimeType',
+                  );
+
+                  await FlutterCallkitIncoming.showCallkitIncoming(params);
+                  break;
+
+                case OngoingCallState.local:
+                case OngoingCallState.joining:
+                case OngoingCallState.active:
+                  Log.debug(
+                    'onInit() -> ${c.state.value.name} -> FlutterCallkitIncoming.startCall($id)',
+                    '$runtimeType',
+                  );
+
+                  await FlutterCallkitIncoming.startCall(params);
+                  await FlutterCallkitIncoming.setCallConnected(id);
+                  break;
+
+                case OngoingCallState.ended:
+                  // No-op.
+                  break;
+              }
             }
           }
           break;
@@ -458,8 +482,11 @@ class CallWorker extends DisposableService {
 
             if (_isCallKit) {
               final ChatItemId? callId = call.call.value?.id;
+
               if (callId != null) {
-                await FlutterCallkitIncoming.endCall(callId.val.base62ToUuid());
+                final String base62 = callId.val.base62ToUuid();
+                _callKitCalls.upsert(base62, PreciseDateTime.now());
+                await FlutterCallkitIncoming.endCall(base62);
               }
 
               await FlutterCallkitIncoming.endCall(
@@ -652,6 +679,7 @@ class CallWorker extends DisposableService {
           case Event.actionCallToggleGroup:
           case Event.actionCallToggleAudioSession:
           case Event.actionCallCustom:
+          case Event.actionCallConnected:
             // No-op.
             break;
         }

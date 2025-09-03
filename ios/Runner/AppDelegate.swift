@@ -135,7 +135,7 @@ import sqlite3
     data.extra = extra
 
     var isAuthorized = true
-    let doReport = true
+    var doReport = true
 
     // Check authorization asynchronously
     if let containerURL = FileManager.default.containerURL(
@@ -189,7 +189,7 @@ import sqlite3
             isAuthorized = false
           }
 
-          if authorized {
+          if isAuthorized {
             // Third, check if CallKit should be displayed at all.
             var stmt3: OpaquePointer?
             let atQuery = "SELECT at FROM call_kit_calls WHERE id = ? LIMIT 1"
@@ -204,7 +204,7 @@ import sqlite3
                       let atStr = String(cString: atCStr)
 
                       if let atInt64 = Int64(atStr) {
-                        // Convert from µs → seconds (Double).
+                        // Convert microseconds -> seconds (Double).
                         let accountedAt = Date(
                           timeIntervalSince1970: Double(atInt64) / 1_000_000.0
                         )
@@ -236,14 +236,14 @@ import sqlite3
               // Bind ID.
               id.withCString { cStr in
                 sqlite3_bind_text(stmt, 1, cStr, -1, nil)
-              }
 
-              // Bind current time in microseconds.
-              let nowMicros = Int64(Date().timeIntervalSince1970 * 1_000_000)
-              sqlite3_bind_int64(stmt, 2, nowMicros)
+                // Bind current time in microseconds.
+                let nowMicros = Int64(Date().timeIntervalSince1970 * 1_000_000)
+                sqlite3_bind_int64(stmt, 2, nowMicros)
 
-              if sqlite3_step(stmt) != SQLITE_DONE {
-                print("UPSERT failed: \(String(cString: sqlite3_errmsg(db)))")
+                if sqlite3_step(stmt) != SQLITE_DONE {
+                  print("UPSERT failed: \(String(cString: sqlite3_errmsg(db)))")
+                }
               }
             } else {
               print("Prepare failed: \(String(cString: sqlite3_errmsg(db)))")
@@ -253,18 +253,25 @@ import sqlite3
       }
     }
 
-    DispatchQueue.main.async {
-      if isAuthorized && doReport {
-        if endedAt != "" {
-          SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(data)
+      SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(
+        data, fromPushKit: true
+      ) {
+        if isAuthorized {
+          if endedAt != "" {
+            SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(id, 3)
+          } else {
+            if doReport {
+              // No-op.
+            } else {
+              SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(id, 4)
+            }
+          }
         } else {
-          SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(
-            data, fromPushKit: true)
+          SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(id, 1)
         }
       }
-
+      
       completion()
-    }
   }
 
   /// Return the architecture of this device.
