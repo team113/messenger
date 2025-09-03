@@ -238,7 +238,6 @@ btn_video_call = Video call
 btn_work_with_us = Work with us
 colon_space = :{" "}
 comma_space = ,{" "}
-dash = -
 dot = .
 email_confirmation_code =
     Code: {$token}
@@ -427,6 +426,7 @@ fcm_user_removed_you =
        *[other] {$userName}
     } removed you from group
 fcm_webpush_link = /chats/{$chatId}
+hyphen = -
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about_you = About you

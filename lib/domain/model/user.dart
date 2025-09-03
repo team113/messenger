@@ -211,7 +211,7 @@ class UserNum extends NewType<String> {
 
     for (int i = 0; i < val.length; i++) {
       if (i % 4 == 0 && i > 0) {
-        formattedUserNum += 'dash'.l10n;
+        formattedUserNum += 'hyphen'.l10n;
       }
       formattedUserNum += val[i];
     }
