@@ -19,6 +19,7 @@ All user visible changes to this project will be documented in this file. This p
         - Display folded indicator when chat is in favorites. ([#1391] [#1274])
     - User page:
         - Display folded indicator when user is in favorites. ([#1391], [#1274])
+    - Display Gapopa ID with hyphens instead of spaces. ([#1393], [#1352])
 
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
@@ -32,12 +33,14 @@ All user visible changes to this project will be documented in this file. This p
     - Back/forward buttons appearing in Chrome when swiping back/forward. ([#1386])
 
 [#1274]: /../../issues/1274
+[#1352]: /../../issues/1352
 [#1356]: /../../pull/1356
 [#1367]: /../../pull/1367
 [#1368]: /../../pull/1368
 [#1369]: /../../pull/1369
 [#1386]: /../../pull/1386
 [#1391]: /../../pull/1391
+[#1393]: /../../pull/1393
 [#1395]: /../../pull/1395
 
 
