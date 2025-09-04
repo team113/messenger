@@ -15,6 +15,35 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+self.addEventListener('notificationclick', function (event) {
+  async function handle() {
+    // this is our payload from locally showed notification
+    const payload = event.notification?.lang;
+
+    event.notification.close();
+    console.log('payload:', payload);
+    
+    await self.clients.claim();
+
+    let clientList = await self.clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true
+    });
+
+    for (const client of clientList) {
+
+      client.focus();
+      client.navigate(payload);
+
+      return;
+    }
+
+    self.clients.openWindow(payload);
+  }
+
+  event.waitUntil(handle());
+});
+
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js");
 
@@ -129,8 +158,13 @@ messaging.onBackgroundMessage(async (payload) => {
 /// In other words, notifications shown here cannot be dismissed 
 /// directly from the web page code.
 self.addEventListener("message", async (event) => {
+  // const {type, data} = event?.data;
+
+  // if (type == "show" &&  typeof data === "object") {}
+
   try {
     const data = event?.data;
+
 
     if (typeof data !== "string" || !data.startsWith("closeAll:")) return;
     // try getting chatId 
@@ -138,7 +172,7 @@ self.addEventListener("message", async (event) => {
 
     const notifications = await self.registration.getNotifications();
     for (const notification of notifications) {
-      if (notification?.data?.FCM_MSG?.data?.chatId=== chatId) {
+      if (notification?.data?.FCM_MSG?.data?.chatId === chatId || notification?.lang?.includes(chatId)) {
         console.log("closed from message event", data, JSON.stringify((notification.data)));
         notification.close();
       }

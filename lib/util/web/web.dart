@@ -27,7 +27,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show NotificationResponse, NotificationResponseType;
+    show NotificationResponse;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:http/http.dart' show Client;
@@ -506,20 +506,16 @@ class WebUtils {
       options.icon = icon;
     }
 
-    final notification = web.Notification(title, options);
-
-    void fn(web.Event _) {
-      onSelectNotification?.call(
-        NotificationResponse(
-          notificationResponseType:
-              NotificationResponseType.selectedNotification,
-          payload: notification.lang,
-        ),
-      );
-      notification.close();
-    }
-
-    notification.onclick = fn.toJS;
+    // TODO: register onSelectNotification to onclick event in notification
+    // previously, showing notification works on main thread and we can access
+    // the notification object directly. Now, we need to handle it inside the
+    // service worker.
+    //
+    // register onSelectNotification (maybe) from notification
+    // service initialization
+    return web.window.navigator.serviceWorker.ready.toDart.then((reg) async {
+      await reg.showNotification(title, options).toDart;
+    });
   }
 
   /// Clears notifications identified by the provided [chatId] via registered

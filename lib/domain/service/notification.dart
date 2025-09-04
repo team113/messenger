@@ -347,9 +347,9 @@ class NotificationService extends DisposableService {
     // check plugin exists;
     if (plugin == null) return;
 
-    final notifications = plugin.getActiveNotifications();
+    final notifications = await plugin.getActiveNotifications();
 
-    for (final notification in await notifications) {
+    for (final notification in notifications) {
       if (notification.payload?.contains(id.val) == true) {
         await plugin.cancel(notification.id!);
       }
