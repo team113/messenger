@@ -137,6 +137,7 @@ btn_change_account_desc =
 btn_change_password = Cambiar la contraseña
 btn_check_for_updates = Verificar actualizaciones
 btn_clear_cache = Borrar caché
+btn_clear_chat = Borrar el chat
 btn_clear_history = Borrar el historial
 btn_close = Cerrar
 btn_confirm = Confirmar
@@ -596,8 +597,8 @@ label_desktop_apps = Aplicaciones para computadora
 label_device_by_default = Por defecto - {$device}
 label_dialog_created = Diálogo creado
 label_dialog_created_by_link = Diálogo creado mediante enlace directo
-label_direct_chat_link = Invitar al grupo
-label_direct_chat_link_in_chat_description = Los usuarios que siguen el enlace del grupo serán miembros plenos del grupo automáticamente.
+label_direct_chat_link = Enlace directo al chat
+label_direct_chat_link_in_chat_description = Los usuarios que acceden a través de un enlace directo se convierten automáticamente en miembros del grupo.
 label_discard_changes_question = Descartar los cambios
 label_download = Descargar
 label_download_and_update = Descargar y actualizar
@@ -953,7 +954,7 @@ label_work_with_us_desc =
     Trabaje
     con nosotros
 label_you = Usted
-label_you_can_use_randomly_generated_link = Puede utilizar un enlace generado o crear su propio enlace.
+label_you_can_use_randomly_generated_link = Puedes usar un enlace generado aleatoriamente o crear uno propio.
 label_you_were_added_to_group = Usted ha sido agregado(a) al grupo
 label_your_direct_link = Enlace directo para chatear con Usted
 label_your_name = Su nombre

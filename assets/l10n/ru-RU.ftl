@@ -137,6 +137,7 @@ btn_change_account_desc =
 btn_change_password = Изменить пароль
 btn_check_for_updates = Проверить наличие обновлений
 btn_clear_cache = Очистить кэш
+btn_clear_chat = Очистить чат
 btn_clear_history = Очистить историю
 btn_close = Закрыть
 btn_confirm = Подтвердить
@@ -608,8 +609,8 @@ label_desktop_apps = Приложения для компьютера
 label_device_by_default = По умолчанию - {$device}
 label_dialog_created = Диалог создан
 label_dialog_created_by_link = Диалог создан по прямой ссылке
-label_direct_chat_link = Пригласить в группу
-label_direct_chat_link_in_chat_description = Пользователи, перешедшие по ссылке на группу, автоматически становятся полноправными участниками группы.
+label_direct_chat_link = Прямая ссылка на чат
+label_direct_chat_link_in_chat_description = Пользователи, перешедшие по прямой ссылке, автоматически становятся полноправными участниками группы.
 label_discard_changes_question = Отменить изменения
 label_download = Скачать
 label_download_and_update = Скачать и обновить
@@ -966,7 +967,7 @@ label_work_with_us_desc =
     Работайте
     с нами
 label_you = Вы
-label_you_can_use_randomly_generated_link = Вы можете использовать сгенерированную ссылку или создать собственную.
+label_you_can_use_randomly_generated_link = Вы можете использовать случайно сгенерированную ссылку или создать свою.
 label_you_were_added_to_group = Вы добавлены в группу
 label_your_direct_link = Прямая ссылка на чат с Вами
 label_your_name = Ваше имя
