@@ -15,8 +15,11 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Redesigned media player. ([#1395], [#1368], [#1367], [#1356])
+    - Chat page:
+        - Remove "kebab" popup menu. ([#1249], [#1401])
     - Chat info page:
         - Display folded indicator when chat is in favorites. ([#1391] [#1274])
+        - Redesign page. ([#1249], [#1401])
     - User page:
         - Display folded indicator when user is in favorites. ([#1391], [#1274])
     - Display Gapopa ID with hyphens instead of spaces. ([#1393], [#1352])
@@ -32,6 +35,7 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Back/forward buttons appearing in Chrome when swiping back/forward. ([#1386])
 
+[#1249]: /../../issues/1249
 [#1274]: /../../issues/1274
 [#1352]: /../../issues/1352
 [#1356]: /../../pull/1356
@@ -42,6 +46,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1391]: /../../pull/1391
 [#1393]: /../../pull/1393
 [#1395]: /../../pull/1395
+[#1401]: /../../pull/1401
 
 
 
