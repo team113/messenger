@@ -520,7 +520,7 @@ class WebUtils {
 
   /// Clears notifications identified by the provided [chatId] via registered
   /// serviceWorker's.
-  static Future<void> clearNotificationsByChatId(ChatId chatId) async {
+  static Future<void> clearNotifications(ChatId chatId) async {
     //  try to postMessage to active registrations if any.
     try {
       final registrations = await web.window.navigator.serviceWorker

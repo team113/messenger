@@ -32,7 +32,6 @@ import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
-import '/domain/service/notification.dart';
 import '/api/backend/schema.dart'
     hide
         ChatItemQuoteInput,
@@ -61,6 +60,7 @@ import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/notification.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -586,12 +586,7 @@ class ChatController extends GetxController {
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
     AudioUtils.ensureInitialized();
-    _fetchChat().then((_) {
-      // clearing notifications for the current chat after it's loaded
-      _notificationService.clearNotificationsByChatId(
-        chat?.chat.value.id ?? id,
-      );
-    });
+    _fetchChat();
 
     if (!PlatformUtils.isMobile) {
       send.field.focus.requestFocus();
@@ -1093,6 +1088,9 @@ class ChatController extends GetxController {
       span.finish();
 
       SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+
+      // Clearing notifications for the current chat after it's loaded.
+      _notificationService.clearNotifications(chat?.chat.value.id ?? id);
     } catch (e) {
       _ready.throwable = e;
       _ready.finish(status: const SpanStatus.internalError());

@@ -174,9 +174,9 @@ class WebUtils {
     // No-op.
   }
 
-  /// Clears notifications identified by the provided [chatId] via registered
+  /// Clears notifications identified by the provided [ChatId] via registered
   /// serviceWorker's.
-  static Future<void> clearNotificationsByChatId(ChatId chatId) async {
+  static Future<void> clearNotifications(ChatId chatId) async {
     // No-op.
   }
 

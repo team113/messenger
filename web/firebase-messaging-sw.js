@@ -15,9 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+
+// Registering notificationclick handler for closing notification and 
+// navigating to the chat. 
 self.addEventListener('notificationclick', function (event) {
   async function handle() {
-    // this is our payload from locally showed notification
+    // This is our payload from locally showed notification.
     const payload = event.notification?.lang;
 
     event.notification.close();
@@ -152,19 +155,14 @@ messaging.onBackgroundMessage(async (payload) => {
 });
 
 
-/// Listens for messages from the main thread.
-/// This runs inside a background service worker, where the browser 
-/// manages notifications independently of the page context. 
-/// In other words, notifications shown here cannot be dismissed 
-/// directly from the web page code.
+// Listens for messages from the main thread.
+// This runs inside a background service worker, where the browser 
+// manages notifications independently of the page context. 
+// In other words, notifications shown here cannot be dismissed 
+// directly from the web page code.
 self.addEventListener("message", async (event) => {
-  // const {type, data} = event?.data;
-
-  // if (type == "show" &&  typeof data === "object") {}
-
   try {
     const data = event?.data;
-
 
     if (typeof data !== "string" || !data.startsWith("closeAll:")) return;
     // try getting chatId 

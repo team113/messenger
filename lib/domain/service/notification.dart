@@ -338,20 +338,22 @@ class NotificationService extends DisposableService {
     }
   }
 
-  /// Clearing all notifications for a specific chat by [ChatID].
-  Future<void> clearNotificationsByChatId(ChatId id) async {
+  /// Clearing all notifications for a specific chat by [ChatId].
+  Future<void> clearNotifications(ChatId chatId) async {
     if (PlatformUtils.isWeb) {
-      return WebUtils.clearNotificationsByChatId(id);
+      return WebUtils.clearNotifications(chatId);
     }
     final plugin = _plugin;
-    // check plugin exists;
+
+    // Check plugin exists.
     if (plugin == null) return;
 
     final notifications = await plugin.getActiveNotifications();
 
     for (final notification in notifications) {
-      if (notification.payload?.contains(id.val) == true) {
-        await plugin.cancel(notification.id!);
+      if (notification.payload?.contains(chatId.val) == true ||
+          notification.tag?.contains(chatId.val) == true) {
+        await plugin.cancel(notification.id!, tag: notification.tag);
       }
     }
   }
