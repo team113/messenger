@@ -598,7 +598,7 @@ label_device_by_default = By default - {$device}
 label_dialog_created = Dialog created
 label_dialog_created_by_link = Dialog created via direct link
 label_direct_chat_link = Direct chat link
-label_direct_chat_link_in_chat_description = Users who come via a direct link automatically become full members of the group.
+label_direct_chat_link_in_chat_description = Users, who come via a direct link automatically, become full members of the group.
 label_discard_changes_question = Discard changes
 label_download = Download
 label_download_and_update = Download and update
@@ -952,7 +952,7 @@ label_work_with_us_desc =
     Work
     with us
 label_you = You
-label_you_can_use_randomly_generated_link = You can use randomly generated link or create your own.
+label_you_can_use_randomly_generated_link = You can use a randomly generated link or create your own.
 label_you_were_added_to_group = You have been added to the group
 label_your_direct_link = Direct link to chat with you
 label_your_name = Your name
