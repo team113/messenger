@@ -427,6 +427,7 @@ fcm_user_removed_you =
        *[other] {$userName}
     } исключил Вас из группы
 fcm_webpush_link = /chats/{$chatId}
+hyphen = -
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about_you = О Вас

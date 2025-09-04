@@ -126,6 +126,7 @@ class UserView extends StatelessWidget {
     final UserBio? bio = c.user?.user.value.bio;
 
     return Block(
+      folded: c.isFavorite,
       padding: EdgeInsets.fromLTRB(32, 8, 32, 16),
       children: [
         Obx(() {

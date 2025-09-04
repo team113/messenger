@@ -133,6 +133,7 @@ class ChatInfoView extends StatelessWidget {
   Widget _profile(ChatInfoController c, BuildContext context) {
     return Obx(() {
       return Block(
+        folded: c.isFavorite,
         children: [
           SelectionContainer.disabled(
             child: BigAvatarWidget.chat(

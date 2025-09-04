@@ -177,6 +177,9 @@ class ChatInfoController extends GetxController {
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
 
+  /// Indicates whether the group's [chat] is a favorite.
+  bool get isFavorite => chat?.chat.value.favoritePosition != null;
+
   /// Indicates whether the [Chat.members] have a next page.
   RxBool get haveNext => chat?.members.hasNext ?? RxBool(false);
 
