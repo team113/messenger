@@ -396,6 +396,12 @@ class SvgIcons {
     height: 18.32,
   );
 
+  static const SvgData addUserWhite = SvgData(
+    'assets/icons/add_user_white.svg',
+    width: 19.35,
+    height: 18.32,
+  );
+
   static const SvgData chatMore = SvgData(
     'assets/icons/chat_more.svg',
     width: 22,
