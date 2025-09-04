@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -48,8 +47,8 @@ import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
@@ -132,131 +131,21 @@ class ChatInfoView extends StatelessWidget {
 
   /// Builds the profile [Block] with editing functionality.
   Widget _profile(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
-      final Widget name;
-
-      if (c.profileEditing.value) {
-        name = Column(
-          key: const Key('Name'),
-          children: [
-            const SizedBox(height: 8),
-            ReactiveTextField(
-              key: const Key('RenameChatField'),
-              state: c.name,
-              label: 'label_name'.l10n,
-              hint: c.chat?.title,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              formatters: [LengthLimitingTextInputFormatter(100)],
-            ),
-          ],
-        );
-      } else {
-        name = SizedBox(
-          width: double.infinity,
-          child: Center(
-            child: Text(
-              '${c.chat?.title}',
-              style: style.fonts.larger.regular.onBackground,
-            ),
-          ),
-        );
-      }
-
-      final Widget button;
-
-      if (c.profileEditing.value) {
-        button = Column(
-          key: const Key('Button'),
-          children: [
-            const SizedBox(height: 8),
-            Stack(
-              children: [
-                PrimaryButton(
-                  key: Key('SaveEditingButton'),
-                  title: 'btn_save'.l10n,
-                  onPressed: () {
-                    c.profileEditing.toggle();
-                    c.submitName();
-                    c.submitAvatar();
-                  },
-                  style: style.fonts.normal.regular.onPrimary,
-                ),
-                const Positioned(
-                  left: 16,
-                  top: 0,
-                  bottom: 0,
-                  child: IgnorePointer(
-                    child: SvgIcon(SvgIcons.sentWhite, height: 13, width: 13),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-          ],
-        );
-      } else {
-        button = SizedBox(width: double.infinity);
-      }
-
       return Block(
-        overlay: [
-          Positioned(
-            top: 16,
-            right: 0,
-            child: WidgetButton(
-              onPressed: c.profileEditing.value
-                  ? c.closeEditing
-                  : c.profileEditing.toggle,
-              child: SizedBox(
-                width: 16,
-                height: 16,
-                child: Center(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: c.profileEditing.value
-                        ? SvgIcon(
-                            key: Key('CloseEditingButton'),
-                            SvgIcons.closePrimary,
-                            width: 12,
-                            height: 12,
-                          )
-                        : SvgIcon(key: Key('EditProfileButton'), SvgIcons.edit),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
         children: [
-          const SizedBox(height: 8),
-          AnimatedSizeAndFade(
-            fadeDuration: const Duration(milliseconds: 250),
-            sizeDuration: const Duration(milliseconds: 250),
-            child: name,
-          ),
-          const SizedBox(height: 16),
           SelectionContainer.disabled(
             child: BigAvatarWidget.chat(
               c.chat,
               key: Key('ChatAvatar_${c.chat!.id}'),
               loading: c.avatarUpload.value.isLoading,
               error: c.avatarUpload.value.errorMessage,
-              onUpload: c.profileEditing.value
-                  ? c.canEdit
-                        ? c.pickAvatar
-                        : null
+              onUpload: c.canEdit ? c.pickAvatar : null,
+              onEdit: c.canEdit && c.chat?.avatar.value != null
+                  ? c.editAvatar
                   : null,
-              onEdit: c.profileEditing.value
-                  ? c.canEdit && c.chat?.avatar.value != null
-                        ? c.editAvatar
-                        : null
-                  : null,
-              onDelete: c.profileEditing.value
-                  ? c.canEdit && c.chat?.avatar.value != null
-                        ? c.deleteAvatar
-                        : null
+              onDelete: c.canEdit && c.chat?.avatar.value != null
+                  ? c.deleteAvatar
                   : null,
               builder: (child) {
                 if (c.avatarCrop.value == null &&
@@ -293,11 +182,15 @@ class ChatInfoView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          AnimatedSizeAndFade(
-            fadeDuration: const Duration(milliseconds: 250),
-            sizeDuration: const Duration(milliseconds: 250),
-            child: button,
+          ReactiveTextField(
+            key: const Key('RenameChatField'),
+            state: c.name,
+            label: 'label_name'.l10n,
+            hint: c.chat?.title,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            formatters: [LengthLimitingTextInputFormatter(100)],
           ),
+          const SizedBox(height: 8),
         ],
       );
     });
@@ -365,8 +258,6 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns the [Block] displaying the [Chat.members].
   Widget _members(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
     return Block(
       padding: Block.defaultPadding.copyWith(right: 0, left: 0),
       title: 'label_participants'.l10nfmt({
@@ -468,12 +359,13 @@ class ChatInfoView extends StatelessWidget {
           );
         }),
         const SizedBox(height: 16),
-        WidgetButton(
-          key: const Key('AddMemberButton'),
-          onPressed: () => AddChatMemberView.show(context, chatId: id),
-          child: Text(
-            'btn_add_participant'.l10n,
-            style: style.fonts.small.regular.primary,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: PrimaryButton(
+            key: const Key('AddMemberButton'),
+            onPressed: () => AddChatMemberView.show(context, chatId: id),
+            leading: SvgIcon(SvgIcons.addUserWhite),
+            title: 'btn_add_participant'.l10n,
           ),
         ),
       ],
@@ -482,10 +374,51 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns the action buttons to do with this [Chat].
   Widget _actions(ChatInfoController c, BuildContext context) {
+    final bool favorite = c.chat?.chat.value.favoritePosition != null;
+    final bool muted = c.chat?.chat.value.muted != null;
+    final bool isLocal = c.chat?.chat.value.id.isLocal == true;
+    final bool monolog = c.chat?.chat.value.isMonolog == true;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
+        ActionButton(
+          onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+          text: favorite
+              ? 'btn_delete_from_favorites'.l10n
+              : 'btn_add_to_favorites'.l10n,
+          trailing: SvgIcon(
+            favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
+          ),
+        ),
+        if (!isLocal) ...[
+          if (!monolog)
+            ActionButton(
+              onPressed: muted ? c.unmuteChat : c.muteChat,
+              text: muted
+                  ? PlatformUtils.isMobile
+                        ? 'btn_unmute'.l10n
+                        : 'btn_unmute_chat'.l10n
+                  : PlatformUtils.isMobile
+                  ? 'btn_mute'.l10n
+                  : 'btn_mute_chat'.l10n,
+              trailing: SvgIcon(
+                muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+              ),
+            ),
+          ActionButton(
+            onPressed: () => _clearChat(c, context),
+            text: 'btn_clear_chat'.l10n,
+            trailing: const SvgIcon(SvgIcons.cleanHistory),
+          ),
+        ],
+        if (!isLocal || monolog)
+          ActionButton(
+            onPressed: () => _hideChat(c, context),
+            text: 'btn_delete_chat'.l10n,
+            trailing: const SvgIcon(SvgIcons.delete19),
+          ),
         ActionButton(
           onPressed: () => _reportChat(c, context),
           text: 'btn_report'.l10n,
@@ -531,6 +464,48 @@ class ChatInfoView extends StatelessWidget {
         const SizedBox(width: 20),
       ],
     );
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
+    }
   }
 
   /// Opens a confirmation popup leaving this [Chat].

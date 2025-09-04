@@ -64,6 +64,9 @@ class MemberTile extends StatelessWidget {
   /// displaying appropriate labels.
   bool get _me => myUser != null;
 
+  /// Indicates that the participant is online.
+  bool get _isOnline => user?.user.value.online == true || myUser != null;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -129,10 +132,7 @@ class MemberTile extends StatelessWidget {
                       }
                     },
               child: _me
-                  ? Text(
-                      'label_you'.l10n,
-                      style: style.fonts.normal.regular.secondary,
-                    )
+                  ? const SizedBox()
                   : const SvgIcon(
                       SvgIcons.delete,
                       key: Key('DeleteMemberButton'),
@@ -141,6 +141,10 @@ class MemberTile extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 6),
+      ],
+      subtitle: [
+        if (_isOnline)
+          Text('label_online'.l10n, style: style.fonts.small.regular.secondary),
       ],
     );
   }
