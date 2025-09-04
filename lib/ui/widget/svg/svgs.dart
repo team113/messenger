@@ -132,12 +132,6 @@ class SvgIcons {
     height: 17.77,
   );
 
-  static const SvgData searchWhite = SvgData(
-    'assets/icons/search_white.svg',
-    width: 17.76,
-    height: 17.77,
-  );
-
   static const SvgData closePrimary = SvgData(
     'assets/icons/close_primary.svg',
     width: 15,
@@ -1176,42 +1170,6 @@ class SvgIcons {
     height: 17,
   );
 
-  static const SvgData makeAudioCall = SvgData(
-    'assets/icons/make_audio_call.svg',
-    width: 18,
-    height: 18,
-  );
-
-  static const SvgData makeAudioCallWhite = SvgData(
-    'assets/icons/make_audio_call_white.svg',
-    width: 18,
-    height: 18,
-  );
-
-  static const SvgData makeAudioCallDisabled = SvgData(
-    'assets/icons/make_audio_call_disabled.svg',
-    width: 18,
-    height: 18,
-  );
-
-  static const SvgData makeVideoCall = SvgData(
-    'assets/icons/make_video_call.svg',
-    width: 21.93,
-    height: 15,
-  );
-
-  static const SvgData makeVideoCallWhite = SvgData(
-    'assets/icons/make_video_call_white.svg',
-    width: 21.93,
-    height: 15,
-  );
-
-  static const SvgData makeVideoCallDisabled = SvgData(
-    'assets/icons/make_video_call_disabled.svg',
-    width: 21.93,
-    height: 15,
-  );
-
   static const SvgData favoriteSmall = SvgData(
     'assets/icons/favorite_small.svg',
     width: 20.57,
@@ -1280,12 +1238,6 @@ class SvgIcons {
 
   static const SvgData cleanHistory = SvgData(
     'assets/icons/clean_history.svg',
-    width: 17.21,
-    height: 18,
-  );
-
-  static const SvgData cleanHistoryWhite = SvgData(
-    'assets/icons/clean_history_white.svg',
     width: 17.21,
     height: 18,
   );
@@ -1470,20 +1422,8 @@ class SvgIcons {
     height: 16.5,
   );
 
-  static const SvgData leaveGroup = SvgData(
-    'assets/icons/leave_group.svg',
-    width: 16.28,
-    height: 19,
-  );
-
   static const SvgData leaveGroupRed = SvgData(
     'assets/icons/leave_group_red.svg',
-    width: 16.28,
-    height: 19,
-  );
-
-  static const SvgData leaveGroupWhite = SvgData(
-    'assets/icons/leave_group_white.svg',
     width: 16.28,
     height: 19,
   );
