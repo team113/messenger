@@ -340,20 +340,28 @@ class NotificationService extends DisposableService {
 
   /// Clearing all notifications for a specific chat by [ChatId].
   Future<void> clearNotifications(ChatId chatId) async {
+    Log.debug('clearNotifications($chatId)', '$runtimeType');
+
     if (PlatformUtils.isWeb) {
       return WebUtils.clearNotifications(chatId);
     }
-    final plugin = _plugin;
 
-    // Check plugin exists.
-    if (plugin == null) return;
+    final FlutterLocalNotificationsPlugin? plugin = _plugin;
+    if (plugin == null) {
+      return;
+    }
 
-    final notifications = await plugin.getActiveNotifications();
+    final List<ActiveNotification> notifications = await plugin
+        .getActiveNotifications();
 
     for (final notification in notifications) {
       if (notification.payload?.contains(chatId.val) == true ||
           notification.tag?.contains(chatId.val) == true) {
-        await plugin.cancel(notification.id!, tag: notification.tag);
+        final int? id = notification.id;
+
+        if (id != null) {
+          await plugin.cancel(id, tag: notification.tag);
+        }
       }
     }
   }
