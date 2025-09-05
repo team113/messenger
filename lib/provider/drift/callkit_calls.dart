@@ -23,7 +23,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import 'common.dart';
 import 'drift.dart';
 
-/// [DateTime]s associated with a [String] IDs to be stored in a [Table].
+/// [PreciseDateTime]s associated with a [String] IDs to be stored in a [Table].
 @DataClassName('CallKitCallRow')
 class CallKitCalls extends Table {
   @override
@@ -70,7 +70,7 @@ class CallKitCallsDriftProvider extends DriftProviderBase {
     });
   }
 
-  /// Deletes all the [PreciseDateTine]s stored in the database.
+  /// Deletes all the [PreciseDateTime]s stored in the database.
   Future<void> clear() async {
     await safe((db) async {
       await db.delete(db.callKitCalls).go();

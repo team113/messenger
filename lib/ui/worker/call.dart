@@ -31,14 +31,13 @@ import 'package:uuid/uuid.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import '../../domain/model/precise_date_time/precise_date_time.dart';
-import '../../provider/drift/callkit_calls.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
@@ -49,6 +48,7 @@ import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
+import '/provider/drift/callkit_calls.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/audio_utils.dart';
@@ -586,10 +586,11 @@ class CallWorker extends DisposableService {
         }
       });
 
+      // List the current active calls (e.g. if this app was launched as a
+      // result of VoIP notification received) and subscribe to the events.
       FlutterCallkitIncoming.activeCalls().then((e) {
-        print('======== active calls -> $e');
         if (e is List<Map<String, dynamic>>) {
-          for (var event in e) {
+          for (Map<String, dynamic> event in e) {
             final String? chatId = event['extra']?['chatId'];
             if (chatId != null) {
               _resubscribeTo(ChatId(chatId));
@@ -777,7 +778,14 @@ class CallWorker extends DisposableService {
     return true;
   }
 
+  /// Subscribes to the [GraphQlProvider.chatEvents] of the provided [chatId]
+  /// to listen to events when [FlutterCallkitIncoming.endCall] should be
+  /// invoked.
   Future<void> _resubscribeTo(ChatId chatId) async {
+    if (!_isCallKit) {
+      return;
+    }
+
     final Credentials? credentials = _authService.credentials.value;
     if (credentials == null) {
       return;

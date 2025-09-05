@@ -141,7 +141,7 @@ import sqlite3
     var myId: String = ""
     var creds: String = ""
 
-    // Check authorization asynchronously
+    // Check authorization.
     if let containerURL = FileManager.default.containerURL(
       forSecurityApplicationGroupIdentifier: "group.com.team113.messenger")
     {
@@ -199,7 +199,8 @@ import sqlite3
           }
 
           if isAuthorized {
-            // Third, check if CallKit should be displayed at all.
+            // Third, check if CallKit should be displayed at all (perhaps it
+            // was already declined in the main app).
             var stmt3: OpaquePointer?
             let atQuery = "SELECT at FROM call_kit_calls WHERE id = ? LIMIT 1"
 
@@ -232,6 +233,7 @@ import sqlite3
           }
 
           if isAuthorized && doReport {
+            // Forth, mark this call as the already accounted.
             var stmt: OpaquePointer?
             let query = """
                   INSERT INTO call_kit_calls (id, at)
@@ -261,6 +263,7 @@ import sqlite3
         }
 
         if isAuthorized && doReport {
+          // Fifth, try fetching the current status of the call from GraphQL.
           Task {
             await acknowledgeVoip(
               creds: creds,
@@ -276,6 +279,11 @@ import sqlite3
       }
     }
 
+    // Finally, report the call.
+    //
+    // If call shouldn't be displayed, then the completer method will end the
+    // call. Unfortunately, Apple kills application if VoIP notification doesn't
+    // report a CallKit call when received, thus we must display it anyway.
     SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(
       data, fromPushKit: true
     ) {
@@ -381,51 +389,11 @@ import sqlite3
       if let credsData = try creds.data(using: .utf8) {
         if let decoded = try? JSONDecoder().decode(Credentials.self, from: credsData) {
           if Date() > decoded.access.expireAt.val {
+            // TODO: Should refresh the session:
+            //       1. Acquire a lock from the `locks` table.
+            //       2. Refresh the token via GraphQL POST request.
+            //       3. UPSERT the token and release the `locks`.
             request.addValue("Bearer \(decoded.access.secret)", forHTTPHeaderField: "Authorization")
-            // if let refreshed = await refreshToken(db: db, creds: decoded) {
-            //   request.addValue(
-            //     "Bearer \(refreshed.access.secret)", forHTTPHeaderField: "Authorization")
-
-            //   do {
-            //     let encoder = JSONEncoder()
-            //     let dateFormatter = DateFormatter()
-            //     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSX"
-            //     dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-            //     dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-            //     encoder.dateEncodingStrategy = .formatted(dateFormatter)
-
-            //     let jsonData = try! encoder.encode(refreshed)
-            //     let json = String(data: jsonData, encoding: String.Encoding.utf8)
-
-            //     let sql = """
-            //           INSERT INTO tokens (user_id, credentials)
-            //           VALUES (?, ?)
-            //           ON CONFLICT(user_id) DO UPDATE SET credentials = excluded.credentials;
-            //       """
-
-            //     var stmt: OpaquePointer?
-            //     if sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK {
-            //       defer { sqlite3_finalize(stmt) }
-
-            //       myId.withCString { myIdCStr in
-            //         sqlite3_bind_text(stmt, 1, myIdCStr, -1, nil)
-
-            //         if let jsonText = json {
-            //           jsonText.withCString { jsonCStr in
-            //             sqlite3_bind_text(stmt, 2, jsonCStr, -1, nil)
-
-            //             if sqlite3_step(stmt) != SQLITE_DONE {
-            //               let errmsg = String(cString: sqlite3_errmsg(db))
-            //               print("Insert/Replace failed: \(errmsg)")
-            //             }
-            //           }
-            //         }
-            //       }
-            //     }
-            //   } catch {
-            //     print("Error writing refreshed token:", error)
-            //   }
-            // }
           } else {
             request.addValue("Bearer \(decoded.access.secret)", forHTTPHeaderField: "Authorization")
           }
@@ -463,90 +431,6 @@ import sqlite3
         print("POST Request Failed:", error)
       }
     }
-  }
-
-  @available(macOS 12.0, *)
-  @available(iOS 12.0, *)
-  func refreshToken(db: OpaquePointer?, creds: Credentials) async -> Credentials? {
-    let dataToSend: [String: Any] = [
-      "query": """
-          mutation refresh {
-              refreshSession(secret:\"\(creds.refresh.secret)\") {
-                  __typename
-                  ... on CreateSessionOk {
-                      accessToken {
-                          secret
-                          expiresAt
-                      }
-                      refreshToken {
-                          secret
-                          expiresAt
-                      }
-                      session {
-                        id
-                        userAgent
-                        ip
-                        lastActivatedAt
-                      }
-                      user {
-                          id
-                      }
-                  }
-              }
-          }
-      """
-    ]
-
-    let defaults = UserDefaults(suiteName: "group.com.team113.messenger")
-    let baseUrl = defaults!.value(forKey: "url") as! String
-    let endpoint = defaults!.value(forKey: "endpoint") as! String
-
-    if let url = URL(string: baseUrl + endpoint) {
-      var request = URLRequest(url: url)
-      request.httpMethod = "POST"
-      request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
-      let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "network")
-
-      do {
-        request.httpBody = try JSONSerialization.data(withJSONObject: dataToSend)
-        let (data, _) = try await URLSession.shared.data(for: request)
-
-        if let response = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-          logger.log("refreshToken() response decoded -> \(response)")
-        }
-
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-
-        if let response = try decoder.decode(RefreshSessionResponse.self, from: data)
-          as RefreshSessionResponse?
-        {
-          return Credentials(
-            access: Token(
-              secret: response.data.refreshSession.accessToken.secret,
-              expireAt: DateType(val: response.data.refreshSession.accessToken.expiresAt)
-            ),
-            refresh: Token(
-              secret: response.data.refreshSession.refreshToken.secret,
-              expireAt: DateType(val: response.data.refreshSession.refreshToken.expiresAt)
-            ),
-            session: Session(
-              id: response.data.refreshSession.session.id,
-              ip: response.data.refreshSession.session.ip,
-              userAgent: response.data.refreshSession.session.userAgent,
-              lastActivatedAt: DateType(val: response.data.refreshSession.session.lastActivatedAt)
-            ),
-            userId: response.data.refreshSession.user.id
-          )
-        }
-        return creds
-      } catch {
-        logger.error("refreshToken() failed -> \(error)")
-      }
-    }
-
-    return nil
   }
 
   struct QueryChatResponse: Decodable {
@@ -595,36 +479,5 @@ import sqlite3
     let ip: String
     let userAgent: String
     let lastActivatedAt: DateType
-  }
-
-  struct RefreshSessionResponse: Decodable {
-    let data: RefreshSessionResponseData
-  }
-
-  struct RefreshSessionResponseData: Decodable {
-    let refreshSession: RefreshSessionResponseDataCredentials
-  }
-
-  struct RefreshSessionResponseDataCredentials: Decodable {
-    let accessToken: RefreshSessionResponseDataToken
-    let refreshToken: RefreshSessionResponseDataToken
-    let session: RefreshSessionResponseDataSession
-    let user: RefreshSessionResponseDataCredentialsUser
-  }
-
-  struct RefreshSessionResponseDataToken: Decodable {
-    let secret: String
-    let expiresAt: Date
-  }
-
-  struct RefreshSessionResponseDataSession: Decodable {
-    let id: String
-    let userAgent: String
-    let ip: String
-    let lastActivatedAt: Date
-  }
-
-  struct RefreshSessionResponseDataCredentialsUser: Decodable {
-    let id: String
   }
 }
