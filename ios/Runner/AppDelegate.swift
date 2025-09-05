@@ -26,6 +26,7 @@ import MachO
 import PushKit
 import UIKit
 import flutter_callkit_incoming
+import os
 import sqlite3
 
 @main
@@ -120,6 +121,7 @@ import sqlite3
 
     let extra = payload.dictionaryPayload["extra"] as? NSDictionary ?? [:]
     let recipientId = extra["recipientId"] as? String ?? nil
+    let chatId = extra["chatId"] as? String ?? ""
 
     let data = flutter_callkit_incoming.Data(
       id: id,
@@ -134,8 +136,10 @@ import sqlite3
     data.supportsUngrouping = false
     data.extra = extra
 
-    var isAuthorized = true
-    var doReport = true
+    var isAuthorized: Bool = true
+    var doReport: Bool = true
+    var myId: String = ""
+    var creds: String = ""
 
     // Check authorization asynchronously
     if let containerURL = FileManager.default.containerURL(
@@ -156,7 +160,7 @@ import sqlite3
 
           if sqlite3_step(stmt1) == SQLITE_ROW {
             if let accountIdCStr = sqlite3_column_text(stmt1, 0) {
-              let accountId = String(cString: accountIdCStr)
+              myId = String(cString: accountIdCStr)
 
               // Second, check if this VoIP is for a user we have credentials for.
               var stmt2: OpaquePointer?
@@ -170,18 +174,23 @@ import sqlite3
                     if sqlite3_bind_text(stmt2, 1, cStr, -1, nil) == SQLITE_OK {
                       let result = sqlite3_step(stmt2)
 
-                      if result != SQLITE_ROW {
+                      if result == SQLITE_ROW {
+                        if let credentialsCStr = sqlite3_column_text(stmt2, 0) {
+                          creds = String(cString: credentialsCStr)
+                        }
+                      } else if result != SQLITE_ROW {
                         isAuthorized = false
                       }
                     }
                   }
                 } else {
-                  if sqlite3_bind_text(stmt2, 1, accountId, -1, nil) == SQLITE_OK {
+                  if sqlite3_bind_text(stmt2, 1, myId, -1, nil) == SQLITE_OK {
                     if sqlite3_step(stmt2) != SQLITE_ROW {
                       isAuthorized = false
                     }
                   }
                 }
+
               }
 
             }
@@ -250,28 +259,45 @@ import sqlite3
             }
           }
         }
+
+        if isAuthorized && doReport {
+          Task {
+            await acknowledgeVoip(
+              creds: creds,
+              callId: id,
+              chatId: chatId,
+              myId: myId,
+              data: data,
+              db: db,
+            )
+          }
+        }
+
       }
     }
 
-      SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(
-        data, fromPushKit: true
-      ) {
-        if isAuthorized {
-          if endedAt != "" {
-            SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(id, 3)
-          } else {
-            if doReport {
-              // No-op.
-            } else {
-              SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(id, 4)
-            }
-          }
+    SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(
+      data, fromPushKit: true
+    ) {
+      if isAuthorized {
+        if endedAt != "" {
+          SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(data)
+          SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(id, 3)
         } else {
-          SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(id, 1)
+          if doReport {
+            // No-op.
+          } else {
+            SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(data)
+            SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(id, 4)
+          }
         }
+      } else {
+        SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(data)
+        SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(id, 1)
       }
-      
-      completion()
+    }
+
+    completion()
   }
 
   /// Return the architecture of this device.
@@ -314,5 +340,291 @@ import sqlite3
         result(found)
       }
     }
+  }
+
+  @available(macOS 12.0, *)
+  @available(iOS 12.0, *)
+  private func acknowledgeVoip(
+    creds: String,
+    callId: String,
+    chatId: String,
+    myId: String,
+    data: flutter_callkit_incoming.Data,
+    db: OpaquePointer?
+  ) async {
+    let dataToSend: [String: Any] = [
+      "query": """
+          query chat {
+              chat(id: "\(chatId)") {
+                  ongoingCall {
+                      id
+                      members {
+                        user {
+                          id
+                        }
+                      }
+                  }
+              }
+          }
+      """
+    ]
+
+    let defaults = UserDefaults(suiteName: "group.com.team113.messenger")
+    let baseUrl = defaults!.value(forKey: "url") as! String
+    let endpoint = defaults!.value(forKey: "endpoint") as! String
+
+    if let url = URL(string: baseUrl + endpoint) {
+      var request = URLRequest(url: url)
+      request.httpMethod = "POST"
+      request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+      if let credsData = try creds.data(using: .utf8) {
+        if let decoded = try? JSONDecoder().decode(Credentials.self, from: credsData) {
+          if Date() > decoded.access.expireAt.val {
+            request.addValue("Bearer \(decoded.access.secret)", forHTTPHeaderField: "Authorization")
+            // if let refreshed = await refreshToken(db: db, creds: decoded) {
+            //   request.addValue(
+            //     "Bearer \(refreshed.access.secret)", forHTTPHeaderField: "Authorization")
+
+            //   do {
+            //     let encoder = JSONEncoder()
+            //     let dateFormatter = DateFormatter()
+            //     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSX"
+            //     dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+            //     dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+            //     encoder.dateEncodingStrategy = .formatted(dateFormatter)
+
+            //     let jsonData = try! encoder.encode(refreshed)
+            //     let json = String(data: jsonData, encoding: String.Encoding.utf8)
+
+            //     let sql = """
+            //           INSERT INTO tokens (user_id, credentials)
+            //           VALUES (?, ?)
+            //           ON CONFLICT(user_id) DO UPDATE SET credentials = excluded.credentials;
+            //       """
+
+            //     var stmt: OpaquePointer?
+            //     if sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK {
+            //       defer { sqlite3_finalize(stmt) }
+
+            //       myId.withCString { myIdCStr in
+            //         sqlite3_bind_text(stmt, 1, myIdCStr, -1, nil)
+
+            //         if let jsonText = json {
+            //           jsonText.withCString { jsonCStr in
+            //             sqlite3_bind_text(stmt, 2, jsonCStr, -1, nil)
+
+            //             if sqlite3_step(stmt) != SQLITE_DONE {
+            //               let errmsg = String(cString: sqlite3_errmsg(db))
+            //               print("Insert/Replace failed: \(errmsg)")
+            //             }
+            //           }
+            //         }
+            //       }
+            //     }
+            //   } catch {
+            //     print("Error writing refreshed token:", error)
+            //   }
+            // }
+          } else {
+            request.addValue("Bearer \(decoded.access.secret)", forHTTPHeaderField: "Authorization")
+          }
+        }
+      }
+
+      do {
+        request.httpBody = try JSONSerialization.data(withJSONObject: dataToSend)
+        let (result, _) = try await URLSession.shared.data(for: request)
+
+        if let response = try JSONSerialization.jsonObject(with: result) as? [String: Any] {
+          print("POST Response:", response)
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        if let response = try decoder.decode(QueryChatResponse.self, from: result)
+          as QueryChatResponse?
+        {
+          // TODO: Transform to UUID.
+          // if response.data.chat.ongoingCall.id != callId {
+          //   SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(data)
+          //   SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(callId, 3)
+          //   return
+          // }
+
+          if response.data.chat.ongoingCall.members.contains(where: { $0.user.id == myId }) {
+            SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(data)
+            SwiftFlutterCallkitIncomingPlugin.sharedInstance?.saveEndCall(callId, 3)
+            return
+          }
+        }
+      } catch {
+        print("POST Request Failed:", error)
+      }
+    }
+  }
+
+  @available(macOS 12.0, *)
+  @available(iOS 12.0, *)
+  func refreshToken(db: OpaquePointer?, creds: Credentials) async -> Credentials? {
+    let dataToSend: [String: Any] = [
+      "query": """
+          mutation refresh {
+              refreshSession(secret:\"\(creds.refresh.secret)\") {
+                  __typename
+                  ... on CreateSessionOk {
+                      accessToken {
+                          secret
+                          expiresAt
+                      }
+                      refreshToken {
+                          secret
+                          expiresAt
+                      }
+                      session {
+                        id
+                        userAgent
+                        ip
+                        lastActivatedAt
+                      }
+                      user {
+                          id
+                      }
+                  }
+              }
+          }
+      """
+    ]
+
+    let defaults = UserDefaults(suiteName: "group.com.team113.messenger")
+    let baseUrl = defaults!.value(forKey: "url") as! String
+    let endpoint = defaults!.value(forKey: "endpoint") as! String
+
+    if let url = URL(string: baseUrl + endpoint) {
+      var request = URLRequest(url: url)
+      request.httpMethod = "POST"
+      request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+      let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "network")
+
+      do {
+        request.httpBody = try JSONSerialization.data(withJSONObject: dataToSend)
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        if let response = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+          logger.log("refreshToken() response decoded -> \(response)")
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        if let response = try decoder.decode(RefreshSessionResponse.self, from: data)
+          as RefreshSessionResponse?
+        {
+          return Credentials(
+            access: Token(
+              secret: response.data.refreshSession.accessToken.secret,
+              expireAt: DateType(val: response.data.refreshSession.accessToken.expiresAt)
+            ),
+            refresh: Token(
+              secret: response.data.refreshSession.refreshToken.secret,
+              expireAt: DateType(val: response.data.refreshSession.refreshToken.expiresAt)
+            ),
+            session: Session(
+              id: response.data.refreshSession.session.id,
+              ip: response.data.refreshSession.session.ip,
+              userAgent: response.data.refreshSession.session.userAgent,
+              lastActivatedAt: DateType(val: response.data.refreshSession.session.lastActivatedAt)
+            ),
+            userId: response.data.refreshSession.user.id
+          )
+        }
+        return creds
+      } catch {
+        logger.error("refreshToken() failed -> \(error)")
+      }
+    }
+
+    return nil
+  }
+
+  struct QueryChatResponse: Decodable {
+    let data: QueryChatResponseData
+  }
+
+  struct QueryChatResponseData: Decodable {
+    let chat: QueryChatResponseDataChat
+  }
+
+  struct QueryChatResponseDataChat: Decodable {
+    let ongoingCall: QueryChatResponseDataChatOngoingCall
+  }
+
+  struct QueryChatResponseDataChatOngoingCall: Decodable {
+    let id: String
+    let members: [QueryChatResponseDataChatMember]
+  }
+
+  struct QueryChatResponseDataChatMember: Decodable {
+    let user: QueryChatResponseDataChatMemberUser
+  }
+
+  struct QueryChatResponseDataChatMemberUser: Decodable {
+    let id: String
+  }
+
+  struct Credentials: Codable {
+    let access: Token
+    let refresh: Token
+    let session: Session
+    let userId: String
+  }
+
+  struct Token: Codable {
+    let secret: String
+    let expireAt: DateType
+  }
+
+  struct DateType: Codable {
+    let val: Date
+  }
+
+  struct Session: Codable {
+    let id: String
+    let ip: String
+    let userAgent: String
+    let lastActivatedAt: DateType
+  }
+
+  struct RefreshSessionResponse: Decodable {
+    let data: RefreshSessionResponseData
+  }
+
+  struct RefreshSessionResponseData: Decodable {
+    let refreshSession: RefreshSessionResponseDataCredentials
+  }
+
+  struct RefreshSessionResponseDataCredentials: Decodable {
+    let accessToken: RefreshSessionResponseDataToken
+    let refreshToken: RefreshSessionResponseDataToken
+    let session: RefreshSessionResponseDataSession
+    let user: RefreshSessionResponseDataCredentialsUser
+  }
+
+  struct RefreshSessionResponseDataToken: Decodable {
+    let secret: String
+    let expiresAt: Date
+  }
+
+  struct RefreshSessionResponseDataSession: Decodable {
+    let id: String
+    let userAgent: String
+    let ip: String
+    let lastActivatedAt: Date
+  }
+
+  struct RefreshSessionResponseDataCredentialsUser: Decodable {
+    let id: String
   }
 }
