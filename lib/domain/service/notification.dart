@@ -28,6 +28,7 @@ import 'package:universal_io/io.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../model/chat.dart';
 import '/api/backend/schema.dart'
     show PushDeviceToken, RegisterPushDeviceErrorCode;
 import '/config.dart';
@@ -333,6 +334,34 @@ class NotificationService extends DisposableService {
       if (_token != null || _apns != null || _voip != null) {
         await unregisterPushDevice();
         await _registerPushDevice();
+      }
+    }
+  }
+
+  /// Clearing all notifications for a specific chat by [ChatId].
+  Future<void> clearNotifications(ChatId chatId) async {
+    Log.debug('clearNotifications($chatId)', '$runtimeType');
+
+    if (PlatformUtils.isWeb) {
+      return WebUtils.clearNotifications(chatId);
+    }
+
+    final FlutterLocalNotificationsPlugin? plugin = _plugin;
+    if (plugin == null) {
+      return;
+    }
+
+    final List<ActiveNotification> notifications = await plugin
+        .getActiveNotifications();
+
+    for (final notification in notifications) {
+      if (notification.payload?.contains(chatId.val) == true ||
+          notification.tag?.contains(chatId.val) == true) {
+        final int? id = notification.id;
+
+        if (id != null) {
+          await plugin.cancel(id, tag: notification.tag);
+        }
       }
     }
   }

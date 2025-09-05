@@ -15,6 +15,38 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+
+// Registering notificationclick handler for closing notification and 
+// navigating to the chat. 
+self.addEventListener('notificationclick', function (event) {
+  async function handle() {
+    // This is our payload from locally showed notification.
+    const payload = event.notification?.lang;
+
+    event.notification.close();
+    console.log('payload:', payload);
+    
+    await self.clients.claim();
+
+    let clientList = await self.clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true
+    });
+
+    for (const client of clientList) {
+
+      client.focus();
+      client.navigate(payload);
+
+      return;
+    }
+
+    self.clients.openWindow(payload);
+  }
+
+  event.waitUntil(handle());
+});
+
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js");
 
@@ -119,5 +151,31 @@ messaging.onBackgroundMessage(async (payload) => {
         navigator.clearAppBadge();
       }
     }
+  }
+});
+
+
+// Listens for messages from the main thread.
+// This runs inside a background service worker, where the browser 
+// manages notifications independently of the page context. 
+// In other words, notifications shown here cannot be dismissed 
+// directly from the web page code.
+self.addEventListener("message", async (event) => {
+  try {
+    const data = event?.data;
+
+    if (typeof data !== "string" || !data.startsWith("closeAll:")) return;
+    // try getting chatId 
+    const chatId = data.split("closeAll:")[1];
+
+    const notifications = await self.registration.getNotifications();
+    for (const notification of notifications) {
+      if (notification?.data?.FCM_MSG?.data?.chatId === chatId || notification?.lang?.includes(chatId)) {
+        console.log("closed from message event", data, JSON.stringify((notification.data)));
+        notification.close();
+      }
+    }
+  } catch (e) {
+    console.error("SW message closeAll error:", e);
   }
 });

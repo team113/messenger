@@ -60,6 +60,7 @@ import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/notification.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -106,7 +107,8 @@ class ChatController extends GetxController {
     this._authService,
     this._userService,
     this._settingsRepository,
-    this._contactService, {
+    this._contactService,
+    this._notificationService, {
     this.itemId,
     this.onContext,
   });
@@ -374,6 +376,9 @@ class ChatController extends GetxController {
 
   /// [Mutex] guarding access to [_typingSubscription].
   final Mutex _typingGuard = Mutex();
+
+  /// Notification service for managing notifications.
+  final NotificationService _notificationService;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -1083,6 +1088,9 @@ class ChatController extends GetxController {
       span.finish();
 
       SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+
+      // Clearing notifications for the current chat after it's loaded.
+      _notificationService.clearNotifications(chat?.chat.value.id ?? id);
     } catch (e) {
       _ready.throwable = e;
       _ready.finish(status: const SpanStatus.internalError());
