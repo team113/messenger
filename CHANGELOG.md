@@ -16,10 +16,10 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Redesigned media player. ([#1395], [#1368], [#1367], [#1356])
     - Chat page:
-        - Remove "kebab" popup menu. ([#1249], [#1401])
+        - Removed more button. ([#1401], [#1249])
     - Chat info page:
-        - Display folded indicator when chat is in favorites. ([#1391] [#1274])
-        - Redesign page. ([#1249], [#1401])
+        - Display folded indicator when chat is in favorites. ([#1391], [#1274])
+        - Redesigned title block, members and actions. ([#1401], [#1249])
     - User page:
         - Display folded indicator when user is in favorites. ([#1391], [#1274])
     - Display Gapopa ID with hyphens instead of spaces. ([#1393], [#1352])
