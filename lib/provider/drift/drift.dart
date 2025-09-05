@@ -34,6 +34,7 @@ import 'blocklist.dart';
 import 'cache.dart';
 import 'call_credentials.dart';
 import 'call_rect.dart';
+import 'callkit_calls.dart';
 import 'chat.dart';
 import 'chat_credentials.dart';
 import 'chat_item.dart';
@@ -63,6 +64,7 @@ part 'drift.g.dart';
     Background,
     Cache,
     CacheSummary,
+    CallKitCalls,
     Downloads,
     GeoLocations,
     Locks,

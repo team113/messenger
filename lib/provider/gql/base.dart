@@ -480,6 +480,10 @@ class GraphQlClient {
                 _errored = false;
               }
             }
+
+            if (!connected.value) {
+              _reportException(null);
+            }
           }, onDone: _reconnect);
 
           return socket;

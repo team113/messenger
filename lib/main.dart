@@ -46,6 +46,7 @@ import 'l10n/l10n.dart';
 import 'provider/drift/account.dart';
 import 'provider/drift/background.dart';
 import 'provider/drift/cache.dart';
+import 'provider/drift/callkit_calls.dart';
 import 'provider/drift/credentials.dart';
 import 'provider/drift/download.dart';
 import 'provider/drift/drift.dart';
@@ -246,6 +247,7 @@ Future<void> _runApp() async {
   Get.put(BackgroundDriftProvider(Get.find()));
   Get.put(GeoLocationDriftProvider(Get.find()));
   Get.put(LockDriftProvider(Get.find()));
+  Get.put(CallKitCallsDriftProvider(Get.find()));
 
   if (!PlatformUtils.isWeb) {
     Get.put(WindowRectDriftProvider(Get.find()));

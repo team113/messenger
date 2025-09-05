@@ -173,7 +173,7 @@ class MyProfileController extends GetxController {
 
       if (s.text.isNotEmpty) {
         try {
-          UserLogin(s.text);
+          UserLogin(s.text.toLowerCase());
         } on FormatException catch (_) {
           s.error.value = 'err_incorrect_login_input'.l10n;
           return;
