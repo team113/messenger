@@ -195,23 +195,7 @@ class ChatInfoController extends GetxController {
 
     name = TextFieldState(
       text: chat?.chat.value.name?.val,
-      onFocus: (s) async {
-        if (s.text.isNotEmpty) {
-          try {
-            ChatName(s.text);
-          } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
-          } catch (e) {
-            s.error.value = e.toString();
-          }
-        }
-
-        try {
-          await _updateChatName();
-        } catch (_) {
-          s.error.value = 'err_data_transfer'.l10n;
-        }
-      },
+      onFocus: (_) async => _updateChatName(),
     );
 
     _fetched?.finish();
