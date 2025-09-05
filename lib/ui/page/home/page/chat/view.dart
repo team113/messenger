@@ -49,6 +49,8 @@ import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/checkbox_button.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/obscured_menu_interceptor.dart';
 import '/ui/widget/obscured_selection_area.dart';
@@ -420,7 +422,7 @@ class ChatView extends StatelessWidget {
                                       ),
                                     ),
                                   );
-                                } else {
+                                } else if (c.isDialog) {
                                   // TODO: Delete `MoreButton` everywhere when
                                   //       the following is merged:
                                   //       https://github.com/team113/messenger/issues/1248
@@ -429,6 +431,80 @@ class ChatView extends StatelessWidget {
                                   // This makes sure that `MoreButton` isn't
                                   // displayed in the dialogs.
                                   child = const SizedBox(width: 12);
+                                } else {
+                                  child = ContextMenuRegion(
+                                    key: c.moreKey,
+                                    selector: c.moreKey,
+                                    alignment: Alignment.topRight,
+                                    enablePrimaryTap: true,
+                                    margin: const EdgeInsets.only(
+                                      bottom: 4,
+                                      right: 10,
+                                    ),
+                                    actions: [
+                                      if (c.callPosition ==
+                                          CallButtonsPosition.contextMenu) ...[
+                                        ContextMenuButton(
+                                          label: 'btn_audio_call'.l10n,
+                                          onPressed: blocked || inCall
+                                              ? null
+                                              : () => c.call(false),
+                                          trailing: SvgIcon(
+                                            blocked || inCall
+                                                ? SvgIcons.makeAudioCallDisabled
+                                                : SvgIcons.makeAudioCall,
+                                          ),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.makeAudioCallWhite,
+                                          ),
+                                        ),
+                                        ContextMenuButton(
+                                          label: 'btn_video_call'.l10n,
+                                          onPressed: blocked || inCall
+                                              ? null
+                                              : () => c.call(true),
+                                          trailing: SvgIcon(
+                                            blocked || inCall
+                                                ? SvgIcons.makeVideoCallDisabled
+                                                : SvgIcons.makeVideoCall,
+                                          ),
+                                          inverted: const SvgIcon(
+                                            SvgIcons.makeVideoCallWhite,
+                                          ),
+                                        ),
+                                      ],
+                                      ContextMenuButton(
+                                        key: const Key('SearchItemsButton'),
+                                        label: 'label_search'.l10n,
+                                        onPressed: c.toggleSearch,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.search,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.searchWhite,
+                                        ),
+                                      ),
+                                      ContextMenuButton(
+                                        label: 'btn_select_messages'.l10n,
+                                        onPressed: c.selecting.toggle,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.select,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.selectWhite,
+                                        ),
+                                      ),
+                                    ],
+                                    child: Container(
+                                      key: const Key('MoreButton'),
+                                      padding: const EdgeInsets.only(
+                                        left: 20,
+                                        right: 21,
+                                      ),
+                                      height: double.infinity,
+                                      child: const SvgIcon(SvgIcons.more),
+                                    ),
+                                  );
                                 }
 
                                 return AnimatedButton(
