@@ -385,6 +385,9 @@ class ChatInfoView extends StatelessWidget {
       children: [
         const SizedBox(height: 8),
         ActionButton(
+          key: favorite
+              ? const Key('UnfavoriteButton')
+              : const Key('FavoriteButton'),
           onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
           text: favorite
               ? 'btn_delete_from_favorites'.l10n
@@ -396,6 +399,7 @@ class ChatInfoView extends StatelessWidget {
         if (!isLocal) ...[
           if (!monolog)
             ActionButton(
+              key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
               onPressed: muted ? c.unmuteChat : c.muteChat,
               text: muted
                   ? PlatformUtils.isMobile
@@ -409,6 +413,7 @@ class ChatInfoView extends StatelessWidget {
               ),
             ),
           ActionButton(
+            key: const Key('ClearChatButton'),
             onPressed: () => _clearChat(c, context),
             text: 'btn_clear_chat'.l10n,
             trailing: const SvgIcon(SvgIcons.cleanHistory),
@@ -416,6 +421,7 @@ class ChatInfoView extends StatelessWidget {
         ],
         if (!isLocal || monolog)
           ActionButton(
+            key: const Key('DeleteChatButton'),
             onPressed: () => _hideChat(c, context),
             text: 'btn_delete_chat'.l10n,
             trailing: const SvgIcon(SvgIcons.delete19),
