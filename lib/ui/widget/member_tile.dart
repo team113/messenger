@@ -21,6 +21,7 @@ import '/domain/model/my_user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/util/message_popup.dart';
 import 'animated_button.dart';
@@ -64,8 +65,10 @@ class MemberTile extends StatelessWidget {
   /// displaying appropriate labels.
   bool get _me => myUser != null;
 
-  /// Indicates that the participant is online.
-  bool get _isOnline => user?.user.value.online == true || myUser != null;
+  /// Returns text representing the network status of this [User].
+  String get _status => _me
+      ? 'online'.l10n
+      : user?.user.value.getStatus(user?.user.value.lastSeenAt) ?? '';
 
   @override
   Widget build(BuildContext context) {
@@ -143,8 +146,8 @@ class MemberTile extends StatelessWidget {
         const SizedBox(width: 6),
       ],
       subtitle: [
-        if (_isOnline)
-          Text('label_online'.l10n, style: style.fonts.small.regular.secondary),
+        if (_status.isNotEmpty)
+          Text(_status, style: style.fonts.small.regular.secondary),
       ],
     );
   }
