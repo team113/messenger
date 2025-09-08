@@ -427,11 +427,13 @@ class ChatInfoView extends StatelessWidget {
             trailing: const SvgIcon(SvgIcons.delete19),
           ),
         ActionButton(
+          key: const Key('ReportChatButton'),
           onPressed: () => _reportChat(c, context),
           text: 'btn_report'.l10n,
           trailing: const SvgIcon(SvgIcons.report),
         ),
         ActionButton(
+          key: const Key('LeaveChatButton'),
           onPressed: () => _leaveGroup(c, context),
           text: 'btn_leave_group'.l10n,
           danger: true,
@@ -544,6 +546,7 @@ class ChatInfoView extends StatelessWidget {
       additional: [
         const SizedBox(height: 25),
         ReactiveTextField(
+          key: const Key('ReportField'),
           state: c.reporting,
           label: 'label_reason'.l10n,
           hint: 'label_reason_hint'.l10n,
@@ -555,6 +558,7 @@ class ChatInfoView extends StatelessWidget {
           final bool enabled = !c.reporting.isEmpty.value;
 
           return PrimaryButton(
+            key: enabled ? const Key('SendReportButton') : null,
             title: 'btn_proceed'.l10n,
             onPressed: enabled ? () => Navigator.of(context).pop(true) : null,
             leading: SvgIcon(
