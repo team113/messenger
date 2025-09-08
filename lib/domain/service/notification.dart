@@ -338,7 +338,7 @@ class NotificationService extends DisposableService {
     }
   }
 
-  /// Clearing all notifications for a specific chat by [ChatId].
+  /// Clearing all notifications for a specific chat by [chatId].
   Future<void> clearNotifications(ChatId chatId) async {
     Log.debug('clearNotifications($chatId)', '$runtimeType');
 
@@ -346,7 +346,14 @@ class NotificationService extends DisposableService {
       return WebUtils.clearNotifications(chatId);
     }
 
+    // Check for iOS and macOS, cuz for macOS app can be installed from
+    // App Store (iPhone app)
+    if (PlatformUtils.isIOS || PlatformUtils.isMacOS) {
+      await IosUtils.cancelNotificationsContaining(chatId.val);
+    }
+
     final FlutterLocalNotificationsPlugin? plugin = _plugin;
+
     if (plugin == null) {
       return;
     }
