@@ -6,21 +6,20 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.7.0] · 2025-??-??
-[0.6.0]: /../../tree/v0.7.0
+## [0.6.1] · 2025-09-08
+[0.6.1]: /../../tree/v0.6.1
 
-[Diff](/../../compare/v0.6.0...v0.7.0) | [Milestone](/../../milestone/45)
+[Diff](/../../compare/v0.6.0...v0.6.1) | [Milestone](/../../milestone/45)
 
 ### Changed
 
 - UI:
     - Redesigned media player. ([#1395], [#1368], [#1367], [#1356])
     - Chat info page:
-        - Display folded indicator when chat is in favorites. ([#1391] [#1274])
+        - Display folded indicator when chat is in favorites. ([#1391], [#1274])
     - User page:
         - Display folded indicator when user is in favorites. ([#1391], [#1274])
     - Display Gapopa ID with hyphens instead of spaces. ([#1393], [#1352])
-
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
 
