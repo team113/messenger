@@ -90,7 +90,9 @@ class ChatInfoView extends StatelessWidget {
             const SizedBox(height: 8),
             if (c.isMonolog) ...[
               _avatar(c, context),
-              const NotesBlock.info(),
+              SelectionContainer.disabled(
+                child: Block(children: [_actions(c, context)]),
+              ),
             ] else ...[
               _profile(c, context),
               SelectionContainer.disabled(child: _members(c, context)),
@@ -199,22 +201,36 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns the [Block] displaying a [Chat.avatar].
   Widget _avatar(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Obx(() {
       final Avatar? avatar = c.chat?.avatar.value;
+      final bool isMonolog = c.chat?.chat.value.isMonolog == true;
 
       return Block(
         children: [
+          if (isMonolog)
+            SizedBox(
+              width: double.infinity,
+              child: Center(
+                child: Text(
+                  '${c.chat?.title}',
+                  style: style.fonts.larger.regular.onBackground,
+                ),
+              ),
+            ),
           SelectionContainer.disabled(
             child: BigAvatarWidget.chat(
               c.chat,
               key: Key('ChatAvatar_${c.chat!.id}'),
               loading: c.avatarUpload.value.isLoading,
               error: c.avatarUpload.value.errorMessage,
-              onUpload: c.pickAvatar,
+              onUpload: isMonolog ? null : c.pickAvatar,
               onEdit: avatar != null ? c.editAvatar : null,
               onDelete: c.chat?.avatar.value != null ? c.deleteAvatar : null,
             ),
           ),
+          if (isMonolog) const NotesBlock(),
         ],
       );
     });
@@ -397,21 +413,20 @@ class ChatInfoView extends StatelessWidget {
           ),
         ),
         if (!isLocal) ...[
-          if (!monolog)
-            ActionButton(
-              key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
-              onPressed: muted ? c.unmuteChat : c.muteChat,
-              text: muted
-                  ? PlatformUtils.isMobile
-                        ? 'btn_unmute'.l10n
-                        : 'btn_unmute_chat'.l10n
-                  : PlatformUtils.isMobile
-                  ? 'btn_mute'.l10n
-                  : 'btn_mute_chat'.l10n,
-              trailing: SvgIcon(
-                muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
-              ),
+          ActionButton(
+            key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
+            onPressed: muted ? c.unmuteChat : c.muteChat,
+            text: muted
+                ? PlatformUtils.isMobile
+                      ? 'btn_unmute'.l10n
+                      : 'btn_unmute_chat'.l10n
+                : PlatformUtils.isMobile
+                ? 'btn_mute'.l10n
+                : 'btn_mute_chat'.l10n,
+            trailing: SvgIcon(
+              muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
             ),
+          ),
           ActionButton(
             key: const Key('ClearChatButton'),
             onPressed: () => _clearChat(c, context),
@@ -426,17 +441,19 @@ class ChatInfoView extends StatelessWidget {
             text: 'btn_delete_chat'.l10n,
             trailing: const SvgIcon(SvgIcons.delete19),
           ),
-        ActionButton(
-          onPressed: () => _reportChat(c, context),
-          text: 'btn_report'.l10n,
-          trailing: const SvgIcon(SvgIcons.report),
-        ),
-        ActionButton(
-          onPressed: () => _leaveGroup(c, context),
-          text: 'btn_leave_group'.l10n,
-          danger: true,
-          trailing: const SvgIcon(SvgIcons.leaveGroupRed),
-        ),
+        if (!monolog) ...[
+          ActionButton(
+            onPressed: () => _reportChat(c, context),
+            text: 'btn_report'.l10n,
+            trailing: const SvgIcon(SvgIcons.report),
+          ),
+          ActionButton(
+            onPressed: () => _leaveGroup(c, context),
+            text: 'btn_leave_group'.l10n,
+            danger: true,
+            trailing: const SvgIcon(SvgIcons.leaveGroupRed),
+          ),
+        ],
       ],
     );
   }
@@ -444,6 +461,8 @@ class ChatInfoView extends StatelessWidget {
   /// Returns information about the [Chat] and related to it action buttons in
   /// the [CustomAppBar].
   Widget _bar(ChatInfoController c, BuildContext context) {
+    final bool isMonolog = c.chat?.chat.value.isMonolog == true;
+
     return Row(
       children: [
         Expanded(
@@ -458,17 +477,19 @@ class ChatInfoView extends StatelessWidget {
           child: const SvgIcon(SvgIcons.chat),
         ),
         const SizedBox(width: 28),
-        AnimatedButton(
-          onPressed: () => c.call(true),
-          child: const SvgIcon(SvgIcons.chatVideoCall),
-        ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          key: const Key('AudioCall'),
-          onPressed: () => c.call(false),
-          child: const SvgIcon(SvgIcons.chatAudioCall),
-        ),
-        const SizedBox(width: 20),
+        if (!isMonolog) ...[
+          AnimatedButton(
+            onPressed: () => c.call(true),
+            child: const SvgIcon(SvgIcons.chatVideoCall),
+          ),
+          const SizedBox(width: 28),
+          AnimatedButton(
+            key: const Key('AudioCall'),
+            onPressed: () => c.call(false),
+            child: const SvgIcon(SvgIcons.chatAudioCall),
+          ),
+          const SizedBox(width: 20),
+        ],
       ],
     );
   }

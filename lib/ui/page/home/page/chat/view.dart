@@ -43,6 +43,7 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/unblock_button.dart';
@@ -322,6 +323,8 @@ class ChatView extends StatelessWidget {
 
                           final bool blocked = c.chat?.blocked == true;
                           final bool inCall = c.chat?.inCall.value ?? false;
+                          final bool isMonolog =
+                              c.chat?.chat.value.isMonolog == true;
 
                           final List<Widget> children;
 
@@ -368,7 +371,7 @@ class ChatView extends StatelessWidget {
                                 ),
                               ),
                             ];
-                          } else if (!blocked) {
+                          } else if (!blocked && !isMonolog) {
                             children = [
                               if (c.callPosition == null ||
                                   c.callPosition ==
@@ -622,9 +625,18 @@ class ChatView extends StatelessWidget {
                             }
 
                             if (isMonolog) {
-                              return Center(
+                              return Block(
                                 key: const Key('NoMessages'),
-                                child: NotesBlock(),
+                                padding: const EdgeInsets.fromLTRB(
+                                  32,
+                                  16,
+                                  32,
+                                  0,
+                                ),
+                                title: 'label_chat_monolog'.l10n,
+                                titleStyle:
+                                    style.fonts.large.regular.onBackground,
+                                children: [NotesBlock()],
                               );
                             }
 
