@@ -933,13 +933,15 @@ class ChatRepository extends DisposableInterface
 
       try {
         try {
-          await Backoff.run(
-            () async {
-              await _graphQlProvider.deleteChatMessage(message.id);
-            },
-            retryIf: (e) => e.isNetworkRelated,
-            retries: 10,
-          );
+          if (!message.id.isLocal) {
+            await Backoff.run(
+              () async {
+                await _graphQlProvider.deleteChatMessage(message.id);
+              },
+              retryIf: (e) => e.isNetworkRelated,
+              retries: 10,
+            );
+          }
         } on DeleteChatMessageException catch (e) {
           switch (e.code) {
             case DeleteChatMessageErrorCode.notAuthor:
@@ -991,13 +993,15 @@ class ChatRepository extends DisposableInterface
 
       try {
         try {
-          await Backoff.run(
-            () async {
-              await _graphQlProvider.deleteChatForward(forward.id);
-            },
-            retryIf: (e) => e.isNetworkRelated,
-            retries: 10,
-          );
+          if (!forward.id.isLocal) {
+            await Backoff.run(
+              () async {
+                await _graphQlProvider.deleteChatForward(forward.id);
+              },
+              retryIf: (e) => e.isNetworkRelated,
+              retries: 10,
+            );
+          }
         } on DeleteChatForwardException catch (e) {
           switch (e.code) {
             case DeleteChatForwardErrorCode.artemisUnknown:
@@ -1044,13 +1048,15 @@ class ChatRepository extends DisposableInterface
 
     try {
       try {
-        await Backoff.run(
-          () async {
-            await _graphQlProvider.hideChatItem(id);
-          },
-          retryIf: (e) => e.isNetworkRelated,
-          retries: 10,
-        );
+        if (!id.isLocal) {
+          await Backoff.run(
+            () async {
+              await _graphQlProvider.hideChatItem(id);
+            },
+            retryIf: (e) => e.isNetworkRelated,
+            retries: 10,
+          );
+        }
       } on HideChatItemException catch (e) {
         switch (e.code) {
           case HideChatItemErrorCode.unknownChatItem:

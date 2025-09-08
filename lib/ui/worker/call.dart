@@ -37,6 +37,7 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
@@ -47,6 +48,7 @@ import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
+import '/provider/drift/callkit_calls.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/audio_utils.dart';
@@ -65,6 +67,8 @@ class CallWorker extends DisposableService {
     this._notificationService,
     this._authService,
     this._settingsRepository,
+    this._graphQlProvider,
+    this._callKitCalls,
   );
 
   /// [CallService] used to get reactive changes of [OngoingCall]s.
@@ -86,6 +90,13 @@ class CallWorker extends DisposableService {
   /// [AbstractSettingsRepository] used to retrieve
   /// [ApplicationSettings.muteKeys].
   final AbstractSettingsRepository _settingsRepository;
+
+  /// [GraphQlProvider] required to access [ChatEvent]s directly.
+  final GraphQlProvider _graphQlProvider;
+
+  /// [CallKitCallsDriftProvider] to mark [FlutterCallkitIncoming] calls as
+  /// accounted.
+  final CallKitCallsDriftProvider _callKitCalls;
 
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
@@ -145,6 +156,10 @@ class CallWorker extends DisposableService {
   /// [_hotKey].
   Worker? _settingsWorker;
 
+  /// [Duration] between [FlutterCallkitIncoming]s displayed to be considered as
+  /// a new call instead of already reported one.
+  static const Duration _accountedTimeout = Duration(seconds: 15);
+
   /// [Duration] indicating the time after which the push notification should be
   /// considered as lost.
   static const Duration _pushTimeout = Duration(seconds: 10);
@@ -174,6 +189,8 @@ class CallWorker extends DisposableService {
 
   @override
   void onInit() {
+    Log.debug('onInit', '$runtimeType');
+
     AudioUtils.ensureInitialized();
     _initWebUtils();
 
@@ -228,6 +245,208 @@ class CallWorker extends DisposableService {
       });
     }
 
+    Future<void> handle(ChatId key, OngoingCall c) async {
+      Future.delayed(Duration.zero, () {
+        // Ensure the call is displayed in the application before binding.
+        if (!c.background && c.state.value != OngoingCallState.ended) {
+          _bindHotKey();
+        }
+      });
+
+      if (c.state.value == OngoingCallState.pending ||
+          c.state.value == OngoingCallState.local) {
+        // Indicator whether it is us who are calling.
+        final bool outgoing =
+            (_callService.me == c.caller?.id ||
+                c.state.value == OngoingCallState.local) &&
+            c.conversationStartedAt == null;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        if (prefs.containsKey('answeredCall')) {
+          _answeredCalls.add(ChatId(prefs.getString('answeredCall')!));
+          prefs.remove('answeredCall');
+        }
+
+        final bool isInForeground = router.lifecycle.value.inForeground;
+        if (isInForeground && _answeredCalls.contains(c.chatId.value)) {
+          _callService.join(c.chatId.value, withVideo: false);
+          _answeredCalls.remove(c.chatId.value);
+        } else if (outgoing) {
+          play(_outgoing);
+        } else if (!PlatformUtils.isMobile || isInForeground) {
+          play(_incoming, fade: true);
+          Vibration.hasVibrator()
+              .then((bool? v) {
+                _vibrationTimer?.cancel();
+
+                if (v == true) {
+                  Vibration.vibrate(
+                    pattern: [500, 1000],
+                  ).onError((_, _) => false);
+                  _vibrationTimer = Timer.periodic(
+                    const Duration(milliseconds: 1500),
+                    (timer) {
+                      Vibration.vibrate(
+                        pattern: [500, 1000],
+                        repeat: 0,
+                      ).onError((_, _) => false);
+                    },
+                  );
+                }
+              })
+              .catchError((_, _) {
+                // No-op.
+              });
+
+          // Show a notification of an incoming call.
+          if (!outgoing && !PlatformUtils.isMobile && !_focused) {
+            final FutureOr<RxChat?> chat = _chatService.get(c.chatId.value);
+
+            void showIncomingCallNotification(RxChat? chat) {
+              // Displays a local notification via [NotificationService].
+              void notify() {
+                if (_myUser.value?.muted == null &&
+                    chat?.chat.value.muted == null) {
+                  final String? title = chat?.title ?? c.caller?.title;
+
+                  _notificationService.show(
+                    title ?? 'label_incoming_call'.l10n,
+                    body: title == null ? null : 'label_incoming_call'.l10n,
+                    payload: '${Routes.chats}/${c.chatId}',
+                    icon: chat?.avatar.value?.original,
+                    tag: '${c.chatId}_${c.call.value?.id}',
+                  );
+                }
+              }
+
+              // If FCM wasn't initialized, show a local notification
+              // immediately.
+              if (!_notificationService.pushNotifications) {
+                notify();
+              } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
+                // [NotificationService] will not show the scheduled local
+                // notification, if a push with the same tag was already
+                // received.
+                Future.delayed(_pushTimeout, notify);
+              }
+            }
+
+            if (chat is RxChat?) {
+              showIncomingCallNotification(chat);
+            } else {
+              chat.then(showIncomingCallNotification);
+            }
+          }
+        }
+      }
+
+      if (_muted.value) {
+        c.setAudioEnabled(!_muted.value);
+      }
+
+      if (_isCallKit) {
+        _audioWorkers[key] = ever(c.audioState, (LocalTrackState state) async {
+          final ChatItemId? callId = c.call.value?.id;
+
+          if (callId != null) {
+            await FlutterCallkitIncoming.muteCall(
+              callId.val.base62ToUuid(),
+              isMuted: !state.isEnabled,
+            );
+          }
+        });
+      }
+
+      _workers[key] = ever(c.state, (OngoingCallState state) async {
+        final ChatItemId? callId = c.call.value?.id;
+
+        switch (state) {
+          case OngoingCallState.local:
+          case OngoingCallState.pending:
+            // No-op.
+            break;
+
+          case OngoingCallState.joining:
+          case OngoingCallState.active:
+            _workers.remove(key)?.dispose();
+            if (_workers.isEmpty) {
+              stop();
+            }
+
+            if (_isCallKit && callId != null) {
+              await FlutterCallkitIncoming.setCallConnected(
+                callId.val.base62ToUuid(),
+              );
+            }
+            break;
+
+          case OngoingCallState.ended:
+            _workers.remove(key)?.dispose();
+            if (_workers.isEmpty) {
+              stop();
+            }
+
+            if (_isCallKit && callId != null) {
+              await FlutterCallkitIncoming.endCall(callId.val.base62ToUuid());
+            }
+            break;
+        }
+      });
+
+      if (_isCallKit) {
+        final RxChat? chat = await _chatService.get(c.chatId.value);
+        final String id = (c.call.value?.id.val ?? c.chatId.value.val)
+            .base62ToUuid();
+        bool report = true;
+
+        final PreciseDateTime? accountedAt = await _callKitCalls.read(id);
+        if (accountedAt != null) {
+          report =
+              accountedAt.val.difference(DateTime.now()).abs() >=
+              _accountedTimeout;
+        }
+
+        if (report) {
+          final CallKitParams params = CallKitParams(
+            nameCaller: chat?.title ?? 'Call',
+            id: id,
+            handle: c.chatId.value.val,
+            extra: {'chatId': c.chatId.value.val},
+          );
+
+          switch (c.state.value) {
+            case OngoingCallState.pending:
+              Log.debug(
+                'onInit() -> ${c.state.value.name} -> FlutterCallkitIncoming.showCallkitIncoming($id)',
+                '$runtimeType',
+              );
+
+              await FlutterCallkitIncoming.showCallkitIncoming(params);
+              await _resubscribeTo(c.chatId.value);
+              break;
+
+            case OngoingCallState.local:
+            case OngoingCallState.joining:
+            case OngoingCallState.active:
+              Log.debug(
+                'onInit() -> ${c.state.value.name} -> FlutterCallkitIncoming.startCall($id)',
+                '$runtimeType',
+              );
+
+              await FlutterCallkitIncoming.startCall(params);
+              await FlutterCallkitIncoming.setCallConnected(id);
+              await _resubscribeTo(c.chatId.value);
+              break;
+
+            case OngoingCallState.ended:
+              // No-op.
+              break;
+          }
+        }
+      }
+    }
+
     _subscription = _callService.calls.changes.listen((event) async {
       if (!wakelock && _callService.calls.isNotEmpty) {
         wakelock = true;
@@ -239,172 +458,8 @@ class CallWorker extends DisposableService {
 
       switch (event.op) {
         case OperationKind.added:
-          final OngoingCall c = event.value!.value;
-
-          Future.delayed(Duration.zero, () {
-            // Ensure the call is displayed in the application before binding.
-            if (!c.background && c.state.value != OngoingCallState.ended) {
-              _bindHotKey();
-            }
-          });
-
-          if (c.state.value == OngoingCallState.pending ||
-              c.state.value == OngoingCallState.local) {
-            // Indicator whether it is us who are calling.
-            final bool outgoing =
-                (_callService.me == c.caller?.id ||
-                    c.state.value == OngoingCallState.local) &&
-                c.conversationStartedAt == null;
-
-            final SharedPreferences prefs =
-                await SharedPreferences.getInstance();
-
-            if (prefs.containsKey('answeredCall')) {
-              _answeredCalls.add(ChatId(prefs.getString('answeredCall')!));
-              prefs.remove('answeredCall');
-            }
-
-            final bool isInForeground = router.lifecycle.value.inForeground;
-            if (isInForeground && _answeredCalls.contains(c.chatId.value)) {
-              _callService.join(c.chatId.value, withVideo: false);
-              _answeredCalls.remove(c.chatId.value);
-            } else if (outgoing) {
-              play(_outgoing);
-            } else if (!PlatformUtils.isMobile || isInForeground) {
-              play(_incoming, fade: true);
-              Vibration.hasVibrator()
-                  .then((bool? v) {
-                    _vibrationTimer?.cancel();
-
-                    if (v == true) {
-                      Vibration.vibrate(
-                        pattern: [500, 1000],
-                      ).onError((_, _) => false);
-                      _vibrationTimer = Timer.periodic(
-                        const Duration(milliseconds: 1500),
-                        (timer) {
-                          Vibration.vibrate(
-                            pattern: [500, 1000],
-                            repeat: 0,
-                          ).onError((_, _) => false);
-                        },
-                      );
-                    }
-                  })
-                  .catchError((_, _) {
-                    // No-op.
-                  });
-
-              // Show a notification of an incoming call.
-              if (!outgoing && !PlatformUtils.isMobile && !_focused) {
-                final FutureOr<RxChat?> chat = _chatService.get(c.chatId.value);
-
-                void showIncomingCallNotification(RxChat? chat) {
-                  // Displays a local notification via [NotificationService].
-                  void notify() {
-                    if (_myUser.value?.muted == null &&
-                        chat?.chat.value.muted == null) {
-                      final String? title = chat?.title ?? c.caller?.title;
-
-                      _notificationService.show(
-                        title ?? 'label_incoming_call'.l10n,
-                        body: title == null ? null : 'label_incoming_call'.l10n,
-                        payload: '${Routes.chats}/${c.chatId}',
-                        icon: chat?.avatar.value?.original,
-                        tag: '${c.chatId}_${c.call.value?.id}',
-                      );
-                    }
-                  }
-
-                  // If FCM wasn't initialized, show a local notification
-                  // immediately.
-                  if (!_notificationService.pushNotifications) {
-                    notify();
-                  } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
-                    // [NotificationService] will not show the scheduled local
-                    // notification, if a push with the same tag was already
-                    // received.
-                    Future.delayed(_pushTimeout, notify);
-                  }
-                }
-
-                if (chat is RxChat?) {
-                  showIncomingCallNotification(chat);
-                } else {
-                  chat.then(showIncomingCallNotification);
-                }
-              }
-            }
-          }
-
-          if (_muted.value) {
-            c.setAudioEnabled(!_muted.value);
-          }
-
-          if (_isCallKit) {
-            _audioWorkers[event.key!] = ever(c.audioState, (
-              LocalTrackState state,
-            ) async {
-              final ChatItemId? callId = c.call.value?.id;
-
-              if (callId != null) {
-                await FlutterCallkitIncoming.muteCall(
-                  callId.val.base62ToUuid(),
-                  isMuted: !state.isEnabled,
-                );
-              }
-            });
-          }
-
-          _workers[event.key!] = ever(c.state, (OngoingCallState state) async {
-            final ChatItemId? callId = c.call.value?.id;
-
-            switch (state) {
-              case OngoingCallState.local:
-              case OngoingCallState.pending:
-                // No-op.
-                break;
-
-              case OngoingCallState.joining:
-              case OngoingCallState.active:
-                _workers.remove(event.key!)?.dispose();
-                if (_workers.isEmpty) {
-                  stop();
-                }
-
-                if (_isCallKit && callId != null) {
-                  await FlutterCallkitIncoming.setCallConnected(
-                    callId.val.base62ToUuid(),
-                  );
-                }
-                break;
-
-              case OngoingCallState.ended:
-                _workers.remove(event.key!)?.dispose();
-                if (_workers.isEmpty) {
-                  stop();
-                }
-
-                if (_isCallKit && callId != null) {
-                  await FlutterCallkitIncoming.endCall(
-                    callId.val.base62ToUuid(),
-                  );
-                }
-                break;
-            }
-          });
-
-          if (_isCallKit) {
-            final RxChat? chat = await _chatService.get(c.chatId.value);
-
-            await FlutterCallkitIncoming.startCall(
-              CallKitParams(
-                nameCaller: chat?.title ?? 'Call',
-                id: (c.call.value?.id.val ?? c.chatId.value.val).base62ToUuid(),
-                handle: c.chatId.value.val,
-                extra: {'chatId': c.chatId.value.val},
-              ),
-            );
+          if (event.key != null && event.value != null) {
+            await handle(event.key!, event.value!.value);
           }
           break;
 
@@ -412,6 +467,7 @@ class CallWorker extends DisposableService {
           _answeredCalls.remove(event.key);
           _audioWorkers.remove(event.key)?.dispose();
           _workers.remove(event.key)?.dispose();
+          _eventsSubscriptions[event.key]?.cancel();
           if (_workers.isEmpty) {
             stop();
           }
@@ -430,8 +486,11 @@ class CallWorker extends DisposableService {
 
             if (_isCallKit) {
               final ChatItemId? callId = call.call.value?.id;
+
               if (callId != null) {
-                await FlutterCallkitIncoming.endCall(callId.val.base62ToUuid());
+                final String base62 = callId.val.base62ToUuid();
+                _callKitCalls.upsert(base62, PreciseDateTime.now());
+                await FlutterCallkitIncoming.endCall(base62);
               }
 
               await FlutterCallkitIncoming.endCall(
@@ -461,6 +520,10 @@ class CallWorker extends DisposableService {
       }
     });
 
+    for (Rx<OngoingCall> call in _callService.calls.values) {
+      handle(call.value.chatId.value, call.value);
+    }
+
     if (_isCallKit) {
       _callKitSubscription = FlutterCallkitIncoming.onEvent.listen((
         CallEvent? event,
@@ -478,6 +541,7 @@ class CallWorker extends DisposableService {
           case Event.actionCallDecline:
             final String? chatId = event.body['extra']?['chatId'];
             if (chatId != null) {
+              _eventsSubscriptions[ChatId(chatId)]?.cancel();
               await _callService.decline(ChatId(chatId));
             }
             break;
@@ -486,6 +550,7 @@ class CallWorker extends DisposableService {
           case Event.actionCallTimeout:
             final String? chatId = event.body['extra']?['chatId'];
             if (chatId != null) {
+              _eventsSubscriptions[ChatId(chatId)]?.cancel();
               _callService.remove(ChatId(chatId));
             }
             break;
@@ -505,110 +570,10 @@ class CallWorker extends DisposableService {
 
             if (extra != null && credentials != null) {
               final ChatId chatId = ChatId(extra);
-
-              final GraphQlProvider provider = GraphQlProvider();
-              provider.token = credentials.access.secret;
-
-              _eventsSubscriptions[chatId]?.cancel();
-              _eventsSubscriptions[chatId] = provider.chatEvents(chatId, null, () => null).listen((
-                e,
-              ) async {
-                final events = ChatEvents$Subscription.fromJson(
-                  e.data!,
-                ).chatEvents;
-
-                if (events.$$typename == 'Chat') {
-                  final mixin =
-                      events as ChatEvents$Subscription$ChatEvents$Chat;
-                  final call = mixin.ongoingCall;
-
-                  if (call != null) {
-                    if (call.members.any(
-                      (e) => e.user.id == credentials.userId,
-                    )) {
-                      await FlutterCallkitIncoming.endCall(
-                        chatId.val.base62ToUuid(),
-                      );
-                    }
-                  }
-                } else if (events.$$typename == 'ChatEventsVersioned') {
-                  var mixin =
-                      events
-                          as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
-
-                  for (var e in mixin.events) {
-                    if (e.$$typename == 'EventChatCallFinished') {
-                      final node =
-                          e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
-
-                      if (_isCallKit) {
-                        await FlutterCallkitIncoming.endCall(
-                          node.call.id.val.base62ToUuid(),
-                        );
-                      }
-                    } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                      final node =
-                          e
-                              as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-                      final call = _callService.calls[chatId];
-
-                      if (node.user.id == credentials.userId &&
-                          call?.value.connected != true) {
-                        if (_isCallKit) {
-                          await FlutterCallkitIncoming.endCall(
-                            node.call.id.val.base62ToUuid(),
-                          );
-                        }
-                      }
-                    } else if (e.$$typename == 'EventChatCallMemberLeft') {
-                      var node =
-                          e
-                              as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
-                      final call = _callService.calls[chatId];
-
-                      if (node.user.id == credentials.userId &&
-                          call?.value.connected != true) {
-                        await FlutterCallkitIncoming.endCall(
-                          chatId.val.base62ToUuid(),
-                        );
-                      }
-                    } else if (e.$$typename == 'EventChatCallDeclined') {
-                      final node =
-                          e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
-                      if (node.user.id == credentials.userId) {
-                        if (_isCallKit) {
-                          await FlutterCallkitIncoming.endCall(
-                            node.call.id.val.base62ToUuid(),
-                          );
-                        }
-                      }
-                    } else if (e.$$typename ==
-                        'EventChatCallAnswerTimeoutPassed') {
-                      final node =
-                          e
-                              as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
-                      if (node.userId == credentials.userId) {
-                        if (_isCallKit) {
-                          await FlutterCallkitIncoming.endCall(
-                            node.callId.val.base62ToUuid(),
-                          );
-                        }
-                      }
-                    }
-                  }
-                }
-              });
-
-              // Ensure that we haven't already joined the call.
-              final query = await provider.getChat(chatId);
-              final call = query.chat?.ongoingCall;
-              if (call != null) {
-                if (call.members.any((e) => e.user.id == credentials.userId)) {
-                  await FlutterCallkitIncoming.endCall(
-                    chatId.val.base62ToUuid(),
-                  );
-                }
-              }
+              await _resubscribeTo(chatId);
+            } else if (credentials == null) {
+              // We don't have `credentials`, thus no calls should be allowed.
+              await FlutterCallkitIncoming.endAllCalls();
             }
             break;
 
@@ -620,8 +585,34 @@ class CallWorker extends DisposableService {
           case Event.actionCallToggleGroup:
           case Event.actionCallToggleAudioSession:
           case Event.actionCallCustom:
+          case Event.actionCallConnected:
             // No-op.
             break;
+        }
+      });
+
+      // List the current active calls (e.g. if this app was launched as a
+      // result of VoIP notification received) and subscribe to the events.
+      FlutterCallkitIncoming.activeCalls().then((e) {
+        Log.debug(
+          'onInit() -> FlutterCallkitIncoming.activeCalls -> $e',
+          '$runtimeType',
+        );
+
+        if (e is List) {
+          for (var event in e) {
+            Log.debug(
+              'onInit() -> FlutterCallkitIncoming.activeCalls -> event -> ${event.runtimeType} -> ${event is Map}',
+              '$runtimeType',
+            );
+
+            if (event is Map) {
+              final String? chatId = event['extra']?['chatId'] as String?;
+              if (chatId != null) {
+                _resubscribeTo(ChatId(chatId));
+              }
+            }
+          }
         }
       });
     }
@@ -629,6 +620,8 @@ class CallWorker extends DisposableService {
     _hotKey =
         _settingsRepository.applicationSettings.value?.muteHotKey ??
         MuteHotKeyExtension.defaultHotKey;
+
+    _callKitCalls.clear();
 
     super.onInit();
   }
@@ -641,6 +634,8 @@ class CallWorker extends DisposableService {
 
   @override
   void onClose() {
+    Log.debug('onClose', '$runtimeType');
+
     _outgoingAudio?.cancel();
     _incomingAudio?.cancel();
     _callKitSubscription?.cancel();
@@ -800,6 +795,137 @@ class CallWorker extends DisposableService {
     }
 
     return true;
+  }
+
+  /// Subscribes to the [GraphQlProvider.chatEvents] of the provided [chatId]
+  /// to listen to events when [FlutterCallkitIncoming.endCall] should be
+  /// invoked.
+  Future<void> _resubscribeTo(ChatId chatId) async {
+    Log.debug(
+      '_resubscribeTo($chatId) -> _isCallKit($_isCallKit), existing(${_eventsSubscriptions[chatId]})',
+      '$runtimeType',
+    );
+
+    if (!_isCallKit) {
+      return;
+    }
+
+    final Credentials? credentials = _authService.credentials.value;
+    if (credentials == null) {
+      return;
+    }
+
+    if (_eventsSubscriptions[chatId] != null) {
+      return;
+    }
+
+    _eventsSubscriptions[chatId]?.cancel();
+    _eventsSubscriptions[chatId] = _graphQlProvider
+        .chatEvents(chatId, null, () => null)
+        .listen((e) async {
+          Log.debug('_eventsSubscriptions[$chatId] -> $e', '$runtimeType');
+
+          final events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
+
+          if (events.$$typename == 'Chat') {
+            final mixin = events as ChatEvents$Subscription$ChatEvents$Chat;
+            final call = mixin.ongoingCall;
+
+            if (call != null) {
+              if (call.members.any((e) => e.user.id == credentials.userId)) {
+                _eventsSubscriptions[chatId]?.cancel();
+                await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+              }
+            } else {
+              _eventsSubscriptions[chatId]?.cancel();
+              await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+            }
+          } else if (events.$$typename == 'ChatEventsVersioned') {
+            var mixin =
+                events
+                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+
+            for (var e in mixin.events) {
+              if (e.$$typename == 'EventChatCallFinished') {
+                final node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
+
+                _eventsSubscriptions[chatId]?.cancel();
+                await FlutterCallkitIncoming.endCall(
+                  node.call.id.val.base62ToUuid(),
+                );
+              } else if (e.$$typename == 'EventChatCallMemberJoined') {
+                final node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+                final call = _callService.calls[chatId];
+
+                if (node.user.id == credentials.userId &&
+                    call?.value.connected != true) {
+                  _eventsSubscriptions[chatId]?.cancel();
+                  await FlutterCallkitIncoming.endCall(
+                    node.call.id.val.base62ToUuid(),
+                  );
+                }
+              } else if (e.$$typename == 'EventChatCallMemberLeft') {
+                var node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
+                final call = _callService.calls[chatId];
+
+                if (node.user.id == credentials.userId &&
+                    call?.value.connected != true) {
+                  _eventsSubscriptions[chatId]?.cancel();
+                  await FlutterCallkitIncoming.endCall(
+                    chatId.val.base62ToUuid(),
+                  );
+                }
+              } else if (e.$$typename == 'EventChatCallDeclined') {
+                final node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+                if (node.user.id == credentials.userId) {
+                  _eventsSubscriptions[chatId]?.cancel();
+                  await FlutterCallkitIncoming.endCall(
+                    node.call.id.val.base62ToUuid(),
+                  );
+                }
+              } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+                final node =
+                    e
+                        as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+                if (node.userId == credentials.userId) {
+                  _eventsSubscriptions[chatId]?.cancel();
+                  await FlutterCallkitIncoming.endCall(
+                    node.callId.val.base62ToUuid(),
+                  );
+                }
+              }
+            }
+          }
+        });
+
+    // Ensure that we haven't already joined the call.
+    final query = await _graphQlProvider.getChat(chatId);
+    Log.debug('_resubscribeTo($chatId) -> query is $query', '$runtimeType');
+
+    final call = query.chat?.ongoingCall;
+    if (call != null) {
+      if (call.members.any((e) => e.user.id == credentials.userId)) {
+        Log.debug(
+          '_resubscribeTo($chatId) -> endCall(${chatId.val.base62ToUuid()}) cuz `call.members` already contains our `${credentials.userId}`',
+          '$runtimeType',
+        );
+
+        _eventsSubscriptions[chatId]?.cancel();
+        await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+      }
+    } else {
+      Log.debug(
+        '_resubscribeTo($chatId) -> endCall(${chatId.val.base62ToUuid()}) cuz `Chat.ongoingCall` is `null`',
+        '$runtimeType',
+      );
+
+      _eventsSubscriptions[chatId]?.cancel();
+      await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+    }
   }
 }
 

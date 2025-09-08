@@ -302,7 +302,7 @@ jobs:
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.2'
+          xcode-version: '16.4'
         if: ${{ runner.os == 'macos' }}
 
       - name: Configure FCM (Firebase Cloud Messaging)
