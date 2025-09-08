@@ -534,7 +534,7 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
-      'label_delete_chat'.l10n,
+      'label_report'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_reported1'.l10n),
         TextSpan(
