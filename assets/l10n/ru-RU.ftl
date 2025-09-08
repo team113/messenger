@@ -907,7 +907,6 @@ label_terms_and_privacy_policy = Условия и Политика конфид
 label_text_status = Текстовый статус
 label_text_status_description = Максимум 25 символов
 label_this_device = Это устройство
-label_to_restore_chat_use_search = Чтобы восстановить чат, воспользуйтесь поиском.
 label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
 label_typing = Печатает
 label_unknown = Неизвестно

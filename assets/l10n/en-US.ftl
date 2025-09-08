@@ -892,7 +892,6 @@ label_terms_and_privacy_policy = Terms & Privacy Policy
 label_text_status = Text status
 label_text_status_description = 25 characters max
 label_this_device = This device
-label_to_restore_chat_use_search = To restore the chat, use the search
 label_to_restore_chats_use_search = To restore the chats, use the search
 label_typing = Typing
 label_unknown = Unknown

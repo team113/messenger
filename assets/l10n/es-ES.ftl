@@ -893,7 +893,6 @@ label_terms_and_privacy_policy = Condiciones y Política de Privacidad
 label_text_status = Estatus del texto
 label_text_status_description = Hasta 26 caracteres
 label_this_device = Este dispositivo
-label_to_restore_chat_use_search = Para recuperar el chat, utiliza la búsqueda
 label_to_restore_chats_use_search = Para recuperar los chats, utiliza la búsqueda
 label_typing = Escribiendo
 label_unknown = Desconocido
