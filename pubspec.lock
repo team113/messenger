@@ -597,10 +597,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "58fe7c25eaac7acb7861a0a111ce555055a443a5"
+      resolved-ref: a265ae9d36683d4c2cd7209d3b8cbcce0dc00107
       url: "https://github.com/SleepySquash/flutter_callkit_incoming_android.git"
     source: git
-    version: "2.5.0"
+    version: "2.5.8"
   flutter_custom_cursor:
     dependency: "direct main"
     description:
