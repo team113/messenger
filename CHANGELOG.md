@@ -16,10 +16,22 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Redesigned media player. ([#1395], [#1368], [#1367], [#1356])
     - Chat page:
-        - Removed more button. ([#1401], [#1249])
+        - Removed actions in more button: ([#1401], [#1249])
+            - Favorite/unfavorite;
+            - Mute/unmute;
+            - Clear history;
+            - Leave group;
+            - Delete chat.
     - Chat info page:
         - Display folded indicator when chat is in favorites. ([#1391], [#1274])
-        - Redesigned title block, members and actions. ([#1401], [#1249])
+        - Redesigned title block, members. ([#1401], [#1249])
+        - Added actions: ([#1401], [#1249])
+            - Favorite/unfavorite;
+            - Mute/unmute;
+            - Clear history;
+            - Delete chat.
+    - Chats tab:
+        - Changed deleting chats dialogs.
     - User page:
         - Display folded indicator when user is in favorites. ([#1391], [#1274])
     - Display Gapopa ID with hyphens instead of spaces. ([#1393], [#1352])
