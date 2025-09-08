@@ -774,12 +774,12 @@ class AuthService extends DisposableService {
 
         if (isLocked) {
           Log.debug(
-            'refreshSession($userId |-> $attempt): acquired the lock, while it was locked -> should refresh: ${_shouldRefresh(oldCreds)}',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was locked -> should refresh: ${_shouldRefresh(oldCreds)} (comparing oldCreds(${oldCreds?.access.expireAt.toUtc()}).subtract($_accessTokenMinTtl) = ${oldCreds?.access.expireAt.toUtc().subtract(_accessTokenMinTtl)} vs now(${PreciseDateTime.now().toUtc()}))',
             '$runtimeType',
           );
         } else {
           Log.debug(
-            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked -> should refresh: ${_shouldRefresh(oldCreds)}',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked -> should refresh: ${_shouldRefresh(oldCreds)} (comparing oldCreds(${oldCreds?.access.expireAt.toUtc()}).subtract($_accessTokenMinTtl) = ${oldCreds?.access.expireAt.toUtc().subtract(_accessTokenMinTtl)} vs now(${PreciseDateTime.now().toUtc()}))',
             '$runtimeType',
           );
         }
@@ -1078,6 +1078,7 @@ class AuthService extends DisposableService {
     final Credentials? creds = credentials ?? this.credentials.value;
 
     return creds?.access.expireAt
+            .toUtc()
             .subtract(_accessTokenMinTtl)
             .isBefore(PreciseDateTime.now().toUtc()) ??
         false;
