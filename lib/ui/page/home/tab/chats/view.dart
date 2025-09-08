@@ -1140,7 +1140,7 @@ class ChatsTabView extends StatelessWidget {
         WidgetButton(
           onPressed: c.selectedChats.isEmpty
               ? null
-              : () => _deleteChats(context, c),
+              : () => _hideChats(context, c),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
@@ -1157,7 +1157,7 @@ class ChatsTabView extends StatelessWidget {
           key: const Key('DeleteChatsButton'),
           onPressed: c.selectedChats.isEmpty
               ? null
-              : () => _deleteChats(context, c),
+              : () => _hideChats(context, c),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
@@ -1219,8 +1219,8 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Opens a confirmation popup deleting the selected chats.
-  static Future<void> _deleteChats(
+  /// Opens a confirmation popup hiding the selected chats.
+  static Future<void> _hideChats(
     BuildContext context,
     ChatsTabController c,
   ) async {
