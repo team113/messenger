@@ -412,14 +412,14 @@ class SessionRepository extends DisposableInterface
     _graphQlSubscription = _graphQlProvider.connected.listen((hasGraphQl) {
       _hasGraphQl = hasGraphQl;
       connected.value = _hasNetwork && _hasGraphQl;
+
+      Log.debug(
+        '_graphQlProvider.connected -> $hasGraphQl (${connected.value})',
+        '$runtimeType',
+      );
     });
 
     void apply(List<ConnectivityResult> result) {
-      Log.debug(
-        'Connectivity().onConnectivityChanged -> $result',
-        '$runtimeType',
-      );
-
       _hasNetwork =
           result.contains(ConnectivityResult.wifi) ||
           result.contains(ConnectivityResult.ethernet) ||
@@ -428,6 +428,11 @@ class SessionRepository extends DisposableInterface
           result.contains(ConnectivityResult.other);
 
       connected.value = _hasNetwork && _hasGraphQl;
+
+      Log.debug(
+        'Connectivity().onConnectivityChanged -> $result (${connected.value})',
+        '$runtimeType',
+      );
     }
 
     try {
