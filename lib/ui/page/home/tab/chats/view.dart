@@ -34,7 +34,6 @@ import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
-import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';

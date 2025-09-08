@@ -45,7 +45,6 @@ import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
-import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
