@@ -749,7 +749,7 @@ class ChatsTabView extends StatelessWidget {
                                 onLeave: e.chat.value.isMonolog
                                     ? null
                                     : () => c.leaveChat(e.id),
-                                onHide: (clear) => c.hideChat(e.id, clear),
+                                onHide: () => c.hideChat(e.id),
                                 onMute:
                                     e.chat.value.isMonolog ||
                                         e.chat.value.id.isLocal
@@ -1141,7 +1141,7 @@ class ChatsTabView extends StatelessWidget {
         WidgetButton(
           onPressed: c.selectedChats.isEmpty
               ? null
-              : () => _hideChats(context, c),
+              : () => _deleteChats(context, c),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
@@ -1158,7 +1158,7 @@ class ChatsTabView extends StatelessWidget {
           key: const Key('DeleteChatsButton'),
           onPressed: c.selectedChats.isEmpty
               ? null
-              : () => _hideChats(context, c),
+              : () => _deleteChats(context, c),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
@@ -1220,34 +1220,19 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Opens a confirmation popup hiding the selected chats.
-  static Future<void> _hideChats(
+  /// Opens a confirmation popup deleting the selected chats.
+  static Future<void> _deleteChats(
     BuildContext context,
     ChatsTabController c,
   ) async {
-    bool clear = false;
-
     final bool? result = await MessagePopup.alert(
       'label_delete_chats'.l10n,
       description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
-      additional: [
-        const SizedBox(height: 21),
-        StatefulBuilder(
-          builder: (context, setState) {
-            return RectangleButton(
-              label: 'btn_clear_history'.l10n,
-              selected: clear,
-              radio: true,
-              toggleable: true,
-              onPressed: () => setState(() => clear = !clear),
-            );
-          },
-        ),
-      ],
+      button: MessagePopup.deleteButton,
     );
 
     if (result == true) {
-      await c.hideChats(clear);
+      await c.hideChats();
     }
   }
 }

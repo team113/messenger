@@ -120,7 +120,7 @@ class RecentChatTile extends StatelessWidget {
   final void Function()? onLeave;
 
   /// Callback, called when this [rxChat] hide action is triggered.
-  final void Function(bool)? onHide;
+  final void Function()? onHide;
 
   /// Callback, called when a drop [Chat.ongoingCall] in this [rxChat] action is
   /// triggered.
@@ -198,7 +198,7 @@ class RecentChatTile extends StatelessWidget {
               : DismissiblePane(onDismissed: onDismissed!),
           children: [
             FadingSlidableAction(
-              onPressed: _hideChat,
+              onPressed: (context) => _hideChat(context, rxChat),
               icon: const Icon(Icons.delete),
               text: 'btn_delete'.l10n,
             ),
@@ -309,7 +309,7 @@ class RecentChatTile extends StatelessWidget {
                   label: PlatformUtils.isMobile
                       ? 'btn_delete'.l10n
                       : 'btn_delete_chat'.l10n,
-                  onPressed: () => _hideChat(context),
+                  onPressed: () => _hideChat(context, rxChat),
                   trailing: const SvgIcon(SvgIcons.delete19),
                   inverted: const SvgIcon(SvgIcons.delete19White),
                 ),
@@ -987,30 +987,23 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Hides the [rxChat].
-  Future<void> _hideChat(BuildContext context) async {
-    bool clear = false;
+  Future<void> _hideChat(BuildContext context, RxChat chat) async {
+    final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
-      description: [TextSpan(text: 'label_to_restore_chat_use_search'.l10n)],
-      additional: [
-        const SizedBox(height: 21),
-        StatefulBuilder(
-          builder: (context, setState) {
-            return RectangleButton(
-              label: 'btn_clear_history'.l10n,
-              selected: clear,
-              toggleable: true,
-              radio: true,
-              onPressed: () => setState(() => clear = !clear),
-            );
-          },
+      description: [
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(
+          text: chat.title,
+          style: style.fonts.normal.regular.onBackground,
         ),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
       ],
     );
 
     if (result == true) {
-      onHide?.call(clear);
+      onHide?.call();
     }
   }
 
