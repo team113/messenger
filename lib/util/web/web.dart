@@ -506,24 +506,25 @@ class WebUtils {
       options.icon = icon;
     }
 
-    // TODO: register onSelectNotification to onclick event in notification
-    // previously, showing notification works on main thread and we can access
-    // the notification object directly. Now, we need to handle it inside the
-    // service worker.
-    //
-    // register onSelectNotification (maybe) from notification
-    // service initialization
-    return web.window.navigator.serviceWorker.ready.toDart.then((reg) async {
-      await reg.showNotification(title, options).toDart;
-    });
+    // TODO: `onSelectNotification` was used in `onclick` event in
+    //       `Notification` body, however since now notifications are created
+    //       by `ServiceWorker`, we have no control over it, so should implement
+    //       a way to handle the click in `ServiceWorker`.
+    final web.ServiceWorkerRegistration registration =
+        await web.window.navigator.serviceWorker.ready.toDart;
+
+    await registration.showNotification(title, options).toDart;
   }
 
-  /// Clears notifications identified by the provided [chatId] via registered
-  /// serviceWorker's.
+  /// Clears notifications identified by the provided [ChatId] via registered
+  /// `ServiceWorker`s.
   static Future<void> clearNotifications(ChatId chatId) async {
     // Try to `postMessage` to active registrations, if any.
     try {
-      final registrations = await web.window.navigator.serviceWorker
+      final List<web.ServiceWorkerRegistration> registrations = await web
+          .window
+          .navigator
+          .serviceWorker
           .getRegistrations()
           .toDart
           .then((js) => js.toDart);
@@ -531,8 +532,12 @@ class WebUtils {
       for (var registration in registrations) {
         registration.active?.postMessage('closeAll:$chatId'.toJS);
       }
-    } catch (_) {
+    } catch (e) {
       // Ignore errors; SW might not be available yet.
+      Log.debug(
+        '`clearNotifications($chatId)` has failed due to: $e',
+        'WebUtils',
+      );
     }
   }
 

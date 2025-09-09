@@ -28,10 +28,10 @@ import 'package:universal_io/io.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../model/chat.dart';
 import '/api/backend/schema.dart'
     show PushDeviceToken, RegisterPushDeviceErrorCode;
 import '/config.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
 import '/domain/model/push_token.dart';
 import '/provider/gql/exceptions.dart' show RegisterPushDeviceException;
@@ -346,8 +346,8 @@ class NotificationService extends DisposableService {
       return WebUtils.clearNotifications(chatId);
     }
 
-    // Check for iOS and macOS, cuz for macOS app can be installed from
-    // App Store (iPhone app)
+    // Check for iOS and macOS, cuz for macOS app can be installed from App
+    // Store as an iPhone app.
     if (PlatformUtils.isIOS || PlatformUtils.isMacOS) {
       await IosUtils.cancelNotificationsContaining(chatId.val);
     }

@@ -377,7 +377,8 @@ class ChatController extends GetxController {
   /// [Mutex] guarding access to [_typingSubscription].
   final Mutex _typingGuard = Mutex();
 
-  /// Notification service for managing notifications.
+  /// [NotificationService] used for clearing notifications related to this
+  /// [Chat].
   final NotificationService _notificationService;
 
   /// Returns [MyUser]'s [UserId].
@@ -1089,7 +1090,7 @@ class ChatController extends GetxController {
 
       SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
 
-      // Clearing notifications for the current chat after it's loaded.
+      // Clear notifications of the this `Chat` after it has finished loading.
       _notificationService.clearNotifications(chat?.chat.value.id ?? id);
     } catch (e) {
       _ready.throwable = e;
