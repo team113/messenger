@@ -16,12 +16,12 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - Set `Cross-Origin-Embedder-Policy` header to `credentialless` for [Safari]. ([#1004])
-- Set media type of `.mjs` files to `application/javascript`. ([#1405])
+- Set media type of `.mjs` files to `application/javascript`. ([#1068])
 
 [#954]: https://github.com/team113/messenger/issues/954
 [#1004]: https://github.com/team113/messenger/pull/1004
 [#1041]: https://github.com/team113/messenger/pull/1041
-[#1405]: https://github.com/team113/messenger/pull/1405
+[#1068]: https://github.com/team113/messenger/pull/1068
 
 
 
