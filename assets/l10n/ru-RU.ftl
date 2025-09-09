@@ -610,8 +610,8 @@ label_desktop_apps = Приложения для компьютера
 label_device_by_default = По умолчанию - {$device}
 label_dialog_created = Диалог создан
 label_dialog_created_by_link = Диалог создан по прямой ссылке
-label_direct_chat_link = Прямая ссылка на чат
-label_direct_chat_link_in_chat_description = Пользователи, перешедшие по прямой ссылке, автоматически становятся полноправными участниками группы.
+label_direct_chat_link = Пригласить в группу
+label_direct_chat_link_in_chat_description = Пользователи, перешедшие по ссылке на группу, автоматически становятся полноправными участниками группы.
 label_discard_changes_question = Отменить изменения
 label_download = Скачать
 label_download_and_update = Скачать и обновить
@@ -804,7 +804,7 @@ label_regulations_freelance =
     4. В ответном сообщении Вы получите подтверждение, что задача закреплена за Вами (задача переводится в статус `In progress`)
     5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа
     6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
-label_remove_member = Удалить участника
+label_remove_member = Удалить из группы
 label_repeat_password = Подтвердить пароль
 label_replace_this_text_with_concern = Опишите проблему.
 label_replace_this_text_with_feedback = Обратная связь.
@@ -967,7 +967,7 @@ label_work_with_us_desc =
     Работайте
     с нами
 label_you = Вы
-label_you_can_use_randomly_generated_link = Вы можете использовать случайно сгенерированную ссылку или создать свою.
+label_you_can_use_randomly_generated_link = Вы можете использовать сгенерированную ссылку или создать собственную.
 label_you_were_added_to_group = Вы добавлены в группу
 label_your_direct_link = Прямая ссылка на чат с Вами
 label_your_name = Ваше имя

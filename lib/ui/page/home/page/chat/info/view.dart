@@ -230,6 +230,7 @@ class ChatInfoView extends StatelessWidget {
         Obx(() {
           return Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(6, 0, 8, 0),
@@ -265,6 +266,16 @@ class ChatInfoView extends StatelessWidget {
         'count': c.chat!.chat.value.membersCount,
       }),
       children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: PrimaryButton(
+            key: const Key('AddMemberButton'),
+            onPressed: () => AddChatMemberView.show(context, chatId: id),
+            leading: SvgIcon(SvgIcons.addUserWhite),
+            title: 'btn_add_participants'.l10n,
+          ),
+        ),
+        const SizedBox(height: 8),
         Obx(() {
           final List<RxUser> members = [];
 
@@ -359,16 +370,7 @@ class ChatInfoView extends StatelessWidget {
             ],
           );
         }),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: PrimaryButton(
-            key: const Key('AddMemberButton'),
-            onPressed: () => AddChatMemberView.show(context, chatId: id),
-            leading: SvgIcon(SvgIcons.addUserWhite),
-            title: 'btn_add_participant'.l10n,
-          ),
-        ),
+        const SizedBox(height: 4),
       ],
     );
   }
@@ -409,7 +411,7 @@ class ChatInfoView extends StatelessWidget {
                   ? 'btn_mute'.l10n
                   : 'btn_mute_chat'.l10n,
               trailing: SvgIcon(
-                muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+                muted ? SvgIcons.muteSmall : SvgIcons.unmuteSmall,
               ),
             ),
           ActionButton(

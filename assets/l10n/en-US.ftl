@@ -597,8 +597,8 @@ label_desktop_apps = Desktop apps
 label_device_by_default = By default - {$device}
 label_dialog_created = Dialog created
 label_dialog_created_by_link = Dialog created via direct link
-label_direct_chat_link = Direct chat link
-label_direct_chat_link_in_chat_description = Users, who come via a direct link automatically, become full members of the group.
+label_direct_chat_link = Invite to the group
+label_direct_chat_link_in_chat_description = Users, who follow the group link, become full members of the group automatically.
 label_discard_changes_question = Discard changes
 label_download = Download
 label_download_and_update = Download and update
@@ -741,8 +741,8 @@ label_online = online
 label_open_calls_in_app = In the same window
 label_open_calls_in_window = In a separate window
 label_outgoing_call = Calling
-label_participants = Participants: {$count}
-label_participants_of = Participants: {$a} of {$b}
+label_participants = Members: {$count}
+label_participants_of = Members: {$a} of {$b}
 label_password = Password
 label_password_changed = Password has been changed
 label_password_not_set1 = The password is not set.{" "}
@@ -791,7 +791,7 @@ label_regulations_freelance =
     4. In the response message you will receive a confirmation that the task is assigned to you (the task status will change to “In progress”)
     5. While working on the task you should push commit of your task at least once every 72 hours.
     6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
-label_remove_member = Remove member
+label_remove_member = Remove from the group
 label_repeat_password = Confirm password
 label_replace_this_text_with_concern = Describe the concern.
 label_replace_this_text_with_feedback = Feedback.
@@ -951,7 +951,7 @@ label_work_with_us_desc =
     Work
     with us
 label_you = You
-label_you_can_use_randomly_generated_link = You can use a randomly generated link or create your own.
+label_you_can_use_randomly_generated_link = You can use a generated link or create your own.
 label_you_were_added_to_group = You have been added to the group
 label_your_direct_link = Direct link to chat with you
 label_your_name = Your name

@@ -197,7 +197,7 @@ class RecentChatTile extends StatelessWidget {
               : DismissiblePane(onDismissed: onDismissed!),
           children: [
             FadingSlidableAction(
-              onPressed: (context) => _hideChat(context, rxChat),
+              onPressed: _hideChat,
               icon: const Icon(Icons.delete),
               text: 'btn_delete'.l10n,
             ),
@@ -308,7 +308,7 @@ class RecentChatTile extends StatelessWidget {
                   label: PlatformUtils.isMobile
                       ? 'btn_delete'.l10n
                       : 'btn_delete_chat'.l10n,
-                  onPressed: () => _hideChat(context, rxChat),
+                  onPressed: () => _hideChat(context),
                   trailing: const SvgIcon(SvgIcons.delete19),
                   inverted: const SvgIcon(SvgIcons.delete19White),
                 ),
@@ -986,7 +986,7 @@ class RecentChatTile extends StatelessWidget {
   }
 
   /// Hides the [rxChat].
-  Future<void> _hideChat(BuildContext context, RxChat chat) async {
+  Future<void> _hideChat(BuildContext context) async {
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
@@ -994,7 +994,7 @@ class RecentChatTile extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
         TextSpan(
-          text: chat.title,
+          text: rxChat.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),

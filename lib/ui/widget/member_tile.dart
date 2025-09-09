@@ -128,6 +128,13 @@ class MemberTile extends StatelessWidget {
                           ),
                           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                         ],
+                        button: (context) {
+                          return MessagePopup.deleteButton(
+                            context,
+                            label: 'btn_delete'.l10n,
+                            icon: SvgIcons.removeMemberWhite,
+                          );
+                        },
                       );
 
                       if (result == true) {
@@ -137,7 +144,7 @@ class MemberTile extends StatelessWidget {
               child: _me
                   ? const SizedBox()
                   : const SvgIcon(
-                      SvgIcons.delete,
+                      SvgIcons.removeMember,
                       key: Key('DeleteMemberButton'),
                     ),
             ),
@@ -147,7 +154,7 @@ class MemberTile extends StatelessWidget {
       ],
       subtitle: [
         if (_status.isNotEmpty)
-          Text(_status, style: style.fonts.small.regular.secondary),
+          Text(_status.capitalized, style: style.fonts.small.regular.secondary),
       ],
     );
   }

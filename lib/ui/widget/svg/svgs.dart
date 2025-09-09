@@ -398,8 +398,8 @@ class SvgIcons {
 
   static const SvgData addUserWhite = SvgData(
     'assets/icons/add_user_white.svg',
-    width: 19.35,
-    height: 18.32,
+    width: 19,
+    height: 18,
   );
 
   static const SvgData chatMore = SvgData(
@@ -1918,5 +1918,17 @@ class SvgIcons {
     'assets/icons/media_popup.svg',
     width: 20,
     height: 20,
+  );
+
+  static const SvgData removeMember = SvgData(
+    'assets/icons/remove_member.svg',
+    width: 19,
+    height: 18,
+  );
+
+  static const SvgData removeMemberWhite = SvgData(
+    'assets/icons/remove_member_white.svg',
+    width: 19,
+    height: 18,
   );
 }
