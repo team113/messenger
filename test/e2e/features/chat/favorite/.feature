@@ -24,7 +24,6 @@ Feature: Favorite chats
     And I have "Alice and Charlie" group with Charlie
     And I wait until "Alice and Bob" chat is present
     And I wait until "Alice and Charlie" chat is present
-    And I pause for 5 seconds
 
   Scenario: User adds and remove chat to/from favorites
     Given I am in "Alice and Bob" group
