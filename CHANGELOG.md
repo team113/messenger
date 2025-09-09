@@ -16,20 +16,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Redesigned media player. ([#1395], [#1368], [#1367], [#1356])
     - Chat page:
-        - Removed actions in more button: ([#1401], [#1249])
-            - Favorite/unfavorite;
-            - Mute/unmute;
-            - Clear history;
-            - Leave group;
-            - Delete chat.
+        - Actions removed from more button. ([#1401], [#1249])
     - Chat info page:
         - Display folded indicator when chat is in favorites. ([#1391], [#1274])
         - Redesigned title block, members. ([#1401], [#1249])
-        - Added actions: ([#1401], [#1249])
-            - Favorite/unfavorite;
-            - Mute/unmute;
-            - Clear history;
-            - Delete chat.
+        - Actions added. ([#1401], [#1249])
     - Chats tab:
         - Changed deleting chats dialogs.
     - User page:
