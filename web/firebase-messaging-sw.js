@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-
 // Registering notificationclick handler for closing notification and 
 // navigating to the chat. 
 self.addEventListener('notificationclick', function (event) {
@@ -46,6 +45,7 @@ self.addEventListener('notificationclick', function (event) {
 
   event.waitUntil(handle());
 });
+
 // Any notificationclick event listeners must must be registered before importing Firebase scripts.
 // See https://firebase.google.com/docs/cloud-messaging/js/receive#setting_notification_options_in_the_service_worker
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");

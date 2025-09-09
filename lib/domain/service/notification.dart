@@ -338,7 +338,7 @@ class NotificationService extends DisposableService {
     }
   }
 
-  /// Clearing all notifications for a specific chat by [chatId].
+  /// Clears all notifications for a specific chat by [chatId].
   Future<void> clearNotifications(ChatId chatId) async {
     Log.debug('clearNotifications($chatId)', '$runtimeType');
 
