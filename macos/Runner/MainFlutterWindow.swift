@@ -12,7 +12,7 @@ class MainFlutterWindow: NSWindow {
     self.setFrame(windowFrame, display: true)
 
     let utilsChannel = FlutterMethodChannel(
-      name: "team113.flutter.dev/macos_utils",
+      name: "team113.flutter.dev/_utils",
       binaryMessenger: flutterViewController.engine.binaryMessenger)
 
     utilsChannel.setMethodCallHandler { (call, result) in
@@ -52,5 +52,4 @@ class MainFlutterWindow: NSWindow {
     super.order(place, relativeTo: otherWin)
     hiddenWindowAtLaunch()
   }
-
 }

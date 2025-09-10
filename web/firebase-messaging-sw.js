@@ -37,8 +37,8 @@ self.addEventListener('notificationclick', function (event) {
       if (!client.url.includes('/call') && !client.url.includes('/gallery')) {
         client.focus();
         client.navigate(payload);
+        return;
       }
-      return;
     }
 
     self.clients.openWindow(payload);
