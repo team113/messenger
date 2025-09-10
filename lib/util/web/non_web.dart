@@ -174,6 +174,12 @@ class WebUtils {
     // No-op.
   }
 
+  /// Clears notifications identified by the provided [ChatId] via registered
+  /// `ServiceWorker`s.
+  static Future<void> clearNotifications(ChatId chatId) async {
+    // No-op.
+  }
+
   /// Does nothing as `IndexedDB` is absent on desktop or mobile platforms.
   static Future<void> cleanIndexedDb({String? except}) async {
     // No-op.
