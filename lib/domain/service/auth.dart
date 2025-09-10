@@ -155,17 +155,8 @@ class AuthService extends DisposableService {
     Log.debug('init()', '$runtimeType');
 
     _authRepository.authExceptionHandler = (e) async {
-      // Try to refresh session, otherwise just force logout.
-      if (credentials.value?.refresh.expireAt.isAfter(
-            PreciseDateTime.now().toUtc(),
-          ) ==
-          true) {
-        await refreshSession(proceedIfRefreshBefore: DateTime.now());
-      } else {
-        _unauthorized();
-        router.auth();
-        throw e;
-      }
+      // Always try to refresh session, as we cannot rely on the expiry dates.
+      await refreshSession(proceedIfRefreshBefore: DateTime.now());
     };
 
     // Listen to the [Credentials] changes to stay synchronized with another
