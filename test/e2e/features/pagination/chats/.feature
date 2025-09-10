@@ -33,15 +33,18 @@ Feature: Chats pagination
     And I see 16 chats
 
   Scenario: Chats pagination migrates from local to remote
-    Given I am Alice
+    Given user Alice
     And Alice has 16 groups
+    And I sign in as Alice
     And I pause for 5 seconds
+    When I scroll `Chats` until `ChatsLoading` is present
+    Then I wait until `ChatsLoading` is absent
     And I see 16 chats
     And chats fetched are indeed remote
-    And I do not have Internet
-    And I pause for 2 seconds
 
-    When I restart app
+    When I do not have Internet
+    And I pause for 2 seconds
+    And I restart app
     Then I see 15 chats
     And chats fetched are indeed local
 
