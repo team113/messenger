@@ -797,6 +797,11 @@ class AuthService extends DisposableService {
               // token still being used in WebSocket connection.
               creds.session.lastActivatedAt.val.add(Duration(seconds: 10)),
             );
+
+            if (!shouldProceed) {
+              // TODO: Shouldn't rely on the time.
+              // shouldProceed =
+            }
           }
 
           if (!shouldProceed) {
