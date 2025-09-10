@@ -352,16 +352,7 @@ class NotificationService extends DisposableService {
     }
 
     if (PlatformUtils.isMacOS) {
-      try {
-        await MacosUtils.cancelNotificationsContaining(chatId.val);
-      } on MissingPluginException {
-        // On macOS the App Store may install the iOS version of the app
-        // (via Apple Silicon / Rosetta).
-        // In that case the macOS plugin method might be missing,
-        // so we fall back to the iOS implementation which uses the same
-        // notification API.
-        await IosUtils.cancelNotificationsContaining(chatId.val);
-      }
+      await MacosUtils.cancelNotificationsContaining(chatId.val);
     }
 
     final FlutterLocalNotificationsPlugin? plugin = _plugin;
