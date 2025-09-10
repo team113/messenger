@@ -263,7 +263,7 @@ class AuthService extends DisposableService {
       } else if (refresh.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
         await _authorized(creds);
 
-        if (_shouldRefresh(creds)) {
+        if (_areExpired(creds)) {
           refreshSession();
         }
         status.value = RxStatus.success();
@@ -591,7 +591,7 @@ class AuthService extends DisposableService {
     status.value = RxStatus.loading();
 
     try {
-      if (_shouldRefresh(creds)) {
+      if (_areExpired(creds)) {
         await refreshSession(userId: creds.userId);
       }
 
@@ -755,7 +755,7 @@ class AuthService extends DisposableService {
         // authorize with those.
         if (oldCreds != null &&
             oldCreds.access.secret != credentials.value?.access.secret &&
-            !_shouldRefresh(oldCreds)) {
+            !_areExpired(oldCreds)) {
           Log.debug(
             'refreshSession($userId |-> $attempt): false alarm, applying the retrieved fresh credentials',
             '$runtimeType',
@@ -774,17 +774,17 @@ class AuthService extends DisposableService {
 
         if (isLocked) {
           Log.debug(
-            'refreshSession($userId |-> $attempt): acquired the lock, while it was locked -> should refresh: ${_shouldRefresh(oldCreds)} (comparing oldCreds(${oldCreds?.access.expireAt.toUtc()}).subtract($_accessTokenMinTtl) = ${oldCreds?.access.expireAt.toUtc().subtract(_accessTokenMinTtl)} vs now(${PreciseDateTime.now().toUtc()}))',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was locked -> should refresh: ${_areExpired(oldCreds)} (comparing oldCreds(${oldCreds?.access.expireAt.toUtc()}).subtract($_accessTokenMinTtl) = ${oldCreds?.access.expireAt.toUtc().subtract(_accessTokenMinTtl)} vs now(${PreciseDateTime.now().toUtc()}))',
             '$runtimeType',
           );
         } else {
           Log.debug(
-            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked -> should refresh: ${_shouldRefresh(oldCreds)} (comparing oldCreds(${oldCreds?.access.expireAt.toUtc()}).subtract($_accessTokenMinTtl) = ${oldCreds?.access.expireAt.toUtc().subtract(_accessTokenMinTtl)} vs now(${PreciseDateTime.now().toUtc()}))',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked -> should refresh: ${_areExpired(oldCreds)} (comparing oldCreds(${oldCreds?.access.expireAt.toUtc()}).subtract($_accessTokenMinTtl) = ${oldCreds?.access.expireAt.toUtc().subtract(_accessTokenMinTtl)} vs now(${PreciseDateTime.now().toUtc()}))',
             '$runtimeType',
           );
         }
 
-        if (!_shouldRefresh(oldCreds)) {
+        if (!_areExpired(oldCreds)) {
           if (oldCreds != null) {
             if (credentials.value?.access.secret != oldCreds.access.secret ||
                 credentials.value?.refresh.secret != oldCreds.refresh.secret) {
@@ -1014,7 +1014,7 @@ class AuthService extends DisposableService {
           return;
         }
 
-        if (_shouldRefresh(creds)) {
+        if (_areExpired(creds)) {
           await refreshSession(userId: id);
         }
       });
@@ -1070,11 +1070,11 @@ class AuthService extends DisposableService {
     return Routes.auth;
   }
 
-  /// Indicates whether the [credentials] require a refresh.
+  /// Indicates whether the [credentials] are considered expired by [DateTime].
   ///
   /// If [credentials] aren't provided, then ones of the current session are
   /// checked.
-  bool _shouldRefresh([Credentials? credentials]) {
+  bool _areExpired([Credentials? credentials]) {
     final Credentials? creds = credentials ?? this.credentials.value;
 
     return creds?.access.expireAt
