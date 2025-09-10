@@ -502,10 +502,10 @@ Development [GraphQL] API playground is available [here][4].
 In order to connect to the development backend [GraphQL] endpoint, you should either use the following `--dart-define`s:
 
 ```bash
---dart-define=SOCAPP_HTTP_URL=https://messenger.soc.stg.t11913.org
---dart-define=SOCAPP_WS_URL=wss://messenger.soc.stg.t11913.org
---dart-define=SOCAPP_HTTP_PORT=443
---dart-define=SOCAPP_WS_PORT=443
+--dart-define=SOCAPP_HTTP_URL=https://messenger.soc.stg.t11913.org \
+--dart-define=SOCAPP_WS_URL=wss://messenger.soc.stg.t11913.org \
+--dart-define=SOCAPP_HTTP_PORT=443 \
+--dart-define=SOCAPP_WS_PORT=443 \
 --dart-define=SOCAPP_CONF_REMOTE=false
 ```
 

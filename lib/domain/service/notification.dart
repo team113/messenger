@@ -42,6 +42,7 @@ import '/util/android_utils.dart';
 import '/util/audio_utils.dart';
 import '/util/ios_utils.dart';
 import '/util/log.dart';
+import '/util/macos_utils.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -346,10 +347,21 @@ class NotificationService extends DisposableService {
       return WebUtils.clearNotifications(chatId);
     }
 
-    // Check for iOS and macOS, cuz for macOS app can be installed from App
-    // Store as an iPhone app.
-    if (PlatformUtils.isIOS || PlatformUtils.isMacOS) {
+    if (PlatformUtils.isIOS) {
       await IosUtils.cancelNotificationsContaining(chatId.val);
+    }
+
+    if (PlatformUtils.isMacOS) {
+      try {
+        await MacosUtils.cancelNotificationsContaining(chatId.val);
+      } on MissingPluginException {
+        // On macOS the App Store may install the iOS version of the app
+        // (via Apple Silicon / Rosetta).
+        // In that case the macOS plugin method might be missing,
+        // so we fall back to the iOS implementation which uses the same
+        // notification API.
+        await IosUtils.cancelNotificationsContaining(chatId.val);
+      }
     }
 
     final FlutterLocalNotificationsPlugin? plugin = _plugin;
