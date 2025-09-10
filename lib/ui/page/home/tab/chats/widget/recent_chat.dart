@@ -987,18 +987,14 @@ class RecentChatTile extends StatelessWidget {
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
-    final style = Theme.of(context).style;
-
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
-        TextSpan(
-          text: rxChat.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
-      ],
+      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
+      button: (context) => MessagePopup.deleteButton(
+        context,
+        icon: SvgIcons.delete19White,
+        label: 'btn_delete'.l10n,
+      ),
     );
 
     if (result == true) {

@@ -65,7 +65,7 @@ class MemberTile extends StatelessWidget {
   /// displaying appropriate labels.
   bool get _me => myUser != null;
 
-  /// Returns text representing the status of this [User].
+  /// Returns text representing the status of this [myUser] or [user].
   String get _status => _me
       ? 'label_online'.l10n
       : user?.user.value.getStatus(user?.user.value.lastSeenAt) ?? '';

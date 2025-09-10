@@ -1284,6 +1284,12 @@ class SvgIcons {
     height: 18,
   );
 
+  static const SvgData cleanHistoryWhite = SvgData(
+    'assets/icons/clean_history_white.svg',
+    width: 17.21,
+    height: 18,
+  );
+
   static const SvgData group = SvgData(
     'assets/icons/group.svg',
     width: 21.29,

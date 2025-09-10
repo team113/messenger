@@ -25,7 +25,7 @@ Feature: Favorite chats
     And I wait until "Alice and Bob" chat is present
     And I wait until "Alice and Charlie" chat is present
 
-  Scenario: User adds and remove chat to/from favorites
+  Scenario: User adds and removes chat to/from favorites
     Given I am in "Alice and Bob" group
     And I open chat's info
     And I wait until `ChatInfoScrollable` is present

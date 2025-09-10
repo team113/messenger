@@ -23,7 +23,7 @@ Feature: Chat muting and unmuting
     And I have "Alice and Bob" group with Bob
     And I wait until text "Alice and Bob" is present
 
-  Scenario: User mutes and unmutes chat in `ChatInfo` page
+  Scenario: User mutes and unmutes chat on `ChatInfo` page
     Given I am in "Alice and Bob" group
     And I open chat's info
     And I wait until `ChatInfoScrollable` is present

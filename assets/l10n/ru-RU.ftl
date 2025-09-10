@@ -136,6 +136,7 @@ btn_change_account_desc =
     аккаунт
 btn_change_password = Изменить пароль
 btn_check_for_updates = Проверить наличие обновлений
+btn_clear = Очистить
 btn_clear_cache = Очистить кэш
 btn_clear_chat = Очистить чат
 btn_clear_history = Очистить историю

@@ -136,6 +136,7 @@ btn_change_account_desc =
     de cuenta
 btn_change_password = Cambiar la contraseña
 btn_check_for_updates = Verificar actualizaciones
+btn_clear = Borrar
 btn_clear_cache = Borrar caché
 btn_clear_chat = Borrar el chat
 btn_clear_history = Borrar el historial
