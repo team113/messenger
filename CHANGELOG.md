@@ -16,14 +16,18 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Actions removed from more button. ([#1401], [#1249])
+        - Redesigned empty chat-monolog. ([#1409], [#1248])
     - Chat info page:
         - Redesigned title and members blocks. ([#1401], [#1249])
         - Actions added. ([#1401], [#1249])
+        - Redesigned info block and removed video/audio call buttons. ([#1409], [#1248])
     - Chats tab:
         - Redesigned chats deletion dialogs. ([#1401])
 
+[#1248]: /../../issues/1248
 [#1249]: /../../issues/1249
 [#1401]: /../../pull/1401
+[#1409]: /../../pull/1409
 
 
 
