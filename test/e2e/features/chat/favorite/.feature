@@ -24,7 +24,19 @@ Feature: Favorite chats
     And I have "Alice and Charlie" group with Charlie
     And I wait until "Alice and Bob" chat is present
     And I wait until "Alice and Charlie" chat is present
-    And I pause for 5 seconds
+
+  Scenario: User adds and removes chat to/from favorites
+    Given I am in "Alice and Bob" group
+    And I open chat's info
+    And I wait until `ChatInfoScrollable` is present
+    And I scroll `ChatInfoScrollable` until `FavoriteButton` is present
+
+    When I tap `FavoriteButton` button
+    Then I see "Alice and Bob" chat as favorite
+    And I see "Alice and Bob" chat first in favorites list
+
+    When I tap `UnfavoriteButton` button
+    Then I see "Alice and Bob" chat as unfavorited
 
   Scenario: User adds and remove chat to/from favorites
     When I am in "Alice and Bob" group

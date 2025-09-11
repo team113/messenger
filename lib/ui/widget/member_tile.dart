@@ -65,9 +65,9 @@ class MemberTile extends StatelessWidget {
   /// displaying appropriate labels.
   bool get _me => myUser != null;
 
-  /// Returns text representing the network status of this [User].
+  /// Returns text representing the status of this [myUser] or [user].
   String get _status => _me
-      ? 'online'.l10n
+      ? 'label_online'.l10n
       : user?.user.value.getStatus(user?.user.value.lastSeenAt) ?? '';
 
   @override
@@ -128,6 +128,13 @@ class MemberTile extends StatelessWidget {
                           ),
                           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                         ],
+                        button: (context) {
+                          return MessagePopup.deleteButton(
+                            context,
+                            label: 'btn_delete'.l10n,
+                            icon: SvgIcons.removeMemberWhite,
+                          );
+                        },
                       );
 
                       if (result == true) {
@@ -137,7 +144,7 @@ class MemberTile extends StatelessWidget {
               child: _me
                   ? const SizedBox()
                   : const SvgIcon(
-                      SvgIcons.delete,
+                      SvgIcons.removeMember,
                       key: Key('DeleteMemberButton'),
                     ),
             ),
@@ -147,7 +154,7 @@ class MemberTile extends StatelessWidget {
       ],
       subtitle: [
         if (_status.isNotEmpty)
-          Text(_status, style: style.fonts.small.regular.secondary),
+          Text(_status.capitalized, style: style.fonts.small.regular.secondary),
       ],
     );
   }

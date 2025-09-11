@@ -300,7 +300,7 @@ class AuthService extends DisposableService {
     );
 
     await _authRepository.createConfirmationCode(
-      login: login,
+      login: num == null ? login : null,
       num: num,
       email: email,
       phone: phone,
@@ -442,7 +442,7 @@ class AuthService extends DisposableService {
         final Credentials creds = await _authRepository.signIn(
           password: password,
           code: code,
-          login: login,
+          login: num == null ? login : null,
           num: num,
           email: email,
           phone: phone,

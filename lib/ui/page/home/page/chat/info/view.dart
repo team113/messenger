@@ -246,6 +246,7 @@ class ChatInfoView extends StatelessWidget {
         Obx(() {
           return Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(6, 0, 8, 0),
@@ -281,6 +282,16 @@ class ChatInfoView extends StatelessWidget {
         'count': c.chat!.chat.value.membersCount,
       }),
       children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: PrimaryButton(
+            key: const Key('AddMemberButton'),
+            onPressed: () => AddChatMemberView.show(context, chatId: id),
+            leading: SvgIcon(SvgIcons.addUserWhite),
+            title: 'btn_add_participants'.l10n,
+          ),
+        ),
+        const SizedBox(height: 8),
         Obx(() {
           final List<RxUser> members = [];
 
@@ -375,16 +386,7 @@ class ChatInfoView extends StatelessWidget {
             ],
           );
         }),
-        const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: PrimaryButton(
-            key: const Key('AddMemberButton'),
-            onPressed: () => AddChatMemberView.show(context, chatId: id),
-            leading: SvgIcon(SvgIcons.addUserWhite),
-            title: 'btn_add_participant'.l10n,
-          ),
-        ),
+        const SizedBox(height: 4),
       ],
     );
   }
@@ -411,6 +413,49 @@ class ChatInfoView extends StatelessWidget {
           trailing: SvgIcon(
             favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
           ),
+        ),
+        if (!isLocal) ...[
+          if (!monolog)
+            ActionButton(
+              key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
+              onPressed: muted ? c.unmuteChat : c.muteChat,
+              text: muted
+                  ? PlatformUtils.isMobile
+                        ? 'btn_unmute'.l10n
+                        : 'btn_unmute_chat'.l10n
+                  : PlatformUtils.isMobile
+                  ? 'btn_mute'.l10n
+                  : 'btn_mute_chat'.l10n,
+              trailing: SvgIcon(
+                muted ? SvgIcons.muteSmall : SvgIcons.unmuteSmall,
+              ),
+            ),
+          ActionButton(
+            key: const Key('ClearChatButton'),
+            onPressed: () => _clearChat(c, context),
+            text: 'btn_clear_chat'.l10n,
+            trailing: const SvgIcon(SvgIcons.cleanHistory),
+          ),
+        ],
+        if (!isLocal || monolog)
+          ActionButton(
+            key: const Key('DeleteChatButton'),
+            onPressed: () => _hideChat(c, context),
+            text: 'btn_delete_chat'.l10n,
+            trailing: const SvgIcon(SvgIcons.delete19),
+          ),
+        ActionButton(
+          key: const Key('ReportChatButton'),
+          onPressed: () => _reportChat(c, context),
+          text: 'btn_report'.l10n,
+          trailing: const SvgIcon(SvgIcons.report),
+        ),
+        ActionButton(
+          key: const Key('LeaveChatButton'),
+          onPressed: () => _leaveGroup(c, context),
+          text: 'btn_leave_group'.l10n,
+          danger: true,
+          trailing: const SvgIcon(SvgIcons.leaveGroupRed),
         ),
         if (!isLocal) ...[
           ActionButton(
@@ -496,18 +541,13 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(
-          text: c.chat?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
-      ],
+      button: (context) => MessagePopup.defaultButton(
+        context,
+        icon: SvgIcons.cleanHistoryWhite,
+        label: 'btn_clear'.l10n,
+      ),
     );
 
     if (result == true) {
@@ -517,18 +557,14 @@ class ChatInfoView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
-        TextSpan(
-          text: c.chat?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
-      ],
+      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
+      button: (context) => MessagePopup.deleteButton(
+        context,
+        icon: SvgIcons.delete19White,
+        label: 'btn_delete'.l10n,
+      ),
     );
 
     if (result == true) {
@@ -553,7 +589,7 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
-      'label_delete_chat'.l10n,
+      'label_report'.l10n,
       description: [
         TextSpan(text: 'alert_chat_will_be_reported1'.l10n),
         TextSpan(
@@ -565,6 +601,7 @@ class ChatInfoView extends StatelessWidget {
       additional: [
         const SizedBox(height: 25),
         ReactiveTextField(
+          key: const Key('ReportField'),
           state: c.reporting,
           label: 'label_reason'.l10n,
           hint: 'label_reason_hint'.l10n,
@@ -576,6 +613,7 @@ class ChatInfoView extends StatelessWidget {
           final bool enabled = !c.reporting.isEmpty.value;
 
           return PrimaryButton(
+            key: enabled ? const Key('SendReportButton') : null,
             title: 'btn_proceed'.l10n,
             onPressed: enabled ? () => Navigator.of(context).pop(true) : null,
             leading: SvgIcon(

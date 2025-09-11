@@ -55,7 +55,9 @@ class ActionButton extends StatelessWidget {
         border: danger
             ? BorderSide(color: style.colors.danger, width: 0.5)
             : null,
-        style: danger ? style.fonts.normal.regular.danger : null,
+        style: danger
+            ? style.fonts.normal.regular.danger
+            : style.fonts.normal.regular.primary,
         trailing: trailing,
       ),
     );

@@ -141,7 +141,7 @@ class DeleteSessionView extends StatelessWidget {
                             label: hasEmail && hasPassword
                                 ? 'label_password_or_one_time_code'.l10n
                                 : hasEmail
-                                ? 'label_one_time_code'.l10n
+                                ? 'label_one_time_password'.l10n
                                 : 'label_password'.l10n,
                             hint: hasEmail && hasPassword
                                 ? 'label_enter_password_or_code'.l10n

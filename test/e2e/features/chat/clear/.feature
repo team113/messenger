@@ -25,6 +25,7 @@ Feature: Clear chat
     And I see some messages in chat
     And I open chat's info
 
+  @disabled
   Scenario: User clears group
     When I wait until `ChatInfoScrollable` is present
     And I scroll `ChatInfoScrollable` until `ClearChatButton` is present

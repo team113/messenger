@@ -20,10 +20,6 @@ alert_account_will_be_deleted2 = {" "}будет удалён
 alert_by_proceeding_you_accept_terms1 = Продолжая, Вы соглашаетесь с{" "}
 alert_by_proceeding_you_accept_terms2 = Условиями использования и Политикой конфиденциальности
 alert_by_proceeding_you_accept_terms3 = .
-alert_chat_will_be_cleared1 = Чат{" "}
-alert_chat_will_be_cleared2 = {" "}будет очищен
-alert_chat_will_be_deleted1 = Чат{" "}
-alert_chat_will_be_deleted2 = {" "}будет удалён
 alert_chat_will_be_reported1 = На группу{" "}
 alert_chat_will_be_reported2 = {" "}будет отправлена жалоба
 alert_email_will_be_deleted1 = E-mail{" "}
@@ -136,6 +132,7 @@ btn_change_account_desc =
     аккаунт
 btn_change_password = Изменить пароль
 btn_check_for_updates = Проверить наличие обновлений
+btn_clear = Очистить
 btn_clear_cache = Очистить кэш
 btn_clear_chat = Очистить чат
 btn_clear_history = Очистить историю
@@ -610,8 +607,8 @@ label_desktop_apps = Приложения для компьютера
 label_device_by_default = По умолчанию - {$device}
 label_dialog_created = Диалог создан
 label_dialog_created_by_link = Диалог создан по прямой ссылке
-label_direct_chat_link = Прямая ссылка на чат
-label_direct_chat_link_in_chat_description = Пользователи, перешедшие по прямой ссылке, автоматически становятся полноправными участниками группы.
+label_direct_chat_link = Пригласить в группу
+label_direct_chat_link_in_chat_description = Пользователи, перешедшие по ссылке на группу, автоматически становятся полноправными участниками группы.
 label_discard_changes_question = Отменить изменения
 label_download = Скачать
 label_download_and_update = Скачать и обновить
@@ -804,7 +801,7 @@ label_regulations_freelance =
     4. В ответном сообщении Вы получите подтверждение, что задача закреплена за Вами (задача переводится в статус `In progress`)
     5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа
     6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
-label_remove_member = Удалить участника
+label_remove_member = Удалить из группы
 label_repeat_password = Подтвердить пароль
 label_replace_this_text_with_concern = Опишите проблему.
 label_replace_this_text_with_feedback = Обратная связь.
@@ -907,7 +904,6 @@ label_terms_and_privacy_policy = Условия и Политика конфид
 label_text_status = Текстовый статус
 label_text_status_description = Максимум 25 символов
 label_this_device = Это устройство
-label_to_restore_chat_use_search = Чтобы восстановить чат, воспользуйтесь поиском.
 label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
 label_typing = Печатает
 label_unknown = Неизвестно
@@ -968,7 +964,7 @@ label_work_with_us_desc =
     Работайте
     с нами
 label_you = Вы
-label_you_can_use_randomly_generated_link = Вы можете использовать случайно сгенерированную ссылку или создать свою.
+label_you_can_use_randomly_generated_link = Вы можете использовать сгенерированную ссылку или создать собственную.
 label_you_were_added_to_group = Вы добавлены в группу
 label_your_direct_link = Прямая ссылка на чат с Вами
 label_your_name = Ваше имя

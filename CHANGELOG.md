@@ -7,23 +7,41 @@ All user visible changes to this project will be documented in this file. This p
 
 
 ## [0.7.0] · 2025-??-??
-[0.6.0]: /../../tree/v0.7.0
+[0.7.0]: /../../tree/v0.7.0
 
-[Diff](/../../compare/v0.6.0...v0.7.0) | [Milestone](/../../milestone/45)
+[Diff](/../../compare/v0.6.1...v0.7.0) | [Milestone](/../../milestone/46)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Actions removed from more button. ([#1401], [#1249])
+    - Chat info page:
+        - Redesigned title and members blocks. ([#1401], [#1249])
+        - Actions added. ([#1401], [#1249])
+    - Chats tab:
+        - Redesigned chats deletion dialogs. ([#1401])
+
+[#1249]: /../../issues/1249
+[#1401]: /../../pull/1401
+
+
+
+
+## [0.6.1] · 2025-09-09
+[0.6.1]: /../../tree/v0.6.1
+
+[Diff](/../../compare/v0.6.0...v0.6.1) | [Milestone](/../../milestone/45)
 
 ### Changed
 
 - UI:
     - Redesigned media player. ([#1395], [#1368], [#1367], [#1356])
-    - Chat page:
-        - Removed more button. ([#1401], [#1249])
     - Chat info page:
         - Display folded indicator when chat is in favorites. ([#1391], [#1274])
-        - Redesigned title block, members and actions. ([#1401], [#1249])
     - User page:
         - Display folded indicator when user is in favorites. ([#1391], [#1274])
     - Display Gapopa ID with hyphens instead of spaces. ([#1393], [#1352])
-
 - Mobile:
     - App bar and navigation bar extending its height to account safe area paddings. ([#1369])
 
@@ -35,7 +53,6 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Back/forward buttons appearing in Chrome when swiping back/forward. ([#1386])
 
-[#1249]: /../../issues/1249
 [#1274]: /../../issues/1274
 [#1352]: /../../issues/1352
 [#1356]: /../../pull/1356
@@ -46,7 +63,6 @@ All user visible changes to this project will be documented in this file. This p
 [#1391]: /../../pull/1391
 [#1393]: /../../pull/1393
 [#1395]: /../../pull/1395
-[#1401]: /../../pull/1401
 
 
 

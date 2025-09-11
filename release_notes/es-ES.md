@@ -1,3 +1,5 @@
-- Rediseño de los modales para eliminar sesiones.
-- Rediseño de la animación al cambiar de ruta.
+- Reproductor multimedia rediseñado.
+- Chat y perfiles de usuario rediseñados.
+- Barra de aplicaciones y barra de navegación rediseñadas para expandirse a la zona segura de la cuenta.
+- Se reemplazaron los espacios en Gapopa ID con guiones.
 - Corrección de errores y mejoras de rendimiento.
