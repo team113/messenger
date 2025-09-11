@@ -6,6 +6,28 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.1...v0.7.0) | [Milestone](/../../milestone/46)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Actions removed from more button. ([#1401], [#1249])
+    - Chat info page:
+        - Redesigned title and members blocks. ([#1401], [#1249])
+        - Actions added. ([#1401], [#1249])
+    - Chats tab:
+        - Redesigned chats deletion dialogs. ([#1401])
+
+[#1249]: /../../issues/1249
+[#1401]: /../../pull/1401
+
+
+
+
 ## [0.6.1] · 2025-09-09
 [0.6.1]: /../../tree/v0.6.1
 

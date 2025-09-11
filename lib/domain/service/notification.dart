@@ -31,6 +31,7 @@ import 'package:window_manager/window_manager.dart';
 import '/api/backend/schema.dart'
     show PushDeviceToken, RegisterPushDeviceErrorCode;
 import '/config.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
 import '/domain/model/push_token.dart';
 import '/provider/gql/exceptions.dart' show RegisterPushDeviceException;
@@ -41,6 +42,7 @@ import '/util/android_utils.dart';
 import '/util/audio_utils.dart';
 import '/util/ios_utils.dart';
 import '/util/log.dart';
+import '/util/macos_utils.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
@@ -333,6 +335,51 @@ class NotificationService extends DisposableService {
       if (_token != null || _apns != null || _voip != null) {
         await unregisterPushDevice();
         await _registerPushDevice();
+      }
+    }
+  }
+
+  /// Clears all notifications for a specific chat by [chatId].
+  Future<void> clearNotifications(ChatId chatId) async {
+    Log.debug('clearNotifications($chatId)', '$runtimeType');
+
+    if (PlatformUtils.isWeb) {
+      return WebUtils.clearNotifications(chatId);
+    }
+
+    if (PlatformUtils.isIOS) {
+      try {
+        await IosUtils.cancelNotificationsContaining(chatId.val);
+      } on MissingPluginException {
+        // No-op, this can be expected.
+      }
+    }
+
+    if (PlatformUtils.isMacOS) {
+      try {
+        await MacosUtils.cancelNotificationsContaining(chatId.val);
+      } on MissingPluginException {
+        // No-op, this can be expected.
+      }
+    }
+
+    final FlutterLocalNotificationsPlugin? plugin = _plugin;
+
+    if (plugin == null) {
+      return;
+    }
+
+    final List<ActiveNotification> notifications = await plugin
+        .getActiveNotifications();
+
+    for (final notification in notifications) {
+      if (notification.payload?.contains(chatId.val) == true ||
+          notification.tag?.contains(chatId.val) == true) {
+        final int? id = notification.id;
+
+        if (id != null) {
+          await plugin.cancel(id, tag: notification.tag);
+        }
       }
     }
   }

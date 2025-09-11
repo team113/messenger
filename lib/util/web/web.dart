@@ -27,7 +27,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show NotificationResponse, NotificationResponseType;
+    show NotificationResponse;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:http/http.dart' show Client;
@@ -506,20 +506,39 @@ class WebUtils {
       options.icon = icon;
     }
 
-    final notification = web.Notification(title, options);
+    // TODO: `onSelectNotification` was used in `onclick` event in
+    //       `Notification` body, however since now notifications are created
+    //       by `ServiceWorker`, we have no control over it, so should implement
+    //       a way to handle the click in `ServiceWorker`.
+    final web.ServiceWorkerRegistration registration =
+        await web.window.navigator.serviceWorker.ready.toDart;
 
-    void fn(web.Event _) {
-      onSelectNotification?.call(
-        NotificationResponse(
-          notificationResponseType:
-              NotificationResponseType.selectedNotification,
-          payload: notification.lang,
-        ),
+    await registration.showNotification(title, options).toDart;
+  }
+
+  /// Clears notifications identified by the provided [ChatId] via registered
+  /// `ServiceWorker`s.
+  static Future<void> clearNotifications(ChatId chatId) async {
+    // Try to `postMessage` to active registrations, if any.
+    try {
+      final List<web.ServiceWorkerRegistration> registrations = await web
+          .window
+          .navigator
+          .serviceWorker
+          .getRegistrations()
+          .toDart
+          .then((js) => js.toDart);
+
+      for (var registration in registrations) {
+        registration.active?.postMessage('closeAll:$chatId'.toJS);
+      }
+    } catch (e) {
+      // Ignore errors; SW might not be available yet.
+      Log.debug(
+        '`clearNotifications($chatId)` has failed due to: $e',
+        'WebUtils',
       );
-      notification.close();
     }
-
-    notification.onclick = fn.toJS;
   }
 
   /// Clears the browser's `IndexedDB`.
