@@ -411,11 +411,13 @@ class ChatInfoView extends StatelessWidget {
           ),
         if (!monolog) ...[
           ActionButton(
+            key: const Key('ReportChatButton'),
             onPressed: () => _reportChat(c, context),
             text: 'btn_report'.l10n,
             trailing: const SvgIcon(SvgIcons.report),
           ),
           ActionButton(
+            key: const Key('LeaveChatButton'),
             onPressed: () => _leaveGroup(c, context),
             text: 'btn_leave_group'.l10n,
             danger: true,
