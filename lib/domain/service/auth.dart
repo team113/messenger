@@ -127,7 +127,6 @@ class AuthService extends DisposableService {
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
-  // TODO: Remove, [AbstractMyUserRepository.profiles] should be used instead.
   /// Returns the reactive list of known [MyUser]s.
   RxList<MyUser> get profiles => _authRepository.profiles;
 
