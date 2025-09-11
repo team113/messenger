@@ -798,8 +798,9 @@ class AuthService extends DisposableService {
             );
 
             if (!shouldProceed) {
-              // TODO: Shouldn't rely on the time.
-              // shouldProceed =
+              // Shouldn't rely on the time, thus only check whether the session
+              // refreshment was locked or not.
+              shouldProceed = !isLocked;
             }
           }
 
@@ -809,7 +810,7 @@ class AuthService extends DisposableService {
           }
 
           Log.debug(
-            'refreshSession($userId |-> $attempt): should refresh is `false`, yet proceeding as ${creds?.session.lastActivatedAt.val.toUtc()} (+10 seconds) is before ${proceedIfRefreshBefore?.toUtc()}',
+            'refreshSession($userId |-> $attempt): should refresh is `false`, yet proceeding as !isLocked(${!isLocked}) or ${creds?.session.lastActivatedAt.val.toUtc()} (+10 seconds) is before ${proceedIfRefreshBefore?.toUtc()}',
             '$runtimeType',
           );
         }
