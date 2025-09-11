@@ -40,6 +40,7 @@ import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
@@ -508,6 +509,7 @@ void main() async {
     Get.put(CacheWorker(cacheProvider, null));
 
     Get.put(ContactService(contactRepository));
+    Get.put(NotificationService(graphQlProvider));
 
     await tester.pumpWidget(
       createWidgetForTesting(

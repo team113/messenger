@@ -20,10 +20,6 @@ alert_account_will_be_deleted2 = {" "}será eliminada
 alert_by_proceeding_you_accept_terms1 = Al continuar, Usted acepta{" "}
 alert_by_proceeding_you_accept_terms2 = Condiciones de Uso y Política de Privacidad
 alert_by_proceeding_you_accept_terms3 = .
-alert_chat_will_be_cleared1 = El chat{" "}
-alert_chat_will_be_cleared2 = {" "}será borrado
-alert_chat_will_be_deleted1 = El chat{" "}
-alert_chat_will_be_deleted2 = {" "}será eliminado
 alert_chat_will_be_reported1 = El grupo{" "}
 alert_chat_will_be_reported2 = {" "}será reportado
 alert_email_will_be_deleted1 = El e-mail{" "}
@@ -136,6 +132,7 @@ btn_change_account_desc =
     de cuenta
 btn_change_password = Cambiar la contraseña
 btn_check_for_updates = Verificar actualizaciones
+btn_clear = Borrar
 btn_clear_cache = Borrar caché
 btn_clear_chat = Borrar el chat
 btn_clear_history = Borrar el historial
@@ -793,7 +790,7 @@ label_regulations_freelance =
     4. En el mensaje de respuesta recibirá una confirmación de que le fue asignánda la tarea. (su estado cambiará a "En progreso").
     5. Debe hacer una confirmación al menos cada 72 horas durante el desarrollo de la atrea.
     6. El equipo frontend puede rechazar la colaboración si el código presentado es de calidad evidentemente baja.
-label_remove_member = Eliminar miembro
+label_remove_member = Eliminar del grupo
 label_repeat_password = Confirmar la contraseña
 label_replace_this_text_with_concern = Describe el asunto.
 label_replace_this_text_with_feedback = Comentarios.
@@ -893,7 +890,6 @@ label_terms_and_privacy_policy = Condiciones y Política de Privacidad
 label_text_status = Estatus del texto
 label_text_status_description = Hasta 26 caracteres
 label_this_device = Este dispositivo
-label_to_restore_chat_use_search = Para recuperar el chat, utiliza la búsqueda
 label_to_restore_chats_use_search = Para recuperar los chats, utiliza la búsqueda
 label_typing = Escribiendo
 label_unknown = Desconocido

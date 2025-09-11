@@ -180,8 +180,15 @@ class MockGraphQlClient extends GraphQlClient {
   /// Sets the indicator whether requests should throw [ConnectionException]s or
   /// not.
   set throwException(bool value) {
-    connected.value = !value;
     _throwException = value;
+
+    if (value) {
+      disconnect();
+    } else {
+      reconnect();
+    }
+
+    connected.value = !value;
   }
 
   /// Returns the [Duration] to add to all requests simulating a delay.
