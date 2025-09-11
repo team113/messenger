@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the applyVoiceProcessing method from the OngoingCall class, for the Dart programming language.">
+  <title>applyVoiceProcessing method - OngoingCall class - ongoing_call library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../domain_model_ongoing_call/">domain&#47;model&#47;ongoing_call.dart</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a></li>
+    <li class="self-crumb">applyVoiceProcessing method</li>
+  </ol>
+  <div class="self-name">applyVoiceProcessing</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="domain_model_ongoing_call&#47;OngoingCall-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">applyVoiceProcessing</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">applyVoiceProcessing</span>(<wbr>{<ol class="parameter-list"> <li><span class="parameter" id="applyVoiceProcessing-param-noiseSuppression"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">noiseSuppression</span>, </span></li>
+<li><span class="parameter" id="applyVoiceProcessing-param-noiseSuppressionLevel"><span class="type-annotation"><a href="https://pub.dev/documentation/medea_jason/0.11.0/medea_jason/NoiseSuppressionLevel.html">NoiseSuppressionLevel</a>?</span> <span class="parameter-name">noiseSuppressionLevel</span>, </span></li>
+<li><span class="parameter" id="applyVoiceProcessing-param-echoCancellation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">echoCancellation</span>, </span></li>
+<li><span class="parameter" id="applyVoiceProcessing-param-autoGainControl"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">autoGainControl</span>, </span></li>
+<li><span class="parameter" id="applyVoiceProcessing-param-highPassFilter"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">highPassFilter</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Applies the provided voice processing settings to the <a href="https://pub.dev/documentation/medea_jason/0.11.0/medea_jason/LocalMediaTrack-class.html">LocalMediaTrack</a>s.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; applyVoiceProcessing({
+  bool? noiseSuppression,
+  NoiseSuppressionLevel? noiseSuppressionLevel,
+  bool? echoCancellation,
+  bool? autoGainControl,
+  bool? highPassFilter,
+}) async {
+  Log.debug(
+    &#39;applyVoiceProcessing(noiseSuppression: $noiseSuppression, noiseSuppressionLevel: $noiseSuppressionLevel, echoCancellation: $echoCancellation, autoGainControl: $autoGainControl, highPassFilter: $highPassFilter)&#39;,
+    &#39;$runtimeType&#39;,
+  );
+
+  noiseSuppression ??= _noiseSuppression.value;
+  noiseSuppressionLevel ??= _noiseSuppressionLevel.value;
+  echoCancellation ??= _echoCancellation.value;
+  autoGainControl ??= _autoGainControl.value;
+  highPassFilter ??= _highPassFilter.value;
+
+  if (noiseSuppression == _noiseSuppression.value &amp;&amp;
+      noiseSuppressionLevel == _noiseSuppressionLevel.value &amp;&amp;
+      echoCancellation == _echoCancellation.value &amp;&amp;
+      autoGainControl == _autoGainControl.value &amp;&amp;
+      highPassFilter == _highPassFilter.value) {
+    &#47;&#47; No-op, as these settings are already applied.
+    return;
+  }
+
+  &#47;&#47; TODO: Chromium agents don&#39;t support changing noise suppression settings
+  &#47;&#47;       on an active track, thus tracks should be recreated.
+  if (WebUtils.isChrome) {
+    _noiseSuppression.value = noiseSuppression ?? _noiseSuppression.value;
+    _noiseSuppressionLevel.value =
+        noiseSuppressionLevel ?? _noiseSuppressionLevel.value;
+    _echoCancellation.value = echoCancellation ?? _echoCancellation.value;
+    _autoGainControl.value = autoGainControl ?? _autoGainControl.value;
+    _highPassFilter.value = highPassFilter ?? _highPassFilter.value;
+
+    await _room?.disableAudio();
+
+    members[_me]?.tracks.removeWhere((t) {
+      if (t.kind == MediaKind.audio &amp;&amp; t.source == MediaSourceKind.device) {
+        t.stop();
+        t.dispose();
+        return true;
+      }
+      return false;
+    });
+
+    await _updateTracks(
+      audio: audioState.value.isEnabled,
+      video: videoState.value.isEnabled,
+      screen: screenShareState.value.isEnabled,
+    );
+
+    await _room?.enableAudio();
+    return;
+  }
+
+  for (var t in me.tracks.map((e) =&gt; e.track).whereType&lt;LocalMediaTrack&gt;()) {
+    if (!t.isAudioProcessingAvailable()) {
+      Log.debug(
+        &#39;applyVoiceProcessing() -&gt; audio processing not available for track $t&#39;,
+        &#39;$runtimeType&#39;,
+      );
+
+      continue;
+    }
+
+    if (noiseSuppression != _noiseSuppression.value ||
+        _noiseSuppressionLevel.value != noiseSuppressionLevel) {
+      final bool? enabled = _noiseSuppression.value = noiseSuppression;
+      final NoiseSuppressionLevel? level = _noiseSuppressionLevel.value =
+          noiseSuppressionLevel;
+
+      if (enabled != null) {
+        try {
+          await t.setNoiseSuppressionEnabled(enabled);
+
+          if (enabled &amp;&amp; level != null) {
+            await t.setNoiseSuppressionLevel(level);
+          }
+        } catch (e, _) {
+          Log.error(
+            &#39;💥 applyVoiceProcessing() -&gt; Failed to invoke `setNoiseSuppressionEnabled($enabled)` for track $t due to: $e&#39;,
+            &#39;$runtimeType&#39;,
+          );
+        }
+      }
+    }
+
+    if (echoCancellation != _echoCancellation.value) {
+      final bool? enabled = _echoCancellation.value = echoCancellation;
+
+      if (enabled != null) {
+        try {
+          await t.setEchoCancellationEnabled(enabled);
+        } catch (e, _) {
+          Log.error(
+            &#39;💥 applyVoiceProcessing() -&gt; Failed to invoke `setEchoCancellationEnabled($enabled)` for track $t due to: $e&#39;,
+            &#39;$runtimeType&#39;,
+          );
+        }
+      }
+    }
+
+    if (autoGainControl != _autoGainControl.value) {
+      final bool? enabled = _autoGainControl.value = autoGainControl;
+
+      if (enabled != null) {
+        try {
+          await t.setAutoGainControlEnabled(enabled);
+        } catch (e, _) {
+          Log.error(
+            &#39;💥 applyVoiceProcessing() -&gt; Failed to invoke `setAutoGainControlEnabled($enabled)` for track $t due to: $e&#39;,
+            &#39;$runtimeType&#39;,
+          );
+        }
+      }
+    }
+
+    if (highPassFilter != _highPassFilter.value) {
+      final bool? enabled = _highPassFilter.value = highPassFilter;
+
+      if (enabled != null) {
+        try {
+          await t.setHighPassFilterEnabled(enabled);
+        } catch (e, _) {
+          Log.error(
+            &#39;💥 applyVoiceProcessing() -&gt; Failed to invoke `setHighPassFilterEnabled($enabled)` for track $t due to: $e&#39;,
+            &#39;$runtimeType&#39;,
+          );
+        }
+      }
+    }
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../domain_model_ongoing_call/">ongoing_call</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a></li>
+    <li class="self-crumb">applyVoiceProcessing method</li>
+</ol>
+
+    <h5>OngoingCall class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.6.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
