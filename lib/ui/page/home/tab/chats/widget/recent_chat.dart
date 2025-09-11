@@ -45,7 +45,6 @@ import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
-import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -120,7 +119,7 @@ class RecentChatTile extends StatelessWidget {
   final void Function()? onLeave;
 
   /// Callback, called when this [rxChat] hide action is triggered.
-  final void Function(bool)? onHide;
+  final void Function()? onHide;
 
   /// Callback, called when a drop [Chat.ongoingCall] in this [rxChat] action is
   /// triggered.
@@ -988,29 +987,18 @@ class RecentChatTile extends StatelessWidget {
 
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
-    bool clear = false;
-
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
-      description: [TextSpan(text: 'label_to_restore_chat_use_search'.l10n)],
-      additional: [
-        const SizedBox(height: 21),
-        StatefulBuilder(
-          builder: (context, setState) {
-            return RectangleButton(
-              label: 'btn_clear_history'.l10n,
-              selected: clear,
-              toggleable: true,
-              radio: true,
-              onPressed: () => setState(() => clear = !clear),
-            );
-          },
-        ),
-      ],
+      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
+      button: (context) => MessagePopup.deleteButton(
+        context,
+        icon: SvgIcons.delete19White,
+        label: 'btn_delete'.l10n,
+      ),
     );
 
     if (result == true) {
-      onHide?.call(clear);
+      onHide?.call();
     }
   }
 

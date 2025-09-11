@@ -15,26 +15,19 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat avatar
+Feature: Report chat
 
-  Background: User is in group chat with Bob
+  Background: User is in group chat with Bob and Charlie
     Given I am Alice
-    And user Bob
-    And I have "Alice and Bob" group with Bob
-    And I am in "Alice and Bob" group
+    And users Bob and Charlie
+    And I have "Group" group
+    And I am in "Group" group
+    And I see some messages in chat
     And I open chat's info
 
-  Scenario: User uploads and deletes chat avatar
-    When I update chat avatar with "test.jpg"
-    Then I see chat avatar as "test.jpg"
-
-    When I tap `DeleteAvatar` button
-    Then I see chat avatar as none
-
-  Scenario: SVG image can be uploaded as a chat avatar
-    When I tap `UploadAvatar` button
-    And I pick "test.svg" file in file picker
-    Then I wait until `CropAvatarView` is present
-
-    When I tap `DoneButton` button
-    Then I see chat avatar as "test.svg"
+  Scenario: User sends report
+    When I wait until `ChatInfoScrollable` is present
+    And I scroll `ChatInfoScrollable` until `ReportChatButton` is present
+    And I tap `ReportChatButton` button
+    And I fill `ReportField` field with "very bad group"
+    Then I wait until `SendReportButton` is present
