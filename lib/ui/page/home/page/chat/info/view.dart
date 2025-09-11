@@ -88,19 +88,21 @@ class ChatInfoView extends StatelessWidget {
 
           final List<Widget> blocks = [
             const SizedBox(height: 8),
-            if (c.isMonolog) ...[
-              _avatar(c, context),
-              SelectionContainer.disabled(
-                child: Block(children: [_actions(c, context)]),
-              ),
-            ] else ...[
+            if (c.isMonolog)
+              NotesBlock(
+                avatar: SelectionContainer.disabled(
+                  child: BigAvatarWidget.chat(c.chat),
+                ),
+              )
+            else
               _profile(c, context),
+            if (!c.isMonolog) ...[
               SelectionContainer.disabled(child: _members(c, context)),
               SelectionContainer.disabled(child: _link(c, context)),
-              SelectionContainer.disabled(
-                child: Block(children: [_actions(c, context)]),
-              ),
             ],
+            SelectionContainer.disabled(
+              child: Block(children: [_actions(c, context)]),
+            ),
             const SizedBox(height: 8),
           ];
 
@@ -194,43 +196,6 @@ class ChatInfoView extends StatelessWidget {
             formatters: [LengthLimitingTextInputFormatter(100)],
           ),
           const SizedBox(height: 8),
-        ],
-      );
-    });
-  }
-
-  /// Returns the [Block] displaying a [Chat.avatar].
-  Widget _avatar(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Obx(() {
-      final Avatar? avatar = c.chat?.avatar.value;
-      final bool isMonolog = c.chat?.chat.value.isMonolog == true;
-
-      return Block(
-        children: [
-          if (isMonolog)
-            SizedBox(
-              width: double.infinity,
-              child: Center(
-                child: Text(
-                  '${c.chat?.title}',
-                  style: style.fonts.larger.regular.onBackground,
-                ),
-              ),
-            ),
-          SelectionContainer.disabled(
-            child: BigAvatarWidget.chat(
-              c.chat,
-              key: Key('ChatAvatar_${c.chat!.id}'),
-              loading: c.avatarUpload.value.isLoading,
-              error: c.avatarUpload.value.errorMessage,
-              onUpload: isMonolog ? null : c.pickAvatar,
-              onEdit: avatar != null ? c.editAvatar : null,
-              onDelete: c.chat?.avatar.value != null ? c.deleteAvatar : null,
-            ),
-          ),
-          if (isMonolog) const NotesBlock(),
         ],
       );
     });

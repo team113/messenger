@@ -626,19 +626,7 @@ class ChatView extends StatelessWidget {
                             }
 
                             if (isMonolog) {
-                              return Block(
-                                key: const Key('NoMessages'),
-                                padding: const EdgeInsets.fromLTRB(
-                                  32,
-                                  16,
-                                  32,
-                                  0,
-                                ),
-                                title: 'label_chat_monolog'.l10n,
-                                titleStyle:
-                                    style.fonts.large.regular.onBackground,
-                                children: [NotesBlock()],
-                              );
+                              return NotesBlock(key: const Key('NoMessages'));
                             }
 
                             return Center(

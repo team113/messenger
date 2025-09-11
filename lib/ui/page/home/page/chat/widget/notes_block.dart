@@ -24,30 +24,34 @@ import '/ui/widget/line_divider.dart';
 
 /// [Block] describing [Chat]-monolog usage examples.
 class NotesBlock extends StatelessWidget {
-  const NotesBlock({super.key});
+  const NotesBlock({this.avatar, super.key});
+
+  final Widget? avatar;
 
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).style;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Block(
+      padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
+      title: 'label_chat_monolog'.l10n,
+      titleStyle: style.fonts.large.regular.onBackground,
       children: [
-        const SizedBox(height: 16),
+        if (avatar != null) ...[avatar!, const SizedBox(height: 16)],
         Center(
           child: Text(
             'label_chat_monolog_description1'.l10n,
             style: style.fonts.small.regular.secondary,
           ),
         ),
-        SizedBox(height: 20),
-        LineDivider('label_chat_monolog_description2'.l10n),
         SizedBox(height: 16),
+        LineDivider('label_chat_monolog_description2'.l10n),
+        SizedBox(height: 14),
         Text(
           'label_chat_monolog_description3'.l10n,
           style: style.fonts.small.regular.secondary,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
       ],
     );
   }
