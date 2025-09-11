@@ -90,7 +90,7 @@ class LogController extends GetxController {
     return '''
 ================ Report ================
 
-Created at: ${DateTime.now()}
+Created at: ${DateTime.now().toUtc()}
 Application: ${Pubspec.ref}
 User-Agent: ${userAgent.value}
 Is PWA: ${CustomSafeArea.isPwa}
