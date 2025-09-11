@@ -348,11 +348,19 @@ class NotificationService extends DisposableService {
     }
 
     if (PlatformUtils.isIOS) {
-      await IosUtils.cancelNotificationsContaining(chatId.val);
+      try {
+        await IosUtils.cancelNotificationsContaining(chatId.val);
+      } on MissingPluginException {
+        // No-op, this can be expected.
+      }
     }
 
     if (PlatformUtils.isMacOS) {
-      await MacosUtils.cancelNotificationsContaining(chatId.val);
+      try {
+        await MacosUtils.cancelNotificationsContaining(chatId.val);
+      } on MissingPluginException {
+        // No-op, this can be expected.
+      }
     }
 
     final FlutterLocalNotificationsPlugin? plugin = _plugin;
