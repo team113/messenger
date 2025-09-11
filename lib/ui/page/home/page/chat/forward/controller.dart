@@ -103,7 +103,6 @@ class ChatForwardController extends GetxController {
       _userService,
       _settingsRepository,
       text: text,
-      quotes: quotes,
       attachments: attachments,
       onSubmit: () async {
         if (selected.value?.isEmpty != false) {
@@ -141,7 +140,7 @@ class ChatForwardController extends GetxController {
               ? null
               : ChatMessageText(send.field.text);
 
-          final List<ChatItemQuoteInput> quotes = send.quotes.reversed.toList();
+          final List<ChatItemQuoteInput> quotes = this.quotes.reversed.toList();
 
           // Displays a [MessagePopup.error] visually representing a blocked by
           // the provided [user] error.
