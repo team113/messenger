@@ -43,7 +43,6 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
-import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/unblock_button.dart';
