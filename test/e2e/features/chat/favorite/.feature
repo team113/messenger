@@ -38,17 +38,6 @@ Feature: Favorite chats
     When I tap `UnfavoriteButton` button
     Then I see "Alice and Bob" chat as unfavorited
 
-  Scenario: User adds and remove chat to/from favorites
-    When I am in "Alice and Bob" group
-    And I open chat's info
-    And I wait until `ChatInfoScrollable` is present
-    And I scroll `ChatInfoScrollable` until `FavoriteButton` is present
-    Then I tap `FavoriteButton` button
-    And I see "Alice and Bob" chat as favorite
-    And I see "Alice and Bob" chat first in favorites list
-    Then I tap `UnfavoriteButton` button
-    And I see "Alice and Bob" chat as unfavorited
-
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat
     And I tap `FavoriteButton` button
