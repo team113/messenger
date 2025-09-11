@@ -414,49 +414,7 @@ class ChatInfoView extends StatelessWidget {
             favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
           ),
         ),
-        if (!isLocal) ...[
-          if (!monolog)
-            ActionButton(
-              key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
-              onPressed: muted ? c.unmuteChat : c.muteChat,
-              text: muted
-                  ? PlatformUtils.isMobile
-                        ? 'btn_unmute'.l10n
-                        : 'btn_unmute_chat'.l10n
-                  : PlatformUtils.isMobile
-                  ? 'btn_mute'.l10n
-                  : 'btn_mute_chat'.l10n,
-              trailing: SvgIcon(
-                muted ? SvgIcons.muteSmall : SvgIcons.unmuteSmall,
-              ),
-            ),
-          ActionButton(
-            key: const Key('ClearChatButton'),
-            onPressed: () => _clearChat(c, context),
-            text: 'btn_clear_chat'.l10n,
-            trailing: const SvgIcon(SvgIcons.cleanHistory),
-          ),
-        ],
-        if (!isLocal || monolog)
-          ActionButton(
-            key: const Key('DeleteChatButton'),
-            onPressed: () => _hideChat(c, context),
-            text: 'btn_delete_chat'.l10n,
-            trailing: const SvgIcon(SvgIcons.delete19),
-          ),
-        ActionButton(
-          key: const Key('ReportChatButton'),
-          onPressed: () => _reportChat(c, context),
-          text: 'btn_report'.l10n,
-          trailing: const SvgIcon(SvgIcons.report),
-        ),
-        ActionButton(
-          key: const Key('LeaveChatButton'),
-          onPressed: () => _leaveGroup(c, context),
-          text: 'btn_leave_group'.l10n,
-          danger: true,
-          trailing: const SvgIcon(SvgIcons.leaveGroupRed),
-        ),
+
         if (!isLocal) ...[
           ActionButton(
             key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
@@ -469,7 +427,7 @@ class ChatInfoView extends StatelessWidget {
                 ? 'btn_mute'.l10n
                 : 'btn_mute_chat'.l10n,
             trailing: SvgIcon(
-              muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
+              muted ? SvgIcons.muteSmall : SvgIcons.unmuteSmall,
             ),
           ),
           ActionButton(
