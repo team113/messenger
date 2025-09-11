@@ -28,14 +28,11 @@ Feature: Chat avatar
     When I update chat avatar with "test.jpg"
     Then I see chat avatar as "test.jpg"
 
-    When I tap `EditProfileButton` button
-    And I tap `DeleteAvatar` button
-    And I tap `SaveEditingButton` button
+    When I tap `DeleteAvatar` button
     Then I see chat avatar as none
 
   Scenario: SVG image can be uploaded as a chat avatar
-    When I tap `EditProfileButton` button
-    And I tap `UploadAvatar` button
+    When I tap `UploadAvatar` button
     And I pick "test.svg" file in file picker
     Then I wait until `CropAvatarView` is present
 
