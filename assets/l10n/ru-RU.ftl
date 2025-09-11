@@ -857,6 +857,7 @@ label_sessions_terminated = Сессия(и) завершена(ы)
 label_set_cache_limits = Установить лимиты кэша
 label_set_password = Установить пароль
 label_show_call_window = Показывать окно звонка
+label_show_chats = Показать чаты
 label_show_chats_modal_description = Чаты будут перенесены из списка "скрытые чаты".
 label_sign_in = Вход
 label_sign_in_input = Gapopa ID, логин или e-mail

@@ -843,6 +843,7 @@ label_sessions_terminated = Session(s) terminated
 label_set_cache_limits = Set cache limits
 label_set_password = Set password
 label_show_call_window = Show call window
+label_show_chats = Unhide chats
 label_show_chats_modal_description = The chats will be removed from the "Hidden chats" list.
 label_sign_in = Sign in
 label_sign_in_input = Gapopa ID, login or e-mail
