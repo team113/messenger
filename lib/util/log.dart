@@ -137,7 +137,7 @@ class Log {
         return;
       }
 
-      final DateTime at = DateTime.now();
+      final DateTime at = DateTime.now().toUtc();
 
       // Fixes `setState() or markNeedsBuild() called during build`.
       SchedulerBinding.instance.addPostFrameCallback((_) {

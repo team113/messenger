@@ -190,6 +190,16 @@ class PlayerController extends GetxController {
   /// [Duration] to display a single [PlayerNotification].
   static const Duration _notificationDuration = Duration(seconds: 6);
 
+  /// [Timer] firing in [keepActive] intended to set [interface] to `false`.
+  Timer? _activityTimer;
+
+  /// [Duration] to consider activity as stale to set [interface] to `false`.
+  static const Duration _activityTimeout = Duration(seconds: 3);
+
+  /// Indicator whether latest [interface] toggling to `false` was caused by
+  /// [_activityTimer].
+  bool _dueToActivity = false;
+
   /// Returns the current [ApplicationSettings].
   Rx<ApplicationSettings?> get settings =>
       _settingsRepository.applicationSettings;
@@ -301,6 +311,9 @@ class PlayerController extends GetxController {
     HardwareKeyboard.instance.addHandler(_keyboardHandler);
     BackButtonInterceptor.add(_backHandler);
     vertical.addListener(_pageListener);
+
+    keepActive();
+
     super.onInit();
   }
 
@@ -314,6 +327,7 @@ class PlayerController extends GetxController {
     BackButtonInterceptor.remove(_backHandler);
     vertical.removeListener(_pageListener);
     _sourceSubscription?.cancel();
+    _activityTimer?.cancel();
 
     for (var e in posts) {
       e.dispose();
@@ -651,6 +665,27 @@ class PlayerController extends GetxController {
     _notificationTimers.add(
       Timer(_notificationDuration, () => notifications.remove(e)),
     );
+  }
+
+  /// Starts [_activityTimer] that would set [interface] to `false` after
+  /// [_activityTimeout].
+  void keepActive() {
+    if (PlatformUtils.isMobile) {
+      return;
+    }
+
+    if (_dueToActivity) {
+      interface.value = true;
+      _dueToActivity = false;
+    }
+
+    _activityTimer?.cancel();
+    _activityTimer = Timer(_activityTimeout, () {
+      if (interface.value) {
+        _dueToActivity = true;
+        interface.value = false;
+      }
+    });
   }
 
   /// Initializes the [resource] from the [resourceId].

@@ -217,7 +217,7 @@ class ChatView extends StatelessWidget {
                               child: Center(
                                 child: AvatarWidget.fromRxChat(
                                   c.chat,
-                                  radius: AvatarRadius.medium,
+                                  radius: AvatarRadius.big,
                                 ),
                               ),
                             ),
@@ -425,15 +425,6 @@ class ChatView extends StatelessWidget {
                                       ),
                                     ),
                                   );
-                                } else if (c.isDialog) {
-                                  // TODO: Delete `MoreButton` everywhere when
-                                  //       the following is merged:
-                                  //       https://github.com/team113/messenger/issues/1248
-                                  //       https://github.com/team113/messenger/issues/1249
-                                  //
-                                  // This makes sure that `MoreButton` isn't
-                                  // displayed in the dialogs.
-                                  child = const SizedBox(width: 12);
                                 } else {
                                   child = ContextMenuRegion(
                                     key: c.moreKey,
@@ -442,7 +433,7 @@ class ChatView extends StatelessWidget {
                                     enablePrimaryTap: true,
                                     margin: const EdgeInsets.only(
                                       bottom: 4,
-                                      right: 10,
+                                      right: 12,
                                     ),
                                     actions: [
                                       if (c.callPosition ==
