@@ -41,6 +41,7 @@ class Chat implements Comparable<Chat> {
     this.members = const [],
     this.kindIndex = 0,
     this.isHidden = false,
+    this.isArchived = false,
     this.muted,
     this.directLink,
     PreciseDateTime? createdAt,
@@ -77,12 +78,16 @@ class Chat implements Comparable<Chat> {
   int kindIndex;
 
   ChatKind get kind => ChatKind.values[kindIndex];
+
   set kind(ChatKind chatKind) {
     kindIndex = chatKind.index;
   }
 
   /// Indicator whether this [Chat] is hidden by the authenticated [MyUser].
   bool isHidden;
+
+  /// Indicator whether this [Chat] is archived by the authenticated [MyUser].
+  bool isArchived;
 
   /// Mute condition of this [Chat] for the authenticated [MyUser].
   ///
@@ -290,6 +295,7 @@ class Chat implements Comparable<Chat> {
       kindIndex: kindIndex,
       muted: muted,
       isHidden: isHidden,
+      isArchived: isArchived,
       directLink: directLink,
       createdAt: createdAt,
       updatedAt: updatedAt,
@@ -318,6 +324,7 @@ class Chat implements Comparable<Chat> {
         const ListEquality().equals(members, other.members) &&
         kindIndex == other.kindIndex &&
         isHidden == other.isHidden &&
+        isArchived == other.isArchived &&
         muted == other.muted &&
         directLink == other.directLink &&
         createdAt == other.createdAt &&
@@ -335,13 +342,14 @@ class Chat implements Comparable<Chat> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     avatar,
     name,
     members,
     kindIndex,
     isHidden,
+    isArchived,
     muted,
     directLink,
     createdAt,
@@ -356,7 +364,7 @@ class Chat implements Comparable<Chat> {
     ongoingCall,
     favoritePosition,
     membersCount,
-  );
+  ]);
 }
 
 /// Member of a [Chat].
