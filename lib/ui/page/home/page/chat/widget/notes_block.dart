@@ -24,39 +24,34 @@ import '/ui/widget/line_divider.dart';
 
 /// [Block] describing [Chat]-monolog usage examples.
 class NotesBlock extends StatelessWidget {
-  const NotesBlock({super.key, this.info = false});
+  const NotesBlock({this.avatar, super.key});
 
-  /// Builds the [NotesBlock] with [info] mode.
-  const NotesBlock.info({super.key}) : info = true;
-
-  /// Indicator whether the title of this [NotesBlock] should reflect it being
-  /// an information.
-  final bool info;
+  final Widget? avatar;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return Block(
-      crossAxisAlignment: CrossAxisAlignment.start,
       padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
-      title: info ? 'label_information'.l10n : 'label_chat_monolog'.l10n,
+      title: 'label_chat_monolog'.l10n,
       titleStyle: style.fonts.large.regular.onBackground,
       children: [
+        if (avatar != null) ...[avatar!, const SizedBox(height: 16)],
         Center(
           child: Text(
             'label_chat_monolog_description1'.l10n,
             style: style.fonts.small.regular.secondary,
           ),
         ),
-        SizedBox(height: 20),
-        LineDivider('label_chat_monolog_description2'.l10n),
         SizedBox(height: 16),
+        LineDivider('label_chat_monolog_description2'.l10n),
+        SizedBox(height: 14),
         Text(
           'label_chat_monolog_description3'.l10n,
           style: style.fonts.small.regular.secondary,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
       ],
     );
   }

@@ -323,6 +323,8 @@ class ChatView extends StatelessWidget {
 
                           final bool blocked = c.chat?.blocked == true;
                           final bool inCall = c.chat?.inCall.value ?? false;
+                          final bool isMonolog =
+                              c.chat?.chat.value.isMonolog == true;
 
                           final List<Widget> children;
 
@@ -369,7 +371,7 @@ class ChatView extends StatelessWidget {
                                 ),
                               ),
                             ];
-                          } else if (!blocked) {
+                          } else if (!blocked && !isMonolog) {
                             children = [
                               if (c.callPosition == null ||
                                   c.callPosition ==
@@ -614,10 +616,7 @@ class ChatView extends StatelessWidget {
                             }
 
                             if (isMonolog) {
-                              return Center(
-                                key: const Key('NoMessages'),
-                                child: NotesBlock(),
-                              );
+                              return NotesBlock(key: const Key('NoMessages'));
                             }
 
                             return Center(

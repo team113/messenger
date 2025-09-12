@@ -17,16 +17,18 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Actions removed from more button. ([#1401], [#1249])
     - Chat info page:
-        - Redesigned title and members blocks. ([#1401], [#1249])
-        - Actions added. ([#1401], [#1249])
+        - Redesigned title and members blocks. ([#1409], [#1401], [#1249], [#1248])
+        - Actions added. ([#1409], [#1401], [#1249], [#1248])
     - Chats tab:
         - Redesigned chats deletion dialogs. ([#1401])
     - Player:
         - Interface hiding after 3 seconds of inactivity on desktops. ([#1415])
         - Player closing when clicking outside of content. ([#1415])
 
+[#1248]: /../../issues/1248
 [#1249]: /../../issues/1249
 [#1401]: /../../pull/1401
+[#1409]: /../../pull/1409
 [#1415]: /../../pull/1415
 
 
