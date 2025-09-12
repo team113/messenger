@@ -60,14 +60,14 @@ class SelectedDot extends StatelessWidget {
             ? CircleAvatar(
                 key: const Key('Selected'),
                 backgroundColor: inverted
-                    ? style.colors.onPrimary
-                    : style.colors.primary,
+                    ? style.colors.primary
+                    : style.colors.onPrimary,
                 radius: size / 2,
                 child: Icon(
                   Icons.check,
                   color: inverted
-                      ? style.colors.primary
-                      : style.colors.onPrimary,
+                      ? style.colors.onPrimary
+                      : style.colors.primary,
                   size: 14,
                 ),
               )

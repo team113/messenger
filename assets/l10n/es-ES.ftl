@@ -213,6 +213,7 @@ btn_save_my_credentials_for_one_click = Guardar mis credenciales para ingresar c
 btn_schedule_an_interview = Programar una entrevista
 btn_select = Seleccionar
 btn_select_messages = Seleccionar mensajes
+btn_unselect_messages = Cancelar selección
 btn_send_application = Enviar solicitud
 btn_send_one_time_code = Enviar código desechable
 btn_set_password = Configurar contraseña

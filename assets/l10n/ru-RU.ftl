@@ -213,6 +213,7 @@ btn_save_my_credentials_for_one_click = Сохранить мои данные �
 btn_schedule_an_interview = Записаться на собеседование
 btn_select = Выбрать
 btn_select_messages = Выбрать сообщения
+btn_unselect_messages = Отменить выбор
 btn_send_application = Отправить заявку
 btn_send_one_time_code = Отправить одноразовый код
 btn_set_password = Установить пароль
