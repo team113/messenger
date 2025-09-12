@@ -453,6 +453,7 @@ class ChatView extends StatelessWidget {
                                         SvgIcons.searchWhite,
                                       ),
                                     ),
+
                                     if (!c.selecting.value)
                                       ContextMenuButton(
                                         label: 'btn_select_messages'.l10n,
@@ -578,9 +579,10 @@ class ChatView extends StatelessWidget {
                             final Widget? welcome = _welcomeMessage(context, c);
 
                             if (welcome != null) {
-                              return Center(
+                              return Align(
+                                alignment: Alignment.bottomLeft,
                                 child: ListView(
-                                  shrinkWrap: true,
+                                  reverse: true,
                                   children: [
                                     Align(
                                       alignment: Alignment.centerLeft,
