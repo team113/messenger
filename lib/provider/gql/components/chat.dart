@@ -66,6 +66,9 @@ mixin ChatGraphQlMixin {
   /// Use the [noFavorite] argument to exclude favorited [Chat]s from the
   /// returned result.
   ///
+  /// Use the [archived] argument to only include archived [Chat]s
+  /// into the returned result (`true`), or to exclude them (`false`).
+  ///
   /// Use the [withOngoingCalls] argument to only include [Chat]s with ongoing
   /// [ChatCall]s into the returned result (`true`), or to exclude them
   /// (`false`).
@@ -95,10 +98,11 @@ mixin ChatGraphQlMixin {
     int? last,
     RecentChatsCursor? before,
     bool noFavorite = false,
+    bool archive = false,
     bool? withOngoingCalls,
   }) async {
     Log.debug(
-      'recentChats($first, $after, $last, $before, $noFavorite, $withOngoingCalls)',
+      'recentChats($first, $after, $last, $before, $noFavorite, $archive, $withOngoingCalls)',
       '$runtimeType',
     );
 
@@ -111,6 +115,7 @@ mixin ChatGraphQlMixin {
       ),
       kw$with: RecentChatsFilter(
         noFavorite: noFavorite,
+        archived: archive,
         ongoingCalls: withOngoingCalls,
       ),
     );
@@ -521,6 +526,60 @@ mixin ChatGraphQlMixin {
       ),
     );
     return (HideChat$Mutation.fromJson(result.data!).hideChat
+        as ChatEventsVersionedMixin?);
+  }
+
+  /// Archive or unarchive the specified [Chat] for the authenticated [MyUser].
+  ///
+  /// Archived [Chat]s are excluded from the [Query.recentChats]
+  /// when its with [archived] argument is set to `false`.
+  ///
+  /// Once a new [ChatItem] is posted in an archived unmuted [Chat],
+  /// it automatically becomes unarchived again, despite no
+  /// [EventChatUnarchived] is emitted (which means manual unarchivation only).
+  /// Muted [Chat]s, however, are not unarchived automatically once
+  /// new [ChatItem]s are posted.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// Only the following [ChatEvent]s may be produced on success:
+  /// - [EventChatArchived] (if `archive` argument is not `true`);
+  /// - [EventChatUnarchived] (if `archive` argument is `false`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [ChatEvent]) if the specified [Chat] is
+  /// already archived (or unarchived) for the authenticated [MyUser].
+  Future<ChatEventsVersionedMixin?> toggleChatArchivation(
+    ChatId chatId,
+    bool archive,
+  ) async {
+    Log.debug('toggleChatArchivation($chatId, $archive)', '$runtimeType');
+
+    final variables = ToggleChatArchivationArguments(
+      id: chatId,
+      archive: archive,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ToggleChatArchivation',
+        document: ToggleChatArchivationMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ToggleChatArchivationException(
+        (ToggleChatArchivation$Mutation.fromJson(data).toggleChatArchivation
+                as ToggleChatArchivation$Mutation$ToggleChatArchivation$ToggleChatArchivationError)
+            .code,
+      ),
+    );
+
+    return (ToggleChatArchivation$Mutation.fromJson(
+          result.data!,
+        ).toggleChatArchivation
         as ChatEventsVersionedMixin?);
   }
 

@@ -2073,6 +2073,16 @@ class RxChatImpl extends RxChat {
               write((chat) => chat.value.isHidden = true);
               continue;
 
+            case ChatEventKind.archived:
+              event as EventChatArchived;
+              write((chat) => chat.value.isArchived = true);
+              break;
+
+            case ChatEventKind.unarchived:
+              event as EventChatUnarchived;
+              write((chat) => chat.value.isArchived = false);
+              break;
+
             case ChatEventKind.itemDeleted:
               event as EventChatItemDeleted;
               remove(event.itemId);
@@ -2304,6 +2314,7 @@ class RxChatImpl extends RxChat {
               final DtoChatItem item = event.item;
 
               if (dto.value.isHidden) {
+                // если чтото пришло то чат уже не скрытый
                 write((chat) => chat.value.isHidden = false);
               }
 
