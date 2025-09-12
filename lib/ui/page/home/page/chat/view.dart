@@ -403,79 +403,57 @@ class ChatView extends StatelessWidget {
                                 //     c.user?.user.value.contacts.isNotEmpty ??
                                 //         false;
 
-                                final Widget child;
-
-                                if (c.selecting.value) {
-                                  child = AnimatedButton(
-                                    key: const Key('CancelSelecting'),
-                                    onPressed: c.selecting.toggle,
-                                    child: Container(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      height: double.infinity,
-                                      child: const Padding(
-                                        padding: EdgeInsets.fromLTRB(
-                                          10,
-                                          0,
-                                          21,
-                                          0,
-                                        ),
-                                        child: SvgIcon(SvgIcons.closePrimary),
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  child = ContextMenuRegion(
-                                    key: c.moreKey,
-                                    selector: c.moreKey,
-                                    alignment: Alignment.topRight,
-                                    enablePrimaryTap: true,
-                                    margin: const EdgeInsets.only(
-                                      bottom: 4,
-                                      right: 12,
-                                    ),
-                                    actions: [
-                                      if (c.callPosition ==
-                                          CallButtonsPosition.contextMenu) ...[
-                                        ContextMenuButton(
-                                          label: 'btn_audio_call'.l10n,
-                                          onPressed: blocked || inCall
-                                              ? null
-                                              : () => c.call(false),
-                                          trailing: SvgIcon(
-                                            blocked || inCall
-                                                ? SvgIcons.makeAudioCallDisabled
-                                                : SvgIcons.makeAudioCall,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.makeAudioCallWhite,
-                                          ),
-                                        ),
-                                        ContextMenuButton(
-                                          label: 'btn_video_call'.l10n,
-                                          onPressed: blocked || inCall
-                                              ? null
-                                              : () => c.call(true),
-                                          trailing: SvgIcon(
-                                            blocked || inCall
-                                                ? SvgIcons.makeVideoCallDisabled
-                                                : SvgIcons.makeVideoCall,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.makeVideoCallWhite,
-                                          ),
-                                        ),
-                                      ],
+                                final Widget child = ContextMenuRegion(
+                                  key: c.moreKey,
+                                  selector: c.moreKey,
+                                  alignment: Alignment.topRight,
+                                  enablePrimaryTap: true,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 12,
+                                  ),
+                                  actions: [
+                                    if (c.callPosition ==
+                                        CallButtonsPosition.contextMenu) ...[
                                       ContextMenuButton(
-                                        key: const Key('SearchItemsButton'),
-                                        label: 'label_search'.l10n,
-                                        onPressed: c.toggleSearch,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.search,
+                                        label: 'btn_audio_call'.l10n,
+                                        onPressed: blocked || inCall
+                                            ? null
+                                            : () => c.call(false),
+                                        trailing: SvgIcon(
+                                          blocked || inCall
+                                              ? SvgIcons.makeAudioCallDisabled
+                                              : SvgIcons.makeAudioCall,
                                         ),
                                         inverted: const SvgIcon(
-                                          SvgIcons.searchWhite,
+                                          SvgIcons.makeAudioCallWhite,
                                         ),
                                       ),
+                                      ContextMenuButton(
+                                        label: 'btn_video_call'.l10n,
+                                        onPressed: blocked || inCall
+                                            ? null
+                                            : () => c.call(true),
+                                        trailing: SvgIcon(
+                                          blocked || inCall
+                                              ? SvgIcons.makeVideoCallDisabled
+                                              : SvgIcons.makeVideoCall,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.makeVideoCallWhite,
+                                        ),
+                                      ),
+                                    ],
+                                    ContextMenuButton(
+                                      key: const Key('SearchItemsButton'),
+                                      label: 'label_search'.l10n,
+                                      onPressed: c.toggleSearch,
+                                      trailing: const SvgIcon(SvgIcons.search),
+                                      inverted: const SvgIcon(
+                                        SvgIcons.searchWhite,
+                                      ),
+                                    ),
+                                    if (!c.selecting.value)
                                       ContextMenuButton(
                                         label: 'btn_select_messages'.l10n,
                                         onPressed: c.selecting.toggle,
@@ -485,19 +463,29 @@ class ChatView extends StatelessWidget {
                                         inverted: const SvgIcon(
                                           SvgIcons.selectWhite,
                                         ),
+                                      )
+                                    else
+                                      ContextMenuButton(
+                                        label: 'btn_unselect_messages'.l10n,
+                                        onPressed: c.selecting.toggle,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.unselect,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.unselectWhite,
+                                        ),
                                       ),
-                                    ],
-                                    child: Container(
-                                      key: const Key('MoreButton'),
-                                      padding: const EdgeInsets.only(
-                                        left: 20,
-                                        right: 21,
-                                      ),
-                                      height: double.infinity,
-                                      child: const SvgIcon(SvgIcons.more),
+                                  ],
+                                  child: Container(
+                                    key: const Key('MoreButton'),
+                                    padding: const EdgeInsets.only(
+                                      left: 20,
+                                      right: 21,
                                     ),
-                                  );
-                                }
+                                    height: double.infinity,
+                                    child: const SvgIcon(SvgIcons.more),
+                                  ),
+                                );
 
                                 return AnimatedButton(
                                   child: SafeAnimatedSwitcher(
@@ -830,7 +818,7 @@ class ChatView extends StatelessWidget {
                 c,
                 item: element,
                 overlay:
-                    e.value.author.id != c.me || element is ChatInfoElement,
+                    e.value.author.id == c.me || element is ChatInfoElement,
                 child: ChatItemWidget(
                   chat: c.chat!.chat,
                   item: e,
@@ -935,7 +923,7 @@ class ChatView extends StatelessWidget {
                 context,
                 c,
                 item: element,
-                overlay: element.authorId != c.me,
+                overlay: element.authorId == c.me,
                 child: ChatForwardWidget(
                   key: Key('ChatForwardWidget_${element.id}'),
                   chat: c.chat!.chat,
@@ -1306,52 +1294,14 @@ class ChatView extends StatelessWidget {
                       ),
                       const Spacer(),
                       const SizedBox(width: 24),
-                      if (c.elements.isEmpty)
-                        const SelectedDot(
-                          selected: false,
-                          inverted: false,
-                          outlined: true,
-                          size: 21,
-                        )
-                      else
-                        Obx(() {
-                          final bool selected = c.elements.values.every((e) {
-                            if (e is ChatMessageElement ||
-                                e is ChatInfoElement ||
-                                e is ChatCallElement ||
-                                e is ChatForwardElement) {
-                              return c.selected.contains(e);
-                            }
-
-                            return true;
-                          });
-
-                          return AnimatedButton(
-                            onPressed: () {
-                              if (selected) {
-                                c.selected.clear();
-                              } else {
-                                for (var e in c.elements.values) {
-                                  if (e is ChatMessageElement ||
-                                      e is ChatInfoElement ||
-                                      e is ChatCallElement ||
-                                      e is ChatForwardElement) {
-                                    if (!c.selected.contains(e)) {
-                                      c.selected.add(e);
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            child: SelectedDot(
-                              selected: selected,
-                              inverted: false,
-                              outlined: !selected,
-                              size: 21,
-                            ),
-                          );
-                        }),
-                      const SizedBox(width: 12),
+                      AnimatedButton(
+                        key: const Key('CancelSelecting'),
+                        onPressed: c.selecting.toggle,
+                        child: const Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 21, 0),
+                          child: SvgIcon(SvgIcons.closePrimary),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1429,6 +1379,13 @@ class ChatView extends StatelessWidget {
           children: [
             Row(
               children: [
+                if (!overlay)
+                  AnimatedSize(
+                    duration: 150.milliseconds,
+                    child: c.selecting.value
+                        ? const SizedBox(key: Key('Expanded'), width: 40)
+                        : const SizedBox(),
+                  ),
                 Expanded(
                   child: c.selecting.value
                       ? SelectionContainer.disabled(
@@ -1436,18 +1393,11 @@ class ChatView extends StatelessWidget {
                         )
                       : child,
                 ),
-                if (!overlay)
-                  AnimatedSize(
-                    duration: 150.milliseconds,
-                    child: c.selecting.value
-                        ? const SizedBox(key: Key('Expanded'), width: 32)
-                        : const SizedBox(),
-                  ),
               ],
             ),
             Positioned.fill(
               child: Align(
-                alignment: Alignment.centerRight,
+                alignment: Alignment.centerLeft,
                 child: c.selecting.value
                     ? Padding(
                         padding: const EdgeInsets.only(left: 8),
