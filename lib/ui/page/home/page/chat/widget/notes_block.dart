@@ -30,7 +30,7 @@ class NotesBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Style style = Theme.of(context).style;
+    final style = Theme.of(context).style;
 
     return Block(
       padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
