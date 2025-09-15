@@ -24,10 +24,12 @@ All user visible changes to this project will be documented in this file. This p
     - Player:
         - Interface hiding after 3 seconds of inactivity on desktops. ([#1415])
         - Player closing when clicking outside of content. ([#1415])
+        - Redesigned SpeakerButton and RemoteAudioButton icons. ([#1424])
 
 [#1249]: /../../issues/1249
 [#1401]: /../../pull/1401
 [#1415]: /../../pull/1415
+[#1424]: /../../pull/1424
 
 
 
