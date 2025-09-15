@@ -289,12 +289,6 @@ class ChatView extends StatelessWidget {
                           return const StyledBackButton();
                         }),
                       ],
-                      border:
-                          (c.searching.value ||
-                              c.search.isFocused.value == true ||
-                              c.query.value?.isNotEmpty == true)
-                          ? Border.all(color: style.colors.primary, width: 2)
-                          : null,
                       actions: [
                         Obx(() {
                           if (c.searching.value) {
