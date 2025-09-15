@@ -448,8 +448,8 @@ class ChatInfoView extends StatelessWidget {
           onPressed: () => router.dialog(c.chat!.chat.value, c.me),
           child: const SvgIcon(SvgIcons.chat),
         ),
-        const SizedBox(width: 28),
         if (!isMonolog) ...[
+          const SizedBox(width: 28),
           AnimatedButton(
             onPressed: () => c.call(true),
             child: const SvgIcon(SvgIcons.chatVideoCall),
@@ -460,8 +460,8 @@ class ChatInfoView extends StatelessWidget {
             onPressed: () => c.call(false),
             child: const SvgIcon(SvgIcons.chatAudioCall),
           ),
-          const SizedBox(width: 20),
         ],
+        const SizedBox(width: 20),
       ],
     );
   }
