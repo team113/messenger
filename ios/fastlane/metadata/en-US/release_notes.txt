@@ -1,5 +1,3 @@
-- Redesigned media player.
-- Redesigned chat and user profiles.
-- Redesigned app bar and navigation bar to expand in height to account safe area.
-- Replaced spaces in Gapopa ID with hyphens.
+- Redesigned chat profile.
+- Improved media player user experience.
 - Bug fixes and performance improvements.
