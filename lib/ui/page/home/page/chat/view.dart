@@ -825,7 +825,7 @@ class ChatView extends StatelessWidget {
                   chat: c.chat!.chat,
                   item: e,
                   me: c.me!,
-                  avatar: !previousSame,
+                  avatar: !c.selecting.value && !previousSame,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where(

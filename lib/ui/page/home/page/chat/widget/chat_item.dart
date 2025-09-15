@@ -1393,7 +1393,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       radius: avatarRadius,
                     ),
                   )
-                : const SizedBox(width: 34),
+                : const SizedBox(width: 0),
           ),
         Flexible(
           child: LayoutBuilder(
