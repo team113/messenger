@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Actions removed from more button. ([#1401], [#1249])
+        - Message selections redisigned. ([#1416], [#1410])
     - Chat info page:
         - Redesigned title and members blocks. ([#1401], [#1249])
         - Actions added. ([#1401], [#1249])
@@ -24,10 +25,11 @@ All user visible changes to this project will be documented in this file. This p
     - Player:
         - Interface hiding after 3 seconds of inactivity on desktops. ([#1415])
         - Player closing when clicking outside of content. ([#1415])
-
 [#1249]: /../../issues/1249
+[#1410]: /../../issues/1410
 [#1401]: /../../pull/1401
 [#1415]: /../../pull/1415
+[#1416]: /../../pull/1416
 
 
 
