@@ -90,7 +90,7 @@ class ChatInfoView extends StatelessWidget {
             const SizedBox(height: 8),
             if (c.isMonolog)
               NotesBlock(
-                avatar: SelectionContainer.disabled(
+                leading: SelectionContainer.disabled(
                   child: BigAvatarWidget.chat(c.chat),
                 ),
               )

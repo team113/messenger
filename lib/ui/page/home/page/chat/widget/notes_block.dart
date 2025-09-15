@@ -24,9 +24,10 @@ import '/ui/widget/line_divider.dart';
 
 /// [Block] describing [Chat]-monolog usage examples.
 class NotesBlock extends StatelessWidget {
-  const NotesBlock({this.avatar, super.key});
+  const NotesBlock({this.leading, super.key});
 
-  final Widget? avatar;
+  /// Optional leading [Widget].
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +38,7 @@ class NotesBlock extends StatelessWidget {
       title: 'label_chat_monolog'.l10n,
       titleStyle: style.fonts.large.regular.onBackground,
       children: [
-        if (avatar != null) ...[avatar!, const SizedBox(height: 16)],
+        if (leading != null) ...[leading!, const SizedBox(height: 16)],
         Center(
           child: Text(
             'label_chat_monolog_description1'.l10n,
