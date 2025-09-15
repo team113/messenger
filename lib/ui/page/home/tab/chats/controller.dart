@@ -57,6 +57,7 @@ import '/provider/gql/exceptions.dart'
         HideChatException,
         JoinChatCallException,
         RemoveChatMemberException,
+        ToggleChatArchivationException,
         ToggleChatMuteException,
         UnfavoriteChatException;
 import '/routes.dart';
@@ -93,6 +94,9 @@ class ChatsTabController extends GetxController {
 
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
+
+  /// Indicator whether [search]ing is active.
+  final RxBool isShowOnlyArchive = RxBool(false);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -321,6 +325,11 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
+  void toggleArchive() {
+    isShowOnlyArchive.value = !isShowOnlyArchive.value;
+    _chatService.toggleArchive(isArchive: isShowOnlyArchive.value);
+  }
+
   /// Opens a [Chat]-dialog with this [user].
   ///
   /// Creates a new one if it doesn't exist.
@@ -396,6 +405,45 @@ class ChatsTabController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
+    }
+  }
+
+  /// Toggle archivation the [Chat] identified by the provided [id]
+  Future<void> toggleChatArchivation(ChatId id, bool archive) async {
+    try {
+      await _chatService.toggleChatArchivation(id, archive);
+    } on ToggleChatArchivationException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Toggle archivation the [selectedChats]
+  Future<void> toggleChatsArchivation(bool archive) async {
+    selecting.value = false;
+
+    router.navigation.value = !selecting.value;
+    router.navigator.value = null;
+
+    try {
+      await Future.wait(
+        selectedChats.map(
+          (chatId) => _chatService.toggleChatArchivation(chatId, archive),
+        ),
+      );
+    } on ToggleChatArchivationException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      selectedChats.clear();
     }
   }
 

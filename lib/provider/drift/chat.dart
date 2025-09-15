@@ -41,38 +41,64 @@ class Chats extends Table {
   Set<Column> get primaryKey => {id};
 
   TextColumn get id => text()();
+
   TextColumn get avatar => text().nullable()();
+
   TextColumn get name => text().nullable()();
+
   TextColumn get members => text().withDefault(const Constant('[]'))();
+
   IntColumn get kindIndex => integer().withDefault(const Constant(0))();
+
   BoolColumn get isHidden => boolean().withDefault(const Constant(false))();
+
+  BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
+
   TextColumn get muted => text().nullable()();
+
   TextColumn get directLink => text().nullable()();
+
   IntColumn get createdAt => integer()
       .map(const PreciseDateTimeConverter())
       .clientDefault(
         () => const PreciseDateTimeConverter().toSql(PreciseDateTime.now()),
       )();
+
   IntColumn get updatedAt => integer()
       .map(const PreciseDateTimeConverter())
       .clientDefault(
         () => const PreciseDateTimeConverter().toSql(PreciseDateTime.now()),
       )();
+
   TextColumn get lastReads => text().withDefault(const Constant('[]'))();
+
   IntColumn get lastDelivery =>
       integer().map(const PreciseDateTimeConverter()).nullable()();
+
   TextColumn get firstItem => text().nullable()();
+
   TextColumn get lastItem => text().nullable()();
+
   TextColumn get lastReadItem => text().nullable()();
+
   IntColumn get unreadCount => integer().withDefault(const Constant(0))();
+
   IntColumn get totalCount => integer().withDefault(const Constant(0))();
+
   TextColumn get ongoingCall => text().nullable()();
+
   RealColumn get favoritePosition => real().nullable()();
+
   IntColumn get membersCount => integer().withDefault(const Constant(0))();
+
   TextColumn get ver => text()();
+
   TextColumn get lastItemCursor => text().nullable()();
+
   TextColumn get lastReadItemCursor => text().nullable()();
+
   TextColumn get recentCursor => text().nullable()();
+
   TextColumn get favoriteCursor => text().nullable()();
 }
 
@@ -384,6 +410,7 @@ extension _ChatDb on DtoChat {
       ),
       kindIndex: value.kindIndex,
       isHidden: value.isHidden,
+      isArchived: value.isArchived,
       muted: value.muted == null ? null : jsonEncode(value.muted?.toJson()),
       directLink: value.directLink == null
           ? null
