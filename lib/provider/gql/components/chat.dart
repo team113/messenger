@@ -98,11 +98,11 @@ mixin ChatGraphQlMixin {
     int? last,
     RecentChatsCursor? before,
     bool noFavorite = false,
-    bool archive = false,
+    bool archived = false,
     bool? withOngoingCalls,
   }) async {
     Log.debug(
-      'recentChats($first, $after, $last, $before, $noFavorite, $archive, $withOngoingCalls)',
+      'recentChats($first, $after, $last, $before, $noFavorite, $archived, $withOngoingCalls)',
       '$runtimeType',
     );
 

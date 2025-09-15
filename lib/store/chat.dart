@@ -1909,6 +1909,12 @@ class ChatRepository extends DisposableInterface
         node.user.toModel(),
         node.at,
       );
+    } else if (e.$$typename == 'EventChatArchived') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatArchived;
+      return EventChatArchived(e.chatId, node.at);
+    } else if (e.$$typename == 'EventChatUnarchived') {
+      var node = e as ChatEventsVersionedMixin$Events$EventChatUnarchived;
+      return EventChatUnarchived(e.chatId, node.at);
     } else if (e.$$typename == 'EventChatFavorited') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatFavorited;
       return EventChatFavorited(e.chatId, node.at, node.position);
