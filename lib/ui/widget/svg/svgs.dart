@@ -881,13 +881,19 @@ class SvgIcons {
   );
 
   static const SvgData callIncomingAudioOn = SvgData(
-    'assets/icons/speaker_on.svg',
+    'assets/icons/headphones_on.svg',
     width: 27.89,
     height: 25,
   );
 
   static const SvgData callIncomingAudioOff = SvgData(
-    'assets/icons/speaker_off.svg',
+    'assets/icons/headphones_off.svg',
+    width: 27.89,
+    height: 25,
+  );
+
+  static const SvgData callAudioEarpiece = SvgData(
+    'assets/icons/mobile_ear_piece_mode.svg',
     width: 27.89,
     height: 25,
   );
