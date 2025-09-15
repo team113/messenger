@@ -77,6 +77,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.me,
     this.user,
     this.avatar = true,
+    this.showAvatar = true,
     this.reads = const [],
     this.getUser,
     this.getItem,
@@ -113,6 +114,10 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
   final bool avatar;
+
+  /// Indicator wheter this [ChatItemWidget] should display [AvatarWidget] or
+  /// pass [SizedBox] with `width: 32`
+  final bool showAvatar;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -1381,7 +1386,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
-        if (!_fromMe && widget.chat.value!.isGroup)
+        if (!_fromMe && widget.chat.value!.isGroup && widget.showAvatar)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: widget.avatar
@@ -1393,7 +1398,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       radius: avatarRadius,
                     ),
                   )
-                : const SizedBox(width: 0),
+                : const SizedBox(width: 34),
           ),
         Flexible(
           child: LayoutBuilder(

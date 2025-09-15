@@ -825,7 +825,8 @@ class ChatView extends StatelessWidget {
                   chat: c.chat!.chat,
                   item: e,
                   me: c.me!,
-                  avatar: !c.selecting.value && !previousSame,
+                  avatar: !previousSame,
+                  showAvatar: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where(
@@ -1403,7 +1404,11 @@ class ChatView extends StatelessWidget {
                 child: c.selecting.value
                     ? Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: SelectedDot(selected: selected, darken: 0.1),
+                        child: SelectedDot(
+                          inverted: false,
+                          selected: selected,
+                          darken: 0.1,
+                        ),
                       )
                     : const SizedBox(),
               ),
