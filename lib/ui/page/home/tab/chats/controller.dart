@@ -86,6 +86,9 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   final RxList<ChatEntry> chats = RxList();
 
+  /// Reactive list of sorted archived [Chat]s.
+  final RxList<ChatEntry> archivedChats = RxList();
+
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
@@ -156,6 +159,9 @@ class ChatsTabController extends GetxController {
 
   /// Subscription for the [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
+
+  /// Subscription for the [ChatService.archivedChatsPaginated] changes.
+  late final StreamSubscription _archivedChatsSubscription;
 
   /// Subscription for [SearchController.chats], [SearchController.users] and
   /// [SearchController.contacts] changes updating the [elements].
@@ -273,6 +279,31 @@ class ChatsTabController extends GetxController {
       }
     });
 
+    _archivedChatsSubscription = _chatService.archivedChatsPaginated.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+          final entry = ChatEntry(event.value!, chats.sort);
+          archivedChats.add(entry);
+          archivedChats.sort();
+          break;
+
+        case OperationKind.removed:
+          archivedChats.removeWhere((e) {
+            if (e.chat.value.id == event.key) {
+              e.dispose();
+              return true;
+            }
+
+            return false;
+          });
+          break;
+
+        case OperationKind.updated:
+          archivedChats.sort();
+          break;
+      }
+    });
+
     if (_chatService.status.value.isSuccess) {
       SchedulerBinding.instance.addPostFrameCallback(
         (_) => _ensureScrollable(),
@@ -303,6 +334,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
+    _archivedChatsSubscription.cancel();
     _statusSubscription?.cancel();
 
     _searchSubscription?.cancel();
@@ -327,7 +359,6 @@ class ChatsTabController extends GetxController {
 
   void toggleArchive() {
     isShowOnlyArchive.value = !isShowOnlyArchive.value;
-    _chatService.toggleArchive(isArchive: isShowOnlyArchive.value);
   }
 
   /// Opens a [Chat]-dialog with this [user].

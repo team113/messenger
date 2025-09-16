@@ -42,6 +42,8 @@ abstract class AbstractChatRepository {
   /// Returns reactive map of [RxChat]s in the current pagination view.
   RxObsMap<ChatId, RxChat> get paginated;
 
+  RxObsMap<ChatId, RxChat> get archivedChatsPaginated;
+
   /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get chats;
 
@@ -66,8 +68,6 @@ abstract class AbstractChatRepository {
     Future<void> Function(ChatId, UserId)? onMemberRemoved,
     bool? pagination,
   });
-
-  void toggleArchive({required bool isArchive});
 
   /// Clears the stored [chats].
   Future<void> clear();

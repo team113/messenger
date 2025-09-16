@@ -736,19 +736,25 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
-                            for (var e in c.chats) {
-                              if ((!e.id.isLocal ||
-                                      e.messages.isNotEmpty ||
-                                      e.chat.value.isMonolog) &&
-                                  !e.chat.value.isHidden &&
-                                  !e.hidden.value) {
-                                if (e.chat.value.ongoingCall != null) {
-                                  calls.add(e.rx);
-                                } else if (e.chat.value.favoritePosition !=
-                                    null) {
-                                  favorites.add(e.rx);
-                                } else {
-                                  chats.add(e.rx);
+                            if(c.isShowOnlyArchive.value) {
+                              for (var e in c.archivedChats) {
+                                chats.add(e.rx);
+                              }
+                            } else {
+                              for (var e in c.chats) {
+                                if ((!e.id.isLocal ||
+                                    e.messages.isNotEmpty ||
+                                    e.chat.value.isMonolog) &&
+                                    !e.chat.value.isHidden &&
+                                    !e.hidden.value) {
+                                  if (e.chat.value.ongoingCall != null) {
+                                    calls.add(e.rx);
+                                  } else if (e.chat.value.favoritePosition !=
+                                      null) {
+                                    favorites.add(e.rx);
+                                  } else {
+                                    chats.add(e.rx);
+                                  }
                                 }
                               }
                             }

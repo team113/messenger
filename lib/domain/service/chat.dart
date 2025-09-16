@@ -54,6 +54,9 @@ class ChatService extends DisposableService {
   /// Returns the reactive map of the currently paginated [RxChat]s.
   RxObsMap<ChatId, RxChat> get paginated => _chatRepository.paginated;
 
+  /// Returns the reactive map of the archived chats paginated [RxChat]s.
+  RxObsMap<ChatId, RxChat> get archivedChatsPaginated => _chatRepository.archivedChatsPaginated;
+
   /// Returns the current reactive map of all [RxChat]s available.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
 
@@ -76,10 +79,6 @@ class ChatService extends DisposableService {
 
     _chatRepository.init(onMemberRemoved: _onMemberRemoved);
     super.onInit();
-  }
-
-  void toggleArchive({required bool isArchive}) {
-    _chatRepository.toggleArchive(isArchive: isArchive);
   }
 
   /// Ensures the [chats] are initialized.

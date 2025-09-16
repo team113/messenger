@@ -129,6 +129,9 @@ class ChatRepository extends DisposableInterface
   final RxObsMap<ChatId, RxChatImpl> paginated = RxObsMap<ChatId, RxChatImpl>();
 
   @override
+  final RxObsMap<ChatId, RxChatImpl> archivedChatsPaginated = RxObsMap<ChatId, RxChatImpl>();
+
+  @override
   late ChatId monolog = ChatId.local(me);
 
   /// GraphQL API provider.
@@ -769,11 +772,6 @@ class ChatRepository extends DisposableInterface
 
       rethrow;
     }
-  }
-
-  @override
-  void toggleArchive({required bool isArchive}) {
-    // todo: implement
   }
 
   @override
