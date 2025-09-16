@@ -123,6 +123,40 @@ class MessagePopup {
     at: at,
   );
 
+  /// Returns the primary styled [OutlinedRoundedButton].
+  static Widget primaryButton(
+    BuildContext context, {
+    String? label,
+    SvgData? icon,
+    Key? key,
+  }) {
+    final style = Theme.of(context).style;
+
+    return Stack(
+      children: [
+        OutlinedRoundedButton(
+          key: key ?? const Key('Proceed'),
+          maxWidth: double.infinity,
+          onPressed: () => Navigator.of(context).pop(true),
+          color: style.colors.primary,
+          child: Text(
+            label ?? 'btn_proceed'.l10n,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: style.fonts.normal.regular.onPrimary,
+          ),
+        ),
+        if (icon != null)
+          Positioned(
+            top: 0,
+            bottom: 0,
+            left: 16,
+            child: IgnorePointer(child: SvgIcon(icon)),
+          ),
+      ],
+    );
+  }
+
   /// Returns the delete styled [OutlinedRoundedButton].
   static Widget deleteButton(
     BuildContext context, {
