@@ -53,7 +53,10 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [MediaSettings.noiseSuppression] and
   /// [MediaSettings.noiseSuppressionLevel] values.
-  Future<void> setNoiseSuppression({bool? enabled, NoiseSuppressionLevel? level});
+  Future<void> setNoiseSuppression({
+    bool? enabled,
+    NoiseSuppressionLevel? level,
+  });
 
   /// Sets the [MediaSettings.echoCancellation] value.
   Future<void> setEchoCancellation(bool enabled);
