@@ -115,7 +115,7 @@ mixin ChatGraphQlMixin {
       ),
       kw$with: RecentChatsFilter(
         noFavorite: noFavorite,
-        archived: archive,
+        archived: archived,
         ongoingCalls: withOngoingCalls,
       ),
     );
@@ -675,6 +675,7 @@ mixin ChatGraphQlMixin {
   Stream<QueryResult> recentChatsTopEvents(
     int count, {
     bool noFavorite = false,
+    bool archived = false,
     bool? withOngoingCalls,
   }) {
     Log.debug(
@@ -687,6 +688,7 @@ mixin ChatGraphQlMixin {
       kw$with: RecentChatsFilter(
         noFavorite: noFavorite,
         ongoingCalls: withOngoingCalls,
+        archived: archived,
       ),
     );
     return client.subscribe(
