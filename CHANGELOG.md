@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Actions removed from more button. ([#1401], [#1249])
+        - Removed call buttons position from the code completely. ([#1406], [#1427])
     - Chat info page:
         - Redesigned title and members blocks. ([#1401], [#1249])
         - Actions added. ([#1401], [#1249])
