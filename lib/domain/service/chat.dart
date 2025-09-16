@@ -78,6 +78,10 @@ class ChatService extends DisposableService {
     super.onInit();
   }
 
+  void toggleArchive({required bool isArchive}) {
+    _chatRepository.toggleArchive(isArchive: isArchive);
+  }
+
   /// Ensures the [chats] are initialized.
   Future<void> ensureInitialized() async {
     await _chatRepository.init(
@@ -186,6 +190,13 @@ class ChatService extends DisposableService {
     }
 
     return _chatRepository.hideChat(id);
+  }
+
+  /// Marks the specified [Chat] as archive for the authenticated [MyUser].
+  Future<void> toggleChatArchivation(ChatId id, bool archive) {
+    Log.debug('toggleChatArchivation($id, $archive)', '$runtimeType');
+
+    return _chatRepository.toggleChatArchivation(id, archive);
   }
 
   /// Adds an [User] to a [Chat]-group by the authority of the authenticated

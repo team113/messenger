@@ -70,6 +70,7 @@ class RecentChatTile extends StatelessWidget {
     this.getUser,
     this.inContacts,
     this.onLeave,
+    this.onToggleArchivation,
     this.onHide,
     this.onDrop,
     this.onJoin,
@@ -118,6 +119,9 @@ class RecentChatTile extends StatelessWidget {
 
   /// Callback, called when this [rxChat] leave action is triggered.
   final void Function()? onLeave;
+
+  /// Callback, called when this [rxChat] toggle archivation action is triggered.
+  final void Function()? onToggleArchivation;
 
   /// Callback, called when this [rxChat] hide action is triggered.
   final void Function(bool)? onHide;
@@ -302,6 +306,20 @@ class RecentChatTile extends StatelessWidget {
                   onPressed: onUnmute,
                   trailing: const SvgIcon(SvgIcons.muteSmall),
                   inverted: const SvgIcon(SvgIcons.muteSmallWhite),
+                ),
+              if (onToggleArchivation != null)
+                ContextMenuButton(
+                  key: const Key('ToggleArchivationChatButton'),
+                  label: rxChat.chat.value.isArchived
+                      ? 'btn_show_chat'.l10n
+                      : 'btn_hide_chat'.l10n,
+                  onPressed: () => _toggleChatArchivation(context),
+                  trailing: rxChat.chat.value.isArchived
+                      ? const SvgIcon(SvgIcons.visibleOff)
+                      : const SvgIcon(SvgIcons.visibleOn),
+                  inverted: rxChat.chat.value.isArchived
+                      ? const SvgIcon(SvgIcons.visibleOffWhite)
+                      : const SvgIcon(SvgIcons.visibleOnWhite),
                 ),
               if (onHide != null)
                 ContextMenuButton(
@@ -984,6 +1002,36 @@ class RecentChatTile extends StatelessWidget {
         ),
       );
     });
+  }
+
+  /// Archives or unarchives the specified [rxChat].
+  Future<void> _toggleChatArchivation(BuildContext context) async {
+    final bool? result = await MessagePopup.alert(
+      rxChat.chat.value.isArchived
+          ? 'label_show_chats'.l10n
+          : 'label_hide_chats'.l10n,
+      description: [
+        TextSpan(
+          text: rxChat.chat.value.isArchived
+              ? 'label_show_chats_modal_description'.l10n
+              : 'label_hide_chats_modal_description'.l10n,
+        ),
+      ],
+      additional: [const SizedBox(height: 21)],
+      button: (context) => MessagePopup.primaryButton(
+        context,
+        label: rxChat.chat.value.isArchived
+            ? 'btn_unhide'.l10n
+            : 'btn_hide'.l10n,
+        icon: rxChat.chat.value.isArchived
+            ? SvgIcons.visibleOffWhite
+            : SvgIcons.visibleOnWhite,
+      ),
+    );
+
+    if (result == true) {
+      onToggleArchivation?.call();
+    }
   }
 
   /// Hides the [rxChat].
