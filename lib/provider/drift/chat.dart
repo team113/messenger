@@ -46,6 +46,7 @@ class Chats extends Table {
   TextColumn get members => text().withDefault(const Constant('[]'))();
   IntColumn get kindIndex => integer().withDefault(const Constant(0))();
   BoolColumn get isHidden => boolean().withDefault(const Constant(false))();
+  BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
   TextColumn get muted => text().nullable()();
   TextColumn get directLink => text().nullable()();
   IntColumn get createdAt => integer()
@@ -197,6 +198,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.where(
           (u) =>
               u.isHidden.equals(false) &
+              u.isArchived.equals(false) &
               u.id.like('local_%').not() &
               u.id.like('d_%').not(),
         );
@@ -224,6 +226,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.where(
           (u) =>
               u.isHidden.equals(false) &
+              u.isArchived.equals(false) &
               u.favoritePosition.isNotNull() &
               u.id.like('local_%').not() &
               u.id.like('d_%').not(),
@@ -277,6 +280,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       stmt.where(
         (u) =>
             u.isHidden.equals(false) &
+            u.isArchived.equals(false) &
             u.id.like('local_%').not() &
             u.id.like('d_%').not() &
             u.favoritePosition.isNull(),
@@ -299,6 +303,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       stmt.where(
         (u) =>
             u.isHidden.equals(false) &
+            u.isArchived.equals(false) &
             u.id.like('local_%').not() &
             u.id.like('d_%').not() &
             u.favoritePosition.isNotNull(),
@@ -384,6 +389,7 @@ extension _ChatDb on DtoChat {
       ),
       kindIndex: value.kindIndex,
       isHidden: value.isHidden,
+      isArchived: value.isArchived,
       muted: value.muted == null ? null : jsonEncode(value.muted?.toJson()),
       directLink: value.directLink == null
           ? null
