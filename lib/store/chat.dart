@@ -189,6 +189,11 @@ class ChatRepository extends DisposableInterface
   /// [DateTime] when the [_remoteSubscription] initializing has started.
   DateTime? _subscribedAt;
 
+  /// [DateTime] when the [_remoteArchiveSubscription] initializing has started.
+  DateTime? _archiveSubscribedAt;
+
+  bool _isArchive = false;
+
   /// [_favoriteChatsEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
@@ -248,12 +253,12 @@ class ChatRepository extends DisposableInterface
     if (!WebUtils.isPopup && _remoteSubscription == null) {
       _initRemoteSubscription();
       _initFavoriteSubscription();
-      // _initArchiveSubscription();
+      _initArchiveSubscription();
     }
 
     if ((pagination ?? !WebUtils.isPopup) && _paginatedSubscription == null) {
       _initRemotePagination();
-      // _initRemoteArchivePagination();
+      _initRemoteArchivePagination();
 
       _paginatedSubscription = paginated.changes.listen((e) {
         switch (e.op) {
@@ -776,7 +781,64 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> toggleChatArchivation(ChatId id, bool archive) async {
-    // todo: implement
+    Log.debug('toggleChatArchivation($id, $archive)', '$runtimeType');
+
+    RxChatImpl? chat = chats[id];
+    // ChatData? monologData;
+
+    // todo: need to check
+    // [Chat.isArchived] will be changed by [RxChatImpl]'s own remote event
+    // handler. Chat will be removed from [paginated] via [RxChatImpl].
+    // chat?.chat.update((c) => c?.isArchived = archive);
+    paginated.emit(MapChangeNotification.removed(chat?.id, chat));
+
+    try {
+      // If this [Chat] is local monolog, make it remote first.
+      // if (id.isLocalWith(me)) {
+      //   monologData = _chat(
+      //     await _graphQlProvider.createMonologChat(isHidden: true),
+      //   );
+      //
+      //   // Dispose and delete local monolog, since it's just been replaced with
+      //   // a remote one.
+      //   await remove(id);
+      //
+      //   id = monologData.chat.value.id;
+      //   await _monologLocal.upsert(me, monolog = id);
+      // }
+
+      if (archive && chat?.chat.value.favoritePosition != null) {
+        // await unfavoriteChat(id);
+      }
+
+      // [Chat.isHidden] will be changed by [RxChatImpl]'s own remote event
+      // handler. Chat will be removed from [paginated] via [RxChatImpl].
+      try {
+        await Backoff.run(
+              () async {
+            await _graphQlProvider.toggleChatArchivation(id, archive);
+          },
+          retryIf: (e) => e.isNetworkRelated,
+          retries: 10,
+        );
+      } on ToggleChatArchivationException catch (e) {
+        switch (e.code) {
+          case ToggleChatArchivationErrorCode.artemisUnknown:
+            rethrow;
+
+          case ToggleChatArchivationErrorCode.unknownChat:
+          // No-op.
+            break;
+        }
+      }
+    } catch (_) {
+      // chat?.chat.update((c) => c?.isArchived = !archive);
+      paginated.emit(MapChangeNotification.added(chat?.id, chat));
+      // chat?.chat.update((c) => c?.favoritePosition = oldPosition);
+      // await favoriteChat(id, null);
+
+      rethrow;
+    }
   }
 
   @override
@@ -2112,7 +2174,23 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_archiveChatsRemoteEvents] subscription.
   Future<void> _initArchiveSubscription() async {
-    // todo: implement
+    if (isClosed) {
+      return;
+    }
+
+    Log.debug('_initArchiveSubscription()', '$runtimeType');
+
+    _archiveSubscribedAt = DateTime.now();
+
+    _remoteArchiveSubscription?.close(immediate: true);
+
+    await WebUtils.protect(() async {
+      _remoteArchiveSubscription = StreamQueue(_archiveChatsRemoteEvents());
+      await _remoteArchiveSubscription!.execute(
+        _archiveChatsRemoteEvent,
+        onError: (_) => _archiveSubscribedAt = DateTime.now(),
+      );
+    }, tag: 'archiveChatsEvents');
   }
 
   /// Handles [RecentChatsEvent] from the [_recentChatsRemoteEvents]
@@ -2168,7 +2246,49 @@ class ChatRepository extends DisposableInterface
   /// Handles [RecentChatsEvent] from the [_archiveChatsRemoteEvents]
   /// subscription.
   Future<void> _archiveChatsRemoteEvent(RecentChatsEvent event) async {
-    // todo: implement
+    Log.debug('_archiveChatsRemoteEvent(${event.kind})', '$runtimeType');
+
+    // todo: need to check
+    switch (event.kind) {
+      case RecentChatsEventKind.initialized:
+        // If more than 1 minute has passed, recreate [Pagination].
+        if (_archiveSubscribedAt?.isBefore(
+          DateTime.now().subtract(const Duration(minutes: 1)),
+        ) ==
+            true) {
+          await _initRemoteArchivePagination();
+        }
+        break;
+
+      case RecentChatsEventKind.list:
+        var node = event as RecentChatsTop;
+        for (ChatData c in node.list) {
+          if (chats[c.chat.value.id] == null) {
+            final entry = RxChatImpl(
+              this,
+              _chatLocal,
+              _draftLocal,
+              _itemsLocal,
+              _membersLocal,
+              c.chat,
+            )..init();
+            chats[c.chat.value.id] = entry;
+            archivedChatsPaginated[c.chat.value.id] = entry;
+            // todo: add analog _putEntry
+          }
+        }
+        break;
+
+      case RecentChatsEventKind.updated:
+        event as EventRecentChatsUpdated;
+
+        break;
+
+      case RecentChatsEventKind.deleted:
+        event as EventRecentChatsDeleted;
+        // archivedChatsPaginated.remove(event.chatId);
+        break;
+    }
   }
 
   /// Initializes the [_localPagination].
@@ -2180,7 +2300,6 @@ class ChatRepository extends DisposableInterface
           onKey: (e) => e.value.id,
           perPage: 15,
           provider: DriftPageProvider(
-            // todo: test
             fetch: ({required after, required before, ChatId? around}) async {
               return await _chatLocal.favorite(limit: after + before + 1);
             },
@@ -2229,11 +2348,11 @@ class ChatRepository extends DisposableInterface
     _localPagination = CombinedPagination([
       CombinedPaginationEntry(
         favoritePagination,
-        addIf: (e) => e.value.favoritePosition != null,
+        addIf: (e) => e.value.favoritePosition != null && !e.value.isArchived,
       ),
       CombinedPaginationEntry(
         recentPagination,
-        addIf: (e) => e.value.favoritePosition == null,
+        addIf: (e) => e.value.favoritePosition == null && !e.value.isArchived,
       ),
     ]);
 
@@ -2391,12 +2510,12 @@ class ChatRepository extends DisposableInterface
       CombinedPaginationEntry(calls, addIf: (e) => e.value.ongoingCall != null),
       CombinedPaginationEntry(
         favorites,
-        addIf: (e) => e.value.favoritePosition != null,
+        addIf: (e) => e.value.favoritePosition != null  && !e.value.isArchived,
       ),
       CombinedPaginationEntry(
         recent,
         addIf: (e) =>
-            e.value.ongoingCall == null && e.value.favoritePosition == null,
+            e.value.ongoingCall == null && e.value.favoritePosition == null  && !e.value.isArchived,
       ),
     ]);
 
@@ -2489,13 +2608,37 @@ class ChatRepository extends DisposableInterface
       CombinedPaginationEntry(
         archive,
         addIf: (e) =>
-            e.value.ongoingCall == null && e.value.favoritePosition == null,
+            e.value.ongoingCall == null && e.value.favoritePosition == null  && e.value.isArchived,
       ),
     ]);
 
     await _archivePagination!.around();
 
-    // todo: implement _archivePaginationSubscription
+    _archivePaginationSubscription?.cancel();
+    _archivePaginationSubscription = _archivePagination!.changes.listen((event) async {
+      switch (event.op) {
+        case OperationKind.added:
+        case OperationKind.updated:
+          final ChatData chatData = ChatData(event.value!, null, null);
+          // await _putEntry(
+          //   chatData,
+          //   pagination: true,
+          //   ignoreVersion: event.op == OperationKind.added,
+          //   updateVersion: false,
+          // );
+          break;
+
+        case OperationKind.removed:
+        // Don't remove a chat that is still present in the pagination, as it
+        // might've been only remove from a concrete pagination: recent only
+        // or favorites only, not the whole list.
+          if (_archivePagination?.items.where((e) => e.id == event.key).isEmpty ==
+              true) {
+            // remove(event.value!.value.id);
+          }
+          break;
+      }
+    });
   }
 
   /// Subscribes to the remote updates of the [chats].
@@ -2530,6 +2673,43 @@ class ChatRepository extends DisposableInterface
         var mixin =
             events
                 as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
+        yield EventRecentChatsDeleted(mixin.chatId);
+      }
+    });
+  }
+
+  /// Subscribes to the remote updates of the archived [chats].
+  Stream<RecentChatsEvent> _archiveChatsRemoteEvents() {
+    Log.debug('_archiveChatsRemoteEvents()', '$runtimeType');
+
+    return _graphQlProvider.recentChatsTopEvents(3, archived: true).asyncExpand((event) async* {
+      Log.trace('_archiveChatsRemoteEvents(): ${event.data}', '$runtimeType');
+
+      var events = RecentChatsTopEvents$Subscription.fromJson(
+        event.data!,
+      ).recentChatsTopEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        yield const RecentChatsTopInitialized();
+      } else if (events.$$typename == 'RecentChatsTop') {
+        var list =
+            (events
+            as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
+                .list;
+        yield RecentChatsTop(
+          list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
+        );
+      } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
+        var mixin =
+        events
+        as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
+        yield EventRecentChatsUpdated(
+          _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
+        );
+      } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
+        var mixin =
+        events
+        as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
         yield EventRecentChatsDeleted(mixin.chatId);
       }
     });
