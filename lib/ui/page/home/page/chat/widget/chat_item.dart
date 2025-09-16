@@ -77,7 +77,7 @@ class ChatItemWidget extends StatefulWidget {
     required this.me,
     this.user,
     this.avatar = true,
-    this.showAvatar = true,
+    this.appendAvatarPadding = true,
     this.reads = const [],
     this.getUser,
     this.getItem,
@@ -115,9 +115,12 @@ class ChatItemWidget extends StatefulWidget {
   /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
   final bool avatar;
 
-  /// Indicator wheter this [ChatItemWidget] should display [AvatarWidget] or
-  /// pass [SizedBox] with `width: 32`
-  final bool showAvatar;
+  /// Controls the padding reserved for an avatar.
+  ///
+  /// When an avatar is present, the padding is always applied automatically.
+  /// When there is no avatar, setting this to `true` append the padding,
+  /// while `false` removes it.
+  final bool appendAvatarPadding;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -1386,7 +1389,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
-        if (!_fromMe && widget.chat.value!.isGroup && widget.showAvatar)
+        if (!_fromMe &&
+            widget.chat.value!.isGroup &&
+            widget.appendAvatarPadding)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: widget.avatar
@@ -1406,7 +1411,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               final BoxConstraints itemConstraints = BoxConstraints(
                 maxWidth: min(
                   550,
-                  constraints.maxWidth - avatarRadius.toDouble() * 2,
+                  widget.appendAvatarPadding
+                      ? constraints.maxWidth - avatarRadius.toDouble() * 2
+                      : constraints.maxWidth,
                 ),
               );
 

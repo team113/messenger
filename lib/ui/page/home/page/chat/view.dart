@@ -819,14 +819,12 @@ class ChatView extends StatelessWidget {
                 context,
                 c,
                 item: element,
-                overlay:
-                    e.value.author.id == c.me || element is ChatInfoElement,
                 child: ChatItemWidget(
                   chat: c.chat!.chat,
                   item: e,
                   me: c.me!,
                   avatar: !previousSame,
-                  showAvatar: !c.selecting.value,
+                  appendAvatarPadding: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where(
@@ -926,7 +924,6 @@ class ChatView extends StatelessWidget {
                 context,
                 c,
                 item: element,
-                overlay: element.authorId == c.me,
                 child: ChatForwardWidget(
                   key: Key('ChatForwardWidget_${element.id}'),
                   chat: c.chat!.chat,
@@ -934,6 +931,7 @@ class ChatView extends StatelessWidget {
                   note: element.note,
                   authorId: element.authorId,
                   me: c.me!,
+                  avatar: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where(
@@ -1351,7 +1349,6 @@ class ChatView extends StatelessWidget {
     BuildContext context,
     ChatController c, {
     required ListElement item,
-    required bool overlay,
     required Widget child,
   }) {
     return Obx(() {
@@ -1382,13 +1379,12 @@ class ChatView extends StatelessWidget {
           children: [
             Row(
               children: [
-                if (!overlay)
-                  AnimatedSize(
-                    duration: 150.milliseconds,
-                    child: c.selecting.value
-                        ? const SizedBox(key: Key('Expanded'), width: 40)
-                        : const SizedBox(),
-                  ),
+                AnimatedSize(
+                  duration: 150.milliseconds,
+                  child: c.selecting.value
+                      ? const SizedBox(key: Key('Expanded'), width: 40)
+                      : const SizedBox(),
+                ),
                 Expanded(
                   child: c.selecting.value
                       ? SelectionContainer.disabled(

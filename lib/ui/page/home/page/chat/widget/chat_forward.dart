@@ -68,6 +68,7 @@ class ChatForwardWidget extends StatefulWidget {
     required this.note,
     required this.authorId,
     required this.me,
+    this.avatar = false,
     this.reads = const [],
     this.user,
     this.getUser,
@@ -109,6 +110,9 @@ class ChatForwardWidget extends StatefulWidget {
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
   final FutureOr<RxUser?> Function(UserId userId)? getUser;
+
+  /// Indicator whether this [ChatForwardWidget] should display an [AvatarWidget].
+  final bool avatar;
 
   /// Callback, called when a hide action of these [forwards] is triggered.
   final void Function()? onHide;
@@ -917,7 +921,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
-        if (!_fromMe && widget.chat.value!.isGroup)
+        if (!_fromMe && widget.chat.value!.isGroup && widget.avatar)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: InkWell(
