@@ -159,11 +159,6 @@ class MessageFieldController extends GetxController {
       FileButton(pickFile),
     ] else
       AttachmentButton(pickFile),
-    if (_settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
-        onCall != null) ...[
-      AudioCallButton(() => onCall?.call(false)),
-      VideoCallButton(() => onCall?.call(true)),
-    ],
   ]);
 
   /// [ChatButton]s displayed (pinned) in the text field.
@@ -213,21 +208,6 @@ class MessageFieldController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
-
-  /// Returns the current [ApplicationSettings] value.
-  Rx<ApplicationSettings?>? get _settings =>
-      _settingsRepository?.applicationSettings;
-
-  /// Sets the reactive [inCall] indicator, determining whether
-  /// [AudioCallButton] and [VideoCallButton] buttons should be enabled or not.
-  set inCall(RxBool inCall) {
-    if (_settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
-        onCall != null) {
-      _updateButtons(inCall.value);
-      _inCallWorker?.dispose();
-      _inCallWorker = ever(inCall, _updateButtons);
-    }
-  }
 
   /// Handles the new lines for the provided [KeyEvent] in the [field].
   static KeyEventResult handleNewLines(KeyEvent e, TextFieldState field) {
@@ -611,27 +591,6 @@ class MessageFieldController extends GetxController {
     }
 
     return false;
-  }
-
-  /// Updates the [panel] and the [buttons] from that [panel], disabling or
-  /// enabling the [AudioCallButton] and [VideoCallButton] according to the
-  /// provided [inCall] value.
-  void _updateButtons(bool inCall) {
-    panel.value = panel.map((button) {
-      if (button is AudioCallButton) {
-        return AudioCallButton(inCall ? null : () => onCall?.call(false));
-      }
-
-      if (button is VideoCallButton) {
-        return VideoCallButton(inCall ? null : () => onCall?.call(true));
-      }
-
-      return button;
-    }).toList();
-
-    buttons.value = _toButtons(
-      _settingsRepository?.applicationSettings.value?.pinnedActions,
-    );
   }
 
   /// Constructs a list of [ChatButton]s from the provided [list] of [String]s.
