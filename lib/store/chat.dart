@@ -65,6 +65,7 @@ import '/provider/gql/exceptions.dart'
         ForwardChatItemsException,
         HideChatException,
         HideChatItemException,
+        ToggleChatArchivationException,
         RemoveChatMemberException,
         RenameChatException,
         StaleVersionException,
@@ -160,16 +161,27 @@ class ChatRepository extends DisposableInterface
   /// [CombinedPagination] loading [chats] with pagination.
   CombinedPagination<DtoChat, ChatId>? _pagination;
 
+  /// [CombinedPagination] loading archive [chats] with pagination.
+  CombinedPagination<DtoChat, ChatId>? _archivePagination;
+
   /// [CombinedPagination] loading local [chats] with pagination.
   CombinedPagination<DtoChat, ChatId>? _localPagination;
 
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
 
+  /// Subscription to the archive [_pagination] changes.
+  StreamSubscription? _archivePaginationSubscription;
+
   /// [_recentChatsRemoteEvents] subscription.
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<RecentChatsEvent>? _remoteSubscription;
+
+  /// [_archiveChatsRemoteEvents] subscription.
+  ///
+  /// May be uninitialized since connection establishment may fail.
+  StreamQueue<RecentChatsEvent>? _remoteArchiveSubscription;
 
   /// [DateTime] when the [_remoteSubscription] initializing has started.
   DateTime? _subscribedAt;
@@ -233,10 +245,12 @@ class ChatRepository extends DisposableInterface
     if (!WebUtils.isPopup && _remoteSubscription == null) {
       _initRemoteSubscription();
       _initFavoriteSubscription();
+      // _initArchiveSubscription();
     }
 
     if ((pagination ?? !WebUtils.isPopup) && _paginatedSubscription == null) {
       _initRemotePagination();
+      // _initRemoteArchivePagination();
 
       _paginatedSubscription = paginated.changes.listen((e) {
         switch (e.op) {
@@ -755,6 +769,16 @@ class ChatRepository extends DisposableInterface
 
       rethrow;
     }
+  }
+
+  @override
+  void toggleArchive({required bool isArchive}) {
+    // todo: implement
+  }
+
+  @override
+  Future<void> toggleChatArchivation(ChatId id, bool archive) async {
+    // todo: implement
   }
 
   @override
@@ -2088,6 +2112,11 @@ class ChatRepository extends DisposableInterface
     }, tag: 'recentChatsEvents');
   }
 
+  /// Initializes [_archiveChatsRemoteEvents] subscription.
+  Future<void> _initArchiveSubscription() async {
+    // todo: implement
+  }
+
   /// Handles [RecentChatsEvent] from the [_recentChatsRemoteEvents]
   /// subscription.
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
@@ -2138,6 +2167,12 @@ class ChatRepository extends DisposableInterface
     }
   }
 
+  /// Handles [RecentChatsEvent] from the [_archiveChatsRemoteEvents]
+  /// subscription.
+  Future<void> _archiveChatsRemoteEvent(RecentChatsEvent event) async {
+    // todo: implement
+  }
+
   /// Initializes the [_localPagination].
   Future<void> _initLocalPagination() async {
     Log.debug('_initLocalPagination()', '$runtimeType');
@@ -2147,6 +2182,7 @@ class ChatRepository extends DisposableInterface
           onKey: (e) => e.value.id,
           perPage: 15,
           provider: DriftPageProvider(
+            // todo: test
             fetch: ({required after, required before, ChatId? around}) async {
               return await _chatLocal.favorite(limit: after + before + 1);
             },
@@ -2427,6 +2463,43 @@ class ChatRepository extends DisposableInterface
     status.value = RxStatus.success();
   }
 
+  /// Initializes the [_archivePagination].
+  Future<void> _initRemoteArchivePagination() async {
+    if (isClosed) {
+      return;
+    }
+
+    Log.debug('_initRemoteArchivePagination()', '$runtimeType');
+
+    Pagination<DtoChat, RecentChatsCursor, ChatId>? archive;
+    archive = Pagination(
+      onKey: (e) => e.value.id,
+      perPage: 15,
+      provider: GraphQlPageProvider(
+        fetch: ({after, before, first, last}) => _archiveChats(
+          after: after,
+          first: first,
+          before: before,
+          last: last,
+        ),
+      ),
+      compare: (a, b) => a.value.compareTo(b.value),
+    );
+
+    _archivePagination?.dispose();
+    _archivePagination = CombinedPagination([
+      CombinedPaginationEntry(
+        archive,
+        addIf: (e) =>
+            e.value.ongoingCall == null && e.value.favoritePosition == null,
+      ),
+    ]);
+
+    await _archivePagination!.around();
+
+    // todo: implement _archivePaginationSubscription
+  }
+
   /// Subscribes to the remote updates of the [chats].
   Stream<RecentChatsEvent> _recentChatsRemoteEvents() {
     Log.debug('_recentChatsRemoteEvents()', '$runtimeType');
@@ -2462,6 +2535,36 @@ class ChatRepository extends DisposableInterface
         yield EventRecentChatsDeleted(mixin.chatId);
       }
     });
+  }
+
+  /// Fetches archived [DtoChat]s ordered by their last updating time with pagination.
+  Future<Page<DtoChat, RecentChatsCursor>> _archiveChats({
+    int? first,
+    RecentChatsCursor? after,
+    int? last,
+    RecentChatsCursor? before,
+  }) async {
+    Log.debug('_archiveChats($first, $after, $last, $before)', '$runtimeType');
+
+    final RecentChats$Query$RecentChats query =
+        (await _graphQlProvider.recentChats(
+          first: first,
+          after: after,
+          last: last,
+          before: before,
+          withOngoingCalls: false,
+          noFavorite: true,
+          archived: true,
+        )).recentChats;
+
+    return Page(
+      RxList(
+        query.edges
+            .map((e) => _chat(e.node, recentCursor: e.cursor).chat)
+            .toList(),
+      ),
+      query.pageInfo.toModel((c) => RecentChatsCursor(c)),
+    );
   }
 
   /// Fetches [DtoChat]s ordered by their last updating time with pagination.
