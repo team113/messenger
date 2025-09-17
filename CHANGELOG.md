@@ -16,9 +16,13 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat info page:
         - Updated monolog description. ([#1409], [#1248])
+    - Chat page:
+        - Redesigned messages selection. ([#1416], [#1410])
 
 [#1248]: /../../issues/1248
 [#1409]: /../../pull/1409
+[#1410]: /../../issues/1410
+[#1416]: /../../pull/1416
 
 
 
@@ -33,7 +37,6 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Actions removed from more button. ([#1401], [#1249])
-        - Redesigned message selections. ([#1416], [#1410])
     - Chat info page:
         - Redesigned title and members blocks. ([#1401], [#1249])
         - Actions added. ([#1401], [#1249])
@@ -44,10 +47,8 @@ All user visible changes to this project will be documented in this file. This p
         - Player closing when clicking outside of content. ([#1415])
 
 [#1249]: /../../issues/1249
-[#1410]: /../../issues/1410
 [#1401]: /../../pull/1401
 [#1415]: /../../pull/1415
-[#1416]: /../../pull/1416
 
 
 
