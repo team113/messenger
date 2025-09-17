@@ -789,8 +789,14 @@ class ChatRepository extends DisposableInterface
     // todo: need to check
     // [Chat.isArchived] will be changed by [RxChatImpl]'s own remote event
     // handler. Chat will be removed from [paginated] via [RxChatImpl].
-    // chat?.chat.update((c) => c?.isArchived = archive);
-    paginated.emit(MapChangeNotification.removed(chat?.id, chat));
+    chat?.chat.update((c) => c?.isArchived = archive);
+    if(archive) {
+      paginated.emit(MapChangeNotification.removed(chat?.id, chat));
+      archivedChatsPaginated.emit(MapChangeNotification.added(chat?.id, chat));
+    } else {
+      paginated.emit(MapChangeNotification.added(chat?.id, chat));
+      archivedChatsPaginated.emit(MapChangeNotification.removed(chat?.id, chat));
+    }
 
     try {
       // If this [Chat] is local monolog, make it remote first.
@@ -832,8 +838,14 @@ class ChatRepository extends DisposableInterface
         }
       }
     } catch (_) {
-      // chat?.chat.update((c) => c?.isArchived = !archive);
-      paginated.emit(MapChangeNotification.added(chat?.id, chat));
+      chat?.chat.update((c) => c?.isArchived = !archive);
+      if(archive) {
+        paginated.emit(MapChangeNotification.added(chat?.id, chat));
+        archivedChatsPaginated.emit(MapChangeNotification.removed(chat?.id, chat));
+      } else {
+        paginated.emit(MapChangeNotification.removed(chat?.id, chat));
+        archivedChatsPaginated.emit(MapChangeNotification.added(chat?.id, chat));
+      }
       // chat?.chat.update((c) => c?.favoritePosition = oldPosition);
       // await favoriteChat(id, null);
 
@@ -2263,30 +2275,19 @@ class ChatRepository extends DisposableInterface
       case RecentChatsEventKind.list:
         var node = event as RecentChatsTop;
         for (ChatData c in node.list) {
-          if (chats[c.chat.value.id] == null) {
-            final entry = RxChatImpl(
-              this,
-              _chatLocal,
-              _draftLocal,
-              _itemsLocal,
-              _membersLocal,
-              c.chat,
-            )..init();
-            chats[c.chat.value.id] = entry;
-            archivedChatsPaginated[c.chat.value.id] = entry;
-            // todo: add analog _putEntry
-          }
+          _archivePagination?.put(c.chat);
+          // todo: add analog _putEntry
         }
         break;
 
       case RecentChatsEventKind.updated:
         event as EventRecentChatsUpdated;
-
+        _archivePagination?.put(event.chat.chat);
         break;
 
       case RecentChatsEventKind.deleted:
         event as EventRecentChatsDeleted;
-        // archivedChatsPaginated.remove(event.chatId);
+        _archivePagination?.remove(event.chatId);
         break;
     }
   }
@@ -2620,22 +2621,13 @@ class ChatRepository extends DisposableInterface
         case OperationKind.added:
         case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
-          // await _putEntry(
-          //   chatData,
-          //   pagination: true,
-          //   ignoreVersion: event.op == OperationKind.added,
-          //   updateVersion: false,
-          // );
+          await _putEntry(chatData);
+
+          archivedChatsPaginated[chatData.chat.id] = chats[chatData.chat.id]!;
           break;
 
         case OperationKind.removed:
-        // Don't remove a chat that is still present in the pagination, as it
-        // might've been only remove from a concrete pagination: recent only
-        // or favorites only, not the whole list.
-          if (_archivePagination?.items.where((e) => e.id == event.key).isEmpty ==
-              true) {
-            // remove(event.value!.value.id);
-          }
+          // archivedChatsPaginated.remove(event.value!.value.id);
           break;
       }
     });

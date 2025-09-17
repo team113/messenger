@@ -295,6 +295,29 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     });
   }
 
+  /// Returns the [Stream] of archived [DtoChat]s being in a historical order.
+  Stream<List<DtoChat>> watchArchive({int? limit}) {
+    return stream((db) {
+      final stmt = db.select(db.chats);
+
+      stmt.where(
+            (u) =>
+        u.isHidden.equals(false) &
+        u.isArchived.equals(true) &
+        u.id.like('local_%').not() &
+        u.id.like('d_%').not() &
+        u.favoritePosition.isNull(),
+      );
+      stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
+
+      if (limit != null) {
+        stmt.limit(limit);
+      }
+
+      return stmt.watch().map((rows) => rows.map(_ChatDb.fromDb).toList());
+    });
+  }
+
   /// Returns the [Stream] of favorite [DtoChat]s being in a historical order.
   Stream<List<DtoChat>> watchFavorite({int? limit}) {
     return stream((db) {
