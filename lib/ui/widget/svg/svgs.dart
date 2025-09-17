@@ -408,6 +408,12 @@ class SvgIcons {
     height: 18.32,
   );
 
+  static const SvgData addUserWhite = SvgData(
+    'assets/icons/add_user_white.svg',
+    width: 19,
+    height: 18,
+  );
+
   static const SvgData chatMore = SvgData(
     'assets/icons/chat_more.svg',
     width: 22,
@@ -1476,20 +1482,8 @@ class SvgIcons {
     height: 16.5,
   );
 
-  static const SvgData leaveGroup = SvgData(
-    'assets/icons/leave_group.svg',
-    width: 16.28,
-    height: 19,
-  );
-
   static const SvgData leaveGroupRed = SvgData(
     'assets/icons/leave_group_red.svg',
-    width: 16.28,
-    height: 19,
-  );
-
-  static const SvgData leaveGroupWhite = SvgData(
-    'assets/icons/leave_group_white.svg',
     width: 16.28,
     height: 19,
   );
@@ -1942,5 +1936,17 @@ class SvgIcons {
     'assets/icons/media_popup.svg',
     width: 20,
     height: 20,
+  );
+
+  static const SvgData removeMember = SvgData(
+    'assets/icons/remove_member.svg',
+    width: 19,
+    height: 18,
+  );
+
+  static const SvgData removeMemberWhite = SvgData(
+    'assets/icons/remove_member_white.svg',
+    width: 19,
+    height: 18,
   );
 }

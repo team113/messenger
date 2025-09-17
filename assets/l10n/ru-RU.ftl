@@ -20,10 +20,6 @@ alert_account_will_be_deleted2 = {" "}будет удалён
 alert_by_proceeding_you_accept_terms1 = Продолжая, Вы соглашаетесь с{" "}
 alert_by_proceeding_you_accept_terms2 = Условиями использования и Политикой конфиденциальности
 alert_by_proceeding_you_accept_terms3 = .
-alert_chat_will_be_cleared1 = Чат{" "}
-alert_chat_will_be_cleared2 = {" "}будет очищен
-alert_chat_will_be_deleted1 = Чат{" "}
-alert_chat_will_be_deleted2 = {" "}будет удалён
 alert_chat_will_be_reported1 = На группу{" "}
 alert_chat_will_be_reported2 = {" "}будет отправлена жалоба
 alert_email_will_be_deleted1 = E-mail{" "}
@@ -136,7 +132,9 @@ btn_change_account_desc =
     аккаунт
 btn_change_password = Изменить пароль
 btn_check_for_updates = Проверить наличие обновлений
+btn_clear = Очистить
 btn_clear_cache = Очистить кэш
+btn_clear_chat = Очистить чат
 btn_clear_history = Очистить историю
 btn_close = Закрыть
 btn_confirm = Подтвердить
@@ -810,7 +808,7 @@ label_regulations_freelance =
     4. В ответном сообщении Вы получите подтверждение, что задача закреплена за Вами (задача переводится в статус `In progress`)
     5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа
     6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
-label_remove_member = Удалить участника
+label_remove_member = Удалить из группы
 label_repeat_password = Подтвердить пароль
 label_replace_this_text_with_concern = Опишите проблему.
 label_replace_this_text_with_feedback = Обратная связь.
@@ -915,7 +913,6 @@ label_terms_and_privacy_policy = Условия и Политика конфид
 label_text_status = Текстовый статус
 label_text_status_description = Максимум 25 символов
 label_this_device = Это устройство
-label_to_restore_chat_use_search = Чтобы восстановить чат, воспользуйтесь поиском.
 label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
 label_typing = Печатает
 label_unknown = Неизвестно

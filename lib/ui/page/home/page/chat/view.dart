@@ -54,7 +54,6 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/obscured_menu_interceptor.dart';
 import '/ui/widget/obscured_selection_area.dart';
-import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/selected_dot.dart';
@@ -96,6 +95,7 @@ class ChatView extends StatelessWidget {
       key: const Key('ChatView'),
       init: ChatController(
         id,
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -217,7 +217,7 @@ class ChatView extends StatelessWidget {
                               child: Center(
                                 child: AvatarWidget.fromRxChat(
                                   c.chat,
-                                  radius: AvatarRadius.medium,
+                                  radius: AvatarRadius.big,
                                 ),
                               ),
                             ),
@@ -289,12 +289,6 @@ class ChatView extends StatelessWidget {
                           return const StyledBackButton();
                         }),
                       ],
-                      border:
-                          (c.searching.value ||
-                              c.search.isFocused.value == true ||
-                              c.query.value?.isNotEmpty == true)
-                          ? Border.all(color: style.colors.primary, width: 2)
-                          : null,
                       actions: [
                         Obx(() {
                           if (c.searching.value) {
@@ -323,6 +317,8 @@ class ChatView extends StatelessWidget {
 
                           final bool blocked = c.chat?.blocked == true;
                           final bool inCall = c.chat?.inCall.value ?? false;
+                          final bool isMonolog =
+                              c.chat?.chat.value.isMonolog == true;
 
                           final List<Widget> children;
 
@@ -369,7 +365,7 @@ class ChatView extends StatelessWidget {
                                 ),
                               ),
                             ];
-                          } else if (!blocked) {
+                          } else if (!blocked && !isMonolog) {
                             children = [
                               if (c.callPosition == null ||
                                   c.callPosition ==
@@ -397,20 +393,6 @@ class ChatView extends StatelessWidget {
                             children: [
                               ...children,
                               Obx(() {
-                                final bool muted =
-                                    c.chat?.chat.value.muted != null;
-
-                                final bool dialog = c.isDialog;
-
-                                final bool isLocal =
-                                    c.chat?.chat.value.id.isLocal == true;
-
-                                final bool monolog =
-                                    c.chat?.chat.value.isMonolog == true;
-
-                                final bool favorite =
-                                    c.chat?.chat.value.favoritePosition != null;
-
                                 // TODO: Uncomment, when contacts are
                                 //       implemented.
                                 // final bool contact =
@@ -437,15 +419,6 @@ class ChatView extends StatelessWidget {
                                       ),
                                     ),
                                   );
-                                } else if (c.isDialog) {
-                                  // TODO: Delete `MoreButton` everywhere when
-                                  //       the following is merged:
-                                  //       https://github.com/team113/messenger/issues/1248
-                                  //       https://github.com/team113/messenger/issues/1249
-                                  //
-                                  // This makes sure that `MoreButton` isn't
-                                  // displayed in the dialogs.
-                                  child = const SizedBox(width: 12);
                                 } else {
                                   child = ContextMenuRegion(
                                     key: c.moreKey,
@@ -454,7 +427,7 @@ class ChatView extends StatelessWidget {
                                     enablePrimaryTap: true,
                                     margin: const EdgeInsets.only(
                                       bottom: 4,
-                                      right: 10,
+                                      right: 12,
                                     ),
                                     actions: [
                                       if (c.callPosition ==
@@ -499,111 +472,6 @@ class ChatView extends StatelessWidget {
                                           SvgIcons.searchWhite,
                                         ),
                                       ),
-                                      ContextMenuButton(
-                                        key: favorite
-                                            ? Key('UnfavoriteButton')
-                                            : Key('FavoriteButton'),
-                                        label: favorite
-                                            ? 'btn_delete_from_favorites'.l10n
-                                            : 'btn_add_to_favorites'.l10n,
-                                        trailing: SvgIcon(
-                                          favorite
-                                              ? SvgIcons.favoriteSmall
-                                              : SvgIcons.unfavoriteSmall,
-                                        ),
-                                        inverted: SvgIcon(
-                                          favorite
-                                              ? SvgIcons.favoriteSmallWhite
-                                              : SvgIcons.unfavoriteSmallWhite,
-                                        ),
-                                        onPressed: favorite
-                                            ? c.unfavoriteChat
-                                            : c.favoriteChat,
-                                      ),
-                                      if (!isLocal) ...[
-                                        if (!monolog)
-                                          ContextMenuButton(
-                                            key: muted
-                                                ? Key('UnmuteButton')
-                                                : Key('MuteButton'),
-                                            label: muted
-                                                ? PlatformUtils.isMobile
-                                                      ? 'btn_unmute'.l10n
-                                                      : 'btn_unmute_chat'.l10n
-                                                : PlatformUtils.isMobile
-                                                ? 'btn_mute'.l10n
-                                                : 'btn_mute_chat'.l10n,
-                                            trailing: SvgIcon(
-                                              muted
-                                                  ? SvgIcons.unmuteSmall
-                                                  : SvgIcons.muteSmall,
-                                            ),
-                                            inverted: SvgIcon(
-                                              muted
-                                                  ? SvgIcons.unmuteSmallWhite
-                                                  : SvgIcons.muteSmallWhite,
-                                            ),
-                                            onPressed: muted
-                                                ? c.unmuteChat
-                                                : c.muteChat,
-                                          ),
-                                        ContextMenuButton(
-                                          key: const Key('ClearHistoryButton'),
-                                          label: 'btn_clear_history'.l10n,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.cleanHistory,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.cleanHistoryWhite,
-                                          ),
-                                          onPressed: () =>
-                                              _clearChat(c, context),
-                                        ),
-                                      ],
-                                      if (!monolog && !dialog)
-                                        ContextMenuButton(
-                                          key: const Key('LeaveGroupButton'),
-                                          label: 'btn_leave_group'.l10n,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.leaveGroup,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.leaveGroupWhite,
-                                          ),
-                                          onPressed: () =>
-                                              _leaveGroup(c, context),
-                                        ),
-                                      if (!isLocal || monolog)
-                                        ContextMenuButton(
-                                          key: const Key('HideChatButton'),
-                                          label: 'btn_delete_chat'.l10n,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.delete19,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.delete19White,
-                                          ),
-                                          onPressed: () =>
-                                              _hideChat(c, context),
-                                        ),
-                                      if (dialog)
-                                        ContextMenuButton(
-                                          key: Key(
-                                            blocked ? 'Unblock' : 'Block',
-                                          ),
-                                          label: blocked
-                                              ? 'btn_unblock'.l10n
-                                              : 'btn_block'.l10n,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.block,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.blockWhite,
-                                          ),
-                                          onPressed: blocked
-                                              ? c.unblock
-                                              : () => _blockUser(c, context),
-                                        ),
                                       ContextMenuButton(
                                         label: 'btn_select_messages'.l10n,
                                         onPressed: c.selecting.toggle,
@@ -742,10 +610,7 @@ class ChatView extends StatelessWidget {
                             }
 
                             if (isMonolog) {
-                              return Center(
-                                key: const Key('NoMessages'),
-                                child: NotesBlock(),
-                              );
+                              return NotesBlock(key: const Key('NoMessages'));
                             }
 
                             return Center(
@@ -1265,111 +1130,6 @@ class ChatView extends StatelessWidget {
     }
 
     return const SizedBox();
-  }
-
-  /// Opens a confirmation popup leaving this [Chat].
-  Future<void> _leaveGroup(ChatController c, BuildContext context) async {
-    final bool? result = await MessagePopup.alert(
-      'label_leave_group'.l10n,
-      description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
-    );
-
-    if (result == true) {
-      await c.leaveGroup();
-    }
-  }
-
-  /// Opens a confirmation popup hiding this [Chat].
-  Future<void> _hideChat(ChatController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_delete_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
-        TextSpan(
-          text: c.chat?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.hideChat();
-    }
-  }
-
-  /// Opens a confirmation popup clearing this [Chat].
-  Future<void> _clearChat(ChatController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_clear_history'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(
-          text: c.chat?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.clearChat();
-    }
-  }
-
-  /// Opens a confirmation popup blocking the [User].
-  Future<void> _blockUser(ChatController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_block'.l10n,
-      description: [
-        TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
-        TextSpan(
-          text: c.user?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
-      ],
-      additional: [
-        const SizedBox(height: 25),
-        ReactiveTextField(
-          state: c.reason,
-          label: 'label_reason'.l10n,
-          hint: 'label_reason_hint'.l10n,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-        ),
-      ],
-      button: (context) {
-        return Obx(() {
-          final bool enabled = c.reason.error.value == null;
-
-          return PrimaryButton(
-            key: const Key('Proceed'),
-            danger: true,
-            onPressed: enabled
-                ? () {
-                    if (c.reason.error.value != null) {
-                      return;
-                    }
-
-                    Navigator.of(context).pop(true);
-                  }
-                : null,
-            title: 'btn_block'.l10n,
-            leading: SvgIcon(enabled ? SvgIcons.blockWhite : SvgIcons.block),
-          );
-        });
-      },
-    );
-
-    if (result == true) {
-      await c.block();
-    }
   }
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list

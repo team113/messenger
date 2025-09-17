@@ -34,7 +34,6 @@ import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
-import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
@@ -790,7 +789,7 @@ class ChatsTabView extends StatelessWidget {
                                 onLeave: e.chat.value.isMonolog
                                     ? null
                                     : () => c.leaveChat(e.id),
-                                onHide: (clear) => c.hideChat(e.id, clear),
+                                onHide: () => c.hideChat(e.id),
                                 onToggleArchivation: () =>
                                     c.toggleChatArchivation(
                                       e.id,
@@ -1302,29 +1301,14 @@ class ChatsTabView extends StatelessWidget {
     BuildContext context,
     ChatsTabController c,
   ) async {
-    bool clear = false;
-
     final bool? result = await MessagePopup.alert(
       'label_delete_chats'.l10n,
       description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
-      additional: [
-        const SizedBox(height: 21),
-        StatefulBuilder(
-          builder: (context, setState) {
-            return RectangleButton(
-              label: 'btn_clear_history'.l10n,
-              selected: clear,
-              radio: true,
-              toggleable: true,
-              onPressed: () => setState(() => clear = !clear),
-            );
-          },
-        ),
-      ],
+      button: MessagePopup.deleteButton,
     );
 
     if (result == true) {
-      await c.hideChats(clear);
+      await c.hideChats();
     }
   }
 }

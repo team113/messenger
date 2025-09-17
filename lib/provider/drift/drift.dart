@@ -99,39 +99,48 @@ class CommonDatabase extends _$CommonDatabase {
         if (from != to) {
           bool migrated = false;
 
-          if (to >= 7 && from <= 6) {
-            await m.addColumn(settings, settings.videoVolume);
-            migrated = true;
-          }
+          try {
+            if (to >= 7 && from <= 6) {
+              await m.addColumn(settings, settings.videoVolume);
+              migrated = true;
+            }
 
-          if (to >= 6 && from <= 5) {
-            await m.addColumn(settings, settings.noiseSuppression);
-            await m.addColumn(settings, settings.noiseSuppressionLevel);
-            await m.addColumn(settings, settings.echoCancellation);
-            await m.addColumn(settings, settings.autoGainControl);
-            await m.addColumn(settings, settings.highPassFilter);
-            migrated = true;
-          }
+            if (to >= 6 && from <= 5) {
+              await m.addColumn(settings, settings.noiseSuppression);
+              await m.addColumn(settings, settings.noiseSuppressionLevel);
+              await m.addColumn(settings, settings.echoCancellation);
+              await m.addColumn(settings, settings.autoGainControl);
+              await m.addColumn(settings, settings.highPassFilter);
+              migrated = true;
+            }
 
-          if (to >= 5 && from <= 4) {
-            await m.addColumn(settings, settings.muteKeys);
-            migrated = true;
-          }
+            if (to >= 5 && from <= 4) {
+              await m.addColumn(settings, settings.muteKeys);
+              migrated = true;
+            }
 
-          if (to >= 4 && from <= 3) {
-            await m.addColumn(versions, versions.blocklistVersion);
-            await m.addColumn(versions, versions.blocklistCount);
-            migrated = true;
-          }
+            if (to >= 4 && from <= 3) {
+              await m.addColumn(versions, versions.blocklistVersion);
+              await m.addColumn(versions, versions.blocklistCount);
+              migrated = true;
+            }
 
-          if (to >= 3 && from <= 2) {
-            await m.addColumn(myUsers, myUsers.welcomeMessage);
-            migrated = true;
-          }
+            if (to >= 3 && from <= 2) {
+              await m.addColumn(myUsers, myUsers.welcomeMessage);
+              migrated = true;
+            }
 
-          if (to >= 2 && from <= 1) {
-            await m.addColumn(versions, versions.sessionsListVersion);
-            migrated = true;
+            if (to >= 2 && from <= 1) {
+              await m.addColumn(versions, versions.sessionsListVersion);
+              migrated = true;
+            }
+          } catch (e) {
+            // Should log the error, but proceed with initialization, as
+            // otherwise `drift` won't allow application to run at all.
+            Log.error(
+              'Unable to perform migrations due to: $e',
+              '$runtimeType',
+            );
           }
 
           if (!migrated) {
