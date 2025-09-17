@@ -882,20 +882,20 @@ class SvgIcons {
 
   static const SvgData callIncomingAudioOn = SvgData(
     'assets/icons/headphones_on.svg',
-    width: 27.89,
-    height: 25,
+    width: 32,
+    height: 32,
   );
 
   static const SvgData callIncomingAudioOff = SvgData(
     'assets/icons/headphones_off.svg',
-    width: 27.89,
-    height: 25,
+    width: 32,
+    height: 32,
   );
 
   static const SvgData callAudioEarpiece = SvgData(
     'assets/icons/mobile_ear_piece_mode.svg',
-    width: 27.89,
-    height: 25,
+    width: 28,
+    height: 39,
   );
 
   static const SvgData callHeadphones = SvgData(
