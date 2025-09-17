@@ -289,12 +289,6 @@ class ChatView extends StatelessWidget {
                           return const StyledBackButton();
                         }),
                       ],
-                      border:
-                          (c.searching.value ||
-                              c.search.isFocused.value == true ||
-                              c.query.value?.isNotEmpty == true)
-                          ? Border.all(color: style.colors.primary, width: 2)
-                          : null,
                       actions: [
                         Obx(() {
                           if (c.searching.value) {
@@ -323,6 +317,8 @@ class ChatView extends StatelessWidget {
 
                           final bool blocked = c.chat?.blocked == true;
                           final bool inCall = c.chat?.inCall.value ?? false;
+                          final bool isMonolog =
+                              c.chat?.chat.value.isMonolog == true;
 
                           final List<Widget> children;
 
@@ -369,7 +365,7 @@ class ChatView extends StatelessWidget {
                                 ),
                               ),
                             ];
-                          } else if (!blocked) {
+                          } else if (!blocked && !isMonolog) {
                             children = [
                               if (c.callPosition == null ||
                                   c.callPosition ==
@@ -604,10 +600,7 @@ class ChatView extends StatelessWidget {
                             }
 
                             if (isMonolog) {
-                              return Center(
-                                key: const Key('NoMessages'),
-                                child: NotesBlock(),
-                              );
+                              return NotesBlock(key: const Key('NoMessages'));
                             }
 
                             return Center(

@@ -1,5 +1,3 @@
-- Reproductor multimedia rediseñado.
-- Chat y perfiles de usuario rediseñados.
-- Barra de aplicaciones y barra de navegación rediseñadas para expandirse a la zona segura de la cuenta.
-- Se reemplazaron los espacios en Gapopa ID con guiones.
+- Perfil de chat rediseñado.
+- Experiencia de usuario mejorada con el reproductor multimedia.
 - Corrección de errores y mejoras de rendimiento.

@@ -88,17 +88,23 @@ class ChatInfoView extends StatelessWidget {
 
           final List<Widget> blocks = [
             const SizedBox(height: 8),
-            if (c.isMonolog) ...[
-              _avatar(c, context),
-              const NotesBlock.info(),
-            ] else ...[
+            if (c.isMonolog)
+              NotesBlock(
+                leading: SelectionContainer.disabled(
+                  child: BigAvatarWidget.chat(c.chat),
+                ),
+              )
+            else
               _profile(c, context),
+
+            if (!c.isMonolog) ...[
               SelectionContainer.disabled(child: _members(c, context)),
               SelectionContainer.disabled(child: _link(c, context)),
-              SelectionContainer.disabled(
-                child: Block(children: [_actions(c, context)]),
-              ),
             ],
+
+            SelectionContainer.disabled(
+              child: Block(children: [_actions(c, context)]),
+            ),
             const SizedBox(height: 8),
           ];
 
@@ -192,29 +198,6 @@ class ChatInfoView extends StatelessWidget {
             formatters: [LengthLimitingTextInputFormatter(100)],
           ),
           const SizedBox(height: 8),
-        ],
-      );
-    });
-  }
-
-  /// Returns the [Block] displaying a [Chat.avatar].
-  Widget _avatar(ChatInfoController c, BuildContext context) {
-    return Obx(() {
-      final Avatar? avatar = c.chat?.avatar.value;
-
-      return Block(
-        children: [
-          SelectionContainer.disabled(
-            child: BigAvatarWidget.chat(
-              c.chat,
-              key: Key('ChatAvatar_${c.chat!.id}'),
-              loading: c.avatarUpload.value.isLoading,
-              error: c.avatarUpload.value.errorMessage,
-              onUpload: c.pickAvatar,
-              onEdit: avatar != null ? c.editAvatar : null,
-              onDelete: c.chat?.avatar.value != null ? c.deleteAvatar : null,
-            ),
-          ),
         ],
       );
     });
@@ -398,22 +381,22 @@ class ChatInfoView extends StatelessWidget {
             favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
           ),
         ),
+
         if (!isLocal) ...[
-          if (!monolog)
-            ActionButton(
-              key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
-              onPressed: muted ? c.unmuteChat : c.muteChat,
-              text: muted
-                  ? PlatformUtils.isMobile
-                        ? 'btn_unmute'.l10n
-                        : 'btn_unmute_chat'.l10n
-                  : PlatformUtils.isMobile
-                  ? 'btn_mute'.l10n
-                  : 'btn_mute_chat'.l10n,
-              trailing: SvgIcon(
-                muted ? SvgIcons.muteSmall : SvgIcons.unmuteSmall,
-              ),
+          ActionButton(
+            key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
+            onPressed: muted ? c.unmuteChat : c.muteChat,
+            text: muted
+                ? PlatformUtils.isMobile
+                      ? 'btn_unmute'.l10n
+                      : 'btn_unmute_chat'.l10n
+                : PlatformUtils.isMobile
+                ? 'btn_mute'.l10n
+                : 'btn_mute_chat'.l10n,
+            trailing: SvgIcon(
+              muted ? SvgIcons.muteSmall : SvgIcons.unmuteSmall,
             ),
+          ),
           ActionButton(
             key: const Key('ClearChatButton'),
             onPressed: () => _clearChat(c, context),
@@ -428,19 +411,21 @@ class ChatInfoView extends StatelessWidget {
             text: 'btn_delete_chat'.l10n,
             trailing: const SvgIcon(SvgIcons.delete19),
           ),
-        ActionButton(
-          key: const Key('ReportChatButton'),
-          onPressed: () => _reportChat(c, context),
-          text: 'btn_report'.l10n,
-          trailing: const SvgIcon(SvgIcons.report),
-        ),
-        ActionButton(
-          key: const Key('LeaveChatButton'),
-          onPressed: () => _leaveGroup(c, context),
-          text: 'btn_leave_group'.l10n,
-          danger: true,
-          trailing: const SvgIcon(SvgIcons.leaveGroupRed),
-        ),
+        if (!monolog) ...[
+          ActionButton(
+            key: const Key('ReportChatButton'),
+            onPressed: () => _reportChat(c, context),
+            text: 'btn_report'.l10n,
+            trailing: const SvgIcon(SvgIcons.report),
+          ),
+          ActionButton(
+            key: const Key('LeaveChatButton'),
+            onPressed: () => _leaveGroup(c, context),
+            text: 'btn_leave_group'.l10n,
+            danger: true,
+            trailing: const SvgIcon(SvgIcons.leaveGroupRed),
+          ),
+        ],
       ],
     );
   }
@@ -448,6 +433,8 @@ class ChatInfoView extends StatelessWidget {
   /// Returns information about the [Chat] and related to it action buttons in
   /// the [CustomAppBar].
   Widget _bar(ChatInfoController c, BuildContext context) {
+    final bool isMonolog = c.chat?.chat.value.isMonolog == true;
+
     return Row(
       children: [
         Expanded(
@@ -461,17 +448,19 @@ class ChatInfoView extends StatelessWidget {
           onPressed: () => router.dialog(c.chat!.chat.value, c.me),
           child: const SvgIcon(SvgIcons.chat),
         ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          onPressed: () => c.call(true),
-          child: const SvgIcon(SvgIcons.chatVideoCall),
-        ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          key: const Key('AudioCall'),
-          onPressed: () => c.call(false),
-          child: const SvgIcon(SvgIcons.chatAudioCall),
-        ),
+        if (!isMonolog) ...[
+          const SizedBox(width: 28),
+          AnimatedButton(
+            onPressed: () => c.call(true),
+            child: const SvgIcon(SvgIcons.chatVideoCall),
+          ),
+          const SizedBox(width: 28),
+          AnimatedButton(
+            key: const Key('AudioCall'),
+            onPressed: () => c.call(false),
+            child: const SvgIcon(SvgIcons.chatAudioCall),
+          ),
+        ],
         const SizedBox(width: 20),
       ],
     );
