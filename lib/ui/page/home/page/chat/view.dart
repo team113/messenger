@@ -1390,16 +1390,19 @@ class ChatView extends StatelessWidget {
             Positioned.fill(
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: c.selecting.value
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: SelectedDot(
-                          inverted: false,
-                          selected: selected,
-                          darken: 0.1,
-                        ),
-                      )
-                    : const SizedBox(),
+                child: SafeAnimatedSwitcher(
+                  duration: 150.milliseconds,
+                  child: c.selecting.value
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: SelectedDot(
+                            inverted: false,
+                            selected: selected,
+                            darken: 0.1,
+                          ),
+                        )
+                      : const SizedBox(),
+                ),
               ),
             ),
           ],

@@ -115,10 +115,10 @@ class ChatItemWidget extends StatefulWidget {
   /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
   final bool avatar;
 
-  /// Controls the padding reserved for an avatar.
+  /// Indicator whether this [ChatItemWidget] appends padding.
   ///
   /// When an avatar is present, the padding is always applied automatically.
-  /// When there is no avatar, setting this to `true` append the padding,
+  /// When there is no avatar, setting this to `true` appends the padding,
   /// while `false` removes it.
   final bool appendAvatarPadding;
 
@@ -1389,22 +1389,29 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
-        if (!_fromMe &&
-            widget.chat.value!.isGroup &&
-            widget.appendAvatarPadding)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: widget.avatar
-                ? InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: () => widget.onUserPressed(item.author),
-                    child: AvatarWidget.fromRxUser(
-                      widget.user,
-                      radius: avatarRadius,
-                    ),
-                  )
-                : const SizedBox(width: 34),
-          ),
+        AnimatedSize(
+          key: Key('${item.id}animation'),
+          duration: 150.milliseconds,
+          child:
+              !_fromMe &&
+                  widget.chat.value!.isGroup &&
+                  widget.appendAvatarPadding
+              ? widget.avatar
+                    ? Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => widget.onUserPressed(item.author),
+                          child: AvatarWidget.fromRxUser(
+                            widget.user,
+                            radius: avatarRadius,
+                          ),
+                        ),
+                      )
+                    : const SizedBox(width: 34)
+              : SizedBox(),
+        ),
+
         Flexible(
           child: LayoutBuilder(
             builder: (context, constraints) {
