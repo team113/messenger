@@ -20,6 +20,7 @@ import '../../login/controller.dart';
 import '../../login/view.dart';
 import '../page/my_profile/presence_switch/view.dart';
 
+import '../tab/chats/widget/unread_counter.dart';
 import '../widget/avatar.dart';
 import '../widget/contact_tile.dart';
 import 'controller.dart';
@@ -196,84 +197,95 @@ class AccountSwitcherMenuWidget extends StatelessWidget {
                 ),
 
                 trailing: [
-                  AnimatedButton(
-                    key: const Key('RemoveAccount'),
-                    decorator: (child) => Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
-                      child: child,
+                  if (myUser.unreadChatsCount > 0)
+                    KeyedSubtree(
+                      key: myUser.muted != null
+                          ? Key('AccountMuteIndicator_${myUser.id}')
+                          : null,
+                      child: UnreadCounter(
+                        key: const Key('UnreadMessages'),
+                        myUser.unreadChatsCount + 99,
+                        dimmed: myUser.muted != null,
+                      ),
                     ),
-                    onPressed: () async {
-                      final bool hasPassword = myUser.hasPassword;
-                      final bool canRecover =
-                          myUser.emails.confirmed.isNotEmpty ||
-                          myUser.phones.confirmed.isNotEmpty;
+                  // AnimatedButton(
+                  //   key: const Key('RemoveAccount'),
+                  //   decorator: (child) => Padding(
+                  //     padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                  //     child: child,
+                  //   ),
+                  //   onPressed: () async {
+                  //     final bool hasPassword = myUser.hasPassword;
+                  //     final bool canRecover =
+                  //         myUser.emails.confirmed.isNotEmpty ||
+                  //         myUser.phones.confirmed.isNotEmpty;
 
-                      final bool? result = await MessagePopup.alert(
-                        'btn_remove_account'.l10n,
-                        additional: [
-                          Center(
-                            child: Text(
-                              '${myUser.name ?? myUser.num}',
-                              style: style.fonts.normal.regular.onBackground,
-                            ),
-                          ),
+                  //     final bool? result = await MessagePopup.alert(
+                  //       'btn_remove_account'.l10n,
+                  //       additional: [
+                  //         Center(
+                  //           child: Text(
+                  //             '${myUser.name ?? myUser.num}',
+                  //             style: style.fonts.normal.regular.onBackground,
+                  //           ),
+                  //         ),
 
-                          if (!hasPassword || !canRecover)
-                            const SizedBox(height: 16),
+                  //         if (!hasPassword || !canRecover)
+                  //           const SizedBox(height: 16),
 
-                          if (!hasPassword)
-                            RichText(
-                              text: TextSpan(
-                                style: style.fonts.small.regular.secondary,
-                                children: [
-                                  TextSpan(
-                                    text: 'label_password_not_set1'.l10n,
-                                    style:
-                                        style.fonts.small.regular.onBackground,
-                                  ),
-                                  TextSpan(
-                                    text: 'label_password_not_set2'.l10n,
-                                  ),
-                                ],
-                              ),
-                            ),
+                  //         if (!hasPassword)
+                  //           RichText(
+                  //             text: TextSpan(
+                  //               style: style.fonts.small.regular.secondary,
+                  //               children: [
+                  //                 TextSpan(
+                  //                   text: 'label_password_not_set1'.l10n,
+                  //                   style:
+                  //                       style.fonts.small.regular.onBackground,
+                  //                 ),
+                  //                 TextSpan(
+                  //                   text: 'label_password_not_set2'.l10n,
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           ),
 
-                          if (!hasPassword && !canRecover)
-                            const SizedBox(height: 16),
+                  //         if (!hasPassword && !canRecover)
+                  //           const SizedBox(height: 16),
 
-                          if (!canRecover) ...[
-                            RichText(
-                              text: TextSpan(
-                                style: style.fonts.small.regular.secondary,
-                                children: [
-                                  TextSpan(
-                                    text: 'label_email_or_phone_not_set1'.l10n,
-                                  ),
-                                  TextSpan(
-                                    text: 'label_email_or_phone_not_set2'.l10n,
-                                    style:
-                                        style.fonts.small.regular.onBackground,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ],
-                        button: (context) => MessagePopup.deleteButton(
-                          context,
-                          label: 'btn_remove_account'.l10n,
-                          icon: SvgIcons.removeFromCallWhite,
-                        ),
-                      );
+                  //         if (!canRecover) ...[
+                  //           RichText(
+                  //             text: TextSpan(
+                  //               style: style.fonts.small.regular.secondary,
+                  //               children: [
+                  //                 TextSpan(
+                  //                   text: 'label_email_or_phone_not_set1'.l10n,
+                  //                 ),
+                  //                 TextSpan(
+                  //                   text: 'label_email_or_phone_not_set2'.l10n,
+                  //                   style:
+                  //                       style.fonts.small.regular.onBackground,
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ],
+                  //       button: (context) => MessagePopup.deleteButton(
+                  //         context,
+                  //         label: 'btn_remove_account'.l10n,
+                  //         icon: SvgIcons.removeFromCallWhite,
+                  //       ),
+                  //     );
 
-                      if (result == true) {
-                        await c.deleteAccount(myUser.id);
-                      }
-                    },
-                    child: active
-                        ? const SvgIcon(SvgIcons.logoutWhite)
-                        : const SvgIcon(SvgIcons.logout),
-                  ),
+                  //     if (result == true) {
+                  //       await c.deleteAccount(myUser.id);
+                  //     }
+                  //   },
+                  //   child: active
+                  //       ? const SvgIcon(SvgIcons.logoutWhite)
+                  //       : const SvgIcon(SvgIcons.logout),
+                  // ),
                 ],
                 selected: active,
                 subtitle: [
