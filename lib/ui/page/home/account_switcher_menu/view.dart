@@ -1,0 +1,420 @@
+import 'dart:math' as math;
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+
+import '../../../../api/backend/schema.graphql.dart';
+import '../../../../domain/model/my_user.dart';
+import '../../../../l10n/l10n.dart';
+import '../../../../themes.dart';
+import '../../../../util/message_popup.dart';
+import '../../../widget/animated_button.dart';
+import '../../../widget/primary_button.dart';
+import '../../../widget/svg/svg.dart';
+
+import '../../../widget/text_field.dart';
+import '../../auth/account_is_not_accessible/view.dart';
+import '../../login/controller.dart';
+import '../../login/view.dart';
+import '../page/my_profile/presence_switch/view.dart';
+
+import '../widget/avatar.dart';
+import '../widget/contact_tile.dart';
+import 'controller.dart';
+
+class AccountSwithcerMenuView extends StatefulWidget {
+  const AccountSwithcerMenuView({super.key, required this.child});
+
+  /// widget that viewed in layout
+  final Widget child;
+
+  @override
+  State<AccountSwithcerMenuView> createState() =>
+      _AccountSwithcerMenuViewState();
+}
+
+class _AccountSwithcerMenuViewState extends State<AccountSwithcerMenuView> {
+  late final OverlayPortalController _controller;
+
+  @override
+  initState() {
+    _controller = OverlayPortalController();
+    super.initState();
+  }
+
+  void _show() {
+    _controller.show();
+  }
+
+  final GlobalKey _portalKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return OverlayPortal(
+      key: _portalKey,
+      controller: _controller,
+      overlayChildBuilder: _buildOverlay,
+      child: GestureDetector(
+        onLongPress: _show,
+        onSecondaryTap: _show,
+        child: widget.child,
+      ),
+    );
+  }
+
+  Widget _buildOverlay(BuildContext context) {
+    final render = _portalKey.currentContext?.findRenderObject() as RenderBox;
+
+    final portalOffset = render.localToGlobal(Offset.zero);
+
+    final portalSize = render.size;
+
+    var style = Theme.of(context).style;
+
+    var size = MediaQuery.sizeOf(context);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        _controller.hide();
+      },
+      child: Stack(
+        children: [
+          ClipPath(
+            clipper: _HoleClipper(
+              offset: portalSize.center(portalOffset) + Offset(.5, .75),
+              radius: AvatarRadius.normal.toDouble() + 4,
+            ),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              child: Container(
+                color: Colors.black.withValues(
+                  alpha: 0.1,
+                ), // Semi-transparent overlay
+              ),
+            ),
+          ),
+
+          Positioned.fromRect(
+            rect: Rect.fromCenter(
+              center: portalSize.center(portalOffset) + Offset(.5, .75),
+              width: AvatarRadius.normal.toDouble() * 2,
+              height: AvatarRadius.normal.toDouble() * 2,
+            ),
+            child: widget.child,
+          ),
+          Positioned(
+            bottom: size.height - portalOffset.dy + 20,
+            right: size.width - portalOffset.dx - portalSize.width - 2,
+            left: math.max(math.min(12, size.width - 500), 12),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: math.min(MediaQuery.sizeOf(context).width, 320),
+              ),
+              child: GestureDetector(
+                behavior: HitTestBehavior.deferToChild,
+                // must be empty for cancel propagation click event
+                onTap: () {},
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: style.colors.background,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [AccountSwitcherMenuWidget()],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AccountSwitcherMenuWidget extends StatelessWidget {
+  const AccountSwitcherMenuWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder(
+      init: AccountSwitcherMenuController(Get.find(), Get.find()),
+      builder: (AccountSwitcherMenuController c) {
+        final List<Widget> children = [];
+        var style = Theme.of(context).style;
+
+        for (final e in c.accounts) {
+          // skip current account
+          if (e.value.id == c.me) continue;
+
+          children.add(
+            Obx(() {
+              final MyUser myUser = e.value;
+              final bool expired = !c.sessions.containsKey(myUser.id);
+              final bool active = c.me == myUser.id;
+
+              return ContactTile(
+                key: Key('Account_${e.value.id}'),
+                myUser: myUser,
+                onTap: active
+                    ? null
+                    : () async {
+                        if (expired) {
+                          final hasPasswordOrEmail =
+                              myUser.hasPassword ||
+                              myUser.emails.confirmed.isNotEmpty ||
+                              myUser.phones.confirmed.isNotEmpty;
+
+                          if (hasPasswordOrEmail) {
+                            await LoginView.show(
+                              context,
+                              initial: LoginViewStage.signIn,
+                              myUser: myUser,
+                            );
+                          } else {
+                            await AccountIsNotAccessibleView.show(
+                              context,
+                              myUser,
+                            );
+                          }
+                        } else {
+                          Navigator.of(context).pop();
+                          await c.switchTo(myUser.id);
+                        }
+                      },
+
+                // TODO: Remove, when [MyUser]s will receive their
+                //       updates in real-time.
+                avatarBuilder: (_) => AvatarWidget.fromMyUser(
+                  myUser,
+                  radius: AvatarRadius.large,
+                  badge: active,
+                ),
+
+                trailing: [
+                  AnimatedButton(
+                    key: const Key('RemoveAccount'),
+                    decorator: (child) => Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                      child: child,
+                    ),
+                    onPressed: () async {
+                      final bool hasPassword = myUser.hasPassword;
+                      final bool canRecover =
+                          myUser.emails.confirmed.isNotEmpty ||
+                          myUser.phones.confirmed.isNotEmpty;
+
+                      final bool? result = await MessagePopup.alert(
+                        'btn_remove_account'.l10n,
+                        additional: [
+                          Center(
+                            child: Text(
+                              '${myUser.name ?? myUser.num}',
+                              style: style.fonts.normal.regular.onBackground,
+                            ),
+                          ),
+
+                          if (!hasPassword || !canRecover)
+                            const SizedBox(height: 16),
+
+                          if (!hasPassword)
+                            RichText(
+                              text: TextSpan(
+                                style: style.fonts.small.regular.secondary,
+                                children: [
+                                  TextSpan(
+                                    text: 'label_password_not_set1'.l10n,
+                                    style:
+                                        style.fonts.small.regular.onBackground,
+                                  ),
+                                  TextSpan(
+                                    text: 'label_password_not_set2'.l10n,
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          if (!hasPassword && !canRecover)
+                            const SizedBox(height: 16),
+
+                          if (!canRecover) ...[
+                            RichText(
+                              text: TextSpan(
+                                style: style.fonts.small.regular.secondary,
+                                children: [
+                                  TextSpan(
+                                    text: 'label_email_or_phone_not_set1'.l10n,
+                                  ),
+                                  TextSpan(
+                                    text: 'label_email_or_phone_not_set2'.l10n,
+                                    style:
+                                        style.fonts.small.regular.onBackground,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                        button: (context) => MessagePopup.deleteButton(
+                          context,
+                          label: 'btn_remove_account'.l10n,
+                          icon: SvgIcons.removeFromCallWhite,
+                        ),
+                      );
+
+                      if (result == true) {
+                        await c.deleteAccount(myUser.id);
+                      }
+                    },
+                    child: active
+                        ? const SvgIcon(SvgIcons.logoutWhite)
+                        : const SvgIcon(SvgIcons.logout),
+                  ),
+                ],
+                selected: active,
+                subtitle: [
+                  const SizedBox(height: 5),
+                  if (expired)
+                    Text(
+                      'label_sign_in_required'.l10n,
+                      style: style.fonts.small.regular.danger,
+                    )
+                  else
+                    Text(
+                      'label_signed_in'.l10n,
+                      style: style.fonts.small.regular.secondary,
+                    ),
+                ],
+              );
+            }),
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 8,
+          children: [
+            PrimaryButton(
+              onPressed: () async {
+                await LoginView.show(
+                  context,
+                  initial: LoginViewStage.signUpOrSignIn,
+                );
+              },
+              leading: SvgIcon(SvgIcons.logoutWhite),
+              title: 'btn_add_account'.l10n,
+            ),
+            ...children,
+            SizedBox.shrink(),
+            Container(
+              decoration: BoxDecoration(
+                border: style.cardBorder,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: EdgeInsets.all(12),
+              child: Column(
+                children: [
+                  Text('Current Account'),
+                  ContactTile(
+                    avatarBuilder: (context) => AvatarWidget.fromMyUser(
+                      c.accounts
+                          .firstWhere((user) => user.value.id == c.me)
+                          .value,
+                    ),
+                    myUser: c.accounts
+                        .firstWhere((user) => user.value.id == c.me)
+                        .value,
+                    subtitle: [
+                      Row(
+                        children: [
+                          Text(switch (c.accounts
+                              .firstWhere((user) => user.value.id == c.me)
+                              .value
+                              .presence) {
+                            Presence.present => 'label_presence_present'.l10n,
+                            Presence.away => 'label_presence_away'.l10n,
+                            (_) => '',
+                          }, style: style.fonts.small.regular.secondary),
+                          Text(
+                            ' |',
+                            style: style.fonts.small.regular.secondary,
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              await PresenceSwitchView.show(context);
+                            },
+                            child: Text(
+                              'btn_change'.l10n,
+                              style: style.fonts.small.regular.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  ReactiveTextField(
+                    key: Key('TextStatusField'),
+                    state: c.status,
+                    label: 'label_text_status'.l10n,
+                    hint: 'label_text_status_description'.l10n,
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    maxLines: 1,
+                    formatters: [LengthLimitingTextInputFormatter(4096)],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _HoleClipper extends CustomClipper<Path> {
+  /// hole size
+  final double radius;
+
+  final Offset offset;
+
+  _HoleClipper({required this.radius, required this.offset});
+
+  @override
+  Path getClip(Size size) {
+    final Path path = Path();
+    // Define the outer rectangle (the blurred area)
+
+    path.addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    path.addOval(
+      Rect.fromLTWH(
+        offset.dx - radius,
+        offset.dy - radius,
+        radius * 2,
+        radius * 2,
+      ),
+    );
+
+    path.fillType = PathFillType.evenOdd;
+
+    // Combine the paths, subtracting the hole from the outer rectangle
+    return Path.combine(
+      PathOperation.difference,
+      path,
+      Path()..addOval(
+        Rect.fromLTWH(
+          offset.dx - radius,
+          offset.dy - radius,
+          radius * 2,
+          radius * 2,
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}
