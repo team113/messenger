@@ -816,8 +816,14 @@ class ChatView extends StatelessWidget {
                   chat: c.chat!.chat,
                   item: e,
                   me: c.me!,
-                  avatar: !previousSame,
-                  appendAvatarPadding: !c.selecting.value,
+                  avatar:
+                      !c.selecting.value &&
+                      !previousSame &&
+                      c.chat?.chat.value.isGroup == true,
+                  appendAvatarPadding:
+                      c.selecting.value ||
+                      (previousSame && c.chat?.chat.value.isGroup == true),
+                  header: !previousSame,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where(
@@ -924,7 +930,11 @@ class ChatView extends StatelessWidget {
                   note: element.note,
                   authorId: element.authorId,
                   me: c.me!,
-                  avatar: !c.selecting.value,
+                  avatar:
+                      !c.selecting.value &&
+                      !previousSame &&
+                      c.chat?.chat.value.isGroup == true,
+
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where(
@@ -1372,19 +1382,21 @@ class ChatView extends StatelessWidget {
           children: [
             Row(
               children: [
-                AnimatedSize(
-                  duration: 150.milliseconds,
-                  child: c.selecting.value
-                      ? const SizedBox(key: Key('Expanded'), width: 40)
-                      : const SizedBox(),
-                ),
-                Expanded(
-                  child: c.selecting.value
-                      ? SelectionContainer.disabled(
-                          child: IgnorePointer(child: child),
-                        )
-                      : child,
-                ),
+                if (c.chat?.chat.value.isGroup == true)
+                  AnimatedSize(
+                    duration: 150.milliseconds,
+                    child: c.selecting.value
+                        ? const SizedBox(key: Key('Expanded'), width: 40)
+                        : const SizedBox(),
+                  )
+                else
+                  Expanded(
+                    child: c.selecting.value
+                        ? SelectionContainer.disabled(
+                            child: IgnorePointer(child: child),
+                          )
+                        : child,
+                  ),
               ],
             ),
             Positioned.fill(
@@ -1394,7 +1406,7 @@ class ChatView extends StatelessWidget {
                   duration: 150.milliseconds,
                   child: c.selecting.value
                       ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          padding: const EdgeInsets.only(left: 2.0),
                           child: SelectedDot(
                             inverted: false,
                             selected: selected,

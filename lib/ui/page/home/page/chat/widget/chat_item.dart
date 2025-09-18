@@ -98,6 +98,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onUserPressed = _defaultOnUserPressed,
     this.onDragging,
     this.onAnimateTo,
+    this.header = false,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -114,6 +115,8 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
   final bool avatar;
+
+  final bool header;
 
   /// Indicator whether this [ChatItemWidget] appends padding.
   ///
@@ -769,7 +772,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       final List<Widget> children = [
         if (!_fromMe &&
             widget.chat.value?.isGroup == true &&
-            widget.avatar) ...[
+            widget.header) ...[
           const SizedBox(height: 6),
           Row(
             children: [
@@ -1381,6 +1384,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
+    print([widget.appendAvatarPadding, widget.avatar]);
     final row = Row(
       crossAxisAlignment: _fromMe
           ? CrossAxisAlignment.end
@@ -1389,42 +1393,49 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
-        AnimatedSize(
-          key: Key('${item.id}animation'),
-          duration: 150.milliseconds,
-          child:
-              !_fromMe &&
-                  widget.chat.value!.isGroup &&
-                  widget.appendAvatarPadding
-              ? widget.avatar
-                    ? Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: InkWell(
-                          customBorder: const CircleBorder(),
-                          onTap: () => widget.onUserPressed(item.author),
-                          child: AvatarWidget.fromRxUser(
-                            widget.user,
-                            radius: avatarRadius,
-                          ),
-                        ),
-                      )
-                    : const SizedBox(width: 34)
-              : SizedBox(),
-        ),
+        if (_fromMe)
+          AnimatedSize(
+            key: Key('SizeAnimation${item.id}-${item.chatId}'),
+            duration: 150.milliseconds,
+            child: SizedBox(width: 34),
+          )
+        else if (widget.appendAvatarPadding)
+          AnimatedSize(
+            key: Key('SizeAnimation${item.id}-${item.chatId}'),
+            duration: 150.milliseconds,
+            child: SizedBox(width: 34),
+          )
+        else if (widget.avatar)
+          AnimatedSize(
+            key: Key('SizeAnimation${item.id}-${item.chatId}'),
+            duration: 150.milliseconds,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () => widget.onUserPressed(item.author),
+                child: AvatarWidget.fromRxUser(
+                  widget.user,
+                  radius: avatarRadius,
+                ),
+              ),
+            ),
+          )
+        else
+          AnimatedSize(
+            key: Key('SizeAnimation${item.id}-${item.chatId}'),
+            duration: 150.milliseconds,
+            child: SizedBox(),
+          ),
 
         Flexible(
           child: LayoutBuilder(
             builder: (context, constraints) {
               final BoxConstraints itemConstraints = BoxConstraints(
-                maxWidth: min(
-                  550,
-                  widget.appendAvatarPadding
-                      ? constraints.maxWidth - avatarRadius.toDouble() * 2
-                      : constraints.maxWidth,
-                ),
+                maxWidth: 550,
               );
-
               return ConstrainedBox(
+                key: Key('animcon${item.id}'),
                 constraints: itemConstraints,
                 child: Material(
                   key: Key('Message_${item.id}'),
@@ -1655,6 +1666,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             },
           ),
         ),
+        if (_fromMe ||
+            (widget.appendAvatarPadding && widget.chat.value?.isGroup == false))
+          AnimatedSize(duration: 150.milliseconds, child: SizedBox(width: 0))
+        else
+          AnimatedSize(duration: 150.milliseconds, child: SizedBox(width: 34)),
       ],
     );
 
