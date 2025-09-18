@@ -397,10 +397,12 @@ class ChatRepository extends DisposableInterface
   Future<void> remove(ChatId id, {bool force = false}) async {
     Log.debug('remove($id)', '$runtimeType');
 
-    chats.remove(id)?.dispose();
-    paginated.remove(id)?.dispose();
-    _pagination?.remove(id);
-    await _chatLocal.delete(id);
+    // chats.remove(id)?.dispose();
+    // paginated.remove(id)?.dispose();
+    // archivedChatsPaginated.remove(id)?.dispose();
+    // _pagination?.remove(id);
+    // _archivePagination?.remove(id);
+    // await _chatLocal.delete(id);
   }
 
   /// Ensures the provided [Chat] is remotely accessible.
@@ -2059,6 +2061,7 @@ class ChatRepository extends DisposableInterface
     bool pagination = false,
     bool updateVersion = true,
     bool ignoreVersion = false,
+    bool archive = false,
   }) async {
     Log.debug(
       'put($chat, $pagination, $updateVersion, $ignoreVersion)',
@@ -2075,16 +2078,24 @@ class ChatRepository extends DisposableInterface
     if (saved != null && !ignoreVersion) {
       if (saved.ver != null && saved.ver! > chat.ver) {
         if (pagination) {
-          paginated[chatId] ??= saved;
+          if(archive) {
+            archivedChatsPaginated[chatId] ??= saved;
+          } else {
+            paginated[chatId] ??= saved;
+          }
         } else {
-          await _pagination?.put(chat);
+          if(archive) {
+            await _archivePagination?.put(chat);
+          } else {
+            await _pagination?.put(chat);
+          }
         }
 
         return saved;
       }
     }
 
-    final RxChatImpl rxChat = _add(chat, pagination: pagination);
+    final RxChatImpl rxChat = _add(chat, pagination: pagination, archive: archive);
 
     // Favorite [DtoChat]s will be put to local storage through
     // [DriftGraphQlPageProvider].
@@ -2120,7 +2131,11 @@ class ChatRepository extends DisposableInterface
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination && !chat.value.isHidden) {
-      await _pagination?.put(chat);
+      if(chat.value.isArchived) {
+        await _archivePagination?.put(chat);
+      } else {
+        await _pagination?.put(chat);
+      }
     }
 
     return rxChat;
@@ -2128,7 +2143,7 @@ class ChatRepository extends DisposableInterface
 
   /// Adds the provided [DtoChat] to the [chats] and optionally to the
   /// [paginated].
-  RxChatImpl _add(DtoChat chat, {bool pagination = false}) {
+  RxChatImpl _add(DtoChat chat, {bool pagination = false, bool archive = false,}) {
     Log.trace('_add($chat, $pagination)', '$runtimeType');
 
     final ChatId chatId = chat.value.id;
@@ -2154,9 +2169,16 @@ class ChatRepository extends DisposableInterface
 
       if (entry.chat.value.favoritePosition != chat.value.favoritePosition) {
         entry.chat.value.favoritePosition = chat.value.favoritePosition;
-        paginated.emit(
-          MapChangeNotification.updated(chat.value.id, chat.value.id, entry),
-        );
+        print('ZYX _ADD: archive=$archive and isArchived=${entry.chat.value.isArchived}');
+        if(entry.chat.value.isArchived) {
+          archivedChatsPaginated.emit(
+            MapChangeNotification.updated(chat.value.id, chat.value.id, entry),
+          );
+        } else {
+          paginated.emit(
+            MapChangeNotification.updated(chat.value.id, chat.value.id, entry),
+          );
+        }
       }
 
       entry.chat.value = chat.value;
@@ -2164,7 +2186,11 @@ class ChatRepository extends DisposableInterface
     }
 
     if (pagination && !entry.chat.value.isHidden) {
-      paginated[chatId] ??= entry;
+      if(entry.chat.value.isArchived) {
+        archivedChatsPaginated[chatId] ??= entry;
+      } else {
+        paginated[chatId] ??= entry;
+      }
     }
 
     return entry;
@@ -2288,7 +2314,7 @@ class ChatRepository extends DisposableInterface
         for (ChatData c in node.list) {
           if (chats[c.chat.value.id] == null) {
             print('zyx2 -_recentChatsRemoteEvent RecentChatsEventKind.list id=${c.chat.id}, isArchived=${c.chat.value.isArchived}, isHidden=${c.chat.value.isHidden}');
-            _putEntry(c, updateVersion: false);
+            _putEntry(c, updateVersion: false, archive: true);
           }
         }
         break;
@@ -2309,7 +2335,7 @@ class ChatRepository extends DisposableInterface
             }
           }
 
-          _putEntry(data, updateVersion: false);
+          _putEntry(data, updateVersion: false, archive: true);
         }
         break;
 
@@ -2623,7 +2649,7 @@ class ChatRepository extends DisposableInterface
     print('xxx init - _remotePagination');
     await _paginationSubscription?.cancel();
     _paginationSubscription = _pagination!.changes.listen((event) async {
-      print('zzz - _remotePagination , isArchived=${event.value?.value.isArchived}, isHidden=${event.value?.value.isHidden}');
+      print('zzz - _remotePagination=${event.op} , isArchived=${event.value?.value.isArchived}, isHidden=${event.value?.value.isHidden}');
 
       switch (event.op) {
         case OperationKind.added:
@@ -2641,10 +2667,12 @@ class ChatRepository extends DisposableInterface
           // Don't remove a chat that is still present in the pagination, as it
           // might've been only remove from a concrete pagination: recent only
           // or favorites only, not the whole list.
-          if (_pagination?.items.where((e) => e.id == event.key).isEmpty ==
-              true) {
-            remove(event.value!.value.id);
-          }
+          // if (_pagination?.items.where((e) => e.id == event.key).isEmpty ==
+          //     true) {
+          //   remove(event.value!.value.id);
+          // }
+          paginated.remove(event.value!.value.id)?.dispose();
+          _pagination?.remove(event.value!.value.id);
           break;
       }
     });
@@ -2712,7 +2740,7 @@ class ChatRepository extends DisposableInterface
           watchUpdates: (a, b) => false,
           onAdded: (e) async {
             print('DriftPageProvider2 - onAdded isArchived=${e.value.isArchived},isHidden=${e.value.isHidden}');
-            final ChatVersion? stored = paginated[e.id]?.ver;
+            final ChatVersion? stored = archivedChatsPaginated[e.id]?.ver;
             if (stored == null || e.ver > stored) {
               await archive?.put(e, store: false);
             }
@@ -2762,29 +2790,47 @@ class ChatRepository extends DisposableInterface
 
     _archivePaginationSubscription?.cancel();
     _archivePaginationSubscription = _archivePagination!.changes.listen((event) async {
+      print('zzz - _remoteArchivePagination=${event.op} , isArchived=${event.value?.value.isArchived}, isHidden=${event.value?.value.isHidden}');
+
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
-          // await _putEntry(
-          //   chatData,
-          //   pagination: true,
-          //   ignoreVersion: event.op == OperationKind.added,
-          //   updateVersion: false,
-          // );
+          // archivedChatsPaginated[chatData.chat.id] = chats[chatData.chat.id]!;
+          await _putEntry(
+            chatData,
+            pagination: true,
+            ignoreVersion: event.op == OperationKind.added,
+            updateVersion: false,
+            archive: true,
+          );
           break;
 
         case OperationKind.removed:
         // Don't remove a chat that is still present in the pagination, as it
-        // might've been only remove from a concrete pagination: recent only
-        // or favorites only, not the whole list.
-          if (_pagination?.items.where((e) => e.id == event.key).isEmpty ==
-              true) {
-            //remove(event.value!.value.id);
-          }
+        // might've been only remove from a concrete pagination: archive only,
+        // not the whole list.
+        //   if (_archivePagination?.items.where((e) => e.id == event.key).isEmpty ==
+        //       true) {
+        //     remove(event.value!.value.id);
+        //   }
+          archivedChatsPaginated.remove(event.value!.value.id);
+          _archivePagination?.remove(event.value!.value.id);
           break;
       }
     });
+
+    // Add the received in [CombinedPagination.around] items to the
+    // [paginated].
+    _archivePagination?.items.forEach(
+          (e) => _putEntry(
+        ChatData(e, null, null),
+        pagination: true,
+        ignoreVersion: true,
+        updateVersion: false,
+        archive: true,
+      ),
+    );
   }
 
   /// Subscribes to the remote updates of the [chats].
@@ -2969,6 +3015,7 @@ class ChatRepository extends DisposableInterface
     bool pagination = false,
     bool updateVersion = true,
     bool ignoreVersion = false,
+    bool archive = false,
   }) async {
     Log.trace(
       '_putEntry($data, $pagination, $updateVersion, $ignoreVersion)',
@@ -2991,6 +3038,7 @@ class ChatRepository extends DisposableInterface
         pagination: pagination,
         updateVersion: updateVersion,
         ignoreVersion: ignoreVersion,
+        archive: archive,
       );
     }
 
@@ -3018,7 +3066,11 @@ class ChatRepository extends DisposableInterface
               await localChat.updateChat(data.chat);
 
               chats.move(localId, chatId);
-              paginated.move(localId, chatId);
+              if(archive) {
+                archivedChatsPaginated.move(localId, chatId);
+              } else {
+                paginated.move(localId, chatId);
+              }
 
               entry = localChat;
             }
@@ -3034,6 +3086,7 @@ class ChatRepository extends DisposableInterface
         pagination: pagination,
         updateVersion: updateVersion,
         ignoreVersion: ignoreVersion,
+        archive: archive,
       );
 
       if (data.lastReadItem != null) {
