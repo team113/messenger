@@ -270,6 +270,12 @@ class ChatsTabView extends StatelessWidget {
                             inverted: const SvgIcon(SvgIcons.notesSmallWhite),
                           ),
                           ContextMenuButton(
+                            label: 'Test',
+                            onPressed: c.test,
+                            trailing: const SvgIcon(SvgIcons.notesSmall),
+                            inverted: const SvgIcon(SvgIcons.notesSmallWhite),
+                          ),
+                          ContextMenuButton(
                             label: 'label_hidden_chats'.l10n,
                             onPressed: () => c.toggleArchive(),
                             trailing: const SvgIcon(SvgIcons.visibleOff),
@@ -736,7 +742,9 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> chats = [];
 
                             if(c.isShowOnlyArchive.value) {
+                              print('ZYX render archive');
                               for (var e in c.archivedChats) {
+                                print('ZYX render archive chatId=${e.rx.id}');
                                 chats.add(e.rx);
                               }
                             } else {

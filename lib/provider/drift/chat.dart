@@ -217,6 +217,34 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     return result ?? [];
   }
 
+  /// Returns the recent [DtoChat]s being in a historical view order.
+  Future<List<DtoChat>> archive({int? limit}) async {
+    final result = await safe(
+          (db) async {
+        final stmt = db.select(db.chats);
+
+        stmt.where(
+              (u) =>
+          u.isHidden.equals(false) &
+          u.isArchived.equals(true) &
+          u.id.like('local_%').not() &
+          u.id.like('d_%').not(),
+        );
+        stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
+
+        if (limit != null) {
+          stmt.limit(limit);
+        }
+
+        return (await stmt.get()).map(_ChatDb.fromDb).toList();
+      },
+      tag: 'chat.archive(limit: $limit)',
+      exclusive: false,
+    );
+
+    return result ?? [];
+  }
+
   /// Returns the favorite [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> favorite({int? limit}) async {
     final result = await safe(

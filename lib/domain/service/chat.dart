@@ -484,6 +484,10 @@ class ChatService extends DisposableService {
     Log.debug('clearChat($id, $untilId)', '$runtimeType');
     await _chatRepository.clearChat(id, untilId);
   }
+
+  void test() {
+    _chatRepository.test();
+  }
 }
 
 /// Extension adding a route from the [router] comparison with a [Chat].
