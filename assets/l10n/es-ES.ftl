@@ -654,9 +654,6 @@ label_information = Información
 label_installation_error = Error de instalación
 label_installation_error_description = La aplicación web ya está instalada o no está disponible en su navegador
 label_interface = Interface
-label_introduction_description1 = Puede cambiar su avatar, nombre, estado de texto, contraseña, usuario y e-mail en{" "}
-label_introduction_description2 = la configuración del perfil
-label_introduction_description3 = .
 label_introduction_description =
     Tendrá acceso a su cuenta durante un año o hasta que:
 
@@ -665,6 +662,7 @@ label_introduction_description =
 
     Para guardar el acceso a su cuenta, configure una contraseña y/o e-mail.
 label_introduction_description_email = E-mail no agregado. El acceso a su cuenta se perderá en caso de olvidar la contraseña.
+label_introduction_for_one_time = Para guardar el acceso a su cuenta, establezca una contraseña, un nombre de usuario o un correo electrónico en la configuración de su perfil.
 label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
 label_b = {$amount} B
 label_kb = {$amount} KB
@@ -711,6 +709,7 @@ label_muted_chats = Chats silenciados
 label_muted_until_i_turn_on = Silenciado hasta: que lo encienda
 label_muted_until_period = Silenciado hasta: {$period}
 label_name = Nombre
+label_name_hint = Su nombre público
 label_name_updated = {$author} cambió el nombre del grupo
 label_name_updated1 = {$author}
 label_name_updated2 = {" "} cambió el nombre del grupo

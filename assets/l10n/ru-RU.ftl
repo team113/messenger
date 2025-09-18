@@ -665,9 +665,6 @@ label_information = Информация
 label_installation_error = Ошибка установки
 label_installation_error_description = Веб приложение уже установлено или недоступно в Вашем браузере
 label_interface = Интерфейс
-label_introduction_description1 = Вы можете изменить свой аватар, имя, текстовый статус, пароль, логин и e-mail в{" "}
-label_introduction_description2 = настройках профиля
-label_introduction_description3 = .
 label_introduction_description =
     Доступ к аккаунту сохраняется в течение одного года или пока:
 
@@ -676,6 +673,7 @@ label_introduction_description =
 
     Для сохранения доступа к Вашему аккаунту, установите пароль и/или e-mail.
 label_introduction_description_email = E-mail не добавлен. Если вы забудете пароль, доступ к аккаунту будет утерян.
+label_introduction_for_one_time = Чтобы не потерять доступ к аккаунту, задайте пароль, логин или e-mail в настройках Вашего профиля.
 label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
 label_b = {$amount} Б
 label_kb = {$amount} КБ
@@ -722,6 +720,7 @@ label_muted_chats = Беззвучные чаты
 label_muted_until_i_turn_on = Беззвучный до: пока не включу
 label_muted_until_period = Беззвучный до: {$period}
 label_name = Имя
+label_name_hint = Ваше публичное имя
 label_name_updated = {$author} обновил(а) название группы
 label_name_updated1 = {$author}
 label_name_updated2 = {" "}обновил(а) название группы

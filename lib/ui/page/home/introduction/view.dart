@@ -18,6 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -25,7 +26,6 @@ import 'package:share_plus/share_plus.dart';
 import '/config.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/home/widget/num.dart';
@@ -110,42 +110,22 @@ class IntroductionView extends StatelessWidget {
 
               children = [
                 const SizedBox(height: 25),
+                _name(c, context),
+                const SizedBox(height: 20),
                 _num(c, context),
-                const SizedBox(height: 25),
-                _link(c, context),
-                const SizedBox(height: 25),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'label_introduction_description1'.l10n,
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                      TextSpan(
-                        text: 'label_introduction_description2'.l10n,
-                        style: style.fonts.small.regular.primary,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Navigator.of(context).pop();
-                            router.me();
-                          },
-                      ),
-                      TextSpan(
-                        text: 'label_introduction_description3'.l10n,
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 25),
-                _terms(context),
                 const SizedBox(height: 16),
+                Text(
+                  'label_introduction_for_one_time'.l10n,
+                  style: style.fonts.small.regular.secondary,
+                ),
+                const SizedBox(height: 20),
                 PrimaryButton(
                   key: const Key('ProceedButton'),
                   onPressed: Navigator.of(context).pop,
-                  title: 'btn_ok'.l10n,
+                  title: 'btn_proceed'.l10n,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
+                Center(child: _terms(context)),
               ];
               break;
 
@@ -288,6 +268,20 @@ class IntroductionView extends StatelessWidget {
     );
   }
 
+  /// Builds the [ReactiveTextField] for [UserName].
+  Widget _name(IntroductionController c, BuildContext context) {
+    return Obx(() {
+      return ReactiveTextField(
+        key: Key('NameField'),
+        state: c.name,
+        label: 'label_your_name'.l10n,
+        hint: 'label_name_hint'.l10n,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        formatters: [LengthLimitingTextInputFormatter(100)],
+      );
+    });
+  }
+
   /// Builds the [UserNumCopyable].
   Widget _num(IntroductionController c, BuildContext context) {
     return Obx(() {
@@ -373,17 +367,17 @@ class IntroductionView extends StatelessWidget {
         children: [
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms1'.l10n,
-            style: style.fonts.small.regular.secondary,
+            style: style.fonts.smallest.regular.secondary,
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms2'.l10n,
-            style: style.fonts.small.regular.primary,
+            style: style.fonts.smallest.regular.primary,
             recognizer: TapGestureRecognizer()
               ..onTap = () => TermsOfUseView.show(context),
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms3'.l10n,
-            style: style.fonts.small.regular.secondary,
+            style: style.fonts.smallest.regular.secondary,
           ),
         ],
       ),

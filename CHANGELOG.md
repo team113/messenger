@@ -16,9 +16,12 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat info page:
         - Updated monolog description. ([#1409], [#1248])
+    - Home page:
+        - Redesigned introduction for guests accounts. ([#1430])
 
 [#1248]: /../../issues/1248
 [#1409]: /../../pull/1409
+[#1430]: /../../pull/1430
 
 
 

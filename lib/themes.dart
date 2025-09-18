@@ -77,7 +77,7 @@ part 'themes.g.dart';
     'regular': ['onBackground', 'secondary', 'onPrimary', 'primary'],
   },
   'smallest': {
-    'regular': ['onBackground', 'onPrimary', 'secondary'],
+    'regular': ['onBackground', 'onPrimary', 'secondary', 'primary'],
   },
 })
 class Themes {

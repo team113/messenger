@@ -24,6 +24,7 @@ import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show CreateChatDirectLinkException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -49,6 +50,31 @@ class IntroductionController extends GetxController {
     text:
         '$_origin${myUser.value?.chatDirectLink?.slug.val ?? myUser.value?.num.val ?? ChatDirectLinkSlug.generate(10).val}',
     editable: false,
+  );
+
+  /// [MyUser.name] field state.
+  late final TextFieldState name = TextFieldState(
+    text: myUser.value?.name?.val,
+    onFocus: (s) async {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          UserName(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+          return;
+        }
+      }
+
+      final UserName? name = UserName.tryParse(s.text);
+
+      try {
+        await _myUserService.updateUserName(name);
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+      }
+    },
   );
 
   /// Origin to display withing the [link] field.
