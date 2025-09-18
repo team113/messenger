@@ -192,9 +192,6 @@ class MessageFieldController extends GetxController {
   /// [ApplicationSettings.pinnedActions] value.
   Worker? _buttonsWorker;
 
-  /// [Worker] capturing [inCall] changes to update the [panel] value.
-  Worker? _inCallWorker;
-
   /// [Worker] reacting on the [RouterState.routes] changes hiding the
   /// [_moreEntry].
   Worker? _routesWorker;
@@ -317,7 +314,6 @@ class MessageFieldController extends GetxController {
     _editedWorker?.dispose();
     _buttonsWorker?.dispose();
     _routesWorker?.dispose();
-    _inCallWorker?.dispose();
     scrollController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
