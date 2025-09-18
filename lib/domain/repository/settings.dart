@@ -96,9 +96,6 @@ abstract class AbstractSettingsRepository {
   /// Sets the [ApplicationSettings.pinnedActions] value.
   Future<void> setPinnedActions(List<String> buttons);
 
-  /// Sets the [ApplicationSettings.callButtonsPosition] value.
-  Future<void> setCallButtonsPosition(CallButtonsPosition position);
-
   /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
   Future<void> setWorkWithUsTabEnabled(bool enabled);
 

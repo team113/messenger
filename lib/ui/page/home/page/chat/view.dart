@@ -26,7 +26,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -70,7 +69,6 @@ import 'widget/back_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
-import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/notes_block.dart';
 import 'widget/time_label.dart';
@@ -367,21 +365,17 @@ class ChatView extends StatelessWidget {
                             ];
                           } else if (!blocked && !isMonolog) {
                             children = [
-                              if (c.callPosition == null ||
-                                  c.callPosition ==
-                                      CallButtonsPosition.appBar) ...[
-                                AnimatedButton(
-                                  onPressed: () => c.call(true),
-                                  child: const SvgIcon(SvgIcons.chatVideoCall),
-                                ),
-                                const SizedBox(width: 28),
-                                AnimatedButton(
-                                  key: const Key('AudioCall'),
-                                  onPressed: () => c.call(false),
-                                  child: const SvgIcon(SvgIcons.chatAudioCall),
-                                ),
-                                const SizedBox(width: 10),
-                              ],
+                              AnimatedButton(
+                                onPressed: () => c.call(true),
+                                child: const SvgIcon(SvgIcons.chatVideoCall),
+                              ),
+                              const SizedBox(width: 28),
+                              AnimatedButton(
+                                key: const Key('AudioCall'),
+                                onPressed: () => c.call(false),
+                                child: const SvgIcon(SvgIcons.chatAudioCall),
+                              ),
+                              const SizedBox(width: 10),
                             ];
                           } else {
                             // [Chat]-dialog is blocked, therefore no call
@@ -430,37 +424,6 @@ class ChatView extends StatelessWidget {
                                       right: 12,
                                     ),
                                     actions: [
-                                      if (c.callPosition ==
-                                          CallButtonsPosition.contextMenu) ...[
-                                        ContextMenuButton(
-                                          label: 'btn_audio_call'.l10n,
-                                          onPressed: blocked || inCall
-                                              ? null
-                                              : () => c.call(false),
-                                          trailing: SvgIcon(
-                                            blocked || inCall
-                                                ? SvgIcons.makeAudioCallDisabled
-                                                : SvgIcons.makeAudioCall,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.makeAudioCallWhite,
-                                          ),
-                                        ),
-                                        ContextMenuButton(
-                                          label: 'btn_video_call'.l10n,
-                                          onPressed: blocked || inCall
-                                              ? null
-                                              : () => c.call(true),
-                                          trailing: SvgIcon(
-                                            blocked || inCall
-                                                ? SvgIcons.makeVideoCallDisabled
-                                                : SvgIcons.makeVideoCall,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.makeVideoCallWhite,
-                                          ),
-                                        ),
-                                      ],
                                       ContextMenuButton(
                                         key: const Key('SearchItemsButton'),
                                         label: 'label_search'.l10n,
@@ -629,45 +592,6 @@ class ChatView extends StatelessWidget {
 
                           return const SizedBox();
                         }),
-                        if (c.callPosition == CallButtonsPosition.top ||
-                            c.callPosition == CallButtonsPosition.bottom)
-                          Positioned(
-                            top: c.callPosition == CallButtonsPosition.top
-                                ? 8
-                                : null,
-                            bottom: c.callPosition == CallButtonsPosition.bottom
-                                ? 8
-                                : null,
-                            right: 12,
-                            child: Obx(() {
-                              final bool inCall = c.chat?.inCall.value ?? false;
-
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const SizedBox(height: 8),
-                                  CircleButton(
-                                    inCall
-                                        ? SvgIcons.chatAudioCallDisabled
-                                        : SvgIcons.chatAudioCall,
-                                    onPressed: inCall
-                                        ? null
-                                        : () => c.call(false),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  CircleButton(
-                                    inCall
-                                        ? SvgIcons.chatVideoCallDisabled
-                                        : SvgIcons.chatVideoCall,
-                                    onPressed: inCall
-                                        ? null
-                                        : () => c.call(true),
-                                  ),
-                                  const SizedBox(height: 8),
-                                ],
-                              );
-                            }),
-                          ),
                       ],
                     ),
                     floatingActionButton: Obx(() {
