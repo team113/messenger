@@ -397,12 +397,12 @@ class ChatRepository extends DisposableInterface
   Future<void> remove(ChatId id, {bool force = false}) async {
     Log.debug('remove($id)', '$runtimeType');
 
-    // chats.remove(id)?.dispose();
-    // paginated.remove(id)?.dispose();
-    // archivedChatsPaginated.remove(id)?.dispose();
-    // _pagination?.remove(id);
-    // _archivePagination?.remove(id);
-    // await _chatLocal.delete(id);
+    chats.remove(id)?.dispose();
+    paginated.remove(id)?.dispose();
+    archivedChatsPaginated.remove(id)?.dispose();
+    _pagination?.remove(id);
+    _archivePagination?.remove(id);
+    await _chatLocal.delete(id);
   }
 
   /// Ensures the provided [Chat] is remotely accessible.
@@ -2314,7 +2314,7 @@ class ChatRepository extends DisposableInterface
         for (ChatData c in node.list) {
           if (chats[c.chat.value.id] == null) {
             print('zyx2 -_recentChatsRemoteEvent RecentChatsEventKind.list id=${c.chat.id}, isArchived=${c.chat.value.isArchived}, isHidden=${c.chat.value.isHidden}');
-            _putEntry(c, updateVersion: false, archive: true);
+            _putEntry(c, updateVersion: false);//, archive: true);
           }
         }
         break;
@@ -2335,7 +2335,7 @@ class ChatRepository extends DisposableInterface
             }
           }
 
-          _putEntry(data, updateVersion: false, archive: true);
+          _putEntry(data, updateVersion: false);//, archive: true);
         }
         break;
 
@@ -2671,7 +2671,7 @@ class ChatRepository extends DisposableInterface
           //     true) {
           //   remove(event.value!.value.id);
           // }
-          paginated.remove(event.value!.value.id)?.dispose();
+          paginated.remove(event.value!.value.id);
           _pagination?.remove(event.value!.value.id);
           break;
       }
@@ -2796,14 +2796,14 @@ class ChatRepository extends DisposableInterface
         case OperationKind.added:
         case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
-          // archivedChatsPaginated[chatData.chat.id] = chats[chatData.chat.id]!;
-          await _putEntry(
-            chatData,
-            pagination: true,
-            ignoreVersion: event.op == OperationKind.added,
-            updateVersion: false,
-            archive: true,
-          );
+          archivedChatsPaginated[chatData.chat.id] = chats[chatData.chat.id]!;
+          // await _putEntry(
+          //   chatData,
+          //   pagination: true,
+          //   ignoreVersion: event.op == OperationKind.added,
+          //   updateVersion: false,
+          //   archive: true,
+          // );
           break;
 
         case OperationKind.removed:
