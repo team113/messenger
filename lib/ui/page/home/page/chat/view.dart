@@ -816,14 +816,10 @@ class ChatView extends StatelessWidget {
                   chat: c.chat!.chat,
                   item: e,
                   me: c.me!,
-                  avatar:
-                      !c.selecting.value &&
-                      !previousSame &&
-                      c.chat?.chat.value.isGroup == true,
-                  appendAvatarPadding:
-                      c.selecting.value ||
-                      (previousSame && c.chat?.chat.value.isGroup == true),
+                  avatar: !previousSame,
                   header: !previousSame,
+                  appendAvatarPadding: previousSame,
+                  selectable: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where(
@@ -911,7 +907,7 @@ class ChatView extends StatelessWidget {
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureOrBuilder<RxUser?>(
-          key: Key('${element.id}_0_${element.authorId}'),
+          key: element.key,
           futureOr: () => c.getUser(element.authorId),
           builder: (_, user) => Obx(() {
             return HighlightedContainer(
@@ -924,17 +920,15 @@ class ChatView extends StatelessWidget {
                 c,
                 item: element,
                 child: ChatForwardWidget(
-                  key: Key('ChatForwardWidget_${element.id}'),
+                  // key: Key('ChatForwardWidget_${element.id}'),
                   chat: c.chat!.chat,
                   forwards: element.forwards,
                   note: element.note,
                   authorId: element.authorId,
                   me: c.me!,
-                  avatar:
-                      !c.selecting.value &&
-                      !previousSame &&
-                      c.chat?.chat.value.isGroup == true,
-
+                  header: !previousSame,
+                  appendAvatarPadding: previousSame,
+                  selectable: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where(
@@ -1378,44 +1372,52 @@ class ChatView extends StatelessWidget {
                   ? () => c.selected.remove(item)
                   : () => c.selected.add(item)
             : null,
-        child: Stack(
+        child: Row(
           children: [
-            Row(
-              children: [
-                if (c.chat?.chat.value.isGroup == true)
-                  AnimatedSize(
-                    duration: 150.milliseconds,
-                    child: c.selecting.value
-                        ? const SizedBox(key: Key('Expanded'), width: 40)
-                        : const SizedBox(),
-                  )
-                else
-                  Expanded(
-                    child: c.selecting.value
-                        ? SelectionContainer.disabled(
-                            child: IgnorePointer(child: child),
-                          )
-                        : child,
+            AnimatedSwitcher(
+              duration: 150.milliseconds,
+              layoutBuilder: (currentChild, previousChildren) {
+                return Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    ...previousChildren,
+                    if (currentChild != null) currentChild,
+                  ],
+                );
+              },
+              transitionBuilder: (child, animation) {
+                return SizeTransition(
+                  sizeFactor: animation,
+                  axis: Axis.horizontal,
+                  axisAlignment: 0,
+
+                  child: ScaleTransition(
+                    scale: animation,
+                    alignment: Alignment.centerLeft,
+                    child: AnimatedSwitcher.defaultTransitionBuilder(
+                      child,
+                      animation,
+                    ),
                   ),
-              ],
+                );
+              },
+              child: c.selecting.value
+                  ? SizedBox(
+                      key: Key('Expanded'),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 1.0, right: 3),
+                        child: SelectedDot(
+                          inverted: false,
+                          selected: selected,
+                          darken: 0.1,
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
             ),
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: SafeAnimatedSwitcher(
-                  duration: 150.milliseconds,
-                  child: c.selecting.value
-                      ? Padding(
-                          padding: const EdgeInsets.only(left: 2.0),
-                          child: SelectedDot(
-                            inverted: false,
-                            selected: selected,
-                            darken: 0.1,
-                          ),
-                        )
-                      : const SizedBox(),
-                ),
-              ),
+            Expanded(
+              child: IgnorePointer(ignoring: c.selecting.value, child: child),
             ),
           ],
         ),
