@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>
+<item><title>0.6.2</title><description xml:lang="en-US"><![CDATA[- Redesigned chat profile.
+- Improved media player user experience.
+- Bug fixes and performance improvements.]]></description> <description xml:lang="es-ES"><![CDATA[- Perfil de chat rediseñado.
+- Experiencia de usuario mejorada con el reproductor multimedia.
+- Corrección de errores y mejoras de rendimiento.]]></description> <description xml:lang="ru-RU"><![CDATA[- Обновлён дизайн профиля группы.
+- Улучшено взаимодействие с медиа плеером.
+- Исправления ошибок и улучшения производительности.]]></description><pubDate>Mon, 15 Sep 2025 09:53:07 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.6.1</title><description xml:lang="en-US"><![CDATA[- Redesigned media player.
+- Redesigned chat and user profiles.
+- Redesigned app bar and navigation bar to expand in height to account safe area.
+- Replaced spaces in Gapopa ID with hyphens.
+- Bug fixes and performance improvements.]]></description> <description xml:lang="es-ES"><![CDATA[- Reproductor multimedia rediseñado.
+- Chat y perfiles de usuario rediseñados.
+- Barra de aplicaciones y barra de navegación rediseñadas para expandirse a la zona segura de la cuenta.
+- Se reemplazaron los espacios en Gapopa ID con guiones.
+- Corrección de errores y mejoras de rendimiento.]]></description> <description xml:lang="ru-RU"><![CDATA[- Обновлён дизайн медиа плеера.
+- Обновлён дизайн профиля пользователя и чата.
+- Пробелы в Gapopa ID заменены на дефисы.
+- Изменена высота шапки и навигации приложения при наличии отступов сверху/снизу на телефоне.
+- Исправления ошибок и улучшения производительности.]]></description><pubDate>Tue, 09 Sep 2025 09:13:06 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.6.0</title><description xml:lang="en-US"><![CDATA[- Redesigned session deletion modals.
+- Redesigned route switching animation.
+- Bug fixes and performance improvements.]]></description> <description xml:lang="es-ES"><![CDATA[- Rediseño de los modales para eliminar sesiones.
+- Rediseño de la animación al cambiar de ruta.
+- Corrección de errores y mejoras de rendimiento.]]></description> <description xml:lang="ru-RU"><![CDATA[- Обновлён дизайн модальных окон удаления сессии.
+- Обновлена анимация переключения страниц.
+- Исправления ошибок и улучшения производительности.]]></description><pubDate>Thu, 07 Aug 2025 15:36:51 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.5.4</title><description xml:lang="en-US"><![CDATA[- Added Spanish language.
+- Redesigned message editing mode in chat.
+- Redesigned sliders in settings on profile page.
+- Redesigned group creation and chats selection.
+- Redesigned delete account page and modals.
+- Bug fixes and performance improvements.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлен испанский язык.
+- Обновлён дизайн редактирования сообщения в чате.
+- Обновлён дизайн слайдеров в настройках профиля.
+- Обновлён дизайн создания группы и выбора чатов.
+- Обновлен дизайн страницы удаления аккаунта.
+- Исправления ошибок и улучшения производительности.]]></description><pubDate>Fri, 25 Jul 2025 10:29:39 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.5.3</title><description xml:lang="en-US"><![CDATA[- Added voice processing settings for calls.
+- Redesigned popups for email adding and password changing.
+- Bug fixes and performance improvements.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлены настройки обработки звука в звонках.
+- Обновлён дизайн модальных окон добавления эмейла и изменения пароля.
+- Исправления ошибок и улучшения производительности.]]></description><pubDate>Thu, 10 Jul 2025 15:49:46 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.5.2</title><description xml:lang="en-US"><![CDATA[- Redesigned message delete popups.
+- Updated description and actions list on user page.
+- Updated default order of call buttons in dock.
+- Bug fixes and performance improvements.]]></description> <description xml:lang="ru-RU"><![CDATA[- Обновлено описание и список действий на странице пользователя.
+- Обновлён дизайн окон удаления сообщений.
+- Обновлён стандартный порядок кнопок в доке звонка.
+- Исправления ошибок и улучшения производительности.]]></description><pubDate>Tue, 01 Jul 2025 14:57:54 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.5.1</title><description xml:lang="en-US"><![CDATA[- Bug fixes and performance improvements.]]></description> <description xml:lang="ru-RU"><![CDATA[- Исправления ошибок и улучшения производительности.]]></description><pubDate>Tue, 03 Jun 2025 12:56:03 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.5.0</title><description xml:lang="en-US"><![CDATA[- Bug fixes and performance improvements.]]></description> <description xml:lang="ru-RU"><![CDATA[- Исправления ошибок и улучшения производительности.]]></description><pubDate>Fri, 09 May 2025 16:02:14 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.4.3</title><description xml:lang="en-US"><![CDATA[- Added icons to context menu of call participants.
+- Bug fixes and performance improvements.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлены иконки в контекстное меню над участниками звонка.
+- Исправления ошибок и улучшения производительности.]]></description><pubDate>Tue, 06 May 2025 16:21:42 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.4.2</title><description xml:lang="en-US"><![CDATA[- Updated Progressive Web Application (PWA) icon.
+- Bug fixes and performance improvements.]]></description> <description xml:lang="ru-RU"><![CDATA[- Обновлена иконка web-приложения (PWA).
+- Исправления ошибок и улучшения производительности.]]></description><pubDate>Tue, 22 Apr 2025 15:49:42 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.4.1</title><description xml:lang="en-US"><![CDATA[- Redesigned upgrade popup.
+- Fixed direct links not working when authorized.
+- Fixed inability to crop SVG avatar images.]]></description> <description xml:lang="ru-RU"><![CDATA[- Обновлён дизайн окошка обновления приложения.
+- Исправлена некорректная работа прямых ссылок при наличии авторизации.
+- Исправлена невозможность обрезать SVG картинки для аватара.]]></description><pubDate>Tue, 15 Apr 2025 12:34:00 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.4.0</title><description xml:lang="en-US"><![CDATA[- Added upgrade popup displaying when new deployment is available on Web.
+- Added ability to rebind hot key for toggling microphone on and off.
+- Redesigned dock and panels colors in call to be more contrast.
+- Redesigned my profile page.
+- Redesigned menu tab labels and icons.
+- Redesigned share link modal.
+- Redesigned logout modal.
+- Redesigned call window switch modal.
+- Implemented message field to gain focus when entering chat.
+- Implemented key up presses in chat to enter last sent message editing mode.
+- Fixed missing localization for biography expand button.
+- Fixed inability to input block reason in Safari and Firefox.
+- Fixed authorization sometimes being lost when receiving push notifications on iOS.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлено отображения окошка обновления при новых выгрузках в вебе.
+- Добавлена возможность переназначать горячую клавишу для включения и отключения микрофона в звонке.
+- Обновлён цвет дока и панелей в звонке.
+- Обновлён дизайн страницы настроек своего профиля.
+- Обновлены иконки и подписи на вкладке меню.
+- Обновлён дизайн окошка поделиться ссылкой.
+- Обновлён дизайн окна выхода из аккаунта.
+- Обновлён дизайн окна переключения отображения окон звонка.
+- Реализовано получение фокуса поля сообщения при входе в чат.
+- Реализован переход в режим редактирования последнего сообщения при нажати клавиши вверх в чате.
+- Исправлено отсутствие локализации для кнопки "ещё" в описании профиля.
+- Исправлена невозможность ввести причину блокировки в Safari и Firefox.
+- Исправлена возможная потеря авторизации при получении пуш уведомлений на iOS.]]></description><pubDate>Fri, 11 Apr 2025 23:00:25 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.3.3</title><description xml:lang="en-US"><![CDATA[- Fixed inability to paste clipboard into search field when chat is open.
+- Fixed context menus on mobile platforms having meaningless dividers.
+- Fixed application becoming unresponsive when drag-n-dropping screenshots to chat on macOS.
+- Fixed blocklist count not being updated in real-time in profile.]]></description> <description xml:lang="ru-RU"><![CDATA[- Исправлена невозможность вставки буфера обмена в поле поиска при открытом чате.
+- Исправлено наличие бесмыссленных полос в контекстном меню на мобильных устройствах.
+- Исправлено зависание приложения при драг-н-дропе скриншотов в чат на macOS.
+- Исправлено отсутствие обновления счётчика заблокированных пользователей в реальном времени.]]></description><pubDate>Fri, 07 Mar 2025 13:52:44 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.3.2</title><description xml:lang="en-US"><![CDATA[- Added VoIP push notifications for calls on iOS.
+- Updated app bar and navigation panel to be of rectangular shape.
+- Updated group creating and chats selecting UX.
+- Updated chat info page editing and overall design.
+- Updated user page design.
+- Updated monolog chat description.
+- Fixed auto-capitalization setting being ignored in text fields on iOS and Android.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлены VoIP пуш уведомления для звонков на iOS.
+- Обновлён дизайн шапки приложения и панели навигации.
+- Обновлён дизайн создания группы и выбора чатов в списке чатов.
+- Обновлён дизайн редактирования чата и страница информации о чате.
+- Обновлён дизайн страницы информации о пользователе.
+- Обновлено описаниа чата-монолога.
+- Исправлено игнорирование настройки автопрописных букв на iOS и Android.]]></description><pubDate>Wed, 12 Feb 2025 10:50:07 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.3.1</title><description xml:lang="en-US"><![CDATA[- Fixed away badges being displayed on avatars with invalid sizes.
+- Fixed inability to crop SVG images in avatar cropping modal.
+- Fixed initial cropping area being smaller than image's size.
+- Fixed inability to close chat page when writing to it the first time.
+- Fixed members count being bigger than actual members number.]]></description> <description xml:lang="ru-RU"><![CDATA[- Исправлен некорректный размер бэйджиков "отошёл" на аватарах пользователей.
+- Исправлена невозможность изменять обрезку аватара при загрузке SVG картинок.
+- Исправлен некорректный изначальный размер области обрезки аватара.
+- Исправлена невозможность закрыть чат после написания в него впервые.
+- Исправлен отображение некорректного числа списка участников чата.]]></description><pubDate>Mon, 03 Feb 2025 08:58:19 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.3.0</title><description xml:lang="en-US"><![CDATA[- Added avatar cropping to profile page.
+- Added images and files pasting from clipboard in chat.
+- Added images and files drag-n-drop in chats tab.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлен кроппинг аватара в профиле.
+- Добавлена возможность вставлять картинки и файлы из буфера обмена в чате.
+- Добавлена возможность перетаскивать картинки и файлы в список чатов для их отправки.]]></description><pubDate>Wed, 25 Dec 2024 15:31:40 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.2.2</title><description xml:lang="en-US"><![CDATA[- Added swipe to reply trackpad gesture on macOS.
+- Added messages searching on chat page.
+- Added device being offline label to chats tab.
+- Updated file sizes to be displayed in B, KB, MB, GB and PB.
+- Fixed invalid diagonal window resize cursors on macOS.
+- Fixed deleted chats still displaying in list after mass clearing.
+- Fixed invalid camera, microphone and output device names in Firefox.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлен жест свайпа по трекпаду для ответа на сообщение на macOS.
+- Добавлен поиск сообщений в чате.
+- Добавлено отображение режима оффлайн в списке чатов.
+- Обновлено отображение размеров файлов в Б, КБ, МБ, ГБ и ПБ.
+- Исправлены некорректные курсоры диагонального изменения размера окна звонка на macOS.
+- Исправлено отображение удалённых чатов после массовой очистки.
+- Исправлены некорректные названия видео и аудио устройств в Firefox'е.]]></description><pubDate>Fri, 01 Nov 2024 15:42:36 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.2.1</title><description xml:lang="en-US"><![CDATA[- Fixed active call's duration not being refreshed on chat's page.
+- Fixed "restore chat" button clipping chats on mobile platforms.
+- Fixed inability to input chat's name during group creation in Firefox.]]></description> <description xml:lang="ru-RU"><![CDATA[- Исправлено отсутствие обновления таймера активного звонка в чате.
+- Исправлено обрезание списка чатов кнопкой "отменить удаление чата" на телефонах.
+- Исправлена невозможность ввести имя группы при её создании в Firefox'е.]]></description><pubDate>Fri, 13 Sep 2024 11:13:28 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.2.0</title><description xml:lang="en-US"><![CDATA[- Added current version information to profile page.
+- Added credentials confirmation when deleting account.
+- Added welcome message setting, editing and display.
+- Added geolocation information displaying to active sessions list.
+- Added signing up by login/password.
+- Added signing up and signing in by OTP code sent to email.
+- Added download progress displaying on download button.
+- Updated colors for messages in chat.
+- Fixed infinite typing being display in chats list after losing a focus.
+- Fixed notes chat being duplicated when tapping on authorized user's name in chat.
+- Fixed application becoming unresponsive when navigating back with gallery being opened on web.
+- Fixed application not launching due to `MSVCP140.dll` library being missing on Windows.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлено отображение текущей версии на странице профиля.
+- Добавлено подтверждение паролем/кодом процесса удаления аккаунта.
+- Добавлена установка, редактирование и отображение приветственного сообщения.
+- Добавлено отображение информации о геолокации в списке активных сессий.
+- Добавлена регистрация по логину/паролю.
+- Добавлена регистрация и авторизация по одноразовому коду на эмейл.
+- Добавлено отображение прогресса скачивания новой версии приложения на кнопке загрузки.
+- Обновлён цвет сообщений в чате.
+- Исправлено бесконечное отображение "печатает" в чатах при потере фокуса.
+- Исправлена дубликация чата с заметками при клике по имени авторизованного пользователя в чате.
+- Исправлено зависание приложения при нажатии "назад" в браузере при открытой галерее.
+- Исправлены проблемы с запуском Windows приложения из-за отсутствия `MSVCP140.dll` библиотеки.]]></description><pubDate>Wed, 04 Sep 2024 11:24:52 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.1.4</title><description xml:lang="en-US"><![CDATA[- Fixed selected application language not being persisted.]]></description> <description xml:lang="ru-RU"><![CDATA[- Исправлена ошибка, из-за которой выбранный язык приложения не сохранялся.]]></description><pubDate>Thu, 11 Jul 2024 11:22:39 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.1.3</title><description xml:lang="en-US"><![CDATA[- Added blurred preview to messages with single image attachment.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлено размытое превью в сообщениях с единственной картинкой.]]></description><pubDate>Thu, 04 Jul 2024 10:41:47 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.1.0</title><description xml:lang="en-US"><![CDATA[- Added link tab.
+- Added deep links support.
+- Added critical updates popup.
+- Removed contacts tab.
+- Removed "work with us" tab.
+- Fixed music stopping when receiving or sending messages in Safari on iOS.
+- Made direct links, sent in chats, to open directly in application.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлена вкладка с прямой ссылкой.
+- Добавлена поддержка дип линков.
+- Добавлено отображение критических обновлений.
+- Удалена вкладка контактов.
+- Удалена вкладка "работайте с нами".
+- Исправлена остановка музыки при получении или отправке сообщений в Safari на iOS.
+- Реализован переход по прямым ссылкам, отправленных в чате, прямо в приложении.]]></description><pubDate>Thu, 27 Jun 2024 13:05:25 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
+<item><title>0.1.0-alpha.13.5</title><description xml:lang="en-US"><![CDATA[- Added active devices list displaying in profile's settings.
+- Added ability to add, remove and switch accounts.
+- Redesigned editing of chat, user and settings profiles.
+- Fixed question marks displaying over own avatar when logging in.
+- Fixed image gallery being opened recursively when context menu is opened.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлено отображение списка активных устройств в настройках профиля.
+- Добавлена возможность добавлять, удалять и переключать аккаунты.
+- Обновлён дизайн редактирования профилей чата, пользователя и настроек.
+- Исправлено отображение знаков вопроса у своего аватара при авторизации.
+- Исправлено рекурсивное открытие галереи с картинкой при открытом контекстном меню.]]></description><pubDate>Mon, 13 May 2024 09:47:59 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.zip" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.zip" /></item>
+</channel></rss>

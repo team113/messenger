@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the main function from the main library, for the Dart programming language.">
+  <title>main function - main library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../main/">main.dart</a></li>
+    <li class="self-crumb">main function</li>
+  </ol>
+  <div class="self-name">main</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="main&#47;main-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">main</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">main</span>(<wbr>)
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Entry point of this application.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; main() async {
+  await runZonedGuarded(
+    () async {
+      final Stopwatch watch = Stopwatch()..start();
+
+      await Config.init();
+
+      me.Log.options = me.LogOptions(
+        level: Config.logLevel,
+
+        &#47;&#47; Browsers collect timestamps for log themselves.
+        timeStamp: !PlatformUtils.isWeb,
+        dateStamp: !PlatformUtils.isWeb,
+      );
+
+      Log.maxLogs = Config.logAmount;
+
+      &#47;&#47; No need to initialize the Sentry if no DSN is provided, otherwise
+      &#47;&#47; useless messages are printed to the console every time the application
+      &#47;&#47; starts.
+      if (Config.sentryDsn.isEmpty || kDebugMode) {
+        return _runApp();
+      }
+
+      await SentryFlutter.init((options) {
+        options.dsn = Config.sentryDsn;
+        options.tracesSampleRate = 1.0;
+        options.sampleRate = 1.0;
+        options.release = &#39;${Pubspec.name}@${Pubspec.ref}&#39;;
+        options.diagnosticLevel = SentryLevel.info;
+        options.enablePrintBreadcrumbs = true;
+        options.maxBreadcrumbs = 512;
+        options.enableTimeToFullDisplayTracing = true;
+        options.enableAppHangTracking = true;
+        options.enableLogs = true;
+        options.beforeSend = (SentryEvent event, Hint? hint) {
+          &#47;&#47; Modules are meaningless in Flutter.
+          event.modules = {};
+
+          final SentryException? sentryException =
+              event.exceptions?.firstOrNull;
+          final dynamic exception = sentryException?.throwable;
+
+          &#47;&#47; Connection related exceptions shouldn&#39;t be logged.
+          if (exception is Exception &amp;&amp; exception.isNetworkRelated) {
+            final Exception unreachable = UnreachableException();
+
+            return SentryEvent(
+              eventId: event.eventId,
+              timestamp: event.timestamp,
+              modules: event.modules,
+              tags: event.tags,
+              fingerprint: event.fingerprint,
+              breadcrumbs: event.breadcrumbs,
+              exceptions: [
+                SentryException(
+                  type: &#39;UnreachableException&#39;,
+                  value: unreachable.toString(),
+                  stackTrace: sentryException?.stackTrace,
+                  mechanism: sentryException?.mechanism,
+                  throwable: unreachable,
+                ),
+              ],
+              threads: event.threads,
+              sdk: event.sdk,
+              platform: event.platform,
+              logger: event.logger,
+              serverName: event.serverName,
+              release: event.release,
+              dist: event.dist,
+              environment: event.environment,
+              message: event.message,
+              transaction: event.transaction,
+              throwable: event.throwable,
+              level: event.level,
+              culprit: event.culprit,
+              user: event.user,
+              contexts: event.contexts,
+              request: event.request,
+              debugMeta: event.debugMeta,
+              type: event.type,
+            );
+          }
+
+          &#47;&#47; [Backoff] related exceptions shouldn&#39;t be logged.
+          if (exception is OperationCanceledException ||
+              exception.toString() == &#39;Data is not loaded&#39;) {
+            return null;
+          }
+
+          return event;
+        };
+      });
+
+      &#47;&#47; Transaction indicating Flutter engine has rasterized the first frame.
+      final ISentrySpan ready = Sentry.startTransaction(
+        &#39;ui.app.ready&#39;,
+        &#39;ui&#39;,
+        autoFinishAfter: const Duration(minutes: 2),
+        startTimestamp: DateTime.now().subtract(watch.elapsed),
+      )..startChild(&#39;ready&#39;);
+
+      WidgetsBinding.instance.waitUntilFirstFrameRasterized.then(
+        (_) =&gt; ready.finish(),
+      );
+
+      await _runApp();
+    },
+    (error, stackTrace) {
+      &#47;&#47; If Sentry is enabled, then report the exception.
+      if (Config.sentryDsn.isNotEmpty &amp;&amp; !kDebugMode) {
+        WebUtils.consoleError(
+          &#39;Uncaught (in promise) DartError: $error\n&#39;
+          &#39;${stackTrace.toString().split(&#39;\n&#39;).where((e) =&gt; e.isNotEmpty).map((e) =&gt; &#39;    at $e\n&#39;).join()}&#39;,
+        );
+
+        Sentry.captureException(error, stackTrace: stackTrace);
+      }
+      &#47;&#47; Otherwise rethrow the exception to the parent `Zone`.
+      else {
+        Zone.root.handleUncaughtError(error, stackTrace);
+      }
+    },
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../main/">main</a></li>
+    <li class="self-crumb">main function</li>
+</ol>
+
+    <h5>main library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.6.2
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
