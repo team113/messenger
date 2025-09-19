@@ -323,8 +323,8 @@ jobs:
                         bundle-id=${{ secrets.FCM_BUNDLE_ID }}
         if: ${{ contains('apk appbundle ipa web', matrix.platform) }}
       - name: Configure FCM (Firebase Cloud Messaging) service worker
-        run: echo '${{ secrets.GOOGLE_SERVICES_JS }}'
-             > web/firebase-messaging-sw.js
+        run: echo '${{ secrets.FIREBASE_CREDENTIALS_JS }}'
+             > web/firebase-credentials.js
         if: ${{ matrix.platform == 'web' }}
 
       - name: Parse semver versions from Git tag
