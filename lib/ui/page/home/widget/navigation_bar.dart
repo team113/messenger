@@ -32,6 +32,7 @@ import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'avatar.dart';
+import '../account_switcher_menu/view.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatefulWidget {
@@ -242,47 +243,9 @@ class CustomNavigationBarItem extends StatelessWidget {
   }) : this._(
          key: key,
          tab: HomeTab.menu,
-         child: ContextMenuRegion(
-           selector: selector,
-           selectorClosable: false,
-           key: const Key('MenuButton'),
-           alignment: Alignment.bottomRight,
-           margin: const EdgeInsets.only(bottom: 8, left: 8),
-           actions: [
-             ...actions,
-             ContextMenuTile(
-               label: 'label_presence_present'.l10n,
-               onPressed: (context) {
-                 onPresence?.call(Presence.present);
-                 Navigator.of(context).pop();
-               },
-               trailing: Container(
-                 width: 16,
-                 height: 16,
-                 decoration: BoxDecoration(
-                   shape: BoxShape.circle,
-                   color: acceptAuxiliary,
-                 ),
-               ),
-             ),
-             ContextMenuTile(
-               label: 'label_presence_away'.l10n,
-               onPressed: (context) {
-                 onPresence?.call(Presence.away);
-                 Navigator.of(context).pop();
-               },
-               trailing: Container(
-                 width: 16,
-                 height: 16,
-                 decoration: BoxDecoration(
-                   shape: BoxShape.circle,
-                   color: warning,
-                 ),
-               ),
-             ),
-           ],
-           child: Padding(
-             padding: const EdgeInsets.only(bottom: 2),
+         child: Padding(
+           padding: const EdgeInsets.only(bottom: 2),
+           child: AccountSwithcerMenuWidget(
              child: AvatarWidget.fromMyUser(
                myUser,
                radius: AvatarRadius.normal,
