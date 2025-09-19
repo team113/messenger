@@ -200,10 +200,6 @@ class ChatsTabController extends GetxController {
   /// [MyUser], if any.
   ChatId get monolog => _chatService.monolog;
 
-  void test() {
-    _chatService.test();
-  }
-
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);

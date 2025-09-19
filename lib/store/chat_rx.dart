@@ -2313,9 +2313,11 @@ class RxChatImpl extends RxChat {
               event as EventChatItemPosted;
               final DtoChatItem item = event.item;
 
-              if (dto.value.isHidden) {
-                // если чтото пришло то чат уже не скрытый
-                write((chat) => chat.value.isHidden = false);
+              if (dto.value.isHidden || dto.value.isArchived) {
+                write((chat) {
+                  chat.value.isHidden = false;
+                  chat.value.isArchived = false;
+                });
               }
 
               if (item.value is ChatMessage && item.value.author.id == me) {
