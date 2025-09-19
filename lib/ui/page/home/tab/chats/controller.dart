@@ -440,9 +440,9 @@ class ChatsTabController extends GetxController {
   }
 
   /// Toggle archivation the [Chat] identified by the provided [id]
-  Future<void> toggleChatArchivation(ChatId id, bool archive) async {
+  Future<void> archiveChat(ChatId id, bool archive) async {
     try {
-      await _chatService.toggleChatArchivation(id, archive);
+      await _chatService.archiveChat(id, archive);
     } on ToggleChatArchivationException catch (e) {
       MessagePopup.error(e);
     } on UnfavoriteChatException catch (e) {
@@ -463,7 +463,7 @@ class ChatsTabController extends GetxController {
     try {
       await Future.wait(
         selectedChats.map(
-          (chatId) => _chatService.toggleChatArchivation(chatId, archive),
+          (chatId) => _chatService.archiveChat(chatId, archive),
         ),
       );
     } on ToggleChatArchivationException catch (e) {

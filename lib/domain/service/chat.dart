@@ -191,11 +191,11 @@ class ChatService extends DisposableService {
     return _chatRepository.hideChat(id);
   }
 
-  /// Marks the specified [Chat] as archive for the authenticated [MyUser].
-  Future<void> toggleChatArchivation(ChatId id, bool archive) {
-    Log.debug('toggleChatArchivation($id, $archive)', '$runtimeType');
+  /// Toggle the specified [Chat] as archive for the authenticated [MyUser].
+  Future<void> archiveChat(ChatId id, bool archive) {
+    Log.debug('archiveChat($id, $archive)', '$runtimeType');
 
-    return _chatRepository.toggleChatArchivation(id, archive);
+    return _chatRepository.archiveChat(id, archive);
   }
 
   /// Adds an [User] to a [Chat]-group by the authority of the authenticated

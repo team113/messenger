@@ -787,8 +787,8 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<void> toggleChatArchivation(ChatId id, bool archive) async {
-    Log.debug('toggleChatArchivation($id, $archive)', '$runtimeType');
+  Future<void> archiveChat(ChatId id, bool archive) async {
+    Log.debug('archiveChat($id, $archive)', '$runtimeType');
 
     RxChatImpl? chat = chats[id];
     final ChatFavoritePosition? favoriteOldPosition = chat?.chat.value.favoritePosition;

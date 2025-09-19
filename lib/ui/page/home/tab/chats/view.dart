@@ -800,7 +800,7 @@ class ChatsTabView extends StatelessWidget {
                                     : () => c.leaveChat(e.id),
                                 onHide: () => c.hideChat(e.id),
                                 onToggleArchivation: () =>
-                                    c.toggleChatArchivation(
+                                    c.archiveChat(
                                       e.id,
                                       !e.chat.value.isArchived,
                                     ),

@@ -122,7 +122,7 @@ abstract class AbstractChatRepository {
   Future<void> hideChat(ChatId id);
 
   /// Marks the specified [Chat] as archive for the authenticated [MyUser].
-  Future<void> toggleChatArchivation(ChatId id, bool archive);
+  Future<void> archiveChat(ChatId id, bool archive);
 
   /// Marks the specified [Chat] as read for the authenticated [MyUser] until
   /// the specified [ChatItem] inclusively.
