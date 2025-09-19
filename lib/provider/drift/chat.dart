@@ -387,6 +387,7 @@ extension _ChatDb on DtoChat {
             .toList(),
         kindIndex: e.kindIndex,
         isHidden: e.isHidden,
+        isArchived: e.isArchived,
         muted: e.muted == null
             ? null
             : MuteDuration.fromJson(jsonDecode(e.muted!)),
