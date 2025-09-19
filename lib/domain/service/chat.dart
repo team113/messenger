@@ -55,7 +55,7 @@ class ChatService extends DisposableService {
   RxObsMap<ChatId, RxChat> get paginated => _chatRepository.paginated;
 
   /// Returns the reactive map of the archived chats paginated [RxChat]s.
-  RxObsMap<ChatId, RxChat> get archivedChatsPaginated => _chatRepository.archivedChatsPaginated;
+  RxObsMap<ChatId, RxChat> get archived => _chatRepository.archived;
 
   /// Returns the current reactive map of all [RxChat]s available.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;

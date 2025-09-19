@@ -87,7 +87,7 @@ class ChatsTabController extends GetxController {
   final RxList<ChatEntry> chats = RxList();
 
   /// Reactive list of sorted archived [Chat]s.
-  final RxList<ChatEntry> archivedChats = RxList();
+  final RxList<ChatEntry> archived = RxList();
 
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
@@ -161,7 +161,7 @@ class ChatsTabController extends GetxController {
   late final StreamSubscription _chatsSubscription;
 
   /// Subscription for the [ChatService.archivedChatsPaginated] changes.
-  late final StreamSubscription _archivedChatsSubscription;
+  late final StreamSubscription _archivedSubscription;
 
   /// Subscription for [SearchController.chats], [SearchController.users] and
   /// [SearchController.contacts] changes updating the [elements].
@@ -279,16 +279,16 @@ class ChatsTabController extends GetxController {
       }
     });
 
-    _archivedChatsSubscription = _chatService.archivedChatsPaginated.changes.listen((event) {
+    _archivedSubscription = _chatService.archived.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           final entry = ChatEntry(event.value!, chats.sort);
-          archivedChats.add(entry);
-          archivedChats.sort();
+          archived.add(entry);
+          archived.sort();
           break;
 
         case OperationKind.removed:
-          archivedChats.removeWhere((e) {
+          archived.removeWhere((e) {
             if (e.chat.value.id == event.key) {
               e.dispose();
               return true;
@@ -299,7 +299,7 @@ class ChatsTabController extends GetxController {
           break;
 
         case OperationKind.updated:
-          archivedChats.sort();
+          archived.sort();
           break;
       }
     });
@@ -334,7 +334,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
-    _archivedChatsSubscription.cancel();
+    _archivedSubscription.cancel();
     _statusSubscription?.cancel();
 
     _searchSubscription?.cancel();

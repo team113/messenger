@@ -129,7 +129,7 @@ class ChatRepository extends DisposableInterface
   final RxObsMap<ChatId, RxChatImpl> paginated = RxObsMap<ChatId, RxChatImpl>();
 
   @override
-  final RxObsMap<ChatId, RxChatImpl> archivedChatsPaginated = RxObsMap<ChatId, RxChatImpl>();
+  final RxObsMap<ChatId, RxChatImpl> archived = RxObsMap<ChatId, RxChatImpl>();
 
   @override
   late ChatId monolog = ChatId.local(me);
@@ -397,7 +397,7 @@ class ChatRepository extends DisposableInterface
 
     chats.remove(id)?.dispose();
     paginated.remove(id)?.dispose();
-    archivedChatsPaginated.remove(id)?.dispose();
+    archived.remove(id)?.dispose();
     _pagination?.remove(id);
     _archivePagination?.remove(id);
     await _chatLocal.delete(id);
@@ -2158,11 +2158,7 @@ class ChatRepository extends DisposableInterface
     }
 
     if (pagination && !entry.chat.value.isHidden) {
-      if(entry.chat.value.isArchived) {
-        archivedChatsPaginated[chatId] ??= entry;
-      } else {
-        paginated[chatId] ??= entry;
-      }
+      paginated[chatId] ??= entry;
     }
 
     return entry;
@@ -2638,7 +2634,7 @@ class ChatRepository extends DisposableInterface
           },
           watchUpdates: (a, b) => false,
           onAdded: (e) async {
-            final ChatVersion? stored = archivedChatsPaginated[e.id]?.ver;
+            final ChatVersion? stored = archived[e.id]?.ver;
             if (stored == null || e.ver > stored) {
               await archive?.put(e, store: false);
             }

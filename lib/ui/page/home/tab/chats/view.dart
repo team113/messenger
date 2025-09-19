@@ -737,9 +737,7 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> chats = [];
 
                             if(c.isShowOnlyArchive.value) {
-                              print('ZYX render archive');
-                              for (var e in c.archivedChats) {
-                                print('ZYX render archive chatId=${e.rx.id}');
+                              for (var e in c.archived) {
                                 if ((!e.id.isLocal ||
                                     e.messages.isNotEmpty ||
                                     e.chat.value.isMonolog) &&
