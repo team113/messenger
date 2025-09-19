@@ -710,8 +710,8 @@ class ChatsTabView extends StatelessWidget {
                   } else {
                     if (c.chats.none((e) {
                       return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                          !e.chat.value.isHidden &&
-                          !e.chat.value.isArchived &&
+                          (!e.chat.value.isHidden ||
+                          !e.chat.value.isArchived) &&
                           !e.hidden.value;
                     })) {
                       if (c.status.value.isLoadingMore) {
@@ -746,7 +746,14 @@ class ChatsTabView extends StatelessWidget {
                               print('ZYX render archive');
                               for (var e in c.archivedChats) {
                                 print('ZYX render archive chatId=${e.rx.id}');
-                                chats.add(e.rx);
+                                if ((!e.id.isLocal ||
+                                    e.messages.isNotEmpty ||
+                                    e.chat.value.isMonolog) &&
+                                    !e.chat.value.isHidden &&
+                                    e.chat.value.isArchived &&
+                                    !e.hidden.value) {
+                                  chats.add(e.rx);
+                                }
                               }
                             } else {
                               for (var e in c.chats) {
