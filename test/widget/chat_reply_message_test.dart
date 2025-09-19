@@ -436,8 +436,6 @@ void main() async {
   testWidgets('ChatView successfully replies to a message', (
     WidgetTester tester,
   ) async {
-    print('zyx: ');
-
     authService.init();
 
     final UserRepository userRepository = Get.put(
@@ -514,12 +512,10 @@ void main() async {
       ),
     );
 
-    print('zyx: 1');
     for (int i = 0; i < 20; i++) {
       await tester.pump(const Duration(seconds: 2));
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }
-    print('zyx: 2');
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
@@ -532,7 +528,6 @@ void main() async {
     var message = find.richText('text message', skipOffstage: false);
     expect(message, findsOneWidget);
 
-    print('zyx: 3');
     await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
@@ -548,7 +543,6 @@ void main() async {
     await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    print('zyx: 4');
     await tester.enterText(
       find.byKey(const Key('MessageField')),
       'reply message',
@@ -560,17 +554,12 @@ void main() async {
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    print('zyx: 5');
     expect(find.richText('reply message', skipOffstage: false), findsOneWidget);
 
-    print('zyx: 6');
     await Future.wait([common.close(), scoped.close()]);
 
     await Get.deleteAll(force: true);
-    print('zyx: 7');
   });
-
-  print('zyx: 8');
 }
 
 final userData = {
