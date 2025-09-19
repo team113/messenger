@@ -659,10 +659,8 @@ label_introduction_description =
          • the token has been invalidated due to technical issues (cookie / cash deleted; OS / browser / application updated; certificate changed; etc.).
 
     To save access to your account, set a password and/or e-mail.
-label_introduction_description1 = You can change your avatar, name, text status, password, login and e-mail in the{" "}
-label_introduction_description2 = profile settings
-label_introduction_description3 = .
 label_introduction_description_email = No e-mail is added. Access to your account will be lost if you forget the password.
+label_introduction_for_one_time = To save access to your account, set a password, login or e-mail in your profile settings.
 label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
 label_b = {$amount} B
 label_kb = {$amount} KB
@@ -709,6 +707,7 @@ label_muted_chats = Muted chats
 label_muted_until_i_turn_on = Muted until: I turn it on
 label_muted_until_period = Muted until: {$period}
 label_name = Name
+label_name_hint = Your public name
 label_name_updated = {$author} updated group name
 label_name_updated1 = {$author}
 label_name_updated2 = {" "}updated group name
