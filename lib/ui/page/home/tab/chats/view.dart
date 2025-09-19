@@ -270,7 +270,7 @@ class ChatsTabView extends StatelessWidget {
                             inverted: const SvgIcon(SvgIcons.notesSmallWhite),
                           ),
                           ContextMenuButton(
-                            label: 'label_hidden_chats'.l10n,
+                            label: 'btn_hidden_chats'.l10n,
                             onPressed: () => c.toggleArchive(),
                             trailing: const SvgIcon(SvgIcons.visibleOff),
                             inverted: const SvgIcon(SvgIcons.visibleOffWhite),
