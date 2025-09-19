@@ -221,12 +221,6 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
-    Log.debug('setCallButtonsPosition($position)', '$runtimeType');
-    await _set(settings: (e) => e..callButtonsPosition = position);
-  }
-
-  @override
   Future<void> setWorkWithUsTabEnabled(bool enabled) async {
     Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
     await _set(settings: (e) => e..workWithUsTabEnabled = enabled);
