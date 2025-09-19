@@ -9,7 +9,6 @@ import '../../../../api/backend/schema.graphql.dart';
 import '../../../../domain/model/my_user.dart';
 import '../../../../l10n/l10n.dart';
 import '../../../../themes.dart';
-import '../../../../util/message_popup.dart';
 import '../../../widget/animated_button.dart';
 import '../../../widget/primary_button.dart';
 import '../../../widget/svg/svg.dart';
@@ -53,6 +52,18 @@ class _AccountSwithcerMenuViewState extends State<AccountSwithcerMenuView> {
 
   @override
   Widget build(BuildContext context) {
+    print(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final render =
+            _portalKey.currentContext?.findRenderObject() as RenderBox;
+
+        final portalOffset = render.localToGlobal(Offset.zero);
+
+        final portalSize = render.size;
+
+        print([portalSize, portalOffset]);
+      });
+    }());
     return OverlayPortal(
       key: _portalKey,
       controller: _controller,
@@ -73,66 +84,79 @@ class _AccountSwithcerMenuViewState extends State<AccountSwithcerMenuView> {
     final portalSize = render.size;
 
     var style = Theme.of(context).style;
-
-    var size = MediaQuery.sizeOf(context);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        _controller.hide();
-      },
-      child: Stack(
-        children: [
-          ClipPath(
-            clipper: _HoleClipper(
-              offset: portalSize.center(portalOffset) + Offset(.5, .75),
-              radius: AvatarRadius.normal.toDouble() + 4,
-            ),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                color: Colors.black.withValues(
-                  alpha: 0.1,
-                ), // Semi-transparent overlay
-              ),
-            ),
-          ),
-
-          Positioned.fromRect(
-            rect: Rect.fromCenter(
-              center: portalSize.center(portalOffset) + Offset(.5, .75),
-              width: AvatarRadius.normal.toDouble() * 2,
-              height: AvatarRadius.normal.toDouble() * 2,
-            ),
-            child: widget.child,
-          ),
-          Positioned(
-            bottom: size.height - portalOffset.dy + 20,
-            right: size.width - portalOffset.dx - portalSize.width - 2,
-            left: math.max(math.min(12, size.width - 500), 12),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: math.min(MediaQuery.sizeOf(context).width, 320),
-              ),
-              child: GestureDetector(
-                behavior: HitTestBehavior.deferToChild,
-                // must be empty for cancel propagation click event
-                onTap: () {},
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            _controller.hide();
+          },
+          child: Stack(
+            children: [
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
+                  color: Colors.black.withValues(
+                    alpha: 0.1,
+                  ), // Semi-transparent overlay
+                ),
+              ),
+
+              Positioned(
+                // TODO: so bad
+                left:
+                    portalOffset.dx -
+                    (AnimatedButton.scale - 1) *
+                        AvatarRadius.large.toDouble() *
+                        2,
+                top:
+                    portalOffset.dy -
+                    (AnimatedButton.scale - 1) *
+                        AvatarRadius.large.toDouble() *
+                        2,
+                child: Container(
+                  padding: EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: style.colors.background,
-                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.white,
+                    shape: BoxShape.circle,
                   ),
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [AccountSwitcherMenuWidget()],
+                  child: widget.child,
+                ),
+              ),
+              Positioned(
+                bottom: constraints.maxHeight - portalOffset.dy + 12,
+                right:
+                    constraints.maxWidth -
+                    portalOffset.dx -
+                    portalSize.width -
+                    2,
+                left: math.max(math.min(12, constraints.maxWidth - 500), 12),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: math.min(MediaQuery.sizeOf(context).width, 320),
+                  ),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.deferToChild,
+                    // must be empty for cancel propagation click event
+                    onTap: () {},
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: style.colors.background,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [AccountSwitcherMenuWidget()],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -384,49 +408,4 @@ class AccountSwitcherMenuWidget extends StatelessWidget {
       },
     );
   }
-}
-
-class _HoleClipper extends CustomClipper<Path> {
-  /// hole size
-  final double radius;
-
-  final Offset offset;
-
-  _HoleClipper({required this.radius, required this.offset});
-
-  @override
-  Path getClip(Size size) {
-    final Path path = Path();
-    // Define the outer rectangle (the blurred area)
-
-    path.addRect(Rect.fromLTWH(0, 0, size.width, size.height));
-
-    path.addOval(
-      Rect.fromLTWH(
-        offset.dx - radius,
-        offset.dy - radius,
-        radius * 2,
-        radius * 2,
-      ),
-    );
-
-    path.fillType = PathFillType.evenOdd;
-
-    // Combine the paths, subtracting the hole from the outer rectangle
-    return Path.combine(
-      PathOperation.difference,
-      path,
-      Path()..addOval(
-        Rect.fromLTWH(
-          offset.dx - radius,
-          offset.dy - radius,
-          radius * 2,
-          radius * 2,
-        ),
-      ),
-    );
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
