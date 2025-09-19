@@ -77,8 +77,10 @@ class Chat implements Comparable<Chat> {
   /// Kind of this [Chat].
   int kindIndex;
 
+  /// Get [ChatKind] of this [Chat].
   ChatKind get kind => ChatKind.values[kindIndex];
 
+  /// Sets the [ChatKind] of this [Chat].
   set kind(ChatKind chatKind) {
     kindIndex = chatKind.index;
   }
