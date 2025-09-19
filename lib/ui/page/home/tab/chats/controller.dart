@@ -770,6 +770,7 @@ class ChatsTabController extends GetxController {
               e.chat.value.ongoingCall == null &&
               e.chat.value.favoritePosition != null &&
               !e.chat.value.isHidden &&
+              !e.chat.value.isArchived &&
               !e.hidden.value,
         )
         .toList();

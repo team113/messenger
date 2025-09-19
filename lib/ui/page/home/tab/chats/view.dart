@@ -711,6 +711,7 @@ class ChatsTabView extends StatelessWidget {
                     if (c.chats.none((e) {
                       return (!e.id.isLocal || e.chat.value.isMonolog) &&
                           !e.chat.value.isHidden &&
+                          !e.chat.value.isArchived &&
                           !e.hidden.value;
                     })) {
                       if (c.status.value.isLoadingMore) {
@@ -753,6 +754,7 @@ class ChatsTabView extends StatelessWidget {
                                     e.messages.isNotEmpty ||
                                     e.chat.value.isMonolog) &&
                                     !e.chat.value.isHidden &&
+                                    !e.chat.value.isArchived &&
                                     !e.hidden.value) {
                                   if (e.chat.value.ongoingCall != null) {
                                     calls.add(e.rx);
