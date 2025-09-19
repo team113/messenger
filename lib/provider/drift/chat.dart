@@ -220,15 +220,15 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
   /// Returns the recent [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> archive({int? limit}) async {
     final result = await safe(
-          (db) async {
+      (db) async {
         final stmt = db.select(db.chats);
 
         stmt.where(
-              (u) =>
-          u.isHidden.equals(false) &
-          u.isArchived.equals(true) &
-          u.id.like('local_%').not() &
-          u.id.like('d_%').not(),
+          (u) =>
+              u.isHidden.equals(false) &
+              u.isArchived.equals(true) &
+              u.id.like('local_%').not() &
+              u.id.like('d_%').not(),
         );
         stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 
@@ -329,12 +329,12 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       final stmt = db.select(db.chats);
 
       stmt.where(
-            (u) =>
-        u.isHidden.equals(false) &
-        u.isArchived.equals(true) &
-        u.id.like('local_%').not() &
-        u.id.like('d_%').not() &
-        u.favoritePosition.isNull(),
+        (u) =>
+            u.isHidden.equals(false) &
+            u.isArchived.equals(true) &
+            u.id.like('local_%').not() &
+            u.id.like('d_%').not() &
+            u.favoritePosition.isNull(),
       );
       stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 

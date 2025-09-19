@@ -705,7 +705,7 @@ class ChatsTabView extends StatelessWidget {
                     if (c.chats.none((e) {
                       return (!e.id.isLocal || e.chat.value.isMonolog) &&
                           (!e.chat.value.isHidden ||
-                          !e.chat.value.isArchived) &&
+                              !e.chat.value.isArchived) &&
                           !e.hidden.value;
                     })) {
                       if (c.status.value.isLoadingMore) {
@@ -736,11 +736,11 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
-                            if(c.isShowOnlyArchive.value) {
+                            if (c.isShowOnlyArchive.value) {
                               for (var e in c.archived) {
                                 if ((!e.id.isLocal ||
-                                    e.messages.isNotEmpty ||
-                                    e.chat.value.isMonolog) &&
+                                        e.messages.isNotEmpty ||
+                                        e.chat.value.isMonolog) &&
                                     !e.chat.value.isHidden &&
                                     e.chat.value.isArchived &&
                                     !e.hidden.value) {
@@ -750,8 +750,8 @@ class ChatsTabView extends StatelessWidget {
                             } else {
                               for (var e in c.chats) {
                                 if ((!e.id.isLocal ||
-                                    e.messages.isNotEmpty ||
-                                    e.chat.value.isMonolog) &&
+                                        e.messages.isNotEmpty ||
+                                        e.chat.value.isMonolog) &&
                                     !e.chat.value.isHidden &&
                                     !e.chat.value.isArchived &&
                                     !e.hidden.value) {
@@ -799,11 +799,10 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.leaveChat(e.id),
                                 onHide: () => c.hideChat(e.id),
-                                onToggleArchivation: () =>
-                                    c.archiveChat(
-                                      e.id,
-                                      !e.chat.value.isArchived,
-                                    ),
+                                onToggleArchivation: () => c.archiveChat(
+                                  e.id,
+                                  !e.chat.value.isArchived,
+                                ),
                                 onMute:
                                     e.chat.value.isMonolog ||
                                         e.chat.value.id.isLocal

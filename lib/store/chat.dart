@@ -791,7 +791,8 @@ class ChatRepository extends DisposableInterface
     Log.debug('archiveChat($id, $archive)', '$runtimeType');
 
     RxChatImpl? chat = chats[id];
-    final ChatFavoritePosition? favoriteOldPosition = chat?.chat.value.favoritePosition;
+    final ChatFavoritePosition? favoriteOldPosition =
+        chat?.chat.value.favoritePosition;
     ChatData? monologData;
 
     // [Chat.isArchived] will be changed by [RxChatImpl]'s own remote event
@@ -823,7 +824,7 @@ class ChatRepository extends DisposableInterface
       // via [RxChatImpl].
       try {
         await Backoff.run(
-              () async {
+          () async {
             await _graphQlProvider.toggleChatArchivation(id, archive);
           },
           retryIf: (e) => e.isNetworkRelated,
@@ -835,7 +836,7 @@ class ChatRepository extends DisposableInterface
             rethrow;
 
           case ToggleChatArchivationErrorCode.unknownChat:
-          // No-op.
+            // No-op.
             break;
         }
       }
@@ -2110,7 +2111,7 @@ class ChatRepository extends DisposableInterface
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination && !chat.value.isHidden) {
-      if(chat.value.isArchived) {
+      if (chat.value.isArchived) {
         await _archivePagination?.put(chat);
       } else {
         await _pagination?.put(chat);
@@ -2266,8 +2267,8 @@ class ChatRepository extends DisposableInterface
       case RecentChatsEventKind.initialized:
         // If more than 1 minute has passed, recreate [Pagination].
         if (_archiveSubscribedAt?.isBefore(
-          DateTime.now().subtract(const Duration(minutes: 1)),
-        ) ==
+              DateTime.now().subtract(const Duration(minutes: 1)),
+            ) ==
             true) {
           await _initRemoteArchivePagination();
         }
@@ -2365,7 +2366,7 @@ class ChatRepository extends DisposableInterface
     _localPagination = CombinedPagination([
       CombinedPaginationEntry(
         favoritePagination,
-        addIf: (e) => e.value.favoritePosition != null ,
+        addIf: (e) => e.value.favoritePosition != null,
       ),
       CombinedPaginationEntry(
         recentPagination,
@@ -2532,12 +2533,14 @@ class ChatRepository extends DisposableInterface
       CombinedPaginationEntry(calls, addIf: (e) => e.value.ongoingCall != null),
       CombinedPaginationEntry(
         favorites,
-        addIf: (e) => e.value.favoritePosition != null  && !e.value.isArchived,
+        addIf: (e) => e.value.favoritePosition != null && !e.value.isArchived,
       ),
       CombinedPaginationEntry(
         recent,
         addIf: (e) {
-          return e.value.ongoingCall == null && e.value.favoritePosition == null  && !e.value.isArchived;
+          return e.value.ongoingCall == null &&
+              e.value.favoritePosition == null &&
+              !e.value.isArchived;
         },
       ),
     ]);
@@ -2667,14 +2670,18 @@ class ChatRepository extends DisposableInterface
       CombinedPaginationEntry(
         archive,
         addIf: (e) =>
-            e.value.ongoingCall == null && e.value.favoritePosition == null  && e.value.isArchived,
+            e.value.ongoingCall == null &&
+            e.value.favoritePosition == null &&
+            e.value.isArchived,
       ),
     ]);
 
     await _archivePagination!.around();
 
     _archivePaginationSubscription?.cancel();
-    _archivePaginationSubscription = _archivePagination!.changes.listen((event) async {
+    _archivePaginationSubscription = _archivePagination!.changes.listen((
+      event,
+    ) async {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
@@ -2688,10 +2695,12 @@ class ChatRepository extends DisposableInterface
           break;
 
         case OperationKind.removed:
-        // Don't remove a chat that is still present in the pagination, as it
-        // might've been only remove from a concrete pagination: archive only,
-        // not the whole list.
-          if (_archivePagination?.items.where((e) => e.id == event.key).isEmpty ==
+          // Don't remove a chat that is still present in the pagination, as it
+          // might've been only remove from a concrete pagination: archive only,
+          // not the whole list.
+          if (_archivePagination?.items
+                  .where((e) => e.id == event.key)
+                  .isEmpty ==
               true) {
             remove(event.value!.value.id);
           }
@@ -2702,7 +2711,7 @@ class ChatRepository extends DisposableInterface
     // Add the received in [CombinedPagination.around] items to the
     // [paginated].
     _archivePagination?.items.forEach(
-          (e) => _putEntry(
+      (e) => _putEntry(
         ChatData(e, null, null),
         pagination: true,
         ignoreVersion: true,
@@ -2752,7 +2761,9 @@ class ChatRepository extends DisposableInterface
   Stream<RecentChatsEvent> _archiveChatsRemoteEvents() {
     Log.debug('_archiveChatsRemoteEvents()', '$runtimeType');
 
-    return _graphQlProvider.recentChatsTopEvents(3, archived: true).asyncExpand((event) async* {
+    return _graphQlProvider.recentChatsTopEvents(3, archived: true).asyncExpand((
+      event,
+    ) async* {
       Log.trace('_archiveChatsRemoteEvents(): ${event.data}', '$runtimeType');
 
       var events = RecentChatsTopEvents$Subscription.fromJson(
@@ -2764,22 +2775,22 @@ class ChatRepository extends DisposableInterface
       } else if (events.$$typename == 'RecentChatsTop') {
         var list =
             (events
-            as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
+                    as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
                 .list;
         yield RecentChatsTop(
           list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
         );
       } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
         var mixin =
-        events
-        as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
+            events
+                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
         yield EventRecentChatsUpdated(
           _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
         );
       } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
         var mixin =
-        events
-        as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
+            events
+                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
         yield EventRecentChatsDeleted(mixin.chatId);
       }
     });
