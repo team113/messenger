@@ -582,6 +582,7 @@ final chatData = {
   'members': {'nodes': [], 'totalCount': 0},
   'kind': 'GROUP',
   'isHidden': false,
+  'isArchived': false,
   'muted': null,
   'directLink': null,
   'createdAt': '2021-12-15T15:11:18.316846+00:00',

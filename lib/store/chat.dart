@@ -2509,8 +2509,6 @@ class ChatRepository extends DisposableInterface
           onCursor: (e) => e?.recentCursor,
           add: (e, {bool toView = true}) async {
             if (toView) {
-              for(final v in e) {
-              }
               await _chatLocal.upsertBulk(e);
             }
           },
