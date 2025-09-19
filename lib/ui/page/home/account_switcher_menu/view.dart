@@ -24,49 +24,68 @@ import '../widget/avatar.dart';
 import '../widget/contact_tile.dart';
 import 'controller.dart';
 
-class AccountSwithcerMenuView extends StatefulWidget {
-  const AccountSwithcerMenuView({super.key, required this.child});
+class AccountSwithcerMenuWidget extends StatefulWidget {
+  const AccountSwithcerMenuWidget({super.key, required this.child});
 
   /// widget that viewed in layout
   final Widget child;
 
   @override
-  State<AccountSwithcerMenuView> createState() =>
-      _AccountSwithcerMenuViewState();
+  State<AccountSwithcerMenuWidget> createState() =>
+      _AccountSwithcerMenuWidgetState();
 }
 
-class _AccountSwithcerMenuViewState extends State<AccountSwithcerMenuView> {
-  late final OverlayPortalController _controller;
+class _AccountSwithcerMenuWidgetState extends State<AccountSwithcerMenuWidget>
+    with SingleTickerProviderStateMixin {
+  late final OverlayPortalController _overlayController;
+
+  late final AnimationController _animationController;
 
   @override
   initState() {
-    _controller = OverlayPortalController();
+    _overlayController = OverlayPortalController();
+    _animationController = AnimationController(
+      duration: 150.milliseconds,
+      vsync: this,
+    );
+
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _animationController.dispose();
+
+    super.dispose();
+  }
+
   void _show() {
-    _controller.show();
+    _overlayController.show();
+    _animationController
+      ..forward()
+      ..animateTo(1);
+  }
+
+  void _animationStatus(AnimationStatus status) {
+    if (!status.isForwardOrCompleted) return;
+    _overlayController.hide();
+
+    _animationController.removeStatusListener(_animationStatus);
+  }
+
+  void _hide() {
+    _animationController
+      ..animateTo(0)
+      ..addStatusListener(_animationStatus);
   }
 
   final GlobalKey _portalKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
-    print(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final render =
-            _portalKey.currentContext?.findRenderObject() as RenderBox;
-
-        final portalOffset = render.localToGlobal(Offset.zero);
-
-        final portalSize = render.size;
-
-        print([portalSize, portalOffset]);
-      });
-    }());
     return OverlayPortal(
       key: _portalKey,
-      controller: _controller,
+      controller: _overlayController,
       overlayChildBuilder: _buildOverlay,
       child: GestureDetector(
         onLongPress: _show,
@@ -88,49 +107,53 @@ class _AccountSwithcerMenuViewState extends State<AccountSwithcerMenuView> {
       builder: (context, constraints) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () {
-            _controller.hide();
-          },
+          onTap: _hide,
           child: Stack(
             children: [
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  color: Colors.black.withValues(
-                    alpha: 0.1,
-                  ), // Semi-transparent overlay
-                ),
-              ),
-
-              Positioned(
-                // TODO: so bad
-                left:
-                    portalOffset.dx -
-                    (AnimatedButton.scale - 1) *
-                        AvatarRadius.large.toDouble() *
-                        2,
-                top:
-                    portalOffset.dy -
-                    (AnimatedButton.scale - 1) *
-                        AvatarRadius.large.toDouble() *
-                        2,
-                child: Container(
-                  padding: EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return FadeTransition(
+                    opacity: _animationController,
+                    child: child!,
+                  );
+                },
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    color: Colors.black.withValues(
+                      alpha: 0.1,
+                    ), // Semi-transparent overlay
                   ),
-                  child: widget.child,
                 ),
               ),
-              Positioned(
-                bottom: constraints.maxHeight - portalOffset.dy + 12,
-                right:
-                    constraints.maxWidth -
-                    portalOffset.dx -
-                    portalSize.width -
-                    2,
-                left: math.max(math.min(12, constraints.maxWidth - 500), 12),
+              AnimatedBuilder(
+                animation: _animationController,
+
+                builder: (context, child) {
+                  var bottom = (constraints.maxHeight - portalOffset.dy + 12);
+                  return Positioned(
+                    bottom: lerpDouble(0, bottom, _animationController.value),
+                    right:
+                        constraints.maxWidth -
+                        portalOffset.dx -
+                        portalSize.width -
+                        2,
+                    left: math.max(
+                      math.min(12, constraints.maxWidth - 500),
+                      12,
+                    ),
+                    child: ScaleTransition(
+                      alignment: Alignment.bottomRight,
+                      scale: _animationController,
+                      child: FadeTransition(
+                        opacity: _animationController,
+                        child: child!,
+                      ),
+                    ),
+                  );
+                },
+
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                     minWidth: math.min(MediaQuery.sizeOf(context).width, 320),
@@ -147,9 +170,42 @@ class _AccountSwithcerMenuViewState extends State<AccountSwithcerMenuView> {
                       padding: EdgeInsets.all(10),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [AccountSwitcherMenuWidget()],
+                        children: [AccountSwitcherMenuView()],
                       ),
                     ),
+                  ),
+                ),
+              ),
+
+              Positioned(
+                // TODO: so bad
+                left:
+                    portalOffset.dx -
+                    (AnimatedButton.scale - 1) *
+                        AvatarRadius.large.toDouble() *
+                        2 -
+                    2,
+                top:
+                    portalOffset.dy -
+                    (AnimatedButton.scale - 1) *
+                        AvatarRadius.large.toDouble() *
+                        2 -
+                    2,
+                child: AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, child) {
+                    return FadeTransition(
+                      opacity: _animationController,
+                      child: child,
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: widget.child,
                   ),
                 ),
               ),
@@ -161,8 +217,8 @@ class _AccountSwithcerMenuViewState extends State<AccountSwithcerMenuView> {
   }
 }
 
-class AccountSwitcherMenuWidget extends StatelessWidget {
-  const AccountSwitcherMenuWidget({super.key});
+class AccountSwitcherMenuView extends StatelessWidget {
+  const AccountSwitcherMenuView({super.key});
 
   @override
   Widget build(BuildContext context) {

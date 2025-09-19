@@ -245,7 +245,7 @@ class CustomNavigationBarItem extends StatelessWidget {
          tab: HomeTab.menu,
          child: Padding(
            padding: const EdgeInsets.only(bottom: 2),
-           child: AccountSwithcerMenuView(
+           child: AccountSwithcerMenuWidget(
              child: AvatarWidget.fromMyUser(
                myUser,
                radius: AvatarRadius.normal,
