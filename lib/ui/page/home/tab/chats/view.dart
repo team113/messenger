@@ -34,7 +34,6 @@ import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
-import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
@@ -705,7 +704,8 @@ class ChatsTabView extends StatelessWidget {
                   } else {
                     if (c.chats.none((e) {
                       return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                          !e.chat.value.isHidden &&
+                          (!e.chat.value.isHidden ||
+                          !e.chat.value.isArchived) &&
                           !e.hidden.value;
                     })) {
                       if (c.status.value.isLoadingMore) {
@@ -736,19 +736,33 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
-                            for (var e in c.chats) {
-                              if ((!e.id.isLocal ||
-                                      e.messages.isNotEmpty ||
-                                      e.chat.value.isMonolog) &&
-                                  !e.chat.value.isHidden &&
-                                  !e.hidden.value) {
-                                if (e.chat.value.ongoingCall != null) {
-                                  calls.add(e.rx);
-                                } else if (e.chat.value.favoritePosition !=
-                                    null) {
-                                  favorites.add(e.rx);
-                                } else {
+                            if(c.isShowOnlyArchive.value) {
+                              for (var e in c.archived) {
+                                if ((!e.id.isLocal ||
+                                    e.messages.isNotEmpty ||
+                                    e.chat.value.isMonolog) &&
+                                    !e.chat.value.isHidden &&
+                                    e.chat.value.isArchived &&
+                                    !e.hidden.value) {
                                   chats.add(e.rx);
+                                }
+                              }
+                            } else {
+                              for (var e in c.chats) {
+                                if ((!e.id.isLocal ||
+                                    e.messages.isNotEmpty ||
+                                    e.chat.value.isMonolog) &&
+                                    !e.chat.value.isHidden &&
+                                    !e.chat.value.isArchived &&
+                                    !e.hidden.value) {
+                                  if (e.chat.value.ongoingCall != null) {
+                                    calls.add(e.rx);
+                                  } else if (e.chat.value.favoritePosition !=
+                                      null) {
+                                    favorites.add(e.rx);
+                                  } else {
+                                    chats.add(e.rx);
+                                  }
                                 }
                               }
                             }
@@ -784,9 +798,9 @@ class ChatsTabView extends StatelessWidget {
                                 onLeave: e.chat.value.isMonolog
                                     ? null
                                     : () => c.leaveChat(e.id),
-                                onHide: (clear) => c.hideChat(e.id, clear),
+                                onHide: () => c.hideChat(e.id),
                                 onToggleArchivation: () =>
-                                    c.toggleChatArchivation(
+                                    c.archiveChat(
                                       e.id,
                                       !e.chat.value.isArchived,
                                     ),
@@ -1296,29 +1310,14 @@ class ChatsTabView extends StatelessWidget {
     BuildContext context,
     ChatsTabController c,
   ) async {
-    bool clear = false;
-
     final bool? result = await MessagePopup.alert(
       'label_delete_chats'.l10n,
       description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
-      additional: [
-        const SizedBox(height: 21),
-        StatefulBuilder(
-          builder: (context, setState) {
-            return RectangleButton(
-              label: 'btn_clear_history'.l10n,
-              selected: clear,
-              radio: true,
-              toggleable: true,
-              onPressed: () => setState(() => clear = !clear),
-            );
-          },
-        ),
-      ],
+      button: MessagePopup.deleteButton,
     );
 
     if (result == true) {
-      await c.hideChats(clear);
+      await c.hideChats();
     }
   }
 }

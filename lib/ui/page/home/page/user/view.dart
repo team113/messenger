@@ -473,17 +473,15 @@ class UserView extends StatelessWidget {
       ],
       button: (context) {
         return Obx(() {
-          return Obx(() {
-            final bool enabled = !c.reporting.isEmpty.value;
+          final bool enabled = !c.reporting.isEmpty.value;
 
-            return PrimaryButton(
-              title: 'btn_report'.l10n,
-              onPressed: enabled ? () => Navigator.of(context).pop(true) : null,
-              leading: SvgIcon(
-                enabled ? SvgIcons.reportWhite : SvgIcons.reportGrey,
-              ),
-            );
-          });
+          return PrimaryButton(
+            title: 'btn_report'.l10n,
+            onPressed: enabled ? () => Navigator.of(context).pop(true) : null,
+            leading: SvgIcon(
+              enabled ? SvgIcons.reportWhite : SvgIcons.reportGrey,
+            ),
+          );
         });
       },
     );
@@ -495,18 +493,13 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(UserController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(
-          text: c.user?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
-      ],
+      button: (context) => MessagePopup.defaultButton(
+        context,
+        icon: SvgIcons.cleanHistoryWhite,
+        label: 'btn_clear'.l10n,
+      ),
     );
 
     if (result == true) {
@@ -516,18 +509,14 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(UserController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
-        TextSpan(
-          text: c.user?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
-      ],
+      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
+      button: (context) => MessagePopup.deleteButton(
+        context,
+        icon: SvgIcons.delete19White,
+        label: 'btn_delete'.l10n,
+      ),
     );
 
     if (result == true) {

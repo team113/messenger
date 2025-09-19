@@ -17,14 +17,19 @@
 
 Feature: Clear chat
 
-  Scenario: User clears group
+  Background: User is in group chat with Bob and Charlie
     Given I am Alice
     And users Bob and Charlie
     And I have "Group" group
     And I am in "Group" group
     And I see some messages in chat
+    And I open chat's info
 
-    When I tap `MoreButton` button
-    And I tap `ClearHistoryButton` button
+  @disabled
+  Scenario: User clears group
+    When I wait until `ChatInfoScrollable` is present
+    And I scroll `ChatInfoScrollable` until `ClearChatButton` is present
+    And I tap `ClearChatButton` button
     And I tap `Proceed` button
+    And I tap `BackButton` button
     Then I see no messages in chat

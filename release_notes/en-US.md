@@ -1,3 +1,3 @@
-- Redesigned session deletion modals.
-- Redesigned route switching animation.
+- Redesigned chat profile.
+- Improved media player user experience.
 - Bug fixes and performance improvements.

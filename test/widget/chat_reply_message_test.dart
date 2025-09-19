@@ -36,6 +36,7 @@ import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
@@ -490,6 +491,7 @@ void main() async {
       ),
     );
     Get.put(ContactService(contactRepository));
+    Get.put(NotificationService(graphQlProvider));
 
     final MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
@@ -580,6 +582,7 @@ final chatData = {
   'members': {'nodes': [], 'totalCount': 0},
   'kind': 'GROUP',
   'isHidden': false,
+  'isArchived': false,
   'muted': null,
   'directLink': null,
   'createdAt': '2021-12-15T15:11:18.316846+00:00',

@@ -1,3 +1,3 @@
-- Rediseño de los modales para eliminar sesiones.
-- Rediseño de la animación al cambiar de ruta.
+- Perfil de chat rediseñado.
+- Experiencia de usuario mejorada con el reproductor multimedia.
 - Corrección de errores y mejoras de rendimiento.

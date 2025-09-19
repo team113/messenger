@@ -350,6 +350,9 @@ class GraphQlClient {
       () async => (await client).subscribe(options),
     );
 
+    // Store the reference to the current [WebSocketLink].
+    final WebSocketLink? wsLink = _wsLink;
+
     SubscriptionConnection? connection;
     connection = SubscriptionConnection(
       stream.expand((event) {
@@ -357,7 +360,12 @@ class GraphQlClient {
 
         if (e != null) {
           if (e is AuthorizationException) {
-            authExceptionHandler?.call(e);
+            // If we're still using the same [WebSocketLink], then
+            // [_newWebSocket] didn't happen just yet, so proceed with error.
+            if (wsLink == _wsLink && _subscriptions.contains(connection)) {
+              authExceptionHandler?.call(e);
+            }
+
             return [];
           } else {
             throw e;
@@ -376,6 +384,9 @@ class GraphQlClient {
   /// Middleware that wraps the provided [fn] execution and attempts to handle
   /// [AuthorizationException] if any.
   Future<T> _middleware<T>(Future<T> Function() fn) async {
+    // Store the reference to the current [WebSocketLink].
+    final GraphQLClient? client = _client;
+
     try {
       final T result = await fn();
 
@@ -386,6 +397,10 @@ class GraphQlClient {
 
       return result;
     } on AuthorizationException catch (e) {
+      if (client != _client) {
+        rethrow;
+      }
+
       await authExceptionHandler?.call(e);
       return await fn();
     } on Exception catch (e) {

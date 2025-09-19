@@ -407,11 +407,6 @@ void main() async {
     }
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(
-      find.byKey(const Key('EditProfileButton'), skipOffstage: false),
-    );
-    await tester.pumpAndSettle();
-
     var field = find.byKey(const Key('RenameChatField'));
     expect(field, findsOneWidget);
 
@@ -421,16 +416,10 @@ void main() async {
     await tester.enterText(field, 'newname');
     await tester.pumpAndSettle();
 
-    await tester.tap(
-      find.byKey(const Key('SaveEditingButton'), skipOffstage: false),
-    );
-    await tester.pumpAndSettle();
+    expect(find.text('newname'), findsNWidgets(1));
 
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
-
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.byIcon(Icons.check), findsNothing);
 
     verify(
       graphQlProvider.renameChat(
@@ -439,7 +428,7 @@ void main() async {
       ),
     );
 
-    expect(find.text('newname'), findsNWidgets(1));
+    expect(find.text('newname'), findsNWidgets(2));
 
     await Future.wait([common.close(), scoped.close()]);
     await Get.deleteAll(force: true);
@@ -456,6 +445,7 @@ final chatData = {
   'members': {'nodes': [], 'totalCount': 0},
   'kind': 'GROUP',
   'isHidden': false,
+  'isArchived': false,
   'muted': null,
   'directLink': null,
   'createdAt': '2021-12-15T15:11:18.316846+00:00',

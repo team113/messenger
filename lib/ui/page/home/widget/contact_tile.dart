@@ -140,14 +140,19 @@ class ContactTile extends StatelessWidget {
           hoveredBorder: selected
               ? style.cardSelectedBorder
               : style.cardHoveredBorder,
-          border: selected ? style.cardSelectedBorder : style.cardBorder,
+          border: selected
+              ? style.cardSelectedBorder
+              : Border.all(
+                  color: style.colors.secondaryHighlightDarkest,
+                  width: 0.5,
+                ),
           borderRadius: style.cardRadius,
           onTap: onTap,
           unselectedHoverColor: style.cardHoveredColor,
           selectedHoverColor: style.colors.primary,
           folded: contact?.contact.value.favoritePosition != null,
           child: SizedBox(
-            height: dense ? 56 : height,
+            height: dense ? 62 : height,
             child: Padding(
               key: contact?.contact.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${contact?.contact.value.id}')
@@ -217,8 +222,8 @@ class ContactTile extends StatelessWidget {
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
       style: selected
-          ? style.fonts.big.regular.onPrimary
-          : style.fonts.big.regular.onBackground,
+          ? style.fonts.medium.regular.onPrimary
+          : style.fonts.medium.regular.onBackground,
     );
   }
 
