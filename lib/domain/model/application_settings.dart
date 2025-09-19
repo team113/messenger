@@ -24,7 +24,6 @@ class ApplicationSettings {
     this.sideBarWidth,
     this.callButtons = const [],
     this.pinnedActions = const [],
-    this.callButtonsPosition = CallButtonsPosition.appBar,
     this.workWithUsTabEnabled = true,
     this.muteKeys,
     this.videoVolume = 1,
@@ -50,9 +49,6 @@ class ApplicationSettings {
   /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
   List<String> pinnedActions;
 
-  /// [CallButtonsPosition] of the call buttons in [Chat].
-  CallButtonsPosition? callButtonsPosition;
-
   /// Indicator whether [WorkTabView] should be displayed in the
   /// [CustomNavigationBar] of [HomeView].
   bool workWithUsTabEnabled;
@@ -72,7 +68,6 @@ class ApplicationSettings {
         sideBarWidth == other.sideBarWidth &&
         callButtons.toString() == other.callButtons.toString() &&
         pinnedActions.toString() == other.pinnedActions.toString() &&
-        callButtonsPosition == other.callButtonsPosition &&
         workWithUsTabEnabled == other.workWithUsTabEnabled &&
         muteKeys?.toString() == other.muteKeys?.toString() &&
         videoVolume == other.videoVolume;
@@ -86,27 +81,8 @@ class ApplicationSettings {
     sideBarWidth,
     callButtons.toString(),
     pinnedActions.toString(),
-    callButtonsPosition,
     workWithUsTabEnabled,
     muteKeys.toString(),
     videoVolume,
   );
-}
-
-/// Possible call buttons position.
-enum CallButtonsPosition {
-  /// [AppBar] position.
-  appBar,
-
-  /// [ContextMenu] position.
-  contextMenu,
-
-  /// Top position in [ChatView] body.
-  top,
-
-  /// Bottom position in [ChatView] body.
-  bottom,
-
-  /// [ChatMoreWidget] button position.
-  more,
 }
