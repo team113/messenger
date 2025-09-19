@@ -1170,6 +1170,7 @@ class IconsView extends StatelessWidget {
                       SvgIcons.callIncomingVideoOff,
                       SvgIcons.callIncomingAudioOn,
                       SvgIcons.callIncomingAudioOff,
+                      SvgIcons.callAudioEarpiece,
                     ].map((e) {
                       return CallButtonWidget(
                         asset: e,

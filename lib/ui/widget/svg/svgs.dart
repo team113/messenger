@@ -881,15 +881,27 @@ class SvgIcons {
   );
 
   static const SvgData callIncomingAudioOn = SvgData(
+    'assets/icons/headphones_on.svg',
+    width: 31.47,
+    height: 31.47,
+  );
+
+  static const SvgData callIncomingAudioOff = SvgData(
+    'assets/icons/headphones_off.svg',
+    width: 31.47,
+    height: 31.47,
+  );
+
+  static const SvgData callSpeakerOn = SvgData(
     'assets/icons/speaker_on.svg',
     width: 27.89,
     height: 25,
   );
 
-  static const SvgData callIncomingAudioOff = SvgData(
-    'assets/icons/speaker_off.svg',
-    width: 27.89,
-    height: 25,
+  static const SvgData callAudioEarpiece = SvgData(
+    'assets/icons/mobile_ear_piece_mode.svg',
+    width: 27,
+    height: 39,
   );
 
   static const SvgData callHeadphones = SvgData(

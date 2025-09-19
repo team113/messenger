@@ -18,9 +18,13 @@ All user visible changes to this project will be documented in this file. This p
         - Updated monolog description. ([#1409], [#1248])
     - Home page:
         - Redesigned introduction for guests accounts. ([#1430])
+    - Media panel:
+        - Updated remote audio icons. ([#1424], [#1281])
 
 [#1248]: /../../issues/1248
+[#1281]: /../../issues/1281
 [#1409]: /../../pull/1409
+[#1424]: /../../pull/1424
 [#1430]: /../../pull/1430
 
 
