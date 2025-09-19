@@ -392,7 +392,7 @@ class ChatView extends StatelessWidget {
                                 // final bool contact =
                                 //     c.user?.user.value.contacts.isNotEmpty ??
                                 //         false;
-                                
+
                                 final Widget child = ContextMenuRegion(
                                   key: c.moreKey,
                                   selector: c.moreKey,
@@ -403,37 +403,6 @@ class ChatView extends StatelessWidget {
                                     right: 12,
                                   ),
                                   actions: [
-                                    if (c.callPosition ==
-                                        CallButtonsPosition.contextMenu) ...[
-                                      ContextMenuButton(
-                                        label: 'btn_audio_call'.l10n,
-                                        onPressed: blocked || inCall
-                                            ? null
-                                            : () => c.call(false),
-                                        trailing: SvgIcon(
-                                          blocked || inCall
-                                              ? SvgIcons.makeAudioCallDisabled
-                                              : SvgIcons.makeAudioCall,
-                                        ),
-                                        inverted: const SvgIcon(
-                                          SvgIcons.makeAudioCallWhite,
-                                        ),
-                                      ),
-                                      ContextMenuButton(
-                                        label: 'btn_video_call'.l10n,
-                                        onPressed: blocked || inCall
-                                            ? null
-                                            : () => c.call(true),
-                                        trailing: SvgIcon(
-                                          blocked || inCall
-                                              ? SvgIcons.makeVideoCallDisabled
-                                              : SvgIcons.makeVideoCall,
-                                        ),
-                                        inverted: const SvgIcon(
-                                          SvgIcons.makeVideoCallWhite,
-                                        ),
-                                      ),
-                                    ],
                                     ContextMenuButton(
                                       key: const Key('SearchItemsButton'),
                                       label: 'label_search'.l10n,
