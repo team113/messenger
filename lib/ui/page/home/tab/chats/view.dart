@@ -176,7 +176,11 @@ class ChatsTabView extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('label_chats'.l10n),
+                              Text(
+                                c.isShowOnlyArchive.value
+                                    ? 'label_hidden_chats'.l10n
+                                    : 'label_chats'.l10n,
+                              ),
                               AnimatedSizeAndFade(
                                 sizeDuration: const Duration(milliseconds: 300),
                                 fadeDuration: const Duration(milliseconds: 300),
@@ -218,6 +222,19 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
 
+                      if (c.isShowOnlyArchive.value) {
+                        return WidgetButton(
+                          onPressed: c.toggleArchive,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            child: SvgIcon(SvgIcons.back),
+                          ),
+                        );
+                      }
+
                       return const SizedBox(width: 21);
                     }),
                   ],
@@ -251,6 +268,24 @@ class ChatsTabView extends StatelessWidget {
                             onPressed: () => router.chat(c.monolog),
                             trailing: const SvgIcon(SvgIcons.notesSmall),
                             inverted: const SvgIcon(SvgIcons.notesSmallWhite),
+                          ),
+                          ContextMenuButton(
+                            label: 'btn_hidden_chats'.l10n,
+                            onPressed: () => c.toggleArchive(),
+                            trailing: const SvgIcon(SvgIcons.visibleOff),
+                            inverted: const SvgIcon(SvgIcons.visibleOffWhite),
+                            spacer: c.isShowOnlyArchive.value
+                                ? Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: const SvgIcon(SvgIcons.sentBlue),
+                                  )
+                                : null,
+                            spacerInverted: c.isShowOnlyArchive.value
+                                ? Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: const SvgIcon(SvgIcons.sentWhite),
+                                  )
+                                : null,
                           ),
                         ],
                         child: AnimatedButton(
@@ -669,7 +704,8 @@ class ChatsTabView extends StatelessWidget {
                   } else {
                     if (c.chats.none((e) {
                       return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                          !e.chat.value.isHidden &&
+                          (!e.chat.value.isHidden ||
+                              !e.chat.value.isArchived) &&
                           !e.hidden.value;
                     })) {
                       if (c.status.value.isLoadingMore) {
@@ -700,19 +736,33 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
-                            for (var e in c.chats) {
-                              if ((!e.id.isLocal ||
-                                      e.messages.isNotEmpty ||
-                                      e.chat.value.isMonolog) &&
-                                  !e.chat.value.isHidden &&
-                                  !e.hidden.value) {
-                                if (e.chat.value.ongoingCall != null) {
-                                  calls.add(e.rx);
-                                } else if (e.chat.value.favoritePosition !=
-                                    null) {
-                                  favorites.add(e.rx);
-                                } else {
+                            if (c.isShowOnlyArchive.value) {
+                              for (var e in c.archived) {
+                                if ((!e.id.isLocal ||
+                                        e.messages.isNotEmpty ||
+                                        e.chat.value.isMonolog) &&
+                                    !e.chat.value.isHidden &&
+                                    e.chat.value.isArchived &&
+                                    !e.hidden.value) {
                                   chats.add(e.rx);
+                                }
+                              }
+                            } else {
+                              for (var e in c.chats) {
+                                if ((!e.id.isLocal ||
+                                        e.messages.isNotEmpty ||
+                                        e.chat.value.isMonolog) &&
+                                    !e.chat.value.isHidden &&
+                                    !e.chat.value.isArchived &&
+                                    !e.hidden.value) {
+                                  if (e.chat.value.ongoingCall != null) {
+                                    calls.add(e.rx);
+                                  } else if (e.chat.value.favoritePosition !=
+                                      null) {
+                                    favorites.add(e.rx);
+                                  } else {
+                                    chats.add(e.rx);
+                                  }
                                 }
                               }
                             }
@@ -749,6 +799,10 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.leaveChat(e.id),
                                 onHide: () => c.hideChat(e.id),
+                                onToggleArchivation: () => c.archiveChat(
+                                  e.id,
+                                  !e.chat.value.isArchived,
+                                ),
                                 onMute:
                                     e.chat.value.isMonolog ||
                                         e.chat.value.id.isLocal
@@ -1140,7 +1194,7 @@ class ChatsTabView extends StatelessWidget {
         WidgetButton(
           onPressed: c.selectedChats.isEmpty
               ? null
-              : () => _hideChats(context, c),
+              : () => _toggleChatsArchivation(context, c),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
@@ -1217,6 +1271,37 @@ class ChatsTabView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  /// Opens a confirmation popup toggling archivation the selected chats.
+  static Future<void> _toggleChatsArchivation(
+    BuildContext context,
+    ChatsTabController c,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      c.isShowOnlyArchive.value
+          ? 'label_show_chats'.l10n
+          : 'label_hide_chats'.l10n,
+      description: [
+        TextSpan(
+          text: c.isShowOnlyArchive.value
+              ? 'label_show_chats_modal_description'.l10n
+              : 'label_hide_chats_modal_description'.l10n,
+        ),
+      ],
+      additional: [const SizedBox(height: 21)],
+      button: (context) => MessagePopup.primaryButton(
+        context,
+        label: c.isShowOnlyArchive.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
+        icon: c.isShowOnlyArchive.value
+            ? SvgIcons.visibleOffWhite
+            : SvgIcons.visibleOnWhite,
+      ),
+    );
+
+    if (result == true) {
+      await c.toggleChatsArchivation(!c.isShowOnlyArchive.value);
+    }
   }
 
   /// Opens a confirmation popup hiding the selected chats.

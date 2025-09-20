@@ -629,6 +629,30 @@ class PostChatMessageException
   }
 }
 
+/// Exception of `Mutation.toggleChatArchivation` described in the [code].
+class ToggleChatArchivationException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ToggleChatArchivationException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ToggleChatArchivationErrorCode code;
+
+  @override
+  String toString() => 'ToggleChatArchivationException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ToggleChatArchivationErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+
+      case ToggleChatArchivationErrorCode.unknownChat:
+        return toString();
+    }
+  }
+}
+
 /// Exception of `Mutation.hideChat` described in the [code].
 class HideChatException with LocalizedExceptionMixin implements Exception {
   const HideChatException(this.code);

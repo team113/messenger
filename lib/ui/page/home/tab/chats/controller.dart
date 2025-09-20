@@ -57,6 +57,7 @@ import '/provider/gql/exceptions.dart'
         HideChatException,
         JoinChatCallException,
         RemoveChatMemberException,
+        ToggleChatArchivationException,
         ToggleChatMuteException,
         UnfavoriteChatException;
 import '/routes.dart';
@@ -85,6 +86,9 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   final RxList<ChatEntry> chats = RxList();
 
+  /// Reactive list of sorted archived [Chat]s.
+  final RxList<ChatEntry> archived = RxList();
+
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
@@ -93,6 +97,9 @@ class ChatsTabController extends GetxController {
 
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
+
+  /// Indicator whether [search]ing is active.
+  final RxBool isShowOnlyArchive = RxBool(false);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -152,6 +159,9 @@ class ChatsTabController extends GetxController {
 
   /// Subscription for the [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
+
+  /// Subscription for the [ChatService.archivedChatsPaginated] changes.
+  late final StreamSubscription _archivedSubscription;
 
   /// Subscription for [SearchController.chats], [SearchController.users] and
   /// [SearchController.contacts] changes updating the [elements].
@@ -269,6 +279,31 @@ class ChatsTabController extends GetxController {
       }
     });
 
+    _archivedSubscription = _chatService.archived.changes.listen((event) {
+      switch (event.op) {
+        case OperationKind.added:
+          final entry = ChatEntry(event.value!, chats.sort);
+          archived.add(entry);
+          archived.sort();
+          break;
+
+        case OperationKind.removed:
+          archived.removeWhere((e) {
+            if (e.chat.value.id == event.key) {
+              e.dispose();
+              return true;
+            }
+
+            return false;
+          });
+          break;
+
+        case OperationKind.updated:
+          archived.sort();
+          break;
+      }
+    });
+
     if (_chatService.status.value.isSuccess) {
       SchedulerBinding.instance.addPostFrameCallback(
         (_) => _ensureScrollable(),
@@ -299,6 +334,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
+    _archivedSubscription.cancel();
     _statusSubscription?.cancel();
 
     _searchSubscription?.cancel();
@@ -319,6 +355,10 @@ class ChatsTabController extends GetxController {
     router.navigator.value = null;
 
     super.onClose();
+  }
+
+  void toggleArchive() {
+    isShowOnlyArchive.value = !isShowOnlyArchive.value;
   }
 
   /// Opens a [Chat]-dialog with this [user].
@@ -396,6 +436,45 @@ class ChatsTabController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
+    }
+  }
+
+  /// Toggle archivation the [Chat] identified by the provided [id]
+  Future<void> archiveChat(ChatId id, bool archive) async {
+    try {
+      await _chatService.archiveChat(id, archive);
+    } on ToggleChatArchivationException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Toggle archivation the [selectedChats]
+  Future<void> toggleChatsArchivation(bool archive) async {
+    selecting.value = false;
+
+    router.navigation.value = !selecting.value;
+    router.navigator.value = null;
+
+    try {
+      await Future.wait(
+        selectedChats.map(
+          (chatId) => _chatService.archiveChat(chatId, archive),
+        ),
+      );
+    } on ToggleChatArchivationException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      selectedChats.clear();
     }
   }
 
@@ -687,6 +766,7 @@ class ChatsTabController extends GetxController {
               e.chat.value.ongoingCall == null &&
               e.chat.value.favoritePosition != null &&
               !e.chat.value.isHidden &&
+              !e.chat.value.isArchived &&
               !e.hidden.value,
         )
         .toList();

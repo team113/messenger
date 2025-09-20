@@ -278,6 +278,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Stream<QueryResult> recentChatsTopEvents(
     int count, {
     bool noFavorite = false,
+    bool archived = false,
     bool? withOngoingCalls,
   }) {
     return Stream.value(
