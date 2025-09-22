@@ -2513,16 +2513,12 @@ class ChatRepository extends DisposableInterface
               await _chatLocal.upsertBulk(e);
             }
           },
-          delete: (e) async {
-            await _chatLocal.delete(e);
-          },
+          delete: (e) async => await _chatLocal.delete(e),
           reset: () async => await _chatLocal.clear(),
           isLast: (_, _) => false,
           isFirst: (_, _) => false,
           fulfilledWhenNone: true,
-          compare: (a, b) {
-            return a.value.compareTo(b.value);
-          },
+          compare: (a, b) => a.value.compareTo(b.value),
         ),
       ),
       compare: (a, b) => a.value.compareTo(b.value),
@@ -2537,11 +2533,9 @@ class ChatRepository extends DisposableInterface
       ),
       CombinedPaginationEntry(
         recent,
-        addIf: (e) {
-          return e.value.ongoingCall == null &&
-              e.value.favoritePosition == null &&
-              !e.value.isArchived;
-        },
+        addIf: (e) => e.value.ongoingCall == null &&
+            e.value.favoritePosition == null &&
+            !e.value.isArchived,
       ),
     ]);
 
@@ -2650,16 +2644,12 @@ class ChatRepository extends DisposableInterface
               await _chatLocal.upsertBulk(e);
             }
           },
-          delete: (e) async {
-            await _chatLocal.delete(e);
-          },
+          delete: (e) async => await _chatLocal.delete(e),
           reset: () async => await _chatLocal.clear(),
           isLast: (_, _) => false,
           isFirst: (_, _) => false,
           fulfilledWhenNone: true,
-          compare: (a, b) {
-            return a.value.compareTo(b.value);
-          },
+          compare: (a, b) => a.value.compareTo(b.value),
         ),
       ),
       compare: (a, b) => a.value.compareTo(b.value),
