@@ -2533,7 +2533,8 @@ class ChatRepository extends DisposableInterface
       ),
       CombinedPaginationEntry(
         recent,
-        addIf: (e) => e.value.ongoingCall == null &&
+        addIf: (e) =>
+            e.value.ongoingCall == null &&
             e.value.favoritePosition == null &&
             !e.value.isArchived,
       ),
