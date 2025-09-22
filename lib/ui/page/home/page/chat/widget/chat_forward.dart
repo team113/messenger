@@ -813,14 +813,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   Widget _rounded(BuildContext context, Widget Function(bool) builder) {
     final style = Theme.of(context).style;
     final ChatItem? note = widget.note.value?.value;
-    String? copyable = _text.values.where((e) => e.text != null).firstOrNull?.text;
+    String? copyable = _text.values
+        .where((e) => e.text != null)
+        .firstOrNull
+        ?.text;
 
     if (note is ChatMessage) {
       copyable = note.text?.val;
     }
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
-          (e) => e.at.val.isAfter(_at.val) && e.memberId != widget.authorId,
+      (e) => e.at.val.isAfter(_at.val) && e.memberId != widget.authorId,
     );
 
     const int maxAvatars = 5;
