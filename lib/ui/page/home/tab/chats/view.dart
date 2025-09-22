@@ -1199,7 +1199,7 @@ class ChatsTabView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
               child: Text(
-                'btn_hide'.l10n,
+                c.isShowOnlyArchive.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
                 style: style.fonts.normal.regular.primary,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
