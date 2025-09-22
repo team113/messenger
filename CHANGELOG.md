@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.2...v0.7.0) | [Milestone](/../../milestone/47)
 
+### Added
+
+- UI:
+    - Chats tab:
+        - Chat archives have been added. ([#1414], [#1255])
+
 ### Changed
 
 - UI:
@@ -22,8 +28,10 @@ All user visible changes to this project will be documented in this file. This p
         - Updated remote audio icons. ([#1424], [#1281])
 
 [#1248]: /../../issues/1248
+[#1255]: /../../issues/1255
 [#1281]: /../../issues/1281
 [#1409]: /../../pull/1409
+[#1414]: /../../pull/1414
 [#1424]: /../../pull/1424
 [#1430]: /../../pull/1430
 
