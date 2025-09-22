@@ -69,7 +69,7 @@ class RecentChatTile extends StatelessWidget {
     this.getUser,
     this.inContacts,
     this.onLeave,
-    this.onToggleArchivation,
+    this.onArchiveUnarchiveChat,
     this.onHide,
     this.onDrop,
     this.onJoin,
@@ -119,8 +119,9 @@ class RecentChatTile extends StatelessWidget {
   /// Callback, called when this [rxChat] leave action is triggered.
   final void Function()? onLeave;
 
-  /// Callback, called when this [rxChat] toggle archivation action is triggered.
-  final void Function()? onToggleArchivation;
+  /// Callback, called when this [rxChat] archive or unarchive
+  /// action is triggered.
+  final void Function()? onArchiveUnarchiveChat;
 
   /// Callback, called when this [rxChat] hide action is triggered.
   final void Function()? onHide;
@@ -306,13 +307,13 @@ class RecentChatTile extends StatelessWidget {
                   trailing: const SvgIcon(SvgIcons.muteSmall),
                   inverted: const SvgIcon(SvgIcons.muteSmallWhite),
                 ),
-              if (onToggleArchivation != null)
+              if (onArchiveUnarchiveChat != null)
                 ContextMenuButton(
-                  key: const Key('ToggleArchivationChatButton'),
+                  key: const Key('ArchiveUnarchiveChatButton'),
                   label: rxChat.chat.value.isArchived
                       ? 'btn_show_chat'.l10n
                       : 'btn_hide_chat'.l10n,
-                  onPressed: () => _toggleChatArchivation(context),
+                  onPressed: () => _archiveUnarchiveChat(context),
                   trailing: rxChat.chat.value.isArchived
                       ? const SvgIcon(SvgIcons.visibleOff)
                       : const SvgIcon(SvgIcons.visibleOn),
@@ -1003,8 +1004,8 @@ class RecentChatTile extends StatelessWidget {
     });
   }
 
-  /// Archives or unarchives the specified [rxChat].
-  Future<void> _toggleChatArchivation(BuildContext context) async {
+  /// Archives or unarchives the [rxChat].
+  Future<void> _archiveUnarchiveChat(BuildContext context) async {
     final bool? result = await MessagePopup.alert(
       rxChat.chat.value.isArchived
           ? 'label_show_chats'.l10n
@@ -1029,7 +1030,7 @@ class RecentChatTile extends StatelessWidget {
     );
 
     if (result == true) {
-      onToggleArchivation?.call();
+      onArchiveUnarchiveChat?.call();
     }
   }
 

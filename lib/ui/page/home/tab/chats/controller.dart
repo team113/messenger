@@ -98,7 +98,7 @@ class ChatsTabController extends GetxController {
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
 
-  /// Indicator whether [search]ing is active.
+  /// Indicator whether chat archive viewing is active.
   final RxBool isShowOnlyArchive = RxBool(false);
 
   /// [ScrollController] to pass to a [Scrollbar].
@@ -160,7 +160,7 @@ class ChatsTabController extends GetxController {
   /// Subscription for the [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
 
-  /// Subscription for the [ChatService.archivedChatsPaginated] changes.
+  /// Subscription for the [ChatService.archived] changes.
   late final StreamSubscription _archivedSubscription;
 
   /// Subscription for [SearchController.chats], [SearchController.users] and
@@ -357,6 +357,7 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
+  /// Toggles the [Chat]s archive.
   void toggleArchive() {
     isShowOnlyArchive.value = !isShowOnlyArchive.value;
   }
@@ -439,7 +440,8 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Toggle archivation the [Chat] identified by the provided [id]
+  /// Archives or unarchives the specified [Chat]
+  /// identified by the provided [id]
   Future<void> archiveChat(ChatId id, bool archive) async {
     try {
       await _chatService.archiveChat(id, archive);
@@ -453,8 +455,8 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Toggle archivation the [selectedChats]
-  Future<void> toggleChatsArchivation(bool archive) async {
+  /// Archives or unarchives the [selectedChats]
+  Future<void> archiveChats(bool archive) async {
     selecting.value = false;
 
     router.navigation.value = !selecting.value;

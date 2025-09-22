@@ -217,7 +217,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     return result ?? [];
   }
 
-  /// Returns the recent [DtoChat]s being in a historical view order.
+  /// Returns the archived [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> archive({int? limit}) async {
     final result = await safe(
       (db) async {

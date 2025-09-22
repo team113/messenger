@@ -799,7 +799,7 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.leaveChat(e.id),
                                 onHide: () => c.hideChat(e.id),
-                                onToggleArchivation: () => c.archiveChat(
+                                onArchiveUnarchiveChat: () => c.archiveChat(
                                   e.id,
                                   !e.chat.value.isArchived,
                                 ),
@@ -1194,7 +1194,7 @@ class ChatsTabView extends StatelessWidget {
         WidgetButton(
           onPressed: c.selectedChats.isEmpty
               ? null
-              : () => _toggleChatsArchivation(context, c),
+              : () => _archiveUnarchiveChats(context, c),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
@@ -1273,8 +1273,9 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Opens a confirmation popup toggling archivation the selected chats.
-  static Future<void> _toggleChatsArchivation(
+  /// Opens a popup window to confirm archiving or unarchiving
+  /// the selected chats.
+  static Future<void> _archiveUnarchiveChats(
     BuildContext context,
     ChatsTabController c,
   ) async {
@@ -1300,7 +1301,7 @@ class ChatsTabView extends StatelessWidget {
     );
 
     if (result == true) {
-      await c.toggleChatsArchivation(!c.isShowOnlyArchive.value);
+      await c.archiveChats(!c.isShowOnlyArchive.value);
     }
   }
 
