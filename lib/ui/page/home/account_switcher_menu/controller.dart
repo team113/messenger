@@ -1,5 +1,6 @@
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
+import '../../../../api/backend/schema.graphql.dart';
 import '../../../../domain/model/my_user.dart';
 import '../../../../domain/model/user.dart';
 import '../../../../domain/service/auth.dart';
@@ -49,5 +50,16 @@ class AccountSwitcherMenuController extends AccountsController {
   /// Updates or resets [MyUser.status] field for the authenticated [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status) async {
     await _myUserService.updateUserStatus(status);
+  }
+
+  /// Toggles [MyUser.presence] between [Presence.present] and [Presence.away].
+  void togglePresence() {
+    Presence newPresence;
+    if (myUser.value?.presence == Presence.present) {
+      newPresence = Presence.away;
+    } else {
+      newPresence = Presence.present;
+    }
+    _myUserService.updateUserPresence(newPresence);
   }
 }
