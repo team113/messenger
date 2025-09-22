@@ -1,3 +1,4 @@
-- Perfil de chat rediseñado.
-- Experiencia de usuario mejorada con el reproductor multimedia.
+- Descripción actualizada del chat de notas.
+- Iconos de audio remoto actualizados en las llamadas.
+- Introducción rediseñada para cuentas de invitado.
 - Corrección de errores y mejoras de rendimiento.
