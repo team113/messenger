@@ -101,6 +101,9 @@ void main() async {
       graphQlProvider.recentChatsTopEvents(3),
     ).thenAnswer((_) => const Stream.empty());
     when(
+      graphQlProvider.recentChatsTopEvents(3, archived: true),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
       graphQlProvider.incomingCallsTopEvents(3),
     ).thenAnswer((_) => const Stream.empty());
     when(
@@ -125,6 +128,7 @@ void main() async {
         last: null,
         before: null,
         noFavorite: anyNamed('noFavorite'),
+        archived: anyNamed('archived'),
         withOngoingCalls: anyNamed('withOngoingCalls'),
       ),
     ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
