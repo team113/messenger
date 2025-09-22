@@ -531,7 +531,7 @@ mixin ChatGraphQlMixin {
 
   /// Archive or unarchive the specified [Chat] for the authenticated [MyUser].
   ///
-  /// Archived [Chat]s are excluded from the [Query.recentChats]
+  /// Archived [Chat]s are excluded from the [recentChats]
   /// when its with [archived] argument is set to `false`.
   ///
   /// Once a new [ChatItem] is posted in an archived unmuted [Chat],
