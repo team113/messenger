@@ -546,8 +546,8 @@ mixin ChatGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Only the following [ChatEvent]s may be produced on success:
-  /// - [EventChatArchived] (if `archive` argument is not `true`);
+  /// One of the following [ChatEvent]s may be produced on success:
+  /// - [EventChatArchived] (if `archive` argument is `true`);
   /// - [EventChatUnarchived] (if `archive` argument is `false`).
   ///
   /// ### Idempotent
