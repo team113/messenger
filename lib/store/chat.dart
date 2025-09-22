@@ -2159,7 +2159,11 @@ class ChatRepository extends DisposableInterface
     }
 
     if (pagination && !entry.chat.value.isHidden) {
-      paginated[chatId] ??= entry;
+      if(entry.chat.value.isArchived) {
+        archived[chatId] ??= entry;
+      } else {
+        paginated[chatId] ??= entry;
+      }
     }
 
     return entry;
