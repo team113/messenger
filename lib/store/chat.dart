@@ -170,9 +170,6 @@ class ChatRepository extends DisposableInterface
   /// [CombinedPagination] loading local [chats] with pagination.
   CombinedPagination<DtoChat, ChatId>? _localPagination;
 
-  /// [CombinedPagination] loading local [chats] with pagination.
-  CombinedPagination<DtoChat, ChatId>? _localArchivePagination;
-
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
 
@@ -298,7 +295,6 @@ class ChatRepository extends DisposableInterface
     _pagination?.dispose();
     _archivePagination?.dispose();
     _localPagination?.dispose();
-    _localArchivePagination?.dispose();
     _remoteSubscription?.close(immediate: true);
     _remoteArchiveSubscription?.close(immediate: true);
     _favoriteChatsSubscription?.close(immediate: true);
