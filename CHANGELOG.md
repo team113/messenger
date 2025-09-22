@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Fixed display "Copy text" action in the context popup menu. ([#1434], [#1271])
+        - Fixed display "Copy text" action in the context popup menu for forwarded messages. ([#1434], [#1271])
     - Chat info page:
         - Updated monolog description. ([#1409], [#1248])
     - Home page:
