@@ -173,7 +173,7 @@ class ChatRepository extends DisposableInterface
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
 
-  /// Subscription to the archive [_pagination] changes.
+  /// Subscription to the [_archivePagination] changes.
   StreamSubscription? _archivePaginationSubscription;
 
   /// [_recentChatsRemoteEvents] subscription.
