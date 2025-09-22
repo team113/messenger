@@ -34,6 +34,7 @@ jobs:
       - helm-lint
       - pubspec
       - test-e2e
+      - test-e2e-ios 
       - test-unit
       - validate-publish
     runs-on: ubuntu-latest
@@ -872,6 +873,80 @@ jobs:
       # Grant permissions to `.cache/` dir created in the previous step, since
       # `hashFile` may fail: https://github.com/actions/runner/issues/449
       - run: sudo chmod -R 755 .cache/
+
+  test-e2e-ios:
+    name: test (E2E iOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # for correct versioning via `git describe --tags`
+      
+      - name: Retrieve commit messages
+        id: commit
+        run: |
+          echo "messages=$(git log --grep='\[debug\]' \
+                                   --grep='\[trace\]' \
+                                   --format=%s)" \
+          >> $GITHUB_OUTPUT
+
+      - name: Determine log level
+        id: log
+        run: |
+          echo "level=${{ (contains(steps.commit.outputs.messages, '[debug]')
+                           && 'debug')
+                       || (contains(steps.commit.outputs.messages, '[trace]')
+                           && 'trace')
+                       ||     'info' }}"
+          >> $GITHUB_OUTPUT
+      
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.4'
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VER }}
+          channel: stable
+          cache: true
+          
+      - run: make flutter.pub
+      
+      # List all available simulators for reference in CI logs
+      - name: List available iOS simulators
+        run: xcrun simctl list devices available
+      
+      # Boot a specific iPhone simulator for E2E tests
+      - name: Boot iPhone SE (3rd generation) simulator
+        run: |
+          UDID=$(xcrun simctl list devices available | grep "iPhone SE (3rd generation)" | grep -o -E "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
+          xcrun simctl boot $UDID
+          echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
+      
+      # Run E2E tests on the iOS simulator
+      - name: Run E2E tests on iPhone SE simulator
+        run: |
+          # Set environment variables for tests
+          export SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
+          export SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
+          export SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
+          export SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+          export SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}
+          
+          # Run the tests
+          flutter test integration_test \
+            -d $SIMULATOR_UDID \
+            --dart-define=SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }} \
+            --dart-define=SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }} \
+            --dart-define=SOCAPP_WS_URL=${{ secrets.BACKEND_WS }} \
+            --dart-define=SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }} \
+            --dart-define=SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}
+
+      # Create directory for artifacts if needed
+      - run: mkdir -p .cache/
+      
+      # Grant permissions to `.cache/` dir for possible artifacts
+      - run: chmod -R 755 .cache/
 
   test-unit:
     name: test (unit)
