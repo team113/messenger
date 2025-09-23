@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.3...v0.7.0) | [Milestone](/../../milestone/48)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Inability to copy text from forwarded messages. ([#1434], [#1271])
+
+[#1271]: /../../issues/1271
+[#1434]: /../../pull/1434
+
+
+
+
 ## [0.6.3] · 2025-09-22
 [0.6.3]: /../../tree/v0.6.3
 
@@ -14,8 +31,6 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
-    - Chat page:
-        - Fixed display "Copy text" action in the context popup menu for forwarded messages. ([#1434], [#1271])
     - Chat info page:
         - Updated monolog description. ([#1409], [#1248])
     - Home page:
@@ -24,12 +39,10 @@ All user visible changes to this project will be documented in this file. This p
         - Updated remote audio icons. ([#1424], [#1281])
 
 [#1248]: /../../issues/1248
-[#1271]: /../../issues/1271
 [#1281]: /../../issues/1281
 [#1409]: /../../pull/1409
 [#1424]: /../../pull/1424
 [#1430]: /../../pull/1430
-[#1434]: /../../pull/1434
 
 
 
