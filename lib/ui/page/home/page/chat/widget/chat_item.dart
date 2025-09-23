@@ -76,9 +76,9 @@ class ChatItemWidget extends StatefulWidget {
     required this.chat,
     required this.me,
     this.user,
-    this.avatar = true,
+    this.withName = false,
+    this.withAvatar = true,
     this.appendAvatarPadding = true,
-    this.header = false,
     this.selectable = false,
     this.reads = const [],
     this.getUser,
@@ -114,23 +114,27 @@ class ChatItemWidget extends StatefulWidget {
   /// [User] posted this [item].
   final RxUser? user;
 
-  /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
-  final bool avatar;
-
-  /// Indicator whether this [ChatItemWidget] appends padding.
+  /// Indicator whether this [ChatItemWidget] should display [RxUser.title].
   ///
-  /// When an avatar is present, the padding is always applied automatically.
-  /// When there is no avatar, setting this to `true` appends the padding,
-  /// while `false` removes it.
+  /// For example, [Chat]-groups should display messages with titles.
+  final bool withName;
+
+  /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
+  ///
+  /// For example, [Chat]-groups should display messages with avatars.
+  final bool withAvatar;
+
+  /// Indicator whether this [ChatItemWidget] should append a left padding in
+  /// place of [AvatarWidget] of [user].
+  ///
+  /// When an [withAvatar] is `true`, the padding is always applied
+  /// automatically. Otherwise setting this to `true` appends the padding as if
+  /// there's invisible [AvatarWidget] present.
   final bool appendAvatarPadding;
 
-  /// Indicator wheter this [ChatItemWidget] enables [selectable] in
+  /// Indicator whether this [ChatItemWidget] enables [selectable] in
   /// [SelectionText.rich].
   final bool selectable;
-
-  /// Indicator whether this [ChatItemWidget] should display an `title` from
-  /// [user].
-  final bool header;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -779,7 +783,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       final List<Widget> children = [
         if (!_fromMe &&
             widget.chat.value?.isGroup == true &&
-            widget.header) ...[
+            widget.withName) ...[
           const SizedBox(height: 6),
           Row(
             children: [
@@ -849,14 +853,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   msg.repliesTo.isNotEmpty ||
                       (!_fromMe &&
                           widget.chat.value?.isGroup == true &&
-                          widget.avatar)
+                          widget.withAvatar)
                   ? Radius.zero
                   : const Radius.circular(15),
               topRight:
                   msg.repliesTo.isNotEmpty ||
                       (!_fromMe &&
                           widget.chat.value?.isGroup == true &&
-                          widget.avatar)
+                          widget.withAvatar)
                   ? Radius.zero
                   : const Radius.circular(15),
               bottomLeft: _text != null
@@ -1024,7 +1028,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 children: [
                   if (!_fromMe &&
                       widget.chat.value?.isGroup == true &&
-                      widget.avatar) ...[
+                      widget.withAvatar) ...[
                     Padding(
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                       child: SelectionText.rich(
@@ -1438,7 +1442,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   key: Key('expanded'),
                   width: avatarRadius.toDouble() * 2,
                 )
-              : widget.avatar && widget.chat.value?.isGroup == true
+              : widget.withAvatar && widget.chat.value?.isGroup == true
               ? Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: InkWell(

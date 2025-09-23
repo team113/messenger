@@ -740,8 +740,8 @@ class ChatView extends StatelessWidget {
                   chat: c.chat!.chat,
                   item: e,
                   me: c.me!,
-                  avatar: !previousSame,
-                  header: !previousSame,
+                  withAvatar: !previousSame,
+                  withName: !previousSame,
                   appendAvatarPadding: previousSame,
                   selectable: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
@@ -850,7 +850,7 @@ class ChatView extends StatelessWidget {
                   note: element.note,
                   authorId: element.authorId,
                   me: c.me!,
-                  header: !previousSame,
+                  withName: !previousSame,
                   appendAvatarPadding: previousSame,
                   selectable: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
@@ -1330,7 +1330,7 @@ class ChatView extends StatelessWidget {
                   ? SizedBox(
                       key: Key('Expanded'),
                       child: Padding(
-                        padding: EdgeInsets.only(left: 1.0, right: 3),
+                        padding: EdgeInsets.only(left: 1, right: 3),
                         child: SelectedDot(
                           inverted: false,
                           selected: selected,

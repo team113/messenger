@@ -68,10 +68,10 @@ class ChatForwardWidget extends StatefulWidget {
     required this.note,
     required this.authorId,
     required this.me,
-    this.avatar = true,
+    this.withAvatar = true,
     this.appendAvatarPadding = false,
     this.selectable = true,
-    this.header = false,
+    this.withName = true,
     this.reads = const [],
     this.user,
     this.getUser,
@@ -111,28 +111,32 @@ class ChatForwardWidget extends StatefulWidget {
   /// [User] posted these [forwards].
   final RxUser? user;
 
-  /// Callback, called when a [RxUser] identified by the provided [UserId] is
-  /// required.
-  final FutureOr<RxUser?> Function(UserId userId)? getUser;
+  /// Indicator whether this [ChatForwardWidget] should display [RxUser.title].
+  ///
+  /// For example, [Chat]-groups should display messages with titles.
+  final bool withName;
 
   /// Indicator whether this [ChatForwardWidget] should display an
   /// [AvatarWidget].
-  final bool avatar;
-
-  /// Indicator whether this [ChatForwardWidget] appends padding.
   ///
-  /// When an avatar is present, the padding is always applied automatically.
-  /// When there is no avatar, setting this to `true` appends the padding,
-  /// while `false` removes it.
+  /// For example, [Chat]-groups should display messages with avatars.
+  final bool withAvatar;
+
+  /// Indicator whether this [ChatForwardWidget] should append a left padding in
+  /// place of [AvatarWidget] of [user].
+  ///
+  /// When an [withAvatar] is `true`, the padding is always applied
+  /// automatically. Otherwise setting this to `true` appends the padding as if
+  /// there's invisible [AvatarWidget] present.
   final bool appendAvatarPadding;
 
-  /// Indicator wheter this [ChatForwardWidget] enables [selectable] in
+  /// Indicator whether this [ChatForwardWidget] enables [selectable] in
   /// [SelectionText.rich].
   final bool selectable;
 
-  /// Indicator whether this [ChatForwardWidget] should display an `title` from
-  /// [user].
-  final bool header;
+  /// Callback, called when a [RxUser] identified by the provided [UserId] is
+  /// required.
+  final FutureOr<RxUser?> Function(UserId userId)? getUser;
 
   /// Callback, called when a hide action of these [forwards] is triggered.
   final void Function()? onHide;
@@ -340,7 +344,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       if (!_fromMe &&
                           widget.chat.value?.isGroup == true &&
                           widget.note.value == null &&
-                          widget.header) ...[
+                          widget.withName) ...[
                         const SizedBox(height: 6),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
@@ -998,7 +1002,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   key: Key('expanded'),
                   width: avatarRadius.toDouble() * 2,
                 )
-              : widget.avatar && widget.chat.value?.isGroup == true
+              : widget.withAvatar && widget.chat.value?.isGroup == true
               ? Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: InkWell(
