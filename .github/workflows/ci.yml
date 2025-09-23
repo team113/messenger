@@ -303,7 +303,7 @@ jobs:
 
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4'
+          xcode-version: 'latest-stable'
         if: ${{ runner.os == 'macos' }}
 
       - name: Configure FCM (Firebase Cloud Messaging)
@@ -902,7 +902,14 @@ jobs:
       
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4'
+          xcode-version: 'latest-stable'
+      
+      - name: Clear simulator cache
+        run: |
+          xcrun simctl shutdown all
+          xcrun simctl erase all
+          rm -rf ~/Library/Developer/Xcode/DerivedData/*
+          rm -rf ~/Library/Caches/com.apple.dt.Xcode/*
       
       - uses: subosito/flutter-action@v2
         with:
@@ -912,35 +919,77 @@ jobs:
           
       - run: make flutter.pub
       
-      # List all available simulators for reference in CI logs
-      - name: List available iOS simulators
-        run: xcrun simctl list devices available
+      - name: Generate code with build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
       
-      # Boot a specific iPhone simulator for E2E tests
-      - name: Boot iPhone SE (3rd generation) simulator
+      - name: Setup iOS Simulator
         run: |
-          UDID=$(xcrun simctl list devices available | grep "iPhone SE (3rd generation)" | grep -o -E "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
+          # Find iOS runtime (prefer iOS 18)
+          RUNTIME=$(xcrun simctl list runtimes | grep -E "iOS-18" | head -1 | awk '{print $NF}')
+          
+          if [ -z "$RUNTIME" ]; then
+            RUNTIME=$(xcrun simctl list runtimes | grep -i ios | tail -1 | awk '{print $NF}')
+          fi
+          
+          echo "Using iOS runtime: $RUNTIME"
+          
+          # Find iPhone device type (prefer iPhone 16)
+          DEVICE_TYPE=$(xcrun simctl list devicetypes | grep -E "iPhone.*16" | head -1 | sed 's/.*(\(.*\))/\1/')
+          
+          if [ -z "$DEVICE_TYPE" ]; then
+            DEVICE_TYPE=$(xcrun simctl list devicetypes | grep -i iphone | head -1 | sed 's/.*(\(.*\))/\1/')
+          fi
+          
+          # Create and boot simulator
+          UDID=$(xcrun simctl create "Test iPhone" "$DEVICE_TYPE" "$RUNTIME")
+          
+          if [ -z "$UDID" ]; then
+            echo "Error: Failed to create simulator"
+            exit 1
+          fi
+          
           xcrun simctl boot $UDID
           echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
       
-      # Run E2E tests on the iOS simulator
-      - name: Run E2E tests on iPhone SE simulator
+      - name: Run unit tests
         run: |
-          # Set environment variables for tests
           export SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
           export SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
           export SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
           export SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
           export SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}
           
-          # Run the tests
-          flutter test integration_test \
-            -d $SIMULATOR_UDID \
-            --dart-define=SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }} \
-            --dart-define=SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }} \
-            --dart-define=SOCAPP_WS_URL=${{ secrets.BACKEND_WS }} \
-            --dart-define=SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }} \
-            --dart-define=SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}
+          flutter test test/unit/
+        
+      - name: Run widget tests
+        run: |
+          export SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
+          export SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
+          export SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
+          export SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
+          export SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}
+          
+          flutter test test/widget/
+        
+      - name: Check for integration/E2E tests
+        run: |
+          if [ -d "e2e" ]; then
+            flutter test e2e \
+              -d $SIMULATOR_UDID \
+              --dart-define=SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }} \
+              --dart-define=SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }} \
+              --dart-define=SOCAPP_WS_URL=${{ secrets.BACKEND_WS }} \
+              --dart-define=SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }} \
+              --dart-define=SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}
+          elif [ -d "integration_test" ]; then
+            flutter test integration_test \
+              -d $SIMULATOR_UDID \
+              --dart-define=SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }} \
+              --dart-define=SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }} \
+              --dart-define=SOCAPP_WS_URL=${{ secrets.BACKEND_WS }} \
+              --dart-define=SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }} \
+              --dart-define=SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}
+          fi
 
       # Create directory for artifacts if needed
       - run: mkdir -p .cache/
