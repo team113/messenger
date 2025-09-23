@@ -232,58 +232,25 @@ class CustomNavigationBarItem extends StatelessWidget {
   /// Constructs a [CustomNavigationBarItem] for a [HomeTab.menu].
   CustomNavigationBarItem.menu({
     Key? key,
+    Key? avatarKey,
     Color? acceptAuxiliary,
     Color? warning,
     GlobalKey? selector,
     MyUser? myUser,
     List<ContextMenuItem> actions = const [],
+    void Function()? onSecondary,
     void Function(Presence)? onPresence,
     void Function()? onAvatar,
   }) : this._(
          key: key,
          tab: HomeTab.menu,
-         child: ContextMenuRegion(
-           selector: selector,
-           selectorClosable: false,
-           key: const Key('MenuButton'),
-           alignment: Alignment.bottomRight,
-           margin: const EdgeInsets.only(bottom: 8, left: 8),
-           actions: [
-             ...actions,
-             ContextMenuTile(
-               label: 'label_presence_present'.l10n,
-               onPressed: (context) {
-                 onPresence?.call(Presence.present);
-                 Navigator.of(context).pop();
-               },
-               trailing: Container(
-                 width: 16,
-                 height: 16,
-                 decoration: BoxDecoration(
-                   shape: BoxShape.circle,
-                   color: acceptAuxiliary,
-                 ),
-               ),
-             ),
-             ContextMenuTile(
-               label: 'label_presence_away'.l10n,
-               onPressed: (context) {
-                 onPresence?.call(Presence.away);
-                 Navigator.of(context).pop();
-               },
-               trailing: Container(
-                 width: 16,
-                 height: 16,
-                 decoration: BoxDecoration(
-                   shape: BoxShape.circle,
-                   color: warning,
-                 ),
-               ),
-             ),
-           ],
+         child: GestureDetector(
+           onLongPress: onSecondary,
+           onSecondaryTap: onSecondary,
            child: Padding(
              padding: const EdgeInsets.only(bottom: 2),
              child: AvatarWidget.fromMyUser(
+               key: avatarKey,
                myUser,
                radius: AvatarRadius.normal,
                onForbidden: onAvatar,
