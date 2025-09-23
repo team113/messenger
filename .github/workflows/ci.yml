@@ -917,14 +917,14 @@ jobs:
         run: xcrun simctl list devices available
       
       # Boot a specific iPhone simulator for E2E tests
-      - name: Boot iPhone 16 simulator
+      - name: Boot iPhone SE (3rd generation) simulator
         run: |
-          UDID=$(xcrun simctl list devices available | grep "iPhone 16" | grep -o -E "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
+          UDID=$(xcrun simctl list devices available | grep "iPhone SE (3rd generation)" | grep -o -E "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
           xcrun simctl boot $UDID
           echo "SIMULATOR_UDID=$UDID" >> $GITHUB_ENV
       
       # Run E2E tests on the iOS simulator
-      - name: Run E2E tests on iPhone 16
+      - name: Run E2E tests on iPhone SE simulator
         run: |
           # Set environment variables for tests
           export SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
