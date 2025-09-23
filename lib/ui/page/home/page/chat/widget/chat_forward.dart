@@ -812,12 +812,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(BuildContext context, Widget Function(bool) builder) {
     final style = Theme.of(context).style;
+    final ChatItem? note = widget.note.value?.value;
+    String? copyable = _text.values
+        .where((e) => e.text != null)
+        .firstOrNull
+        ?.text;
 
-    final ChatItem? item = widget.note.value?.value;
-
-    String? copyable;
-    if (item is ChatMessage) {
-      copyable = item.text?.val;
+    if (note is ChatMessage) {
+      copyable = note.text?.val;
     }
 
     final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
@@ -842,7 +844,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: FutureOrBuilder<RxUser?>(
-              key: Key('${item?.id}_4_${m.memberId}'),
+              key: Key('${note?.id}_4_${m.memberId}'),
               futureOr: () => widget.getUser?.call(m.memberId),
               builder: (context, member) {
                 return Tooltip(
