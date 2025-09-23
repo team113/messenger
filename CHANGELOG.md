@@ -13,6 +13,8 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
+- CI:
+    - E2E testing on iOS iPhone 16 devices. ([#625],[#1435])
 - UI:
     - Chat info page:
         - Updated monolog description. ([#1409], [#1248])
@@ -21,11 +23,13 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Updated remote audio icons. ([#1424], [#1281])
 
+[#625]: /../../issues/625
 [#1248]: /../../issues/1248
 [#1281]: /../../issues/1281
 [#1409]: /../../pull/1409
 [#1424]: /../../pull/1424
 [#1430]: /../../pull/1430
+[#1435]: /../../pull/1435
 
 
 
