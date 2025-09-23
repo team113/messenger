@@ -32,7 +32,6 @@ import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'avatar.dart';
-import '../account_switcher_menu/view.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatefulWidget {
@@ -245,12 +244,10 @@ class CustomNavigationBarItem extends StatelessWidget {
          tab: HomeTab.menu,
          child: Padding(
            padding: const EdgeInsets.only(bottom: 2),
-           child: AccountSwitcherMenuWidget(
-             child: AvatarWidget.fromMyUser(
-               myUser,
-               radius: AvatarRadius.normal,
-               onForbidden: onAvatar,
-             ),
+           child: AvatarWidget.fromMyUser(
+             myUser,
+             radius: AvatarRadius.normal,
+             onForbidden: onAvatar,
            ),
          ),
        );

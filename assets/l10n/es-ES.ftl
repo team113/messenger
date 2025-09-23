@@ -236,6 +236,7 @@ btn_video_call = Videollamada
 btn_work_with_us = Trabaje con nosotros
 colon_space = :{" "}
 comma_space = ,{" "}
+current_account = cuenta corriente 
 dot = .
 email_confirmation_code =
     Código: {$token}
@@ -889,6 +890,7 @@ label_terminate_sessions = Terminar sesión(es)
 label_terms_and_privacy_policy = Condiciones y Política de Privacidad
 label_text_status = Estatus del texto
 label_text_status_description = Hasta 26 caracteres
+label_text_status_description_switcher = Estado del texto. Máximo 25 símbolos.
 label_this_device = Este dispositivo
 label_to_restore_chats_use_search = Para recuperar los chats, utiliza la búsqueda
 label_typing = Escribiendo

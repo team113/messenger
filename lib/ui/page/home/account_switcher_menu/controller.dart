@@ -10,7 +10,7 @@ import '../../../widget/text_field.dart';
 import '../tab/menu/accounts/controller.dart';
 
 class AccountSwitcherMenuController extends AccountsController {
-  AccountSwitcherMenuController(this._myUserService, this._authService)
+  AccountSwitcherMenuController(this._myUserService, AuthService _authService)
     : super(_myUserService, _authService);
 
   /// Returns the currently authenticated [MyUser].
@@ -18,9 +18,6 @@ class AccountSwitcherMenuController extends AccountsController {
 
   /// [MyUserService] to obtain [accounts] and [me].
   final MyUserService _myUserService;
-
-  /// [AuthService] providing the authentication capabilities.
-  final AuthService _authService;
 
   /// [MyUser.status] field state.
   late final TextFieldState status = TextFieldState(

@@ -236,6 +236,7 @@ btn_video_call = Video call
 btn_work_with_us = Work with us
 colon_space = :{" "}
 comma_space = ,{" "}
+current_account = Current account
 dot = .
 email_confirmation_code =
     Code: {$token}
@@ -888,6 +889,7 @@ label_terminate_sessions = Terminate session(s)
 label_terms_and_privacy_policy = Terms & Privacy Policy
 label_text_status = Text status
 label_text_status_description = 25 characters max
+label_text_status_description_switcher = Text status. 25 symb. max
 label_this_device = This device
 label_to_restore_chats_use_search = To restore the chats, use the search
 label_typing = Typing

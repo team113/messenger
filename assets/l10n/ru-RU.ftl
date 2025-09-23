@@ -236,6 +236,7 @@ btn_video_call = Видеозвонок
 btn_work_with_us = Работайте с нами
 colon_space = :{" "}
 comma_space = ,{" "}
+current_account = Текущий аккаунт 
 dot = .
 email_confirmation_code =
     Код: {$token}
@@ -903,6 +904,7 @@ label_terminate_sessions = Завершить сессию(-ии)
 label_terms_and_privacy_policy = Условия и Политика конфиденциальности
 label_text_status = Текстовый статус
 label_text_status_description = Максимум 25 символов
+label_text_status_description_switcher = Текстовый статус. Макс. 25 символов.
 label_this_device = Это устройство
 label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
 label_typing = Печатает
