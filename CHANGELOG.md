@@ -24,10 +24,14 @@ All user visible changes to this project will be documented in this file. This p
     - Player:
         - Interface hiding after 3 seconds of inactivity on desktops. ([#1415])
         - Player closing when clicking outside of content. ([#1415])
+    - Home page:
+        - Redisigned `context menu` for avatar button in mavigation ([#1254], [#1422]) 
 
 [#1249]: /../../issues/1249
+[#1254]: /../../issues/1254
 [#1401]: /../../pull/1401
 [#1415]: /../../pull/1415
+[#1422]: /../../pull/1422
 
 
 
