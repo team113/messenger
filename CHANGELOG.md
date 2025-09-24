@@ -16,9 +16,12 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Inability to copy text from forwarded messages. ([#1434], [#1271])
+        - Redesigned message information window. ([#1437], [#1379])
 
 [#1271]: /../../issues/1271
+[#1379]: /../../issues/1379
 [#1434]: /../../pull/1434
+[#1437]: /../../pull/1437
 
 
 
