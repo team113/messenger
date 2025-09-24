@@ -1016,7 +1016,6 @@ class RecentChatTile extends StatelessWidget {
               : 'label_hide_chats_modal_description'.l10n,
         ),
       ],
-      additional: [const SizedBox(height: 21)],
       button: (context) => MessagePopup.primaryButton(
         context,
         label: isArchived ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
