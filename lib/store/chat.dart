@@ -2415,6 +2415,7 @@ class ChatRepository extends DisposableInterface
           before: before,
           last: last,
           withOngoingCalls: true,
+          noFavorite: false,
         ),
       ),
       compare: (a, b) => a.value.compareTo(b.value),
@@ -2795,6 +2796,7 @@ class ChatRepository extends DisposableInterface
     int? last,
     RecentChatsCursor? before,
     bool withOngoingCalls = false,
+    bool noFavorite = true,
     bool archived = false,
   }) async {
     Log.debug(
@@ -2808,7 +2810,7 @@ class ChatRepository extends DisposableInterface
       last: last,
       before: before,
       withOngoingCalls: withOngoingCalls,
-      noFavorite: !withOngoingCalls,
+      noFavorite: noFavorite,
       archived: archived,
     )).recentChats;
 
