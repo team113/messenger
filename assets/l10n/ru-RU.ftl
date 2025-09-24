@@ -781,7 +781,6 @@ label_presence_away = Отошёл
 label_presence_present = Онлайн
 label_profile = Профиль
 label_public_section_hint = Аватар, имя, о Вас, ...
-label_read_by = Прочитано
 label_reason = Причина
 label_reason_described = Причина: {$reason}
 label_reason_hint = Укажите причину

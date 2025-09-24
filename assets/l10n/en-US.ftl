@@ -768,7 +768,6 @@ label_presence_away = Away
 label_presence_present = Online
 label_profile = Profile
 label_public_section_hint = Avatar, name, about you, ...
-label_read_by = Read
 label_reason = Reason
 label_reason_described = Reason: {$reason}
 label_reason_hint = Enter reason
