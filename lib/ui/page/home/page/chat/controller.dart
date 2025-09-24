@@ -404,9 +404,6 @@ class ChatController extends GetxController {
   /// Indicates whether a next page of the [elements] is loading.
   RxBool get nextLoading => _fragment?.nextLoading ?? chat!.nextLoading;
 
-  /// Returns the [CallButtonsPosition] currently set.
-  CallButtonsPosition? get callPosition => settings.value?.callButtonsPosition;
-
   /// Indicates whether the [chat] this [ChatController] is about is a dialog.
   bool get isDialog => chat?.chat.value.isDialog == true;
 
@@ -909,7 +906,6 @@ class ChatController extends GetxController {
           send.field.unchecked = draft?.text?.val ?? send.field.text;
         }
 
-        send.inCall = chat!.inCall;
         send.field.unsubmit();
         send.replied.value = List.from(
           draft?.repliesTo.map((e) => e.original).nonNulls.map((e) => Rx(e)) ??

@@ -1,5 +1,4 @@
-- Redesigned media player.
-- Redesigned chat and user profiles.
-- Redesigned app bar and navigation bar to expand in height to account safe area.
-- Replaced spaces in Gapopa ID with hyphens.
+- Updated description for notes chat.
+- Updated remote audio icons in calls.
+- Redesigned introduction for guest accounts.
 - Bug fixes and performance improvements.

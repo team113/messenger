@@ -1,5 +1,4 @@
-- Reproductor multimedia rediseñado.
-- Chat y perfiles de usuario rediseñados.
-- Barra de aplicaciones y barra de navegación rediseñadas para expandirse a la zona segura de la cuenta.
-- Se reemplazaron los espacios en Gapopa ID con guiones.
+- Descripción actualizada del chat de notas.
+- Iconos de audio remoto actualizados en las llamadas.
+- Introducción rediseñada para cuentas de invitado.
 - Corrección de errores y mejoras de rendimiento.

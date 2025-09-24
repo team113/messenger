@@ -9,7 +9,48 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.7.0] · 2025-??-??
 [0.7.0]: /../../tree/v0.7.0
 
-[Diff](/../../compare/v0.6.1...v0.7.0) | [Milestone](/../../milestone/46)
+[Diff](/../../compare/v0.6.3...v0.7.0) | [Milestone](/../../milestone/48)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Inability to copy text from forwarded messages. ([#1434], [#1271])
+
+[#1271]: /../../issues/1271
+[#1434]: /../../pull/1434
+
+
+
+
+## [0.6.3] · 2025-09-22
+[0.6.3]: /../../tree/v0.6.3
+
+[Diff](/../../compare/v0.6.2...v0.6.3) | [Milestone](/../../milestone/47)
+
+### Changed
+
+- UI:
+    - Chat info page:
+        - Updated monolog description. ([#1409], [#1248])
+    - Home page:
+        - Redesigned introduction for guests accounts. ([#1430])
+    - Media panel:
+        - Updated remote audio icons. ([#1424], [#1281])
+
+[#1248]: /../../issues/1248
+[#1281]: /../../issues/1281
+[#1409]: /../../pull/1409
+[#1424]: /../../pull/1424
+[#1430]: /../../pull/1430
+
+
+
+
+## [0.6.2] · 2025-09-15
+[0.6.2]: /../../tree/v0.6.2
+
+[Diff](/../../compare/v0.6.1...v0.6.2) | [Milestone](/../../milestone/46)
 
 ### Changed
 

@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+importScripts('./firebase-credentials.js');
+
 // Registers `notificationclick` handler for closing notification and navigating
 // to the chat specified in the payload.
 self.addEventListener('notificationclick', function (event) {
@@ -55,16 +57,8 @@ self.addEventListener('notificationclick', function (event) {
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js");
 
-firebase.initializeApp({
-  apiKey: "AIzaSyBbttYFbYjucn8BY-p5tlWomcd5V9h8zWc",
-  authDomain: "messenger-3872c.firebaseapp.com",
-  databaseURL: 'https://messenger-3872c.firebaseio.com',
-  projectId: "messenger-3872c",
-  storageBucket: "messenger-3872c.appspot.com",
-  messagingSenderId: "985927661367",
-  appId: "1:985927661367:web:c604073ecefcacd15c0cb2",
-  measurementId: "G-HVQ9H888X8"
-});
+// Separate `credentials` variable is used for ability to change it easily.
+firebase.initializeApp(credentials);
 
 const messaging = firebase.messaging();
 const broadcastChannel = new BroadcastChannel("fcm");
