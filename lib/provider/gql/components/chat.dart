@@ -66,8 +66,8 @@ mixin ChatGraphQlMixin {
   /// Use the [noFavorite] argument to exclude favorited [Chat]s from the
   /// returned result.
   ///
-  /// Use the [archived] argument to only include archived [Chat]s
-  /// into the returned result (`true`), or to exclude them (`false`).
+  /// Use the [archived] argument to only include archived [Chat]s into the
+  /// returned result (`true`), or to exclude them (`false`).
   ///
   /// Use the [withOngoingCalls] argument to only include [Chat]s with ongoing
   /// [ChatCall]s into the returned result (`true`), or to exclude them
@@ -531,14 +531,13 @@ mixin ChatGraphQlMixin {
 
   /// Archive or unarchive the specified [Chat] for the authenticated [MyUser].
   ///
-  /// Archived [Chat]s are excluded from the [recentChats]
-  /// when its with [archived] argument is set to `false`.
+  /// Archived [Chat]s are excluded from the [recentChats] when its with
+  /// [archive] argument is set to `false`.
   ///
-  /// Once a new [ChatItem] is posted in an archived unmuted [Chat],
-  /// it automatically becomes unarchived again, despite no
-  /// [EventChatUnarchived] is emitted (which means manual unarchivation only).
-  /// Muted [Chat]s, however, are not unarchived automatically once
-  /// new [ChatItem]s are posted.
+  /// Once a new [ChatItem] is posted in an archived unmuted [Chat], it
+  /// automatically becomes unarchived again, despite no [EventChatUnarchived]
+  /// is emitted (which means manual unarchivation only). Muted [Chat]s,
+  /// however, are not unarchived automatically once new [ChatItem]s are posted.
   ///
   /// ### Authentication
   ///
@@ -547,8 +546,8 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [ChatEvent]s may be produced on success:
-  /// - [EventChatArchived] (if `archive` argument is `true`);
-  /// - [EventChatUnarchived] (if `archive` argument is `false`).
+  /// - [EventChatArchived] (if [archive] argument is `true`);
+  /// - [EventChatUnarchived] (if [archive] argument is `false`).
   ///
   /// ### Idempotent
   ///

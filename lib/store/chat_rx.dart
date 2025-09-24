@@ -2313,11 +2313,13 @@ class RxChatImpl extends RxChat {
               event as EventChatItemPosted;
               final DtoChatItem item = event.item;
 
-              if (dto.value.isHidden || dto.value.isArchived) {
-                write((chat) {
-                  chat.value.isHidden = false;
-                  chat.value.isArchived = false;
-                });
+              if (dto.value.isHidden) {
+                write((chat) => chat.value.isHidden = false);
+              }
+
+              // When muted, archived `Chat`s get unarchived.
+              if (dto.value.isArchived && dto.value.muted != null) {
+                write((chat) => chat.value.isArchived = false);
               }
 
               if (item.value is ChatMessage && item.value.author.id == me) {

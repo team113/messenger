@@ -99,7 +99,7 @@ class ChatsTabController extends GetxController {
   final RxBool searching = RxBool(false);
 
   /// Indicator whether chat archive viewing is active.
-  final RxBool isShowOnlyArchive = RxBool(false);
+  final RxBool archivedOnly = RxBool(false);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -357,11 +357,6 @@ class ChatsTabController extends GetxController {
     super.onClose();
   }
 
-  /// Toggles the [Chat]s archive.
-  void toggleArchive() {
-    isShowOnlyArchive.value = !isShowOnlyArchive.value;
-  }
-
   /// Opens a [Chat]-dialog with this [user].
   ///
   /// Creates a new one if it doesn't exist.
@@ -440,8 +435,8 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Archives or unarchives the specified [Chat]
-  /// identified by the provided [id]
+  /// Archives or unarchives the specified [Chat] identified by the provided
+  /// [id].
   Future<void> archiveChat(ChatId id, bool archive) async {
     try {
       await _chatService.archiveChat(id, archive);
@@ -455,7 +450,7 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Archives or unarchives the [selectedChats]
+  /// Archives or unarchives the [selectedChats].
   Future<void> archiveChats(bool archive) async {
     selecting.value = false;
 
@@ -853,6 +848,11 @@ class ChatsTabController extends GetxController {
       MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
     }
+  }
+
+  /// Toggles the [archivedOnly].
+  void toggleArchive() {
+    archivedOnly.value = !archivedOnly.value;
   }
 
   /// Enables and initializes or disables and disposes the [search].

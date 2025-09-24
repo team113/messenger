@@ -42,6 +42,7 @@ abstract class AbstractChatRepository {
   /// Returns reactive map of [RxChat]s in the current pagination view.
   RxObsMap<ChatId, RxChat> get paginated;
 
+  /// Returns the reactive map of the archived chats paginated [RxChat]s.
   RxObsMap<ChatId, RxChat> get archived;
 
   /// Returns reactive map of all [RxChat]s stored.
@@ -121,7 +122,7 @@ abstract class AbstractChatRepository {
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id);
 
-  /// Marks the specified [Chat] as archive for the authenticated [MyUser].
+  /// Marks the specified [Chat] as archived for the authenticated [MyUser].
   Future<void> archiveChat(ChatId id, bool archive);
 
   /// Marks the specified [Chat] as read for the authenticated [MyUser] until

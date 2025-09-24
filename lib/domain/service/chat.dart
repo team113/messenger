@@ -194,7 +194,6 @@ class ChatService extends DisposableService {
   /// Archives or unarchives the specified [Chat] for the authenticated [MyUser].
   Future<void> archiveChat(ChatId id, bool archive) {
     Log.debug('archiveChat($id, $archive)', '$runtimeType');
-
     return _chatRepository.archiveChat(id, archive);
   }
 
