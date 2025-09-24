@@ -62,7 +62,7 @@ class AccountsSwitcherController extends GetxController {
     },
   );
 
-  /// Known [MyUser] accounts that can be used to [signIn] to.
+  /// Known [MyUser] accounts that can be displayed in view.
   final RxList<Rx<MyUser>> accounts = RxList();
 
   /// [MyUserService] to obtain [accounts] and [me].
