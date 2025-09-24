@@ -105,6 +105,7 @@ class ReactiveTextField extends StatelessWidget {
   /// Type of the [TextField].
   final TextInputType? type;
 
+  /// [InputDecoration] overridings for this [ReactiveTextField].
   final InputDecoration? decoration;
 
   /// Optional leading icon.
@@ -330,24 +331,24 @@ class ReactiveTextField extends StatelessWidget {
     return Obx(() {
       final style = Theme.of(context).style;
 
-      final providedDecoration = Theme.of(context).inputDecorationTheme;
+      final themeDecoration = Theme.of(context).inputDecorationTheme;
 
       final floatingLabel = state.error.value?.isNotEmpty == true
-          ? providedDecoration.floatingLabelStyle?.copyWith(
+          ? themeDecoration.floatingLabelStyle?.copyWith(
               color: style.colors.danger,
             )
           : state.isFocused.value
-          ? providedDecoration.floatingLabelStyle?.copyWith(
+          ? themeDecoration.floatingLabelStyle?.copyWith(
               color: style.colors.primary,
             )
           : floatingAccent
-          ? providedDecoration.floatingLabelStyle?.copyWith(
+          ? themeDecoration.floatingLabelStyle?.copyWith(
               fontSize: style.fonts.big.regular.onBackground.fontSize,
               color: style.colors.onBackground,
             )
-          : providedDecoration.floatingLabelStyle;
+          : themeDecoration.floatingLabelStyle;
 
-      var inputDecoration =
+      var mergedDecoration =
           InputDecoration(
             alignLabelWithHint: true,
             labelStyle: floatingLabelBehavior == FloatingLabelBehavior.always
@@ -428,7 +429,7 @@ class ReactiveTextField extends StatelessWidget {
               textAlignVertical: const TextAlignVertical(y: 0.15),
               readOnly: !enabled || !state.editable.value,
               enabled: enabled,
-              decoration: inputDecoration,
+              decoration: mergedDecoration,
               obscureText: obscure,
               keyboardType: type,
               minLines: minLines,
