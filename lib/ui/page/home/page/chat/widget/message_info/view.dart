@@ -23,13 +23,9 @@ import '/domain/model/chat_item.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/message_field/view.dart';
-import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -39,184 +35,217 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class MessageInfo extends StatelessWidget {
-  const MessageInfo({super.key, this.id, this.reads = const []});
+  const MessageInfo({
+    super.key,
+    required this.isGroup,
+    this.chatItem,
+    this.reads = const [],
+    this.members = const [],
+  });
+
+  ///  [MessageInfo] is about.
+  final bool isGroup;
 
   /// [ChatItemId] of a [ChatItem] this [MessageInfo] is about.
-  final ChatItemId? id;
+  final ChatItem? chatItem;
 
   /// [LastChatRead]s of a [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
 
+  /// [ChatMember]s of [Chat].
+  final Iterable<ChatMember> members;
+
   /// Displays a [MessageInfo] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    ChatItemId? id,
+    required bool isGroup,
+    ChatItem? chatItem,
     Iterable<LastChatRead> reads = const [],
+    List<ChatMember> members = const [],
   }) {
     return ModalPopup.show(
       context: context,
-      child: MessageInfo(id: id, reads: reads),
+      child: MessageInfo(
+        isGroup: isGroup,
+        chatItem: chatItem,
+        reads: reads,
+        members: members,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final Style style = Theme.of(context).style;
+    final bool isDisplayUsersList = isGroup && members.isNotEmpty;
 
     return GetBuilder(
-      init: MessageInfoController(Get.find(), reads: reads),
+      init: MessageInfoController(Get.find(), reads: reads, members: members),
       builder: (MessageInfoController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 4),
             ModalPopupHeader(text: 'label_message'.l10n),
-            if (id != null)
-              Container(
-                margin: const EdgeInsets.only(top: 8, bottom: 16),
+            if (chatItem != null)
+              Padding(
                 padding: ModalPopup.padding(context),
-                alignment: Alignment.center,
-                child: WidgetButton(
-                  onPressed: () {
-                    PlatformUtils.copy(text: id!.val);
-                    MessagePopup.success('label_copied'.l10n);
+                child: Table(
+                  columnWidths: const {
+                    0: IntrinsicColumnWidth(),
+                    1: FlexColumnWidth(),
                   },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${'label_id'.l10n}${'colon_space'.l10n}$id',
-                        style: style.fonts.small.regular.onBackground,
-                      ),
-                      const SizedBox(width: 8),
-                      const SvgIcon(SvgIcons.copySmall),
-                    ],
-                  ),
-                ),
-              ),
-            Obx(() {
-              if (c.users.length < 10) {
-                return const SizedBox();
-              }
-
-              return Container(
-                padding: ModalPopup.padding(context),
-                margin: const EdgeInsets.only(bottom: 12),
-                child: SizedBox(
-                  height: 50,
-                  child: CustomAppBar(
-                    border: !c.search.isEmpty.value || c.search.isFocused.value
-                        ? Border.all(color: style.colors.primary, width: 2)
-                        : null,
-                    margin: const EdgeInsets.only(top: 4),
-                    title: Theme(
-                      data: MessageFieldView.theme(context),
-                      child: Transform.translate(
-                        offset: const Offset(0, 1),
-                        child: ReactiveTextField(
-                          key: const Key('SearchField'),
-                          state: c.search,
-                          hint: 'label_search'.l10n,
-                          maxLines: 1,
-                          filled: false,
-                          dense: true,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.fonts.medium.regular.onBackground,
-                          onChanged: () => c.query.value = c.search.text,
+                  defaultVerticalAlignment: TableCellVerticalAlignment.top,
+                  children: [
+                    _tableRow(
+                      style,
+                      'label_id'.l10n,
+                      WidgetButton(
+                        onPressed: () {
+                          PlatformUtils.copy(text: chatItem!.id.val);
+                          MessagePopup.success('label_copied'.l10n);
+                        },
+                        child: Row(
+                          children: [
+                            Text(
+                              chatItem!.id.val,
+                              style: style.fonts.small.regular.onBackground,
+                            ),
+                            const SizedBox(width: 8),
+                            const SvgIcon(SvgIcons.copySmall),
+                          ],
                         ),
                       ),
                     ),
-                    leading: const [
-                      Padding(
-                        padding: EdgeInsets.only(left: 20, right: 12),
-                        child: SvgIcon(SvgIcons.search),
+                    _tableRow(
+                      style,
+                      'label_sent'.l10n,
+                      Text(
+                        chatItem!.at.val.toLocal().hmyMd,
+                        style: style.fonts.small.regular.onBackground,
                       ),
-                    ],
-                    actions: [
-                      Obx(() {
-                        final Widget close = WidgetButton(
-                          onPressed: () {
-                            c.search.clear();
-                            c.search.unsubmit();
-                            c.query.value = '';
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.only(left: 12, right: 18),
-                            child: SvgIcon(SvgIcons.closePrimary),
-                          ),
-                        );
-
-                        return SafeAnimatedSwitcher(
-                          duration: 250.milliseconds,
-                          child: c.search.isEmpty.value ? null : close,
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-              );
-            }),
-            if (reads.isNotEmpty)
-              Flexible(
-                child: Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Scrollbar(
-                    controller: c.scrollController,
-                    child: Obx(() {
-                      final users = c.users.where((u) {
-                        if (c.query.isNotEmpty) {
-                          return u.user.value.name?.val.toLowerCase().contains(
-                                c.query.toLowerCase(),
-                              ) ==
-                              true;
-                        }
-
-                        return true;
-                      });
-
-                      return ListView(
-                        controller: c.scrollController,
-                        shrinkWrap: true,
-                        children: [
-                          if (users.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Center(
-                                child: Text(
-                                  'label_nothing_found'.l10n,
-                                  style: style.fonts.small.regular.onBackground,
-                                ),
-                              ),
-                            )
-                          else
-                            ...users.map((e) {
-                              return ContactTile(
-                                user: e,
-                                dense: true,
-                                darken: 0.05,
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                  router.user(e.id, push: true);
-                                },
-                                subtitle: [
-                                  const SizedBox(height: 3),
-                                  Text(
-                                    'label_read_by'.l10n,
-                                    style: style.fonts.small.regular.secondary,
-                                  ),
-                                ],
-                              );
-                            }),
-                        ],
-                      );
-                    }),
-                  ),
+                    ),
+                    _tableRow(
+                      style,
+                      'label_status'.l10n,
+                      isDisplayUsersList
+                          ? _UsersListWidget(c: c, reads: reads)
+                          : Text(
+                              _getLabelStatus(),
+                              style: style.fonts.small.regular.onBackground,
+                            ),
+                      addPadding: isDisplayUsersList ? 10 : 0,
+                    ),
+                  ],
                 ),
               ),
             const SizedBox(height: 16),
           ],
         );
       },
+    );
+  }
+
+  TableRow _tableRow(
+    Style style,
+    String label,
+    Widget child, {
+    double addPadding = 0,
+  }) => TableRow(
+    children: [
+      Padding(
+        padding: EdgeInsets.only(top: 4 + addPadding),
+        child: Text(
+          label,
+          style: style.fonts.small.regular.secondary,
+          textAlign: TextAlign.right,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 4, 0),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: DefaultTextStyle(
+            style: style.fonts.small.regular.secondary.copyWith(
+              color: style.colors.secondaryBackgroundLight,
+            ),
+            child: child,
+          ),
+        ),
+      ),
+    ],
+  );
+
+  /// Returns localized string of [chatItem] status
+  String _getLabelStatus() {
+    if (reads.isNotEmpty) {
+      return 'label_message_status_read'.l10n;
+    }
+
+    if (chatItem!.status.value.name == 'sent') {
+      return 'label_message_status_delivered'.l10n;
+    }
+
+    if (chatItem!.status.value.name == 'sending') {
+      return 'label_message_status_sent'.l10n;
+    }
+
+    return 'label_message_status_not_sent'.l10n;
+  }
+}
+
+class _UsersListWidget extends StatelessWidget {
+  const _UsersListWidget({required this.c, required this.reads, super.key});
+
+  final MessageInfoController c;
+  final Iterable<LastChatRead> reads;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (c.users.isNotEmpty)
+          Flexible(
+            child: Scrollbar(
+              controller: c.scrollController,
+              child: Obx(() {
+                final List<Widget> contactTiles = [];
+
+                for (var user in c.users) {
+                  final bool isRead = reads
+                      .map((r) => r.memberId)
+                      .contains(user.id);
+                  final Widget widget = ContactTile(
+                    user: user,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      router.user(user.id, push: true);
+                    },
+                    height: 38,
+                    trailing: [
+                      isRead
+                          ? SvgIcon(SvgIcons.read)
+                          : SvgIcon(SvgIcons.delivered),
+                    ],
+                  );
+
+                  if (isRead) {
+                    contactTiles.insert(0, widget);
+                  } else {
+                    contactTiles.add(widget);
+                  }
+                }
+
+                return ListView(
+                  controller: c.scrollController,
+                  shrinkWrap: true,
+                  children: contactTiles,
+                );
+              }),
+            ),
+          ),
+      ],
     );
   }
 }

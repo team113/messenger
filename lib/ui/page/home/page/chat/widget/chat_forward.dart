@@ -895,8 +895,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               child: WidgetButton(
                 onPressed: () => MessageInfo.show(
                   context,
-                  id: widget.forwards.first.value.id,
+                  isGroup: widget.chat.value?.isGroup == true,
+                  chatItem: widget.forwards.first.value,
                   reads: reads ?? [],
+                  members: widget.chat.value?.members.where((u) => u.user.id != widget.user?.id).toList() ?? [],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -954,8 +956,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           inverted: const SvgIcon(SvgIcons.infoWhite),
                           onPressed: () => MessageInfo.show(
                             context,
-                            id: widget.forwards.first.value.id,
+                            isGroup: widget.chat.value?.isGroup == true,
+                            chatItem: widget.forwards.first.value,
                             reads: reads ?? [],
+                            members: widget.chat.value?.members.where((u) => u.user.id != widget.user?.id).toList() ?? [],
                           ),
                         ),
                         if (copyable != null)

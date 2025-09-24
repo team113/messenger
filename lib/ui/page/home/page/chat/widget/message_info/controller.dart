@@ -27,10 +27,13 @@ import '/ui/widget/text_field.dart';
 
 /// Controller of the [MessageInfo] popup.
 class MessageInfoController extends GetxController {
-  MessageInfoController(this._userService, {this.reads = const []});
+  MessageInfoController(this._userService, {this.reads = const [], this.members = const [],});
 
   /// [LastChatRead]s who read the [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
+
+  /// [ChatMember]s who may read [ChatItem] this [MessageInfo] is about.
+  final Iterable<ChatMember> members;
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -61,9 +64,9 @@ class MessageInfoController extends GetxController {
 
   /// Fetches the [users] from the [UserService].
   Future<void> _fetchUsers() async {
-    final List<Future<void>> futures = reads
-        .map((read) async {
-          final FutureOr<RxUser?> fetched = _userService.get(read.memberId);
+    final List<Future<void>> futures = members
+        .map((member) async {
+          final FutureOr<RxUser?> fetched = _userService.get(member.user.id);
           final RxUser? user = fetched is RxUser? ? fetched : await fetched;
           if (user != null) {
             users.add(user);

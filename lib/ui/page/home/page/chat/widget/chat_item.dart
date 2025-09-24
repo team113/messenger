@@ -1356,8 +1356,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: WidgetButton(
                 onPressed: () => MessageInfo.show(
                   context,
+                  isGroup: widget.chat.value?.isGroup == true,
                   reads: reads ?? [],
-                  id: widget.item.value.id,
+                  chatItem: widget.item.value,
+                  members: widget.chat.value?.members.where((u) => u.user.id != widget.user?.id).toList() ?? [],
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 2),
@@ -1425,8 +1427,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           inverted: const SvgIcon(SvgIcons.infoWhite),
                           onPressed: () => MessageInfo.show(
                             context,
-                            id: widget.item.value.id,
+                            isGroup: widget.chat.value?.isGroup == true,
+                            chatItem: widget.item.value,
                             reads: reads ?? [],
+                            members: widget.chat.value?.members.where((u) => u.user.id != widget.user?.id).toList() ?? [],
                           ),
                         ),
                         if (copyable != null)
