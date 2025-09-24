@@ -78,23 +78,23 @@ class MessageTimestamp extends StatelessWidget {
     final bool isSending = status == SendingStatus.sending;
 
     SvgData getIcon() {
-      if(isRead) {
-        if(isHalfRead) {
+      if (isRead) {
+        if (isHalfRead) {
           return inverted ? SvgIcons.halfReadWhite : SvgIcons.halfRead;
         }
 
         return inverted ? SvgIcons.readWhite : SvgIcons.read;
       }
 
-      if(isDelivered) {
+      if (isDelivered) {
         return inverted ? SvgIcons.deliveredWhite : SvgIcons.delivered;
       }
 
-      if(isError) {
+      if (isError) {
         return SvgIcons.error;
       }
 
-      if(isSending) {
+      if (isSending) {
         return inverted ? SvgIcons.sendingWhite : SvgIcons.sending;
       }
 

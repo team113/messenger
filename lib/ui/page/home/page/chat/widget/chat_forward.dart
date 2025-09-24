@@ -900,7 +900,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   isGroup: widget.chat.value?.isGroup == true,
                   chatItem: widget.forwards.first.value,
                   reads: reads ?? [],
-                  members: widget.chat.value?.members.where((u) => u.user.id != widget.user?.id).toList() ?? [],
+                  members:
+                      widget.chat.value?.members
+                          .where((u) => u.user.id != widget.user?.id)
+                          .toList() ??
+                      [],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -961,7 +965,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             isGroup: widget.chat.value?.isGroup == true,
                             chatItem: widget.forwards.first.value,
                             reads: reads ?? [],
-                            members: widget.chat.value?.members.where((u) => u.user.id != widget.user?.id).toList() ?? [],
+                            members:
+                                widget.chat.value?.members
+                                    .where((u) => u.user.id != widget.user?.id)
+                                    .toList() ??
+                                [],
                           ),
                         ),
                         if (copyable != null)

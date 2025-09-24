@@ -195,7 +195,7 @@ class MessageInfo extends StatelessWidget {
 }
 
 class _UsersListWidget extends StatelessWidget {
-  const _UsersListWidget({required this.c, required this.reads, super.key});
+  const _UsersListWidget({required this.c, required this.reads});
 
   final MessageInfoController c;
   final Iterable<LastChatRead> reads;

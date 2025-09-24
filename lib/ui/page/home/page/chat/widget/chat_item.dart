@@ -1359,7 +1359,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   isGroup: widget.chat.value?.isGroup == true,
                   reads: reads ?? [],
                   chatItem: widget.item.value,
-                  members: widget.chat.value?.members.where((u) => u.user.id != widget.user?.id).toList() ?? [],
+                  members:
+                      widget.chat.value?.members
+                          .where((u) => u.user.id != widget.user?.id)
+                          .toList() ??
+                      [],
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 2),
@@ -1430,7 +1434,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             isGroup: widget.chat.value?.isGroup == true,
                             chatItem: widget.item.value,
                             reads: reads ?? [],
-                            members: widget.chat.value?.members.where((u) => u.user.id != widget.user?.id).toList() ?? [],
+                            members:
+                                widget.chat.value?.members
+                                    .where((u) => u.user.id != widget.user?.id)
+                                    .toList() ??
+                                [],
                           ),
                         ),
                         if (copyable != null)

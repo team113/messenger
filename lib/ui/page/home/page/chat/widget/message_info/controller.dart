@@ -27,7 +27,11 @@ import '/ui/widget/text_field.dart';
 
 /// Controller of the [MessageInfo] popup.
 class MessageInfoController extends GetxController {
-  MessageInfoController(this._userService, {this.reads = const [], this.members = const [],});
+  MessageInfoController(
+    this._userService, {
+    this.reads = const [],
+    this.members = const [],
+  });
 
   /// [LastChatRead]s who read the [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
