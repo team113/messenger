@@ -43,7 +43,7 @@ class MessageInfo extends StatelessWidget {
     this.members = const [],
   });
 
-  ///  [MessageInfo] is about.
+  /// Indicates whether this [ChatItem] belongs to a group chat.
   final bool isGroup;
 
   /// [ChatItemId] of a [ChatItem] this [MessageInfo] is about.
