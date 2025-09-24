@@ -232,22 +232,29 @@ class CustomNavigationBarItem extends StatelessWidget {
   /// Constructs a [CustomNavigationBarItem] for a [HomeTab.menu].
   CustomNavigationBarItem.menu({
     Key? key,
+    Key? avatarKey,
     Color? acceptAuxiliary,
     Color? warning,
     GlobalKey? selector,
     MyUser? myUser,
     List<ContextMenuItem> actions = const [],
+    void Function()? onSecondary,
     void Function(Presence)? onPresence,
     void Function()? onAvatar,
   }) : this._(
          key: key,
          tab: HomeTab.menu,
-         child: Padding(
-           padding: const EdgeInsets.only(bottom: 2),
-           child: AvatarWidget.fromMyUser(
-             myUser,
-             radius: AvatarRadius.normal,
-             onForbidden: onAvatar,
+         child: GestureDetector(
+           onSecondaryTap: onSecondary,
+           onLongPress: onSecondary,
+           child: Padding(
+             padding: const EdgeInsets.only(bottom: 2),
+             child: AvatarWidget.fromMyUser(
+               key: avatarKey,
+               myUser,
+               radius: AvatarRadius.normal,
+               onForbidden: onAvatar,
+             ),
            ),
          ),
        );

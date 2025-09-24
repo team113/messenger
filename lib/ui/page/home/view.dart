@@ -36,6 +36,7 @@ import '/ui/widget/upgrade_available_button.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
+import 'accounts_switcher/view.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
@@ -333,12 +334,19 @@ class _HomeViewState extends State<HomeView> {
                   case HomeTab.menu:
                     return Obx(() {
                       return CustomNavigationBarItem.menu(
+                        avatarKey: c.avatarKey,
                         acceptAuxiliary: style.colors.acceptAuxiliary,
                         warning: style.colors.warning,
                         onPresence: c.setPresence,
                         onAvatar: c.updateAvatar,
                         selector: c.panelKey,
                         myUser: c.myUser.value,
+                        onSecondary: () async {
+                          await AccountsSwitcherView.show(
+                            context,
+                            avatarKey: c.avatarKey,
+                          );
+                        },
                       );
                     });
                 }
