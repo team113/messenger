@@ -46,13 +46,13 @@ class MessageInfo extends StatelessWidget {
   /// Indicates whether this [ChatItem] belongs to a group chat.
   final bool isGroup;
 
-  /// [ChatItemId] of a [ChatItem] this [MessageInfo] is about.
+  /// [ChatItem] for this [MessageInfo].
   final ChatItem? chatItem;
 
   /// [LastChatRead]s of a [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
 
-  /// [ChatMember]s of [Chat].
+  /// [ChatMember]s of a [Chat] who may reads this [ChatItem].
   final Iterable<ChatMember> members;
 
   /// Displays a [MessageInfo] wrapped in a [ModalPopup].
@@ -146,6 +146,7 @@ class MessageInfo extends StatelessWidget {
     );
   }
 
+  /// Represents a table row for table with info
   TableRow _tableRow(
     Style style,
     String label,
