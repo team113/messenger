@@ -176,10 +176,14 @@ class ChatsTabView extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                c.archivedOnly.value
-                                    ? 'label_hidden_chats'.l10n
-                                    : 'label_chats'.l10n,
+                              AnimatedSizeAndFade(
+                                sizeDuration: const Duration(milliseconds: 300),
+                                fadeDuration: const Duration(milliseconds: 300),
+                                child: Text(
+                                  c.archivedOnly.value
+                                      ? 'label_hidden_chats'.l10n
+                                      : 'label_chats'.l10n,
+                                ),
                               ),
                               AnimatedSizeAndFade(
                                 sizeDuration: const Duration(milliseconds: 300),
