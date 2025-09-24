@@ -1007,12 +1007,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: InkWell(
                     customBorder: const CircleBorder(),
-                    onTap: switch (item) {
-                      ChatForward(:final author) => () => widget.onUserPressed(
-                        author,
-                      ),
-                      _ => null,
-                    },
+                    onTap: () => router.user(widget.authorId, push: true),
                     child: AvatarWidget.fromRxUser(
                       widget.user,
                       radius: avatarRadius,

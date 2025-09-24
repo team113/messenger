@@ -844,7 +844,7 @@ class ChatView extends StatelessWidget {
                 c,
                 item: element,
                 child: ChatForwardWidget(
-                  // key: Key('ChatForwardWidget_${element.id}'),
+                  key: Key('ChatForwardWidget_${element.id}'),
                   chat: c.chat!.chat,
                   forwards: element.forwards,
                   note: element.note,
