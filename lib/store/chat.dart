@@ -2616,11 +2616,12 @@ class ChatRepository extends DisposableInterface
       provider: DriftGraphQlPageProvider(
         alwaysFetch: true,
         graphQlProvider: GraphQlPageProvider(
-          fetch: ({after, before, first, last}) => _archiveChats(
+          fetch: ({after, before, first, last}) => _recentChats(
             after: after,
             first: first,
             before: before,
             last: last,
+            archived: true,
           ),
         ),
         driftProvider: DriftPageProvider(
@@ -2787,36 +2788,6 @@ class ChatRepository extends DisposableInterface
     });
   }
 
-  /// Fetches archived [DtoChat]s ordered by their last updating time with pagination.
-  Future<Page<DtoChat, RecentChatsCursor>> _archiveChats({
-    int? first,
-    RecentChatsCursor? after,
-    int? last,
-    RecentChatsCursor? before,
-  }) async {
-    Log.debug('_archiveChats($first, $after, $last, $before)', '$runtimeType');
-
-    final RecentChats$Query$RecentChats query =
-        (await _graphQlProvider.recentChats(
-          first: first,
-          after: after,
-          last: last,
-          before: before,
-          withOngoingCalls: false,
-          noFavorite: true,
-          archived: true,
-        )).recentChats;
-
-    return Page(
-      RxList(
-        query.edges
-            .map((e) => _chat(e.node, recentCursor: e.cursor).chat)
-            .toList(),
-      ),
-      query.pageInfo.toModel((c) => RecentChatsCursor(c)),
-    );
-  }
-
   /// Fetches [DtoChat]s ordered by their last updating time with pagination.
   Future<Page<DtoChat, RecentChatsCursor>> _recentChats({
     int? first,
@@ -2824,6 +2795,7 @@ class ChatRepository extends DisposableInterface
     int? last,
     RecentChatsCursor? before,
     bool withOngoingCalls = false,
+    bool archived = false,
   }) async {
     Log.debug(
       '_recentChats($first, $after, $last, $before, $withOngoingCalls)',
@@ -2837,6 +2809,7 @@ class ChatRepository extends DisposableInterface
       before: before,
       withOngoingCalls: withOngoingCalls,
       noFavorite: !withOngoingCalls,
+      archived: archived,
     )).recentChats;
 
     return Page(
