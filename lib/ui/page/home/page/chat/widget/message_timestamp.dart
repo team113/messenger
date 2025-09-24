@@ -77,6 +77,30 @@ class MessageTimestamp extends StatelessWidget {
     final bool isError = status == SendingStatus.error;
     final bool isSending = status == SendingStatus.sending;
 
+    SvgData getIcon() {
+      if(isRead) {
+        if(isHalfRead) {
+          return inverted ? SvgIcons.halfReadWhite : SvgIcons.halfRead;
+        }
+
+        return inverted ? SvgIcons.readWhite : SvgIcons.read;
+      }
+
+      if(isDelivered) {
+        return inverted ? SvgIcons.deliveredWhite : SvgIcons.delivered;
+      }
+
+      if(isError) {
+        return SvgIcons.error;
+      }
+
+      if(isSending) {
+        return inverted ? SvgIcons.sendingWhite : SvgIcons.sending;
+      }
+
+      return inverted ? SvgIcons.sentWhite : SvgIcons.sent;
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -96,7 +120,7 @@ class MessageTimestamp extends StatelessWidget {
         ),
         if (status != null &&
             (isSent || isDelivered || isRead || isSending || isError)) ...[
-          const SizedBox(width: 3),
+          const SizedBox(width: 6),
           SizedBox(
             key: Key(
               isError
@@ -110,29 +134,7 @@ class MessageTimestamp extends StatelessWidget {
                   : 'Sent',
             ),
             width: 17,
-            child: SvgIcon(
-              isRead
-                  ? isHalfRead
-                        ? inverted
-                              ? SvgIcons.halfReadWhite
-                              : SvgIcons.halfRead
-                        : inverted
-                        ? SvgIcons.readWhite
-                        : SvgIcons.read
-                  : isDelivered
-                  ? inverted
-                        ? SvgIcons.deliveredWhite
-                        : SvgIcons.delivered
-                  : isError
-                  ? SvgIcons.error
-                  : isSending
-                  ? inverted
-                        ? SvgIcons.sendingWhite
-                        : SvgIcons.sending
-                  : inverted
-                  ? SvgIcons.sentWhite
-                  : SvgIcons.sent,
-            ),
+            child: SvgIcon(getIcon()),
           ),
         ],
       ],
