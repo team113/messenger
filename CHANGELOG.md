@@ -16,9 +16,12 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Inability to copy text from forwarded messages. ([#1434], [#1271])
+        - Redesigned messages selection. ([#1416], [#1410])
 
 [#1271]: /../../issues/1271
+[#1410]: /../../issues/1410
 [#1434]: /../../pull/1434
+[#1416]: /../../pull/1416
 
 
 
@@ -37,14 +40,10 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned introduction for guests accounts. ([#1430])
     - Media panel:
         - Updated remote audio icons. ([#1424], [#1281])
-    - Chat page:
-        - Redesigned messages selection. ([#1416], [#1410])
 
 [#1248]: /../../issues/1248
 [#1281]: /../../issues/1281
 [#1409]: /../../pull/1409
-[#1410]: /../../issues/1410
-[#1416]: /../../pull/1416
 [#1424]: /../../pull/1424
 [#1430]: /../../pull/1430
 
