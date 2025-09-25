@@ -28,6 +28,7 @@ import '/store/model/chat.dart';
 
 /// Possible kinds of a [ChatEvent].
 enum ChatEventKind {
+  archived,
   callAnswerTimeoutPassed,
   callConversationStarted,
   callDeclined,
@@ -54,6 +55,7 @@ enum ChatEventKind {
   totalItemsCountUpdated,
   typingStarted,
   typingStopped,
+  unarchived,
   unfavorited,
   unmuted,
   unreadItemsCountUpdated,
@@ -269,6 +271,28 @@ class EventChatHidden extends ChatEvent {
 
   @override
   ChatEventKind get kind => ChatEventKind.hidden;
+}
+
+/// Event of a [Chat] being archived by the authenticated [MyUser].
+class EventChatArchived extends ChatEvent {
+  const EventChatArchived(super.chatId, this.at);
+
+  /// [PreciseDateTime] when the [Chat] was archived.
+  final PreciseDateTime at;
+
+  @override
+  ChatEventKind get kind => ChatEventKind.archived;
+}
+
+/// Event of a [Chat] being unarchived by the authenticated [MyUser].
+class EventChatUnarchived extends ChatEvent {
+  const EventChatUnarchived(super.chatId, this.at);
+
+  /// [PreciseDateTime] when the [Chat] was unarchived.
+  final PreciseDateTime at;
+
+  @override
+  ChatEventKind get kind => ChatEventKind.unarchived;
 }
 
 /// Event of a [ChatItem] being deleted by some [User].

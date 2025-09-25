@@ -30,6 +30,7 @@ fragment Chat on Chat {
     }
     kind
     isHidden
+    isArchived
     muted {
         __typename
         ... on MuteUntilDuration {

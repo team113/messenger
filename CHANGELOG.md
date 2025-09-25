@@ -11,13 +11,21 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.3...v0.7.0) | [Milestone](/../../milestone/48)
 
+### Added
+
+- UI:
+    - Chats tab:
+        - Archived chats. ([#1414], [#1255])
+
 ### Changed
 
 - UI:
     - Chat page:
         - Inability to copy text from forwarded messages. ([#1434], [#1271])
 
+[#1255]: /../../issues/1255
 [#1271]: /../../issues/1271
+[#1414]: /../../pull/1414
 [#1434]: /../../pull/1434
 
 

@@ -46,6 +46,7 @@ class Chats extends Table {
   TextColumn get members => text().withDefault(const Constant('[]'))();
   IntColumn get kindIndex => integer().withDefault(const Constant(0))();
   BoolColumn get isHidden => boolean().withDefault(const Constant(false))();
+  BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
   TextColumn get muted => text().nullable()();
   TextColumn get directLink => text().nullable()();
   IntColumn get createdAt => integer()
@@ -197,6 +198,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.where(
           (u) =>
               u.isHidden.equals(false) &
+              u.isArchived.equals(false) &
               u.id.like('local_%').not() &
               u.id.like('d_%').not(),
         );
@@ -215,6 +217,34 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     return result ?? [];
   }
 
+  /// Returns the archived [DtoChat]s being in a historical view order.
+  Future<List<DtoChat>> archive({int? limit}) async {
+    final result = await safe(
+      (db) async {
+        final stmt = db.select(db.chats);
+
+        stmt.where(
+          (u) =>
+              u.isHidden.equals(false) &
+              u.isArchived.equals(true) &
+              u.id.like('local_%').not() &
+              u.id.like('d_%').not(),
+        );
+        stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
+
+        if (limit != null) {
+          stmt.limit(limit);
+        }
+
+        return (await stmt.get()).map(_ChatDb.fromDb).toList();
+      },
+      tag: 'chat.archive(limit: $limit)',
+      exclusive: false,
+    );
+
+    return result ?? [];
+  }
+
   /// Returns the favorite [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> favorite({int? limit}) async {
     final result = await safe(
@@ -224,6 +254,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.where(
           (u) =>
               u.isHidden.equals(false) &
+              u.isArchived.equals(false) &
               u.favoritePosition.isNotNull() &
               u.id.like('local_%').not() &
               u.id.like('d_%').not(),
@@ -277,6 +308,30 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       stmt.where(
         (u) =>
             u.isHidden.equals(false) &
+            u.isArchived.equals(false) &
+            u.id.like('local_%').not() &
+            u.id.like('d_%').not() &
+            u.favoritePosition.isNull(),
+      );
+      stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
+
+      if (limit != null) {
+        stmt.limit(limit);
+      }
+
+      return stmt.watch().map((rows) => rows.map(_ChatDb.fromDb).toList());
+    });
+  }
+
+  /// Returns the [Stream] of archived [DtoChat]s being in a historical order.
+  Stream<List<DtoChat>> watchArchive({int? limit}) {
+    return stream((db) {
+      final stmt = db.select(db.chats);
+
+      stmt.where(
+        (u) =>
+            u.isHidden.equals(false) &
+            u.isArchived.equals(true) &
             u.id.like('local_%').not() &
             u.id.like('d_%').not() &
             u.favoritePosition.isNull(),
@@ -299,6 +354,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       stmt.where(
         (u) =>
             u.isHidden.equals(false) &
+            u.isArchived.equals(false) &
             u.id.like('local_%').not() &
             u.id.like('d_%').not() &
             u.favoritePosition.isNotNull(),
@@ -331,6 +387,7 @@ extension _ChatDb on DtoChat {
             .toList(),
         kindIndex: e.kindIndex,
         isHidden: e.isHidden,
+        isArchived: e.isArchived,
         muted: e.muted == null
             ? null
             : MuteDuration.fromJson(jsonDecode(e.muted!)),
@@ -384,6 +441,7 @@ extension _ChatDb on DtoChat {
       ),
       kindIndex: value.kindIndex,
       isHidden: value.isHidden,
+      isArchived: value.isArchived,
       muted: value.muted == null ? null : jsonEncode(value.muted?.toJson()),
       directLink: value.directLink == null
           ? null
