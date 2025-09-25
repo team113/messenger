@@ -66,7 +66,7 @@ class AccountsView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('AccountsView'),
-      init: AccountsController(Get.find(), Get.find()),
+      init: AccountsController(Get.find(), Get.find(), initial: initial),
       builder: (AccountsController c) {
         return Obx(() {
           final Widget header;

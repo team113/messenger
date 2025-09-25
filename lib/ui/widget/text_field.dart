@@ -47,7 +47,6 @@ class ReactiveTextField extends StatelessWidget {
     this.hint,
     this.icon,
     this.label,
-    this.decoration,
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.maxLength,
     this.maxLines = 1,
@@ -104,9 +103,6 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Type of the [TextField].
   final TextInputType? type;
-
-  /// [InputDecoration] overridings for this [ReactiveTextField].
-  final InputDecoration? decoration;
 
   /// Optional leading icon.
   final IconData? icon;
@@ -331,74 +327,18 @@ class ReactiveTextField extends StatelessWidget {
     return Obx(() {
       final style = Theme.of(context).style;
 
-      final themeDecoration = Theme.of(context).inputDecorationTheme;
+      final decoration = Theme.of(context).inputDecorationTheme;
 
       final floatingLabel = state.error.value?.isNotEmpty == true
-          ? themeDecoration.floatingLabelStyle?.copyWith(
-              color: style.colors.danger,
-            )
+          ? decoration.floatingLabelStyle?.copyWith(color: style.colors.danger)
           : state.isFocused.value
-          ? themeDecoration.floatingLabelStyle?.copyWith(
-              color: style.colors.primary,
-            )
+          ? decoration.floatingLabelStyle?.copyWith(color: style.colors.primary)
           : floatingAccent
-          ? themeDecoration.floatingLabelStyle?.copyWith(
+          ? decoration.floatingLabelStyle?.copyWith(
               fontSize: style.fonts.big.regular.onBackground.fontSize,
               color: style.colors.onBackground,
             )
-          : themeDecoration.floatingLabelStyle;
-
-      var mergedDecoration =
-          InputDecoration(
-            alignLabelWithHint: true,
-            labelStyle: floatingLabelBehavior == FloatingLabelBehavior.always
-                ? floatingLabel
-                : null,
-            floatingLabelBehavior: floatingLabelBehavior,
-            isDense: dense ?? PlatformUtils.isMobile,
-            focusedBorder: state.editable.value
-                ? null
-                : Theme.of(context).inputDecorationTheme.border,
-            prefixText: prefixText,
-            prefixStyle: prefixStyle,
-            prefix: prefix,
-            fillColor:
-                fillColor ??
-                (state.editable.value
-                    ? style.colors.onPrimary
-                    : style.colors.onPrimaryLight),
-            filled: filled ?? true,
-            contentPadding: contentPadding,
-            suffixIcon: dense == true ? null : buildSuffix(),
-            suffixIconConstraints: const BoxConstraints(minWidth: 16),
-            icon: icon == null
-                ? null
-                : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Icon(icon),
-                  ),
-            labelText: label,
-            hintText: hint,
-            hintMaxLines: maxLines,
-            hintStyle: this.style?.copyWith(
-              color: Theme.of(context).inputDecorationTheme.hintStyle?.color,
-            ),
-
-            // Hide the error's text as the [AnimatedSize] below this
-            // [TextField] displays it better.
-            errorStyle: style.fonts.medium.regular.onBackground.copyWith(
-              fontSize: 0,
-            ),
-            errorText: state.error.value,
-          ).copyWith(
-            border: decoration?.border,
-            enabledBorder: decoration?.enabledBorder,
-            focusedBorder: decoration?.focusedBorder,
-            focusedErrorBorder: decoration?.focusedErrorBorder,
-            errorBorder: decoration?.errorBorder,
-            contentPadding: decoration?.contentPadding,
-            constraints: decoration?.constraints,
-          );
+          : decoration.floatingLabelStyle;
 
       return Theme(
         data: Theme.of(context).copyWith(
@@ -429,7 +369,51 @@ class ReactiveTextField extends StatelessWidget {
               textAlignVertical: const TextAlignVertical(y: 0.15),
               readOnly: !enabled || !state.editable.value,
               enabled: enabled,
-              decoration: mergedDecoration,
+              decoration: InputDecoration(
+                alignLabelWithHint: true,
+                labelStyle:
+                    floatingLabelBehavior == FloatingLabelBehavior.always
+                    ? floatingLabel
+                    : null,
+                floatingLabelBehavior: floatingLabelBehavior,
+                isDense: dense ?? PlatformUtils.isMobile,
+                focusedBorder: state.editable.value
+                    ? null
+                    : Theme.of(context).inputDecorationTheme.border,
+                prefixText: prefixText,
+                prefixStyle: prefixStyle,
+                prefix: prefix,
+                fillColor:
+                    fillColor ??
+                    (state.editable.value
+                        ? style.colors.onPrimary
+                        : style.colors.onPrimaryLight),
+                filled: filled ?? true,
+                contentPadding: contentPadding,
+                suffixIcon: dense == true ? null : buildSuffix(),
+                suffixIconConstraints: const BoxConstraints(minWidth: 16),
+                icon: icon == null
+                    ? null
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Icon(icon),
+                      ),
+                labelText: label,
+                hintText: hint,
+                hintMaxLines: maxLines,
+                hintStyle: this.style?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).inputDecorationTheme.hintStyle?.color,
+                ),
+
+                // Hide the error's text as the [AnimatedSize] below this
+                // [TextField] displays it better.
+                errorStyle: style.fonts.medium.regular.onBackground.copyWith(
+                  fontSize: 0,
+                ),
+                errorText: state.error.value,
+              ),
               obscureText: obscure,
               keyboardType: type,
               minLines: minLines,

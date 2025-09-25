@@ -236,7 +236,6 @@ btn_video_call = Videollamada
 btn_work_with_us = Trabaje con nosotros
 colon_space = :{" "}
 comma_space = ,{" "}
-current_account = cuenta corriente 
 dot = .
 email_confirmation_code =
     Código: {$token}
@@ -584,6 +583,7 @@ label_count_seconds =
 label_critical_update_is_available = La versión actual ya no es compatible
 label_create_group = Creación de grupo
 label_create_link = Crear enlace
+label_current_account = Cuenta corriente 
 label_current_password = Contrseña actual
 label_days_short = {$days} d
 label_delete_account = Eliminar la cuenta

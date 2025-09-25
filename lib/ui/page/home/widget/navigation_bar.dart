@@ -18,14 +18,12 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '/api/backend/schema.dart' show Presence;
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
-import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/context_menu/tile.dart';
 import '/ui/widget/safe_area/safe_area.dart';
@@ -233,13 +231,8 @@ class CustomNavigationBarItem extends StatelessWidget {
   CustomNavigationBarItem.menu({
     Key? key,
     Key? avatarKey,
-    Color? acceptAuxiliary,
-    Color? warning,
-    GlobalKey? selector,
     MyUser? myUser,
-    List<ContextMenuItem> actions = const [],
     void Function()? onSecondary,
-    void Function(Presence)? onPresence,
     void Function()? onAvatar,
   }) : this._(
          key: key,

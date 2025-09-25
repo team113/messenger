@@ -75,6 +75,7 @@ class AccountsSwitcherController extends GetxController {
   /// list.
   StreamSubscription? _profilesSubscription;
 
+  // TODO: add docs
   Stopwatch? _startedAt;
 
   /// Returns [UserId] of currently authenticated [MyUser].
@@ -133,14 +134,14 @@ class AccountsSwitcherController extends GetxController {
   }
 
   /// Toggles [MyUser.presence] between [Presence.present] and [Presence.away].
-  void togglePresence() {
+  Future<void> togglePresence() async {
     Presence newPresence;
     if (myUser.value?.presence == Presence.present) {
       newPresence = Presence.away;
     } else {
       newPresence = Presence.present;
     }
-    _myUserService.updateUserPresence(newPresence);
+    await _myUserService.updateUserPresence(newPresence);
   }
 
   /// Switches to the account with the given [id].
@@ -167,7 +168,7 @@ class AccountsSwitcherController extends GetxController {
     }
   }
 
-  /// Continuously schedules rebuilds to sync GlobalKey changes with the
+  /// Continuously schedules rebuilds to sync [GlobalKey] changes with the
   /// transition animation.
   void _scheduleRebuild() {
     if (isClosed) {

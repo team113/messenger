@@ -236,7 +236,6 @@ btn_video_call = Видеозвонок
 btn_work_with_us = Работайте с нами
 colon_space = :{" "}
 comma_space = ,{" "}
-current_account = Текущий аккаунт 
 dot = .
 email_confirmation_code =
     Код: {$token}
@@ -596,6 +595,7 @@ label_count_seconds = {$count} { $count ->
 label_critical_update_is_available = Текущая версия не поддерживается
 label_create_group = Создание группы
 label_create_link = Создать ссылку
+label_current_account = Текущий аккаунт 
 label_current_password = Текущий пароль
 label_days_short = {$days} д
 label_delete_account = Удалить аккаунт

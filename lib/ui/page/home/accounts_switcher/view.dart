@@ -19,9 +19,10 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:get/get.dart';
 
+import '../tab/menu/accounts/controller.dart';
+import '../tab/menu/accounts/view.dart';
 import '/api/backend/schema.graphql.dart';
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
@@ -57,7 +58,8 @@ class AccountsSwitcherView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final route = RawDialogRoute<T>(
-      barrierColor: style.barrierColor,
+      // TODO: может нужно вынести в тему ?
+      barrierColor: style.barrierColor.withValues(alpha: .1),
       barrierDismissible: true,
       pageBuilder: (_, _, _) {
         final Widget body = AccountsSwitcherView(avatarKey: avatarKey);
@@ -72,8 +74,8 @@ class AccountsSwitcherView extends StatelessWidget {
           builder: (context, child) {
             return BackdropFilter(
               filter: ui.ImageFilter.blur(
-                sigmaX: animation.value * 7,
-                sigmaY: animation.value * 7,
+                sigmaX: animation.value * 10,
+                sigmaY: animation.value * 10,
               ),
               child: FadeTransition(opacity: animation, child: child),
             );
@@ -117,7 +119,7 @@ class AccountsSwitcherView extends StatelessWidget {
                   bottom: CustomNavigationBar.height + 12,
                   right: constraints.maxWidth - bounds.right - 4,
                   left: 12,
-                  child: _buildModalWidget(context, c),
+                  child: _buildModal(context, c),
                 ),
                 Positioned(
                   left: bounds.left - 4,
@@ -149,8 +151,8 @@ class AccountsSwitcherView extends StatelessWidget {
     );
   }
 
-  // Builds general modal widget
-  Widget _buildModalWidget(BuildContext context, AccountsSwitcherController c) {
+  /// Builds general modal widget.
+  Widget _buildModal(BuildContext context, AccountsSwitcherController c) {
     final List<Widget> children = [];
     var style = Theme.of(context).style;
 
@@ -169,7 +171,8 @@ class AccountsSwitcherView extends StatelessWidget {
             margin: EdgeInsets.zero,
             key: Key('Account_${e.value.id}'),
             myUser: myUser,
-            dense: true,
+            height: 48,
+            radius: AvatarRadius.normal,
             onTap: active
                 ? null
                 : () async {
@@ -195,10 +198,9 @@ class AccountsSwitcherView extends StatelessWidget {
                   },
             avatarBuilder: (_) => AvatarWidget.fromMyUser(
               myUser,
-              radius: AvatarRadius.medium,
+              radius: AvatarRadius.normal,
               badge: active,
             ),
-
             trailing: [
               if (myUser.unreadChatsCount > 0)
                 KeyedSubtree(
@@ -212,7 +214,6 @@ class AccountsSwitcherView extends StatelessWidget {
             ],
             selected: active,
             subtitle: [
-              const SizedBox(height: 5),
               if (expired)
                 Text(
                   'label_sign_in_required'.l10n,
@@ -228,166 +229,139 @@ class AccountsSwitcherView extends StatelessWidget {
       decoration: BoxDecoration(
         color: style.colors.background,
         borderRadius: BorderRadius.circular(16),
+        // TODO: need shadows
+        boxShadow: [],
       ),
-      padding: EdgeInsets.all(10),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: 8,
         children: [
           PrimaryButton(
             onPressed: () async {
-              await LoginView.show(
-                context,
-                initial: LoginViewStage.signUpOrSignIn,
-              );
+              await AccountsView.show(context, initial: AccountsViewStage.add);
             },
             leading: SvgIcon(SvgIcons.logoutWhite),
             title: 'btn_add_account'.l10n,
           ),
           ...children,
           SizedBox(height: 2),
-          Container(
-            decoration: BoxDecoration(
-              border: style.cardBorder,
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
+          InputDecorator(
+            decoration: InputDecoration(
+              floatingLabelAlignment: FloatingLabelAlignment.center,
+              label: Text(
+                'label_current_account'.l10n,
+                textAlign: TextAlign.center,
+                style: style.fonts.medium.regular.secondary,
+              ),
+              contentPadding: EdgeInsets.all(12).copyWith(top: 14),
+              filled: true,
+              fillColor: Colors.white,
+              // border: style.cardBorder,
             ),
-            child: Stack(
-              clipBehavior: Clip.none,
+            child: Column(
               children: [
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top:
-                      -(style.fonts.small.regular.secondary.height ?? 1.3) *
-                      (style.fonts.small.regular.secondary.fontSize ?? 11) /
-                      2,
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Stack(
-                      fit: StackFit.loose,
+                Row(
+                  spacing: 12,
+                  children: [
+                    Obx(() {
+                      return AvatarWidget.fromMyUser(
+                        c.myUser.value,
+                        radius: AvatarRadius.medium,
+                      );
+                    }),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          top: 0,
-                          bottom: 0,
-                          child: Align(
-                            widthFactor: 1,
-                            child: Container(
-                              height: 1,
-                              decoration: BoxDecoration(color: Colors.white),
+                        Obx(() {
+                          return Text(
+                            c.myUser.value?.name?.val ?? 'dot'.l10n,
+                            style: style.fonts.medium.regular.onBackground,
+                          );
+                        }),
+                        Obx(() {
+                          final presence = c.myUser.value?.presence;
+
+                          return Text.rich(
+                            TextSpan(
+                              text: switch (presence) {
+                                Presence.present =>
+                                  'label_presence_present'.l10n,
+                                Presence.away => 'label_presence_away'.l10n,
+                                (_) => '',
+                              },
+                              style: style.fonts.small.regular.secondary,
+                              children: [
+                                TextSpan(text: 'space_vertical_space'.l10n),
+                                WidgetSpan(
+                                  alignment: ui.PlaceholderAlignment.middle,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(8),
+                                    onTap: c.togglePresence,
+                                    child: Ink(
+                                      child: Text(
+                                        'btn_change'.l10n,
+                                        style:
+                                            style.fonts.small.regular.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(
-                            'current_account'.l10n,
-                            textAlign: TextAlign.center,
-                            style: style.fonts.small.regular.secondary,
-                          ),
-                        ),
+                          );
+                        }),
                       ],
                     ),
-                  ),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 2),
-                      Row(
-                        spacing: 12,
-                        children: [
-                          Obx(() {
-                            return AvatarWidget.fromMyUser(
-                              c.myUser.value,
-                              radius: AvatarRadius.medium,
-                            );
-                          }),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Obx(() {
-                                return Text(
-                                  c.myUser.value?.name?.val ?? 'dot'.l10n,
-                                  style:
-                                      style.fonts.medium.regular.onBackground,
-                                );
-                              }),
-                              Obx(() {
-                                final presence = c.myUser.value?.presence;
-
-                                return Text.rich(
-                                  TextSpan(
-                                    text: switch (presence) {
-                                      Presence.present =>
-                                        'label_presence_present'.l10n,
-                                      Presence.away =>
-                                        'label_presence_away'.l10n,
-                                      (_) => '',
-                                    },
-                                    style: style.fonts.small.regular.secondary,
-                                    children: [
-                                      TextSpan(text: ' | '),
-                                      WidgetSpan(
-                                        alignment:
-                                            ui.PlaceholderAlignment.middle,
-                                        child: InkWell(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          onTap: c.togglePresence,
-                                          child: Ink(
-                                            child: Text(
-                                              'btn_change'.l10n,
-                                              style: style
-                                                  .fonts
-                                                  .small
-                                                  .regular
-                                                  .primary,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Divider(
-                        color: style.colors.secondaryHighlightDark,
-                        height: 1,
-                      ),
-                      SizedBox(height: 4),
-                      ReactiveTextField(
-                        key: Key('TextStatusField'),
-                        state: c.status,
-                        hint: 'label_text_status_description_switcher'.l10n,
-                        decoration: InputDecoration(
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          errorBorder: InputBorder.none,
-                          focusedErrorBorder: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        dense: true,
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        maxLines: 1,
-                        formatters: [LengthLimitingTextInputFormatter(25)],
-                      ),
-                    ],
+                SizedBox(height: 8),
+                Divider(color: style.colors.secondaryHighlightDark, height: 1),
+                SizedBox(height: 4),
+                Theme(
+                  data: _textStatusFieldTheme(context),
+                  child: ReactiveTextField(
+                    key: Key('TextStatusField'),
+                    state: c.status,
+                    hint: 'label_text_status_description_switcher'.l10n,
+                    dense: true,
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    maxLines: 1,
+                    formatters: [LengthLimitingTextInputFormatter(25)],
                   ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
+  ///
+  /// Used for TextStatusField.
+  ThemeData _textStatusFieldTheme(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    final OutlineInputBorder border = OutlineInputBorder(
+      borderSide: BorderSide.none,
+    );
+
+    return Theme.of(context).copyWith(
+      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+        border: border,
+        errorBorder: border,
+        enabledBorder: border,
+        focusedBorder: border,
+        disabledBorder: border,
+        focusedErrorBorder: border,
+        focusColor: style.colors.onPrimary,
+        fillColor: style.colors.onPrimary,
+        hoverColor: style.colors.transparent,
+        filled: true,
+        isDense: true,
+        contentPadding: EdgeInsets.fromLTRB(0, 4, 0, 4),
       ),
     );
   }

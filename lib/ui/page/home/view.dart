@@ -302,8 +302,6 @@ class _HomeViewState extends State<HomeView> {
 
   /// Builds a [CustomNavigationBar].
   Widget _navigation(BuildContext context, HomeController c) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
       final List<HomeTab> tabs = c.tabs;
 
@@ -335,11 +333,7 @@ class _HomeViewState extends State<HomeView> {
                     return Obx(() {
                       return CustomNavigationBarItem.menu(
                         avatarKey: c.avatarKey,
-                        acceptAuxiliary: style.colors.acceptAuxiliary,
-                        warning: style.colors.warning,
-                        onPresence: c.setPresence,
                         onAvatar: c.updateAvatar,
-                        selector: c.panelKey,
                         myUser: c.myUser.value,
                         onSecondary: () async {
                           await AccountsSwitcherView.show(
