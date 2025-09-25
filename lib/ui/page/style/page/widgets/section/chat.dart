@@ -141,6 +141,7 @@ class ChatSection {
             ],
           ),
         ),
+        selectable: true,
         me: const UserId('me'),
         reads: [
           if (read)

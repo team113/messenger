@@ -231,6 +231,7 @@ btn_unblock = Unblock
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
+btn_unselect_messages = Cancel selection
 btn_upload = Upload
 btn_video_call = Video call
 btn_work_with_us = Work with us

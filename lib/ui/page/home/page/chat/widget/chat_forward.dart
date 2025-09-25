@@ -68,6 +68,10 @@ class ChatForwardWidget extends StatefulWidget {
     required this.note,
     required this.authorId,
     required this.me,
+    this.withAvatar = true,
+    this.appendAvatarPadding = false,
+    this.selectable = true,
+    this.withName = true,
     this.reads = const [],
     this.user,
     this.getUser,
@@ -81,6 +85,7 @@ class ChatForwardWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelect,
+    this.onUserPressed = _defaultOnUserPressed,
     this.onDragging,
     this.onAnimateTo,
   });
@@ -105,6 +110,29 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// [User] posted these [forwards].
   final RxUser? user;
+
+  /// Indicator whether this [ChatForwardWidget] should display [RxUser.title].
+  ///
+  /// For example, [Chat]-groups should display messages with titles.
+  final bool withName;
+
+  /// Indicator whether this [ChatForwardWidget] should display an
+  /// [AvatarWidget].
+  ///
+  /// For example, [Chat]-groups should display messages with avatars.
+  final bool withAvatar;
+
+  /// Indicator whether this [ChatForwardWidget] should append a left padding in
+  /// place of [AvatarWidget] of [user].
+  ///
+  /// When an [withAvatar] is `true`, the padding is always applied
+  /// automatically. Otherwise setting this to `true` appends the padding as if
+  /// there's invisible [AvatarWidget] present.
+  final bool appendAvatarPadding;
+
+  /// Indicator whether this [ChatForwardWidget] enables [selectable] in
+  /// [SelectionText.rich].
+  final bool selectable;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -143,6 +171,9 @@ class ChatForwardWidget extends StatefulWidget {
   /// Callback, called when a select action is triggered.
   final void Function()? onSelect;
 
+  /// Callback, called whenever some [User]'s name is being pressed.
+  final void Function(User) onUserPressed;
+
   /// Callback, called whenever this [ChatForwardWidget] is being dragged.
   final void Function(bool)? onDragging;
 
@@ -151,6 +182,10 @@ class ChatForwardWidget extends StatefulWidget {
 
   @override
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
+
+  /// Opens the [User.dialog] chat.
+  static void _defaultOnUserPressed(User user) =>
+      router.chat(ChatId.local(user.id), push: true);
 }
 
 /// State of a [ChatForwardWidget] maintaining the [_galleryKeys].
@@ -308,7 +343,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       if (widget.note.value != null) _note(menu),
                       if (!_fromMe &&
                           widget.chat.value?.isGroup == true &&
-                          widget.note.value == null) ...[
+                          widget.note.value == null &&
+                          widget.withName) ...[
                         const SizedBox(height: 6),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
@@ -319,7 +355,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 ..onTap = () =>
                                     router.user(widget.authorId, push: true),
                             ),
-                            selectable: PlatformUtils.isDesktop || menu,
+                            selectable:
+                                widget.selectable &&
+                                (PlatformUtils.isDesktop || menu),
                             onChanged: (a) => _selection = a,
                             style: style.fonts.medium.regular.onBackground
                                 .copyWith(color: color),
@@ -329,10 +367,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       const SizedBox(height: 6),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                        child: Text(
+                        child: SelectionText(
                           'label_forwarded_messages'.l10nfmt({
                             'count': widget.forwards.length,
                           }),
+                          selectable:
+                              widget.selectable &&
+                              (PlatformUtils.isDesktop || menu),
                           style: style.fonts.small.regular.secondary,
                         ),
                       ),
@@ -438,7 +479,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                         padding: const EdgeInsets.only(right: 9),
                         child: SelectionText(
                           user?.title ?? 'dot'.l10n * 3,
-                          selectable: PlatformUtils.isDesktop || menu,
+                          selectable:
+                              widget.selectable &&
+                              (PlatformUtils.isDesktop || menu),
                           onChanged: (a) => _selection = a,
                           style: style.fonts.medium.regular.onBackground
                               .copyWith(color: color),
@@ -518,7 +561,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           const WidgetSpan(child: SizedBox(width: 95)),
                         ],
                       ),
-                      selectable: PlatformUtils.isDesktop || menu,
+                      selectable:
+                          widget.selectable &&
+                          (PlatformUtils.isDesktop || menu),
                       onChanged: (a) => _selection = a,
                       style: style.fonts.medium.regular.onBackground,
                     ),
@@ -720,7 +765,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           ..onTap = () =>
                               router.user(widget.authorId, push: true),
                       ),
-                      selectable: PlatformUtils.isDesktop || menu,
+                      selectable:
+                          widget.selectable &&
+                          (PlatformUtils.isDesktop || menu),
                       onChanged: (a) => _selection = a,
                       style: style.fonts.medium.regular.onBackground.copyWith(
                         color: color,
@@ -792,7 +839,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                       child: SelectionText.rich(
                         text,
-                        selectable: PlatformUtils.isDesktop || menu,
+                        selectable:
+                            widget.selectable &&
+                            (PlatformUtils.isDesktop || menu),
                         onChanged: (a) => _selection = a,
                         style: style.fonts.medium.regular.onBackground,
                       ),
@@ -919,25 +968,61 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
-        if (!_fromMe && widget.chat.value!.isGroup)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: () => router.user(widget.authorId, push: true),
-              child: AvatarWidget.fromRxUser(widget.user, radius: avatarRadius),
-            ),
-          ),
+        AnimatedSwitcher(
+          duration: 150.milliseconds,
+          layoutBuilder: (currentChild, previousChildren) {
+            return Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: <Widget>[
+                ...previousChildren,
+                if (currentChild != null) currentChild,
+              ],
+            );
+          },
+          transitionBuilder: (child, animation) {
+            return SizeTransition(
+              sizeFactor: animation,
+              axis: Axis.horizontal,
+              axisAlignment: 0,
+              child: ScaleTransition(
+                scale: animation,
+                alignment: Alignment.center,
+                child: AnimatedSwitcher.defaultTransitionBuilder(
+                  child,
+                  animation,
+                ),
+              ),
+            );
+          },
+          child:
+              !widget.selectable ||
+                  (widget.chat.value?.isGroup == false && !_fromMe)
+              ? SizedBox(width: 0)
+              : widget.appendAvatarPadding || _fromMe
+              ? SizedBox(
+                  key: Key('expanded'),
+                  width: avatarRadius.toDouble() * 2,
+                )
+              : widget.withAvatar && widget.chat.value?.isGroup == true
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () => router.user(widget.authorId, push: true),
+                    child: AvatarWidget.fromRxUser(
+                      widget.user,
+                      radius: avatarRadius,
+                    ),
+                  ),
+                )
+              : SizedBox(width: 0),
+        ),
         Flexible(
           child: LayoutBuilder(
             builder: (context, constraints) {
               return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: min(
-                    550,
-                    constraints.maxWidth - avatarRadius.toDouble() * 2,
-                  ),
-                ),
+                constraints: BoxConstraints(maxWidth: 550),
                 child: Padding(
                   padding: EdgeInsets.zero,
                   child: Material(
@@ -1099,6 +1184,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             },
           ),
         ),
+        if (_fromMe ||
+            (widget.chat.value?.isGroup == false && !widget.selectable))
+          AnimatedSize(duration: 150.milliseconds, child: SizedBox(width: 0))
+        else
+          AnimatedSize(
+            duration: 150.milliseconds,
+            child: SizedBox(width: avatarRadius.toDouble() * 2),
+          ),
       ],
     );
 

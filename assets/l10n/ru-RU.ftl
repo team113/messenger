@@ -231,6 +231,7 @@ btn_unblock = Разблокировать
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
 btn_unmute_chats = Включить звук
+btn_unselect_messages = Отменить выбор
 btn_upload = Загрузить
 btn_video_call = Видеозвонок
 btn_work_with_us = Работайте с нами

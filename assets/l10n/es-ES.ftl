@@ -231,6 +231,7 @@ btn_unblock = Desbloquear
 btn_unmute = Desactivar silencio
 btn_unmute_chat = Desactivar silencio del chat
 btn_unmute_chats = Desactivar silencio de los chats
+btn_unselect_messages = Cancelar selección
 btn_upload = Subir
 btn_video_call = Videollamada
 btn_work_with_us = Trabaje con nosotros
