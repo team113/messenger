@@ -50,10 +50,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/recognizers.dart';
-import 'chats_widget.dart';
 import 'controller.dart';
-import 'group_creating_widget.dart';
-import 'search_widget.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
 
@@ -363,12 +360,12 @@ class ChatsTabView extends StatelessWidget {
                               child: CustomProgressIndicator.primary(),
                             );
                           } else if (c.groupCreating.isTrue) {
-                            child = GroupCreatingWidget(c: c);
+                            child = _groupCreating(context, c);
                           } else if (c.searching.value &&
                               c.search.value?.search.isEmpty.value == false) {
-                            child = SearchWidget(c: c);
+                            child = _searchResult(context, c);
                           } else {
-                            child = ChatsWidget(c: c);
+                            child = _chats(context, c);
                           }
 
                           // Это просто показать что SliverAppBar и
@@ -377,7 +374,7 @@ class ChatsTabView extends StatelessWidget {
 
                           // здесь отображаю ТОЛЬКО чаты, т.к надо
                           // изменить вложенность сливеров
-                          return ChatsWidget(c: c);
+                          return _chats(context, c);
                           // если return убрать, то поиск и остальное работает
                           // НО в ChatsWidget надо return убрать
 
@@ -493,6 +490,557 @@ class ChatsTabView extends StatelessWidget {
         );
       },
     );
+  }
+
+  ///
+  Widget _searchResult(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+    final RxStatus? searchStatus = c.search.value?.searchStatus.value;
+
+    if (((searchStatus?.isLoading ?? false) ||
+            (searchStatus?.isLoadingMore ?? false)) &&
+        c.elements.isEmpty) {
+      return Center(
+        key: UniqueKey(),
+        child: ColoredBox(
+          key: const Key('Loading'),
+          color: style.colors.almostTransparent,
+          child: const CustomProgressIndicator(),
+        ),
+      );
+    }
+
+    if (c.elements.isEmpty) {
+      return AnimatedDelayedSwitcher(
+        key: UniqueKey(),
+        delay: const Duration(milliseconds: 300),
+        child: Center(
+          key: const Key('NothingFound'),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'label_nothing_found'.l10n,
+              style: style.fonts.small.regular.onBackground,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Scrollbar(
+      controller: c.search.value!.scrollController,
+      child: AnimationLimiter(
+        key: const Key('Search'),
+        child: ListView.builder(
+          key: const Key('SearchScrollable'),
+          controller: c.search.value!.scrollController,
+          itemCount: c.elements.length,
+          itemBuilder: (_, i) {
+            final ListElement element = c.elements[i];
+            Widget child;
+
+            if (element is ChatElement) {
+              final RxChat chat = element.chat;
+              child = Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10),
+                child: Obx(() {
+                  return RecentChatTile(
+                    chat,
+                    key: Key('SearchChat_${chat.id}'),
+                    me: c.me,
+                    blocked: chat.blocked,
+                    getUser: c.getUser,
+                    onJoin: () => c.joinCall(chat.id),
+                    onDrop: () => c.dropCall(chat.id),
+                    hasCall: c.status.value.isLoadingMore ? false : null,
+                    onPerformDrop: (e) => c.sendFiles(chat.id, e),
+                  );
+                }),
+              );
+            } else if (element is ContactElement) {
+              child = SearchUserTile(
+                key: Key('SearchContact_${element.contact.id}'),
+                contact: element.contact,
+                onTap: () => c.openChat(contact: element.contact),
+              );
+            } else if (element is UserElement) {
+              child = SearchUserTile(
+                key: Key('SearchUser_${element.user.id}'),
+                user: element.user,
+                onTap: () => c.openChat(user: element.user),
+              );
+            } else if (element is DividerElement) {
+              child = Container(
+                margin: EdgeInsets.fromLTRB(8, i == 0 ? 0 : 8, 8, 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                width: double.infinity,
+                child: Center(
+                  child: Text(
+                    element.category.name.capitalized,
+                    style: style.fonts.normal.regular.onBackground,
+                  ),
+                ),
+              );
+            } else {
+              child = const SizedBox();
+            }
+
+            if (i == c.elements.length - 1) {
+              if ((searchStatus?.isLoadingMore ?? false) ||
+                  (searchStatus?.isLoading ?? false)) {
+                child = Column(
+                  children: [
+                    child,
+                    const CustomProgressIndicator(key: Key('SearchLoading')),
+                  ],
+                );
+              }
+            }
+
+            return AnimationConfiguration.staggeredList(
+              position: i,
+              duration: const Duration(milliseconds: 375),
+              child: SlideAnimation(
+                horizontalOffset: 50,
+                child: FadeInAnimation(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: i == 0 ? 3 : 0,
+                      bottom: i == c.elements.length - 1 ? 4 : 0,
+                    ),
+                    child: child,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  ///
+  Widget _groupCreating(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+    final RxStatus? searchStatus = c.search.value?.searchStatus.value;
+
+    if (c.search.value?.query.isNotEmpty == true &&
+        c.search.value?.recent.isEmpty == true &&
+        c.search.value?.contacts.isEmpty == true &&
+        c.search.value?.users.isEmpty == true) {
+      if ((searchStatus?.isSuccess ?? false) &&
+          !(searchStatus?.isLoadingMore ?? false)) {
+        return Center(
+          key: UniqueKey(),
+          child: Text(
+            'label_nothing_found'.l10n,
+            style: style.fonts.small.regular.onBackground,
+          ),
+        );
+      }
+
+      return Center(
+        key: UniqueKey(),
+        child: ColoredBox(
+          color: style.colors.almostTransparent,
+          child: const CustomProgressIndicator(),
+        ),
+      );
+    }
+
+    return Scrollbar(
+      controller: c.search.value!.scrollController,
+      child: ListView.builder(
+        key: const Key('GroupCreating'),
+        controller: c.search.value!.scrollController,
+        itemCount: c.elements.length,
+        itemBuilder: (context, i) {
+          final ListElement element = c.elements[i];
+          Widget child;
+
+          if (element is RecentElement) {
+            child = Obx(() {
+              return SelectedTile(
+                user: element.user,
+                selected:
+                    c.search.value?.selectedRecent.contains(element.user) ??
+                    false,
+                onTap: () => c.search.value?.select(recent: element.user),
+              );
+            });
+          } else if (element is ContactElement) {
+            child = Obx(() {
+              return SelectedTile(
+                contact: element.contact,
+                selected:
+                    c.search.value?.selectedContacts.contains(
+                      element.contact,
+                    ) ??
+                    false,
+                onTap: () => c.search.value?.select(contact: element.contact),
+              );
+            });
+          } else if (element is UserElement) {
+            child = Obx(() {
+              return SelectedTile(
+                user: element.user,
+                selected:
+                    c.search.value?.selectedUsers.contains(element.user) ??
+                    false,
+                onTap: () => c.search.value?.select(user: element.user),
+              );
+            });
+          } else if (element is MyUserElement) {
+            child = Obx(() {
+              return SelectedTile(
+                myUser: c.myUser.value,
+                selected: true,
+                subtitle: [
+                  const SizedBox(height: 5),
+                  Text(
+                    'label_you'.l10n,
+                    style: style.fonts.small.regular.onPrimary,
+                  ),
+                ],
+              );
+            });
+          } else if (element is DividerElement) {
+            final String text;
+
+            switch (element.category) {
+              case SearchCategory.recent:
+                text = 'label_recent'.l10n;
+                break;
+
+              case SearchCategory.contact:
+                text = 'label_user'.l10n;
+                break;
+
+              case SearchCategory.user:
+                text = 'label_user'.l10n;
+                break;
+
+              case SearchCategory.chat:
+                text = 'label_chat'.l10n;
+                break;
+            }
+
+            child = Center(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                padding: const EdgeInsets.fromLTRB(0, 10, 0, 6),
+                width: double.infinity,
+                child: Center(
+                  child: Text(
+                    text,
+                    style: style.fonts.normal.regular.onBackground,
+                  ),
+                ),
+              ),
+            );
+          } else {
+            child = const SizedBox();
+          }
+
+          if (i == c.elements.length - 1 &&
+              ((searchStatus?.isLoadingMore ?? false) ||
+                  (searchStatus?.isLoading ?? false))) {
+            child = Column(children: [child, const CustomProgressIndicator()]);
+          }
+
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  ///
+  Widget _chats(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    final bool isCheck = c.chats.none((e) {
+      return (!e.id.isLocal || e.chat.value.isMonolog) &&
+          !e.chat.value.isHidden &&
+          !e.hidden.value;
+    });
+
+    if (isCheck && false) {
+      if (c.status.value.isLoadingMore) {
+        return Center(
+          key: UniqueKey(),
+          child: ColoredBox(
+            key: const Key('Loading'),
+            color: style.colors.almostTransparent,
+            child: const CustomProgressIndicator(),
+          ),
+        );
+      }
+
+      return KeyedSubtree(
+        key: UniqueKey(),
+        child: Center(
+          key: const Key('NoChats'),
+          child: Text('label_no_chats'.l10n),
+        ),
+      );
+    }
+
+    return Obx(() {
+      final List<RxChat> calls = [];
+      final List<RxChat> favorites = [];
+      final List<RxChat> chats = [];
+
+      for (var e in c.chats) {
+        if ((!e.id.isLocal ||
+                e.messages.isNotEmpty ||
+                e.chat.value.isMonolog) &&
+            !e.chat.value.isHidden &&
+            !e.hidden.value) {
+          if (e.chat.value.ongoingCall != null) {
+            calls.add(e.rx);
+          }
+
+          if (e.chat.value.favoritePosition != null) {
+            favorites.add(e.rx);
+          }
+
+          chats.add(e.rx);
+        }
+      }
+
+      // Builds a [RecentChatTile] from the provided
+      // [RxChat].
+      Widget tile(RxChat e, {Widget Function(Widget)? avatarBuilder}) {
+        final bool selected = c.selectedChats.contains(e.id);
+
+        return RecentChatTile(
+          e,
+          key: e.chat.value.isMonolog
+              ? const Key('ChatMonolog')
+              : Key('RecentChat_${e.id}'),
+          me: c.me,
+          blocked: e.blocked,
+          selected: c.selecting.value ? selected : null,
+          getUser: c.getUser,
+          avatarBuilder: c.selecting.value
+              ? (child) => WidgetButton(
+                  onPressed: () => router.dialog(e.chat.value, c.me),
+                  child: child,
+                )
+              : avatarBuilder,
+          onJoin: () => c.joinCall(e.id),
+          onDrop: () => c.dropCall(e.id),
+          onLeave: e.chat.value.isMonolog ? null : () => c.leaveChat(e.id),
+          onHide: () => c.hideChat(e.id),
+          onMute: e.chat.value.isMonolog || e.chat.value.id.isLocal
+              ? null
+              : () => c.muteChat(e.id),
+          onUnmute: e.chat.value.isMonolog || e.chat.value.id.isLocal
+              ? null
+              : () => c.unmuteChat(e.id),
+          onFavorite: e.chat.value.id.isLocal && !e.chat.value.isMonolog
+              ? null
+              : () => c.favoriteChat(e.id),
+          onUnfavorite: e.chat.value.id.isLocal && !e.chat.value.isMonolog
+              ? null
+              : () => c.unfavoriteChat(e.id),
+          onSelect: c.toggleSelecting,
+
+          // TODO: Uncomment, when contacts are implemented.
+          // onContact: (b) => b
+          //     ? c.addToContacts(e)
+          //     : c.removeFromContacts(e),
+          // inContacts: e.chat.value.isDialog
+          //     ? () => c.inContacts(e)
+          //     : null,
+          onTap: c.selecting.value ? () => c.selectChat(e) : null,
+          onDismissed: () => c.dismiss(e),
+          enableContextMenu: !c.selecting.value,
+          trailing: c.selecting.value
+              ? [SelectedDot(selected: selected, size: 20)]
+              : null,
+          hasCall: c.status.value.isLoadingMore ? false : null,
+          onPerformDrop: (f) => c.sendFiles(e.id, f),
+        );
+      }
+
+      return SliverPadding(
+        padding: EdgeInsets.only(bottom: 4, left: 10, right: 10),
+        sliver: SliverList(
+          delegate: SliverChildListDelegate.fixed([
+            ...chats.mapIndexed((i, e) {
+              return AnimationConfiguration.staggeredList(
+                position: calls.length + favorites.length + i,
+                duration: const Duration(milliseconds: 375),
+                child: SlideAnimation(
+                  horizontalOffset: 50,
+                  child: FadeInAnimation(child: tile(e)),
+                ),
+              );
+            }),
+            if (c.hasNext.isTrue || c.status.value.isLoadingMore)
+              Center(
+                child: CustomProgressIndicator(
+                  key: const Key('ChatsLoading'),
+                  value: Config.disableInfiniteAnimations ? 0 : null,
+                ),
+              ),
+          ]),
+        ),
+      );
+
+      return CustomScrollView(
+        controller: c.scrollController,
+        slivers: [
+          SliverPadding(
+            padding: EdgeInsets.only(top: 4, left: 10, right: 10),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate.fixed(
+                calls.mapIndexed((i, e) {
+                  return AnimationConfiguration.staggeredList(
+                    position: i,
+                    duration: const Duration(milliseconds: 375),
+                    child: SlideAnimation(
+                      horizontalOffset: 50,
+                      child: FadeInAnimation(child: tile(e)),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.only(left: 10, right: 10),
+            sliver: SliverReorderableList(
+              onReorderStart: (_) => c.reordering.value = true,
+              proxyDecorator: (child, _, animation) {
+                return AnimatedBuilder(
+                  animation: animation,
+                  builder: (_, Widget? child) {
+                    final double t = Curves.easeInOut.transform(
+                      animation.value,
+                    );
+                    final double elevation = lerpDouble(0, 6, t)!;
+                    final Color color = Color.lerp(
+                      style.colors.transparent,
+                      style.colors.onBackgroundOpacity20,
+                      t,
+                    )!;
+
+                    return Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          CustomBoxShadow(color: color, blurRadius: elevation),
+                        ],
+                        borderRadius: style.cardRadius.copyWith(
+                          topLeft: Radius.circular(
+                            style.cardRadius.topLeft.x * 1.75,
+                          ),
+                        ),
+                      ),
+                      child: child,
+                    );
+                  },
+                  child: child,
+                );
+              },
+              itemBuilder: (_, i) {
+                final RxChat chat = favorites[i];
+
+                return KeyedSubtree(
+                  key: Key(chat.id.val),
+                  child: Obx(() {
+                    final Widget child = tile(
+                      chat,
+                      avatarBuilder: (child) {
+                        if (PlatformUtils.isMobile) {
+                          return ReorderableDelayedDragStartListener(
+                            key: Key('ReorderHandle_${chat.id.val}'),
+                            index: i,
+                            child: child,
+                          );
+                        }
+
+                        return RawGestureDetector(
+                          gestures: {
+                            DisableSecondaryButtonRecognizer:
+                                GestureRecognizerFactoryWithHandlers<
+                                  DisableSecondaryButtonRecognizer
+                                >(
+                                  () => DisableSecondaryButtonRecognizer(),
+                                  (_) {},
+                                ),
+                          },
+                          child: ReorderableDragStartListener(
+                            key: Key('ReorderHandle_${chat.id.val}'),
+                            index: i,
+                            child: GestureDetector(
+                              onLongPress: () {},
+                              child: child,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+
+                    // Ignore the animation, if there's
+                    // an ongoing reordering happening.
+                    if (c.reordering.value) {
+                      return child;
+                    }
+
+                    return AnimationConfiguration.staggeredList(
+                      position: calls.length + i,
+                      duration: const Duration(milliseconds: 375),
+                      child: SlideAnimation(
+                        horizontalOffset: 50,
+                        child: FadeInAnimation(child: child),
+                      ),
+                    );
+                  }),
+                );
+              },
+              itemCount: favorites.length,
+              onReorder: (a, b) {
+                c.reorderChat(a, b);
+                c.reordering.value = false;
+              },
+            ),
+          ),
+          SliverPadding(
+            padding: EdgeInsets.only(bottom: 4, left: 10, right: 10),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate.fixed([
+                ...chats.mapIndexed((i, e) {
+                  return AnimationConfiguration.staggeredList(
+                    position: calls.length + favorites.length + i,
+                    duration: const Duration(milliseconds: 375),
+                    child: SlideAnimation(
+                      horizontalOffset: 50,
+                      child: FadeInAnimation(child: tile(e)),
+                    ),
+                  );
+                }),
+                if (c.hasNext.isTrue || c.status.value.isLoadingMore)
+                  Center(
+                    child: CustomProgressIndicator(
+                      key: const Key('ChatsLoading'),
+                      value: Config.disableInfiniteAnimations ? 0 : null,
+                    ),
+                  ),
+              ]),
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   /// Builds a [BottomPaddedRow] for selecting the [Chat]s.
