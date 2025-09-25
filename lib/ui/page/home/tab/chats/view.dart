@@ -795,13 +795,11 @@ class ChatsTabView extends StatelessWidget {
               !e.hidden.value) {
             if (e.chat.value.ongoingCall != null) {
               calls.add(e.rx);
-            }
-
-            if (e.chat.value.favoritePosition != null) {
+            } else if (e.chat.value.favoritePosition != null) {
               favorites.add(e.rx);
+            } else {
+              chats.add(e.rx);
             }
-
-            chats.add(e.rx);
           }
         }
 
