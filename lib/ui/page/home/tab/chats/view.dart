@@ -89,309 +89,293 @@ class ChatsTabView extends StatelessWidget {
                 resizeToAvoidBottomInset: false,
                 body: Scrollbar(
                   controller: c.scrollController,
-                  child: AnimationLimiter(
-                    key: const Key('Chats'),
-                    child: CustomScrollView(
-                      controller: c.scrollController,
-                      slivers: [
-                        SliverAppBar(
-                          pinned: true,
-                          floating: true,
-                          title: CustomAppBar(
-                            title: Row(
-                              children: [
-                                if (c.groupCreating.value)
-                                  Text('label_create_group'.l10n)
-                                else if (c.selecting.value)
-                                  Text(
-                                    'label_selected'.l10nfmt({
-                                      'count': c.selectedChats.length,
-                                    }),
-                                  )
-                                else
-                                  Text('label_chats'.l10n),
-                                AnimatedButton(
-                                  key: c.searching.value
-                                      ? const Key('HideSearchButton')
-                                      : const Key('ShowSearchButton'),
-                                  onPressed: c.searching.value
-                                      ? () => c.closeSearch(
-                                          c.groupCreating.isFalse,
-                                        )
-                                      : () => c.startSearch(),
-                                  decorator: (child) {
-                                    return Container(
-                                      padding: const EdgeInsets.only(
-                                        left: 20,
-                                        right: 6,
-                                      ),
-                                      width: 46,
-                                      height: double.infinity,
-                                      child: child,
-                                    );
-                                  },
-                                  child: Center(
-                                    child: Icon(
-                                      c.searching.value
-                                          ? Icons.keyboard_arrow_up
-                                          : Icons.keyboard_arrow_down,
+                  child: CustomScrollView(
+                    controller: c.scrollController,
+                    slivers: [
+                      SliverAppBar(
+                        pinned: true,
+                        floating: true,
+                        title: CustomAppBar(
+                          title: Row(
+                            children: [
+                              if (c.groupCreating.value)
+                                Text('label_create_group'.l10n)
+                              else if (c.selecting.value)
+                                Text(
+                                  'label_selected'.l10nfmt({
+                                    'count': c.selectedChats.length,
+                                  }),
+                                )
+                              else
+                                Text('label_chats'.l10n),
+                              AnimatedButton(
+                                key: c.searching.value
+                                    ? const Key('HideSearchButton')
+                                    : const Key('ShowSearchButton'),
+                                onPressed: c.searching.value
+                                    ? () =>
+                                          c.closeSearch(c.groupCreating.isFalse)
+                                    : () => c.startSearch(),
+                                decorator: (child) {
+                                  return Container(
+                                    padding: const EdgeInsets.only(
+                                      left: 20,
+                                      right: 6,
                                     ),
+                                    width: 46,
+                                    height: double.infinity,
+                                    child: child,
+                                  );
+                                },
+                                child: Center(
+                                  child: Icon(
+                                    c.searching.value
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down,
                                   ),
-                                ),
-                              ],
-                            ),
-                            actions: [
-                              Obx(() {
-                                final Widget moreButton = ContextMenuRegion(
-                                  key: const Key('ChatsMenu'),
-                                  selector: c.moreKey,
-                                  alignment: Alignment.topRight,
-                                  enablePrimaryTap: true,
-                                  enableSecondaryTap: false,
-                                  enableLongTap: false,
-                                  margin: const EdgeInsets.only(
-                                    bottom: 4,
-                                    right: 0,
-                                  ),
-                                  actions: [
-                                    ContextMenuButton(
-                                      key: const Key('SelectChatsButton'),
-                                      label: 'btn_select'.l10n,
-                                      onPressed: c.toggleSelecting,
-                                      trailing: const SvgIcon(SvgIcons.select),
-                                      inverted: const SvgIcon(
-                                        SvgIcons.selectWhite,
-                                      ),
-                                    ),
-                                    ContextMenuButton(
-                                      label: 'btn_create_group'.l10n,
-                                      onPressed: c.startGroupCreating,
-                                      trailing: const SvgIcon(SvgIcons.group),
-                                      inverted: const SvgIcon(
-                                        SvgIcons.groupWhite,
-                                      ),
-                                    ),
-                                    ContextMenuDivider(),
-                                    ContextMenuButton(
-                                      label: 'label_chat_monolog'.l10n,
-                                      onPressed: () => router.chat(c.monolog),
-                                      trailing: const SvgIcon(
-                                        SvgIcons.notesSmall,
-                                      ),
-                                      inverted: const SvgIcon(
-                                        SvgIcons.notesSmallWhite,
-                                      ),
-                                    ),
-                                  ],
-                                  child: AnimatedButton(
-                                    decorator: (child) {
-                                      return Container(
-                                        key: c.moreKey,
-                                        padding: const EdgeInsets.only(
-                                          left: 12,
-                                          right: 18,
-                                        ),
-                                        height: double.infinity,
-                                        child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                            10,
-                                            0,
-                                            10,
-                                            0,
-                                          ),
-                                          child: child,
-                                        ),
-                                      );
-                                    },
-                                    child: const SvgIcon(SvgIcons.more),
-                                  ),
-                                );
-
-                                final Widget closeButton = AnimatedButton(
-                                  key: const Key('CloseSelectingButton'),
-                                  onPressed: () {
-                                    if (c.selecting.value) {
-                                      c.toggleSelecting();
-                                    } else if (c.groupCreating.value) {
-                                      c.closeGroupCreating();
-                                    }
-                                  },
-                                  decorator: (child) {
-                                    return Container(
-                                      padding: const EdgeInsets.only(
-                                        left: 9,
-                                        right: 16,
-                                      ),
-                                      height: double.infinity,
-                                      child: child,
-                                    );
-                                  },
-                                  child: SizedBox(
-                                    width: 29.17,
-                                    child: SafeAnimatedSwitcher(
-                                      duration: 250.milliseconds,
-                                      child: const SvgIcon(
-                                        SvgIcons.closePrimary,
-                                        key: Key('CloseSearch'),
-                                      ),
-                                    ),
-                                  ),
-                                );
-
-                                return Row(
-                                  children: [
-                                    if (c.selecting.value ||
-                                        c.groupCreating.value)
-                                      closeButton
-                                    else
-                                      moreButton,
-                                  ],
-                                );
-                              }),
-                            ],
-                          ),
-                          expandedHeight: 110,
-                          flexibleSpace: FlexibleSpaceBar(
-                            collapseMode: CollapseMode.parallax,
-                            background: Obx(() {
-                              final Widget? searchField = c.search.value == null
-                                  ? null
-                                  : Theme(
-                                      data: MessageFieldView.theme(context),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        child: Transform.translate(
-                                          offset: const Offset(0, 1),
-                                          child: ReactiveTextField(
-                                            key: const Key('SearchField'),
-                                            prefix: Icon(Icons.search),
-                                            state: c.search.value!.search,
-                                            hint: 'label_search'.l10n,
-                                            maxLines: 1,
-                                            style: style
-                                                .fonts
-                                                .medium
-                                                .regular
-                                                .onBackground,
-                                            onChanged: () =>
-                                                c.search.value!.query.value =
-                                                    c.search.value!.search.text,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-
-                              final Widget synchronization;
-
-                              if (!c.connected.value) {
-                                synchronization = Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Center(
-                                    child: Text(
-                                      'label_waiting_for_connection'.l10n,
-                                      style:
-                                          style.fonts.small.regular.secondary,
-                                      key: const Key('NotConnected'),
-                                    ),
-                                  ),
-                                );
-                              } else if (c.fetching.value == null &&
-                                  c.status.value.isLoadingMore) {
-                                synchronization = Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Center(
-                                    child: Text(
-                                      'label_synchronization'.l10n,
-                                      style:
-                                          style.fonts.small.regular.secondary,
-                                      key: const Key('Synchronization'),
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                synchronization = const SizedBox.shrink(
-                                  key: Key('Connected'),
-                                );
-                              }
-
-                              return ColoredBox(
-                                color: Colors.red,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    searchField ?? SizedBox(),
-                                    SafeAnimatedSwitcher(
-                                      duration: 250.milliseconds,
-                                      child: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: AllowOverflow(
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              AnimatedSizeAndFade(
-                                                sizeDuration: const Duration(
-                                                  milliseconds: 300,
-                                                ),
-                                                fadeDuration: const Duration(
-                                                  milliseconds: 300,
-                                                ),
-                                                child: synchronization,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                        Obx(() {
-                          final Widget? child;
-
-                          if (c.status.value.isLoading) {
-                            child = Center(
-                              child: CustomProgressIndicator.primary(),
-                            );
-                          } else if (c.groupCreating.isTrue) {
-                            child = _groupCreating(context, c);
-                          } else if (c.searching.value &&
-                              c.search.value?.search.isEmpty.value == false) {
-                            child = _searchResult(context, c);
-                          } else {
-                            child = _chats(context, c);
-                          }
-
-                          // Это просто показать что SliverAppBar и
-                          // вложенный сливер с чатами работают как мы ожидаем
-                          //
-
-                          // здесь отображаю ТОЛЬКО чаты, т.к надо
-                          // изменить вложенность сливеров
-                          return _chats(context, c);
-                          // если return убрать, то поиск и остальное работает
-                          // НО в ChatsWidget надо return убрать
-
-                          return SliverFillRemaining(
-                            child: ContextMenuInterceptor(
-                              margin: const EdgeInsets.fromLTRB(0, 64, 0, 0),
-                              child: SlidableAutoCloseBehavior(
-                                child: SafeAnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 250),
-                                  child: child,
                                 ),
                               ),
-                            ),
+                            ],
+                          ),
+                          actions: [
+                            Obx(() {
+                              final Widget moreButton = ContextMenuRegion(
+                                key: const Key('ChatsMenu'),
+                                selector: c.moreKey,
+                                alignment: Alignment.topRight,
+                                enablePrimaryTap: true,
+                                enableSecondaryTap: false,
+                                enableLongTap: false,
+                                margin: const EdgeInsets.only(
+                                  bottom: 4,
+                                  right: 0,
+                                ),
+                                actions: [
+                                  ContextMenuButton(
+                                    key: const Key('SelectChatsButton'),
+                                    label: 'btn_select'.l10n,
+                                    onPressed: c.toggleSelecting,
+                                    trailing: const SvgIcon(SvgIcons.select),
+                                    inverted: const SvgIcon(
+                                      SvgIcons.selectWhite,
+                                    ),
+                                  ),
+                                  ContextMenuButton(
+                                    label: 'btn_create_group'.l10n,
+                                    onPressed: c.startGroupCreating,
+                                    trailing: const SvgIcon(SvgIcons.group),
+                                    inverted: const SvgIcon(
+                                      SvgIcons.groupWhite,
+                                    ),
+                                  ),
+                                  ContextMenuDivider(),
+                                  ContextMenuButton(
+                                    label: 'label_chat_monolog'.l10n,
+                                    onPressed: () => router.chat(c.monolog),
+                                    trailing: const SvgIcon(
+                                      SvgIcons.notesSmall,
+                                    ),
+                                    inverted: const SvgIcon(
+                                      SvgIcons.notesSmallWhite,
+                                    ),
+                                  ),
+                                ],
+                                child: AnimatedButton(
+                                  decorator: (child) {
+                                    return Container(
+                                      key: c.moreKey,
+                                      padding: const EdgeInsets.only(
+                                        left: 12,
+                                        right: 18,
+                                      ),
+                                      height: double.infinity,
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          10,
+                                          0,
+                                          10,
+                                          0,
+                                        ),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                                  child: const SvgIcon(SvgIcons.more),
+                                ),
+                              );
+
+                              final Widget closeButton = AnimatedButton(
+                                key: const Key('CloseSelectingButton'),
+                                onPressed: () {
+                                  if (c.selecting.value) {
+                                    c.toggleSelecting();
+                                  } else if (c.groupCreating.value) {
+                                    c.closeGroupCreating();
+                                  }
+                                },
+                                decorator: (child) {
+                                  return Container(
+                                    padding: const EdgeInsets.only(
+                                      left: 9,
+                                      right: 16,
+                                    ),
+                                    height: double.infinity,
+                                    child: child,
+                                  );
+                                },
+                                child: SizedBox(
+                                  width: 29.17,
+                                  child: SafeAnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: const SvgIcon(
+                                      SvgIcons.closePrimary,
+                                      key: Key('CloseSearch'),
+                                    ),
+                                  ),
+                                ),
+                              );
+
+                              return Row(
+                                children: [
+                                  if (c.selecting.value ||
+                                      c.groupCreating.value)
+                                    closeButton
+                                  else
+                                    moreButton,
+                                ],
+                              );
+                            }),
+                          ],
+                        ),
+                        expandedHeight: 110,
+                        flexibleSpace: FlexibleSpaceBar(
+                          collapseMode: CollapseMode.parallax,
+                          background: Obx(() {
+                            final Widget? searchField = c.search.value == null
+                                ? null
+                                : Theme(
+                                    data: MessageFieldView.theme(context),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      child: Transform.translate(
+                                        offset: const Offset(0, 1),
+                                        child: ReactiveTextField(
+                                          key: const Key('SearchField'),
+                                          prefix: Icon(Icons.search),
+                                          state: c.search.value!.search,
+                                          hint: 'label_search'.l10n,
+                                          maxLines: 1,
+                                          style: style
+                                              .fonts
+                                              .medium
+                                              .regular
+                                              .onBackground,
+                                          onChanged: () =>
+                                              c.search.value!.query.value =
+                                                  c.search.value!.search.text,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+
+                            final Widget synchronization;
+
+                            if (!c.connected.value) {
+                              synchronization = Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Center(
+                                  child: Text(
+                                    'label_waiting_for_connection'.l10n,
+                                    style: style.fonts.small.regular.secondary,
+                                    key: const Key('NotConnected'),
+                                  ),
+                                ),
+                              );
+                            } else if (c.fetching.value == null &&
+                                c.status.value.isLoadingMore) {
+                              synchronization = Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: Center(
+                                  child: Text(
+                                    'label_synchronization'.l10n,
+                                    style: style.fonts.small.regular.secondary,
+                                    key: const Key('Synchronization'),
+                                  ),
+                                ),
+                              );
+                            } else {
+                              synchronization = const SizedBox.shrink(
+                                key: Key('Connected'),
+                              );
+                            }
+
+                            return ColoredBox(
+                              color: Colors.red,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  searchField ?? SizedBox(),
+                                  SafeAnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: AllowOverflow(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            AnimatedSizeAndFade(
+                                              sizeDuration: const Duration(
+                                                milliseconds: 300,
+                                              ),
+                                              fadeDuration: const Duration(
+                                                milliseconds: 300,
+                                              ),
+                                              child: synchronization,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                      Obx(() {
+                        final Widget? child;
+
+                        if (c.status.value.isLoading) {
+                          child = Center(
+                            child: CustomProgressIndicator.primary(),
                           );
-                        }),
-                      ],
-                    ),
+                        } else if (c.groupCreating.isTrue) {
+                          child = _groupCreating(context, c);
+                        } else if (c.searching.value &&
+                            c.search.value?.search.isEmpty.value == false) {
+                          child = _searchResult(context, c);
+                        } else {
+                          return _chats(context, c);
+                        }
+
+                        return SliverFillRemaining(
+                          child: ContextMenuInterceptor(
+                            margin: const EdgeInsets.fromLTRB(0, 64, 0, 0),
+                            child: SlidableAutoCloseBehavior(
+                              child: SafeAnimatedSwitcher(
+                                duration: const Duration(milliseconds: 250),
+                                child: child,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
                   ),
                 ),
               );
@@ -409,9 +393,9 @@ class ChatsTabView extends StatelessWidget {
                     child: Padding(
                       key: Key('Dismissed_${action.chat.id}'),
                       padding: EdgeInsets.fromLTRB(
-                        10 + 10,
+                        10,
                         0,
-                        10 + 10,
+                        10,
                         MediaQuery.of(context).viewPadding.bottom,
                       ),
                       child: WidgetButton(
@@ -492,7 +476,7 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  ///
+  /// Todo: add docs
   Widget _searchResult(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
     final RxStatus? searchStatus = c.search.value?.searchStatus.value;
@@ -623,7 +607,7 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  ///
+  /// Todo: add docs
   Widget _groupCreating(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
     final RxStatus? searchStatus = c.search.value?.searchStatus.value;
@@ -761,7 +745,7 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  ///
+  /// Todo: add docs
   Widget _chats(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
 
@@ -771,276 +755,260 @@ class ChatsTabView extends StatelessWidget {
           !e.hidden.value;
     });
 
-    if (isCheck && false) {
+    if (isCheck) {
       if (c.status.value.isLoadingMore) {
-        return Center(
-          key: UniqueKey(),
-          child: ColoredBox(
-            key: const Key('Loading'),
-            color: style.colors.almostTransparent,
-            child: const CustomProgressIndicator(),
+        return SliverFillRemaining(
+          child: Center(
+            key: UniqueKey(),
+            child: ColoredBox(
+              key: const Key('Loading'),
+              color: style.colors.almostTransparent,
+              child: const CustomProgressIndicator(),
+            ),
           ),
         );
       }
 
-      return KeyedSubtree(
-        key: UniqueKey(),
-        child: Center(
-          key: const Key('NoChats'),
-          child: Text('label_no_chats'.l10n),
+      return SliverFillRemaining(
+        child: KeyedSubtree(
+          key: UniqueKey(),
+          child: Center(
+            key: const Key('NoChats'),
+            child: Text('label_no_chats'.l10n),
+          ),
         ),
       );
     }
 
-    return Obx(() {
-      final List<RxChat> calls = [];
-      final List<RxChat> favorites = [];
-      final List<RxChat> chats = [];
+    return AnimationLimiter(
+      key: const Key('Chats'),
+      child: Obx(() {
+        final List<RxChat> calls = [];
+        final List<RxChat> favorites = [];
+        final List<RxChat> chats = [];
 
-      for (var e in c.chats) {
-        if ((!e.id.isLocal ||
-                e.messages.isNotEmpty ||
-                e.chat.value.isMonolog) &&
-            !e.chat.value.isHidden &&
-            !e.hidden.value) {
-          if (e.chat.value.ongoingCall != null) {
-            calls.add(e.rx);
+        for (var e in c.chats) {
+          if ((!e.id.isLocal ||
+                  e.messages.isNotEmpty ||
+                  e.chat.value.isMonolog) &&
+              !e.chat.value.isHidden &&
+              !e.hidden.value) {
+            if (e.chat.value.ongoingCall != null) {
+              calls.add(e.rx);
+            }
+
+            if (e.chat.value.favoritePosition != null) {
+              favorites.add(e.rx);
+            }
+
+            chats.add(e.rx);
           }
-
-          if (e.chat.value.favoritePosition != null) {
-            favorites.add(e.rx);
-          }
-
-          chats.add(e.rx);
         }
-      }
 
-      // Builds a [RecentChatTile] from the provided
-      // [RxChat].
-      Widget tile(RxChat e, {Widget Function(Widget)? avatarBuilder}) {
-        final bool selected = c.selectedChats.contains(e.id);
+        // Builds a [RecentChatTile] from the provided
+        // [RxChat].
+        Widget tile(RxChat e, {Widget Function(Widget)? avatarBuilder}) {
+          final bool selected = c.selectedChats.contains(e.id);
 
-        return RecentChatTile(
-          e,
-          key: e.chat.value.isMonolog
-              ? const Key('ChatMonolog')
-              : Key('RecentChat_${e.id}'),
-          me: c.me,
-          blocked: e.blocked,
-          selected: c.selecting.value ? selected : null,
-          getUser: c.getUser,
-          avatarBuilder: c.selecting.value
-              ? (child) => WidgetButton(
-                  onPressed: () => router.dialog(e.chat.value, c.me),
-                  child: child,
-                )
-              : avatarBuilder,
-          onJoin: () => c.joinCall(e.id),
-          onDrop: () => c.dropCall(e.id),
-          onLeave: e.chat.value.isMonolog ? null : () => c.leaveChat(e.id),
-          onHide: () => c.hideChat(e.id),
-          onMute: e.chat.value.isMonolog || e.chat.value.id.isLocal
-              ? null
-              : () => c.muteChat(e.id),
-          onUnmute: e.chat.value.isMonolog || e.chat.value.id.isLocal
-              ? null
-              : () => c.unmuteChat(e.id),
-          onFavorite: e.chat.value.id.isLocal && !e.chat.value.isMonolog
-              ? null
-              : () => c.favoriteChat(e.id),
-          onUnfavorite: e.chat.value.id.isLocal && !e.chat.value.isMonolog
-              ? null
-              : () => c.unfavoriteChat(e.id),
-          onSelect: c.toggleSelecting,
+          return RecentChatTile(
+            e,
+            key: e.chat.value.isMonolog
+                ? const Key('ChatMonolog')
+                : Key('RecentChat_${e.id}'),
+            me: c.me,
+            blocked: e.blocked,
+            selected: c.selecting.value ? selected : null,
+            getUser: c.getUser,
+            avatarBuilder: c.selecting.value
+                ? (child) => WidgetButton(
+                    onPressed: () => router.dialog(e.chat.value, c.me),
+                    child: child,
+                  )
+                : avatarBuilder,
+            onJoin: () => c.joinCall(e.id),
+            onDrop: () => c.dropCall(e.id),
+            onLeave: e.chat.value.isMonolog ? null : () => c.leaveChat(e.id),
+            onHide: () => c.hideChat(e.id),
+            onMute: e.chat.value.isMonolog || e.chat.value.id.isLocal
+                ? null
+                : () => c.muteChat(e.id),
+            onUnmute: e.chat.value.isMonolog || e.chat.value.id.isLocal
+                ? null
+                : () => c.unmuteChat(e.id),
+            onFavorite: e.chat.value.id.isLocal && !e.chat.value.isMonolog
+                ? null
+                : () => c.favoriteChat(e.id),
+            onUnfavorite: e.chat.value.id.isLocal && !e.chat.value.isMonolog
+                ? null
+                : () => c.unfavoriteChat(e.id),
+            onSelect: c.toggleSelecting,
 
-          // TODO: Uncomment, when contacts are implemented.
-          // onContact: (b) => b
-          //     ? c.addToContacts(e)
-          //     : c.removeFromContacts(e),
-          // inContacts: e.chat.value.isDialog
-          //     ? () => c.inContacts(e)
-          //     : null,
-          onTap: c.selecting.value ? () => c.selectChat(e) : null,
-          onDismissed: () => c.dismiss(e),
-          enableContextMenu: !c.selecting.value,
-          trailing: c.selecting.value
-              ? [SelectedDot(selected: selected, size: 20)]
-              : null,
-          hasCall: c.status.value.isLoadingMore ? false : null,
-          onPerformDrop: (f) => c.sendFiles(e.id, f),
-        );
-      }
+            // TODO: Uncomment, when contacts are implemented.
+            // onContact: (b) => b
+            //     ? c.addToContacts(e)
+            //     : c.removeFromContacts(e),
+            // inContacts: e.chat.value.isDialog
+            //     ? () => c.inContacts(e)
+            //     : null,
+            onTap: c.selecting.value ? () => c.selectChat(e) : null,
+            onDismissed: () => c.dismiss(e),
+            enableContextMenu: !c.selecting.value,
+            trailing: c.selecting.value
+                ? [SelectedDot(selected: selected, size: 20)]
+                : null,
+            hasCall: c.status.value.isLoadingMore ? false : null,
+            onPerformDrop: (f) => c.sendFiles(e.id, f),
+          );
+        }
 
-      return SliverPadding(
-        padding: EdgeInsets.only(bottom: 4, left: 10, right: 10),
-        sliver: SliverList(
-          delegate: SliverChildListDelegate.fixed([
-            ...chats.mapIndexed((i, e) {
-              return AnimationConfiguration.staggeredList(
-                position: calls.length + favorites.length + i,
-                duration: const Duration(milliseconds: 375),
-                child: SlideAnimation(
-                  horizontalOffset: 50,
-                  child: FadeInAnimation(child: tile(e)),
-                ),
-              );
-            }),
-            if (c.hasNext.isTrue || c.status.value.isLoadingMore)
-              Center(
-                child: CustomProgressIndicator(
-                  key: const Key('ChatsLoading'),
-                  value: Config.disableInfiniteAnimations ? 0 : null,
-                ),
-              ),
-          ]),
-        ),
-      );
-
-      return CustomScrollView(
-        controller: c.scrollController,
-        slivers: [
-          SliverPadding(
-            padding: EdgeInsets.only(top: 4, left: 10, right: 10),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate.fixed(
-                calls.mapIndexed((i, e) {
-                  return AnimationConfiguration.staggeredList(
-                    position: i,
-                    duration: const Duration(milliseconds: 375),
-                    child: SlideAnimation(
-                      horizontalOffset: 50,
-                      child: FadeInAnimation(child: tile(e)),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.only(left: 10, right: 10),
-            sliver: SliverReorderableList(
-              onReorderStart: (_) => c.reordering.value = true,
-              proxyDecorator: (child, _, animation) {
-                return AnimatedBuilder(
-                  animation: animation,
-                  builder: (_, Widget? child) {
-                    final double t = Curves.easeInOut.transform(
-                      animation.value,
-                    );
-                    final double elevation = lerpDouble(0, 6, t)!;
-                    final Color color = Color.lerp(
-                      style.colors.transparent,
-                      style.colors.onBackgroundOpacity20,
-                      t,
-                    )!;
-
-                    return Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          CustomBoxShadow(color: color, blurRadius: elevation),
-                        ],
-                        borderRadius: style.cardRadius.copyWith(
-                          topLeft: Radius.circular(
-                            style.cardRadius.topLeft.x * 1.75,
-                          ),
-                        ),
-                      ),
-                      child: child,
-                    );
-                  },
-                  child: child,
-                );
-              },
-              itemBuilder: (_, i) {
-                final RxChat chat = favorites[i];
-
-                return KeyedSubtree(
-                  key: Key(chat.id.val),
-                  child: Obx(() {
-                    final Widget child = tile(
-                      chat,
-                      avatarBuilder: (child) {
-                        if (PlatformUtils.isMobile) {
-                          return ReorderableDelayedDragStartListener(
-                            key: Key('ReorderHandle_${chat.id.val}'),
-                            index: i,
-                            child: child,
-                          );
-                        }
-
-                        return RawGestureDetector(
-                          gestures: {
-                            DisableSecondaryButtonRecognizer:
-                                GestureRecognizerFactoryWithHandlers<
-                                  DisableSecondaryButtonRecognizer
-                                >(
-                                  () => DisableSecondaryButtonRecognizer(),
-                                  (_) {},
-                                ),
-                          },
-                          child: ReorderableDragStartListener(
-                            key: Key('ReorderHandle_${chat.id.val}'),
-                            index: i,
-                            child: GestureDetector(
-                              onLongPress: () {},
-                              child: child,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-
-                    // Ignore the animation, if there's
-                    // an ongoing reordering happening.
-                    if (c.reordering.value) {
-                      return child;
-                    }
-
+        return SliverMainAxisGroup(
+          slivers: [
+            SliverPadding(
+              padding: EdgeInsets.only(top: 4, left: 10, right: 10),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate.fixed(
+                  calls.mapIndexed((i, e) {
                     return AnimationConfiguration.staggeredList(
-                      position: calls.length + i,
+                      position: i,
                       duration: const Duration(milliseconds: 375),
                       child: SlideAnimation(
                         horizontalOffset: 50,
-                        child: FadeInAnimation(child: child),
+                        child: FadeInAnimation(child: tile(e)),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              sliver: SliverReorderableList(
+                onReorderStart: (_) => c.reordering.value = true,
+                proxyDecorator: (child, _, animation) {
+                  return AnimatedBuilder(
+                    animation: animation,
+                    builder: (_, Widget? child) {
+                      final double t = Curves.easeInOut.transform(
+                        animation.value,
+                      );
+                      final double elevation = lerpDouble(0, 6, t)!;
+                      final Color color = Color.lerp(
+                        style.colors.transparent,
+                        style.colors.onBackgroundOpacity20,
+                        t,
+                      )!;
+
+                      return Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            CustomBoxShadow(
+                              color: color,
+                              blurRadius: elevation,
+                            ),
+                          ],
+                          borderRadius: style.cardRadius.copyWith(
+                            topLeft: Radius.circular(
+                              style.cardRadius.topLeft.x * 1.75,
+                            ),
+                          ),
+                        ),
+                        child: child,
+                      );
+                    },
+                    child: child,
+                  );
+                },
+                itemBuilder: (_, i) {
+                  final RxChat chat = favorites[i];
+
+                  return KeyedSubtree(
+                    key: Key(chat.id.val),
+                    child: Obx(() {
+                      final Widget child = tile(
+                        chat,
+                        avatarBuilder: (child) {
+                          if (PlatformUtils.isMobile) {
+                            return ReorderableDelayedDragStartListener(
+                              key: Key('ReorderHandle_${chat.id.val}'),
+                              index: i,
+                              child: child,
+                            );
+                          }
+
+                          return RawGestureDetector(
+                            gestures: {
+                              DisableSecondaryButtonRecognizer:
+                                  GestureRecognizerFactoryWithHandlers<
+                                    DisableSecondaryButtonRecognizer
+                                  >(
+                                    () => DisableSecondaryButtonRecognizer(),
+                                    (_) {},
+                                  ),
+                            },
+                            child: ReorderableDragStartListener(
+                              key: Key('ReorderHandle_${chat.id.val}'),
+                              index: i,
+                              child: GestureDetector(
+                                onLongPress: () {},
+                                child: child,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+
+                      // Ignore the animation, if there's
+                      // an ongoing reordering happening.
+                      if (c.reordering.value) {
+                        return child;
+                      }
+
+                      return AnimationConfiguration.staggeredList(
+                        position: calls.length + i,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          horizontalOffset: 50,
+                          child: FadeInAnimation(child: child),
+                        ),
+                      );
+                    }),
+                  );
+                },
+                itemCount: favorites.length,
+                onReorder: (a, b) {
+                  c.reorderChat(a, b);
+                  c.reordering.value = false;
+                },
+              ),
+            ),
+            SliverPadding(
+              padding: EdgeInsets.only(bottom: 4, left: 10, right: 10),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate.fixed([
+                  ...chats.mapIndexed((i, e) {
+                    return AnimationConfiguration.staggeredList(
+                      position: calls.length + favorites.length + i,
+                      duration: const Duration(milliseconds: 375),
+                      child: SlideAnimation(
+                        horizontalOffset: 50,
+                        child: FadeInAnimation(child: tile(e)),
                       ),
                     );
                   }),
-                );
-              },
-              itemCount: favorites.length,
-              onReorder: (a, b) {
-                c.reorderChat(a, b);
-                c.reordering.value = false;
-              },
-            ),
-          ),
-          SliverPadding(
-            padding: EdgeInsets.only(bottom: 4, left: 10, right: 10),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate.fixed([
-                ...chats.mapIndexed((i, e) {
-                  return AnimationConfiguration.staggeredList(
-                    position: calls.length + favorites.length + i,
-                    duration: const Duration(milliseconds: 375),
-                    child: SlideAnimation(
-                      horizontalOffset: 50,
-                      child: FadeInAnimation(child: tile(e)),
+                  if (c.hasNext.isTrue || c.status.value.isLoadingMore)
+                    Center(
+                      child: CustomProgressIndicator(
+                        key: const Key('ChatsLoading'),
+                        value: Config.disableInfiniteAnimations ? 0 : null,
+                      ),
                     ),
-                  );
-                }),
-                if (c.hasNext.isTrue || c.status.value.isLoadingMore)
-                  Center(
-                    child: CustomProgressIndicator(
-                      key: const Key('ChatsLoading'),
-                      value: Config.disableInfiniteAnimations ? 0 : null,
-                    ),
-                  ),
-              ]),
+                ]),
+              ),
             ),
-          ),
-        ],
-      );
-    });
+          ],
+        );
+      }),
+    );
   }
 
   /// Builds a [BottomPaddedRow] for selecting the [Chat]s.
