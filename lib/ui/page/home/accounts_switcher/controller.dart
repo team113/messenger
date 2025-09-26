@@ -55,7 +55,7 @@ class AccountsSwitcherController extends GetxController {
       final UserTextStatus? status = UserTextStatus.tryParse(s.text);
 
       try {
-        await updateUserStatus(status);
+        await _myUserService.updateUserStatus(status);
       } catch (_) {
         s.error.value = 'err_data_transfer'.l10n;
       }
@@ -71,11 +71,12 @@ class AccountsSwitcherController extends GetxController {
   /// [AuthService] providing the authentication capabilities.
   final AuthService _authService;
 
-  /// Subscription for [MyUserService.myUsers] changes updating the [accounts]
+  /// Subscription for [MyUserService.profiles] changes updating the [accounts]
   /// list.
   StreamSubscription? _profilesSubscription;
 
-  // TODO: add docs
+  /// [Stopwatch] measuring how much time has passed since last
+  /// [_scheduleRebuild] to stop it when it exceeds some limit.
   Stopwatch? _startedAt;
 
   /// Returns [UserId] of currently authenticated [MyUser].
@@ -128,20 +129,15 @@ class AccountsSwitcherController extends GetxController {
     super.onClose();
   }
 
-  /// Updates or resets [MyUser.status] field for the authenticated [MyUser].
-  Future<void> updateUserStatus(UserTextStatus? status) async {
-    await _myUserService.updateUserStatus(status);
-  }
-
   /// Toggles [MyUser.presence] between [Presence.present] and [Presence.away].
   Future<void> togglePresence() async {
-    Presence newPresence;
-    if (myUser.value?.presence == Presence.present) {
-      newPresence = Presence.away;
-    } else {
-      newPresence = Presence.present;
-    }
-    await _myUserService.updateUserPresence(newPresence);
+    final Presence presence = switch (myUser.value?.presence) {
+      Presence.present => Presence.away,
+      Presence.away => Presence.present,
+      (_) => Presence.present,
+    };
+
+    await _myUserService.updateUserPresence(presence);
   }
 
   /// Switches to the account with the given [id].

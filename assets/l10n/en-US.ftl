@@ -131,6 +131,7 @@ btn_change_account_desc =
     Change
     account
 btn_change_password = Change password
+btn_change_status = Change status
 btn_check_for_updates = Check for updates
 btn_clear = Clear
 btn_clear_cache = Clear cache
@@ -888,7 +889,7 @@ label_terminate_sessions = Terminate session(s)
 label_terms_and_privacy_policy = Terms & Privacy Policy
 label_text_status = Text status
 label_text_status_description = 25 characters max
-label_text_status_description_switcher = Text status. 25 symb. max
+label_text_status_hint = Text status. 25 symb. max
 label_this_device = This device
 label_to_restore_chats_use_search = To restore the chats, use the search
 label_typing = Typing

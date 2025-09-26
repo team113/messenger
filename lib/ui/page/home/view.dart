@@ -336,9 +336,11 @@ class _HomeViewState extends State<HomeView> {
                         onAvatar: c.updateAvatar,
                         myUser: c.myUser.value,
                         onSecondary: () async {
+                          PlatformUtils.haptic(kind: HapticKind.light);
                           await AccountsSwitcherView.show(
                             context,
                             avatarKey: c.avatarKey,
+                            panelKey: c.panelKey,
                           );
                         },
                       );

@@ -21,50 +21,55 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../tab/menu/accounts/controller.dart';
-import '../tab/menu/accounts/view.dart';
 import '/api/backend/schema.graphql.dart';
 import '/domain/model/my_user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/auth/account_is_not_accessible/view.dart';
-import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/tab/chats/widget/unread_counter.dart';
+import '/ui/page/home/tab/menu/accounts/controller.dart';
+import '/ui/page/home/tab/menu/accounts/view.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/login/controller.dart';
 import '/ui/page/login/view.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/primary_button.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/global_key.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for switching between known [MyUser] profiles.
 ///
 /// Intended to be displayed with the [show] method.
 class AccountsSwitcherView extends StatelessWidget {
-  const AccountsSwitcherView({super.key, required this.avatarKey});
+  const AccountsSwitcherView({
+    super.key,
+    required this.avatarKey,
+    required this.panelKey,
+  });
 
+  /// [GlobalKey] to position an [AvatarWidget.fromMyUser] around.
   final GlobalKey avatarKey;
 
-  /// Pushes an [AccountsSwitcherView] via router.
+  /// [GlobalKey] to position modal interface above.
+  final GlobalKey panelKey;
+
+  /// Displays an [AccountsSwitcherView] via separate [RawDialogRoute].
   static Future<T?> show<T>(
     BuildContext context, {
     required GlobalKey avatarKey,
+    required GlobalKey panelKey,
   }) async {
     final style = Theme.of(context).style;
 
     final route = RawDialogRoute<T>(
-      // TODO: может нужно вынести в тему ?
       barrierColor: style.barrierColor.withValues(alpha: .1),
       barrierDismissible: true,
-      pageBuilder: (_, _, _) {
-        final Widget body = AccountsSwitcherView(avatarKey: avatarKey);
-        return body;
-      },
+      pageBuilder: (_, _, _) =>
+          AccountsSwitcherView(avatarKey: avatarKey, panelKey: panelKey),
       fullscreenDialog: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       transitionDuration: const Duration(milliseconds: 300),
@@ -96,43 +101,61 @@ class AccountsSwitcherView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: AccountsSwitcherController(Get.find(), Get.find()),
       builder: (AccountsSwitcherController c) {
         return LayoutBuilder(
           builder: (context, constraints) {
-            Rect bounds;
-            // hack for preventing error when element inactive
+            Rect avatar;
+            Rect panel;
+
             try {
-              bounds = avatarKey.globalPaintBounds ?? Rect.zero;
+              avatar = avatarKey.globalPaintBounds ?? Rect.zero;
             } catch (_) {
-              bounds = Rect.zero;
+              // Might happen when [avatarKey] isn't in the tree.
+              avatar = Rect.zero;
+            }
+
+            try {
+              panel = panelKey.globalPaintBounds ?? Rect.zero;
+            } catch (_) {
+              // Might happen when [panelKey] isn't in the tree.
+              panel = Rect.zero;
             }
 
             return Stack(
               children: [
-                WidgetButton(
-                  onPressed: Navigator.of(context).pop,
+                GestureDetector(
+                  onTap: Navigator.of(context).pop,
                   child: SizedBox.expand(),
                 ),
                 Positioned(
-                  bottom: CustomNavigationBar.height + 12,
-                  right: constraints.maxWidth - bounds.right - 4,
-                  left: 12,
-                  child: _buildModal(context, c),
+                  top: panel.top - 8,
+                  width: panel.width - 16,
+                  left: panel.left + 8,
+                  height: constraints.maxHeight - panel.height - 16,
+                  child: FractionalTranslation(
+                    translation: Offset(0, -1),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: _modal(context, c),
+                    ),
+                  ),
                 ),
                 Positioned(
-                  left: bounds.left - 4,
-                  top: bounds.top - 4,
-                  width: bounds.width + 8,
-                  height: bounds.height + 8,
+                  left: avatar.left - 4,
+                  top: avatar.top - 4,
+                  width: avatar.width + 8,
+                  height: avatar.height + 8,
                   child: Obx(() {
                     return GestureDetector(
                       onTap: Navigator.of(context).pop,
                       child: Container(
                         padding: EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: style.colors.onPrimary,
                           shape: BoxShape.circle,
                         ),
                         child: AvatarWidget.fromMyUser(
@@ -151,13 +174,13 @@ class AccountsSwitcherView extends StatelessWidget {
     );
   }
 
-  /// Builds general modal widget.
-  Widget _buildModal(BuildContext context, AccountsSwitcherController c) {
+  /// Builds general modal widget with accounts list and status changing.
+  Widget _modal(BuildContext context, AccountsSwitcherController c) {
+    final style = Theme.of(context).style;
+
     final List<Widget> children = [];
-    var style = Theme.of(context).style;
 
     for (final e in c.accounts) {
-      // skip current account
       if (e.value.id == c.me) continue;
 
       children.add(
@@ -225,143 +248,208 @@ class AccountsSwitcherView extends StatelessWidget {
       );
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: style.colors.background,
-        borderRadius: BorderRadius.circular(16),
-        // TODO: need shadows
-        boxShadow: [],
-      ),
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: 8,
-        children: [
-          PrimaryButton(
-            onPressed: () async {
-              await AccountsView.show(context, initial: AccountsViewStage.add);
-            },
-            leading: SvgIcon(SvgIcons.logoutWhite),
-            title: 'btn_add_account'.l10n,
-          ),
-          ...children,
-          SizedBox(height: 2),
-          InputDecorator(
-            decoration: InputDecoration(
-              floatingLabelAlignment: FloatingLabelAlignment.center,
-              label: Text(
-                'label_current_account'.l10n,
-                textAlign: TextAlign.center,
-                style: style.fonts.medium.regular.secondary,
-              ),
-              contentPadding: EdgeInsets.all(12).copyWith(top: 14),
-              filled: true,
-              fillColor: Colors.white,
-              // border: style.cardBorder,
-            ),
-            child: Column(
-              children: [
-                Row(
-                  spacing: 12,
-                  children: [
-                    Obx(() {
-                      return AvatarWidget.fromMyUser(
-                        c.myUser.value,
-                        radius: AvatarRadius.medium,
-                      );
-                    }),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Obx(() {
-                          return Text(
-                            c.myUser.value?.name?.val ?? 'dot'.l10n,
-                            style: style.fonts.medium.regular.onBackground,
-                          );
-                        }),
-                        Obx(() {
-                          final presence = c.myUser.value?.presence;
-
-                          return Text.rich(
-                            TextSpan(
-                              text: switch (presence) {
-                                Presence.present =>
-                                  'label_presence_present'.l10n,
-                                Presence.away => 'label_presence_away'.l10n,
-                                (_) => '',
-                              },
-                              style: style.fonts.small.regular.secondary,
-                              children: [
-                                TextSpan(text: 'space_vertical_space'.l10n),
-                                WidgetSpan(
-                                  alignment: ui.PlaceholderAlignment.middle,
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(8),
-                                    onTap: c.togglePresence,
-                                    child: Ink(
-                                      child: Text(
-                                        'btn_change'.l10n,
-                                        style:
-                                            style.fonts.small.regular.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Divider(color: style.colors.secondaryHighlightDark, height: 1),
-                SizedBox(height: 4),
-                Theme(
-                  data: _textStatusFieldTheme(context),
-                  child: ReactiveTextField(
-                    key: Key('TextStatusField'),
-                    state: c.status,
-                    hint: 'label_text_status_description_switcher'.l10n,
-                    dense: true,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    maxLines: 1,
-                    formatters: [LengthLimitingTextInputFormatter(25)],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
-  ///
-  /// Used for TextStatusField.
-  ThemeData _textStatusFieldTheme(BuildContext context) {
-    final style = Theme.of(context).style;
-
     final OutlineInputBorder border = OutlineInputBorder(
       borderSide: BorderSide.none,
     );
 
-    return Theme.of(context).copyWith(
-      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-        border: border,
-        errorBorder: border,
-        enabledBorder: border,
-        focusedBorder: border,
-        disabledBorder: border,
-        focusedErrorBorder: border,
-        focusColor: style.colors.onPrimary,
-        fillColor: style.colors.onPrimary,
-        hoverColor: style.colors.transparent,
-        filled: true,
-        isDense: true,
-        contentPadding: EdgeInsets.fromLTRB(0, 4, 0, 4),
+    final OutlineInputBorder outline = OutlineInputBorder(
+      borderRadius: style.cardRadius,
+      borderSide: BorderSide(
+        color: style.colors.secondaryHighlightDarkest,
+        width: 0.5,
+      ),
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: style.colors.background,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          CustomBoxShadow(
+            color: style.colors.onBackgroundOpacity20,
+            blurRadius: 8,
+            blurStyle: BlurStyle.outer,
+          ),
+        ],
+      ),
+      padding: EdgeInsets.symmetric(vertical: 14),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
+        children: [
+          Flexible(
+            child: ListView.separated(
+              padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+              shrinkWrap: true,
+              separatorBuilder: (context, i) => SizedBox(height: 8),
+              itemCount: children.length + 1,
+              itemBuilder: (context, i) {
+                if (i == 0) {
+                  return PrimaryButton(
+                    onPressed: () async {
+                      await AccountsView.show(
+                        context,
+                        initial: AccountsViewStage.add,
+                      );
+                    },
+                    leading: SvgIcon(SvgIcons.logoutWhite),
+                    title: 'btn_add_account'.l10n,
+                  );
+                }
+
+                return children[i - 1];
+              },
+            ),
+          ),
+          SizedBox(height: 2),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: InputDecorator(
+              decoration: InputDecoration(
+                floatingLabelAlignment: FloatingLabelAlignment.center,
+                label: Text(
+                  'label_current_account'.l10n,
+                  textAlign: TextAlign.center,
+                  style: style.fonts.medium.regular.secondary,
+                ),
+                contentPadding: EdgeInsets.fromLTRB(
+                  12,
+                  14,
+                  12,
+                  PlatformUtils.isMobile ? 6 : 12,
+                ),
+                filled: true,
+                fillColor: style.colors.onPrimary,
+                border: outline,
+                errorBorder: outline,
+                enabledBorder: outline,
+                focusedBorder: outline,
+                disabledBorder: outline,
+                focusedErrorBorder: outline,
+              ),
+              child: Column(
+                children: [
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Obx(() {
+                        return AvatarWidget.fromMyUser(
+                          c.myUser.value,
+                          radius: AvatarRadius.normal,
+                        );
+                      }),
+                      SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Obx(() {
+                            return Text(
+                              c.myUser.value?.title ?? ('dot'.l10n * 3),
+                              style: style.fonts.normal.regular.onBackground,
+                            );
+                          }),
+                          Obx(() {
+                            final presence = c.myUser.value?.presence;
+
+                            return Text.rich(
+                              TextSpan(
+                                text: switch (presence) {
+                                  Presence.present =>
+                                    'label_presence_present'.l10n,
+                                  Presence.away => 'label_presence_away'.l10n,
+                                  (_) => 'label_offline'.l10n.capitalized,
+                                },
+                                style: style.fonts.small.regular.secondary,
+                              ),
+                            );
+                          }),
+                          Obx(() {
+                            final presence = c.myUser.value?.presence;
+
+                            return Text.rich(
+                              TextSpan(
+                                text: switch (presence) {
+                                  Presence.present =>
+                                    'label_presence_present'.l10n,
+                                  Presence.away => 'label_presence_away'.l10n,
+                                  (_) => 'label_offline'.l10n.capitalized,
+                                },
+                                style: style.fonts.small.regular.secondary,
+                                children: [
+                                  TextSpan(text: 'space_vertical_space'.l10n),
+                                  WidgetSpan(
+                                    alignment: ui.PlaceholderAlignment.middle,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(8),
+                                      onTap: c.togglePresence,
+                                      child: Ink(
+                                        child: Text(
+                                          'btn_change_status'.l10n,
+                                          style:
+                                              style.fonts.small.regular.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  Divider(
+                    color: style.colors.secondaryHighlightDark,
+                    height: 1,
+                  ),
+                  SizedBox(height: 8),
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      inputDecorationTheme: Theme.of(context)
+                          .inputDecorationTheme
+                          .copyWith(
+                            border: border,
+                            errorBorder: border,
+                            enabledBorder: border,
+                            focusedBorder: border,
+                            disabledBorder: border,
+                            focusedErrorBorder: border,
+                            focusColor: style.colors.onPrimary,
+                            fillColor: style.colors.onPrimary,
+                            hoverColor: style.colors.transparent,
+                            filled: true,
+                            isDense: true,
+                          ),
+                    ),
+                    child: ReactiveTextField(
+                      key: Key('TextStatusField'),
+                      state: c.status,
+                      padding: PlatformUtils.isAndroid
+                          ? EdgeInsets.fromLTRB(0, 8, 0, 0) // Android.
+                          : PlatformUtils.isIOS
+                          ? EdgeInsets.fromLTRB(0, 8, 0, 0) // iOS.
+                          : EdgeInsets.fromLTRB(
+                              0,
+                              8,
+                              0,
+                              4,
+                            ), // macOS, Linux, Windows.
+                      hint: 'label_text_status_hint'.l10n,
+                      dense: true,
+                      style: style.fonts.small.regular.onBackground,
+                      floatingLabelBehavior: FloatingLabelBehavior.always,
+                      maxLines: 1,
+                      formatters: [LengthLimitingTextInputFormatter(25)],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

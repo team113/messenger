@@ -263,7 +263,9 @@ class AccountsView extends StatelessWidget {
             case AccountsViewStage.add:
               header = ModalPopupHeader(
                 text: 'label_add_account'.l10n,
-                onBack: () => c.stage.value = AccountsViewStage.accounts,
+                onBack: initial == AccountsViewStage.accounts
+                    ? () => c.stage.value = AccountsViewStage.accounts
+                    : null,
               );
 
               children = [
