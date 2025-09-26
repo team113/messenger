@@ -94,6 +94,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onDownloadAs,
     this.onSave,
     this.onSelect,
+    this.onSearch,
     this.onUserPressed = _defaultOnUserPressed,
     this.onDragging,
     this.onAnimateTo,
@@ -171,6 +172,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a select action is triggered.
   final void Function()? onSelect;
+
+  /// Callback, called when a search action is triggered.
+  final void Function()? onSearch;
 
   /// Callback, called whenever some [User]'s name is being pressed.
   final void Function(User) onUserPressed;
@@ -1615,6 +1619,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             },
                           ),
                         ],
+                        ContextMenuButton(
+                          label: 'btn_search_chat'.l10n,
+                          trailing: const SvgIcon(SvgIcons.search),
+                          inverted: const SvgIcon(SvgIcons.searchWhite),
+                          onPressed: () => widget.onSearch?.call(),
+                        ),
                         ContextMenuButton(
                           key: const Key('Select'),
                           label: 'btn_select_messages'.l10n,

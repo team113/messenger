@@ -211,6 +211,7 @@ btn_save_my_credentials_for_one_click = Save my credentials for one-click sign i
 btn_save_to_gallery = Save to gallery
 btn_save_to_gallery_all = Save all to galley
 btn_schedule_an_interview = Schedule an interview
+btn_search_chat = Search chat
 btn_select = Select
 btn_select_messages = Select messages
 btn_send_application = Send an application
