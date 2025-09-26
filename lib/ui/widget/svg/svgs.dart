@@ -348,6 +348,12 @@ class SvgIcons {
     height: 15.99,
   );
 
+  static const SvgData notFound = SvgData(
+    'assets/icons/not_found.svg',
+    width: 126,
+    height: 125,
+  );
+
   static const SvgData notes = SvgData(
     'assets/icons/notes.svg',
     width: 31.44,

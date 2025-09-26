@@ -97,6 +97,8 @@ class ChatsTabController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  final ScrollController sliverScrollController = ScrollController();
+
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
 
@@ -589,6 +591,12 @@ class ChatsTabController extends GetxController {
     searching.value = true;
     _toggleSearch();
     search.value?.search.focus.requestFocus();
+
+    sliverScrollController.animateTo(
+      sliverScrollController.position.minScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   /// Disables and disposes the [search]ing.
@@ -599,6 +607,12 @@ class ChatsTabController extends GetxController {
     } else {
       search.value?.search.clear();
       search.value?.query.value = '';
+
+      sliverScrollController.animateTo(
+        sliverScrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
     }
   }
 

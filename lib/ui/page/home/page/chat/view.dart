@@ -23,6 +23,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
@@ -164,7 +165,17 @@ class ChatView extends StatelessWidget {
 
           final bool isMonolog = c.chat!.chat.value.isMonolog;
 
-          return CustomDropTarget(
+          return Actions(
+              actions: {
+                _SearchAction: CallbackAction<_SearchAction>(
+                  onInvoke: (_) => c.toggleSearch(false),
+                ),
+              },
+              child: Shortcuts(
+                  shortcuts: {
+                    LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF): const _SearchAction(),
+                  },
+                  child: CustomDropTarget(
             key: Key('ChatView_$id'),
             onPerformDrop: c.dropFiles,
             builder: (dragging) => GestureDetector(
@@ -650,7 +661,7 @@ class ChatView extends StatelessWidget {
                 ],
               ),
             ),
-          );
+          ),),);
         });
       },
     );
@@ -818,6 +829,7 @@ class ChatView extends StatelessWidget {
                     c.selecting.toggle();
                     c.selected.add(element);
                   },
+                  onSearch: c.toggleSearch,
                   onUserPressed: (user) {
                     ChatId chatId = ChatId.local(user.id);
                     if (user.dialog.isLocalWith(c.me)) {
@@ -1488,4 +1500,8 @@ class AllowMultipleHorizontalDragGestureRecognizer
     extends HorizontalDragGestureRecognizer {
   @override
   void rejectGesture(int pointer) => acceptGesture(pointer);
+}
+/// [Intent] action for trigger search in chat.
+class _SearchAction extends Intent {
+  const _SearchAction();
 }

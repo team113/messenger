@@ -380,6 +380,7 @@ class ReactiveTextField extends StatelessWidget {
                 focusedBorder: state.editable.value
                     ? null
                     : Theme.of(context).inputDecorationTheme.border,
+                enabledBorder: Theme.of(context).inputDecorationTheme.border,
                 prefixText: prefixText,
                 prefixStyle: prefixStyle,
                 prefix: prefix,
