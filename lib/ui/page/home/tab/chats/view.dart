@@ -501,11 +501,17 @@ class ChatsTabView extends StatelessWidget {
         child: Center(
           key: const Key('NothingFound'),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'label_nothing_found'.l10n,
-              style: style.fonts.small.regular.onBackground,
-              textAlign: TextAlign.center,
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              children: [
+                const SvgIcon(SvgIcons.notFound),
+                const SizedBox(height: 12),
+                Text(
+                  'label_no_chats'.l10n,
+                  style: style.fonts.small.regular.onBackground,
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ),
