@@ -9,21 +9,39 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.7.0] · 2025-??-??
 [0.7.0]: /../../tree/v0.7.0
 
-[Diff](/../../compare/v0.6.3...v0.7.0) | [Milestone](/../../milestone/48)
+[Diff](/../../compare/v0.6.4...v0.7.0) | [Milestone](/../../milestone/49)
 
 ### Changed
 
 - UI:
     - Chat page:
-        - Inability to copy text from forwarded messages. ([#1434], [#1271])
-        - Redesigned messages selection. ([#1416], [#1410])
+       - Redesigned messages selection. ([#1416], [#1410])
+
+[#1410]: /../../issues/1410
+[#1416]: /../../pull/1416
+
+
+
+
+## [0.6.4] · 2025-09-29
+[0.6.4]: /../../tree/v0.6.4
+
+[Diff](/../../compare/v0.6.3...v0.6.4) | [Milestone](/../../milestone/48)
+
+### Changed
+
+- UI:
     - Home page:
         - Redesigned context panel for switching statuses over profile button. ([#1422], [#1254])
 
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to copy text from forwarded messages. ([#1434], [#1271])
+
 [#1254]: /../../issues/1254
 [#1271]: /../../issues/1271
-[#1410]: /../../issues/1410
-[#1416]: /../../pull/1416
 [#1422]: /../../pull/1422
 [#1434]: /../../pull/1434
 
