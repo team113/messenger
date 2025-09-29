@@ -17,11 +17,15 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Inability to copy text from forwarded messages. ([#1434], [#1271])
         - Redesigned messages selection. ([#1416], [#1410])
+    - Home page:
+        - Redesigned context panel for switching statuses over profile button. ([#1422], [#1254])
 
+[#1254]: /../../issues/1254
 [#1271]: /../../issues/1271
 [#1410]: /../../issues/1410
-[#1434]: /../../pull/1434
 [#1416]: /../../pull/1416
+[#1422]: /../../pull/1422
+[#1434]: /../../pull/1434
 
 
 
