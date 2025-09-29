@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-       - Redesigned messages selection. ([#1416], [#1410])
+        - Redesigned messages selection. ([#1416], [#1410])
 
 [#1410]: /../../issues/1410
 [#1416]: /../../pull/1416
