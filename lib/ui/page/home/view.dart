@@ -36,6 +36,7 @@ import '/ui/widget/upgrade_available_button.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
+import 'accounts_switcher/view.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
@@ -301,8 +302,6 @@ class _HomeViewState extends State<HomeView> {
 
   /// Builds a [CustomNavigationBar].
   Widget _navigation(BuildContext context, HomeController c) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
       final List<HomeTab> tabs = c.tabs;
 
@@ -333,12 +332,17 @@ class _HomeViewState extends State<HomeView> {
                   case HomeTab.menu:
                     return Obx(() {
                       return CustomNavigationBarItem.menu(
-                        acceptAuxiliary: style.colors.acceptAuxiliary,
-                        warning: style.colors.warning,
-                        onPresence: c.setPresence,
+                        avatarKey: c.avatarKey,
                         onAvatar: c.updateAvatar,
-                        selector: c.panelKey,
                         myUser: c.myUser.value,
+                        onSecondary: () async {
+                          PlatformUtils.haptic(kind: HapticKind.light);
+                          await AccountsSwitcherView.show(
+                            context,
+                            avatarKey: c.avatarKey,
+                            panelKey: c.panelKey,
+                          );
+                        },
                       );
                     });
                 }
