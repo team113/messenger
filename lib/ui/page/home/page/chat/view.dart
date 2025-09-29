@@ -740,9 +740,9 @@ class ChatView extends StatelessWidget {
                   chat: c.chat!.chat,
                   item: e,
                   me: c.me!,
-                  withAvatar: !previousSame,
+                  withAvatar: !c.selecting.value && !previousSame,
                   withName: !previousSame,
-                  appendAvatarPadding: previousSame,
+                  appendAvatarPadding: !c.selecting.value,
                   selectable: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
@@ -850,8 +850,9 @@ class ChatView extends StatelessWidget {
                   note: element.note,
                   authorId: element.authorId,
                   me: c.me!,
+                  withAvatar: !c.selecting.value && !previousSame,
                   withName: !previousSame,
-                  appendAvatarPadding: previousSame,
+                  appendAvatarPadding: !c.selecting.value,
                   selectable: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []

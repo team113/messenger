@@ -79,7 +79,7 @@ class ChatItemWidget extends StatefulWidget {
     this.withName = false,
     this.withAvatar = true,
     this.appendAvatarPadding = true,
-    this.selectable = false,
+    this.selectable = true,
     this.reads = const [],
     this.getUser,
     this.getItem,
@@ -1433,28 +1433,27 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               ),
             );
           },
-          child:
-              !widget.selectable ||
-                  (widget.chat.value?.isGroup == false && !_fromMe)
-              ? SizedBox(width: 0)
-              : widget.appendAvatarPadding || _fromMe
-              ? SizedBox(
-                  key: Key('expanded'),
-                  width: avatarRadius.toDouble() * 2,
-                )
-              : widget.withAvatar && widget.chat.value?.isGroup == true
+          child: !_fromMe && widget.chat.value?.isGroup == true
               ? Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: () => widget.onUserPressed(item.author),
-                    child: AvatarWidget.fromRxUser(
-                      widget.user,
-                      radius: avatarRadius,
-                    ),
-                  ),
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                  child: widget.withAvatar
+                      ? InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => widget.onUserPressed(item.author),
+                          child: AvatarWidget.fromRxUser(
+                            widget.user,
+                            radius: avatarRadius,
+                          ),
+                        )
+                      : widget.appendAvatarPadding
+                      ? SizedBox(width: avatarRadius.toDouble() * 2)
+                      : const SizedBox(key: Key('1')),
                 )
-              : SizedBox(width: 0),
+              : _fromMe
+              ? widget.appendAvatarPadding
+                    ? SizedBox(width: avatarRadius.toDouble() * 2)
+                    : const SizedBox(key: Key('3'))
+              : const SizedBox(key: Key('4')),
         ),
         Flexible(
           child: LayoutBuilder(
