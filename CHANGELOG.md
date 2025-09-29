@@ -16,8 +16,12 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Inability to copy text from forwarded messages. ([#1434], [#1271])
+    - Home page:
+        - Redesigned context panel for switching statuses over profile button. ([#1422], [#1254])
 
+[#1254]: /../../issues/1254
 [#1271]: /../../issues/1271
+[#1422]: /../../pull/1422
 [#1434]: /../../pull/1434
 
 
