@@ -426,7 +426,7 @@ class ChatView extends StatelessWidget {
                                       )
                                     else
                                       ContextMenuButton(
-                                        label: 'btn_unselect_messages'.l10n,
+                                        label: 'btn_cancel_selection'.l10n,
                                         onPressed: c.selecting.toggle,
                                         trailing: const SvgIcon(
                                           SvgIcons.unselect,

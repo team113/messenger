@@ -123,6 +123,7 @@ btn_call_video_off_desc =
 btn_call_video_on = Включить камеру
 btn_camera = Камера
 btn_cancel = Отменить
+btn_cancel_selection = Отменить выбор
 btn_call_video_on_desc =
     Включить
     камеру
@@ -232,7 +233,6 @@ btn_unblock = Разблокировать
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
 btn_unmute_chats = Включить звук
-btn_unselect_messages = Отменить выбор
 btn_upload = Загрузить
 btn_video_call = Видеозвонок
 btn_work_with_us = Работайте с нами

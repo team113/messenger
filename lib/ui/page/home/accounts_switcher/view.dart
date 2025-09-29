@@ -349,21 +349,7 @@ class AccountsSwitcherView extends StatelessWidget {
                               style: style.fonts.normal.regular.onBackground,
                             );
                           }),
-                          Obx(() {
-                            final presence = c.myUser.value?.presence;
 
-                            return Text.rich(
-                              TextSpan(
-                                text: switch (presence) {
-                                  Presence.present =>
-                                    'label_presence_present'.l10n,
-                                  Presence.away => 'label_presence_away'.l10n,
-                                  (_) => 'label_offline'.l10n.capitalized,
-                                },
-                                style: style.fonts.small.regular.secondary,
-                              ),
-                            );
-                          }),
                           Obx(() {
                             final presence = c.myUser.value?.presence;
 

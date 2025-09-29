@@ -126,6 +126,7 @@ btn_call_video_on_desc =
     video on
 btn_camera = Camera
 btn_cancel = Cancel
+btn_cancel_selection = Cancel selection
 btn_change = Change
 btn_change_account_desc =
     Change
@@ -232,7 +233,6 @@ btn_unblock = Unblock
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
-btn_unselect_messages = Cancel selection
 btn_upload = Upload
 btn_video_call = Video call
 btn_work_with_us = Work with us

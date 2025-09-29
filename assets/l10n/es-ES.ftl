@@ -123,6 +123,7 @@ btn_call_video_off_desc =
 btn_call_video_on = Activar el video
 btn_camera = Cámara
 btn_cancel = Cancelar
+btn_cancel_selection = Cancelar selección
 btn_call_video_on_desc =
     Activar
     el video
@@ -232,7 +233,6 @@ btn_unblock = Desbloquear
 btn_unmute = Desactivar silencio
 btn_unmute_chat = Desactivar silencio del chat
 btn_unmute_chats = Desactivar silencio de los chats
-btn_unselect_messages = Cancelar selección
 btn_upload = Subir
 btn_video_call = Videollamada
 btn_work_with_us = Trabaje con nosotros

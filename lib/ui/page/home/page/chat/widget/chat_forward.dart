@@ -85,7 +85,6 @@ class ChatForwardWidget extends StatefulWidget {
     this.onFileTap,
     this.onAttachmentError,
     this.onSelect,
-    this.onUserPressed = _defaultOnUserPressed,
     this.onDragging,
     this.onAnimateTo,
   });
@@ -171,9 +170,6 @@ class ChatForwardWidget extends StatefulWidget {
   /// Callback, called when a select action is triggered.
   final void Function()? onSelect;
 
-  /// Callback, called whenever some [User]'s name is being pressed.
-  final void Function(User) onUserPressed;
-
   /// Callback, called whenever this [ChatForwardWidget] is being dragged.
   final void Function(bool)? onDragging;
 
@@ -182,10 +178,6 @@ class ChatForwardWidget extends StatefulWidget {
 
   @override
   State<ChatForwardWidget> createState() => _ChatForwardWidgetState();
-
-  /// Opens the [User.dialog] chat.
-  static void _defaultOnUserPressed(User user) =>
-      router.chat(ChatId.local(user.id), push: true);
 }
 
 /// State of a [ChatForwardWidget] maintaining the [_galleryKeys].
