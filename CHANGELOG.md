@@ -11,13 +11,17 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.3...v0.6.4) | [Milestone](/../../milestone/48)
 
+### Changed
+
+- UI:
+    - Home page:
+        - Redesigned context panel for switching statuses over profile button. ([#1422], [#1254])
+
 ### Fixed
 
 - UI:
     - Chat page:
         - Inability to copy text from forwarded messages. ([#1434], [#1271])
-    - Home page:
-        - Redesigned context panel for switching statuses over profile button. ([#1422], [#1254])
 
 [#1254]: /../../issues/1254
 [#1271]: /../../issues/1271

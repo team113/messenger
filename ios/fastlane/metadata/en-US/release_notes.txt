@@ -1,4 +1,2 @@
-- Updated description for notes chat.
-- Updated remote audio icons in calls.
-- Redesigned introduction for guest accounts.
+- Redesigned context panel for switching statuses over profile button.
 - Bug fixes and performance improvements.
