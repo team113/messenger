@@ -238,6 +238,7 @@ class CustomNavigationBarItem extends StatelessWidget {
          key: key,
          tab: HomeTab.menu,
          child: GestureDetector(
+           key: Key('MenuButton'),
            onSecondaryTap: onSecondary,
            onLongPress: onSecondary,
            child: Padding(
