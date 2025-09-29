@@ -1435,6 +1435,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           },
           child: !_fromMe && widget.chat.value?.isGroup == true
               ? Padding(
+                  key: Key('${widget.withAvatar}${widget.appendAvatarPadding}'),
                   padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                   child: widget.withAvatar
                       ? InkWell(
