@@ -66,40 +66,30 @@ class MessageTimestamp extends StatelessWidget {
   /// Optional font size of this [MessageTimestamp].
   final double? fontSize;
 
+  /// Indicates whether this [ChatItem] was sent by [User].
+  bool get isSent => status == SendingStatus.sent;
+
+  /// Indicates whether the status of the sent [ChatItem] is an error.
+  bool get isError => status == SendingStatus.error;
+
+  /// Indicates whether [ChatItem] is in the process of being sent.
+  bool get isSending => status == SendingStatus.sending;
+
+  /// Indicates whether this [ChatItem] has been delivered to [User].
+  bool get isDelivered => isSent && delivered;
+
+  /// Indicates whether this [ChatItem] has been read by [User].
+  bool get isRead => isSent && read;
+
+  /// Indicates whether this [ChatItem] was only partially read.
+  bool get isHalfRead => isSent && halfRead;
+
+  /// Specifies whether this [ChatItem] should be displayed with an icon.
+  bool get isIcon => isSent || isDelivered || isRead || isSending || isError;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-
-    final bool isSent = status == SendingStatus.sent;
-    final bool isDelivered = isSent && delivered;
-    final bool isRead = isSent && read;
-    final bool isHalfRead = isSent && halfRead;
-    final bool isError = status == SendingStatus.error;
-    final bool isSending = status == SendingStatus.sending;
-
-    SvgData getIcon() {
-      if (isRead) {
-        if (isHalfRead) {
-          return inverted ? SvgIcons.halfReadWhite : SvgIcons.halfRead;
-        }
-
-        return inverted ? SvgIcons.readWhite : SvgIcons.read;
-      }
-
-      if (isDelivered) {
-        return inverted ? SvgIcons.deliveredWhite : SvgIcons.delivered;
-      }
-
-      if (isError) {
-        return SvgIcons.error;
-      }
-
-      if (isSending) {
-        return inverted ? SvgIcons.sendingWhite : SvgIcons.sending;
-      }
-
-      return inverted ? SvgIcons.sentWhite : SvgIcons.sent;
-    }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -118,26 +108,55 @@ class MessageTimestamp extends StatelessWidget {
                     ),
           ),
         ),
-        if (status != null &&
-            (isSent || isDelivered || isRead || isSending || isError)) ...[
+        if (isIcon) ...[
           const SizedBox(width: 6),
           SizedBox(
-            key: Key(
-              isError
-                  ? 'Error'
-                  : isSending
-                  ? 'Sending'
-                  : isRead
-                  ? isHalfRead
-                        ? 'HalfRead'
-                        : 'Read'
-                  : 'Sent',
-            ),
+            key: Key(_getKeyName()),
             width: 17,
-            child: SvgIcon(getIcon()),
+            child: SvgIcon(_getIconData()),
           ),
         ],
       ],
     );
+  }
+
+  String _getKeyName() {
+    if(isError) {
+      return 'Error';
+    }
+
+    if(isSending) {
+      return 'Sending';
+    }
+
+    if(isRead) {
+      return isHalfRead ? 'HalfRead' : 'Read';
+    }
+
+    return 'Sent';
+  }
+
+  SvgData _getIconData() {
+    if (isRead) {
+      if (isHalfRead) {
+        return inverted ? SvgIcons.halfReadWhite : SvgIcons.halfRead;
+      }
+
+      return inverted ? SvgIcons.readWhite : SvgIcons.read;
+    }
+
+    if (isDelivered) {
+      return inverted ? SvgIcons.deliveredWhite : SvgIcons.delivered;
+    }
+
+    if (isError) {
+      return SvgIcons.error;
+    }
+
+    if (isSending) {
+      return inverted ? SvgIcons.sendingWhite : SvgIcons.sending;
+    }
+
+    return inverted ? SvgIcons.sentWhite : SvgIcons.sent;
   }
 }
