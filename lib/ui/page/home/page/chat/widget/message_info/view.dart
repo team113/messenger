@@ -129,7 +129,7 @@ class MessageInfo extends StatelessWidget {
                       style,
                       'label_status'.l10n,
                       isDisplayUsersList
-                          ? _UsersListWidget(c: c, reads: reads)
+                          ? _contactList(context, c, reads)
                           : Text(
                               _getLabelStatus(),
                               style: style.fonts.small.regular.onBackground,
@@ -177,32 +177,12 @@ class MessageInfo extends StatelessWidget {
     ],
   );
 
-  /// Returns localized string of [chatItem] status
-  String _getLabelStatus() {
-    if (reads.isNotEmpty) {
-      return 'label_message_status_read'.l10n;
-    }
-
-    if (chatItem!.status.value.name == 'sent') {
-      return 'label_message_status_delivered'.l10n;
-    }
-
-    if (chatItem!.status.value.name == 'sending') {
-      return 'label_message_status_sent'.l10n;
-    }
-
-    return 'label_message_status_not_sent'.l10n;
-  }
-}
-
-class _UsersListWidget extends StatelessWidget {
-  const _UsersListWidget({required this.c, required this.reads});
-
-  final MessageInfoController c;
-  final Iterable<LastChatRead> reads;
-
-  @override
-  Widget build(BuildContext context) {
+  /// Returns a list of [ContactTile] with the icon status
+  Widget _contactList(
+    BuildContext context,
+    MessageInfoController c,
+    Iterable<LastChatRead> reads,
+  ) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -248,5 +228,22 @@ class _UsersListWidget extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  /// Returns localized string of [chatItem] status
+  String _getLabelStatus() {
+    if (reads.isNotEmpty) {
+      return 'label_message_status_read'.l10n;
+    }
+
+    if (chatItem!.status.value.name == 'sent') {
+      return 'label_message_status_delivered'.l10n;
+    }
+
+    if (chatItem!.status.value.name == 'sending') {
+      return 'label_message_status_sent'.l10n;
+    }
+
+    return 'label_message_status_not_sent'.l10n;
   }
 }
