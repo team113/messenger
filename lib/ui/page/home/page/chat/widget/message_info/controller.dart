@@ -31,11 +31,16 @@ import '/util/obs/obs.dart';
 /// Controller of the [MessageInfo] popup.
 class MessageInfoController extends GetxController {
   MessageInfoController(
-    ChatId chatId,
-    ChatService chatService, {
+    this.chatId,
+    this.chatService, {
     this.reads = const [],
-  }) : _chatId = chatId,
-       _chatService = chatService;
+  });
+
+  /// ID of the [Chat] this page is about.
+  final ChatId? chatId;
+
+  /// [Chat]s service used to get the [chat] value.
+  final ChatService chatService;
 
   /// [LastChatRead]s who read the [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
@@ -49,14 +54,8 @@ class MessageInfoController extends GetxController {
   /// Indicates whether the [RxChat.members] have a next page.
   RxBool get haveNext => _chat?.members.hasNext ?? RxBool(false);
 
-  /// ID of the [Chat] this page is about.
-  final ChatId _chatId;
-
   /// Reactive state of the [RxChat] this page is about.
   RxChat? _chat;
-
-  /// [Chat]s service used to get the [chat] value.
-  final ChatService _chatService;
 
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
@@ -82,8 +81,12 @@ class MessageInfoController extends GetxController {
   }
 
   Future<void> _initChat() async {
+    if(chatId == null) {
+      return;
+    }
+
     try {
-      _chat = await _chatService.get(_chatId);
+      _chat = await chatService.get(chatId!);
 
       if (_chat != null) {
         for (final member in _chat!.members.values) {

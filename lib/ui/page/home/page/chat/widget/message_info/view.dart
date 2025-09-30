@@ -69,7 +69,7 @@ class MessageInfo extends StatelessWidget {
     final Style style = Theme.of(context).style;
 
     return GetBuilder(
-      init: MessageInfoController(chatItem!.chatId, Get.find(), reads: reads),
+      init: MessageInfoController(chatItem?.chatId, Get.find(), reads: reads),
       builder: (MessageInfoController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
