@@ -17,68 +17,123 @@
 
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/domain/service/user.dart';
-import '/ui/widget/text_field.dart';
+import '/domain/service/chat.dart';
+import '/util/message_popup.dart';
+import '/util/obs/obs.dart';
 
 /// Controller of the [MessageInfo] popup.
 class MessageInfoController extends GetxController {
   MessageInfoController(
-    this._userService, {
+    ChatId chatId,
+    ChatService chatService, {
     this.reads = const [],
-    this.members = const [],
-  });
+  }) : _chatId = chatId,
+       _chatService = chatService;
 
   /// [LastChatRead]s who read the [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
 
-  /// [ChatMember]s who may read [ChatItem] this [MessageInfo] is about.
-  final Iterable<ChatMember> members;
+  /// [RxUser]s who may read [ChatItem] this [MessageInfo] is about.
+  final RxList<RxUser> members = RxList();
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [TextFieldState] of the search field.
-  final TextFieldState search = TextFieldState();
+  /// Indicates whether the [RxChat.members] have a next page.
+  RxBool get haveNext => _chat?.members.hasNext ?? RxBool(false);
 
-  /// Reactive value of the [search] field.
-  final RxString query = RxString('');
+  /// ID of the [Chat] this page is about.
+  final ChatId _chatId;
 
-  /// [RxUser]s of the [reads].
-  final RxList<RxUser> users = RxList();
+  /// Reactive state of the [RxChat] this page is about.
+  RxChat? _chat;
 
-  /// [UserService] fetching the [users].
-  final UserService _userService;
+  /// [Chat]s service used to get the [chat] value.
+  final ChatService _chatService;
+
+  /// Indicator whether the [_scrollListener] is already invoked during the
+  /// current frame.
+  bool _scrollIsInvoked = false;
+
+  /// Subscription for the [RxChat.members] changes.
+  StreamSubscription? _membersSubscription;
 
   @override
   void onInit() {
-    _fetchUsers();
     super.onInit();
+
+    scrollController.addListener(_scrollListener);
+    _initChat();
   }
 
   @override
   void onClose() {
+    _membersSubscription?.cancel();
     scrollController.dispose();
+
     super.onClose();
   }
 
-  /// Fetches the [users] from the [UserService].
-  Future<void> _fetchUsers() async {
-    final List<Future<void>> futures = members
-        .map((member) async {
-          final FutureOr<RxUser?> fetched = _userService.get(member.user.id);
-          final RxUser? user = fetched is RxUser? ? fetched : await fetched;
-          if (user != null) {
-            users.add(user);
-          }
-        })
-        .nonNulls
-        .toList();
+  Future<void> _initChat() async {
+    try {
+      _chat = await _chatService.get(_chatId);
 
-    await Future.wait(futures);
+      if (_chat != null) {
+        for (final member in _chat!.members.values) {
+          members.add(member.user);
+        }
+
+        _membersSubscription = _chat!.members.items.changes.listen((event) {
+          switch (event.op) {
+            case OperationKind.added:
+              if (event.value != null && !members.contains(event.value!.user)) {
+                members.add(event.value!.user);
+              }
+              break;
+            case OperationKind.removed:
+              members.removeWhere((e) => e.id == event.key);
+
+              _scrollListener();
+              break;
+
+            case OperationKind.updated:
+              // No-op
+              break;
+          }
+        });
+
+        _chat!.members.around();
+      }
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Requests the next page of [RxUser]s based on the
+  /// [ScrollController.position] value.
+  void _scrollListener() {
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        _scrollIsInvoked = false;
+
+        if (scrollController.hasClients &&
+            haveNext.isTrue &&
+            _chat?.members.nextLoading.value == false &&
+            scrollController.position.pixels >
+                scrollController.position.maxScrollExtent - 100) {
+          await _chat?.members.next();
+        }
+      });
+    }
   }
 }

@@ -40,7 +40,6 @@ class MessageInfo extends StatelessWidget {
     required this.isGroup,
     this.chatItem,
     this.reads = const [],
-    this.members = const [],
   });
 
   /// Indicates whether this [ChatItem] belongs to a group chat.
@@ -52,16 +51,12 @@ class MessageInfo extends StatelessWidget {
   /// [LastChatRead]s of a [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
 
-  /// [ChatMember]s of a [Chat] who may reads this [ChatItem].
-  final Iterable<ChatMember> members;
-
   /// Displays a [MessageInfo] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     required bool isGroup,
     ChatItem? chatItem,
     Iterable<LastChatRead> reads = const [],
-    List<ChatMember> members = const [],
   }) {
     return ModalPopup.show(
       context: context,
@@ -69,7 +64,6 @@ class MessageInfo extends StatelessWidget {
         isGroup: isGroup,
         chatItem: chatItem,
         reads: reads,
-        members: members,
       ),
     );
   }
@@ -77,10 +71,9 @@ class MessageInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Style style = Theme.of(context).style;
-    final bool isDisplayUsersList = isGroup && members.isNotEmpty;
 
     return GetBuilder(
-      init: MessageInfoController(Get.find(), reads: reads, members: members),
+      init: MessageInfoController(chatItem!.chatId, Get.find(), reads: reads),
       builder: (MessageInfoController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -128,13 +121,13 @@ class MessageInfo extends StatelessWidget {
                     _tableRow(
                       style,
                       'label_status'.l10n,
-                      isDisplayUsersList
+                      isGroup
                           ? _contactList(context, c, reads)
                           : Text(
                               _getLabelStatus(),
                               style: style.fonts.small.regular.onBackground,
                             ),
-                      addPadding: isDisplayUsersList ? 10 : 0,
+                      addPadding: isGroup ? 10 : 0,
                     ),
                   ],
                 ),
@@ -183,51 +176,46 @@ class MessageInfo extends StatelessWidget {
     MessageInfoController c,
     Iterable<LastChatRead> reads,
   ) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (c.users.isNotEmpty)
-          Flexible(
+    return Obx(() {
+      final List<Widget> contactTiles = [];
+
+      for (final member in c.members) {
+        final bool isRead = reads.map((r) => r.memberId).contains(member.id);
+        final Widget widget = ContactTile(
+          user: member,
+          onTap: () {
+            Navigator.of(context).pop();
+            router.user(member.id, push: true);
+          },
+          height: 38,
+          trailing: [
+            isRead ? SvgIcon(SvgIcons.read) : SvgIcon(SvgIcons.delivered),
+          ],
+        );
+
+        if (isRead) {
+          contactTiles.insert(0, widget);
+        } else {
+          contactTiles.add(widget);
+        }
+      }
+
+      return Column(
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 200),
             child: Scrollbar(
               controller: c.scrollController,
-              child: Obx(() {
-                final List<Widget> contactTiles = [];
-
-                for (var user in c.users) {
-                  final bool isRead = reads
-                      .map((r) => r.memberId)
-                      .contains(user.id);
-                  final Widget widget = ContactTile(
-                    user: user,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      router.user(user.id, push: true);
-                    },
-                    height: 38,
-                    trailing: [
-                      isRead
-                          ? SvgIcon(SvgIcons.read)
-                          : SvgIcon(SvgIcons.delivered),
-                    ],
-                  );
-
-                  if (isRead) {
-                    contactTiles.insert(0, widget);
-                  } else {
-                    contactTiles.add(widget);
-                  }
-                }
-
-                return ListView(
-                  controller: c.scrollController,
-                  shrinkWrap: true,
-                  children: contactTiles,
-                );
-              }),
+              child: ListView.builder(
+                controller: c.scrollController,
+                itemCount: contactTiles.length,
+                itemBuilder: (_, i) => contactTiles[i],
+              ),
             ),
           ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   /// Returns localized string of [chatItem] status
