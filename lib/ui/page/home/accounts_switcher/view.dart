@@ -349,6 +349,7 @@ class AccountsSwitcherView extends StatelessWidget {
                               style: style.fonts.normal.regular.onBackground,
                             );
                           }),
+
                           Obx(() {
                             final presence = c.myUser.value?.presence;
 
