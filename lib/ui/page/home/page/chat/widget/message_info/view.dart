@@ -60,11 +60,7 @@ class MessageInfo extends StatelessWidget {
   }) {
     return ModalPopup.show(
       context: context,
-      child: MessageInfo(
-        isGroup: isGroup,
-        chatItem: chatItem,
-        reads: reads,
-      ),
+      child: MessageInfo(isGroup: isGroup, chatItem: chatItem, reads: reads),
     );
   }
 

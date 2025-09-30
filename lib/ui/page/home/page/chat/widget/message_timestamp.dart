@@ -121,15 +121,15 @@ class MessageTimestamp extends StatelessWidget {
   }
 
   String _getKeyName() {
-    if(isError) {
+    if (isError) {
       return 'Error';
     }
 
-    if(isSending) {
+    if (isSending) {
       return 'Sending';
     }
 
-    if(isRead) {
+    if (isRead) {
       return isHalfRead ? 'HalfRead' : 'Read';
     }
 
