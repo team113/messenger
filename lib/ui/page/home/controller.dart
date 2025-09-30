@@ -86,6 +86,9 @@ class HomeController extends GetxController {
   /// [BuildContext] of the [HomeView].
   final BuildContext? context;
 
+  /// [GlobalKey] of a [AvatarWidget]s button in the navigation bar.
+  final GlobalKey avatarKey = GlobalKey();
+
   /// Authentication service to determine auth status.
   final AuthService _auth;
 
