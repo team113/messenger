@@ -2553,9 +2553,12 @@ extension ChatViewExt on Chat {
         break;
 
       case ChatKind.dialog:
-        final String? name =
-            users.firstWhereOrNull((u) => u.id != me)?.title ??
-            members.firstWhereOrNull((e) => e.user.id != me)?.user.title;
+        final User? user =
+            users.firstWhereOrNull((u) => u.id != me)?.user.value ??
+            members.firstWhereOrNull((e) => e.user.id != me)?.user;
+
+        final String? name = user?.getTitle();
+
         if (name != null) {
           title = name;
         }
@@ -2566,9 +2569,9 @@ extension ChatViewExt on Chat {
           final Iterable<String> names;
 
           if (users.length < membersCount && users.length < 3) {
-            names = members.take(3).map((e) => e.user.title);
+            names = members.take(3).map((e) => e.user.getTitle());
           } else {
-            names = users.take(3).map((e) => e.title);
+            names = users.take(3).map((e) => e.user.value.getTitle());
           }
 
           title = names.join('comma_space'.l10n);

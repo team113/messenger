@@ -588,6 +588,7 @@ label_current_account = Cuenta corriente
 label_current_password = Contrseña actual
 label_days_short = {$days} d
 label_delete_account = Eliminar la cuenta
+label_deleted_account = Cuenta eliminada
 label_delete_chat = Eliminar los chat(s)
 label_delete_chats = Eliminar los chat(s)
 label_delete_email = Eliminar el e-mail

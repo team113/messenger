@@ -587,6 +587,7 @@ label_current_account = Current account
 label_current_password = Current password
 label_days_short = {$days} d
 label_delete_account = Delete account
+label_deleted_account = Deleted account
 label_delete_chat = Delete chat(s)
 label_delete_chats = Delete chat(s)
 label_delete_email = Delete E-mail

@@ -652,6 +652,9 @@ extension UserViewExt on User {
     }
   }
 
+  /// Returns the string representation of this [User] to display as a title.
+  String getTitle() => isDeleted ? 'label_deleted_account'.l10n : title;
+
   /// Returns the string representation of this [User] to display as a subtitle.
   String? getSubtitle([PreciseDateTime? lastSeen]) {
     switch (presence) {
@@ -684,6 +687,10 @@ extension UserViewExt on User {
         return null;
     }
   }
+}
+
+extension UserExt on RxUser{
+  String getTitle() => contact.value?.contact.value.name.val ?? user.value.getTitle();
 }
 
 /// Extension adding an ability to get text represented indication of how long
