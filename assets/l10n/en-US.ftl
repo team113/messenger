@@ -131,6 +131,7 @@ btn_change_account_desc =
     Change
     account
 btn_change_password = Change password
+btn_change_status = Change status
 btn_check_for_updates = Check for updates
 btn_clear = Clear
 btn_clear_cache = Clear cache
@@ -582,6 +583,7 @@ label_count_seconds = {$count} { $count ->
 label_create_group = Group creation
 label_create_link = Create link
 label_critical_update_is_available = Current version is no longer supported
+label_current_account = Current account
 label_current_password = Current password
 label_days_short = {$days} d
 label_delete_account = Delete account
@@ -891,6 +893,7 @@ label_terminate_sessions = Terminate session(s)
 label_terms_and_privacy_policy = Terms & Privacy Policy
 label_text_status = Text status
 label_text_status_description = 25 characters max
+label_text_status_hint = Text status. 25 symb. max
 label_this_device = This device
 label_to_restore_chats_use_search = To restore the chats, use the search
 label_typing = Typing

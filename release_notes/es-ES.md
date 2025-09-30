@@ -1,4 +1,2 @@
-- Descripción actualizada del chat de notas.
-- Iconos de audio remoto actualizados en las llamadas.
-- Introducción rediseñada para cuentas de invitado.
+- Panel de contexto rediseñado para cambiar de estado mediante el botón de perfil.
 - Corrección de errores y mejoras de rendimiento.
