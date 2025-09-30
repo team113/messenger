@@ -30,11 +30,7 @@ import '/util/obs/obs.dart';
 
 /// Controller of the [MessageInfo] popup.
 class MessageInfoController extends GetxController {
-  MessageInfoController(
-    this.chatId,
-    this.chatService, {
-    this.reads = const [],
-  });
+  MessageInfoController(this.chatId, this.chatService, {this.reads = const []});
 
   /// ID of the [Chat] this page is about.
   final ChatId? chatId;
@@ -81,7 +77,7 @@ class MessageInfoController extends GetxController {
   }
 
   Future<void> _initChat() async {
-    if(chatId == null) {
+    if (chatId == null) {
       return;
     }
 
