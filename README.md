@@ -1,22 +1,13 @@
-[Messenger](https://gapopa.com) by team113
-====================
+[Messenger](https://tapopa.com) by Tapopa
+=========================================
 
-Docs: [main](https://team113.github.io/messenger/main/) ([release](https://team113.github.io/messenger/release/))  
-[Changelog](https://github.com/team113/messenger/blob/main/CHANGELOG.md)  
-[Contribution Guide](https://github.com/team113/messenger/blob/main/CONTRIBUTING.md)  
+Docs: [main](https://tapopa.github.io/messenger/main/) ([release](https://tapopa.github.io/messenger/release/))  
+[Changelog](https://github.com/tapopa/messenger/blob/main/CHANGELOG.md)  
+[Contribution Guide](https://github.com/tapopa/messenger/blob/main/CONTRIBUTING.md)  
 
-Open-source front-end part of messenger by team113.
+Messenger by Tapopa.
 
 Currently, is under hard development.
-
-
-
-
-## For freelancers
-
-[Rules](https://gapopa.com/work/freelance)  
-[List of available tasks (`Todo` column)](https://github.com/orgs/team113/projects/2)  
-[Flutter/Dart incubator](https://github.com/team113/flutter-incubator)  
 
 
 
@@ -24,6 +15,7 @@ Currently, is under hard development.
 ## License
 
 Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC, <https://github.com/team113>
+Copyright © 2025 Ideas Networks Solutions S.A., <https://github.com/tapopa>
 
 This program is free software: you can redistribute it and/or modify it under the terms of the [GNU Affero General Public License v3.0] as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -34,4 +26,4 @@ You should have received a copy of the [GNU Affero General Public License v3.0] 
 
 
 
-[GNU Affero General Public License v3.0]: https://github.com/team113/messenger/blob/main/LICENSE.md
+[GNU Affero General Public License v3.0]: https://github.com/tapopa/messenger/blob/main/LICENSE.md

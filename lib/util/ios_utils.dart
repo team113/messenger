@@ -20,7 +20,7 @@ import 'package:flutter/services.dart';
 /// Helper providing direct access to iOS-only features.
 class IosUtils {
   /// [MethodChannel] to communicate with iOS via.
-  static const _platform = MethodChannel('team113.flutter.dev/ios_utils');
+  static const _platform = MethodChannel('tapopa.flutter.dev/ios_utils');
 
   /// Returns the architecture of this device.
   static Future<String> getArchitecture() async {

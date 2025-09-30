@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -1385,22 +1387,23 @@ Widget _downloads(BuildContext context, MyProfileController c) {
         DownloadButton.appStore(),
         const SizedBox(height: 8),
       ],
-      const DownloadButton.ios(),
-      const SizedBox(height: 8),
+      // TODO: Uncomment when ready to ship the provided platforms.
+      // const DownloadButton.ios(),
+      // const SizedBox(height: 8),
       if (Config.googlePlayUrl.isNotEmpty) ...[
         DownloadButton.googlePlay(),
         const SizedBox(height: 8),
       ],
-      const DownloadButton.android(),
-      SizedBox(height: 20),
-      LineDivider('label_desktop_apps'.l10n),
-      SizedBox(height: 16),
-      const DownloadButton.windows(),
-      const SizedBox(height: 8),
-      const DownloadButton.macos(),
-      const SizedBox(height: 8),
-      const DownloadButton.linux(),
-      const SizedBox(height: 8),
+      // const DownloadButton.android(),
+      // SizedBox(height: 20),
+      // LineDivider('label_desktop_apps'.l10n),
+      // SizedBox(height: 16),
+      // const DownloadButton.windows(),
+      // const SizedBox(height: 8),
+      // const DownloadButton.macos(),
+      // const SizedBox(height: 8),
+      // const DownloadButton.linux(),
+      // const SizedBox(height: 8),
     ],
   );
 }

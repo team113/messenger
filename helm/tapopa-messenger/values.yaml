@@ -1,5 +1,7 @@
 # Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -16,7 +18,7 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 image:
-  repository: ghcr.io/team113/messenger
+  repository: ghcr.io/tapopa/messenger
   tag: latest
   pullPolicy: IfNotPresent
 
@@ -26,7 +28,7 @@ conf: {}
 
 # Additional labels to apply to all Kubernetes resources created by this chart.
 labels: {}
-  #app.kubernetes.io/part-of: messenger
+  #app.kubernetes.io/part-of: tapopa
 
 deployment:
   replicas: 1
@@ -74,14 +76,14 @@ ingress:
 
   # Hosts must be specified without "www." part.
   hosts:
-    - messenger.test
+    - tapopa.test
 
   tls:
     enabled: no
     auto: no
     # Not required when "auto" is enabled.
     secretName:
-      messenger.test: messenger.test.tls
+      tapopa.test: tapopa.test.tls
 
   httpAuth:
     enabled: no

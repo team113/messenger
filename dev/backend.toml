@@ -17,7 +17,7 @@ sender_id = 985927661367
 [l10n.fluent]
 locales = ["en-US", "ru-RU"]
 [l10n.fluent.refresh]
-url = "https://raw.githubusercontent.com/team113/messenger/14628ecf84fc85105fb6b692a861d70384e0b1cc/assets/l10n"
+url = "https://raw.githubusercontent.com/tapopa/messenger/14628ecf84fc85105fb6b692a861d70384e0b1cc/assets/l10n"
 
 [smtp]
 port = 1025

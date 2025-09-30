@@ -22,7 +22,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" tools:node="remove" />
 
     <application
-        android:label="Gapopa"
+        android:label="Tapopa"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -51,26 +51,19 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="gapopa" />
+                <data android:scheme="tapopa" />
             </intent-filter>
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" android:host="gapopa.com" />
-                <data android:scheme="https" />
-            </intent-filter>
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="http" android:host="gapopa.net" />
+                <data android:scheme="http" android:host="tapopa.com" />
                 <data android:scheme="https" />
             </intent-filter>
         </activity>
         <provider
             android:name="com.superlist.super_native_extensions.DataProvider"
-            android:authorities="com.team113.messenger.SuperClipboardDataProvider"
+            android:authorities="com.tapopa.messenger.SuperClipboardDataProvider"
             android:exported="true"
             android:grantUriPermissions="true" >
         </provider>

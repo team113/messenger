@@ -32,7 +32,7 @@ slugify = $(strip $(shell echo $(2) | tr [:upper:] [:lower:] \
 ######################
 
 NAME := $(strip $(shell grep -m1 'name: ' pubspec.yaml | cut -d' ' -f2))
-OWNER := $(or $(GITHUB_REPOSITORY_OWNER),team113)
+OWNER := $(or $(GITHUB_REPOSITORY_OWNER),tapopa)
 REGISTRIES := $(strip $(subst $(comma), ,\
 	$(shell grep -m1 'registry: \["' .github/workflows/ci.yml \
 	        | cut -d':' -f2 | tr -d '"][')))
@@ -46,7 +46,7 @@ FLUTTER_VER ?= $(strip \
                                                               | tr -d '"'))
 
 FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
-FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
+FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.tapopa.messenger)
 FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
 
 
@@ -420,7 +420,7 @@ appcast-item-ver = $(or $(version),\
 appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=\"$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)\"><![CDATA[$$(cat $(xml))]]></description>)
 
 appcast.xml.item:
-	@echo "<item><title>$(appcast-item-ver)</title>$(if $(call eq,$(notes),),$(appcast-item-notes),<description>$(notes)</description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.xml.item.release,"macos","messenger-macos.zip")$(call appcast.xml.item.release,"windows","messenger-windows.zip")$(call appcast.xml.item.release,"linux","messenger-linux.zip")$(call appcast.xml.item.release,"android","messenger-android.apk")$(call appcast.xml.item.release,"ios","messenger-ios.ipa")</item>" \
+	@echo "<item><title>$(appcast-item-ver)</title>$(if $(call eq,$(notes),),$(appcast-item-notes),<description>$(notes)</description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.xml.item.release,"macos","tapopa-macos.zip")$(call appcast.xml.item.release,"windows","tapopa-windows.zip")$(call appcast.xml.item.release,"linux","tapopa-linux.zip")$(call appcast.xml.item.release,"android","tapopa-android.apk")$(call appcast.xml.item.release,"ios","tapopa-ios.ipa")</item>" \
 	> $(or $(out),appcast/$(appcast-item-ver).xml)
 define appcast.xml.item.release
 <enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
@@ -684,7 +684,7 @@ endif
 
 minikube-mount-pid = $(word 1,$(shell ps | grep -v grep \
                                          | grep 'minikube mount' \
-                                         | grep 'team113-messenger'))
+                                         | grep 'tapopa-messenger'))
 
 # Bootstrap Minikube cluster (local Kubernetes) for development environment.
 #
@@ -727,7 +727,7 @@ endef
 # Helm commands #
 #################
 
-helm-chart := $(or $(chart),messenger)
+helm-chart := $(or $(chart),tapopa-messenger)
 helm-chart-dir := helm/$(helm-chart)
 
 helm-cluster = $(or $(cluster),minikube)
@@ -735,7 +735,7 @@ helm-cluster = $(or $(cluster),minikube)
 helm-release-default = $(strip $(if $(call eq,$(helm-cluster),review),\
 	$(CURRENT_BRANCH),dev))
 helm-release = $(call slugify,40,\
-	messenger$(strip $(if $(call eq,$(helm-cluster),staging),,\
+	tapopa$(strip $(if $(call eq,$(helm-cluster),staging),,\
 	-$(or $(release),$(helm-release-default)))))
 helm-release-namespace = $(strip \
 	$(if $(call eq,$(helm-cluster),staging),staging,\
@@ -797,7 +797,7 @@ endif
 # Lint project Helm chart.
 #
 # Usage:
-#	make helm.lint [chart=messenger]
+#	make helm.lint [chart=tapopa-messenger]
 
 helm.lint:
 	helm lint $(helm-chart-dir)/
@@ -806,7 +806,7 @@ helm.lint:
 # Build Helm package from project Helm chart.
 #
 # Usage:
-#	make helm.package [chart=messenger]
+#	make helm.package [chart=tapopa-messenger]
 #	                  [out-dir=(.cache/helm|<dir-path>)] [clean=(no|yes]]
 
 helm-package-dir = $(or $(out-dir),.cache/helm)
@@ -822,7 +822,7 @@ endif
 # Create and push Git tag to release project Helm chart.
 #
 # Usage:
-#	make helm.release [chart=messenger]
+#	make helm.release [chart=tapopa-messenger]
 
 helm-git-tag = helm/$(helm-chart)/$(strip \
 	$(shell grep -m1 'version: ' $(helm-chart-dir)/Chart.yaml | cut -d' ' -f2))
@@ -867,7 +867,7 @@ ifeq ($(rebuild),yes)
 	@make docker.image no-cache=$(no-cache) minikube=yes tag=dev
 endif
 ifeq ($(minikube-mount-pid),)
-	minikube mount "$(PWD):/mount/team113-messenger" &
+	minikube mount "$(PWD):/mount/tapopa-messenger" &
 endif
 endif
 ifeq ($(helm-cluster),review)

@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -88,9 +90,12 @@ class PubspecBuilder implements Builder {
       // ignore: avoid_print
       print('[PubspecBuilder] `Pubspec.ref` field is set to be `$ref+$count`.');
     } else {
-      throw Exception(
-        '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',
-      );
+      // TODO: Throw `Exception` instead of proceeding once any tag is released.
+      // throw Exception(
+      //   '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',
+      // );
+
+      buffer.write('  static const String ref = version;\n');
     }
 
     buffer.write('}\n');

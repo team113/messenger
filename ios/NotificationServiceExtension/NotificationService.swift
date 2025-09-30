@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -82,7 +84,7 @@ class NotificationService: UNNotificationServiceExtension {
 
   func acknowledgeDelivery(chatId: String) async {
     if let containerURL = FileManager.default.containerURL(
-      forSecurityApplicationGroupIdentifier: "group.com.team113.messenger")
+      forSecurityApplicationGroupIdentifier: "group.com.tapopa.messenger")
     {
       let db = try! Connection("\(containerURL)common.sqlite")
 
@@ -179,7 +181,7 @@ class NotificationService: UNNotificationServiceExtension {
       """
     ]
 
-    let defaults = UserDefaults(suiteName: "group.com.team113.messenger")
+    let defaults = UserDefaults(suiteName: "group.com.tapopa.messenger")
     let baseUrl = defaults!.value(forKey: "url") as! String
     let endpoint = defaults!.value(forKey: "endpoint") as! String
 
@@ -246,7 +248,7 @@ class NotificationService: UNNotificationServiceExtension {
       """
     ]
 
-    let defaults = UserDefaults(suiteName: "group.com.team113.messenger")
+    let defaults = UserDefaults(suiteName: "group.com.tapopa.messenger")
     let baseUrl = defaults!.value(forKey: "url") as! String
     let endpoint = defaults!.value(forKey: "endpoint") as! String
 

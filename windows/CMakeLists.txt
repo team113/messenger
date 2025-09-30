@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(messenger LANGUAGES CXX)
 
-set(BINARY_NAME "Gapopa")
+set(BINARY_NAME "Tapopa")
 
 cmake_policy(SET CMP0063 NEW)
 

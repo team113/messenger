@@ -12,7 +12,7 @@ class MainFlutterWindow: NSWindow {
     self.setFrame(windowFrame, display: true)
 
     let utilsChannel = FlutterMethodChannel(
-      name: "team113.flutter.dev/_utils",
+      name: "tapopa.flutter.dev/_utils",
       binaryMessenger: flutterViewController.engine.binaryMessenger)
 
     utilsChannel.setMethodCallHandler { (call, result) in

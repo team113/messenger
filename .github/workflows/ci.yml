@@ -35,7 +35,7 @@ jobs:
       - pubspec
       - test-e2e
       - test-unit
-      - validate-publish
+      #- validate-publish # TODO: Re-enable once ready to ship iOS and Android.
     runs-on: ubuntu-latest
     steps:
       - run: true
@@ -92,7 +92,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        chart: ["messenger"]
+        chart: ["tapopa-messenger"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -117,7 +117,7 @@ jobs:
 
   validate-publish:
     name: validate (${{ matrix.store }})
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ false }} # TODO: Remove once ready to ship iOS and Android.
     needs: ["build"]
     strategy:
       matrix:
@@ -257,11 +257,11 @@ jobs:
         platform:
           - apk
           - appbundle
-          - ipa
+          - ios # TODO: Replace with `ipa` once Apple team is assigned.
           - macos
           - web
           - windows
-    runs-on: ${{ (contains('ipa macos', matrix.platform) && 'macos-latest')
+    runs-on: ${{ (contains('ios macos', matrix.platform) && 'macos-latest')
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
@@ -276,7 +276,7 @@ jobs:
           channel: stable
           cache: true
       - run: brew install ripgrep
-        if: ${{ matrix.platform == 'ipa' }}
+        if: ${{ matrix.platform == 'ios' }}
       - run: sudo apt-get update
         if: ${{ contains('apk appbundle', matrix.platform) }}
       - run: sudo apt-get install -y ripgrep
@@ -288,10 +288,10 @@ jobs:
       # `git describe` command returns the valid result without possible
       # `-dirty` part, that may happen during FCM configuration.
       - run: make flutter.gen overwrite=true
-        if: ${{ contains('apk appbundle ipa web', matrix.platform) }}
+        if: ${{ contains('apk appbundle ios web', matrix.platform) }}
 
       - run: make flutter.bundle.rename to=${{ secrets.FCM_BUNDLE_ID }}
-        if: ${{ contains('apk appbundle ipa', matrix.platform) }}
+        if: ${{ contains('apk appbundle ios', matrix.platform) }}
 
       - uses: actions/setup-java@v5
         with:
@@ -321,7 +321,8 @@ jobs:
                         platforms="android,ios,web" \
                         web-id=${{ secrets.FCM_WEB_APP_ID }} \
                         bundle-id=${{ secrets.FCM_BUNDLE_ID }}
-        if: ${{ contains('apk appbundle ipa web', matrix.platform) }}
+        # TODO: Include `apk appbundle ipa` once FCM is ready for those.
+        if: ${{ contains('web', matrix.platform) }}
       - name: Configure FCM (Firebase Cloud Messaging) service worker
         run: echo '${{ secrets.FIREBASE_CREDENTIALS_JS }}'
              > web/firebase-credentials.js
@@ -349,7 +350,8 @@ jobs:
           > android/app/keystore.jks
           echo "${{ secrets.ANDROID_PROPERTIES }}" \
           > android/key.properties
-        if: ${{ contains('apk appbundle', matrix.platform) }}
+        # TODO: Re-enable once ready for Android codesign.
+        if: ${{ false && contains('apk appbundle', matrix.platform)}}
 
       - name: Prepare iOS signing resources
         run: |
@@ -389,7 +391,8 @@ jobs:
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_KEY }}
           BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE }}
           P12_PASSWORD: ${{ secrets.IOS_SIGNING_CERTIFICATE_PASSWORD }}
-        if: ${{ matrix.platform == 'ipa' }}
+        # TODO: Re-enable once ready for iOS codesign.
+        if: ${{ false && matrix.platform == 'ipa' }}
 
       # TODO: Add the following `split-debug-info`, when self-hosted Sentry
       #       supports debug symbols:
@@ -398,13 +401,12 @@ jobs:
       #       https://github.com/getsentry/sentry-dart/issues/433
       #       https://github.com/getsentry/sentry-dart/issues/896
       - run: make flutter.build platform=${{ matrix.platform }}
-                  export-options="$HOME/export_options.plist"
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_APPCAST_URL=${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_STABLE || secrets.APPCAST_MAIN }}
-                            SOCAPP_DOWNLOADS_DOWNLOADABLE=${{ !startsWith(github.ref, 'refs/tags/v') || !contains('appbundle ipa', matrix.platform) }}
+                            SOCAPP_DOWNLOADS_DOWNLOADABLE=${{ !startsWith(github.ref, 'refs/tags/v') || !contains('appbundle ios', matrix.platform) }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
@@ -463,7 +465,8 @@ jobs:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.MACOS_PROVISION_PROFILE }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           P12_PASSWORD: ${{ secrets.MACOS_SIGNING_CERTIFICATE_PASSWORD }}
-        if: ${{ matrix.platform == 'macos' }}
+        # TODO: Re-enable once ready for macOS codesign.
+        if: ${{ false && matrix.platform == 'macos' }}
 
       - name: Parse application name from Git repository name
         id: app
@@ -481,7 +484,12 @@ jobs:
         if: ${{ matrix.platform == 'appbundle' }}
       - run: mv build/ios/ipa/messenger.ipa
                 artifacts/${{ steps.app.outputs.group1 }}-ios.ipa
-        if: ${{ matrix.platform == 'ipa' }}
+        # TODO: Re-enable once `ipa` is re-enabled.
+        if: ${{ false && matrix.platform == 'ipa' }}
+      # TODO: Remove once `ipa` is re-enabled.
+      - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
+        working-directory: build/ios/iphoneos/
+        if: ${{ matrix.platform == 'ios' }}
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
@@ -505,7 +513,8 @@ jobs:
           APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
           TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
           PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
-        if: ${{ matrix.platform == 'macos'
+        # TODO: Re-enable once ready for macOS notarization.
+        if: ${{ false && matrix.platform == 'macos'
              && (github.ref == 'refs/heads/main'
                  || startsWith(github.ref, 'refs/tags/v')) }}
 
@@ -515,10 +524,12 @@ jobs:
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
           directory: ${{ (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
+                      || (matrix.platform == 'ios'
+                          && 'build/ios/iphoneos/dist')
                       || (matrix.platform == 'windows'
                           && 'build/windows/x64/runner/Release')
                       ||     'build/web'}}
-        if: ${{ contains('macos web windows', matrix.platform) }}
+        if: ${{ contains('ios macos web windows', matrix.platform) }}
 
       - name: Generate SHA256 checksums
         run: ${{ (runner.os == 'Windows'
@@ -577,14 +588,16 @@ jobs:
           source $RUNNER_TEMP/venv/bin/activate
           security delete-keychain $(keychain get-default)
           keychain use-login
-        if: ${{ always()
+        # TODO: Re-enable once ready for iOS codesign.
+        if: ${{ false && always()
              && matrix.platform == 'ipa' }}
 
       - name: Cleanup macOS codesign resources
         run: |
           rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.provisionprofile
           security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-        if: ${{ always()
+        # TODO: Re-enable once ready for macOS codesign.
+        if: ${{ false && always()
              && matrix.platform == 'macos' }}
 
   build-linux:
@@ -737,26 +750,32 @@ jobs:
         with:
           name: build-apk-${{ github.run_number }}
           path: build/web/artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship Android.
       - uses: actions/download-artifact@v5
         with:
           name: build-appbundle-${{ github.run_number }}
           path: build/web/artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship Android.
       - uses: actions/download-artifact@v5
         with:
           name: build-ipa-${{ github.run_number }}
           path: build/web/artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship iOS.
       - uses: actions/download-artifact@v5
         with:
           name: build-linux-${{ github.run_number }}
           path: build/web/artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship Linux.
       - uses: actions/download-artifact@v5
         with:
           name: build-macos-${{ github.run_number }}
           path: build/web/artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship macOS.
       - uses: actions/download-artifact@v5
         with:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship Windows.
 
       # TODO: Refactor when actions/download-artifact#176 is implemented:
       #       https://github.com/actions/download-artifact/issues/176
@@ -843,7 +862,7 @@ jobs:
           envkey_COMPOSE_FRONTEND_IMAGE: nginx
           envkey_COMPOSE_FRONTEND_TAG: stable-alpine
           envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
-          envkey_COMPOSE_PROJECT_NAME: messenger
+          envkey_COMPOSE_PROJECT_NAME: tapopa
           envkey_COMPOSE_VAULT: ${{ secrets.E2E_VAULT }}
           fail_on_empty: true
 
@@ -920,7 +939,7 @@ jobs:
       # Skip if this is fork and no credentials are provided.
       - id: skip
         run: echo "no=${{ !(
-               github.repository_owner != 'team113'
+               github.repository_owner != 'tapopa'
                && ((matrix.registry == 'quay.io'
                     && secrets.QUAYIO_ROBOT_USER == '')
                 || (matrix.registry == 'docker.io'
@@ -1023,7 +1042,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        chart: ["messenger"]
+        chart: ["tapopa-messenger"]
     runs-on: ubuntu-latest
     steps:
       - id: skip
@@ -1123,8 +1142,7 @@ jobs:
   #       the same `versionCode`, because Google Play expects it to be unique
   #       and errors on duplicates uploading.
   publish:
-    if: ${{ github.ref == 'refs/heads/main'
-         || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ false }} # TODO: Remove once ready to ship iOS and Android.
     needs:
       - build
       - build-linux
@@ -1234,7 +1252,7 @@ jobs:
       - dartdoc
       - dartfmt
       - docker-push
-      - publish
+      #- publish # TODO: Re-enable once ready to ship iOS and Android.
       - test-e2e
       - test-unit
     runs-on: ubuntu-latest
@@ -1265,22 +1283,27 @@ jobs:
         with:
           name: build-apk-${{ github.run_number }}
           path: artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship Android.
       - uses: actions/download-artifact@v5
         with:
           name: build-appbundle-${{ github.run_number }}
           path: artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship Android.
       - uses: actions/download-artifact@v5
         with:
           name: build-ipa-${{ github.run_number }}
           path: artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship iOS.
       - uses: actions/download-artifact@v5
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship Linux.
       - uses: actions/download-artifact@v5
         with:
           name: build-macos-${{ github.run_number }}
           path: artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship macOS.
       - uses: actions/download-artifact@v5
         with:
           name: build-web-${{ github.run_number }}
@@ -1289,6 +1312,7 @@ jobs:
         with:
           name: build-windows-${{ github.run_number }}
           path: artifacts/
+        if: ${{ false }} # TODO: Re-enable once ready to ship Windows.
 
       - uses: actions/download-artifact@v5
         with:

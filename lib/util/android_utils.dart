@@ -20,7 +20,7 @@ import 'package:flutter/services.dart';
 /// Helper providing direct access to Android-only features.
 class AndroidUtils {
   /// [MethodChannel] to communicate with Android via.
-  static const platform = MethodChannel('team113.flutter.dev/android_utils');
+  static const platform = MethodChannel('tapopa.flutter.dev/android_utils');
 
   /// Indicates whether this device has a permission to draw overlays.
   static Future<bool> canDrawOverlays() async {

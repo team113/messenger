@@ -28,7 +28,7 @@ def propertiesFile = rootProject.file('key.properties')
 def hasProperties = propertiesFile.exists()
 
 android {
-    namespace 'com.team113.messenger'
+    namespace 'com.tapopa.messenger'
 
     ndkVersion "27.0.12077973"
     compileSdkVersion 36
@@ -55,7 +55,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.team113.messenger"
+        applicationId "com.tapopa.messenger"
         minSdkVersion 24
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
@@ -83,7 +83,7 @@ android {
             }
         }
     }
-    namespace 'com.team113.messenger'
+    namespace 'com.tapopa.messenger'
 }
 
 flutter {

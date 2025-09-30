@@ -6,10 +6,10 @@
 
 // The application's name. By default this is also the title of the Flutter
 // window.
-PRODUCT_NAME = Gapopa
+PRODUCT_NAME = Tapopa
 
 // The application's bundle identifier.
-PRODUCT_BUNDLE_IDENTIFIER = com.team113.messenger
+PRODUCT_BUNDLE_IDENTIFIER = com.tapopa.messenger
 
 // The copyright displayed in application information.
-PRODUCT_COPYRIGHT = Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 Ideas Networks Solutions S.A. All rights reserved.

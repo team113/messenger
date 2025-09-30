@@ -1,6 +1,8 @@
 /*
  * Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
  *                       <https://github.com/team113>
+ * Copyright © 2025 Ideas Networks Solutions S.A.,
+ *                       <https://github.com/tapopa>
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,7 +19,7 @@
  * <https://www.gnu.org/licenses/agpl-3.0.html>.
  */
 
-package com.team113.messenger
+package com.tapopa.messenger
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -37,7 +39,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.util.Locale
 
 class MainActivity : FlutterActivity() {
-    private val utilsChannel = "team113.flutter.dev/android_utils"
+    private val utilsChannel = "tapopa.flutter.dev/android_utils"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

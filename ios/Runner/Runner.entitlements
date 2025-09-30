@@ -6,12 +6,11 @@
   <string>development</string>
   <key>com.apple.developer.associated-domains</key>
   <array>
-    <string>applinks:gapopa.com</string>
-    <string>applinks:gapopa.net</string>
+    <string>applinks:tapopa.com</string>
   </array>
   <key>com.apple.security.application-groups</key>
   <array>
-    <string>group.com.team113.messenger</string>
+    <string>group.com.tapopa.messenger</string>
   </array>
 </dict>
 </plist>

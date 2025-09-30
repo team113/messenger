@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "IT ENGINEERING MANAGEMENT INC." "\0"
-            VALUE "FileDescription", "Messenger by Gapopa." "\0"
+            VALUE "CompanyName", "Ideas Networks Solutions S.A." "\0"
+            VALUE "FileDescription", "Messenger by Tapopa." "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "messenger" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2022-2025 IT ENGINEERING MANAGEMENT INC. All rights reserved." "\0"
-            VALUE "OriginalFilename", "Gapopa.exe" "\0"
-            VALUE "ProductName", "Gapopa" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 Ideas Networks Solutions S.A. All rights reserved." "\0"
+            VALUE "OriginalFilename", "Tapopa.exe" "\0"
+            VALUE "ProductName", "Tapopa" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

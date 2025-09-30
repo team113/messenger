@@ -1,6 +1,8 @@
 {{- /*
 Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
                       <https://github.com/team113>
+Copyright © 2025 Ideas Networks Solutions S.A.,
+                      <https://github.com/tapopa>
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,7 +22,7 @@ along with this program. If not, see
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "messenger.name" -}}
+{{- define "tapopa-messenger.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 55 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -30,7 +32,7 @@ We truncate at 55 chars because some Kubernetes name fields are limited to this
 (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "messenger.fullname" -}}
+{{- define "tapopa-messenger.fullname" -}}
 {{- if .Values.fullnameOverride -}}
   {{- .Values.fullnameOverride | trunc 55 | trimSuffix "-" -}}
 {{- else -}}
@@ -46,6 +48,6 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "messenger.chart" -}}
+{{- define "tapopa-messenger.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 55 | trimSuffix "-" -}}
 {{- end -}}

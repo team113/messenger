@@ -1,5 +1,7 @@
 # Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -702,9 +704,9 @@ label_media_semicolon_amount = Медиа: {$amount}
 label_message = Сообщение
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас
 label_messages_will_deleted_for_you = Сообщения будут удалены только для Вас
-label_messenger_full = Мессенджер от Gapopa
+label_messenger_full = Мессенджер от Tapopa
 label_messenger1 = Мессенджер
-label_messenger2 = от Gapopa
+label_messenger2 = от Tapopa
 label_microphone_changed = Микрофон был изменён на {$microphone}
 label_mobile_apps = Мобильные приложения
 label_money = Деньги

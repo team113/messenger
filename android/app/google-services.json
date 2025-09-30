@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:985927661367:android:2f4015706b53ae9f5c0cb2",
         "android_client_info": {
-          "package_name": "com.team113.messenger"
+          "package_name": "com.tapopa.messenger"
         }
       },
       "oauth_client": [
@@ -34,7 +34,7 @@
               "client_id": "985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.team113.messenger"
+                "bundle_id": "com.tapopa.messenger"
               }
             }
           ]

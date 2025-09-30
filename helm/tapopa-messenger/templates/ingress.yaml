@@ -1,5 +1,7 @@
 # Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,11 +23,11 @@
 kind: Ingress
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: {{ printf "%s.%s" (include "messenger.fullname" $) $host | quote }}
+  name: {{ printf "%s.%s" (include "tapopa-messenger.fullname" $) $host | quote }}
   namespace: {{ $.Release.Namespace | quote }}
   labels:
-    helm.sh/chart: {{ include "messenger.chart" $ | quote }}
-    app.kubernetes.io/name: {{ include "messenger.name" $ | quote }}
+    helm.sh/chart: {{ include "tapopa-messenger.chart" $ | quote }}
+    app.kubernetes.io/name: {{ include "tapopa-messenger.name" $ | quote }}
     app.kubernetes.io/instance: {{ $.Release.Name | quote }}
     app.kubernetes.io/managed-by: {{ $.Release.Service | quote }}
   {{- with $.Values.labels }}
@@ -40,7 +42,7 @@ metadata:
   {{- end }}
   {{- if $.Values.ingress.httpAuth.enabled }}
     nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: {{ printf "%s.htpasswd" (include "messenger.fullname" $) | quote }}
+    nginx.ingress.kubernetes.io/auth-secret: {{ printf "%s.htpasswd" (include "tapopa-messenger.fullname" $) | quote }}
     nginx.ingress.kubernetes.io/auth-realm: Authentication Required
   {{- end }}
     nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
@@ -57,7 +59,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include "messenger.fullname" $ | quote }}
+                name: {{ include "tapopa-messenger.fullname" $ | quote }}
                 port:
                   name: http
   {{- end }}

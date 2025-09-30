@@ -1,7 +1,7 @@
 # Extends `staging.vals.yaml` for `review` cluster.
 
 image:
-  repository: ghcr.io/team113/messenger/review
+  repository: ghcr.io/tapopa/messenger/review
   tag: auto-injected  # see Makefile
 
 ingress:

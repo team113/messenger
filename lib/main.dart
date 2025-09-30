@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -398,8 +400,8 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       await FlutterCallkitIncoming.showCallkitIncoming(
         CallKitParams(
           id: chatId.val,
-          nameCaller: message.notification?.title ?? 'gapopa',
-          appName: 'Gapopa',
+          nameCaller: message.notification?.title ?? 'tapopa',
+          appName: 'Tapopa',
           avatar: '', // TODO: Add avatar to FCM notifications.
           handle: chatId.val,
           type: 0,
@@ -634,7 +636,7 @@ class App extends StatelessWidget {
         routerDelegate: router.delegate,
         routeInformationParser: router.parser,
         routeInformationProvider: router.provider,
-        onGenerateTitle: (context) => 'Gapopa',
+        onGenerateTitle: (context) => 'Tapopa',
         theme: Themes.light(),
         themeMode: ThemeMode.light,
         debugShowCheckedModeBanner: false,

@@ -20,7 +20,7 @@ import 'package:flutter/services.dart';
 /// Helper providing direct access to macOS-only features.
 class MacosUtils {
   /// [MethodChannel] to communicate with macOS via.
-  static const _platform = MethodChannel('team113.flutter.dev/macos_utils');
+  static const _platform = MethodChannel('tapopa.flutter.dev/macos_utils');
 
   /// Removes the delivered notifications containing the provided [thread].
   static Future<bool> cancelNotificationsContaining(String thread) async {

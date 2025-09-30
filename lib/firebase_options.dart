@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -86,7 +88,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'messenger-3872c.appspot.com',
     iosClientId:
         '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
-    iosBundleId: 'com.team113.messenger',
+    iosBundleId: 'com.tapopa.messenger',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -97,6 +99,6 @@ class DefaultFirebaseOptions {
     storageBucket: 'messenger-3872c.appspot.com',
     iosClientId:
         '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
-    iosBundleId: 'com.team113.messenger',
+    iosBundleId: 'com.tapopa.messenger',
   );
 }

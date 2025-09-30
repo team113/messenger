@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,46 +24,46 @@ import 'package:messenger/ui/page/home/page/my_profile/session/controller.dart';
 
 void main() async {
   test('UserAgentExtension returns correct names of `User-Agent` header', () {
-    Config.userAgentProduct = 'Gapopa';
+    Config.userAgentProduct = 'Tapopa';
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (macOS Version 13.3.1 (Build 22E261); MacBookPro18,2; Darwin Kernel Version 22.4.0: Mon Mar  6 20:59:28 PST 2023; root:xnu-8796.101.5 ~3/RELEASE_ARM64_T6000; arm64 Apple M1 Max; E08855EB-C338-5EDC-B046-713AC743BA90)',
+        'Tapopa/0.1.0-alpha.8 (macOS Version 13.3.1 (Build 22E261); MacBookPro18,2; Darwin Kernel Version 22.4.0: Mon Mar  6 20:59:28 PST 2023; root:xnu-8796.101.5 ~3/RELEASE_ARM64_T6000; arm64 Apple M1 Max; E08855EB-C338-5EDC-B046-713AC743BA90)',
       ).localized,
       'MacBook Pro (16-inch, 2021)',
     );
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (Windows 10 Pro; 21H2; build 19041.1.amd64fre.vb_release.191206-1406; x64; {487C0C09-4B5F-407F-9C26-313F31B79F06})',
+        'Tapopa/0.1.0-alpha.8 (Windows 10 Pro; 21H2; build 19041.1.amd64fre.vb_release.191206-1406; x64; {487C0C09-4B5F-407F-9C26-313F31B79F06})',
       ).localized,
       'Windows 10 Pro',
     );
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (Ubuntu 22.04 LTS; 5.15.0-48-generic; aarch64; 3787c48ab74047b28638ef2ddc97be6c)',
+        'Tapopa/0.1.0-alpha.8 (Ubuntu 22.04 LTS; 5.15.0-48-generic; aarch64; 3787c48ab74047b28638ef2ddc97be6c)',
       ).localized,
       'Ubuntu 22.04 LTS',
     );
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (Android 13; Xiaomi M2101K7BNY; V14.0.1.0.TKLRUXM (build Redmi/rosemary_ru/rosemary:13/TP1A.220624.014/V14.0.1.0.TKLRUXM:user/release-keys); SDK 33; aarch64 mt6785; TP1A.220624.014)',
+        'Tapopa/0.1.0-alpha.8 (Android 13; Xiaomi M2101K7BNY; V14.0.1.0.TKLRUXM (build Redmi/rosemary_ru/rosemary:13/TP1A.220624.014/V14.0.1.0.TKLRUXM:user/release-keys); SDK 33; aarch64 mt6785; TP1A.220624.014)',
       ).localized,
       'Xiaomi M2101K7BNY',
     );
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (iOS 16.5.1; iPhone15,3; Darwin Kernel Version 22.5.0: Thu Jun  8 17:15:47 PDT 2023; root:xnu-8796.122.5~1/RELEASE_ARM64_T8120; ARM64E; E56728D4-9546-4236-8748-CA98599E452B)',
+        'Tapopa/0.1.0-alpha.8 (iOS 16.5.1; iPhone15,3; Darwin Kernel Version 22.5.0: Thu Jun  8 17:15:47 PDT 2023; root:xnu-8796.122.5~1/RELEASE_ARM64_T8120; ARM64E; E56728D4-9546-4236-8748-CA98599E452B)',
       ).localized,
       'iPhone 14 Pro Max',
     );
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (iPadOS 17.4.1; iPad8,11; Darwin Kernel Version 23.4.0: Fri Mar  8 23:30:38 PST 2024; root:xnu-10063.102.14~67/RELEASE_ARM64_T8020; ARM64E; E6215ED0-2E82-49A9-A656-5C5CB5025D06)',
+        'Tapopa/0.1.0-alpha.8 (iPadOS 17.4.1; iPad8,11; Darwin Kernel Version 23.4.0: Fri Mar  8 23:30:38 PST 2024; root:xnu-10063.102.14~67/RELEASE_ARM64_T8020; ARM64E; E6215ED0-2E82-49A9-A656-5C5CB5025D06)',
       ).localized,
       'iPad Pro (12.9-inch) (4th generation)',
     );
@@ -101,33 +103,33 @@ void main() async {
 
     expect(
       const UserAgent(
-        'Gapopa/0.1.0-alpha.8 (fqw fgq bad 12312312312312',
+        'Tapopa/0.1.0-alpha.8 (fqw fgq bad 12312312312312',
       ).localized,
       'fqw fgq bad 12312312312312',
     );
 
     expect(
-      const UserAgent('Gapopa/0.1.0-alpha.8').localized,
-      'Gapopa/0.1.0-alpha.8',
+      const UserAgent('Tapopa/0.1.0-alpha.8').localized,
+      'Tapopa/0.1.0-alpha.8',
     );
 
     expect(
       const UserAgent(
-        'Gapopa/1.5.2 (Windows 10 Pro; 21H2; build 19041.1.amd64fre.vb_release.191206-1406; x64; {487C0C09-4B5F-407F-9C26-313F31B79F06})',
+        'Tapopa/1.5.2 (Windows 10 Pro; 21H2; build 19041.1.amd64fre.vb_release.191206-1406; x64; {487C0C09-4B5F-407F-9C26-313F31B79F06})',
       ).localized,
       'Windows 10 Pro',
     );
 
     expect(
       const UserAgent(
-        'Gapopa (Windows 10 Pro; 21H2; build 19041.1.amd64fre.vb_release.191206-1406; x64; {487C0C09-4B5F-407F-9C26-313F31B79F06})',
+        'Tapopa (Windows 10 Pro; 21H2; build 19041.1.amd64fre.vb_release.191206-1406; x64; {487C0C09-4B5F-407F-9C26-313F31B79F06})',
       ).localized,
       'Windows 10 Pro',
     );
 
     expect(
       const UserAgent(
-        'Gapopa 123 5.6. 123 (Windows 10 Pro; 21H2; build 19041.1.amd64fre.vb_release.191206-1406; x64; {487C0C09-4B5F-407F-9C26-313F31B79F06})',
+        'Tapopa 123 5.6. 123 (Windows 10 Pro; 21H2; build 19041.1.amd64fre.vb_release.191206-1406; x64; {487C0C09-4B5F-407F-9C26-313F31B79F06})',
       ).localized,
       'Windows 10 Pro',
     );

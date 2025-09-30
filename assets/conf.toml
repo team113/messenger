@@ -69,12 +69,12 @@
 # URL address of the application entry in App Store.
 #
 # Default:
-#   app_store_url = "https://apps.apple.com/app/gapopa/id6444211477"
+#   app_store_url = ""
 
 # URL address of the application entry in Google Play.
 #
 # Default:
-#   google_play_url = "https://play.google.com/store/apps/details?id=com.team113.messenger"
+#   google_play_url = ""
 
 [user.agent]
 # Product identifier of `User-Agent` header to put in network queries.
@@ -82,7 +82,7 @@
 # Unused for Web, as browser picks the `User-Agent` itself.
 #
 # Default:
-#   product = "Gapopa"
+#   product = "Tapopa"
 
 # Product version of `User-Agent` header to put in network queries.
 #
@@ -136,7 +136,7 @@
 # The trailing `://` should be omitted.
 #
 # Default:
-#   scheme = "gapopa"
+#   scheme = "tapopa"
 
 [appcast]
 # URL of a Sparkle Appcast XML file.
@@ -155,12 +155,12 @@
 # Email address of the support service users can reach on the support page.
 #
 # Default:
-#   support = "admin@gapopa.com"
+#   support = "admin@tapopa.com"
 
 # URL of the repository (or anything else) for users to report bugs to.
 #
 # Default:
-#   repository = "https://github.com/team113/messenger/issues"
+#   repository = "https://github.com/tapopa/messenger/issues"
 
 [geo]
 # URL address of IP geolocation API server.

@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Gapopa</string>
+	<string>Tapopa</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -28,10 +28,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 			<key>CFBundleURLName</key>
-			<string>com.team113.messenger</string>
+			<string>com.tapopa.messenger</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>gapopa</string>
+				<string>tapopa</string>
 			</array>
 		</dict>
 	</array>

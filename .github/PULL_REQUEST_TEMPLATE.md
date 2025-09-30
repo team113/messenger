@@ -60,6 +60,6 @@ Related to <paste issues/PRs references>
 
 
 [l:1]: https://help.github.com/en/articles/about-pull-requests#draft-pull-requests
-[l:2]: https://github.com/team113/messenger/blob/main/CONTRIBUTING.md#code-style
-[l:3]: https://github.com/team113/messenger/blob/main/CHANGELOG.md
+[l:2]: https://github.com/tapopa/messenger/blob/main/CONTRIBUTING.md#code-style
+[l:3]: https://github.com/tapopa/messenger/blob/main/CHANGELOG.md
 [l:4]: https://help.github.com/en/articles/reviewing-changes-in-pull-requests

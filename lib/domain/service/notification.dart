@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -260,7 +262,7 @@ class NotificationService extends DisposableService {
             '      </binding>'
             '  </visual>'
             '</toast>',
-        tag: 'Gapopa',
+        tag: 'Tapopa',
       );
     } else {
       String? imagePath;
@@ -398,8 +400,8 @@ class NotificationService extends DisposableService {
       WebUtils.onSelectNotification = onResponse;
     } else if (PlatformUtils.isWindows) {
       await WinToast.instance().initialize(
-        aumId: 'team113.messenger',
-        displayName: 'Gapopa',
+        aumId: 'tapopa.messenger',
+        displayName: 'Tapopa',
         iconPath: kDebugMode
             ? File(r'assets\icons\app_icon.ico').absolute.path
             : File(
