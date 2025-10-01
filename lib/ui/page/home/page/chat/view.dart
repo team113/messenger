@@ -174,6 +174,7 @@ class ChatView extends StatelessWidget {
               child: Shortcuts(
                   shortcuts: {
                     LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF): const _SearchAction(),
+                    LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyF): const _SearchAction(),
                   },
                   child: CustomDropTarget(
             key: Key('ChatView_$id'),
