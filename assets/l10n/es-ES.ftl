@@ -123,6 +123,7 @@ btn_call_video_off_desc =
 btn_call_video_on = Activar el video
 btn_camera = Cámara
 btn_cancel = Cancelar
+btn_cancel_selection = Cancelar selección
 btn_call_video_on_desc =
     Activar
     el video
