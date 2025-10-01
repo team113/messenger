@@ -49,8 +49,7 @@ import '/provider/gql/exceptions.dart'
         ToggleChatMuteException,
         UnblockUserException,
         UnfavoriteChatContactException,
-        UnfavoriteChatException,
-        UpdateChatContactNameException;
+        UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
