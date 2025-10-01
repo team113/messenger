@@ -1296,6 +1296,18 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData unselect = SvgData(
+    'assets/icons/unselect.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData unselectWhite = SvgData(
+    'assets/icons/unselect_white.svg',
+    width: 19,
+    height: 19,
+  );
+
   static const SvgData centerVideo = SvgData(
     'assets/icons/center_video.svg',
     width: 22.5,

@@ -123,6 +123,7 @@ btn_call_video_off_desc =
 btn_call_video_on = Включить камеру
 btn_camera = Камера
 btn_cancel = Отменить
+btn_cancel_selection = Отменить выбор
 btn_call_video_on_desc =
     Включить
     камеру

@@ -126,6 +126,7 @@ btn_call_video_on_desc =
     video on
 btn_camera = Camera
 btn_cancel = Cancel
+btn_cancel_selection = Cancel selection
 btn_change = Change
 btn_change_account_desc =
     Change
