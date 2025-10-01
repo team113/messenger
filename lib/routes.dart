@@ -83,9 +83,7 @@ import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/popup_gallery/view.dart';
 import 'ui/page/style/view.dart';
-import 'ui/page/support/view.dart';
 import 'ui/page/unknown/view.dart';
-import 'ui/page/work/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
 import 'ui/widget/progress_indicator.dart';
 import 'ui/worker/call.dart';
@@ -103,20 +101,28 @@ late RouterState router;
 
 /// Application routes names.
 class Routes {
+  static const affiliate = '/partner/affiliate';
   static const auth = '/';
   static const call = '/call';
   static const chatDirectLink = '/~';
   static const chatInfo = '/info';
   static const chats = '/chats';
   static const contacts = '/contacts';
+  static const deposit = '/wallet/deposit';
   static const erase = '/erase';
   static const gallery = '/gallery';
   static const home = '/';
   static const me = '/me';
   static const menu = '/menu';
-  static const support = '/support';
+  static const partner = '/partner';
+  static const partnerTransactions = '/partner/transactions';
+  static const prices = '/partner/prices';
+  static const promotion = '/partner/promotion';
+  static const statistics = '/partner/statistics';
   static const user = '/user';
-  static const work = '/work';
+  static const wallet = '/wallet';
+  static const walletTransactions = '/wallet/transactions';
+  static const withdraw = '/partner/withdraw';
 
   // TODO: Dirty hack used to reinitialize the dependencies when changing
   //       accounts, should remove it.
@@ -130,10 +136,7 @@ class Routes {
 }
 
 /// List of [Routes.home] page tabs.
-enum HomeTab { link, chats, menu }
-
-/// List of [Routes.work] page sections.
-enum WorkTab { frontend, backend, freelance }
+enum HomeTab { wallet, partner, chats, menu }
 
 /// List of [Routes.me] page sections.
 enum ProfileTab {
@@ -150,7 +153,6 @@ enum ProfileTab {
   download,
   legal,
   danger,
-  support,
   logout,
 }
 
@@ -288,11 +290,12 @@ class RouterState extends ChangeNotifier {
         final String split = routes.last.split('/').last;
         String last = routes.last.replaceFirst('/$split', '');
         if (last == '' ||
-            (_auth.status.value.isSuccess && last == Routes.work) ||
             last == Routes.contacts ||
             last == Routes.chats ||
             last == Routes.menu ||
-            last == Routes.user) {
+            last == Routes.user ||
+            last == Routes.wallet ||
+            last == Routes.partner) {
           last = Routes.home;
         }
 
@@ -337,9 +340,9 @@ class RouterState extends ChangeNotifier {
   /// - [Routes.home] is allowed always.
   /// - Any other page is allowed to visit only on success auth status.
   String _guarded(String to) {
-    if (to.startsWith(Routes.work) ||
+    if (to.startsWith(Routes.wallet) ||
         to.startsWith(Routes.erase) ||
-        to.startsWith(Routes.support) ||
+        to.startsWith(Routes.partner) ||
         to.startsWith(Routes.chatDirectLink)) {
       return to;
     }
@@ -433,7 +436,14 @@ class AppRouteInformationParser
     // If logged in and on [Routes.home] page, then modify the URL's route.
     if (configuration.authorized && configuration.route == Routes.home) {
       switch (configuration.tab!) {
-        case HomeTab.link:
+        case HomeTab.wallet:
+          route = Routes.wallet;
+          break;
+
+        case HomeTab.partner:
+          route = Routes.partner;
+          break;
+
         case HomeTab.chats:
           route = Routes.chats;
           break;
@@ -1078,28 +1088,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           ),
         ),
       );
-    } else if (_state.route.startsWith(Routes.work)) {
-      return const [
-        MaterialPage(
-          key: ValueKey('WorkPage'),
-          name: Routes.work,
-          child: WorkView(),
-        ),
-      ];
     } else if (_state.route.startsWith(Routes.erase)) {
       return const [
         MaterialPage(
           key: ValueKey('ErasePage'),
           name: Routes.erase,
           child: EraseView(),
-        ),
-      ];
-    } else if (_state.route.startsWith(Routes.support)) {
-      return const [
-        MaterialPage(
-          key: ValueKey('SupportPage'),
-          name: Routes.support,
-          child: SupportView(),
         ),
       ];
     } else if (_state.route.startsWith(Routes.chatDirectLink)) {
@@ -1124,9 +1118,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     if (_state.route.startsWith(Routes.chats) ||
         _state.route.startsWith(Routes.contacts) ||
         _state.route.startsWith(Routes.user) ||
-        _state.route.startsWith(Routes.work) ||
+        _state.route.startsWith(Routes.wallet) ||
         _state.route.startsWith(Routes.erase) ||
-        _state.route.startsWith(Routes.support) ||
+        _state.route.startsWith(Routes.partner) ||
         _state.route.startsWith(Routes.chatDirectLink) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
@@ -1175,7 +1169,14 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
-        case HomeTab.link:
+        case HomeTab.wallet:
+          WebUtils.title('$prefix${'label_tab_wallet'.l10n}');
+          break;
+
+        case HomeTab.partner:
+          WebUtils.title('$prefix${'label_tab_partner'.l10n}');
+          break;
+
         case HomeTab.chats:
           WebUtils.title('$prefix${'label_tab_chats'.l10n}');
           break;
@@ -1269,14 +1270,6 @@ extension RouteLinks on RouterState {
   void chatInfo(ChatId id, {bool push = false}) =>
       (push ? this.push : go)('${Routes.chats}/$id${Routes.chatInfo}');
 
-  /// Changes router location to the [Routes.work] page.
-  void work(WorkTab? tab, {bool push = false}) => (push ? this.push : go)(
-    '${Routes.work}${tab == null ? '' : '/${tab.name}'}',
-  );
-
-  /// Changes router location to the [Routes.support] page.
-  void support({bool push = false}) => (push ? this.push : go)(Routes.support);
-
   /// Changes router location to the [Routes.style] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
@@ -1290,6 +1283,36 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.erase] page.
   void erase({bool push = false}) => (push ? this.push : go)(Routes.erase);
+
+  /// Changes router location to the [Routes.affiliate] page.
+  void affiliate({bool push = false}) =>
+      (push ? this.push : go)(Routes.affiliate);
+
+  /// Changes router location to the [Routes.erase] page.
+  void promotion({bool push = false}) =>
+      (push ? this.push : go)(Routes.promotion);
+
+  /// Changes router location to the [Routes.prices] page.
+  void prices({bool push = false}) => (push ? this.push : go)(Routes.prices);
+
+  /// Changes router location to the [Routes.statistics] page.
+  void statistics({bool push = false}) =>
+      (push ? this.push : go)(Routes.statistics);
+
+  /// Changes router location to the [Routes.withdraw] page.
+  void withdraw({bool push = false}) =>
+      (push ? this.push : go)(Routes.withdraw);
+
+  /// Changes router location to the [Routes.partnerTransactions] page.
+  void partnerTransactions({bool push = false}) =>
+      (push ? this.push : go)(Routes.partnerTransactions);
+
+  /// Changes router location to the [Routes.walletTransactions] page.
+  void walletTransactions({bool push = false}) =>
+      (push ? this.push : go)(Routes.walletTransactions);
+
+  /// Changes router location to the [Routes.deposit] page.
+  void deposit({bool push = false}) => (push ? this.push : go)(Routes.deposit);
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

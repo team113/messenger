@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -299,7 +301,6 @@ extension L10nProfileTabExtension on ProfileTab {
       ProfileTab.download => 'label_download_and_update'.l10n,
       ProfileTab.danger => 'btn_delete_account'.l10n,
       ProfileTab.legal => 'label_terms_and_privacy_policy'.l10n,
-      ProfileTab.support => 'btn_help'.l10n,
       ProfileTab.logout => 'btn_logout'.l10n,
     };
   }
@@ -370,5 +371,29 @@ extension CapitalizedString on String {
     }
 
     return '${substring(0, 1).toUpperCase()}${substring(1, length)}';
+  }
+}
+
+/// Extension adding method converting a [num] to a [String] with digits spaced.
+extension SpacesNumExtension on num {
+  /// Returns this [num] parsed with spaces between thousands.
+  String get withSpaces {
+    if (this is double) {
+      return toStringAsFixed(2);
+    }
+
+    String value = toString();
+
+    int len = value.length;
+    int thousand = 3;
+
+    while (len > thousand) {
+      value =
+          '${value.substring(0, len - thousand)} ${value.substring(len - thousand, value.length)}';
+      thousand += 4;
+      len += 1;
+    }
+
+    return value;
   }
 }

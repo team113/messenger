@@ -39,6 +39,8 @@ btn_add_account = Add account
 btn_add_account_with_desc =
     Add
     account
+btn_add_funds = Top up wallet
+btn_add_funds_subtitle = PayPal
 btn_add_participant = Add member
 btn_add_participant_desc =
     Add
@@ -133,7 +135,6 @@ btn_change_account_desc =
     Change
     account
 btn_change_password = Change password
-btn_check_for_updates = Check for updates
 btn_clear = Clear
 btn_clear_cache = Clear cache
 btn_clear_chat = Clear chat
@@ -163,7 +164,6 @@ btn_download_as = Download as
 btn_download_version = Download {$version}
 btn_edit = Edit
 btn_email = E-mail
-btn_feedback = Feedback
 btn_file = File
 btn_find_in_chat = Find in chat
 btn_forgot_password = Forgot your password?
@@ -171,7 +171,6 @@ btn_forward = Forward
 btn_forward_message = Forward message
 btn_gallery = Gallery
 btn_guest = Guest
-btn_help = Help
 btn_hide = Hide
 btn_hide_interface = Hide interface
 btn_info = Information
@@ -182,20 +181,24 @@ btn_leave_group = Leave group
 btn_login_and_password = Login and password
 btn_logout = Sign out
 btn_message_info = Message information
+btn_monetization = Monetization
 btn_mute = Mute
 btn_mute_chat = Mute chat
 btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = OK
 btn_open = Open
-btn_open_separately = open in new window
 btn_participants = Members
 btn_participants_desc =
     Group
     members
+btn_partner_programs = Partner programs
+btn_partner_programs_subtitle = Share link & make money
 btn_password = Password
 btn_paste = Paste
 btn_proceed = Proceed
+btn_promote_yourself = Your promotion
+btn_promote_yourself_subtitle = Your own partner program
 btn_previous = Previous
 btn_read_all = Read all
 btn_refresh_page = Refresh page
@@ -203,8 +206,6 @@ btn_remove_account = Remove account from the list
 btn_reply = Reply
 btn_reply_message = Reply to message
 btn_report = Report
-btn_report_a_bug = Report a bug
-btn_report_a_concern = Report a violation
 btn_resend = Resend
 btn_resend_message = Resend message
 btn_save = Save
@@ -212,12 +213,12 @@ btn_save_all = Save all
 btn_save_my_credentials_for_one_click = Save my credentials for one-click sign in
 btn_save_to_gallery = Save to gallery
 btn_save_to_gallery_all = Save all to galley
-btn_schedule_an_interview = Schedule an interview
 btn_select = Select
 btn_select_messages = Select messages
-btn_send_application = Send an application
 btn_send_one_time_code = Send one-time code
 btn_set_password = Set password
+btn_set_your_prices = Set your prices
+btn_set_your_prices_subtitle = Paid communication with you
 btn_share = Share
 btn_sign_in = Sign in
 btn_sign_up = Create an account
@@ -229,15 +230,265 @@ btn_terminate = Terminate
 btn_terminate_all_other_sessions = Terminate all other sessions
 btn_terminate_this_session = Terminate this session
 btn_terms_and_conditions = Terms of Usage & Privacy Policy
+btn_transactions = Your transactions
 btn_unblock = Unblock
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
 btn_upload = Upload
 btn_video_call = Video call
-btn_work_with_us = Work with us
 colon_space = :{" "}
 comma_space = ,{" "}
+country_ac = Ascension Island
+country_ad = Andorra
+country_ae = United Arab Emirates
+country_af = Afghanistan
+country_ag = Antigua and Barbuda
+country_ai = Anguilla
+country_al = Albania
+country_am = Armenia
+country_an = Netherlands Antilles
+country_ao = Angola
+country_aq = Antarctica
+country_ar = Argentina
+country_as = American Samoa
+country_at = Austria
+country_au = Australia
+country_aw = Aruba
+country_ax = Aland Islands
+country_az = Azerbaijan
+country_ba = Bosnia and Herzegovina
+country_bb = Barbados
+country_bd = Bangladesh
+country_be = Belgium
+country_bf = Burkina Faso
+country_bg = Bulgaria
+country_bh = Bahrain
+country_bi = Burundi
+country_bj = Benin
+country_bl = Saint Barthelemy
+country_bm = Bermuda
+country_bn = Brunei Darussalam
+country_bo = Bolivia
+country_bq = Bonaire
+country_br = Brazil
+country_bs = Bahamas
+country_bt = Bhutan
+country_bw = Botswana
+country_by = Belarus
+country_bz = Belize
+country_ca = Canada
+country_cc = Cocos (Keeling) Islands
+country_cd = Democratic Republic of the Congo
+country_cf = Central African Republic
+country_cg = Republic of the Congo
+country_ch = Switzerland
+country_ci = Ivory Coast
+country_ck = Cook Islands
+country_cl = Chile
+country_cm = Cameroon
+country_cn = China
+country_co = Colombia
+country_cr = Costa Rica
+country_cu = Cuba
+country_cv = Cape Verde
+country_cw = Curaçao
+country_cx = Christmas Island
+country_cy = Cyprus
+country_cz = Czech Republic
+country_de = Germany
+country_dj = Djibouti
+country_dk = Denmark
+country_dm = Dominica
+country_do = Dominican Republic
+country_dz = Algeria
+country_ec = Ecuador
+country_ee = Estonia
+country_eg = Egypt
+country_eh = Western Sahara
+country_er = Eritrea
+country_es = Spain
+country_et = Ethiopia
+country_fi = Finland
+country_fj = Fiji
+country_fk = Falkland Islands (Malvinas)
+country_fm = Micronesia
+country_fo = Faroe Islands
+country_fr = France
+country_ga = Gabon
+country_gb = United Kingdom
+country_gd = Grenada
+country_ge = Georgia
+country_gf = French Guiana
+country_gg = Guernsey
+country_gh = Ghana
+country_gi = Gibraltar
+country_gl = Greenland
+country_gm = Gambia
+country_gn = Guinea
+country_gp = Guadeloupe
+country_gq = Equatorial Guinea
+country_gr = Greece
+country_gs = South Georgia and the South Sandwich Islands
+country_gt = Guatemala
+country_gu = Guam
+country_gw = Guinea-Bissau
+country_gy = Guyana
+country_hk = Hong Kong
+country_hn = Honduras
+country_hr = Croatia
+country_ht = Haiti
+country_hu = Hungary
+country_id = Indonesia
+country_ie = Ireland
+country_il = Israel
+country_im = Isle of Man
+country_in = India
+country_io = British Indian Ocean Territory
+country_iq = Iraq
+country_ir = Iran
+country_is = Iceland
+country_it = Italy
+country_je = Jersey
+country_jm = Jamaica
+country_jo = Jordan
+country_jp = Japan
+country_ke = Kenya
+country_kg = Kyrgyzstan
+country_kh = Cambodia
+country_ki = Kiribati
+country_km = Comoros
+country_kn = Saint Kitts and Nevis
+country_kp = North Korea
+country_kr = South Korea
+country_kw = Kuwait
+country_ky = Cayman Islands
+country_kz = Kazakhstan
+country_la = Laos
+country_lb = Lebanon
+country_lc = Saint Lucia
+country_li = Liechtenstein
+country_lk = Sri Lanka
+country_lr = Liberia
+country_ls = Lesotho
+country_lt = Lithuania
+country_lu = Luxembourg
+country_lv = Latvia
+country_ly = Libya
+country_ma = Morocco
+country_mc = Monaco
+country_md = Moldova
+country_me = Montenegro
+country_mf = Saint Martin
+country_mg = Madagascar
+country_mh = Marshall Islands
+country_mk = North Macedonia
+country_ml = Mali
+country_mm = Myanmar
+country_mn = Mongolia
+country_mo = Macao
+country_mp = Northern Mariana Islands
+country_mq = Martinique
+country_mr = Mauritania
+country_ms = Montserrat
+country_mt = Malta
+country_mu = Mauritius
+country_mv = Maldives
+country_mw = Malawi
+country_mx = Mexico
+country_my = Malaysia
+country_mz = Mozambique
+country_na = Namibia
+country_nc = New Caledonia
+country_ne = Niger
+country_nf = Norfolk Island
+country_ng = Nigeria
+country_ni = Nicaragua
+country_nl = Netherlands
+country_no = Norway
+country_np = Nepal
+country_nr = Nauru
+country_nu = Niue
+country_nz = New Zealand
+country_om = Oman
+country_pa = Panama
+country_pe = Peru
+country_pf = French Polynesia
+country_pg = Papua New Guinea
+country_ph = Philippines
+country_pk = Pakistan
+country_pl = Poland
+country_pm = Saint Pierre and Miquelon
+country_pn = Pitcairn
+country_pr = Puerto Rico
+country_ps = Palestine
+country_pt = Portugal
+country_pw = Palau
+country_py = Paraguay
+country_qa = Qatar
+country_re = Reunion
+country_ro = Romania
+country_rs = Serbia
+country_ru = Russian Federation
+country_rw = Rwanda
+country_sa = Saudi Arabia
+country_sb = Solomon Islands
+country_sc = Seychelles
+country_sd = Sudan
+country_se = Sweden
+country_sg = Singapore
+country_sh = Saint Helena
+country_si = Slovenia
+country_sj = Svalbard and Jan Mayen
+country_sk = Slovakia
+country_sl = Sierra Leone
+country_sm = San Marino
+country_sn = Senegal
+country_so = Somalia
+country_sr = Suriname
+country_ss = South Sudan
+country_st = Sao Tome and Principe
+country_sv = El Salvador
+country_sx = Sint Maarten
+country_sy = Syrian Arab Republic
+country_sz = Eswatini
+country_ta = Tristan da Cunha
+country_tc = Turks and Caicos Islands
+country_td = Chad
+country_tg = Togo
+country_th = Thailand
+country_tj = Tajikistan
+country_tk = Tokelau
+country_tl = East Timor
+country_tm = Turkmenistan
+country_tn = Tunisia
+country_to = Tonga
+country_tr = Turkey
+country_tt = Trinidad and Tobago
+country_tv = Tuvalu
+country_tw = Taiwan
+country_tz = Tanzania
+country_ua = Ukraine
+country_ug = Uganda
+country_us = United States
+country_uy = Uruguay
+country_uz = Uzbekistan
+country_va = Vatican City
+country_vc = Saint Vincent and the Grenadines
+country_ve = Venezuela
+country_vg = Virgin Islands, British
+country_vi = Virgin Islands, U.S.
+country_vn = Vietnam
+country_vu = Vanuatu
+country_wf = Wallis and Futuna
+country_ws = Samoa
+country_xk = Kosovo
+country_ye = Yemen
+country_yt = Mayotte
+country_za = South Africa
+country_zm = Zambia
+country_zw = Zimbabwe
+currency_amount = ¤{$amount}
 dot = .
 email_confirmation_code =
     Code: {$token}
@@ -498,6 +749,7 @@ label_audio_call = Audio call{$by ->
         *[other] {" "}by {$by}
     }
 label_auto_gain_control = Auto gain control
+label_available_balance_amount = Available balance: ¤{$amount}
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}removed avatar
@@ -506,8 +758,6 @@ label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}updated avatar
 label_away = away
 label_background = Background
-label_besides_freelance_is_an_option_too1 = Besides, we offer an opportunity to collaborate as a freelance developer. The list of tasks and terms of cooperation can be found on the{" "}
-label_besides_freelance_is_an_option_too2 = Freelance.
 label_block = Block
 label_block_date = Block date
 label_block_reason = Block reason
@@ -549,31 +799,9 @@ label_chats = Chats
 label_chats_and_groups = Chats and groups: {$count}
 label_city_country_activated_at = {$city}, {$country} • {$at}
 label_clear_history = Clear chat
-label_code_requirements = Requirements for the code
-label_code_requirements_contribution_guide1 = - the code must follow the{" "}
-label_code_requirements_contribution_guide2 = Contribution Guide
-label_code_requirements_contribution_guide3 = ;
-label_code_requirements_documentation1 = - the code must be covered with documentation following the rules of{" "}
-label_code_requirements_documentation2 = Effective Dart: Documentation
-label_code_requirements_documentation3 = ;
-label_code_requirements_tests = - the code must be covered with unit, widget, and/or integration tests (if necessary).
-label_conditions = Conditions
-label_conditions_backend_developer =
-    - Remote work;
-    - Daily payments;
-    - 4-, 6- or 8-hour work day;
-    - Time tracking and payment for overtime;
-    - Relocation possible.
-label_conditions_frontend_developer =
-    - Remote work;
-    - Daily payments;
-    - 4-, 6- or 8-hour work day;
-    - Time tracking and payment for overtime;
-    - Relocation possible.
 label_confidentiality = Confidentiality
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
-label_contact_us_via_provided_email = Contact us by e-mail {$email}.
 label_copied = Copied
 label_copy = Copy
 label_count_gb = {$count} GB
@@ -581,6 +809,8 @@ label_count_seconds = {$count} { $count ->
        [1] second
        *[other] seconds
    }
+label_country = Country
+label_country_selection = Select country
 label_create_group = Group creation
 label_create_link = Create link
 label_critical_update_is_available = Current version is no longer supported
@@ -624,10 +854,8 @@ label_expandable_more = more
 label_file_downloaded = File downloaded
 label_files_downloaded = Files downloaded
 label_files_saved_to_gallery = Files are saved to the gallery
-label_for_learning_use_our_flutter_incubator1 = If you would like to learn/improve your knowledge of Flutter, you can use our{" "}
-label_for_learning_use_our_flutter_incubator2 = Sandbox.
-label_for_learning_use_our_rust_incubator1 = If you would like to learn/improve your knowledge of Rust, you can use our{" "}
-label_for_learning_use_our_rust_incubator2 = Sandbox.
+label_for_authors = For authors
+label_for_promoters = For promoters
 label_forward_message = Forward message
 label_forwarded_message = Forwarded message
 label_forwarded_messages = {$count ->
@@ -653,6 +881,7 @@ label_incoming_call = Incoming call
 label_information = Information
 label_installation_error = Installation error
 label_installation_error_description = Web App is already installed or not available in your browser
+label_instant_top_up = Instant top up
 label_interface = Interface
 label_introduction_description =
     You have access to your account during one year or until:
@@ -696,11 +925,8 @@ label_messenger1 = Messenger
 label_messenger2 = by Tapopa
 label_microphone_changed = Microphone has been changed to {$microphone}
 label_mobile_apps = Mobile apps
-label_money = Money
-label_money_freelance =
-    - payment upon completion of the task. A task is considered completed when it passes the review.
-    - the payment is sent based on a service agreement and/or an invoice.
-    - the payment is made with cryptocurrency USDT or USDC.
+label_monetization_details = Monetization details
+label_monetization_history = Monetization history
 label_monolog_created = Chat created
 label_mute_or_unmute_chats = Mute or unmute chats
 label_mute_slash_unmute_microphone = Mute/Unmute microphone
@@ -719,8 +945,6 @@ label_no_chats = No chats
 label_no_limit = ∞
 label_no_messages = No messages
 label_no_notes = Private chat
-label_no_updates_are_available_subtitle = You have the latest version installed
-label_no_updates_are_available_title = No updates are available
 label_no_users = No users
 label_no_welcome_message = Welcome message has not been added
 label_noise_suppression = Noise suppression
@@ -738,6 +962,7 @@ label_one_time_password = One-time code
 label_online = online
 label_open_calls_in_app = In the same window
 label_open_calls_in_window = In a separate window
+label_order_payment = Order your withdraw
 label_outgoing_call = Calling
 label_participants = Members: {$count}
 label_participants_of = Members: {$a} of {$b}
@@ -747,6 +972,9 @@ label_password_not_set1 = The password is not set.{" "}
 label_password_not_set2 = Access to the account may be lost.
 label_password_or_one_time_code = Password or one-time code
 label_password_set = Password has been set
+label_payouts_and_information = Withdraws & Information
+label_paypal = PayPal
+label_paypal_is_not_available_in_this_country = PayPal is not available in this country
 label_personal_data_deletion = Delete account
 label_personal_data_deletion_description1 = This process is{" "}
 label_personal_data_deletion_description2 = IRREVERSIBLE
@@ -777,56 +1005,17 @@ label_recover_account_description = Specify your Gapopa ID, login or E-mail.
 label_recovery_code = Recovery code
 label_recovery_code_sent = The verification code has been sent to the verified E-mail added to this account. Enter the code below.
 label_recovery_enter_new_password = Enter the new password below.
-label_regulations = Regulation
-label_regulations_freelance =
-    1. Choose a task from the list below
-    2. Make a fork of the project and form a PR (Pull Request)
-    3. Contact the frontend team (the button below) and send a request, including:
-        - your GitHub login
-        - PR (Pull Request) number
-        - the expected date of completion of the task (deadline)
-        - the expected method of solving the task
-    4. In the response message you will receive a confirmation that the task is assigned to you (the task status will change to “In progress”)
-    5. While working on the task you should push commit of your task at least once every 72 hours.
-    6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
 label_remove_member = Remove from the group
 label_repeat_password = Confirm password
-label_replace_this_text_with_concern = Describe the concern.
-label_replace_this_text_with_feedback = Feedback.
 label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
     }]
 label_report = Report
-label_requirements = Requirements
-label_requirements_backend_developer =
-    - knowledge of Rust;
-    - understanding FFl and UB;
-    - skill in code optimisation and ability to use code profiling instruments;
-    - understanding the principles of functioning of client-server web applications;
-    - understanding the principles of designing database structures;
-    - understanding the principles of DDD and layered architecture;
-    - skill in writing unit and functional tests;
-    - experience in working with Git;
-    - skill in using Unix-like operating systems;
-    - skill in reading and understanding technical literature in English;
-    - ability to provide high-quality audio and video communication.
-label_requirements_frontend_developer =
-    - knowledge of GraphQL and WebSocket;
-    - skill in code documentation;
-    - skill in covering code with unit and/or integration tests;
-    - understanding the principles of DDD and clean architecture;
-    - experience in working with Git;
-    - skill in reading and understanding technical literature in English;
-    - ability to provide high-quality audio and video communication.
 label_resend = Resend
 label_resend_timeout =
     Resend
     ({$timeout})
-label_review = Review
-label_review_freelance =
-    - a completed task should pass the review of the code;
-    - the request for the review of the completed task, comments, clarifications, and arguments should be posted publicly on GitHub in the corresponding issue or pull request.
 label_saved_files = Downloaded files
 label_screen_sharing = Screen sharing
 label_search = Search
@@ -844,7 +1033,6 @@ label_sign_in_with_password = Sign in with password
 label_sign_up = Create account
 label_sign_up_with_password = Sign up with password
 label_signed_in = Signed in
-label_source_code = Source code
 label_speaker_changed = Speaker has been changed to {$speaker}
 label_status = Status
 label_storage = Storage
@@ -852,39 +1040,11 @@ label_subtitle_participants = {$count} {$count ->
     [1] member
     *[other] members
 }
-label_support_service = Support service
 label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_menu = Menu
-label_tasks = Tasks
-label_tech_stack = Tech Stack
-label_tech_stack_backend_developer =
-    - Rust - langauge;
-    - actix-web - web-framework;
-    - CockroachDB - database;
-    - baza - file storage;
-    - Medea - media server;
-    - Firebase - push notifications;
-    - GraphQL - API;
-    - Cucumber - E2E testing.
-label_tech_stack_freelance =
-    - Dart - language;
-    - Flutter - Framework;
-    - GetX - Dependency Injection and State Management;
-    - Navigator 2.0 (Router) - navigation;
-    - Drift - local database;
-    - Firebase - push notifications;
-    - GraphQL and Artemis - communication with backend;
-    - Gherkin - E2E testing.
-label_tech_stack_frontend_developer =
-    - Language - Dart;
-    - Flutter - Framework;
-    - GetX - Dependency Injection and State Management;
-    - Navigator 2.0 (Router) - navigation;
-    - Drift - local database;
-    - Firebase - push notifications;
-    - GraphQL and Artemis - communication with backend;
-    - Gherkin - E2E testing.
+label_tab_partner = Partner
+label_tab_wallet = Wallet
 label_terminate_sessions = Terminate session(s)
 label_terms_and_privacy_policy = Terms & Privacy Policy
 label_text_status = Text status
@@ -925,6 +1085,8 @@ label_visits_count = Clicks: {$count}
 label_voice_processing = Voice processing
 label_wait_seconds = Wait {$for} s
 label_waiting_for_connection = Waiting for connection...
+label_wallet = Wallet
+label_wallet_history = Wallet history
 label_warning = Warning
 label_warning_uppercase = WARNING
 label_was_added = {$author} joined via direct link
@@ -934,20 +1096,9 @@ label_was_at = last seen {$at}
 label_was_removed = {$author} left the group
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}left the group
-label_we_welcome = Advantage is:
-label_we_welcome_backend_developer =
-    - навык работы с языками C, C++;
-    - навык работы по CQRS+ES парадигме;
-    - навык работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
-    - навык работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.
 label_welcome_message = Welcome message
 label_welcome_message_description = Welcome message is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.
 label_welcome_message_hint = Add, edit, delete
-label_what_we_can_help_you_with = How can we help you?
-label_work_with_us = Work with us
-label_work_with_us_desc =
-    Work
-    with us
 label_you = You
 label_you_can_use_randomly_generated_link = You can use a generated link or create your own.
 label_you_were_added_to_group = You have been added to the group
@@ -955,6 +1106,7 @@ label_your_direct_link = Direct link to chat with you
 label_your_name = Your name
 label_your_num = Your Gapopa ID
 label_your_password = Your password
+label_your_statistics = Your statistics
 label_your_status = Your status
 plus =  +
 question_mark = ?

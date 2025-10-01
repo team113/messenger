@@ -120,10 +120,6 @@ class Config {
   /// Optional copyright to display at the bottom of [Routes.auth] page.
   static String copyright = '';
 
-  /// Email address of the support service displayed on the [Routes.support]
-  /// page.
-  static String support = 'admin@tapopa.com';
-
   /// URL of the repository (or anything else) for users to report bugs to.
   static String repository = 'https://github.com/tapopa/messenger/issues';
 
@@ -250,10 +246,6 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_LEGAL_COPYRIGHT')
         : (document['legal']?['copyright'] ?? copyright);
 
-    support = const bool.hasEnvironment('SOCAPP_LEGAL_SUPPORT')
-        ? const String.fromEnvironment('SOCAPP_LEGAL_SUPPORT')
-        : (document['legal']?['support'] ?? support);
-
     repository = const bool.hasEnvironment('SOCAPP_LEGAL_REPOSITORY')
         ? const String.fromEnvironment('SOCAPP_LEGAL_REPOSITORY')
         : (document['legal']?['repository'] ?? repository);
@@ -340,7 +332,6 @@ class Config {
                 remote['legal']?[Uri.base.host]?['copyright'] ??
                 remote['legal']?['copyright'] ??
                 copyright;
-            support = remote['legal']?['support'] ?? support;
             repository = remote['legal']?['repository'] ?? repository;
             geoEndpoint = remote['geo']?['endpoint'] ?? geoEndpoint;
             ipEndpoint = remote['ip']?['endpoint'] ?? ipEndpoint;

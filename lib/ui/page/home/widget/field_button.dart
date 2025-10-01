@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -37,6 +39,7 @@ class FieldButton extends StatefulWidget {
     this.headline,
     this.warning = false,
     this.danger = false,
+    this.error = false,
     this.border,
   });
 
@@ -77,6 +80,8 @@ class FieldButton extends StatefulWidget {
 
   /// Indicator whether the [text] should have danger color.
   final bool danger;
+
+  final bool error;
 
   /// [BorderSide] to display around this [FieldButton] instead of the
   /// dynamically determined one.
@@ -121,6 +126,8 @@ class _FieldButtonState extends State<FieldButton> {
               ? BorderSide(width: 0.5, color: style.colors.secondaryLight)
               : widget.warning
               ? null
+              : widget.error
+              ? BorderSide(color: style.colors.danger)
               : widget.border ??
                     BorderSide(width: 0.5, color: style.colors.secondary),
           child:

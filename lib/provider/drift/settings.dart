@@ -41,7 +41,6 @@ class Settings extends Table {
   RealColumn get sideBarWidth => real().nullable()();
   TextColumn get callButtons => text().withDefault(const Constant('[]'))();
   TextColumn get pinnedActions => text().withDefault(const Constant('[]'))();
-  BoolColumn get workWithUsTabEnabled => boolean().nullable()();
   TextColumn get videoDevice => text().nullable()();
   TextColumn get audioDevice => text().nullable()();
   TextColumn get outputDevice => text().nullable()();
@@ -168,7 +167,6 @@ extension _SettingsDb on DtoSettings {
         pinnedActions: (jsonDecode(e.pinnedActions) as List)
             .cast<String>()
             .toList(),
-        workWithUsTabEnabled: e.workWithUsTabEnabled ?? true,
         muteKeys: (e.muteKeys ?? '[]')
             .replaceFirst('[', '')
             .replaceFirst(']', '')
@@ -201,7 +199,6 @@ extension _SettingsDb on DtoSettings {
       sideBarWidth: application.sideBarWidth,
       callButtons: jsonEncode(application.callButtons.toList()),
       pinnedActions: jsonEncode(application.pinnedActions.toList()),
-      workWithUsTabEnabled: application.workWithUsTabEnabled,
       audioDevice: media.audioDevice,
       videoDevice: media.videoDevice,
       screenDevice: media.screenDevice,

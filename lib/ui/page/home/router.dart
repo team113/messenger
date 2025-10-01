@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -15,7 +17,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -26,14 +27,20 @@ import '/domain/model/user.dart';
 import '/routes.dart';
 import '/ui/page/chat_direct_link/view.dart';
 import '/ui/page/erase/view.dart';
-import '/ui/page/support/view.dart';
-import '/ui/page/work/page/vacancy/view.dart';
 import '/ui/widget/custom_page.dart';
+import 'page/affiliate/view.dart';
 import 'page/chat/info/view.dart';
 import 'page/chat/view.dart';
 import 'page/contact/view.dart';
+import 'page/deposit/view.dart';
 import 'page/my_profile/view.dart';
+import 'page/partner_transactions/view.dart';
+import 'page/prices/view.dart';
+import 'page/promotion/view.dart';
+import 'page/statistics/view.dart';
 import 'page/user/view.dart';
+import 'page/wallet_transactions/view.dart';
+import 'page/withdraw/view.dart';
 
 /// [Routes.home] page [RouterDelegate] that builds the nested [Navigator].
 ///
@@ -113,35 +120,12 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             child: UserView(UserId(id)),
           ),
         );
-      } else if (route.startsWith('${Routes.work}/')) {
-        final String? last = route.split('/').lastOrNull;
-        final WorkTab? work = WorkTab.values.firstWhereOrNull(
-          (e) => e.name == last,
-        );
-
-        if (work != null) {
-          pages.add(
-            CustomPage(
-              key: ValueKey('${work.name}WorkPage'),
-              name: Routes.me,
-              child: VacancyWorkView(work),
-            ),
-          );
-        }
       } else if (route.startsWith(Routes.erase)) {
         pages.add(
           const CustomPage(
             key: ValueKey('ErasePage'),
             name: Routes.erase,
             child: EraseView(),
-          ),
-        );
-      } else if (route.startsWith(Routes.support)) {
-        pages.add(
-          const CustomPage(
-            key: ValueKey('SupportPage'),
-            name: Routes.support,
-            child: SupportView(),
           ),
         );
       } else if (route.startsWith(Routes.chatDirectLink)) {
@@ -154,6 +138,70 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             key: ValueKey('ChatDirectLinkPage$slug'),
             name: Routes.chatDirectLink,
             child: ChatDirectLinkView(slug),
+          ),
+        );
+      } else if (route.startsWith(Routes.affiliate)) {
+        pages.add(
+          const CustomPage(
+            key: ValueKey('AffiliatePage'),
+            name: Routes.affiliate,
+            child: AffiliateView(),
+          ),
+        );
+      } else if (route.startsWith(Routes.partnerTransactions)) {
+        pages.add(
+          const CustomPage(
+            key: ValueKey('PartnerTransactionsPage'),
+            name: Routes.partnerTransactions,
+            child: PartnerTransactionsView(),
+          ),
+        );
+      } else if (route.startsWith(Routes.prices)) {
+        pages.add(
+          const CustomPage(
+            key: ValueKey('PricesPage'),
+            name: Routes.prices,
+            child: PricesView(),
+          ),
+        );
+      } else if (route.startsWith(Routes.promotion)) {
+        pages.add(
+          const CustomPage(
+            key: ValueKey('PromotionPage'),
+            name: Routes.promotion,
+            child: PromotionView(),
+          ),
+        );
+      } else if (route.startsWith(Routes.statistics)) {
+        pages.add(
+          const CustomPage(
+            key: ValueKey('StatisticsPage'),
+            name: Routes.statistics,
+            child: StatisticsView(),
+          ),
+        );
+      } else if (route.startsWith(Routes.withdraw)) {
+        pages.add(
+          const CustomPage(
+            key: ValueKey('WithdrawPage'),
+            name: Routes.withdraw,
+            child: WithdrawView(),
+          ),
+        );
+      } else if (route.startsWith(Routes.deposit)) {
+        pages.add(
+          const CustomPage(
+            key: ValueKey('DepositPage'),
+            name: Routes.deposit,
+            child: DepositView(),
+          ),
+        );
+      } else if (route.startsWith(Routes.walletTransactions)) {
+        pages.add(
+          const CustomPage(
+            key: ValueKey('WalletTransactionsPage'),
+            name: Routes.walletTransactions,
+            child: WalletTransactionsView(),
           ),
         );
       }

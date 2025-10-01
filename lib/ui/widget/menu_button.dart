@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -33,6 +35,7 @@ class MenuButton extends StatelessWidget {
     this.icon,
     this.onPressed,
     this.inverted = false,
+    this.trailing,
   });
 
   MenuButton.tab(
@@ -42,6 +45,7 @@ class MenuButton extends StatelessWidget {
     this.onPressed,
   }) : icon = null,
        title = tab.l10n,
+       trailing = null,
        subtitle = switch (tab) {
          ProfileTab.public => 'label_public_section_hint'.l10n,
          ProfileTab.signing => 'label_login_section_hint'.l10n,
@@ -56,7 +60,6 @@ class MenuButton extends StatelessWidget {
          ProfileTab.download => 'label_ios_android_windows_macos_linux'.l10n,
          ProfileTab.danger => null,
          ProfileTab.legal => null,
-         ProfileTab.support => null,
          ProfileTab.logout => null,
        },
        leading = switch (tab) {
@@ -73,7 +76,6 @@ class MenuButton extends StatelessWidget {
          ProfileTab.download => const SvgIcon(SvgIcons.menuDownload),
          ProfileTab.danger => const SvgIcon(SvgIcons.menuDanger),
          ProfileTab.legal => const SvgIcon(SvgIcons.menuLegal),
-         ProfileTab.support => const SvgIcon(SvgIcons.menuSupport),
          ProfileTab.logout => const SvgIcon(SvgIcons.menuLogout),
        },
        super(
@@ -93,7 +95,6 @@ class MenuButton extends StatelessWidget {
                ProfileTab.download => const Key('Download'),
                ProfileTab.danger => const Key('DangerZone'),
                ProfileTab.legal => const Key('Legal'),
-               ProfileTab.support => const Key('Support'),
                ProfileTab.logout => const Key('LogoutButton'),
              },
        );
@@ -115,6 +116,9 @@ class MenuButton extends StatelessWidget {
 
   /// Indicator whether this [MenuButton] should have its contents inverted.
   final bool inverted;
+
+  /// Optional trailing to display after everything.
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -181,6 +185,7 @@ class MenuButton extends StatelessWidget {
                       ],
                     ),
                   ),
+                  if (trailing != null) trailing!,
                 ],
               ),
             ),

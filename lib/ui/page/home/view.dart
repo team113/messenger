@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,7 +30,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
-import '/ui/page/link/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -41,6 +42,8 @@ import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/menu/controller.dart';
+import 'tab/partner/view.dart';
+import 'tab/wallet/view.dart';
 import 'widget/animated_slider.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
@@ -210,7 +213,8 @@ class _HomeViewState extends State<HomeView> {
                       },
                       // [KeepAlivePage] used to keep the tabs' states.
                       children: const [
-                        SizedBox(),
+                        KeepAlivePage(child: WalletTabView()),
+                        KeepAlivePage(child: PartnerTabView()),
                         KeepAlivePage(child: ChatsTabView()),
                         KeepAlivePage(child: MenuTabView()),
                       ],
@@ -317,8 +321,17 @@ class _HomeViewState extends State<HomeView> {
               key: c.panelKey,
               items: tabs.map((e) {
                 switch (e) {
-                  case HomeTab.link:
-                    return const CustomNavigationBarItem.link();
+                  case HomeTab.wallet:
+                    return Obx(() {
+                      return CustomNavigationBarItem.wallet(
+                        balance: c.purse.value,
+                      );
+                    });
+
+                  case HomeTab.partner:
+                    return CustomNavigationBarItem.partner(
+                      balance: c.income.value,
+                    );
 
                   case HomeTab.chats:
                     return Obx(() {
@@ -345,10 +358,6 @@ class _HomeViewState extends State<HomeView> {
               }).toList(),
               currentIndex: tabs.indexOf(router.tab),
               onTap: (i) {
-                if (i == 0) {
-                  return LinkView.show(context);
-                }
-
                 c.pages.jumpToPage(tabs[i].index);
               },
             ),

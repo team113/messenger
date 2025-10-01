@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,7 +23,6 @@ import '../widget/headline.dart';
 import '/config.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/work/widget/interactive_logo.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
@@ -32,11 +33,6 @@ class ImagesSection {
   /// Returns the [Widget]s of this [ImagesSection].
   static List<Widget> build() {
     return [
-      Headline(
-        subtitle: _downloadButton('head_0.svg', prefix: 'logo'),
-        top: false,
-        child: const InteractiveLogo(),
-      ),
       Headline(
         headline: 'background_light.svg',
         subtitle: _downloadButton('background_light.svg'),

@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -32,6 +34,8 @@ import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'avatar.dart';
+import 'partner_icon.dart';
+import 'wallet_icon.dart';
 
 /// Styled bottom navigation bar consisting of [items].
 class CustomNavigationBar extends StatefulWidget {
@@ -162,28 +166,28 @@ class CustomNavigationBarItem extends StatelessWidget {
     required this.child,
   });
 
-  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.link].
-  const CustomNavigationBarItem.link({Key? key})
-    : this._(
-        key: key,
-        tab: HomeTab.link,
-        child: const SvgIcon(SvgIcons.directLink, key: Key('LinkButton')),
-      );
-
-  /// Constructs a [CustomNavigationBarItem] for a `HomeTab.work`.
-  const CustomNavigationBarItem.work({Key? key})
-    : this._(
-        key: key,
-        tab: HomeTab.chats,
-        child: const SvgIcon(SvgIcons.partner, key: Key('WorkButton')),
-      );
-
   /// Constructs a [CustomNavigationBarItem] for a `HomeTab.contacts`.
   const CustomNavigationBarItem.contacts({Key? key})
     : this._(
         key: key,
         tab: HomeTab.chats,
         child: const SvgIcon(SvgIcons.contacts, key: Key('ContactsButton')),
+      );
+
+  /// Constructs a [CustomNavigationBarItem] for a `HomeTab.wallet`.
+  CustomNavigationBarItem.wallet({Key? key, double balance = 0})
+    : this._(
+        key: key,
+        tab: HomeTab.wallet,
+        child: WalletIcon(key: Key('WalletButton'), balance: balance),
+      );
+
+  /// Constructs a [CustomNavigationBarItem] for a `HomeTab.partner`.
+  CustomNavigationBarItem.partner({Key? key, double balance = 0})
+    : this._(
+        key: key,
+        tab: HomeTab.partner,
+        child: PartnerIcon(key: Key('PartnerButton'), balance: balance),
       );
 
   /// Constructs a [CustomNavigationBarItem] for a [HomeTab.chats].

@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,7 +30,6 @@ import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/page/login/widget/sign_button.dart';
-import '/ui/page/work/widget/vacancy_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/menu_button.dart';
@@ -297,20 +298,6 @@ class ButtonsSection {
         ],
       ),
       Headline(child: UnblockButton(() {})),
-      Headlines(
-        color: Color.alphaBlend(
-          style.sidebarColor,
-          style.colors.onBackgroundOpacity7,
-        ),
-        children: WorkTab.values
-            .map(
-              (e) => (
-                headline: 'VacancyWorkButton(${e.name})',
-                widget: VacancyWorkButton(e, onPressed: (_) {}),
-              ),
-            )
-            .toList(),
-      ),
     ];
   }
 }

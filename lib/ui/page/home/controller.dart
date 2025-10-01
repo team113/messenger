@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -85,6 +87,12 @@ class HomeController extends GetxController {
 
   /// [BuildContext] of the [HomeView].
   final BuildContext? context;
+
+  /// Balance of [MyUser] to display in [HomeTab.wallet].
+  final RxDouble purse = RxDouble(0);
+
+  /// Balance of [MyUser] to display in [HomeTab.partner].
+  final RxDouble income = RxDouble(0);
 
   /// Authentication service to determine auth status.
   final AuthService _auth;
@@ -210,10 +218,6 @@ class HomeController extends GetxController {
   Future<void> updateAvatar() async {
     await _myUserService.refresh();
   }
-
-  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
-  Future<void> setWorkWithUsTabEnabled(bool enabled) =>
-      _settings.setWorkWithUsTabEnabled(enabled);
 
   /// Refreshes the controller on [router] change.
   ///

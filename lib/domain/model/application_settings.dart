@@ -24,7 +24,6 @@ class ApplicationSettings {
     this.sideBarWidth,
     this.callButtons = const [],
     this.pinnedActions = const [],
-    this.workWithUsTabEnabled = true,
     this.muteKeys,
     this.videoVolume = 1,
   });
@@ -49,10 +48,6 @@ class ApplicationSettings {
   /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
   List<String> pinnedActions;
 
-  /// Indicator whether [WorkTabView] should be displayed in the
-  /// [CustomNavigationBar] of [HomeView].
-  bool workWithUsTabEnabled;
-
   /// String representation of the [HotKey]s used to mute/unmute [OngoingCall]s.
   List<String>? muteKeys;
 
@@ -68,7 +63,6 @@ class ApplicationSettings {
         sideBarWidth == other.sideBarWidth &&
         callButtons.toString() == other.callButtons.toString() &&
         pinnedActions.toString() == other.pinnedActions.toString() &&
-        workWithUsTabEnabled == other.workWithUsTabEnabled &&
         muteKeys?.toString() == other.muteKeys?.toString() &&
         videoVolume == other.videoVolume;
   }
@@ -81,7 +75,6 @@ class ApplicationSettings {
     sideBarWidth,
     callButtons.toString(),
     pinnedActions.toString(),
-    workWithUsTabEnabled,
     muteKeys.toString(),
     videoVolume,
   );

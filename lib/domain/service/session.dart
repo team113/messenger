@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -38,4 +40,10 @@ class SessionService extends DisposableService {
   /// [IpGeoLocation].
   void setLanguage(String? language) =>
       _sessionRepository.setLanguage(language);
+
+  /// Fetches the [IpGeoLocation] of the provided [ip].
+  ///
+  /// Uses the current [IpAddress], if [ip] is not provided.
+  Future<IpGeoLocation> fetch({IpAddress? ip}) =>
+      _sessionRepository.fetch(ip: ip);
 }

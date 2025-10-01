@@ -39,6 +39,8 @@ btn_add_account = Добавить аккаунт
 btn_add_account_with_desc =
     Добавить
     аккаунт
+btn_add_funds = Пополнить кошелёк
+btn_add_funds_subtitle = PayPal
 btn_add_participant = Добавить участника
 btn_add_participant_desc =
     Добавить
@@ -133,7 +135,6 @@ btn_change_account_desc =
     Сменить
     аккаунт
 btn_change_password = Изменить пароль
-btn_check_for_updates = Проверить наличие обновлений
 btn_clear = Очистить
 btn_clear_cache = Очистить кэш
 btn_clear_chat = Очистить чат
@@ -163,7 +164,6 @@ btn_download_as = Скачать как
 btn_download_version = Скачать {$version}
 btn_edit = Редактировать
 btn_email = E-mail
-btn_feedback = Обратная связь
 btn_file = Файл
 btn_find_in_chat = Найти в чате
 btn_forgot_password = Забыли пароль?
@@ -171,7 +171,6 @@ btn_forward = Переслать
 btn_forward_message = Переслать сообщение
 btn_gallery = Галерея
 btn_guest = Гость
-btn_help = Помощь
 btn_hide = Скрыть
 btn_hide_interface = Скрыть интерфейс
 btn_info = Информация
@@ -182,20 +181,24 @@ btn_leave_group = Покинуть группу
 btn_login_and_password = Логин и пароль
 btn_logout = Выйти
 btn_message_info = Информация о сообщении
+btn_monetization = Монетизация
 btn_mute = Отключить звук
 btn_mute_chat = Отключить звук
 btn_mute_chats = Отключить звук
 btn_next = Следующее
 btn_ok = ОК
 btn_open = Открыть
-btn_open_separately = открыть в новом окне
 btn_participants = Участники
 btn_participants_desc =
     Участники
     группы
+btn_partner_programs = Партнёрские программы
+btn_partner_programs_subtitle = Делитесь ссылкой, зарабатывайте
 btn_password = Пароль
 btn_paste = Вставить
 btn_proceed = Продолжить
+btn_promote_yourself = Ваша раскрутка
+btn_promote_yourself_subtitle = Ваша партнёрская программа
 btn_previous = Предыдущее
 btn_read_all = Прочитать все
 btn_refresh_page = Обновить страницу
@@ -203,8 +206,6 @@ btn_remove_account = Удалить аккаунт из списка
 btn_reply = Ответить
 btn_reply_message = Ответить на сообщение
 btn_report = Пожаловаться
-btn_report_a_bug = Сообщить об ошибке
-btn_report_a_concern = Сообщить о нарушении
 btn_resend = Отправить повторно
 btn_resend_message = Отправить повторно
 btn_save = Сохранить
@@ -212,12 +213,12 @@ btn_save_all = Сохранить всё
 btn_save_to_gallery = Сохранить в галерею
 btn_save_to_gallery_all = Сохранить всё в галерею
 btn_save_my_credentials_for_one_click = Сохранить мои данные для входа в один клик
-btn_schedule_an_interview = Записаться на собеседование
 btn_select = Выбрать
 btn_select_messages = Выбрать сообщения
-btn_send_application = Отправить заявку
 btn_send_one_time_code = Отправить одноразовый код
 btn_set_password = Установить пароль
+btn_set_your_prices = Установите Ваши цены
+btn_set_your_prices_subtitle = Платное общение с Вами
 btn_share = Поделиться
 btn_sign_in = Войти
 btn_sign_up = Создать аккаунт
@@ -229,15 +230,265 @@ btn_terminate = Завершить
 btn_terminate_all_other_sessions = Завершить все остальные сессии
 btn_terminate_this_session = Завершить данную сессию
 btn_terms_and_conditions = Условия использования и Политика конфиденциальности
+btn_transactions = Ваши транзакции
 btn_unblock = Разблокировать
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
 btn_unmute_chats = Включить звук
 btn_upload = Загрузить
 btn_video_call = Видеозвонок
-btn_work_with_us = Работайте с нами
 colon_space = :{" "}
 comma_space = ,{" "}
+country_ac = Остров Вознесения
+country_ad = Андорра
+country_ae = Объединенные Арабские Эмираты
+country_af = Афганистан
+country_ag = Антигуа и Барбуда
+country_ai = Ангилья
+country_al = Албания
+country_am = Армения
+country_an = Нидерландские Антильские острова
+country_ao = Ангола
+country_aq = Антарктида
+country_ar = Аргентина
+country_as = американское Самоа
+country_at = Австрия
+country_au = Австралия
+country_aw = Аруба
+country_ax = Аландские острова
+country_az = Азербайджан
+country_ba = Босния и Герцеговина
+country_bb = Барбадос
+country_bd = Бангладеш
+country_be = Бельгия
+country_bf = Буркина-Фасо
+country_bg = Болгария
+country_bh = Бахрейн
+country_bi = Бурунди
+country_bj = Бенин
+country_bl = Сен-Бартелеми
+country_bm = Бермудские острова
+country_bn = Бруней-Даруссалам
+country_bo = Боливия
+country_bq = Бонайре
+country_br = Бразилия
+country_bs = Багамы
+country_bt = Бутан
+country_bw = Ботсвана
+country_by = Беларусь
+country_bz = Белиз
+country_ca = Канада
+country_cc = Кокосовые (Килинг) острова
+country_cd = Демократическая Республика Конго
+country_cf = Центрально-Африканская Республика
+country_cg = Республика Конго
+country_ch = Швейцария
+country_ci = Республика Кот-д’Ивуар
+country_ck = Острова Кука
+country_cl = Чили
+country_cm = Камерун
+country_cn = Китай
+country_co = Колумбия
+country_cr = Коста-Рика
+country_cu = Куба
+country_cv = Кабо-Верде
+country_cw = Кюрасао
+country_cx = Остров Рождества
+country_cy = Кипр
+country_cz = Республика Чехия
+country_de = Германия
+country_dj = Джибути
+country_dk = Дания
+country_dm = Доминика
+country_do = Доминиканская Республика
+country_dz = Алжир
+country_ec = Эквадор
+country_ee = Эстония
+country_eg = Египет
+country_eh = Западная Сахара
+country_er = Эритрея
+country_es = Испания
+country_et = Эфиопия
+country_fi = Финляндия
+country_fj = Фиджи
+country_fk = Фолклендские (Мальвинские) острова
+country_fm = Микронезия
+country_fo = Фарерские острова
+country_fr = Франция
+country_ga = Габон
+country_gb = Великобритания
+country_gd = Гренада
+country_ge = Грузия
+country_gf = Французская Гвиана
+country_gg = Гернси
+country_gh = Гана
+country_gi = Гибралтар
+country_gl = Гренландия
+country_gm = Гамбия
+country_gn = Гвинея
+country_gp = Гваделупа
+country_gq = Экваториальная Гвинея
+country_gr = Греция
+country_gs = Южная Георгия и Южные Сандвичевы острова
+country_gt = Гватемала
+country_gu = Гуам
+country_gw = Гвинея-Бисау
+country_gy = Гайана
+country_hk = Гонконг
+country_hn = Гондурас
+country_hr = Хорватия
+country_ht = Гаити
+country_hu = Венгрия
+country_id = Индонезия
+country_ie = Ирландия
+country_il = Израиль
+country_im = Остров Мэн
+country_in = Индия
+country_io = Британская территория Индийского океана
+country_iq = Ирак
+country_ir = Иран
+country_is = Исландия
+country_it = Италия
+country_je = Джерси
+country_jm = Ямайка
+country_jo = Иордания
+country_jp = Япония
+country_ke = Кения
+country_kg = Кыргызстан
+country_kh = Камбоджа
+country_ki = Кирибати
+country_km = Коморские острова
+country_kn = Сент-Китс и Невис
+country_kp = Северная Корея
+country_kr = Южная Корея
+country_kw = Кувейт
+country_ky = Каймановы острова
+country_kz = Казахстан
+country_la = Лаос
+country_lb = Ливан
+country_lc = Санкт-Люсия
+country_li = Лихтенштейн
+country_lk = Шри-Ланка
+country_lr = Либерия
+country_ls = Лесото
+country_lt = Литва
+country_lu = Люксембург
+country_lv = Латвия
+country_ly = Ливия
+country_ma = Марокко
+country_mc = Монако
+country_md = Молдова
+country_me = Черногория
+country_mf = Сен-Мартен
+country_mg = Мадагаскар
+country_mh = Маршалловы острова
+country_mk = Северная Македония
+country_ml = Мали
+country_mm = Мьянма
+country_mn = Монголия
+country_mo = Макао
+country_mp = Северные Марианские острова
+country_mq = Мартиника
+country_mr = Мавритания
+country_ms = Монтсеррат
+country_mt = Мальта
+country_mu = Маврикий
+country_mv = Мальдивы
+country_mw = Малави
+country_mx = Мексика
+country_my = Малайзия
+country_mz = Мозамбик
+country_na = Намибия
+country_nc = Новая Каледония
+country_ne = Нигер
+country_nf = Остров Норфолк
+country_ng = Нигерия
+country_ni = Никарагуа
+country_nl = Нидерланды
+country_no = Норвегия
+country_np = Непал
+country_nr = Науру
+country_nu = Ниуэ
+country_nz = Новая Зеландия
+country_om = Оман
+country_pa = Панама
+country_pe = Перу
+country_pf = Французская Полинезия
+country_pg = Папуа - Новая Гвинея
+country_ph = Филиппины
+country_pk = Пакистан
+country_pl = Польша
+country_pm = Сен-Пьер и Микелон
+country_pn = Питкэрн
+country_pr = Пуэрто-Рико
+country_ps = Палестина
+country_pt = Португалия
+country_pw = Палау
+country_py = Парагвай
+country_qa = Катар
+country_re = Воссоединение
+country_ro = Румыния
+country_rs = Сербия
+country_ru = Российская Федерация
+country_rw = Руанда
+country_sa = Саудовская Аравия
+country_sb = Соломоновы острова
+country_sc = Сейшельские острова
+country_sd = Судан
+country_se = Швеция
+country_sg = Сингапур
+country_sh = Святой Елены, Вознесения и Тристан-да-Кунья
+country_si = Словения
+country_sj = Шпицберген и Ян Майен
+country_sk = Словакия
+country_sl = Сьерра-Леоне
+country_sm = Сан-Марино
+country_sn = Сенегал
+country_so = Сомали
+country_sr = Суринам
+country_ss = Южный Судан
+country_st = Сан-Томе и Принсипи
+country_sv = Эль Сальвадор
+country_sx = Синт-Мартен
+country_sy = Сирия
+country_sz = Эсватини
+country_ta = Тристан-да-Кунья
+country_tc = Острова Теркс и Кайкос
+country_td = Чад
+country_tg = Идти
+country_th = Таиланд
+country_tj = Таджикистан
+country_tk = Токелау
+country_tl = Тимор-Лешти
+country_tm = Туркменистан
+country_tn = Тунис
+country_to = Тонга
+country_tr = Турция
+country_tt = Тринидад и Тобаго
+country_tv = Тувалу
+country_tw = Тайвань
+country_tz = Танзания
+country_ua = Украина
+country_ug = Уганда
+country_us = Соединенные Штаты Америки
+country_uy = Уругвай
+country_uz = Узбекистан
+country_va = Ватикан
+country_vc = Святой Винсент и Гренадины
+country_ve = Венесуэла
+country_vg = Виргинские острова, Британские
+country_vi = Виргинские острова, США
+country_vn = Вьетнам
+country_vu = Вануату
+country_wf = Уоллис и Футуна
+country_ws = Самоа
+country_xk = Косово
+country_ye = Йемен
+country_yt = Майотта
+country_za = Южная Африка
+country_zm = Замбия
+country_zw = Зимбабве
+currency_amount = ¤{$amount}
 dot = .
 email_confirmation_code =
     Код: {$token}
@@ -510,6 +761,7 @@ label_audio_call = Аудиозвонок{$by ->
         *[other] {" "}от {$by}
     }
 label_auto_gain_control = Авторегулировка громкости
+label_available_balance_amount = Доступный баланс: ¤{$amount}
 label_avatar_removed = {$author} удалил(а) аватар
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}удалил(а) аватар
@@ -518,8 +770,6 @@ label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}обновил(а) аватар
 label_away = отошёл
 label_background = Фон
-label_besides_freelance_is_an_option_too1 = Кроме того, предусмотрена возможность сотрудничества в качестве фриланс разработчика. Со списком задач и условиями сотрудничества можно ознакомится на странице{" "}
-label_besides_freelance_is_an_option_too2 = Freelance.
 label_block = Заблокировать
 label_block_date = Дата блокировки
 label_block_reason = Причина блокировки
@@ -561,31 +811,9 @@ label_chats = Чаты
 label_chats_and_groups = Чаты и группы: {$count}
 label_city_country_activated_at = {$city}, {$country} • {$at}
 label_clear_history = Очистить чат
-label_code_requirements = Требования к коду
-label_code_requirements_contribution_guide1 = - код должен соответсвовать{" "}
-label_code_requirements_contribution_guide2 = Contribution Guide
-label_code_requirements_contribution_guide3 = ;
-label_code_requirements_documentation1 = - код должен быть покрыт документацией по правилам{" "}
-label_code_requirements_documentation2 = Effective Dart: Documentation
-label_code_requirements_documentation3 = ;
-label_code_requirements_tests = - код должен быть покрыт модульными, виджет и/или интеграционными тестами (при необходимости).
-label_conditions = Условия
-label_conditions_backend_developer =
-    - Удалённое сотрудничество;
-    - Ежедневная оплата;
-    - 4-х, 6-ти или 8-ми часовой рабочий день;
-    - Учёт рабочего времени и оплата переработок;
-    - Возможность релокации.
-label_conditions_frontend_developer =
-    - Удалённое сотрудничество;
-    - Ежедневная оплата;
-    - 4-х, 6-ти или 8-ми часовой рабочий день;
-    - Учёт рабочего времени и оплата переработок;
-    - Возможность релокации.
 label_confidentiality = Конфиденциальность
 label_connection_lost = Связь потеряна
 label_connection_restored = Связь восстановлена
-label_contact_us_via_provided_email = Свяжитесь с нами по e-mail {$email}.
 label_copied = Скопировано
 label_copy = Копировать
 label_count_gb = {$count} GB
@@ -595,6 +823,8 @@ label_count_seconds = {$count} { $count ->
         *[other] секунд
     }
 label_critical_update_is_available = Текущая версия не поддерживается
+label_country = Страна
+label_country_selection = Выбрать страну
 label_create_group = Создание группы
 label_create_link = Создать ссылку
 label_current_password = Текущий пароль
@@ -637,10 +867,8 @@ label_expandable_more = ещё
 label_file_downloaded = Файл скачан
 label_files_downloaded = Файлы скачаны
 label_files_saved_to_gallery = Файлы добавлены в галерею
-label_for_learning_use_our_flutter_incubator1 = В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Flutter, Вы можете воспользоваться нашей{" "}
-label_for_learning_use_our_flutter_incubator2 = Песочницей.
-label_for_learning_use_our_rust_incubator1 = В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей{" "}
-label_for_learning_use_our_rust_incubator2 = Песочницей.
+label_for_authors = Для авторов
+label_for_promoters = Для промоутеров
 label_forward_message = Переслать сообщение
 label_forwarded_message = Пересланное сообщение
 label_forwarded_messages = {$count ->
@@ -666,6 +894,7 @@ label_incoming_call = Входящий звонок
 label_information = Информация
 label_installation_error = Ошибка установки
 label_installation_error_description = Веб приложение уже установлено или недоступно в Вашем браузере
+label_instant_top_up = Мгновенное пополнение
 label_interface = Интерфейс
 label_introduction_description =
     Доступ к аккаунту сохраняется в течение одного года или пока:
@@ -709,11 +938,8 @@ label_messenger1 = Мессенджер
 label_messenger2 = от Tapopa
 label_microphone_changed = Микрофон был изменён на {$microphone}
 label_mobile_apps = Мобильные приложения
-label_money = Деньги
-label_money_freelance =
-    - оплата по факту выполнения задачи. Выполненной считается задача, прошедшая ревью;
-    - оплата отправляется на основании договора о предоставлении услуг и/или инвойса;
-    - оплата осуществляется криптовалютой USDT или USDC.
+label_monetization_details = Подробности монетизации
+label_monetization_history = История монетизации
 label_monolog_created = Чат создан
 label_mute_or_unmute_chats = Включить или выключить уведомления
 label_mute_slash_unmute_microphone = Включить/выключить микрофон
@@ -732,8 +958,6 @@ label_no_chats = Нет чатов
 label_no_limit = ∞
 label_no_messages = Нет сообщений
 label_no_notes = Приватный чат
-label_no_updates_are_available_subtitle = У Вас установлена наиболее актуальная версия
-label_no_updates_are_available_title = Нет доступных обновлений
 label_no_users = Нет пользователей
 label_no_welcome_message = Приветственное сообщение не добавлено
 label_noise_suppression = Шумоподавление
@@ -751,6 +975,7 @@ label_one_time_password = Одноразовый код
 label_online = онлайн
 label_open_calls_in_app = В том же окне
 label_open_calls_in_window = В отдельном окне
+label_order_payment = Закажите свою выплату
 label_outgoing_call = Звоним
 label_participants = Участников: {$count}
 label_participants_of = Участников: {$a} из {$b}
@@ -760,6 +985,9 @@ label_password_not_set1 = Пароль не задан.{" "}
 label_password_not_set2 = Доступ к аккаунту может быть потерян.
 label_password_or_one_time_code = Пароль или одноразовый код
 label_password_set = Пароль задан
+label_payouts_and_information = Вывод средств и информация
+label_paypal = PayPal
+label_paypal_is_not_available_in_this_country = PayPal недоступен в этой стране
 label_personal_data_deletion = Удалить аккаунт
 label_personal_data_deletion_description1 = Данный процесс{" "}
 label_personal_data_deletion_description2 = НЕОБРАТИМ
@@ -790,57 +1018,18 @@ label_recover_account_description = Укажите Ваш Gapopa ID, логин 
 label_recovery_code = Код восстановления
 label_recovery_code_sent = Проверочный код отправлен на верифицрованный E-mail, указанный для данного аккаунта. Ввведите код ниже.
 label_recovery_enter_new_password = Введите новый пароль ниже.
-label_regulations = Регламент
-label_regulations_freelance =
-    1. Выбрать задачу из списка ниже
-    2. Сделать форк проекта и по нему оформить PR (Pull Request)
-    3. Связаться с командой фронтэнда (кнопка ниже) и отправить заявку, указав:
-        - логин на GitHub'е
-        - номер PR (Pull Request)
-        - предполагаемый срок выполнения задачи (дедлайн)
-        - предполагаемый способ решения задачи
-    4. В ответном сообщении Вы получите подтверждение, что задача закреплена за Вами (задача переводится в статус `In progress`)
-    5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа
-    6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
 label_remove_member = Удалить из группы
 label_repeat_password = Подтвердить пароль
-label_replace_this_text_with_concern = Опишите проблему.
-label_replace_this_text_with_feedback = Обратная связь.
 label_replies = [{$count} {$count ->
     [1] ответ
     [few] ответа
     *[other] ответов
 }]
 label_report = Пожаловаться
-label_requirements = Требования
-label_requirements_backend_developer =
-    - знание языка Rust;
-    - понимание FFI и UB;
-    - навык оптимизации кода и умение использовать инструменты профайлинга кода;
-    - понимание принципов работы клиент-серверных web-приложений;
-    - понимание принципов проектирования структур баз данных;
-    - понимание принципов DDD и слоенной архитектуры;
-    - навык написания модульных и функциональных тестов;
-    - опыт работы с Git;
-    - умение использовать операционные системы типа *nix;
-    - умение читать и понимать техническую литературу на английском языке;
-    - возможность обеспечить качественную аудио- и видеосвязь.
-label_requirements_frontend_developer =
-    - знание GraphQL и WebSocket;
-    - умение документировать код;
-    - умение покрывать код юнит и/или интеграционными тестами;
-    - понимание принципов DDD и чистой архитектуры;
-    - опыт работы с Git;
-    - умение читать и понимать техническую литературу на английском языке;
-    - возможность обеспечить качественную аудио- и видеосвязь.
 label_resend = Отправить повторно
 label_resend_timeout =
     Отправить повторно
     ({$timeout})
-label_review = Ревью
-label_review_freelance =
-    - выполненная задача должна пройти ревью кода;
-    - запрос на ревью выполненной задачи, комментарии, пояснения, аргументы должны размещаться публично на GitHub в соответствующей ветке или пул-реквесте.
 label_saved_files = Скачанные файлы
 label_screen_sharing = Демонстрация экрана
 label_search = Поиск
@@ -858,7 +1047,6 @@ label_sign_in_with_password = Войти с паролем
 label_sign_up = Создать аккаунт
 label_sign_up_with_password = Регистрация с паролем
 label_signed_in = Вход выполнен
-label_source_code = Исходный код
 label_speaker_changed = Спикер был изменен на {$speaker}
 label_status = Статус
 label_storage = Хранилище
@@ -867,39 +1055,11 @@ label_subtitle_participants = {$count} {$count ->
     [few] участника
     *[other] участников
 }
-label_support_service = Служба поддержки
 label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_menu = Меню
-label_tasks = Задачи
-label_tech_stack = Стек технологий
-label_tech_stack_backend_developer =
-    - Rust - язык;
-    - actix-web - веб-фреймворк;
-    - CockroachDB - база данных;
-    - baza - файловое хранилище;
-    - Medea - медиа сервер;
-    - Firebase - push уведомления;
-    - GraphQL - API;
-    - Cucumber - E2E тестирование.
-label_tech_stack_freelance =
-    - Dart - язык;
-    - Flutter - фреймворк;
-    - GetX - Dependency Injection и State Management;
-    - Navigator 2.0 (Router) - навигация;
-    - Drift - локальная база данных;
-    - Firebase - push уведомления;
-    - GraphQL и Artemis - связь с бэкэндом;
-    - Gherkin - E2E тестирование.
-label_tech_stack_frontend_developer =
-    - Язык - Dart;
-    - Flutter - фреймворк;
-    - GetX - Dependency Injection и State Management;
-    - Navigator 2.0 (Router) - навигация;
-    - Drift - локальная база данных;
-    - Firebase - push уведомления;
-    - GraphQL и Artemis - связь с бэкэндом;
-    - Gherkin - E2E тестирование.
+label_tab_partner = Партнёрство
+label_tab_wallet = Кошелёк
 label_terminate_sessions = Завершить сессию(-ии)
 label_terms_and_privacy_policy = Условия и Политика конфиденциальности
 label_text_status = Текстовый статус
@@ -941,6 +1101,8 @@ label_visits_count = Кликов: {$count}
 label_voice_processing = Обработка голоса
 label_wait_seconds = Подождите {$for} с
 label_waiting_for_connection = Ожидание подключения...
+label_wallet = Кошелёк
+label_wallet_history = История кошелька
 label_warning = Внимание
 label_warning_uppercase = ВНИМАНИЕ
 label_was_added = {$author} вступил(а) по прямой ссылке
@@ -950,20 +1112,9 @@ label_was_at = был(а) {$at}
 label_was_removed = {$author} покинул(а) группу
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}покинул(а) группу
-label_we_welcome = Будет преимуществом:
-label_we_welcome_backend_developer =
-    - навык работы с языками C, C++;
-    - навык работы по CQRS+ES парадигме;
-    - навык работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
-    - навык работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.
 label_welcome_message = Приветственное сообщение
 label_welcome_message_description = Приветственное сообщение отображается только пользователям, которые добавили Вас в свой список чатов. Не отображается пользователям, которых в свой список чатов добавили Вы.
 label_welcome_message_hint = Добавить, редактировать, удалить
-label_what_we_can_help_you_with = Чем мы можем Вам помочь?
-label_work_with_us = Работайте с нами
-label_work_with_us_desc =
-    Работайте
-    с нами
 label_you = Вы
 label_you_can_use_randomly_generated_link = Вы можете использовать сгенерированную ссылку или создать собственную.
 label_you_were_added_to_group = Вы добавлены в группу
@@ -971,6 +1122,7 @@ label_your_direct_link = Прямая ссылка на чат с Вами
 label_your_name = Ваше имя
 label_your_num = Ваш Gapopa ID
 label_your_password = Ваш пароль
+label_your_statistics = Ваша статистика
 label_your_status = Ваш статус
 plus =  +
 question_mark = ?

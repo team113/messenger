@@ -31,7 +31,6 @@ import '/ui/page/login/controller.dart';
 import '/ui/page/login/view.dart';
 import '/ui/page/support/log/view.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
@@ -66,30 +65,6 @@ class AuthView extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        StyledCupertinoButton(
-                          label: 'btn_work_with_us'.l10n,
-                          style: style.fonts.small.regular.secondary,
-                          onPressed: () => router.work(null),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 8),
-                          width: 1,
-                          height: 12,
-                          color: style.colors.onBackgroundOpacity20,
-                        ),
-                        if (PlatformUtils.isWeb || Config.downloadable) ...[
-                          StyledCupertinoButton(
-                            label: 'btn_download'.l10n,
-                            style: style.fonts.small.regular.secondary,
-                            onPressed: () => _download(context),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 8),
-                            width: 1,
-                            height: 12,
-                            color: style.colors.onBackgroundOpacity20,
-                          ),
-                        ],
                         Obx(() {
                           final Language? chosen = L10n.chosen.value;
 
@@ -441,47 +416,6 @@ class AuthView extends StatelessWidget {
           );
         });
       },
-    );
-  }
-
-  /// Opens a [ModalPopup] listing the buttons for downloading the application.
-  Future<void> _download(BuildContext context) async {
-    await ModalPopup.show(
-      context: context,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ModalPopupHeader(text: 'btn_download'.l10n),
-          const SizedBox(height: 12),
-          Flexible(
-            child: ListView(
-              padding: ModalPopup.padding(context),
-              shrinkWrap: true,
-              children: [
-                // TODO: Uncomment when ready to ship the provided platforms.
-                // const DownloadButton.windows(),
-                // const SizedBox(height: 8),
-                // const DownloadButton.macos(),
-                // const SizedBox(height: 8),
-                // const DownloadButton.linux(),
-                // const SizedBox(height: 8),
-                if (Config.appStoreUrl.isNotEmpty) ...[
-                  DownloadButton.appStore(),
-                  const SizedBox(height: 8),
-                ],
-                // const DownloadButton.ios(),
-                // const SizedBox(height: 8),
-                if (Config.googlePlayUrl.isNotEmpty) ...[
-                  DownloadButton.googlePlay(),
-                  const SizedBox(height: 8),
-                ],
-                // const DownloadButton.android(),
-              ],
-            ),
-          ),
-          const SizedBox(height: 18),
-        ],
-      ),
     );
   }
 

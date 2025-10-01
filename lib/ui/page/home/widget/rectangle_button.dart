@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -33,6 +35,8 @@ class RectangleButton extends StatelessWidget {
     this.trailingColor,
     this.radio = false,
     this.toggleable = false,
+    this.leading,
+    this.subtitle,
   });
 
   /// Label of this [RectangleButton].
@@ -57,6 +61,9 @@ class RectangleButton extends StatelessWidget {
   /// Indicator whether [onPressed] can be invoked when [selected].
   final bool toggleable;
 
+  final Widget? leading;
+  final String? subtitle;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -70,64 +77,86 @@ class RectangleButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         onTap: selected && !toggleable ? null : onPressed,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            subtitle == null ? 16 : 8,
+            16,
+            subtitle == null ? 16 : 8,
+          ),
           child: Row(
             children: [
+              if (leading != null) ...[leading!, const SizedBox(width: 8)],
               Expanded(
-                child: DefaultTextStyle(
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: selected && !radio
-                      ? style.fonts.normal.regular.onPrimary
-                      : style.fonts.normal.regular.onBackground,
-                  child: child ?? Text(label ?? ''),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DefaultTextStyle(
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: selected && !radio
+                          ? style.fonts.normal.regular.onPrimary
+                          : style.fonts.normal.regular.onBackground,
+                      child: child ?? Text(label ?? ''),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle!,
+                        style: selected
+                            ? style.fonts.small.regular.onPrimary
+                            : style.fonts.small.regular.secondary,
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              const SizedBox(width: 12),
-              if (trailingColor == null)
-                SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: SafeAnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: selected
-                        ? CircleAvatar(
-                            backgroundColor: radio
-                                ? style.colors.primary
-                                : style.colors.onPrimary,
-                            radius: 12,
-                            child: Icon(
-                              Icons.check,
-                              color: radio
-                                  ? style.colors.onPrimary
-                                  : style.colors.primary,
-                              size: 12,
-                            ),
-                          )
-                        : radio
-                        ? const SelectedDot()
-                        : const SizedBox(),
-                  ),
-                )
-              else
-                SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircleAvatar(
-                    backgroundColor: trailingColor,
-                    radius: 12,
+              if (toggleable) ...[
+                const SizedBox(width: 12),
+                if (trailingColor == null)
+                  SizedBox(
+                    width: 20,
+                    height: 20,
                     child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       child: selected
-                          ? Icon(
-                              Icons.check,
-                              color: style.colors.onPrimary,
-                              size: 12,
+                          ? CircleAvatar(
+                              backgroundColor: radio
+                                  ? style.colors.primary
+                                  : style.colors.onPrimary,
+                              radius: 12,
+                              child: Icon(
+                                Icons.check,
+                                color: radio
+                                    ? style.colors.onPrimary
+                                    : style.colors.primary,
+                                size: 12,
+                              ),
                             )
-                          : const SizedBox(key: Key('None')),
+                          : radio
+                          ? const SelectedDot()
+                          : const SizedBox(),
+                    ),
+                  )
+                else
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircleAvatar(
+                      backgroundColor: trailingColor,
+                      radius: 12,
+                      child: SafeAnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: selected
+                            ? Icon(
+                                Icons.check,
+                                color: style.colors.onPrimary,
+                                size: 12,
+                              )
+                            : const SizedBox(key: Key('None')),
+                      ),
                     ),
                   ),
-                ),
+              ],
             ],
           ),
         ),

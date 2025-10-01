@@ -799,10 +799,6 @@ class MyProfileController extends GetxController {
   /// Deletes the cache used by the application.
   Future<void> clearCache() => CacheWorker.instance.clear();
 
-  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
-  Future<void> setWorkWithUsTabEnabled(bool enabled) =>
-      _settingsRepository.setWorkWithUsTabEnabled(enabled);
-
   /// Highlights the provided [tab].
   Future<void> highlight(ProfileTab? tab) async {
     highlightIndex.value = tab?.index;

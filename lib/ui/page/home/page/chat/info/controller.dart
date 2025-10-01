@@ -24,11 +24,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '/api/backend/schema.dart'
     show CropAreaInput, PointInput, UpdateChatAvatarErrorCode;
-import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
 import '/domain/model/mute_duration.dart';
@@ -362,33 +360,7 @@ class ChatInfoController extends GetxController {
   // TODO: Replace with GraphQL mutation when implemented.
   /// Reports the [chat].
   Future<void> reportChat() async {
-    String? encodeQueryParameters(Map<String, String> params) {
-      return params.entries
-          .map(
-            (e) =>
-                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
-          )
-          .join('&');
-    }
-
-    try {
-      await launchUrl(
-        Uri(
-          scheme: 'mailto',
-          path: Config.support,
-          query: encodeQueryParameters({
-            'subject': '[Abuse] Report on ChatId($chatId)',
-            'body': '${reporting.text}\n\n',
-          }),
-        ),
-      );
-    } catch (e) {
-      await MessagePopup.error(
-        'label_contact_us_via_provided_email'.l10nfmt({
-          'email': Config.support,
-        }),
-      );
-    }
+    // TODO: Open support chat.
   }
 
   /// Clears all the [ChatItem]s of the [chat].

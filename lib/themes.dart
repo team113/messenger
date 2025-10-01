@@ -150,9 +150,11 @@ class Themes {
     if (_roboto == null) {
       _roboto = FontLoader('Roboto');
       _roboto?.addFont(
-        PlatformUtils.loadBytes('assets/fonts/Roboto-Regular.ttf'),
+        PlatformUtils.loadBytes('assets/fonts/Roboto-Gapopa-Regular.ttf'),
       );
-      _roboto?.addFont(PlatformUtils.loadBytes('assets/fonts/Roboto-Bold.ttf'));
+      _roboto?.addFont(
+        PlatformUtils.loadBytes('assets/fonts/Roboto-Gapopa-Bold.ttf'),
+      );
       _roboto?.load().then((_) async {
         Log.debug('light() -> `FontLoader` has loaded the font', 'Themes');
       });

@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -302,6 +304,12 @@ class SvgIcons {
 
   static const SvgData partner = SvgData(
     'assets/icons/partner.svg',
+    width: 36,
+    height: 28,
+  );
+
+  static const SvgData partnerEmpty = SvgData(
+    'assets/icons/partner_empty.svg',
     width: 36,
     height: 28,
   );
@@ -1554,12 +1562,6 @@ class SvgIcons {
     height: 19,
   );
 
-  static const SvgData directLink = SvgData(
-    'assets/icons/direct_link.svg',
-    width: 32.04,
-    height: 33.5,
-  );
-
   static const SvgData notesSmall = SvgData(
     'assets/icons/notes_small.svg',
     width: 19,
@@ -1912,5 +1914,71 @@ class SvgIcons {
     'assets/icons/remove_member_white.svg',
     width: 19,
     height: 18,
+  );
+
+  static const SvgData menuOrderMoney = SvgData(
+    'assets/icons/menu/withdraw.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData menuAuthor = SvgData(
+    'assets/icons/menu/author.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData menuPromoter = SvgData(
+    'assets/icons/menu/promoter.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData menuStatistics = SvgData(
+    'assets/icons/menu/statistics.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData menuMonetization = SvgData(
+    'assets/icons/menu/monetization.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData menuTransactions = SvgData(
+    'assets/icons/menu/transactions.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData menuTopUp = SvgData(
+    'assets/icons/menu/top_up.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData wallet = SvgData(
+    'assets/icons/wallet.svg',
+    width: 34.01,
+    height: 29.73,
+  );
+
+  static const SvgData walletOpened = SvgData(
+    'assets/icons/wallet_opened.svg',
+    width: 34.01,
+    height: 29.73,
+  );
+
+  static const SvgData payPal = SvgData(
+    'assets/icons/paypal.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData priceSticker = SvgData(
+    'assets/icons/price_sticker.svg',
+    width: 54,
+    height: 29,
   );
 }

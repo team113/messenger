@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -173,7 +175,6 @@ class MenuTabView extends StatelessWidget {
                       key: key,
                       inverted: switch (tab) {
                         ProfileTab.danger => router.route == Routes.erase,
-                        ProfileTab.support => router.route == Routes.support,
                         (_) => inverted,
                       },
                       onPressed: switch (tab) {
@@ -181,7 +182,6 @@ class MenuTabView extends StatelessWidget {
                           await TermsOfUseView.show(router.context!);
                         },
                         ProfileTab.danger => () => router.erase(push: true),
-                        ProfileTab.support => router.support,
                         ProfileTab.logout => () async {
                           await ConfirmLogoutView.show(router.context!);
                         },

@@ -68,6 +68,7 @@ Future<void> main(List<String> argv) async {
       defaultsTo: [
         '^email_',
         '^fcm_',
+        '^country_',
 
         // TODO: Remove when WebAssembly performance is fixed.
         'btn_call_cut_video',

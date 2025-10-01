@@ -221,12 +221,6 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setWorkWithUsTabEnabled(bool enabled) async {
-    Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
-    await _set(settings: (e) => e..workWithUsTabEnabled = enabled);
-  }
-
-  @override
   Future<void> setMuteKeys(List<String>? keys) async {
     Log.debug('setMuteKeys($keys)', '$runtimeType');
     await _set(settings: (e) => e..muteKeys = keys?.toList());

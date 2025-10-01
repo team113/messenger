@@ -216,6 +216,7 @@ flutter:
     - assets/icons/notification/
     - assets/icons/user_agent/
     - assets/images/
+    - assets/images/country/
     - assets/images/logo/
     - assets/images/media_buttons/
     - assets/l10n/
