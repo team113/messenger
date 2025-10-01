@@ -117,7 +117,7 @@ class UserController extends GetxController {
   final TextFieldState reporting = TextFieldState();
 
   /// User name
-  late final String name;
+  late String name;
 
   /// Indicator whether the editing mode is enabled.
   final RxBool nameEditing = RxBool(false);
