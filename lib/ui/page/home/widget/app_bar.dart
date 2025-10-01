@@ -15,13 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Custom stylized and decorated [AppBar].
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
