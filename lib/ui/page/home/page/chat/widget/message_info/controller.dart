@@ -30,13 +30,17 @@ import '/util/obs/obs.dart';
 
 /// Controller of the [MessageInfo] popup.
 class MessageInfoController extends GetxController {
-  MessageInfoController(this.chatId, this.chatService, {this.reads = const []});
+  MessageInfoController(
+    this.chatId,
+    this._chatService, {
+    this.reads = const [],
+  });
 
   /// ID of the [Chat] this page is about.
   final ChatId? chatId;
 
   /// [Chat]s service used to get the [chat] value.
-  final ChatService chatService;
+  final ChatService _chatService;
 
   /// [LastChatRead]s who read the [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
@@ -82,7 +86,7 @@ class MessageInfoController extends GetxController {
     }
 
     try {
-      _chat = await chatService.get(chatId!);
+      _chat = await _chatService.get(chatId!);
 
       if (_chat != null) {
         for (final member in _chat!.members.values) {
