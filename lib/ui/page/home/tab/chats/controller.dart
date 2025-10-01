@@ -94,8 +94,6 @@ class ChatsTabController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  final ScrollController sliverScrollController = ScrollController();
-
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
 
