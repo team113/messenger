@@ -135,7 +135,7 @@ class UserView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: Text(
-                c.contact.value?.contact.value.name.val ?? c.name.text,
+                c.contact.value?.contact.value.name.val ?? c.name,
                 style: style.fonts.larger.regular.onBackground,
                 textAlign: TextAlign.center,
               ),

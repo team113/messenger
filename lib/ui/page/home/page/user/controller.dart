@@ -117,8 +117,8 @@ class UserController extends GetxController {
   /// [TextFieldState] for report reason.
   final TextFieldState reporting = TextFieldState();
 
-  /// [TextFieldState] for [ChatContact] name editing.
-  late final TextFieldState name;
+  /// User name
+  late final String name;
 
   /// Indicator whether the editing mode is enabled.
   final RxBool nameEditing = RxBool(false);
@@ -193,20 +193,6 @@ class UserController extends GetxController {
 
   @override
   void onInit() {
-    name = TextFieldState(
-      onFocus: (s) {
-        if (s.text.isNotEmpty) {
-          try {
-            UserName(s.text);
-          } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
-          } catch (e) {
-            s.error.value = e.toString();
-          }
-        }
-      },
-    );
-
     _updateWorker();
 
     _fetchUser().whenComplete(() {
@@ -521,48 +507,6 @@ class UserController extends GetxController {
     }
   }
 
-  /// Submits the [name] field.
-  Future<void> submitName() async {
-    name.focus.unfocus();
-
-    if (name.text == contact.value?.contact.value.name.val) {
-      name.unsubmit();
-      nameEditing.value = false;
-      return;
-    }
-
-    UserName? userName;
-    try {
-      userName = UserName(name.text);
-    } on FormatException catch (_) {
-      name.status.value = RxStatus.empty();
-      name.error.value = 'err_incorrect_input'.l10n;
-      name.unsubmit();
-      return;
-    }
-
-    if (name.error.value == null || name.resubmitOnError.isTrue) {
-      name.status.value = RxStatus.loading();
-      name.editable.value = false;
-
-      try {
-        await _contactService.changeContactName(contact.value!.id, userName);
-        name.error.value = null;
-        nameEditing.value = false;
-        name.unsubmit();
-      } on UpdateChatContactNameException catch (e) {
-        name.error.value = e.toString();
-      } catch (e) {
-        name.resubmitOnError.value = true;
-        name.error.value = 'err_data_transfer'.l10n;
-        rethrow;
-      } finally {
-        name.status.value = RxStatus.empty();
-        name.editable.value = true;
-      }
-    }
-  }
-
   /// Highlights the item with the provided [index].
   void highlight(int index) {
     highlighted.value = index;
@@ -598,23 +542,18 @@ class UserController extends GetxController {
   /// Listens to the [contact] or [user] changes updating the [name].
   void _updateWorker() {
     if (user != null && contact.value != null) {
-      name.unchecked = contact.value!.contact.value.name.val;
+      name = contact.value!.contact.value.name.val;
 
       _worker?.dispose();
       _worker = ever(contact.value!.contact, (contact) {
-        if (!name.isFocused.value && !name.changed.value) {
-          name.unchecked = contact.name.val;
-        }
+        name = contact.name.val;
       });
     } else if (user != null) {
-      name.unchecked =
-          user!.user.value.name?.val ?? user!.user.value.num.toString();
+      name = user!.user.value.getTitle();
 
       _worker?.dispose();
       _worker = ever(user!.user, (user) {
-        if (!name.isFocused.value && !name.changed.value) {
-          name.unchecked = user.name?.val ?? user.num.toString();
-        }
+        name = user.name?.val ?? user.num.toString();
       });
     }
   }
@@ -689,8 +628,9 @@ extension UserViewExt on User {
   }
 }
 
-extension UserExt on RxUser{
-  String getTitle() => contact.value?.contact.value.name.val ?? user.value.getTitle();
+extension UserExt on RxUser {
+  String getTitle() =>
+      contact.value?.contact.value.name.val ?? user.value.getTitle();
 }
 
 /// Extension adding an ability to get text represented indication of how long

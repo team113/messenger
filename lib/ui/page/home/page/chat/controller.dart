@@ -2571,7 +2571,7 @@ extension ChatViewExt on Chat {
           if (users.length < membersCount && users.length < 3) {
             names = members.take(3).map((e) => e.user.getTitle());
           } else {
-            names = users.take(3).map((e) => e.user.value.getTitle());
+            names = users.take(3).map((e) => e.getTitle());
           }
 
           title = names.join('comma_space'.l10n);
