@@ -116,9 +116,6 @@ class UserController extends GetxController {
   /// [TextFieldState] for report reason.
   final TextFieldState reporting = TextFieldState();
 
-  /// User name
-  late String name;
-
   /// Indicator whether the editing mode is enabled.
   final RxBool nameEditing = RxBool(false);
 
@@ -192,8 +189,6 @@ class UserController extends GetxController {
 
   @override
   void onInit() {
-    _updateWorker();
-
     _fetchUser().whenComplete(() {
       if (isClosed) {
         return;
@@ -204,8 +199,6 @@ class UserController extends GetxController {
           if (contact == null) {
             nameEditing.value = false;
           }
-
-          _updateWorker();
         });
       }
     });
@@ -522,8 +515,6 @@ class UserController extends GetxController {
       final FutureOr<RxUser?> fetched = _userService.get(id);
       user = fetched is RxUser? ? fetched : await fetched;
 
-      _updateWorker();
-
       _userSubscription = user?.updates.listen((_) {});
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
 
@@ -535,25 +526,6 @@ class UserController extends GetxController {
       await MessagePopup.error(e);
       router.pop();
       rethrow;
-    }
-  }
-
-  /// Listens to the [contact] or [user] changes updating the [name].
-  void _updateWorker() {
-    if (user != null && contact.value != null) {
-      name = contact.value!.contact.value.name.val;
-
-      _worker?.dispose();
-      _worker = ever(contact.value!.contact, (contact) {
-        name = contact.name.val;
-      });
-    } else if (user != null) {
-      name = user!.user.value.getTitle();
-
-      _worker?.dispose();
-      _worker = ever(user!.user, (user) {
-        name = user.name?.val ?? user.num.toString();
-      });
     }
   }
 }
