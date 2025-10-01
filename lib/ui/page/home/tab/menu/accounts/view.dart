@@ -66,7 +66,7 @@ class AccountsView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('AccountsView'),
-      init: AccountsController(Get.find(), Get.find()),
+      init: AccountsController(Get.find(), Get.find(), initial: initial),
       builder: (AccountsController c) {
         return Obx(() {
           final Widget header;
@@ -263,7 +263,9 @@ class AccountsView extends StatelessWidget {
             case AccountsViewStage.add:
               header = ModalPopupHeader(
                 text: 'label_add_account'.l10n,
-                onBack: () => c.stage.value = AccountsViewStage.accounts,
+                onBack: initial == AccountsViewStage.accounts
+                    ? () => c.stage.value = AccountsViewStage.accounts
+                    : null,
               );
 
               children = [

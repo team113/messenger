@@ -123,6 +123,7 @@ btn_call_video_off_desc =
 btn_call_video_on = Включить камеру
 btn_camera = Камера
 btn_cancel = Отменить
+btn_cancel_selection = Отменить выбор
 btn_call_video_on_desc =
     Включить
     камеру
@@ -131,6 +132,7 @@ btn_change_account_desc =
     Сменить
     аккаунт
 btn_change_password = Изменить пароль
+btn_change_status = Изменить статус
 btn_check_for_updates = Проверить наличие обновлений
 btn_clear = Очистить
 btn_clear_cache = Очистить кэш
@@ -599,6 +601,7 @@ label_count_seconds = {$count} { $count ->
 label_critical_update_is_available = Текущая версия не поддерживается
 label_create_group = Создание группы
 label_create_link = Создать ссылку
+label_current_account = Текущий аккаунт
 label_current_password = Текущий пароль
 label_days_short = {$days} д
 label_delete_account = Удалить аккаунт
@@ -911,6 +914,7 @@ label_terminate_sessions = Завершить сессию(-ии)
 label_terms_and_privacy_policy = Условия и Политика конфиденциальности
 label_text_status = Текстовый статус
 label_text_status_description = Максимум 25 символов
+label_text_status_hint = Текстовый статус. Макс. 25 символов.
 label_this_device = Это устройство
 label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
 label_typing = Печатает

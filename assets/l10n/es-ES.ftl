@@ -123,6 +123,7 @@ btn_call_video_off_desc =
 btn_call_video_on = Activar el video
 btn_camera = Cámara
 btn_cancel = Cancelar
+btn_cancel_selection = Cancelar selección
 btn_call_video_on_desc =
     Activar
     el video
@@ -131,6 +132,7 @@ btn_change_account_desc =
     Cambiar
     de cuenta
 btn_change_password = Cambiar la contraseña
+btn_change_status = Cambiar estado
 btn_check_for_updates = Verificar actualizaciones
 btn_clear = Borrar
 btn_clear_cache = Borrar caché
@@ -587,6 +589,7 @@ label_count_seconds =
 label_critical_update_is_available = La versión actual ya no es compatible
 label_create_group = Creación de grupo
 label_create_link = Crear enlace
+label_current_account = Cuenta corriente
 label_current_password = Contrseña actual
 label_days_short = {$days} d
 label_delete_account = Eliminar la cuenta
@@ -897,6 +900,7 @@ label_terminate_sessions = Terminar sesión(es)
 label_terms_and_privacy_policy = Condiciones y Política de Privacidad
 label_text_status = Estatus del texto
 label_text_status_description = Hasta 26 caracteres
+label_text_status_hint = Estatus del texto. Máximo 25 símbolos.
 label_this_device = Este dispositivo
 label_to_restore_chats_use_search = Para recuperar los chats, utiliza la búsqueda
 label_typing = Escribiendo
