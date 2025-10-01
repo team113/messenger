@@ -1502,6 +1502,7 @@ class AllowMultipleHorizontalDragGestureRecognizer
   @override
   void rejectGesture(int pointer) => acceptGesture(pointer);
 }
+
 /// [Intent] action for trigger search in chat.
 class _SearchAction extends Intent {
   const _SearchAction();
