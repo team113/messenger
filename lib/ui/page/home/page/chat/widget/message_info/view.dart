@@ -37,16 +37,16 @@ import 'controller.dart';
 class MessageInfo extends StatelessWidget {
   const MessageInfo({
     super.key,
-    required this.isGroup,
-    this.chatItem,
+    this.chatId,
+    this.chatItemId,
     this.reads = const [],
   });
 
-  /// Indicates whether this [ChatItem] belongs to a group chat.
-  final bool isGroup;
+  /// [ChatItem] for this [MessageInfo].
+  final ChatId? chatId;
 
   /// [ChatItem] for this [MessageInfo].
-  final ChatItem? chatItem;
+  final ChatItemId? chatItemId;
 
   /// [LastChatRead]s of a [ChatItem] this [MessageInfo] is about.
   final Iterable<LastChatRead> reads;
@@ -54,13 +54,13 @@ class MessageInfo extends StatelessWidget {
   /// Displays a [MessageInfo] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    required bool isGroup,
-    ChatItem? chatItem,
+    ChatId? chatId,
+    ChatItemId? chatItemId,
     Iterable<LastChatRead> reads = const [],
   }) {
     return ModalPopup.show(
       context: context,
-      child: MessageInfo(isGroup: isGroup, chatItem: chatItem, reads: reads),
+      child: MessageInfo(chatId: chatId, chatItemId: chatItemId, reads: reads),
     );
   }
 
@@ -69,15 +69,21 @@ class MessageInfo extends StatelessWidget {
     final Style style = Theme.of(context).style;
 
     return GetBuilder(
-      init: MessageInfoController(chatItem?.chatId, Get.find(), reads: reads),
+      init: MessageInfoController(chatId, chatItemId, Get.find(), reads: reads),
       builder: (MessageInfoController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 4),
             ModalPopupHeader(text: 'label_message'.l10n),
-            if (chatItem != null)
-              Padding(
+            Obx(() {
+              if (c.chatItem.value == null) {
+                return const SizedBox();
+              }
+
+              final ChatItem chatItem = c.chatItem.value!.value;
+
+              return Padding(
                 padding: ModalPopup.padding(context),
                 child: Table(
                   columnWidths: const {
@@ -91,13 +97,13 @@ class MessageInfo extends StatelessWidget {
                       'label_id'.l10n,
                       WidgetButton(
                         onPressed: () {
-                          PlatformUtils.copy(text: chatItem!.id.val);
+                          PlatformUtils.copy(text: chatItem.id.val);
                           MessagePopup.success('label_copied'.l10n);
                         },
                         child: Row(
                           children: [
                             Text(
-                              chatItem!.id.val,
+                              chatItem.id.val,
                               style: style.fonts.small.regular.onBackground,
                             ),
                             const SizedBox(width: 8),
@@ -110,24 +116,25 @@ class MessageInfo extends StatelessWidget {
                       style,
                       'label_sent'.l10n,
                       Text(
-                        chatItem!.at.val.toLocal().hmyMd,
+                        chatItem.at.val.toLocal().hmyMd,
                         style: style.fonts.small.regular.onBackground,
                       ),
                     ),
                     _tableRow(
                       style,
                       'label_status'.l10n,
-                      isGroup
+                      c.displayMembers.value == true
                           ? _contactList(context, c, reads)
                           : Text(
-                              _getLabelStatus(),
+                              _getLabelStatus(c.chatItem.value!.value),
                               style: style.fonts.small.regular.onBackground,
                             ),
-                      addPadding: isGroup ? 10 : 0,
+                      addPadding: c.displayMembers == true ? 10 : 0,
                     ),
                   ],
                 ),
-              ),
+              );
+            }),
             const SizedBox(height: 16),
           ],
         );
@@ -172,59 +179,57 @@ class MessageInfo extends StatelessWidget {
     MessageInfoController c,
     Iterable<LastChatRead> reads,
   ) {
-    return Obx(() {
-      final List<Widget> contactTiles = [];
+    final List<Widget> contactTiles = [];
 
-      for (final member in c.members) {
-        final bool isRead = reads.map((r) => r.memberId).contains(member.id);
-        final Widget widget = ContactTile(
-          user: member,
-          onTap: () {
-            Navigator.of(context).pop();
-            router.user(member.id, push: true);
-          },
-          height: 38,
-          trailing: [
-            isRead ? SvgIcon(SvgIcons.read) : SvgIcon(SvgIcons.delivered),
-          ],
-        );
-
-        if (isRead) {
-          contactTiles.insert(0, widget);
-        } else {
-          contactTiles.add(widget);
-        }
-      }
-
-      return Column(
-        children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 200),
-            child: Scrollbar(
-              controller: c.scrollController,
-              child: ListView.builder(
-                controller: c.scrollController,
-                itemCount: contactTiles.length,
-                itemBuilder: (_, i) => contactTiles[i],
-              ),
-            ),
-          ),
+    for (final member in c.members) {
+      final bool isRead = reads.map((r) => r.memberId).contains(member.id);
+      final Widget widget = ContactTile(
+        user: member,
+        onTap: () {
+          Navigator.of(context).pop();
+          router.user(member.id, push: true);
+        },
+        height: 38,
+        trailing: [
+          isRead ? SvgIcon(SvgIcons.read) : SvgIcon(SvgIcons.delivered),
         ],
       );
-    });
+
+      if (isRead) {
+        contactTiles.insert(0, widget);
+      } else {
+        contactTiles.add(widget);
+      }
+    }
+
+    return Column(
+      children: [
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 200),
+          child: Scrollbar(
+            controller: c.scrollController,
+            child: ListView.builder(
+              controller: c.scrollController,
+              itemCount: contactTiles.length,
+              itemBuilder: (_, i) => contactTiles[i],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   /// Returns localized string of [chatItem] status
-  String _getLabelStatus() {
+  String _getLabelStatus(ChatItem chatItem) {
     if (reads.isNotEmpty) {
       return 'label_message_status_read'.l10n;
     }
 
-    if (chatItem!.status.value.name == 'sent') {
+    if (chatItem.status.value.name == 'sent') {
       return 'label_message_status_delivered'.l10n;
     }
 
-    if (chatItem!.status.value.name == 'sending') {
+    if (chatItem.status.value.name == 'sending') {
       return 'label_message_status_sent'.l10n;
     }
 

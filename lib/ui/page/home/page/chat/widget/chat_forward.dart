@@ -897,8 +897,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               child: WidgetButton(
                 onPressed: () => MessageInfo.show(
                   context,
-                  isGroup: widget.chat.value?.isGroup == true,
-                  chatItem: widget.forwards.first.value,
+                  chatId: widget.forwards.first.value.chatId,
+                  chatItemId: widget.forwards.first.value.id,
                   reads: reads ?? [],
                 ),
                 child: Row(
@@ -957,8 +957,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           inverted: const SvgIcon(SvgIcons.infoWhite),
                           onPressed: () => MessageInfo.show(
                             context,
-                            isGroup: widget.chat.value?.isGroup == true,
-                            chatItem: widget.forwards.first.value,
+                            chatId: widget.forwards.first.value.chatId,
+                            chatItemId: widget.forwards.first.value.id,
                             reads: reads ?? [],
                           ),
                         ),

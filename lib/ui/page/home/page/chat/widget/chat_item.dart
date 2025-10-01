@@ -1356,9 +1356,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               child: WidgetButton(
                 onPressed: () => MessageInfo.show(
                   context,
-                  isGroup: widget.chat.value?.isGroup == true,
+                  chatId: widget.item.value.chatId,
+                  chatItemId: widget.item.value.id,
                   reads: reads ?? [],
-                  chatItem: widget.item.value,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 2),
@@ -1426,8 +1426,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           inverted: const SvgIcon(SvgIcons.infoWhite),
                           onPressed: () => MessageInfo.show(
                             context,
-                            isGroup: widget.chat.value?.isGroup == true,
-                            chatItem: widget.item.value,
+                            chatId: widget.item.value.chatId,
+                            chatItemId: widget.item.value.id,
                             reads: reads ?? [],
                           ),
                         ),

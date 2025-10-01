@@ -21,7 +21,10 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
+import '/store/chat_rx.dart';
+import '/store/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
@@ -32,12 +35,16 @@ import '/util/obs/obs.dart';
 class MessageInfoController extends GetxController {
   MessageInfoController(
     this.chatId,
+    this.chatItemId,
     this._chatService, {
     this.reads = const [],
   });
 
   /// ID of the [Chat] this page is about.
   final ChatId? chatId;
+
+  /// ID of the [ChatItem] this page is about.
+  final ChatItemId? chatItemId;
 
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
@@ -56,6 +63,10 @@ class MessageInfoController extends GetxController {
 
   /// Reactive state of the [RxChat] this page is about.
   RxChat? _chat;
+
+  final Rx<DtoChatItem?> chatItem = Rx(null);
+
+  final Rx<bool?> displayMembers = Rx(null);
 
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
@@ -81,12 +92,14 @@ class MessageInfoController extends GetxController {
   }
 
   Future<void> _initChat() async {
-    if (chatId == null) {
+    if (chatId == null || chatItemId == null) {
       return;
     }
 
     try {
       _chat = await _chatService.get(chatId!);
+      chatItem.value = await (_chat as RxChatImpl?)?.get(chatItemId!);
+      displayMembers.value = _chat?.chat.value.isGroup;
 
       if (_chat != null) {
         for (final member in _chat!.members.values) {
@@ -114,7 +127,10 @@ class MessageInfoController extends GetxController {
 
         _chat!.members.around();
       }
+
+      print('ZYX WTF 1');
     } catch (e) {
+      print('ZYX WTF 2');
       MessagePopup.error(e);
       rethrow;
     }
