@@ -137,7 +137,9 @@ class ChatsTabView extends StatelessWidget {
                                         key: const Key('SelectChatsButton'),
                                         label: 'btn_select'.l10n,
                                         onPressed: c.toggleSelecting,
-                                        trailing: const SvgIcon(SvgIcons.select),
+                                        trailing: const SvgIcon(
+                                          SvgIcons.select,
+                                        ),
                                         inverted: const SvgIcon(
                                           SvgIcons.selectWhite,
                                         ),
@@ -229,14 +231,15 @@ class ChatsTabView extends StatelessWidget {
                                 }),
                               ],
                             ),
-                            if(!PlatformUtils.isMobile)
-                              _subAppBar(context, c),
+                            if (!PlatformUtils.isMobile) _subAppBar(context, c),
                           ],
                         ),
-                        flexibleSpace: PlatformUtils.isMobile ? FlexibleSpaceBar(
-                          collapseMode: CollapseMode.parallax,
-                          background: _subAppBar(context, c),
-                        ) : null,
+                        flexibleSpace: PlatformUtils.isMobile
+                            ? FlexibleSpaceBar(
+                                collapseMode: CollapseMode.parallax,
+                                background: _subAppBar(context, c),
+                              )
+                            : null,
                       ),
                       Obx(() {
                         final Widget? child;
@@ -247,7 +250,8 @@ class ChatsTabView extends StatelessWidget {
                           );
                         } else if (c.groupCreating.isTrue) {
                           child = _groupCreating(context, c);
-                        } else if (c.search.value?.search.isEmpty.value == false) {
+                        } else if (c.search.value?.search.isEmpty.value ==
+                            false) {
                           child = _searchResult(context, c);
                         } else {
                           return _chats(context, c);
@@ -374,30 +378,26 @@ class ChatsTabView extends StatelessWidget {
       final Widget? searchField = c.search.value == null
           ? null
           : Theme(
-        data: ChatsTabView.theme(context),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-          ),
-          child: ReactiveTextField(
-            key: const Key('SearchField'),
-            prefix: Padding(padding: EdgeInsets.only(top: 0), child: Icon(Icons.search),),
-            state: c.search.value!.search,
-            hint: 'label_search'.l10n,
-            maxLines: 1,
-            dense: true,
-            padding: EdgeInsets.only(bottom: 10, top: 3),
-            style: style
-                .fonts
-                .medium
-                .regular
-                .onBackground,
-            onChanged: () =>
-            c.search.value!.query.value =
-                c.search.value!.search.text,
-          ),
-        ),
-      );
+              data: ChatsTabView.theme(context),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: ReactiveTextField(
+                  key: const Key('SearchField'),
+                  prefix: Padding(
+                    padding: EdgeInsets.only(top: 0),
+                    child: Icon(Icons.search),
+                  ),
+                  state: c.search.value!.search,
+                  hint: 'label_search'.l10n,
+                  maxLines: 1,
+                  dense: true,
+                  padding: EdgeInsets.only(bottom: 10, top: 3),
+                  style: style.fonts.medium.regular.onBackground,
+                  onChanged: () =>
+                      c.search.value!.query.value = c.search.value!.search.text,
+                ),
+              ),
+            );
 
       final Widget synchronization;
 
@@ -412,8 +412,7 @@ class ChatsTabView extends StatelessWidget {
             ),
           ),
         );
-      } else if (c.fetching.value == null &&
-          c.status.value.isLoadingMore) {
+      } else if (c.fetching.value == null && c.status.value.isLoadingMore) {
         synchronization = Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Center(
@@ -425,9 +424,7 @@ class ChatsTabView extends StatelessWidget {
           ),
         );
       } else {
-        synchronization = const SizedBox.shrink(
-          key: Key('Connected'),
-        );
+        synchronization = const SizedBox.shrink(key: Key('Connected'));
       }
 
       return Column(
@@ -441,16 +438,11 @@ class ChatsTabView extends StatelessWidget {
               child: AllowOverflow(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AnimatedSizeAndFade(
-                      sizeDuration: const Duration(
-                        milliseconds: 300,
-                      ),
-                      fadeDuration: const Duration(
-                        milliseconds: 300,
-                      ),
+                      sizeDuration: const Duration(milliseconds: 300),
+                      fadeDuration: const Duration(milliseconds: 300),
                       child: synchronization,
                     ),
                   ],
@@ -1134,10 +1126,7 @@ class ChatsTabView extends StatelessWidget {
 
     final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(25),
-      borderSide: BorderSide(
-        color: Colors.blue,
-        width: 1,
-      ),
+      borderSide: BorderSide(color: Colors.blue, width: 1),
     );
 
     return Theme.of(context).copyWith(
