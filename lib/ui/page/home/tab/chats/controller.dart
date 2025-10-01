@@ -91,9 +91,6 @@ class ChatsTabController extends GetxController {
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
 
-  /// Indicator whether [search]ing is active.
-  final RxBool searching = RxBool(false);
-
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
@@ -285,6 +282,8 @@ class ChatsTabController extends GetxController {
       });
     }
 
+    _toggleSearch(true);
+
     super.onInit();
   }
 
@@ -304,7 +303,6 @@ class ChatsTabController extends GetxController {
     _statusSubscription?.cancel();
 
     _searchSubscription?.cancel();
-    search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
     for (StreamSubscription s in _userSubscriptions.values) {
@@ -586,36 +584,6 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Enables and initializes the [search]ing.
-  void startSearch() {
-    searching.value = true;
-    _toggleSearch();
-    search.value?.search.focus.requestFocus();
-
-    sliverScrollController.animateTo(
-      sliverScrollController.position.minScrollExtent,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
-  }
-
-  /// Disables and disposes the [search]ing.
-  void closeSearch([bool disableSearch = false]) {
-    searching.value = false;
-    if (disableSearch) {
-      _toggleSearch(false);
-    } else {
-      search.value?.search.clear();
-      search.value?.query.value = '';
-
-      sliverScrollController.animateTo(
-        sliverScrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-  }
-
   /// Enables and initializes the group creating.
   void startGroupCreating() {
     groupCreating.value = true;
@@ -631,7 +599,6 @@ class ChatsTabController extends GetxController {
   /// Disables and disposes the group creating.
   void closeGroupCreating() {
     groupCreating.value = false;
-    closeSearch(true);
     router.navigation.value = true;
     router.navigator.value = null;
   }
@@ -794,7 +761,6 @@ class ChatsTabController extends GetxController {
     }
 
     search.value?.onClose();
-    search.value?.search.focus.removeListener(_disableSearchFocusListener);
     _searchSubscription?.cancel();
 
     if (enable) {
@@ -856,18 +822,8 @@ class ChatsTabController extends GetxController {
               }
             }
           });
-
-      search.value!.search.focus.addListener(_disableSearchFocusListener);
     } else {
       search.value = null;
-    }
-  }
-
-  /// Disables the [search], if its focus is lost or its query is empty.
-  void _disableSearchFocusListener() {
-    if (search.value?.search.focus.hasFocus == false &&
-        search.value?.search.text.isEmpty == true) {
-      closeSearch(!groupCreating.value);
     }
   }
 
@@ -876,10 +832,7 @@ class ChatsTabController extends GetxController {
   /// Intended to be used as a [HardwareKeyboard] listener.
   bool _escapeListener(KeyEvent e) {
     if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
-      if (searching.value) {
-        closeSearch(!groupCreating.value);
-        return true;
-      } else if (groupCreating.value) {
+      if (groupCreating.value) {
         closeGroupCreating();
         return true;
       }
@@ -950,10 +903,7 @@ class ChatsTabController extends GetxController {
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
   bool _onBack(bool _, RouteInfo _) {
-    if (searching.isTrue) {
-      closeSearch(!groupCreating.value);
-      return true;
-    } else if (groupCreating.isTrue) {
+    if (groupCreating.isTrue) {
       closeGroupCreating();
       return true;
     }

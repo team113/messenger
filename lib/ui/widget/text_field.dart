@@ -366,10 +366,11 @@ class ReactiveTextField extends StatelessWidget {
               textAlign: textAlign,
               onSubmitted: (s) => state.submit(),
               inputFormatters: formatters,
-              textAlignVertical: const TextAlignVertical(y: 0.15),
+              textAlignVertical: TextAlignVertical.center,
               readOnly: !enabled || !state.editable.value,
               enabled: enabled,
               decoration: InputDecoration(
+                isCollapsed: true,
                 alignLabelWithHint: true,
                 labelStyle:
                     floatingLabelBehavior == FloatingLabelBehavior.always

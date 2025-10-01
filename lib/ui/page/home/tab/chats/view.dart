@@ -30,7 +30,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
@@ -79,7 +78,7 @@ class ChatsTabView extends StatelessWidget {
             Obx(() {
               return AnimatedContainer(
                 duration: 200.milliseconds,
-                color: c.search.value != null || c.searching.value
+                color: c.search.value != null
                     ? style.colors.secondaryHighlight
                     : style.colors.secondaryHighlight.withValues(alpha: 0),
               );
@@ -93,259 +92,151 @@ class ChatsTabView extends StatelessWidget {
                     controller: c.scrollController,
                     slivers: [
                       SliverAppBar(
+                        surfaceTintColor: Colors.transparent,
+                        backgroundColor: style.colors.onPrimary,
                         pinned: true,
-                        floating: true,
-                        title: CustomAppBar(
-                          title: Row(
-                            children: [
-                              if (c.groupCreating.value)
-                                Text('label_create_group'.l10n)
-                              else if (c.selecting.value)
-                                Text(
-                                  'label_selected'.l10nfmt({
-                                    'count': c.selectedChats.length,
-                                  }),
-                                )
-                              else
-                                Text('label_chats'.l10n),
-                              AnimatedButton(
-                                key: c.searching.value
-                                    ? const Key('HideSearchButton')
-                                    : const Key('ShowSearchButton'),
-                                onPressed: c.searching.value
-                                    ? () =>
-                                          c.closeSearch(c.groupCreating.isFalse)
-                                    : () => c.startSearch(),
-                                decorator: (child) {
-                                  return Container(
-                                    padding: const EdgeInsets.only(
-                                      left: 20,
-                                      right: 6,
-                                    ),
-                                    width: 46,
-                                    height: double.infinity,
-                                    child: child,
-                                  );
-                                },
-                                child: Center(
-                                  child: Icon(
-                                    c.searching.value
-                                        ? Icons.keyboard_arrow_up
-                                        : Icons.keyboard_arrow_down,
-                                  ),
+                        floating: PlatformUtils.isMobile,
+                        titleSpacing: 0,
+                        expandedHeight: PlatformUtils.isMobile ? 106 : null,
+                        toolbarHeight: PlatformUtils.isMobile ? 56 : 106,
+                        title: Column(
+                          children: [
+                            CustomAppBar(
+                              title: Padding(
+                                padding: const EdgeInsets.only(left: 22),
+                                child: Row(
+                                  children: [
+                                    if (c.groupCreating.value)
+                                      Text('label_create_group'.l10n)
+                                    else if (c.selecting.value)
+                                      Text(
+                                        'label_selected'.l10nfmt({
+                                          'count': c.selectedChats.length,
+                                        }),
+                                      )
+                                    else
+                                      Text('label_chats'.l10n),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                          actions: [
-                            Obx(() {
-                              final Widget moreButton = ContextMenuRegion(
-                                key: const Key('ChatsMenu'),
-                                selector: c.moreKey,
-                                alignment: Alignment.topRight,
-                                enablePrimaryTap: true,
-                                enableSecondaryTap: false,
-                                enableLongTap: false,
-                                margin: const EdgeInsets.only(
-                                  bottom: 4,
-                                  right: 0,
-                                ),
-                                actions: [
-                                  ContextMenuButton(
-                                    key: const Key('SelectChatsButton'),
-                                    label: 'btn_select'.l10n,
-                                    onPressed: c.toggleSelecting,
-                                    trailing: const SvgIcon(SvgIcons.select),
-                                    inverted: const SvgIcon(
-                                      SvgIcons.selectWhite,
+                              actions: [
+                                Obx(() {
+                                  final Widget moreButton = ContextMenuRegion(
+                                    key: const Key('ChatsMenu'),
+                                    selector: c.moreKey,
+                                    alignment: Alignment.topRight,
+                                    enablePrimaryTap: true,
+                                    enableSecondaryTap: false,
+                                    enableLongTap: false,
+                                    margin: const EdgeInsets.only(
+                                      bottom: 4,
+                                      right: 0,
                                     ),
-                                  ),
-                                  ContextMenuButton(
-                                    label: 'btn_create_group'.l10n,
-                                    onPressed: c.startGroupCreating,
-                                    trailing: const SvgIcon(SvgIcons.group),
-                                    inverted: const SvgIcon(
-                                      SvgIcons.groupWhite,
-                                    ),
-                                  ),
-                                  ContextMenuDivider(),
-                                  ContextMenuButton(
-                                    label: 'label_chat_monolog'.l10n,
-                                    onPressed: () => router.chat(c.monolog),
-                                    trailing: const SvgIcon(
-                                      SvgIcons.notesSmall,
-                                    ),
-                                    inverted: const SvgIcon(
-                                      SvgIcons.notesSmallWhite,
-                                    ),
-                                  ),
-                                ],
-                                child: AnimatedButton(
-                                  decorator: (child) {
-                                    return Container(
-                                      key: c.moreKey,
-                                      padding: const EdgeInsets.only(
-                                        left: 12,
-                                        right: 18,
-                                      ),
-                                      height: double.infinity,
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          10,
-                                          0,
-                                          10,
-                                          0,
+                                    actions: [
+                                      ContextMenuButton(
+                                        key: const Key('SelectChatsButton'),
+                                        label: 'btn_select'.l10n,
+                                        onPressed: c.toggleSelecting,
+                                        trailing: const SvgIcon(SvgIcons.select),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.selectWhite,
                                         ),
-                                        child: child,
                                       ),
-                                    );
-                                  },
-                                  child: const SvgIcon(SvgIcons.more),
-                                ),
-                              );
-
-                              final Widget closeButton = AnimatedButton(
-                                key: const Key('CloseSelectingButton'),
-                                onPressed: () {
-                                  if (c.selecting.value) {
-                                    c.toggleSelecting();
-                                  } else if (c.groupCreating.value) {
-                                    c.closeGroupCreating();
-                                  }
-                                },
-                                decorator: (child) {
-                                  return Container(
-                                    padding: const EdgeInsets.only(
-                                      left: 9,
-                                      right: 16,
+                                      ContextMenuButton(
+                                        label: 'btn_create_group'.l10n,
+                                        onPressed: c.startGroupCreating,
+                                        trailing: const SvgIcon(SvgIcons.group),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.groupWhite,
+                                        ),
+                                      ),
+                                      ContextMenuDivider(),
+                                      ContextMenuButton(
+                                        label: 'label_chat_monolog'.l10n,
+                                        onPressed: () => router.chat(c.monolog),
+                                        trailing: const SvgIcon(
+                                          SvgIcons.notesSmall,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.notesSmallWhite,
+                                        ),
+                                      ),
+                                    ],
+                                    child: AnimatedButton(
+                                      decorator: (child) {
+                                        return Container(
+                                          key: c.moreKey,
+                                          padding: const EdgeInsets.only(
+                                            left: 12,
+                                            right: 18,
+                                          ),
+                                          height: double.infinity,
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                              10,
+                                              0,
+                                              10,
+                                              0,
+                                            ),
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: const SvgIcon(SvgIcons.more),
                                     ),
-                                    height: double.infinity,
-                                    child: child,
                                   );
-                                },
-                                child: SizedBox(
-                                  width: 29.17,
-                                  child: SafeAnimatedSwitcher(
-                                    duration: 250.milliseconds,
-                                    child: const SvgIcon(
-                                      SvgIcons.closePrimary,
-                                      key: Key('CloseSearch'),
-                                    ),
-                                  ),
-                                ),
-                              );
 
-                              return Row(
-                                children: [
-                                  if (c.selecting.value ||
-                                      c.groupCreating.value)
-                                    closeButton
-                                  else
-                                    moreButton,
-                                ],
-                              );
-                            }),
+                                  final Widget closeButton = AnimatedButton(
+                                    key: const Key('CloseSelectingButton'),
+                                    onPressed: () {
+                                      if (c.selecting.value) {
+                                        c.toggleSelecting();
+                                      } else if (c.groupCreating.value) {
+                                        c.closeGroupCreating();
+                                      }
+                                    },
+                                    decorator: (child) {
+                                      return Container(
+                                        padding: const EdgeInsets.only(
+                                          left: 9,
+                                          right: 16,
+                                        ),
+                                        height: double.infinity,
+                                        child: child,
+                                      );
+                                    },
+                                    child: SizedBox(
+                                      width: 29.17,
+                                      child: SafeAnimatedSwitcher(
+                                        duration: 250.milliseconds,
+                                        child: const SvgIcon(
+                                          SvgIcons.closePrimary,
+                                          key: Key('CloseSearch'),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+
+                                  return Row(
+                                    children: [
+                                      if (c.selecting.value ||
+                                          c.groupCreating.value)
+                                        closeButton
+                                      else
+                                        moreButton,
+                                    ],
+                                  );
+                                }),
+                              ],
+                            ),
+                            if(!PlatformUtils.isMobile)
+                              _subAppBar(context, c),
                           ],
                         ),
-                        expandedHeight: 110,
-                        flexibleSpace: FlexibleSpaceBar(
+                        flexibleSpace: PlatformUtils.isMobile ? FlexibleSpaceBar(
                           collapseMode: CollapseMode.parallax,
-                          background: Obx(() {
-                            final Widget? searchField = c.search.value == null
-                                ? null
-                                : Theme(
-                                    data: MessageFieldView.theme(context),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                      ),
-                                      child: Transform.translate(
-                                        offset: const Offset(0, 1),
-                                        child: ReactiveTextField(
-                                          key: const Key('SearchField'),
-                                          prefix: Icon(Icons.search),
-                                          state: c.search.value!.search,
-                                          hint: 'label_search'.l10n,
-                                          maxLines: 1,
-                                          style: style
-                                              .fonts
-                                              .medium
-                                              .regular
-                                              .onBackground,
-                                          onChanged: () =>
-                                              c.search.value!.query.value =
-                                                  c.search.value!.search.text,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-
-                            final Widget synchronization;
-
-                            if (!c.connected.value) {
-                              synchronization = Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: Center(
-                                  child: Text(
-                                    'label_waiting_for_connection'.l10n,
-                                    style: style.fonts.small.regular.secondary,
-                                    key: const Key('NotConnected'),
-                                  ),
-                                ),
-                              );
-                            } else if (c.fetching.value == null &&
-                                c.status.value.isLoadingMore) {
-                              synchronization = Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: Center(
-                                  child: Text(
-                                    'label_synchronization'.l10n,
-                                    style: style.fonts.small.regular.secondary,
-                                    key: const Key('Synchronization'),
-                                  ),
-                                ),
-                              );
-                            } else {
-                              synchronization = const SizedBox.shrink(
-                                key: Key('Connected'),
-                              );
-                            }
-
-                            return ColoredBox(
-                              color: Colors.red,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  searchField ?? SizedBox(),
-                                  SafeAnimatedSwitcher(
-                                    duration: 250.milliseconds,
-                                    child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: AllowOverflow(
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            AnimatedSizeAndFade(
-                                              sizeDuration: const Duration(
-                                                milliseconds: 300,
-                                              ),
-                                              fadeDuration: const Duration(
-                                                milliseconds: 300,
-                                              ),
-                                              child: synchronization,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ),
+                          background: _subAppBar(context, c),
+                        ) : null,
                       ),
                       Obx(() {
                         final Widget? child;
@@ -356,8 +247,7 @@ class ChatsTabView extends StatelessWidget {
                           );
                         } else if (c.groupCreating.isTrue) {
                           child = _groupCreating(context, c);
-                        } else if (c.searching.value &&
-                            c.search.value?.search.isEmpty.value == false) {
+                        } else if (c.search.value?.search.isEmpty.value == false) {
                           child = _searchResult(context, c);
                         } else {
                           return _chats(context, c);
@@ -476,7 +366,105 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Todo: add docs
+  /// Returns the search field and system labels for [SliverAppBar]
+  Widget _subAppBar(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      final Widget? searchField = c.search.value == null
+          ? null
+          : Theme(
+        data: ChatsTabView.theme(context),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 10,
+          ),
+          child: ReactiveTextField(
+            key: const Key('SearchField'),
+            prefix: Padding(padding: EdgeInsets.only(top: 0), child: Icon(Icons.search),),
+            state: c.search.value!.search,
+            hint: 'label_search'.l10n,
+            maxLines: 1,
+            dense: true,
+            padding: EdgeInsets.only(bottom: 10, top: 3),
+            style: style
+                .fonts
+                .medium
+                .regular
+                .onBackground,
+            onChanged: () =>
+            c.search.value!.query.value =
+                c.search.value!.search.text,
+          ),
+        ),
+      );
+
+      final Widget synchronization;
+
+      if (!c.connected.value) {
+        synchronization = Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Center(
+            child: Text(
+              'label_waiting_for_connection'.l10n,
+              style: style.fonts.small.regular.secondary,
+              key: const Key('NotConnected'),
+            ),
+          ),
+        );
+      } else if (c.fetching.value == null &&
+          c.status.value.isLoadingMore) {
+        synchronization = Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Center(
+            child: Text(
+              'label_synchronization'.l10n,
+              style: style.fonts.small.regular.secondary,
+              key: const Key('Synchronization'),
+            ),
+          ),
+        );
+      } else {
+        synchronization = const SizedBox.shrink(
+          key: Key('Connected'),
+        );
+      }
+
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          searchField ?? SizedBox(),
+          SafeAnimatedSwitcher(
+            duration: 250.milliseconds,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: AllowOverflow(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+                  children: [
+                    AnimatedSizeAndFade(
+                      sizeDuration: const Duration(
+                        milliseconds: 300,
+                      ),
+                      fadeDuration: const Duration(
+                        milliseconds: 300,
+                      ),
+                      child: synchronization,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+      );
+    });
+  }
+
+  /// Returns search results
   Widget _searchResult(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
     final RxStatus? searchStatus = c.search.value?.searchStatus.value;
@@ -613,7 +601,7 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Todo: add docs
+  /// Returns widgets for creating a group
   Widget _groupCreating(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
     final RxStatus? searchStatus = c.search.value?.searchStatus.value;
@@ -751,7 +739,7 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Todo: add docs
+  /// Returns calls, favorites and chats tiles
   Widget _chats(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
 
@@ -1138,5 +1126,42 @@ class ChatsTabView extends StatelessWidget {
     if (result == true) {
       await c.hideChats();
     }
+  }
+
+  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
+  static ThemeData theme(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    final OutlineInputBorder border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(25),
+      borderSide: BorderSide(
+        color: Colors.blue,
+        width: 1,
+      ),
+    );
+
+    return Theme.of(context).copyWith(
+      shadowColor: style.colors.onBackgroundOpacity27,
+      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
+      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+        border: border,
+        errorBorder: border,
+        enabledBorder: border,
+        focusedBorder: border,
+        disabledBorder: border,
+        focusedErrorBorder: border,
+        focusColor: style.colors.onPrimary,
+        fillColor: style.colors.onPrimary,
+        hoverColor: style.colors.transparent,
+        filled: true,
+        isDense: true,
+        contentPadding: EdgeInsets.fromLTRB(
+          15,
+          PlatformUtils.isDesktop ? 0 : 0,
+          15,
+          0,
+        ),
+      ),
+    );
   }
 }

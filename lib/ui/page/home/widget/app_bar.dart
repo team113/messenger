@@ -86,61 +86,31 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
+    return SizedBox(
       height: applySafeArea ? height : rawHeight,
-      decoration: BoxDecoration(
-        borderRadius: borderRadius,
-        boxShadow: [
-          CustomBoxShadow(
-            blurRadius: 8,
-            color: style.colors.onBackgroundOpacity13,
-            blurStyle: BlurStyle.outer.workaround,
-          ),
-        ],
-      ),
-      child: ConditionalBackdropFilter(
-        condition: style.cardBlur > 0,
-        filter: ImageFilter.blur(
-          sigmaX: style.cardBlur,
-          sigmaY: style.cardBlur,
-        ),
-        borderRadius: borderRadius,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          decoration: BoxDecoration(
-            borderRadius: borderRadius,
-            border:
-                border ??
-                Border(
-                  top: BorderSide.none,
-                  left: style.cardBorder.left,
-                  right: style.cardBorder.right,
-                  bottom: style.cardBorder.bottom,
-                ),
-            color: style.cardColor,
-          ),
-          padding: padding,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Spacer(),
-              SizedBox(
-                height: 59 - (padding?.top ?? 0) - (padding?.bottom ?? 0),
-                child: Row(
-                  children: [
-                    ...leading,
-                    Expanded(
-                      child: DefaultTextStyle.merge(
-                        style: style.fonts.large.regular.onBackground,
-                        child: Center(child: title ?? const SizedBox.shrink()),
-                      ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: padding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Spacer(),
+            SizedBox(
+              height: 59 - (padding?.top ?? 0) - (padding?.bottom ?? 0),
+              child: Row(
+                children: [
+                  ...leading,
+                  Expanded(
+                    child: DefaultTextStyle.merge(
+                      style: style.fonts.large.regular.onBackground,
+                      child: Center(child: title ?? const SizedBox.shrink()),
                     ),
-                    ...actions,
-                  ],
-                ),
+                  ),
+                  ...actions,
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
