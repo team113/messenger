@@ -21,13 +21,13 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import '/store/chat_rx.dart';
-import '/store/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
+import '/store/chat_rx.dart';
+import '/store/model/chat_item.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
@@ -128,9 +128,7 @@ class MessageInfoController extends GetxController {
         _chat!.members.around();
       }
 
-      print('ZYX WTF 1');
     } catch (e) {
-      print('ZYX WTF 2');
       MessagePopup.error(e);
       rethrow;
     }

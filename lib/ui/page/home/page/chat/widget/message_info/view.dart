@@ -129,7 +129,7 @@ class MessageInfo extends StatelessWidget {
                               _getLabelStatus(c.chatItem.value!.value),
                               style: style.fonts.small.regular.onBackground,
                             ),
-                      addPadding: c.displayMembers == true ? 10 : 0,
+                      addPadding: c.displayMembers.value == true ? 10 : 0,
                     ),
                   ],
                 ),
