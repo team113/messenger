@@ -599,7 +599,9 @@ extension UserViewExt on User {
   }
 }
 
+/// Extension adding [RxUser] related wrappers and helpers.
 extension UserExt on RxUser {
+  /// Returns the string representation of this [RxUser] to display as a title.
   String getTitle() =>
       contact.value?.contact.value.name.val ?? user.value.getTitle();
 }
