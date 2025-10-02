@@ -120,6 +120,7 @@ class MessageTimestamp extends StatelessWidget {
     );
   }
 
+  /// Returns the [Key] value depending on the status.
   String _getKeyName() {
     if (isError) {
       return 'Error';
@@ -136,6 +137,7 @@ class MessageTimestamp extends StatelessWidget {
     return 'Sent';
   }
 
+  /// Returns [SvgData] for [SvgIcon] depending on its status.
   SvgData _getIconData() {
     if (isRead) {
       if (isHalfRead) {

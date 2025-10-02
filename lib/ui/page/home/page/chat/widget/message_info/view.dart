@@ -38,10 +38,10 @@ import 'controller.dart';
 class MessageInfo extends StatelessWidget {
   const MessageInfo({super.key, this.chatId, this.chatItemId});
 
-  /// [ChatItem] for this [MessageInfo].
+  /// ID of the [Chat] for this [MessageInfo].
   final ChatId? chatId;
 
-  /// [ChatItem] for this [MessageInfo].
+  /// ID of the [ChatItem] for this [MessageInfo].
   final ChatItemId? chatItemId;
 
   /// Displays a [MessageInfo] wrapped in a [ModalPopup].
