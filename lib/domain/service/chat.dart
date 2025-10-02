@@ -22,15 +22,16 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart'
     show CropAreaInput, DeleteChatForwardErrorCode, DeleteChatMessageErrorCode;
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat_message_input.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/paginated.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/log.dart';
@@ -54,8 +55,8 @@ class ChatService extends DisposableService {
   /// Returns the reactive map of the currently paginated [RxChat]s.
   RxObsMap<ChatId, RxChat> get paginated => _chatRepository.paginated;
 
-  /// Returns the reactive map of the archived chats paginated [RxChat]s.
-  RxObsMap<ChatId, RxChat> get archived => _chatRepository.archived;
+  /// Returns the [Paginated] of archived [RxChat]s.
+  Paginated<ChatId, RxChat> get archived => _chatRepository.archived;
 
   /// Returns the current reactive map of all [RxChat]s available.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;

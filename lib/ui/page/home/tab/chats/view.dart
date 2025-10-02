@@ -179,7 +179,9 @@ class ChatsTabView extends StatelessWidget {
                               AnimatedSizeAndFade(
                                 sizeDuration: const Duration(milliseconds: 300),
                                 fadeDuration: const Duration(milliseconds: 300),
+                                alignment: Alignment.centerLeft,
                                 child: Text(
+                                  key: Key('${c.archivedOnly.value}'),
                                   c.archivedOnly.value
                                       ? 'label_hidden_chats'.l10n
                                       : 'label_chats'.l10n,
@@ -806,17 +808,15 @@ class ChatsTabView extends StatelessWidget {
                             );
 
                             if (i == c.elements.length - 1) {
-                              // TODO: This should display a loader when
-                              //       `archived` pagination is loading next
-                              //       page.
-                              // child = Column(
-                              //   children: [
-                              //     child,
-                              //     const CustomProgressIndicator(
-                              //       key: Key('ArchiveLoading'),
-                              //     ),
-                              //   ],
-                              // );
+                              child = Column(
+                                children: [
+                                  child,
+                                  if (c.archive.nextLoading.value)
+                                    const CustomProgressIndicator(
+                                      key: Key('ArchiveLoading'),
+                                    ),
+                                ],
+                              );
                             }
 
                             return AnimationConfiguration.staggeredList(
@@ -1298,7 +1298,7 @@ class ChatsTabView extends StatelessWidget {
           ),
         ),
         WidgetButton(
-          onPressed: c.createGroup,
+          onPressed: c.creatingStatus.value.isEmpty ? c.createGroup : null,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),

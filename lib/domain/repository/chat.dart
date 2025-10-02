@@ -42,8 +42,8 @@ abstract class AbstractChatRepository {
   /// Returns reactive map of [RxChat]s in the current pagination view.
   RxObsMap<ChatId, RxChat> get paginated;
 
-  /// Returns the reactive map of the archived chats paginated [RxChat]s.
-  RxObsMap<ChatId, RxChat> get archived;
+  /// Returns the [Paginated] of archived [RxChat]s.
+  Paginated<ChatId, RxChat> get archived;
 
   /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get chats;

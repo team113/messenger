@@ -199,8 +199,8 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
           (u) =>
               u.isHidden.equals(false) &
               u.isArchived.equals(false) &
-              u.id.like('local_%').not() &
-              u.id.like('d_%').not(),
+              u.id.like('local__%', escapeChar: '_').not() &
+              u.id.like('d__%', escapeChar: '_').not(),
         );
         stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 
@@ -227,8 +227,8 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
           (u) =>
               u.isHidden.equals(false) &
               u.isArchived.equals(true) &
-              u.id.like('local_%').not() &
-              u.id.like('d_%').not(),
+              u.id.like('local__%', escapeChar: '_').not() &
+              u.id.like('d__%', escapeChar: '_').not(),
         );
         stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 
@@ -256,8 +256,8 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
               u.isHidden.equals(false) &
               u.isArchived.equals(false) &
               u.favoritePosition.isNotNull() &
-              u.id.like('local_%').not() &
-              u.id.like('d_%').not(),
+              u.id.like('local__%', escapeChar: '_').not() &
+              u.id.like('d__%', escapeChar: '_').not(),
         );
         stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);
 
@@ -309,8 +309,8 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         (u) =>
             u.isHidden.equals(false) &
             u.isArchived.equals(false) &
-            u.id.like('local_%').not() &
-            u.id.like('d_%').not() &
+            u.id.like('local__%', escapeChar: '_').not() &
+            u.id.like('d__%', escapeChar: '_').not() &
             u.favoritePosition.isNull(),
       );
       stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
@@ -332,9 +332,8 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         (u) =>
             u.isHidden.equals(false) &
             u.isArchived.equals(true) &
-            u.id.like('local_%').not() &
-            u.id.like('d_%').not() &
-            u.favoritePosition.isNull(),
+            u.id.like('local__%', escapeChar: '_').not() &
+            u.id.like('d__%', escapeChar: '_').not(),
       );
       stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 
@@ -342,7 +341,12 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.limit(limit);
       }
 
-      return stmt.watch().map((rows) => rows.map(_ChatDb.fromDb).toList());
+      print('======= stmt: {${stmt.constructQuery().sql}}');
+
+      return stmt.watch().map((rows) {
+        print('limit: $limit, watch() -> ${rows.map((e) => '${e.id}')}');
+        return rows.map(_ChatDb.fromDb).toList();
+      });
     });
   }
 
@@ -355,8 +359,8 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         (u) =>
             u.isHidden.equals(false) &
             u.isArchived.equals(false) &
-            u.id.like('local_%').not() &
-            u.id.like('d_%').not() &
+            u.id.like('local__%', escapeChar: '_').not() &
+            u.id.like('d__%', escapeChar: '_').not() &
             u.favoritePosition.isNotNull(),
       );
       stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);

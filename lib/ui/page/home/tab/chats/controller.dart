@@ -40,6 +40,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -200,6 +201,9 @@ class ChatsTabController extends GetxController {
   /// [MyUser], if any.
   ChatId get monolog => _chatService.monolog;
 
+  /// Returns the [Paginated] of [RxChat] being in archive.
+  Paginated<ChatId, RxChat> get archive => _chatService.archived;
+
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);
@@ -279,7 +283,7 @@ class ChatsTabController extends GetxController {
       }
     });
 
-    _archivedSubscription = _chatService.archived.changes.listen((event) {
+    _archivedSubscription = _chatService.archived.items.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
           final entry = ChatEntry(event.value!, chats.sort);
@@ -967,10 +971,17 @@ class ChatsTabController extends GetxController {
 
         if (scrollController.hasClients &&
             hasNext.isTrue &&
-            _chatService.nextLoading.isFalse &&
             scrollController.position.pixels >
                 scrollController.position.maxScrollExtent - 500) {
-          _chatService.next();
+          if (archivedOnly.value) {
+            if (_chatService.archived.nextLoading.isFalse) {
+              _chatService.archived.next();
+            }
+          } else {
+            if (_chatService.nextLoading.isFalse) {
+              _chatService.next();
+            }
+          }
         }
       });
     }
