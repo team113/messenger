@@ -385,16 +385,13 @@ class ChatsTabView extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: ReactiveTextField(
                   key: const Key('SearchField'),
-                  prefix: Padding(
-                    padding: EdgeInsets.only(top: 0),
-                    child: Icon(Icons.search),
-                  ),
+                  prefixIcon: const SvgIcon(SvgIcons.searchGrey),
+                  fillColor: style.colors.background,
                   state: c.search.value!.search,
                   hint: 'label_search'.l10n,
                   maxLines: 1,
                   dense: true,
                   padding: EdgeInsets.only(bottom: 10, top: 3),
-                  style: style.fonts.medium.regular.onBackground,
                   onChanged: () =>
                       c.search.value!.query.value = c.search.value!.search.text,
                 ),
@@ -1128,13 +1125,14 @@ class ChatsTabView extends StatelessWidget {
 
     final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(25),
-      borderSide: BorderSide(color: Colors.blue, width: 1),
+      borderSide: BorderSide(color: style.colors.secondaryLight, width: 1),
     );
 
     return Theme.of(context).copyWith(
       shadowColor: style.colors.onBackgroundOpacity27,
       iconTheme: IconThemeData(color: style.colors.primaryHighlight),
       inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+        hintStyle: style.fonts.medium.regular.secondary,
         border: border,
         errorBorder: border,
         enabledBorder: border,

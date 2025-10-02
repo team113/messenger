@@ -57,6 +57,7 @@ class ReactiveTextField extends StatelessWidget {
     this.onCanceled,
     this.padding,
     this.prefix,
+    this.prefixIcon,
     this.prefixText,
     this.prefixStyle,
     this.style,
@@ -114,6 +115,9 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Optional prefix [Widget].
   final Widget? prefix;
+
+  /// Optional prefix icon [Widget].
+  final Widget? prefixIcon;
 
   /// Optional content padding.
   final EdgeInsets? padding;
@@ -370,7 +374,7 @@ class ReactiveTextField extends StatelessWidget {
               readOnly: !enabled || !state.editable.value,
               enabled: enabled,
               decoration: InputDecoration(
-                isCollapsed: true,
+                // isCollapsed: true,
                 alignLabelWithHint: true,
                 labelStyle:
                     floatingLabelBehavior == FloatingLabelBehavior.always
@@ -384,6 +388,14 @@ class ReactiveTextField extends StatelessWidget {
                 prefixText: prefixText,
                 prefixStyle: prefixStyle,
                 prefix: prefix,
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 8, 10),
+                  child: prefixIcon,
+                ),
+                prefixIconConstraints: const BoxConstraints(
+                  minWidth: 18,
+                  minHeight: 18,
+                ),
                 fillColor:
                     fillColor ??
                     (state.editable.value
