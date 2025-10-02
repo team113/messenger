@@ -563,7 +563,7 @@ class ChatsTabView extends StatelessWidget {
                 width: double.infinity,
                 child: Text(
                   getCategoryLabel(element.category),
-                  style: style.fonts.normal.regular.onBackground,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
               );
             } else {
