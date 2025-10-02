@@ -11,13 +11,21 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.4...v0.7.0) | [Milestone](/../../milestone/49)
 
+### Added
+
+- UI:
+    - Chats tab:
+        - Archived chats. ([#1414], [#1255])
+
 ### Changed
 
 - UI:
     - Chat page:
         - Redesigned messages selection. ([#1416], [#1410])
 
+[#1255]: /../../issues/1255
 [#1410]: /../../issues/1410
+[#1414]: /../../pull/1414
 [#1416]: /../../pull/1416
 
 

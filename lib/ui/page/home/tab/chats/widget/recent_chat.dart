@@ -69,6 +69,7 @@ class RecentChatTile extends StatelessWidget {
     this.getUser,
     this.inContacts,
     this.onLeave,
+    this.onArchive,
     this.onHide,
     this.onDrop,
     this.onJoin,
@@ -117,6 +118,9 @@ class RecentChatTile extends StatelessWidget {
 
   /// Callback, called when this [rxChat] leave action is triggered.
   final void Function()? onLeave;
+
+  /// Callback, called when this [rxChat] gets archived or unarchived.
+  final void Function()? onArchive;
 
   /// Callback, called when this [rxChat] hide action is triggered.
   final void Function()? onHide;
@@ -301,6 +305,20 @@ class RecentChatTile extends StatelessWidget {
                   onPressed: onUnmute,
                   trailing: const SvgIcon(SvgIcons.muteSmall),
                   inverted: const SvgIcon(SvgIcons.muteSmallWhite),
+                ),
+              if (onArchive != null)
+                ContextMenuButton(
+                  key: const Key('ArchiveChatButton'),
+                  label: rxChat.chat.value.isArchived
+                      ? 'btn_show_chat'.l10n
+                      : 'btn_hide_chat'.l10n,
+                  onPressed: () => _archiveChat(context),
+                  trailing: rxChat.chat.value.isArchived
+                      ? const SvgIcon(SvgIcons.visibleOff)
+                      : const SvgIcon(SvgIcons.visibleOn),
+                  inverted: rxChat.chat.value.isArchived
+                      ? const SvgIcon(SvgIcons.visibleOffWhite)
+                      : const SvgIcon(SvgIcons.visibleOnWhite),
                 ),
               if (onHide != null)
                 ContextMenuButton(
@@ -983,6 +1001,31 @@ class RecentChatTile extends StatelessWidget {
         ),
       );
     });
+  }
+
+  /// Archives or unarchives the [rxChat].
+  Future<void> _archiveChat(BuildContext context) async {
+    final bool isArchived = rxChat.chat.value.isArchived;
+
+    final bool? result = await MessagePopup.alert(
+      isArchived ? 'label_show_chats'.l10n : 'label_hide_chats'.l10n,
+      description: [
+        TextSpan(
+          text: isArchived
+              ? 'label_show_chats_modal_description'.l10n
+              : 'label_hide_chats_modal_description'.l10n,
+        ),
+      ],
+      button: (context) => MessagePopup.primaryButton(
+        context,
+        label: isArchived ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
+        icon: isArchived ? SvgIcons.visibleOffWhite : SvgIcons.visibleOnWhite,
+      ),
+    );
+
+    if (result == true) {
+      onArchive?.call();
+    }
   }
 
   /// Hides the [rxChat].
