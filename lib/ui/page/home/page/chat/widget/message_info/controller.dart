@@ -115,12 +115,12 @@ class MessageInfoController extends GetxController {
   void _populateLists() {
     final PreciseDateTime? at = chatItem.value?.value.at;
 
-    if(at != null) {
+    if (at != null) {
       final UserId? authorId = chatItem.value?.value.author.id;
 
       reads.addAll(
         _chat!.chat.value.lastReads.where(
-              (e) => !e.at.val.isBefore(at.val) && e.memberId != authorId,
+          (e) => !e.at.val.isBefore(at.val) && e.memberId != authorId,
         ),
       );
     }
@@ -141,7 +141,7 @@ class MessageInfoController extends GetxController {
           break;
 
         case OperationKind.updated:
-        // No-op
+          // No-op
           break;
       }
     });
