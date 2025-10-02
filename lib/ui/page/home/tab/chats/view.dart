@@ -92,8 +92,8 @@ class ChatsTabView extends StatelessWidget {
                     controller: c.scrollController,
                     slivers: [
                       SliverAppBar(
-                        elevation: 2,
-                        shadowColor: style.colors.onBackgroundOpacity27,
+                        elevation: 8,
+                        shadowColor: style.colors.onBackgroundOpacity50,
                         surfaceTintColor: Colors.transparent,
                         backgroundColor: style.colors.onPrimary,
                         pinned: true,
@@ -104,6 +104,7 @@ class ChatsTabView extends StatelessWidget {
                         title: Column(
                           children: [
                             CustomAppBar(
+                              applyElevation: false,
                               title: Padding(
                                 padding: const EdgeInsets.only(left: 22),
                                 child: Row(
