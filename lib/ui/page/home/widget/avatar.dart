@@ -34,7 +34,6 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
-import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 
@@ -179,7 +178,7 @@ class AvatarWidget extends StatelessWidget {
   }) => AvatarWidget(
     key: key,
     avatar: user?.avatar,
-    title: user?.getTitle(),
+    title: user?.title,
     color: user?.num.val.sum(),
     radius: radius,
     opacity: opacity,
