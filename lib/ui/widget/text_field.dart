@@ -366,7 +366,7 @@ class ReactiveTextField extends StatelessWidget {
               textAlign: textAlign,
               onSubmitted: (s) => state.submit(),
               inputFormatters: formatters,
-              textAlignVertical: TextAlignVertical.center,
+              textAlignVertical: const TextAlignVertical(y: 0.15),
               readOnly: !enabled || !state.editable.value,
               enabled: enabled,
               decoration: InputDecoration(
@@ -381,7 +381,6 @@ class ReactiveTextField extends StatelessWidget {
                 focusedBorder: state.editable.value
                     ? null
                     : Theme.of(context).inputDecorationTheme.border,
-                enabledBorder: Theme.of(context).inputDecorationTheme.border,
                 prefixText: prefixText,
                 prefixStyle: prefixStyle,
                 prefix: prefix,
