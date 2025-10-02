@@ -164,8 +164,8 @@ class SvgIcons {
 
   static const SvgData searchExit = SvgData(
     'assets/icons/search_exit.svg',
-    width: 11,
-    height: 11,
+    width: 9,
+    height: 9,
   );
 
   static const SvgData chatsSwitch = SvgData(

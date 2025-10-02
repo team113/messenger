@@ -62,6 +62,7 @@ class ReactiveTextField extends StatelessWidget {
     this.prefixStyle,
     this.style,
     this.suffix,
+    this.suffixIcon,
     this.textAlign = TextAlign.start,
     this.textInputAction,
     this.trailing,
@@ -108,10 +109,13 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional leading icon.
   final IconData? icon;
 
+  /// Optional suffix [Widget].
+  final Widget? suffix;
+
   /// Optional [IconData] to display instead of the [trailing].
   ///
   /// If specified, the [trailing] will be ignored.
-  final IconData? suffix;
+  final IconData? suffixIcon;
 
   /// Optional prefix [Widget].
   final Widget? prefix;
@@ -243,7 +247,7 @@ class ReactiveTextField extends StatelessWidget {
             status.isError || (state.error.value != null && treatErrorAsStatus);
         final bool hasSuffix =
             state.approvable ||
-            suffix != null ||
+            suffixIcon != null ||
             trailing != null ||
             !status.isEmpty ||
             hasError ||
@@ -318,7 +322,7 @@ class ReactiveTextField extends StatelessWidget {
                           : SizedBox(
                               key: const ValueKey('Icon'),
                               width: 24,
-                              child: suffix != null ? Icon(suffix) : trailing,
+                              child: suffixIcon != null ? Icon(suffixIcon) : trailing,
                             ),
                     ),
                   ),
@@ -389,12 +393,16 @@ class ReactiveTextField extends StatelessWidget {
                 prefixStyle: prefixStyle,
                 prefix: prefix,
                 prefixIcon: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 8, 10),
+                  padding: const EdgeInsets.fromLTRB(14, 8, 8, 10),
                   child: prefixIcon,
                 ),
                 prefixIconConstraints: const BoxConstraints(
                   minWidth: 18,
                   minHeight: 18,
+                ),
+                suffix: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: suffix,
                 ),
                 fillColor:
                     fillColor ??

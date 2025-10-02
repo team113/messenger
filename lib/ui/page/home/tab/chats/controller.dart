@@ -582,6 +582,12 @@ class ChatsTabController extends GetxController {
     }
   }
 
+  /// Disables and disposes the [search]ing.
+  void clearSearch() {
+    search.value?.search.clear();
+    search.value?.query.value = '';
+  }
+
   /// Enables and initializes the group creating.
   void startGroupCreating() {
     groupCreating.value = true;

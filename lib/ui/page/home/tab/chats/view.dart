@@ -92,8 +92,8 @@ class ChatsTabView extends StatelessWidget {
                     controller: c.scrollController,
                     slivers: [
                       SliverAppBar(
-                        elevation: 8,
-                        shadowColor: style.colors.onBackgroundOpacity13,
+                        elevation: 2,
+                        shadowColor: style.colors.onBackgroundOpacity27,
                         surfaceTintColor: Colors.transparent,
                         backgroundColor: style.colors.onPrimary,
                         pinned: true,
@@ -386,6 +386,13 @@ class ChatsTabView extends StatelessWidget {
                 child: ReactiveTextField(
                   key: const Key('SearchField'),
                   prefixIcon: const SvgIcon(SvgIcons.searchGrey),
+                  suffix: WidgetButton(
+                    onPressed: c.clearSearch,
+                    child: Padding(
+                      padding: const EdgeInsets.all(2),
+                      child: const SvgIcon(SvgIcons.searchExit),
+                    ),
+                  ),
                   fillColor: style.colors.background,
                   state: c.search.value!.search,
                   hint: 'label_search'.l10n,
