@@ -863,10 +863,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       copyable = note.text?.val;
     }
 
-    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
-      (e) => e.at.val.isAfter(_at.val) && e.memberId != widget.authorId,
-    );
-
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
     const AvatarRadius avatarRadius = AvatarRadius.medium;
@@ -940,7 +936,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   context,
                   chatId: widget.forwards.first.value.chatId,
                   chatItemId: widget.forwards.first.value.id,
-                  reads: reads ?? [],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1036,7 +1031,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             context,
                             chatId: widget.forwards.first.value.chatId,
                             chatItemId: widget.forwards.first.value.id,
-                            reads: reads ?? [],
                           ),
                         ),
                         if (copyable != null)

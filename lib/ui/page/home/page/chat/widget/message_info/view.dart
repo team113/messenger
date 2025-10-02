@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -35,12 +36,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class MessageInfo extends StatelessWidget {
-  const MessageInfo({
-    super.key,
-    this.chatId,
-    this.chatItemId,
-    this.reads = const [],
-  });
+  const MessageInfo({super.key, this.chatId, this.chatItemId});
 
   /// [ChatItem] for this [MessageInfo].
   final ChatId? chatId;
@@ -48,19 +44,15 @@ class MessageInfo extends StatelessWidget {
   /// [ChatItem] for this [MessageInfo].
   final ChatItemId? chatItemId;
 
-  /// [LastChatRead]s of a [ChatItem] this [MessageInfo] is about.
-  final Iterable<LastChatRead> reads;
-
   /// Displays a [MessageInfo] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
     ChatId? chatId,
     ChatItemId? chatItemId,
-    Iterable<LastChatRead> reads = const [],
   }) {
     return ModalPopup.show(
       context: context,
-      child: MessageInfo(chatId: chatId, chatItemId: chatItemId, reads: reads),
+      child: MessageInfo(chatId: chatId, chatItemId: chatItemId),
     );
   }
 
@@ -69,7 +61,7 @@ class MessageInfo extends StatelessWidget {
     final Style style = Theme.of(context).style;
 
     return GetBuilder(
-      init: MessageInfoController(chatId, chatItemId, Get.find(), reads: reads),
+      init: MessageInfoController(chatId, chatItemId, Get.find()),
       builder: (MessageInfoController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -124,9 +116,12 @@ class MessageInfo extends StatelessWidget {
                       style,
                       'label_status'.l10n,
                       c.displayMembers.value == true
-                          ? _contactList(context, c, reads)
+                          ? _contactList(context, c, c.reads)
                           : Text(
-                              _getLabelStatus(c.chatItem.value!.value),
+                              _getLabelStatus(
+                                chatItem.status.value,
+                                c.reads.isNotEmpty,
+                              ),
                               style: style.fonts.small.regular.onBackground,
                             ),
                       addPadding: c.displayMembers.value == true ? 10 : 0,
@@ -219,17 +214,17 @@ class MessageInfo extends StatelessWidget {
     );
   }
 
-  /// Returns localized string of [chatItem] status
-  String _getLabelStatus(ChatItem chatItem) {
-    if (reads.isNotEmpty) {
+  /// Returns localized string of [ChatItem] status
+  String _getLabelStatus(SendingStatus status, bool isRead) {
+    if (isRead) {
       return 'label_message_status_read'.l10n;
     }
 
-    if (chatItem.status.value.name == 'sent') {
+    if (status.name == 'sent') {
       return 'label_message_status_delivered'.l10n;
     }
 
-    if (chatItem.status.value.name == 'sending') {
+    if (status.name == 'sending') {
       return 'label_message_status_sent'.l10n;
     }
 

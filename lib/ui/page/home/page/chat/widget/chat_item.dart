@@ -1304,12 +1304,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
-    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
-      (e) =>
-          !e.at.val.isBefore(widget.item.value.at.val) &&
-          e.memberId != _author.id,
-    );
-
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
     const AvatarRadius avatarRadius = AvatarRadius.medium;
@@ -1383,7 +1377,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   context,
                   chatId: widget.item.value.chatId,
                   chatItemId: widget.item.value.id,
-                  reads: reads ?? [],
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 2),
@@ -1485,7 +1478,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             context,
                             chatId: widget.item.value.chatId,
                             chatItemId: widget.item.value.id,
-                            reads: reads ?? [],
                           ),
                         ),
                         if (copyable != null)
