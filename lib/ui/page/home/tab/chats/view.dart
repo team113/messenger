@@ -505,9 +505,10 @@ class ChatsTabView extends StatelessWidget {
       );
     }
 
-    getCategoryLabel(SearchCategory category) => switch(category) {
+    getCategoryLabel(SearchCategory category) => switch (category) {
       SearchCategory.user => 'label_search_category_users'.l10n,
-      SearchCategory.chat || SearchCategory.recent => 'label_search_category_chats'.l10n,
+      SearchCategory.chat ||
+      SearchCategory.recent => 'label_search_category_chats'.l10n,
       SearchCategory.contact => 'label_search_category_contacts'.l10n,
     };
 

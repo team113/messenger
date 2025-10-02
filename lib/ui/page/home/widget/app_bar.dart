@@ -90,13 +90,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       decoration: BoxDecoration(
         color: style.cardColor,
         borderRadius: borderRadius,
-        boxShadow: applyElevation ? [
-          CustomBoxShadow(
-            blurRadius: 8,
-            color: style.colors.onBackgroundOpacity13,
-            blurStyle: BlurStyle.outer.workaround,
-          ),
-        ] : null,
+        boxShadow: applyElevation
+            ? [
+                CustomBoxShadow(
+                  blurRadius: 8,
+                  color: style.colors.onBackgroundOpacity13,
+                  blurStyle: BlurStyle.outer.workaround,
+                ),
+              ]
+            : null,
       ),
       height: applySafeArea ? height : rawHeight,
       child: AnimatedContainer(
