@@ -1148,7 +1148,9 @@ class ChatsTabView extends StatelessWidget {
         border: border,
         errorBorder: border,
         enabledBorder: border,
-        focusedBorder: border,
+        focusedBorder: border.copyWith(
+          borderSide: BorderSide(color: style.colors.primary, width: 1),
+        ),
         disabledBorder: border,
         focusedErrorBorder: border,
         focusColor: style.colors.onPrimary,
