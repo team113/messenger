@@ -234,7 +234,7 @@ class UserNum extends NewType<String> {
 class UserLogin extends NewType<String> {
   const UserLogin._(super.val);
 
-  UserLogin(String val) : super(val) {
+  UserLogin(String value) : super(value.trim().toLowerCase()) {
     if (val.isNumericOnly) {
       throw const FormatException('Can not contain only numbers');
     } else if (!_regExp.hasMatch(val)) {
@@ -271,7 +271,7 @@ class UserLogin extends NewType<String> {
 class UserName extends NewType<String> {
   const UserName._(super.val);
 
-  UserName(String val) : super(val) {
+  UserName(String value) : super(value.trim()) {
     if (!_regExp.hasMatch(val)) {
       throw FormatException('Does not match validation RegExp: `$val`');
     }
@@ -344,7 +344,7 @@ class UserPassword extends NewType<String> {
 class UserEmail extends NewType<String> {
   const UserEmail._(super.val);
 
-  UserEmail(String val) : super(val) {
+  UserEmail(String value) : super(value.trim()) {
     if (!EmailValidator.validate(val)) {
       throw FormatException('Does not match validation RegExp: `$val`');
     }
@@ -408,7 +408,7 @@ class UserBio extends NewType<String> {
 class UserPhone extends NewType<String> {
   const UserPhone._(super.val);
 
-  UserPhone(String val) : super(val) {
+  UserPhone(String value) : super(value.trim()) {
     if (!val.startsWith('+')) {
       throw const FormatException('Must start with plus');
     }
@@ -487,7 +487,7 @@ class ChatDirectLink {
 class ChatDirectLinkSlug extends NewType<String> {
   const ChatDirectLinkSlug._(super.val);
 
-  ChatDirectLinkSlug(String val) : super(val) {
+  ChatDirectLinkSlug(String value) : super(value.trim()) {
     if (val.length > 100) {
       throw const FormatException('Must contain no more than 100 characters');
     } else if (val.isEmpty) {

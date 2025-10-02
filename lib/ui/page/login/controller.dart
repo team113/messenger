@@ -262,7 +262,7 @@ class LoginController extends GetxController {
 
     email = TextFieldState(
       onFocus: (s) {
-        if (s.text.isNotEmpty) {
+        if (s.text.trim().isNotEmpty) {
           try {
             UserEmail(s.text.toLowerCase());
           } on FormatException {

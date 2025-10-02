@@ -58,7 +58,7 @@ class IntroductionController extends GetxController {
     onFocus: (s) async {
       s.error.value = null;
 
-      if (s.text.isNotEmpty) {
+      if (s.text.trim().isNotEmpty) {
         try {
           UserName(s.text);
         } on FormatException catch (_) {
