@@ -280,7 +280,7 @@ class ChatsTabController extends GetxController {
       });
     }
 
-    _toggleSearch(true);
+    _initSearch();
 
     super.onInit();
   }
@@ -591,7 +591,6 @@ class ChatsTabController extends GetxController {
   /// Enables and initializes the group creating.
   void startGroupCreating() {
     groupCreating.value = true;
-    _toggleSearch();
     search.value?.search.clear();
     search.value?.query.value = '';
     router.navigation.value = false;
@@ -758,77 +757,66 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Enables and initializes or disables and disposes the [search].
-  void _toggleSearch([bool enable = true]) {
-    if (search.value != null && enable) {
-      return;
-    }
+  /// Enables and initializes the [search].
+  void _initSearch() {
+    search.value = SearchController(
+      _chatService,
+      _userService,
+      _contactService,
+      _myUserService,
+      categories: [
+        SearchCategory.recent,
+        if (groupCreating.isFalse) SearchCategory.chat,
+        SearchCategory.contact,
+        SearchCategory.user,
+      ],
+    )..onInit();
 
-    search.value?.onClose();
-    _searchSubscription?.cancel();
+    _searchSubscription =
+        StreamGroup.merge([
+          search.value!.recent.stream,
+          search.value!.chats.stream,
+          search.value!.contacts.stream,
+          search.value!.users.stream,
+        ]).listen((_) {
+          elements.clear();
 
-    if (enable) {
-      search.value = SearchController(
-        _chatService,
-        _userService,
-        _contactService,
-        _myUserService,
-        categories: [
-          SearchCategory.recent,
-          if (groupCreating.isFalse) SearchCategory.chat,
-          SearchCategory.contact,
-          SearchCategory.user,
-        ],
-      )..onInit();
-
-      _searchSubscription =
-          StreamGroup.merge([
-            search.value!.recent.stream,
-            search.value!.chats.stream,
-            search.value!.contacts.stream,
-            search.value!.users.stream,
-          ]).listen((_) {
-            elements.clear();
-
-            if (groupCreating.value) {
-              if (search.value?.query.isEmpty == true) {
-                elements.add(const MyUserElement());
-              }
-
-              search.value?.users.removeWhere((k, v) => me == k);
-
-              if (search.value?.recent.isNotEmpty == true) {
-                elements.add(const DividerElement(SearchCategory.chat));
-                for (RxUser c in search.value!.recent.values) {
-                  elements.add(RecentElement(c));
-                }
-              }
-            } else {
-              if (search.value?.chats.isNotEmpty == true) {
-                elements.add(const DividerElement(SearchCategory.chat));
-                for (RxChat c in search.value!.chats.values) {
-                  elements.add(ChatElement(c));
-                }
-              }
+          if (groupCreating.value) {
+            if (search.value?.query.isEmpty == true) {
+              elements.add(const MyUserElement());
             }
 
-            if (search.value?.contacts.isNotEmpty == true) {
-              elements.add(const DividerElement(SearchCategory.contact));
-              for (RxChatContact c in search.value!.contacts.values) {
-                elements.add(ContactElement(c));
-              }
-            }
+            search.value?.users.removeWhere((k, v) => me == k);
 
-            if (search.value?.users.isNotEmpty == true) {
-              elements.add(const DividerElement(SearchCategory.user));
-              for (RxUser c in search.value!.users.values) {
-                elements.add(UserElement(c));
+            if (search.value?.recent.isNotEmpty == true) {
+              elements.add(const DividerElement(SearchCategory.chat));
+              for (RxUser c in search.value!.recent.values) {
+                elements.add(RecentElement(c));
               }
             }
-          });
-    } else {
-      search.value = null;
-    }
+          } else {
+            if (search.value?.chats.isNotEmpty == true) {
+              elements.add(const DividerElement(SearchCategory.chat));
+              for (RxChat c in search.value!.chats.values) {
+                elements.add(ChatElement(c));
+              }
+            }
+          }
+
+          if (search.value?.contacts.isNotEmpty == true) {
+            elements.add(const DividerElement(SearchCategory.contact));
+            for (RxChatContact c in search.value!.contacts.values) {
+              elements.add(ContactElement(c));
+            }
+          }
+
+          if (search.value?.users.isNotEmpty == true) {
+            elements.add(const DividerElement(SearchCategory.user));
+            for (RxUser c in search.value!.users.values) {
+              elements.add(UserElement(c));
+            }
+          }
+        });
   }
 
   /// Closes the [searching] on the [LogicalKeyboardKey.escape] events.

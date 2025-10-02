@@ -505,6 +505,12 @@ class ChatsTabView extends StatelessWidget {
       );
     }
 
+    getCategoryLabel(SearchCategory category) => switch(category) {
+      SearchCategory.user => 'label_search_category_users'.l10n,
+      SearchCategory.chat || SearchCategory.recent => 'label_search_category_chats'.l10n,
+      SearchCategory.contact => 'label_search_category_contacts'.l10n,
+    };
+
     return Scrollbar(
       controller: c.search.value!.scrollController,
       child: AnimationLimiter(
@@ -549,17 +555,15 @@ class ChatsTabView extends StatelessWidget {
               );
             } else if (element is DividerElement) {
               child = Container(
-                margin: EdgeInsets.fromLTRB(8, i == 0 ? 0 : 8, 8, 3),
+                margin: EdgeInsets.fromLTRB(10, i == 0 ? 0 : 8, 8, 3),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 8,
                 ),
                 width: double.infinity,
-                child: Center(
-                  child: Text(
-                    element.category.name.capitalized,
-                    style: style.fonts.normal.regular.onBackground,
-                  ),
+                child: Text(
+                  getCategoryLabel(element.category),
+                  style: style.fonts.normal.regular.onBackground,
                 ),
               );
             } else {
