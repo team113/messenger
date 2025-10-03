@@ -15,13 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Custom stylized and decorated [AppBar].
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -36,6 +33,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.top = true,
     this.borderRadius,
     this.applySafeArea = true,
+    this.applyElevation = true,
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -65,6 +63,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Indicator whether [SafeArea] should be applied to the bar.
   final bool applySafeArea;
 
+  final bool applyElevation;
+
   /// Height of the [CustomAppBar].
   static double get height {
     double padding = 0;
@@ -87,60 +87,43 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final style = Theme.of(context).style;
 
     return Container(
-      height: applySafeArea ? height : rawHeight,
       decoration: BoxDecoration(
+        color: style.cardColor,
         borderRadius: borderRadius,
-        boxShadow: [
-          CustomBoxShadow(
-            blurRadius: 8,
-            color: style.colors.onBackgroundOpacity13,
-            blurStyle: BlurStyle.outer.workaround,
-          ),
-        ],
+        boxShadow: applyElevation
+            ? [
+                CustomBoxShadow(
+                  blurRadius: 8,
+                  color: style.colors.onBackgroundOpacity13,
+                  blurStyle: BlurStyle.outer.workaround,
+                ),
+              ]
+            : null,
       ),
-      child: ConditionalBackdropFilter(
-        condition: style.cardBlur > 0,
-        filter: ImageFilter.blur(
-          sigmaX: style.cardBlur,
-          sigmaY: style.cardBlur,
-        ),
-        borderRadius: borderRadius,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          decoration: BoxDecoration(
-            borderRadius: borderRadius,
-            border:
-                border ??
-                Border(
-                  top: BorderSide.none,
-                  left: style.cardBorder.left,
-                  right: style.cardBorder.right,
-                  bottom: style.cardBorder.bottom,
-                ),
-            color: style.cardColor,
-          ),
-          padding: padding,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Spacer(),
-              SizedBox(
-                height: 59 - (padding?.top ?? 0) - (padding?.bottom ?? 0),
-                child: Row(
-                  children: [
-                    ...leading,
-                    Expanded(
-                      child: DefaultTextStyle.merge(
-                        style: style.fonts.large.regular.onBackground,
-                        child: Center(child: title ?? const SizedBox.shrink()),
-                      ),
+      height: applySafeArea ? height : rawHeight,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: padding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Spacer(),
+            SizedBox(
+              height: 59 - (padding?.top ?? 0) - (padding?.bottom ?? 0),
+              child: Row(
+                children: [
+                  ...leading,
+                  Expanded(
+                    child: DefaultTextStyle.merge(
+                      style: style.fonts.large.regular.onBackground,
+                      child: Center(child: title ?? const SizedBox.shrink()),
                     ),
-                    ...actions,
-                  ],
-                ),
+                  ),
+                  ...actions,
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
