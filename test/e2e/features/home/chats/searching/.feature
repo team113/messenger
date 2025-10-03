@@ -23,8 +23,7 @@ Feature: Chats searching
     # And contact Charlie
     And I have "Example" group with Bob
 
-    When I tap `SearchButton` button
-    And I fill `SearchField` field with "Example"
+    When I fill `SearchField` field with "Example"
     Then I see chat "Example" in search results
 
     When I fill `SearchField` field with "Bob"
@@ -52,6 +51,5 @@ Feature: Chats searching
     And Bob has dialog with me
     And Bob has his direct link set up
 
-    When I tap `SearchButton` button
-    And I fill `SearchField` field with Bob's direct link
-    Then I see chat with Bob in search results
+    When I fill `SearchField` field with Bob's direct link
+    Then I see user Bob in search results
