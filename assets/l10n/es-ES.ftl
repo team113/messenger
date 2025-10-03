@@ -691,7 +691,6 @@ label_media_no_device_available = No hay dispositivos disponibles
 label_media_output = Altavoz
 label_media_section_hint = Micrófono, altavoz, cámara
 label_media_semicolon_amount = Medio: {$amount}
-label_message = Mensaje
 label_message_status_delivered = Entregado
 label_message_status_not_sent = No enviado
 label_message_status_read = Leído

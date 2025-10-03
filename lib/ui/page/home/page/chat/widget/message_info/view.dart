@@ -18,13 +18,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/contact_tile.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -36,24 +35,14 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class MessageInfo extends StatelessWidget {
-  const MessageInfo({super.key, this.chatId, this.chatItemId});
-
-  /// ID of the [Chat] for this [MessageInfo].
-  final ChatId? chatId;
+  const MessageInfo(this.id, {super.key});
 
   /// ID of the [ChatItem] for this [MessageInfo].
-  final ChatItemId? chatItemId;
+  final ChatItemId id;
 
   /// Displays a [MessageInfo] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(
-    BuildContext context, {
-    ChatId? chatId,
-    ChatItemId? chatItemId,
-  }) {
-    return ModalPopup.show(
-      context: context,
-      child: MessageInfo(chatId: chatId, chatItemId: chatItemId),
-    );
+  static Future<T?> show<T>(BuildContext context, ChatItemId id) {
+    return ModalPopup.show(context: context, child: MessageInfo(id));
   }
 
   @override
@@ -61,75 +50,81 @@ class MessageInfo extends StatelessWidget {
     final Style style = Theme.of(context).style;
 
     return GetBuilder(
-      init: MessageInfoController(chatId, chatItemId, Get.find()),
+      init: MessageInfoController(id, Get.find()),
       builder: (MessageInfoController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 4),
-            ModalPopupHeader(text: 'label_message'.l10n),
-            Obx(() {
-              if (c.chatItem.value == null) {
-                return const SizedBox();
-              }
+            ModalPopupHeader(text: 'label_information'.l10n),
+            Flexible(
+              child: Obx(() {
+                final ChatItem? item = c.item.value;
+                if (item == null) {
+                  return const SizedBox();
+                }
 
-              final ChatItem chatItem = c.chatItem.value!.value;
-
-              return Padding(
-                padding: ModalPopup.padding(context),
-                child: Table(
-                  columnWidths: const {
-                    0: IntrinsicColumnWidth(),
-                    1: FlexColumnWidth(),
-                  },
-                  defaultVerticalAlignment: TableCellVerticalAlignment.top,
-                  children: [
-                    _tableRow(
-                      style,
-                      'label_id'.l10n,
-                      WidgetButton(
-                        onPressed: () {
-                          PlatformUtils.copy(text: chatItem.id.val);
-                          MessagePopup.success('label_copied'.l10n);
-                        },
-                        child: Row(
-                          children: [
-                            Text(
-                              chatItem.id.val,
-                              style: style.fonts.small.regular.onBackground,
-                            ),
-                            const SizedBox(width: 8),
-                            const SvgIcon(SvgIcons.copySmall),
-                          ],
+                return Padding(
+                  padding: ModalPopup.padding(
+                    context,
+                  ).add(EdgeInsets.only(top: 6)),
+                  child: Table(
+                    columnWidths: const {
+                      0: IntrinsicColumnWidth(),
+                      1: MinColumnWidth(
+                        FixedColumnWidth(220),
+                        FractionColumnWidth(0.7),
+                      ),
+                    },
+                    defaultVerticalAlignment: TableCellVerticalAlignment.top,
+                    children: [
+                      _tableRow(
+                        context,
+                        'label_id'.l10n,
+                        WidgetButton(
+                          onPressed: () {
+                            PlatformUtils.copy(text: item.id.val);
+                            MessagePopup.success('label_copied'.l10n);
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                item.id.val,
+                                style: style.fonts.small.regular.onBackground,
+                              ),
+                              const SizedBox(width: 8),
+                              const SvgIcon(SvgIcons.copySmall),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    _tableRow(
-                      style,
-                      'label_sent'.l10n,
-                      Text(
-                        chatItem.at.val.toLocal().hmyMd,
-                        style: style.fonts.small.regular.onBackground,
+                      _tableRow(
+                        context,
+                        'label_sent'.l10n,
+                        Text(
+                          item.at.val.toLocal().hmyMd,
+                          style: style.fonts.small.regular.onBackground,
+                        ),
                       ),
-                    ),
-                    _tableRow(
-                      style,
-                      'label_status'.l10n,
-                      c.displayMembers.value == true
-                          ? _contactList(context, c, c.reads)
-                          : Text(
-                              _getLabelStatus(
-                                chatItem.status.value,
-                                c.reads.isNotEmpty,
-                              ),
-                              style: style.fonts.small.regular.onBackground,
-                            ),
-                      addPadding: c.displayMembers.value == true ? 10 : 0,
-                    ),
-                  ],
-                ),
-              );
-            }),
+                      if (c.displayMembers.value)
+                        _tableRow(
+                          context,
+                          'label_status'.l10n,
+                          _members(context, c),
+                        )
+                      else
+                        _tableRow(
+                          context,
+                          'label_status'.l10n,
+                          Text(
+                            _status(item.status.value, c.reads.isNotEmpty),
+                            style: style.fonts.small.regular.onBackground,
+                          ),
+                        ),
+                    ],
+                  ),
+                );
+              }),
+            ),
             const SizedBox(height: 16),
           ],
         );
@@ -137,76 +132,29 @@ class MessageInfo extends StatelessWidget {
     );
   }
 
-  /// Represents a table row for table with info
-  TableRow _tableRow(
-    Style style,
-    String label,
-    Widget child, {
-    double addPadding = 0,
-  }) => TableRow(
-    children: [
-      Padding(
-        padding: EdgeInsets.only(top: 4 + addPadding),
-        child: Text(
-          label,
-          style: style.fonts.small.regular.secondary,
-          textAlign: TextAlign.right,
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(16, 4, 4, 0),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: DefaultTextStyle(
-            style: style.fonts.small.regular.secondary.copyWith(
-              color: style.colors.secondaryBackgroundLight,
-            ),
-            child: child,
+  /// Builds a stylized [TableRow] with [label] and [child].
+  TableRow _tableRow(BuildContext context, String label, Widget child) {
+    final style = Theme.of(context).style;
+
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+          child: Text(
+            label,
+            style: style.fonts.small.regular.secondary,
+            textAlign: TextAlign.right,
           ),
         ),
-      ),
-    ],
-  );
-
-  /// Returns a list of [ContactTile] with the icon status
-  Widget _contactList(
-    BuildContext context,
-    MessageInfoController c,
-    Iterable<LastChatRead> reads,
-  ) {
-    final List<Widget> contactTiles = [];
-
-    for (final member in c.members) {
-      final bool isRead = reads.map((r) => r.memberId).contains(member.id);
-      final Widget widget = ContactTile(
-        user: member,
-        onTap: () {
-          Navigator.of(context).pop();
-          router.user(member.id, push: true);
-        },
-        height: 38,
-        trailing: [
-          isRead ? SvgIcon(SvgIcons.read) : SvgIcon(SvgIcons.delivered),
-        ],
-      );
-
-      if (isRead) {
-        contactTiles.insert(0, widget);
-      } else {
-        contactTiles.add(widget);
-      }
-    }
-
-    return Column(
-      children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 200),
-          child: Scrollbar(
-            controller: c.scrollController,
-            child: ListView.builder(
-              controller: c.scrollController,
-              itemCount: contactTiles.length,
-              itemBuilder: (_, i) => contactTiles[i],
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 4, 0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: DefaultTextStyle(
+              style: style.fonts.small.regular.secondary.copyWith(
+                color: style.colors.secondaryBackgroundLight,
+              ),
+              child: child,
             ),
           ),
         ),
@@ -214,8 +162,51 @@ class MessageInfo extends StatelessWidget {
     );
   }
 
-  /// Returns localized string of [ChatItem] status
-  String _getLabelStatus(SendingStatus status, bool isRead) {
+  /// Returns a list of [RxUser] visualized.
+  Widget _members(BuildContext context, MessageInfoController c) {
+    final style = Theme.of(context).style;
+
+    final List<Widget> children = [];
+
+    for (int i = 0; i < c.members.length; ++i) {
+      final RxUser member = c.members.elementAt(i);
+      final bool isRead = c.reads.map((r) => r.memberId).contains(member.id);
+
+      final Widget widget = Container(
+        padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: style.colors.onPrimary,
+          border: style.cardBorder,
+        ),
+        child: Row(
+          children: [
+            AvatarWidget.fromRxUser(member, radius: AvatarRadius.smaller),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                member.title,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+            SizedBox(width: 4),
+            SvgIcon(isRead ? SvgIcons.read : SvgIcons.sent),
+          ],
+        ),
+      );
+
+      children.add(widget);
+      if (i != c.members.length) {
+        children.add(const SizedBox(height: 4));
+      }
+    }
+
+    return Column(children: children);
+  }
+
+  /// Returns a localized string of [ChatItem] status.
+  String _status(SendingStatus status, bool isRead) {
     if (isRead) {
       return 'label_message_status_read'.l10n;
     }

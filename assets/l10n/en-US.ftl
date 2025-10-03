@@ -689,7 +689,6 @@ label_media_no_device_available = No device is available
 label_media_output = Speaker
 label_media_section_hint = Microphone, speaker, camera
 label_media_semicolon_amount = Media: {$amount}
-label_message = Message
 label_message_status_delivered = Delivered
 label_message_status_not_sent = Not sent
 label_message_status_read = Read

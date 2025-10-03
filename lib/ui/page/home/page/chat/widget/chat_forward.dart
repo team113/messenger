@@ -932,11 +932,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             Transform.translate(
               offset: const Offset(-12, 0),
               child: WidgetButton(
-                onPressed: () => MessageInfo.show(
-                  context,
-                  chatId: widget.forwards.first.value.chatId,
-                  chatItemId: widget.forwards.first.value.id,
-                ),
+                onPressed: () =>
+                    MessageInfo.show(context, widget.forwards.first.value.id),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -1029,8 +1026,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           inverted: const SvgIcon(SvgIcons.infoWhite),
                           onPressed: () => MessageInfo.show(
                             context,
-                            chatId: widget.forwards.first.value.chatId,
-                            chatItemId: widget.forwards.first.value.id,
+                            widget.forwards.first.value.id,
                           ),
                         ),
                         if (copyable != null)

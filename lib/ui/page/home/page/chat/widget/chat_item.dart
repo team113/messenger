@@ -1373,11 +1373,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Transform.translate(
               offset: const Offset(-12, 0),
               child: WidgetButton(
-                onPressed: () => MessageInfo.show(
-                  context,
-                  chatId: widget.item.value.chatId,
-                  chatItemId: widget.item.value.id,
-                ),
+                onPressed: () =>
+                    MessageInfo.show(context, widget.item.value.id),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 2),
                   child: Row(
@@ -1474,11 +1471,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               : 'btn_message_info'.l10n,
                           trailing: const SvgIcon(SvgIcons.info),
                           inverted: const SvgIcon(SvgIcons.infoWhite),
-                          onPressed: () => MessageInfo.show(
-                            context,
-                            chatId: widget.item.value.chatId,
-                            chatItemId: widget.item.value.id,
-                          ),
+                          onPressed: () =>
+                              MessageInfo.show(context, widget.item.value.id),
                         ),
                         if (copyable != null)
                           ContextMenuButton(

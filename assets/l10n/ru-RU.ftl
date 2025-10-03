@@ -702,7 +702,6 @@ label_media_no_device_available = Нет доступных устройств
 label_media_output = Спикер
 label_media_section_hint = Микрофон, спикер, камера
 label_media_semicolon_amount = Медиа: {$amount}
-label_message = Сообщение
 label_message_status_delivered = Доставлено
 label_message_status_not_sent = Не отправлено
 label_message_status_read = Прочитано

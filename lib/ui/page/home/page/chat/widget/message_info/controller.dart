@@ -23,28 +23,21 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
-import '/store/chat_rx.dart';
-import '/store/model/chat_item.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 
 /// Controller of the [MessageInfo] popup.
 class MessageInfoController extends GetxController {
-  MessageInfoController(this.chatId, this.chatItemId, this._chatService);
-
-  /// ID of the [Chat] this page is about.
-  final ChatId? chatId;
+  MessageInfoController(this.id, this._chatService);
 
   /// ID of the [ChatItem] this page is about.
-  final ChatItemId? chatItemId;
+  final ChatItemId? id;
 
-  /// [DtoChatItem] of a [RxChat] this [MessageInfo] is about.
-  final Rx<DtoChatItem?> chatItem = Rx(null);
+  /// [ChatItem] of a [RxChat] this [MessageInfo] is about.
+  final Rx<ChatItem?> item = Rx(null);
 
   /// [RxUser]s who may read [ChatItem] this [MessageInfo] is about.
   final RxList<RxUser> members = RxList();
@@ -52,20 +45,20 @@ class MessageInfoController extends GetxController {
   /// [LastChatRead]s of a [ChatItem] this [MessageInfo] is about.
   RxList<LastChatRead> reads = RxList();
 
-  /// Specifies whether to display the status of all [RxChat.members].
-  final Rx<bool?> displayMembers = Rx(null);
+  /// Indicator whether to display the status of all [RxChat.members].
+  final RxBool displayMembers = RxBool(false);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// Indicates whether the [RxChat.members] have a next page.
-  RxBool get haveNext => _chat?.members.hasNext ?? RxBool(false);
-
-  /// Reactive state of the [RxChat] this page is about.
-  RxChat? _chat;
+  /// [RxStatus] of [item] and [members] initialization.
+  final Rx<RxStatus> status = Rx(RxStatus.loading());
 
   /// [Chat]s service used to get the [_chat] value.
   final ChatService _chatService;
+
+  /// Reactive state of the [RxChat] this page is about.
+  RxChat? _chat;
 
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
@@ -74,12 +67,15 @@ class MessageInfoController extends GetxController {
   /// Subscription for the [RxChat.members] changes.
   StreamSubscription? _membersSubscription;
 
+  /// Indicates whether the [RxChat.members] have a next page.
+  RxBool get hasNext => _chat?.members.hasNext ?? RxBool(false);
+
   @override
   void onInit() {
     super.onInit();
 
     scrollController.addListener(_scrollListener);
-    _initChat();
+    _fetchItem();
   }
 
   @override
@@ -90,53 +86,93 @@ class MessageInfoController extends GetxController {
     super.onClose();
   }
 
-  /// Init [RxChat] and [DtoChatItem].
-  Future<void> _initChat() async {
-    if (chatId == null || chatItemId == null) {
+  /// Fetches [ChatItem] and then afterwards a [Chat] with [ChatMember]s.
+  void _fetchItem() {
+    status.value = RxStatus.loading();
+
+    if (id == null) {
+      status.value = RxStatus.empty();
       return;
     }
 
     try {
-      _chat = await _chatService.get(chatId!);
-
-      if (_chat != null) {
-        chatItem.value = await (_chat as RxChatImpl).get(chatItemId!);
-        displayMembers.value = _chat!.chat.value.isGroup;
-
-        _populateLists();
+      final FutureOr<ChatItem?> itemOrFuture = _chatService.getItem(id!);
+      if (itemOrFuture is Future<ChatItem>) {
+        itemOrFuture.then((e) {
+          item.value = e;
+          _fetchChat();
+        });
+      } else if (itemOrFuture is ChatItem?) {
+        item.value = itemOrFuture;
+        _fetchChat();
       }
     } catch (e) {
+      status.value = RxStatus.empty();
       MessagePopup.error(e);
       rethrow;
     }
   }
 
-  /// Populate [reads] and [members]
-  void _populateLists() {
-    final PreciseDateTime? at = chatItem.value?.value.at;
+  /// Fetches the [RxChat] by its ID.
+  void _fetchChat() {
+    final ChatId? chatId = item.value?.chatId;
 
-    if (at != null) {
-      final UserId? authorId = chatItem.value?.value.author.id;
-
-      reads.addAll(
-        _chat!.chat.value.lastReads.where(
-          (e) => !e.at.val.isBefore(at.val) && e.memberId != authorId,
-        ),
-      );
+    if (chatId == null) {
+      status.value = RxStatus.empty();
+      return;
     }
 
-    members.addAll(_chat!.members.values.map((e) => e.user));
+    status.value = RxStatus.loadingMore();
 
-    _membersSubscription = _chat!.members.items.changes.listen((event) {
+    final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId);
+    if (chatOrFuture is Future<RxChat>) {
+      chatOrFuture.then((e) {
+        _chat = e;
+        _fetchMembers();
+      });
+    } else if (chatOrFuture is RxChat?) {
+      _chat = chatOrFuture;
+      _fetchMembers();
+    }
+  }
+
+  /// Populates [reads] and [members].
+  void _fetchMembers() {
+    status.value = RxStatus.success();
+
+    final RxChat? chat = _chat;
+    final ChatItem? item = this.item.value;
+
+    if (chat == null || item == null) {
+      return;
+    }
+
+    displayMembers.value = chat.chat.value.isGroup;
+
+    reads.addAll(
+      chat.chat.value.lastReads.where((e) => !e.at.val.isBefore(item.at.val)),
+    );
+
+    members.addAll(
+      chat.members.values
+          .where((e) => !e.joinedAt.isAfter(item.at))
+          .map((e) => e.user),
+    );
+
+    _membersSubscription = chat.members.items.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
-          if (event.value != null && !members.contains(event.value!.user)) {
+          final RxChatMember? member = event.value;
+
+          if (member != null &&
+              !members.contains(member.user) &&
+              !member.joinedAt.isAfter(item.at)) {
             members.add(event.value!.user);
           }
           break;
+
         case OperationKind.removed:
           members.removeWhere((e) => e.id == event.key);
-
           _scrollListener();
           break;
 
@@ -146,7 +182,11 @@ class MessageInfoController extends GetxController {
       }
     });
 
-    _chat!.members.around();
+    if (chat.members.values.length < chat.chat.value.membersCount) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _chat!.members.around();
+      });
+    }
   }
 
   /// Requests the next page of [RxUser]s based on the
@@ -159,7 +199,7 @@ class MessageInfoController extends GetxController {
         _scrollIsInvoked = false;
 
         if (scrollController.hasClients &&
-            haveNext.isTrue &&
+            hasNext.isTrue &&
             _chat?.members.nextLoading.value == false &&
             scrollController.position.pixels >
                 scrollController.position.maxScrollExtent - 100) {
