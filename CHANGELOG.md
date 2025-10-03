@@ -21,10 +21,18 @@ All user visible changes to this project will be documented in this file. This p
         - Added the "Search in chat" action to the context menu. ([#1396], [#1438])
         - Added a keyboard shortcuts "Ctrl+F"/"Cmd+F" to open search. ([#1396], [#1438])
 
+### Fixed
+
+- UI:
+    - Login modal:
+        - Meaningless formatting errors when leading/trailing spaces are present. ([#1448], [#1443])
+
 [#1396]: /../../issues/1396
 [#1410]: /../../issues/1410
 [#1416]: /../../pull/1416
 [#1438]: /../../pull/1438
+[#1443]: /../../issues/1443
+[#1448]: /../../issues/1448
 
 
 

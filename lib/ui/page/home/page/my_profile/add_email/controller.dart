@@ -55,7 +55,7 @@ class AddEmailController extends GetxController {
   /// [TextFieldState] for inputting the [email].
   late final TextFieldState emailField = TextFieldState(
     onFocus: (s) {
-      if (s.text.isNotEmpty) {
+      if (s.text.trim().isNotEmpty) {
         try {
           email = UserEmail(s.text);
 
@@ -69,7 +69,7 @@ class AddEmailController extends GetxController {
       }
     },
     onSubmitted: (s) async {
-      if (s.text.isEmpty ||
+      if (s.text.trim().isEmpty ||
           (s.error.value != null && s.resubmitOnError.isFalse)) {
         return;
       }
@@ -124,7 +124,7 @@ class AddEmailController extends GetxController {
   void onInit() {
     code = TextFieldState(
       onFocus: (s) {
-        if (s.text.isNotEmpty) {
+        if (s.text.trim().isNotEmpty) {
           try {
             ConfirmationCode(s.text);
           } on FormatException {
