@@ -52,7 +52,7 @@
       "purpose": "maskable"
     },
     {
-      "src": "icons/maskable-icon.png",
+      "src": "icons/maskable_icon_x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

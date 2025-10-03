@@ -76,6 +76,8 @@
   <link href='https://fonts.googleapis.com/css?family=Noto Sans Display' rel='stylesheet'>
   <style type="text/css">
     html {
+      width: 100%;
+      height: 100%;
       overscroll-behavior-x: none;
     }
 
@@ -88,14 +90,6 @@
       background-position: center;
       overflow-x: hidden;
       overscroll-behavior-x: none;
-    }
-
-    .content {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      -webkit-transform: translate(-50%, -50%);
-      transform: translate(-50%, -50%);
     }
 
     .shimmer {
@@ -112,6 +106,337 @@
     @keyframes shimmer {
       100% {
         -webkit-mask-position: left
+      }
+    }
+
+    .chats-bar {
+      border: #DEDEDE solid 0.5px;
+      background-color: #63b4ff;
+      display: flex;
+      flex-direction: row;
+      height: 56px;
+      justify-content: center;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, .2);
+      align-items: center;
+      font-size: 21px;
+      max-width: 400px;
+      width: 400px;
+      justify-content: start;
+      background-color: white;
+      max-width: calc(100% - 16px);
+      width: calc(100% - 16px);
+    }
+
+    .gap-w-3 {
+      margin: 0 3px;
+    }
+
+    .gap-w-6 {
+      margin: 0 6px;
+    }
+
+    .gap-w-8 {
+      margin: 0 8px;
+    }
+
+    .gap-h-3 {
+      margin: 3px 0px;
+    }
+
+    .gap-h-12 {
+      margin: 12px 0px;
+    }
+
+    .block {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      width: 380px;
+      max-width: 380px;
+      margin: auto;
+      padding: 0px;
+      border-radius: 12px;
+      border: #DEDEDE solid 0.5px;
+      background-color: #fff;
+    }
+
+    .main {
+      width: 100%;
+      height: 100%;
+      margin: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .row {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .sticked-top {
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .sticked-bottom {
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .navigation {
+      background-color: #fff;
+      display: flex;
+      flex-direction: row;
+      text-align: justify;
+      height: 56px;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, .2);
+      align-items: center;
+      align-content: center;
+      justify-content: space-between;
+      font-size: 21px;
+      padding: 0px 13px;
+      width: calc(350px - 26px);
+      max-width: calc(350px - 26px);
+    }
+
+    .field {
+      background-color: #fff;
+      display: flex;
+      flex-direction: row;
+      text-align: center;
+      height: 56px;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, .2);
+      align-items: center;
+      align-content: center;
+      font-size: 21px;
+      width: calc(100%);
+      position: fixed;
+      top: calc(100%);
+      transform: translateY(-100%);
+    }
+
+    .chat-bar {
+      border: #DEDEDE solid 0.5px;
+      background-color: #fff;
+      display: flex;
+      flex-direction: row;
+      text-align: center;
+      height: 56px;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, .2);
+      align-items: center;
+      align-content: center;
+      font-size: 21px;
+      width: calc(100%);
+      position: fixed;
+    }
+
+    .circle-loader {
+      width: 35px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 2px solid lightblue;
+      border-right-color: #63b4ff;
+      animation: circle-loader 1s infinite linear;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .left-chats {
+      position: absolute;
+      background-color: rgba(240, 242, 243, 1.0);
+      width: 350px;
+      height: 100%;
+      top: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    .darken {
+      background-color: rgba(0, 0, 0, .08);
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    .bottomlay {
+      background-color: rgba(0, 0, 0, .5);
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      display: hidden;
+    }
+
+    @keyframes circle-loader {
+      to {
+        transform: translate(-50%, -50%) rotate(1turn)
+      }
+    }
+
+    .welcome-content {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .welcome {
+      overflow: hidden;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      width: min(284px, calc(100%));
+      max-width: min(284px, calc(100%));
+      height: 160px;
+      max-height: 160px;
+      margin: 10px 0px;
+      padding: 0px 52px;
+      border-radius: 12px;
+      border: #DEDEDE solid 0.5px;
+      background-color: #F2F5F8;
+      box-shadow: 0px 0px 5px rgba(0, 0, 0, .2);
+      display: hidden;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(#ebebff, #a6a7ff);
+      text-align: center;
+      color: #fff;
+      font-size: 13px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .block {
+        width: 100%;
+        max-width: 100%;
+        margin: 3px 10px;
+      }
+
+      .left-chats,
+      .darken {
+        display: none;
+      }
+
+      .welcome {
+        position: fixed;
+        top: calc(100% - 73px);
+        transform: translateY(-100%);
+        width: calc(100% - 15px);
+        max-width: calc(100% - 15px);
+        padding: 0px 0px;
+        margin: 10px 7.5px;
+      }
+
+      .welcome-content {
+        position: fixed;
+        transform: translateX(-50%);
+        left: 50%;
+        width: min(82%, calc(350px));
+        max-width: min(82%, calc(350px));
+      }
+
+      .navigation {
+        display: none;
+      }
+
+      .chats-bar {
+        display: none;
+      }
+
+    }
+
+    @media only screen and (min-width: 600px) {
+      .chats-bar {
+        width: 350px;
+        max-width: 350px;
+      }
+
+      .circle-loader {
+        left: 175px;
+      }
+
+      .field {
+        left: 350px;
+        width: calc(100% - 350px);
+      }
+
+      .chat-bar {
+        left: 350px;
+        width: calc(100% - 350px);
+      }
+
+      .welcome {
+        position: fixed;
+        left: 50%;
+        width: min(352px, calc(100% - 0px - 245px));
+        max-width: min(352px, calc(100% - 0px - 245px));
+        transform: translate(-50%, -50%);
+        margin: 0px 0px;
+        padding: 0px 40px;
+      }
+    }
+
+    html {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    html::-webkit-scrollbar {
+      display: none;
+    }
+
+    .meter {
+      height: 50px;
+      position: relative;
+      background: #fff;
+      overflow: hidden;
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+    }
+
+    .progress {
+      background-color: #fff;
+      animation: progressBar 10s ease-in-out;
+      animation-fill-mode: both;
+    }
+
+    @keyframes progressBar {
+      0% {
+        width: 0;
+      }
+
+      100% {
+        width: 100%;
       }
     }
   </style>
@@ -200,30 +525,135 @@
     }
   </script>
 
-  <div id="loader" class="container content">
-    <div style="vertical-align: middle;">
-      <div style="display: flex; justify-content: center; margin-bottom: 12px;">
-        <div style="color:#888888; font-weight: 300; font-size:20pt; font-family: Noto Sans Display, system-ui;">
-          Messenger
+  <div id="page-loader">
+    <div id="darken" class="darken"></div>
+
+    <div id="chats" class="chats">
+      <div class="left-chats"></div>
+
+      <div class="sticked-top">
+        <div class="chats-bar" style="position: relative;">
+          <div class="gap-w-3"></div>
+          <div class="gap-w-6"></div>
+          <div class="gap-w-8"></div>
         </div>
       </div>
-      <div style="display: flex; justify-content: center; margin-bottom: 24px;">
-        <div
-          style="color:#888888; font-weight: 300; font-size:16pt; font-family: Noto Sans Display, system-ui; transform: translate(0px, -8px);">
-          by Tapopa
+
+      <div id="circle-loader" class="circle-loader"></div>
+
+      <div class="sticked-bottom">
+        <div class="navigation">
+          <img width="34px" src="/assets/assets/icons/wallet.svg" />
+          <img width="36px" src="/assets/assets/icons/partner.svg" />
+          <img width="39px" src="/assets/assets/icons/chats.svg" />
+          <div class="avatar"><img width="15.47px" height="16.98px" style="transform: translateY(-1px);"
+              src="/assets/assets/icons/person.svg" /></div>
         </div>
       </div>
-      <div style="display: flex; justify-content: center;">
-        <img id="logo" height="168px" src="assets/assets/images/logo/head0000.svg">
+    </div>
+
+    <div class="chat-bar">
+    </div>
+
+    <div class="field">
+      <div class="row">
+        <div class="gap-w-8"></div>
+        <img width="22px" height="22px" src="/assets/assets/icons/chat_more.svg" />
+        <div class="gap-w-6"></div>
+        <div style="font-size: 17px; color: #c4c4c4;">Message...</div>
+        <img width="25.44px" height="21.91px" src="/assets/assets/icons/send.svg"
+          style="position: absolute; right: 0; margin-right: 16px;" />
       </div>
-      <div style="display: flex; justify-content: center; margin-top: 24px;">
-        <div class="col-auto h4 shimmer"
-          style="color:#888888; font-weight: 300; font-size:13pt; font-family: Noto Sans Display, system-ui;">
-          Loading...
+    </div>
+
+    <div id="bottomlay" class="bottomlay"></div>
+
+    <div id="welcome" class="main">
+      <div class="welcome">
+        <div class="welcome-content">
+          <div style="text-align: center; font-size: 18px; color: #000">Messenger by Tapopa</div>
+          <div class="gap-h-3"></div>
+          <div class="gap-h-3"></div>
+          <div class="gap-h-3"></div>
+          <div class="gap-h-3"></div>
+          <div class="meter">
+            <span style="width:80%;">
+              <span class="progress">
+                <div class="shimmer"
+                  style="font-size: 17px; color: #000; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+                  Loading...
+                </div>
+              </span>
+            </span>
+          </div>
+          <div class="gap-h-3"></div>
+          <div class="gap-h-3"></div>
+          <div class="gap-h-3"></div>
+          <div class="gap-h-3"></div>
         </div>
       </div>
     </div>
   </div>
+
+  <div id="call-loader">
+    <div class="column" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+      <div style="color: #262626; font-size: 27px">Messenger</div>
+      <div class="gap-h-3"></div>
+      <div class="gap-h-3"></div>
+      <div style="color: #262626; font-size: 21px">by Tapopa</div>
+
+      <div class="gap-h-12"></div>
+      <div class="gap-h-3"></div>
+      <img width="168px" height="164px" src="/assets/assets/images/loader.svg" />
+      <div class="gap-h-3"></div>
+      <div class="gap-h-12"></div>
+
+      <div class="shimmer" style="color: #262626; font-size: 17px">Call...</div>
+    </div>
+  </div>
+
+  </script>
+  <script>
+    var isCall = window.location.pathname.startsWith('/call/');
+
+    if (isCall) {
+      document.getElementById("page-loader").remove();
+    } else {
+      document.getElementById("call-loader").remove();
+
+
+      var authorized = false;
+
+      for (var i = 0; i < window.localStorage.length && !authorized; i++) {
+        let key = window.localStorage.key(i);
+        authorized = key == 'popupDismissed' && window.localStorage.getItem(key) == 'true';
+      }
+
+      console.log(`window.localStorage.key(i): ${authorized}`);
+      if (authorized) {
+        document.getElementById("welcome").remove();
+        document.getElementById("bottomlay").remove();
+      } else {
+        document.getElementById("circle-loader").remove();
+        document.getElementById("welcome").style.display = "block";
+        document.getElementById("bottomlay").style.display = "block";
+      }
+
+      var person = false;
+      if (window.location.pathname.startsWith('/d/')) {
+        person = true;
+      }
+
+      if (person) {
+        document.getElementById("welcome-title").style.background = "rgba(0, 0, 0, 0.13)";
+        document.getElementById("welcome-title").style.borderRadius = "14px";
+        document.getElementById("welcome-title").style.width = "140px";
+        document.getElementById("welcome-title").style.height = "34px";
+        document.getElementById("welcome-title").innerHTML = "";
+        document.getElementById("welcome-subtitle").innerHTML = "Messenger by Tapopa";
+      }
+    }
+  </script>
 
   <!-- Request notifications permission on the first user interaction. -->
   <script>
@@ -289,43 +719,6 @@
         return deleteDatabase.apply(this, args);
       };
     }
-  </script>
-
-  <!-- Animate the blinking loader -->
-  <script>
-    let interval;
-    let i = 0;
-
-    async function animate() {
-      i = 1;
-
-      if (interval !== null) {
-        clearInterval(interval);
-        interval = null;
-      }
-
-      interval = setInterval(function () {
-        ++i;
-
-        if (i === 10) {
-          i = 0;
-          clearInterval(interval);
-          interval = null;
-        }
-
-        const logo = document.getElementById("logo");
-        if (logo) {
-          logo.src = `assets/assets/images/logo/head000${i}.svg`;
-        }
-      }, 45);
-    }
-
-    document.documentElement.addEventListener("click", function () {
-      const logo = document.getElementById("logo");
-      if (logo) {
-        animate();
-      }
-    });
   </script>
 
   <!-- TODO: Styles page related, should be removed at some point. -->

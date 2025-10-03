@@ -41,5 +41,25 @@ final StepDefinitionGeneric hasDialogWithMe = given1<TestUser, CustomWorld>(
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+    ..timeout = const Duration(minutes: 1),
 );
+
+/// Creates a [Chat]-dialog of the provided [User] with the another [User].
+///
+/// Examples:
+/// - Given Bob has dialog with Alice.
+final StepDefinitionGeneric hasDialogWithUser =
+    given2<TestUser, TestUser, CustomWorld>(
+      '{user} has dialog with {user}',
+      (TestUser user, TestUser other, context) async {
+        final provider = GraphQlProvider();
+        provider.token = context.world.sessions[user.name]?.token;
+        var chat = await provider.createDialogChat(
+          context.world.sessions[other.name]!.userId,
+        );
+        context.world.sessions[user.name]?.dialog = chat.id;
+        provider.disconnect();
+      },
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 1),
+    );

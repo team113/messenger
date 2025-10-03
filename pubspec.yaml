@@ -218,7 +218,6 @@ flutter:
     - assets/images/
     - assets/images/country/
     - assets/images/logo/
-    - assets/images/media_buttons/
     - assets/l10n/
     - assets/privacy.html
     - assets/terms.html
