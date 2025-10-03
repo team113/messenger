@@ -98,6 +98,13 @@ import 'view.dart';
 
 export 'view.dart';
 
+class _ChatScrollPosition {
+  final ChatItemId? itemId;
+  final double itemOffset;
+
+  _ChatScrollPosition({this.itemId, this.itemOffset = 0});
+}
+
 /// Controller of the [Routes.chats] page.
 class ChatController extends GetxController {
   ChatController(
@@ -435,6 +442,8 @@ class ChatController extends GetxController {
   /// if any.
   ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
+  static final Map<String, _ChatScrollPosition> _scrollPositions = {};
+
   @override
   void onInit() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -591,6 +600,69 @@ class ChatController extends GetxController {
     }
 
     super.onReady();
+  }
+
+  void _saveCurrentScrollPosition() {
+    if (_lastVisibleItem != null && elements.isNotEmpty) {
+      final element = elements.values.elementAt(_lastVisibleItem!.index);
+
+      if (element is ChatMessageElement ||
+          element is ChatCallElement ||
+          element is ChatInfoElement ||
+          element is ChatForwardElement) {
+        ChatItemId? itemId;
+
+        if (element is ChatMessageElement) {
+          itemId = element.item.value.id;
+        } else if (element is ChatCallElement) {
+          itemId = element.item.value.id;
+        } else if (element is ChatInfoElement) {
+          itemId = element.item.value.id;
+        } else if (element is ChatForwardElement) {
+          itemId = element.forwards.first.value.id;
+        }
+
+        if (itemId != null) {
+          _scrollPositions[id.val] = _ChatScrollPosition(
+            itemId: itemId,
+            itemOffset: _lastVisibleItem!.offset,
+          );
+        }
+      }
+    }
+  }
+
+  void _restoreScrollPosition() {
+    final savedPosition = _scrollPositions[id.val];
+
+    if (savedPosition?.itemId == null || !status.value.isSuccess) {
+      return;
+    }
+
+    int itemIndex = -1;
+
+    for (int i = 0; i < elements.length; i++) {
+      final element = elements.values.elementAt(i);
+
+      if ((element is ChatMessageElement &&
+              element.item.value.id == savedPosition?.itemId) ||
+          (element is ChatCallElement &&
+              element.item.value.id == savedPosition?.itemId) ||
+          (element is ChatInfoElement &&
+              element.item.value.id == savedPosition?.itemId) ||
+          (element is ChatForwardElement &&
+              element.forwards.any(
+                (f) => f.value.id == savedPosition?.itemId,
+              ))) {
+        itemIndex = i;
+        break;
+      }
+    }
+
+    if (itemIndex >= 0 && savedPosition != null) {
+      initIndex = itemIndex;
+      initOffset = savedPosition.itemOffset;
+    }
   }
 
   @override
@@ -1058,6 +1130,10 @@ class ChatController extends GetxController {
 
         status.value = RxStatus.success();
 
+        if (_lastSeenItem.value != null) {
+          readChat(_lastSeenItem.value);
+        }
+
         if (_bottomLoader != null) {
           showLoaders.value = false;
 
@@ -1073,6 +1149,8 @@ class ChatController extends GetxController {
         if (_lastSeenItem.value != null) {
           readChat(_lastSeenItem.value);
         }
+
+        _restoreScrollPosition();
       }
 
       SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -2092,6 +2170,7 @@ class ChatController extends GetxController {
       _updateSticky();
       _updateFabStates();
       _loadMessages();
+      _saveCurrentScrollPosition();
     }
   }
 
