@@ -73,7 +73,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       text: widget.link?.slug.val,
       submitted: widget.link != null,
       onFocus: (s) {
-        if (s.text.isNotEmpty) {
+        if (s.text.trim().isNotEmpty) {
           try {
             ChatDirectLinkSlug(s.text);
           } on FormatException {
