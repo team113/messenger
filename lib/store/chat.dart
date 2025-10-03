@@ -365,6 +365,18 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
+  FutureOr<ChatItem?> getItem(ChatItemId id) {
+    Log.debug('getItem($id)', '$runtimeType');
+
+    final FutureOr<DtoChatItem?> dtoOrFuture = _itemsLocal.read(id);
+    if (dtoOrFuture is DtoChatItem) {
+      return dtoOrFuture.value;
+    }
+
+    return Future(() async => (await dtoOrFuture ?? await message(id))?.value);
+  }
+
+  @override
   Future<void> remove(ChatId id, {bool force = false}) async {
     Log.debug('remove($id)', '$runtimeType');
 
