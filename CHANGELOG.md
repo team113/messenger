@@ -17,8 +17,16 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned messages selection. ([#1416], [#1410])
 
+### Fixed
+
+- UI:
+    - Login modal:
+        - Meaningless formatting errors when leading/trailing spaces are present. ([#1448], [#1443])
+
 [#1410]: /../../issues/1410
 [#1416]: /../../pull/1416
+[#1443]: /../../issues/1443
+[#1448]: /../../issues/1448
 
 
 

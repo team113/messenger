@@ -104,7 +104,7 @@ class UserController extends GetxController {
     onFocus: (s) {
       s.error.value = null;
 
-      if (s.text.isNotEmpty) {
+      if (s.text.trim().isNotEmpty) {
         try {
           BlocklistReason(s.text);
         } on FormatException {
@@ -195,7 +195,7 @@ class UserController extends GetxController {
   void onInit() {
     name = TextFieldState(
       onFocus: (s) {
-        if (s.text.isNotEmpty) {
+        if (s.text.trim().isNotEmpty) {
           try {
             UserName(s.text);
           } on FormatException {
