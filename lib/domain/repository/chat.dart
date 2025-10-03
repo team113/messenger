@@ -249,9 +249,6 @@ abstract class RxChat implements Comparable<RxChat> {
   /// [Paginated] of [User]s being members of this [chat].
   Paginated<UserId, RxChatMember> get members;
 
-  /// Text representing the title of this [chat].
-  String get title;
-
   /// Reactive [Avatar] of this [chat].
   Rx<Avatar?> get avatar;
 

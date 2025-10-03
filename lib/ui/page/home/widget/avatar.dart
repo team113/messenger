@@ -303,7 +303,7 @@ class AvatarWidget extends StatelessWidget {
             chat.chat.value.isDialog &&
             user?.user.value.presence == Presence.away,
         avatar: chat.avatar.value,
-        title: chat.title,
+        title: chat.getTitle(withDeletedLabel: false),
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),
         radius: radius,
         opacity: opacity,

@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -167,7 +168,7 @@ class ChatTile extends StatelessWidget {
                                     child: titleBuilder(
                                       Obx(() {
                                         return Text(
-                                          chat?.title ?? ('dot'.l10n * 3),
+                                          chat?.getTitle() ?? ('dot'.l10n * 3),
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                           style: selected
