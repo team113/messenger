@@ -27,6 +27,7 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/media_utils.dart';
 import '/util/platform_utils.dart';
@@ -587,7 +588,7 @@ Widget callTitle(CallController c) {
         : 'label_audio_call'.l10nfmt(args);
 
     return CallTitle(
-      title: c.chat.value?.title,
+      title: c.chat.value?.getTitle(),
       state: state,
       withDots: withDots,
     );

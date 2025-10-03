@@ -36,6 +36,7 @@ import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
@@ -172,7 +173,7 @@ class ChatWorker extends DisposableService {
         Future<void> notify() async {
           if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
-              c.title,
+              c.getTitle(),
               body: 'label_you_were_added_to_group'.l10n,
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,
@@ -201,7 +202,7 @@ class ChatWorker extends DisposableService {
         Future<void> notify() async {
           if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
-              c.title,
+              c.getTitle(),
               body: body,
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,

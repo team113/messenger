@@ -46,6 +46,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/call/participant/controller.dart';
 import '/util/audio_utils.dart';
 import '/util/fixed_timer.dart';
@@ -511,7 +512,7 @@ class CallController extends GetxController {
   /// title of this [OngoingCall].
   Map<String, String> get titleArguments {
     final Map<String, String> args = {
-      'title': chat.value?.title ?? ('dot'.l10n * 3),
+      'title': chat.value?.getTitle() ?? ('dot'.l10n * 3),
       'state': state.value.name,
     };
 

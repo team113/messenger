@@ -2543,8 +2543,44 @@ class LoaderElement extends ListElement {
 
 /// Extension adding [ChatView] related wrappers and helpers.
 extension ChatViewExt on Chat {
+  /// Returns string represented subtitle of this [Chat].
+  ///
+  /// If [isGroup], then returns the [members] length, otherwise returns the
+  /// presence of the provided [partner], if any.
+  String? getSubtitle({RxUser? partner}) {
+    switch (kind) {
+      case ChatKind.dialog:
+        return partner?.user.value.getStatus(partner.lastSeen.value);
+
+      case ChatKind.group:
+        return 'label_subtitle_participants'.l10nfmt({'count': membersCount});
+
+      case ChatKind.monolog:
+      case ChatKind.artemisUnknown:
+        return null;
+    }
+  }
+
+  /// Returns a string that is based on [members] or [id] of this [Chat].
+  String colorDiscriminant(UserId? me) {
+    switch (kind) {
+      case ChatKind.monolog:
+        return (members.firstOrNull?.user.num ?? id).val;
+      case ChatKind.dialog:
+        return (members.firstWhereOrNull((e) => e.user.id != me)?.user.num ??
+                id)
+            .val;
+      case ChatKind.group:
+      case ChatKind.artemisUnknown:
+        return id.val;
+    }
+  }
+
   /// Returns text represented title of this [Chat].
-  String getTitle(Iterable<RxUser> users, UserId? me) {
+  ///
+  /// If [withDeletedLabel] is true, then returns the title with the deleted
+  /// label for deleted users.
+  String _getTitle(Iterable<RxUser> users, UserId? me, bool withDeletedLabel) {
     String title = 'dot'.l10n * 3;
 
     switch (kind) {
@@ -2587,38 +2623,45 @@ extension ChatViewExt on Chat {
 
     return title;
   }
+}
 
-  /// Returns string represented subtitle of this [Chat].
+/// Extension adding [RxChat] related wrappers and helpers.
+extension ChatRxExt on RxChat {
+  /// Returns text represented title of this [RxChat].
   ///
-  /// If [isGroup], then returns the [members] length, otherwise returns the
-  /// presence of the provided [partner], if any.
-  String? getSubtitle({RxUser? partner}) {
-    switch (kind) {
+  /// If [withDeletedLabel] is true, then returns the title with the deleted
+  /// label for deleted users.
+  String getTitle({bool withDeletedLabel = true}) {
+    // [RxUser]s taking part in the [title] formation.
+    //
+    // Used to subscribe to the [RxUser.updates] to keep these [users]
+    // up-to-date.
+    final List<RxUser> users = [];
+
+    switch (chat.value.kind) {
       case ChatKind.dialog:
-        return partner?.user.value.getStatus(partner.lastSeen.value);
+        final RxUser? rxUser = members.values
+            .firstWhereOrNull((u) => u.user.id != me)
+            ?.user;
+
+        if (rxUser != null) {
+          users.add(rxUser);
+        }
+        break;
 
       case ChatKind.group:
-        return 'label_subtitle_participants'.l10nfmt({'count': membersCount});
+        if (chat.value.name == null) {
+          users.addAll(members.values.take(3).map((e) => e.user));
+        }
+        break;
 
       case ChatKind.monolog:
       case ChatKind.artemisUnknown:
-        return null;
+        // No-op.
+        break;
     }
-  }
 
-  /// Returns a string that is based on [members] or [id] of this [Chat].
-  String colorDiscriminant(UserId? me) {
-    switch (kind) {
-      case ChatKind.monolog:
-        return (members.firstOrNull?.user.num ?? id).val;
-      case ChatKind.dialog:
-        return (members.firstWhereOrNull((e) => e.user.id != me)?.user.num ??
-                id)
-            .val;
-      case ChatKind.group:
-      case ChatKind.artemisUnknown:
-        return id.val;
-    }
+    return chat.value._getTitle(users, me, withDeletedLabel);
   }
 }
 

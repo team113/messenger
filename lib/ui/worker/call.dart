@@ -51,6 +51,7 @@ import '/l10n/l10n.dart';
 import '/provider/drift/callkit_calls.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -308,7 +309,7 @@ class CallWorker extends DisposableService {
               void notify() {
                 if (_myUser.value?.muted == null &&
                     chat?.chat.value.muted == null) {
-                  final String? title = chat?.title ?? c.caller?.title;
+                  final String? title = chat?.getTitle() ?? c.caller?.title;
 
                   _notificationService.show(
                     title ?? 'label_incoming_call'.l10n,
@@ -409,7 +410,7 @@ class CallWorker extends DisposableService {
 
         if (report) {
           final CallKitParams params = CallKitParams(
-            nameCaller: chat?.title ?? 'Call',
+            nameCaller: chat?.getTitle() ?? 'Call',
             id: id,
             handle: c.chatId.value.val,
             extra: {'chatId': c.chatId.value.val},
