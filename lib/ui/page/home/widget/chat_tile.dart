@@ -91,7 +91,7 @@ class ChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
-  /// Builder for building the [RxChat.title].
+  /// Builder for building the chat title.
   ///
   /// Intended to be used to allow custom modifications over the title.
   final Widget Function(Widget child) titleBuilder;
