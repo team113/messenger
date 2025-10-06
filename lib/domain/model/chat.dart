@@ -476,7 +476,7 @@ class ChatId extends NewType<String> implements Comparable<ChatId> {
 class ChatName extends NewType<String> {
   const ChatName._(super.val);
 
-  ChatName(String val) : super(val) {
+  ChatName(String value) : super(value.trim()) {
     if (!_regExp.hasMatch(val)) {
       throw FormatException('Does not match validation RegExp: `$val`');
     }
