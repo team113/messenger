@@ -106,6 +106,12 @@ class ChatService extends DisposableService {
     return _chatRepository.get(id);
   }
 
+  /// Returns a [ChatItem] by the provided [id].
+  FutureOr<ChatItem?> getItem(ChatItemId id) {
+    Log.debug('getItem($id)', '$runtimeType');
+    return _chatRepository.getItem(id);
+  }
+
   /// Fetches the next [paginated] page.
   FutureOr<void> next() async {
     if (_chatRepository.hasNext.value) {

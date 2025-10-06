@@ -76,6 +76,9 @@ abstract class AbstractChatRepository {
   /// Returns an [RxChat] by the provided [id].
   FutureOr<RxChat?> get(ChatId id);
 
+  /// Returns a [ChatItem] by the provided [id].
+  FutureOr<ChatItem?> getItem(ChatItemId id);
+
   /// Removes a [Chat] identified by the provided [id] from the [chats].
   Future<void> remove(ChatId id);
 

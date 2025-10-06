@@ -6,6 +6,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+
 ## [0.7.0] · 2025-??-??
 [0.7.0]: /../../tree/v0.7.0
 
@@ -22,6 +23,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned messages selection. ([#1416], [#1410])
+        - Redesigned message information. ([#1437], [#1379])
 
 ### Fixed
 
@@ -30,9 +32,11 @@ All user visible changes to this project will be documented in this file. This p
         - Meaningless formatting errors when leading/trailing spaces are present. ([#1448], [#1443])
 
 [#1255]: /../../issues/1255
+[#1379]: /../../issues/1379
 [#1410]: /../../issues/1410
 [#1414]: /../../pull/1414
 [#1416]: /../../pull/1416
+[#1437]: /../../pull/1437
 [#1443]: /../../issues/1443
 [#1448]: /../../issues/1448
 
