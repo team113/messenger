@@ -98,7 +98,7 @@ import 'pagination/drift.dart';
 import 'pagination/drift_graphql.dart';
 
 typedef ArchivedPaginated =
-    RxPaginatedImpl<ChatId, RxChat, DtoChat, RecentChatsCursor>;
+    RxPaginatedImpl<ChatId, RxChatImpl, DtoChat, RecentChatsCursor>;
 
 /// Implementation of an [AbstractChatRepository].
 class ChatRepository extends DisposableInterface
@@ -145,7 +145,7 @@ class ChatRepository extends DisposableInterface
           },
           watchUpdates: (a, b) => a.value.isArchived != b.value.isArchived,
           onAdded: (e) async {
-            final ChatVersion? stored = paginated[e.id]?.ver;
+            final ChatVersion? stored = archived.items[e.id]?.ver;
 
             Log.info(
               'onAdded -> $e -> stored == null(${stored == null}) || e.ver > stored(${e.ver > stored})',
@@ -186,7 +186,7 @@ class ChatRepository extends DisposableInterface
       ),
       compare: (a, b) => a.value.compareTo(b.value),
     ),
-    transform: ({required DtoChat data, RxChat? previous}) {
+    transform: ({required DtoChat data, RxChatImpl? previous}) {
       return previous ?? get(data.id);
     },
   );
@@ -224,17 +224,11 @@ class ChatRepository extends DisposableInterface
   /// [CombinedPagination] loading [chats] with pagination.
   CombinedPagination<DtoChat, ChatId>? _pagination;
 
-  /// [CombinedPagination] loading archive [chats] with pagination.
-  CombinedPagination<DtoChat, ChatId>? _archivePagination;
-
   /// [CombinedPagination] loading local [chats] with pagination.
   CombinedPagination<DtoChat, ChatId>? _localPagination;
 
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
-
-  /// Subscription to the [_archivePagination] changes.
-  StreamSubscription? _archivePaginationSubscription;
 
   /// [_recentChatsRemoteEvents] subscription.
   ///
@@ -354,13 +348,11 @@ class ChatRepository extends DisposableInterface
     chats.forEach((_, v) => v.dispose());
     _subscriptions.forEach((_, v) => v.cancel());
     _pagination?.dispose();
-    _archivePagination?.dispose();
     _localPagination?.dispose();
     _remoteSubscription?.close(immediate: true);
     _remoteArchiveSubscription?.close(immediate: true);
     _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
-    _archivePaginationSubscription?.cancel();
     _paginatedSubscription?.cancel();
 
     super.onClose();
@@ -468,7 +460,6 @@ class ChatRepository extends DisposableInterface
     paginated.remove(id)?.dispose();
     chats.remove(id)?.dispose();
     _pagination?.remove(id);
-    _archivePagination?.remove(id);
     await _chatLocal.delete(id);
   }
 
@@ -2173,12 +2164,8 @@ class ChatRepository extends DisposableInterface
 
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
-    if (!pagination && !chat.value.isHidden) {
-      if (chat.value.isArchived) {
-        await _archivePagination?.put(chat);
-      } else {
-        await _pagination?.put(chat);
-      }
+    if (!pagination && !chat.value.isHidden && !chat.value.isArchived) {
+      await _pagination?.put(chat);
     }
 
     return rxChat;
@@ -2565,7 +2552,10 @@ class ChatRepository extends DisposableInterface
             final int limit = (after ?? 0) + (before ?? 0) + 1;
             return _chatLocal.watchRecent(limit: limit > 1 ? limit : null);
           },
-          watchUpdates: (a, b) => false,
+          watchUpdates: (a, b) =>
+              a.value.favoritePosition == null &&
+              b.value.favoritePosition == null &&
+              a.value.isArchived != b.value.isArchived,
           onAdded: (e) async {
             final ChatVersion? stored = paginated[e.id]?.ver;
             if (stored == null || e.ver > stored) {

@@ -341,10 +341,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.limit(limit);
       }
 
-      print('======= stmt: {${stmt.constructQuery().sql}}');
-
       return stmt.watch().map((rows) {
-        print('limit: $limit, watch() -> ${rows.map((e) => '${e.id}')}');
         return rows.map(_ChatDb.fromDb).toList();
       });
     });
