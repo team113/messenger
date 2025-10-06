@@ -15,9 +15,9 @@ All user visible changes to this project will be documented in this file. This p
 
 - Web:
     - Player:
-        - Inability to copy images to clipboard. ([#1456])
+        - Inability to copy images to clipboard. ([#1457])
 
-[#1456]: /../../pull/1456
+[#1457]: /../../pull/1457
 
 
 
