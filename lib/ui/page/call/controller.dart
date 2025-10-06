@@ -512,7 +512,7 @@ class CallController extends GetxController {
   /// title of this [OngoingCall].
   Map<String, String> get titleArguments {
     final Map<String, String> args = {
-      'title': chat.value?.getTitle() ?? ('dot'.l10n * 3),
+      'title': chat.value?.title() ?? ('dot'.l10n * 3),
       'state': state.value.name,
     };
 

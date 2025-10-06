@@ -249,7 +249,7 @@ class GalleryView extends StatelessWidget {
       if (chat != null) {
         avatar = AvatarWidget.fromRxChat(chat, radius: AvatarRadius.medium);
         title = Text(
-          chat.getTitle(),
+          chat.title(),
           style: style.fonts.medium.regular.onBackground,
         );
       } else {

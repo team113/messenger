@@ -2583,7 +2583,7 @@ extension ChatRxExt on RxChat {
   ///
   /// If [withDeletedLabel] is true, then returns the title with the deleted
   /// label for deleted users.
-  String getTitle({bool withDeletedLabel = true}) {
+  String title({bool withDeletedLabel = true}) {
     String title = 'dot'.l10n * 3;
 
     switch (chat.value.kind) {

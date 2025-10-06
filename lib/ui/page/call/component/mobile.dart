@@ -441,7 +441,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       children: [
                         Flexible(
                           child: Text(
-                            c.chat.value?.getTitle() ?? ('dot'.l10n * 3),
+                            c.chat.value?.title() ?? ('dot'.l10n * 3),
                             style: style.fonts.small.regular.onPrimary,
                             overflow: TextOverflow.ellipsis,
                           ),

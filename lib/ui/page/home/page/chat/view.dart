@@ -239,7 +239,7 @@ class ChatView extends StatelessWidget {
                                           Flexible(
                                             child: Obx(() {
                                               return Text(
-                                                c.chat!.getTitle(),
+                                                c.chat!.title(),
                                                 style: style
                                                     .fonts
                                                     .big

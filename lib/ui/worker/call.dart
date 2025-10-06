@@ -309,7 +309,7 @@ class CallWorker extends DisposableService {
               void notify() {
                 if (_myUser.value?.muted == null &&
                     chat?.chat.value.muted == null) {
-                  final String? title = chat?.getTitle() ?? c.caller?.title;
+                  final String? title = chat?.title() ?? c.caller?.title;
 
                   _notificationService.show(
                     title ?? 'label_incoming_call'.l10n,
@@ -410,7 +410,7 @@ class CallWorker extends DisposableService {
 
         if (report) {
           final CallKitParams params = CallKitParams(
-            nameCaller: chat?.getTitle() ?? 'Call',
+            nameCaller: chat?.title() ?? 'Call',
             id: id,
             handle: c.chatId.value.val,
             extra: {'chatId': c.chatId.value.val},

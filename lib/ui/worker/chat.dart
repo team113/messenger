@@ -173,7 +173,7 @@ class ChatWorker extends DisposableService {
         Future<void> notify() async {
           if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
-              c.getTitle(),
+              c.title(),
               body: 'label_you_were_added_to_group'.l10n,
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,
@@ -202,7 +202,7 @@ class ChatWorker extends DisposableService {
         Future<void> notify() async {
           if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
-              c.getTitle(),
+              c.title(),
               body: body,
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,

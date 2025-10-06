@@ -516,7 +516,7 @@ class SearchController extends GetxController {
           return;
         }
 
-        final String title = monolog.getTitle();
+        final String title = monolog.title();
         final String? name = myUser.name?.val;
         final String? login = myUser.login?.val;
         final String num = myUser.num.val;
@@ -544,7 +544,7 @@ class SearchController extends GetxController {
       // Predicates to filter [allChats] by.
       bool hidden(RxChat c) => c.chat.value.isHidden;
       bool matchesQuery(RxChat c) => _matchesQuery(
-        title: c.getTitle(),
+        title: c.title(),
         user: c.chat.value.isDialog
             ? c.members.values.firstWhereOrNull((u) => u.user.id != me)?.user
             : null,

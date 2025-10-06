@@ -35,7 +35,7 @@ final StepDefinitionGeneric seeNamedChat = then1<String, CustomWorld>(
       await context.world.appDriver.waitForAppToSettle();
 
       final controller = Get.find<ChatsTabController>();
-      return controller.chats.any((c) => c.rx.getTitle() == name);
+      return controller.chats.any((c) => c.rx.title() == name);
     });
   },
 );
