@@ -283,6 +283,12 @@ class ChatsTabController extends GetxController {
       }
     });
 
+    archived.value = RxList(
+      archive.values.map((e) => ChatEntry(e, chats.sort)).toList(),
+    );
+    archived.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
+    archived.sort();
+
     _archivedSubscription = _chatService.archived.items.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
@@ -468,8 +474,6 @@ class ChatsTabController extends GetxController {
         ),
       );
     } on ToggleChatArchivationException catch (e) {
-      MessagePopup.error(e);
-    } on UnfavoriteChatException catch (e) {
       MessagePopup.error(e);
     } catch (e) {
       MessagePopup.error(e);

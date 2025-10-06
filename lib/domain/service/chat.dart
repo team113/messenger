@@ -22,10 +22,10 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart'
     show CropAreaInput, DeleteChatForwardErrorCode, DeleteChatMessageErrorCode;
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item_quote_input.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/chat_message_input.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_message_input.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
@@ -198,7 +198,8 @@ class ChatService extends DisposableService {
     return _chatRepository.hideChat(id);
   }
 
-  /// Archives or unarchives the specified [Chat] for the authenticated [MyUser].
+  /// Archives or unarchives the specified [Chat] for the authenticated
+  /// [MyUser].
   Future<void> archiveChat(ChatId id, bool archive) {
     Log.debug('archiveChat($id, $archive)', '$runtimeType');
     return _chatRepository.archiveChat(id, archive);
