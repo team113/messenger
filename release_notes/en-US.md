@@ -1,2 +1,3 @@
 - Redesigned messages selection in chat.
+- Redesigned message information modal.
 - Bug fixes and performance improvements.
