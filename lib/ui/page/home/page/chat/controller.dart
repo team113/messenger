@@ -2575,54 +2575,6 @@ extension ChatViewExt on Chat {
         return id.val;
     }
   }
-
-  /// Returns text represented title of this [Chat].
-  ///
-  /// If [withDeletedLabel] is true, then returns the title with the deleted
-  /// label for deleted users.
-  String _getTitle(Iterable<RxUser> users, UserId? me, bool withDeletedLabel) {
-    String title = 'dot'.l10n * 3;
-
-    switch (kind) {
-      case ChatKind.monolog:
-        title = name?.val ?? 'label_chat_monolog'.l10n;
-        break;
-
-      case ChatKind.dialog:
-        final String? name =
-            users.firstWhereOrNull((u) => u.id != me)?.title ??
-            members.firstWhereOrNull((e) => e.user.id != me)?.user.title;
-        if (name != null) {
-          title = name;
-        }
-        break;
-
-      case ChatKind.group:
-        if (name == null) {
-          final Iterable<String> names;
-
-          if (users.length < membersCount && users.length < 3) {
-            names = members.take(3).map((e) => e.user.title);
-          } else {
-            names = users.take(3).map((e) => e.title);
-          }
-
-          title = names.join('comma_space'.l10n);
-          if (membersCount > 3) {
-            title += 'comma_space'.l10n + ('dot'.l10n * 3);
-          }
-        } else {
-          title = name!.val;
-        }
-        break;
-
-      case ChatKind.artemisUnknown:
-        // No-op.
-        break;
-    }
-
-    return title;
-  }
 }
 
 /// Extension adding [RxChat] related wrappers and helpers.
@@ -2632,36 +2584,57 @@ extension ChatRxExt on RxChat {
   /// If [withDeletedLabel] is true, then returns the title with the deleted
   /// label for deleted users.
   String getTitle({bool withDeletedLabel = true}) {
-    // [RxUser]s taking part in the [title] formation.
-    //
-    // Used to subscribe to the [RxUser.updates] to keep these [users]
-    // up-to-date.
-    final List<RxUser> users = [];
+    String title = 'dot'.l10n * 3;
 
     switch (chat.value.kind) {
-      case ChatKind.dialog:
-        final RxUser? rxUser = members.values
-            .firstWhereOrNull((u) => u.user.id != me)
-            ?.user;
+      case ChatKind.monolog:
+        title = chat.value.name?.val ?? 'label_chat_monolog'.l10n;
+        break;
 
-        if (rxUser != null) {
-          users.add(rxUser);
-        }
+      case ChatKind.dialog:
+        final String? name =
+            members.values
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user
+                .title ??
+            chat.value.members
+                .firstWhereOrNull((e) => e.user.id != me)
+                ?.user
+                .title;
+
+        title = name ?? title;
         break;
 
       case ChatKind.group:
-        if (chat.value.name == null) {
-          users.addAll(members.values.take(3).map((e) => e.user));
+        if (chat.value.name != null) {
+          title = chat.value.name!.val;
+        } else {
+          final Iterable<String> names;
+
+          final List<RxUser> users = members.values
+              .take(3)
+              .map((e) => e.user)
+              .toList();
+
+          if (users.length < chat.value.membersCount && users.length < 3) {
+            names = chat.value.members.take(3).map((e) => e.user.title);
+          } else {
+            names = users.take(3).map((e) => e.title);
+          }
+
+          title = names.join('comma_space'.l10n);
+          if (chat.value.membersCount > 3) {
+            title += 'comma_space'.l10n + ('dot'.l10n * 3);
+          }
         }
         break;
 
-      case ChatKind.monolog:
       case ChatKind.artemisUnknown:
         // No-op.
         break;
     }
 
-    return chat.value._getTitle(users, me, withDeletedLabel);
+    return title;
   }
 }
 
