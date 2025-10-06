@@ -80,6 +80,7 @@ class MessageInfoController extends GetxController {
 
   @override
   void onClose() {
+    scrollController.removeListener(_scrollListener);
     _membersSubscription?.cancel();
     scrollController.dispose();
 
@@ -97,12 +98,12 @@ class MessageInfoController extends GetxController {
 
     try {
       final FutureOr<ChatItem?> itemOrFuture = _chatService.getItem(id!);
-      if (itemOrFuture is Future<ChatItem>) {
+      if (itemOrFuture is Future<ChatItem?>) {
         itemOrFuture.then((e) {
           item.value = e;
           _fetchChat();
         });
-      } else if (itemOrFuture is ChatItem?) {
+      } else {
         item.value = itemOrFuture;
         _fetchChat();
       }
@@ -125,12 +126,12 @@ class MessageInfoController extends GetxController {
     status.value = RxStatus.loadingMore();
 
     final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId);
-    if (chatOrFuture is Future<RxChat>) {
+    if (chatOrFuture is Future<RxChat?>) {
       chatOrFuture.then((e) {
         _chat = e;
         _fetchMembers();
       });
-    } else if (chatOrFuture is RxChat?) {
+    } else {
       _chat = chatOrFuture;
       _fetchMembers();
     }
@@ -147,45 +148,51 @@ class MessageInfoController extends GetxController {
       return;
     }
 
-    displayMembers.value = chat.chat.value.isGroup;
-
     reads.addAll(
       chat.chat.value.lastReads.where((e) => !e.at.val.isBefore(item.at.val)),
     );
 
-    members.addAll(
-      chat.members.values
-          .where((e) => !e.joinedAt.isAfter(item.at))
-          .map((e) => e.user),
-    );
+    // [Chat.lastReads] keeps only 10 members, so it's impossible to properly
+    // display everyone's status when members exceed 10.
+    displayMembers.value =
+        chat.chat.value.isGroup && chat.chat.value.membersCount <= 10;
 
-    _membersSubscription = chat.members.items.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-          final RxChatMember? member = event.value;
+    // Do not query the members if we won't display them.
+    if (displayMembers.value) {
+      members.addAll(
+        chat.members.values
+            .where((e) => !e.joinedAt.isAfter(item.at))
+            .map((e) => e.user),
+      );
 
-          if (member != null &&
-              !members.contains(member.user) &&
-              !member.joinedAt.isAfter(item.at)) {
-            members.add(event.value!.user);
-          }
-          break;
+      _membersSubscription = chat.members.items.changes.listen((event) {
+        switch (event.op) {
+          case OperationKind.added:
+            final RxChatMember? member = event.value;
 
-        case OperationKind.removed:
-          members.removeWhere((e) => e.id == event.key);
-          _scrollListener();
-          break;
+            if (member != null &&
+                !members.contains(member.user) &&
+                !member.joinedAt.isAfter(item.at)) {
+              members.add(event.value!.user);
+            }
+            break;
 
-        case OperationKind.updated:
-          // No-op
-          break;
-      }
-    });
+          case OperationKind.removed:
+            members.removeWhere((e) => e.id == event.key);
+            _scrollListener();
+            break;
 
-    if (chat.members.values.length < chat.chat.value.membersCount) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        _chat!.members.around();
+          case OperationKind.updated:
+            // No-op
+            break;
+        }
       });
+
+      if (chat.members.values.length < chat.chat.value.membersCount) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          _chat!.members.around();
+        });
+      }
     }
   }
 

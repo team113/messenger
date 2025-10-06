@@ -25,6 +25,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
@@ -60,18 +61,30 @@ class MessageInfo extends StatelessWidget {
               child: Obx(() {
                 final ChatItem? item = c.item.value;
                 if (item == null) {
+                  if (c.status.value.isError) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                      child: CustomProgressIndicator(),
+                    );
+                  } else if (c.status.value.isLoading) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                      child: CustomProgressIndicator(),
+                    );
+                  }
+
                   return const SizedBox();
                 }
 
                 return Padding(
                   padding: ModalPopup.padding(
                     context,
-                  ).add(EdgeInsets.only(top: 6)),
+                  ).copyWith(top: 6, right: 0),
                   child: Table(
                     columnWidths: const {
                       0: IntrinsicColumnWidth(),
                       1: MinColumnWidth(
-                        FixedColumnWidth(220),
+                        FixedColumnWidth(260),
                         FractionColumnWidth(0.7),
                       ),
                     },
@@ -173,7 +186,7 @@ class MessageInfo extends StatelessWidget {
       final bool isRead = c.reads.map((r) => r.memberId).contains(member.id);
 
       final Widget widget = Container(
-        padding: EdgeInsets.fromLTRB(8, 6, 8, 6),
+        padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: style.colors.onPrimary,
