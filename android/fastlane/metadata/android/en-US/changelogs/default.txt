@@ -1,2 +1,2 @@
-- Redesigned context panel for switching statuses over profile button.
+- Redesigned messages selection in chat.
 - Bug fixes and performance improvements.
