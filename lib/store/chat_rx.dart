@@ -1635,7 +1635,12 @@ class RxChatImpl extends RxChat {
         break;
 
       case ChatKind.group:
-        if (chat.value.name == null) {
+        if (chat.value.name != null) {
+          _userSubscriptions.removeWhere((k, v) {
+            v.cancel();
+            return true;
+          });
+        } else {
           final users = members.values.take(3).map((e) => e.user).toList();
 
           final bool membersEqual = const IterableEquality().equals(
