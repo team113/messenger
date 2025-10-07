@@ -2592,11 +2592,15 @@ extension ChatRxExt on RxChat {
         break;
 
       case ChatKind.dialog:
-        final User? user =
-            members.values.firstWhereOrNull((u) => u.id != me)?.user.value ??
-                chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user;
-
-        final String? name = user?.getTitle();
+        final String? name =
+            members.values
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user
+                .getTitle() ??
+            chat.value.members
+                .firstWhereOrNull((e) => e.user.id != me)
+                ?.user
+                .getTitle();
 
         title = name ?? title;
         break;
