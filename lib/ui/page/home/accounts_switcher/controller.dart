@@ -43,7 +43,7 @@ class AccountsSwitcherController extends GetxController {
     onFocus: (s) async {
       s.error.value = null;
 
-      if (s.text.isNotEmpty) {
+      if (s.text.trim().isNotEmpty) {
         try {
           UserTextStatus(s.text);
         } on FormatException catch (_) {

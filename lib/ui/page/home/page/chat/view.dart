@@ -239,7 +239,7 @@ class ChatView extends StatelessWidget {
                                           Flexible(
                                             child: Obx(() {
                                               return Text(
-                                                c.chat!.title,
+                                                c.chat!.title(),
                                                 style: style
                                                     .fonts
                                                     .big
@@ -393,48 +393,27 @@ class ChatView extends StatelessWidget {
                                 //     c.user?.user.value.contacts.isNotEmpty ??
                                 //         false;
 
-                                final Widget child;
+                                final Widget child = ContextMenuRegion(
+                                  key: c.moreKey,
+                                  selector: c.moreKey,
+                                  alignment: Alignment.topRight,
+                                  enablePrimaryTap: true,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 12,
+                                  ),
+                                  actions: [
+                                    ContextMenuButton(
+                                      key: const Key('SearchItemsButton'),
+                                      label: 'label_search'.l10n,
+                                      onPressed: c.toggleSearch,
+                                      trailing: const SvgIcon(SvgIcons.search),
+                                      inverted: const SvgIcon(
+                                        SvgIcons.searchWhite,
+                                      ),
+                                    ),
 
-                                if (c.selecting.value) {
-                                  child = AnimatedButton(
-                                    key: const Key('CancelSelecting'),
-                                    onPressed: c.selecting.toggle,
-                                    child: Container(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      height: double.infinity,
-                                      child: const Padding(
-                                        padding: EdgeInsets.fromLTRB(
-                                          10,
-                                          0,
-                                          21,
-                                          0,
-                                        ),
-                                        child: SvgIcon(SvgIcons.closePrimary),
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  child = ContextMenuRegion(
-                                    key: c.moreKey,
-                                    selector: c.moreKey,
-                                    alignment: Alignment.topRight,
-                                    enablePrimaryTap: true,
-                                    margin: const EdgeInsets.only(
-                                      bottom: 4,
-                                      right: 12,
-                                    ),
-                                    actions: [
-                                      ContextMenuButton(
-                                        key: const Key('SearchItemsButton'),
-                                        label: 'label_search'.l10n,
-                                        onPressed: c.toggleSearch,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.search,
-                                        ),
-                                        inverted: const SvgIcon(
-                                          SvgIcons.searchWhite,
-                                        ),
-                                      ),
+                                    if (!c.selecting.value)
                                       ContextMenuButton(
                                         label: 'btn_select_messages'.l10n,
                                         onPressed: c.selecting.toggle,
@@ -444,19 +423,29 @@ class ChatView extends StatelessWidget {
                                         inverted: const SvgIcon(
                                           SvgIcons.selectWhite,
                                         ),
+                                      )
+                                    else
+                                      ContextMenuButton(
+                                        label: 'btn_cancel_selection'.l10n,
+                                        onPressed: c.selecting.toggle,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.unselect,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.unselectWhite,
+                                        ),
                                       ),
-                                    ],
-                                    child: Container(
-                                      key: const Key('MoreButton'),
-                                      padding: const EdgeInsets.only(
-                                        left: 20,
-                                        right: 21,
-                                      ),
-                                      height: double.infinity,
-                                      child: const SvgIcon(SvgIcons.more),
+                                  ],
+                                  child: Container(
+                                    key: const Key('MoreButton'),
+                                    padding: const EdgeInsets.only(
+                                      left: 20,
+                                      right: 21,
                                     ),
-                                  );
-                                }
+                                    height: double.infinity,
+                                    child: const SvgIcon(SvgIcons.more),
+                                  ),
+                                );
 
                                 return AnimatedButton(
                                   child: SafeAnimatedSwitcher(
@@ -549,9 +538,10 @@ class ChatView extends StatelessWidget {
                             final Widget? welcome = _welcomeMessage(context, c);
 
                             if (welcome != null) {
-                              return Center(
+                              return Align(
+                                alignment: Alignment.bottomLeft,
                                 child: ListView(
-                                  shrinkWrap: true,
+                                  reverse: true,
                                   children: [
                                     Align(
                                       alignment: Alignment.centerLeft,
@@ -746,13 +736,14 @@ class ChatView extends StatelessWidget {
                 context,
                 c,
                 item: element,
-                overlay:
-                    e.value.author.id != c.me || element is ChatInfoElement,
                 child: ChatItemWidget(
                   chat: c.chat!.chat,
                   item: e,
                   me: c.me!,
-                  avatar: !previousSame,
+                  withAvatar: !c.selecting.value && !previousSame,
+                  withName: !previousSame,
+                  appendAvatarPadding: !c.selecting.value,
+                  selectable: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where(
@@ -840,7 +831,7 @@ class ChatView extends StatelessWidget {
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureOrBuilder<RxUser?>(
-          key: Key('${element.id}_0_${element.authorId}'),
+          key: element.key,
           futureOr: () => c.getUser(element.authorId),
           builder: (_, user) => Obx(() {
             return HighlightedContainer(
@@ -852,7 +843,6 @@ class ChatView extends StatelessWidget {
                 context,
                 c,
                 item: element,
-                overlay: element.authorId != c.me,
                 child: ChatForwardWidget(
                   key: Key('ChatForwardWidget_${element.id}'),
                   chat: c.chat!.chat,
@@ -860,6 +850,10 @@ class ChatView extends StatelessWidget {
                   note: element.note,
                   authorId: element.authorId,
                   me: c.me!,
+                  withAvatar: !c.selecting.value && !previousSame,
+                  withName: !previousSame,
+                  appendAvatarPadding: !c.selecting.value,
+                  selectable: !c.selecting.value,
                   reads: c.chat!.chat.value.membersCount > 10
                       ? []
                       : c.chat!.reads.where(
@@ -1223,52 +1217,14 @@ class ChatView extends StatelessWidget {
                       ),
                       const Spacer(),
                       const SizedBox(width: 24),
-                      if (c.elements.isEmpty)
-                        const SelectedDot(
-                          selected: false,
-                          inverted: false,
-                          outlined: true,
-                          size: 21,
-                        )
-                      else
-                        Obx(() {
-                          final bool selected = c.elements.values.every((e) {
-                            if (e is ChatMessageElement ||
-                                e is ChatInfoElement ||
-                                e is ChatCallElement ||
-                                e is ChatForwardElement) {
-                              return c.selected.contains(e);
-                            }
-
-                            return true;
-                          });
-
-                          return AnimatedButton(
-                            onPressed: () {
-                              if (selected) {
-                                c.selected.clear();
-                              } else {
-                                for (var e in c.elements.values) {
-                                  if (e is ChatMessageElement ||
-                                      e is ChatInfoElement ||
-                                      e is ChatCallElement ||
-                                      e is ChatForwardElement) {
-                                    if (!c.selected.contains(e)) {
-                                      c.selected.add(e);
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            child: SelectedDot(
-                              selected: selected,
-                              inverted: false,
-                              outlined: !selected,
-                              size: 21,
-                            ),
-                          );
-                        }),
-                      const SizedBox(width: 12),
+                      AnimatedButton(
+                        key: const Key('CancelSelecting'),
+                        onPressed: c.selecting.toggle,
+                        child: const Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 21, 0),
+                          child: SvgIcon(SvgIcons.closePrimary),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1315,7 +1271,6 @@ class ChatView extends StatelessWidget {
     BuildContext context,
     ChatController c, {
     required ListElement item,
-    required bool overlay,
     required Widget child,
   }) {
     return Obx(() {
@@ -1342,36 +1297,52 @@ class ChatView extends StatelessWidget {
                   ? () => c.selected.remove(item)
                   : () => c.selected.add(item)
             : null,
-        child: Stack(
+        child: Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: c.selecting.value
-                      ? SelectionContainer.disabled(
-                          child: IgnorePointer(child: child),
-                        )
-                      : child,
-                ),
-                if (!overlay)
-                  AnimatedSize(
-                    duration: 150.milliseconds,
-                    child: c.selecting.value
-                        ? const SizedBox(key: Key('Expanded'), width: 32)
-                        : const SizedBox(),
+            AnimatedSwitcher(
+              duration: 150.milliseconds,
+              layoutBuilder: (currentChild, previousChildren) {
+                return Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    ...previousChildren,
+                    if (currentChild != null) currentChild,
+                  ],
+                );
+              },
+              transitionBuilder: (child, animation) {
+                return SizeTransition(
+                  sizeFactor: animation,
+                  axis: Axis.horizontal,
+                  axisAlignment: 0,
+
+                  child: ScaleTransition(
+                    scale: animation,
+                    alignment: Alignment.centerLeft,
+                    child: AnimatedSwitcher.defaultTransitionBuilder(
+                      child,
+                      animation,
+                    ),
                   ),
-              ],
+                );
+              },
+              child: c.selecting.value
+                  ? SizedBox(
+                      key: Key('Expanded'),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 1, right: 3),
+                        child: SelectedDot(
+                          inverted: false,
+                          selected: selected,
+                          darken: 0.1,
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
             ),
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: c.selecting.value
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: SelectedDot(selected: selected, darken: 0.1),
-                      )
-                    : const SizedBox(),
-              ),
+            Expanded(
+              child: IgnorePointer(ignoring: c.selecting.value, child: child),
             ),
           ],
         ),

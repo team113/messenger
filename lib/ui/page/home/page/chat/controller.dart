@@ -2543,54 +2543,6 @@ class LoaderElement extends ListElement {
 
 /// Extension adding [ChatView] related wrappers and helpers.
 extension ChatViewExt on Chat {
-  /// Returns text represented title of this [Chat].
-  String getTitle(Iterable<RxUser> users, UserId? me) {
-    String title = 'dot'.l10n * 3;
-
-    switch (kind) {
-      case ChatKind.monolog:
-        title = name?.val ?? 'label_chat_monolog'.l10n;
-        break;
-
-      case ChatKind.dialog:
-        final User? user =
-            users.firstWhereOrNull((u) => u.id != me)?.user.value ??
-            members.firstWhereOrNull((e) => e.user.id != me)?.user;
-
-        final String? name = user?.getTitle();
-
-        if (name != null) {
-          title = name;
-        }
-        break;
-
-      case ChatKind.group:
-        if (name == null) {
-          final Iterable<String> names;
-
-          if (users.length < membersCount && users.length < 3) {
-            names = members.take(3).map((e) => e.user.getTitle());
-          } else {
-            names = users.take(3).map((e) => e.getTitle());
-          }
-
-          title = names.join('comma_space'.l10n);
-          if (membersCount > 3) {
-            title += 'comma_space'.l10n + ('dot'.l10n * 3);
-          }
-        } else {
-          title = name!.val;
-        }
-        break;
-
-      case ChatKind.artemisUnknown:
-        // No-op.
-        break;
-    }
-
-    return title;
-  }
-
   /// Returns string represented subtitle of this [Chat].
   ///
   /// If [isGroup], then returns the [members] length, otherwise returns the
@@ -2622,6 +2574,63 @@ extension ChatViewExt on Chat {
       case ChatKind.artemisUnknown:
         return id.val;
     }
+  }
+}
+
+/// Extension adding [RxChat] related wrappers and helpers.
+extension ChatRxExt on RxChat {
+  /// Returns text represented title of this [RxChat].
+  ///
+  /// If [withDeletedLabel] is `true`, then returns the title with the deleted
+  /// label for deleted users.
+  String title({bool withDeletedLabel = true}) {
+    String title = 'dot'.l10n * 3;
+
+    switch (chat.value.kind) {
+      case ChatKind.monolog:
+        title = chat.value.name?.val ?? 'label_chat_monolog'.l10n;
+        break;
+
+      case ChatKind.dialog:
+        final User? user =
+            members.values.firstWhereOrNull((u) => u.id != me)?.user.value ??
+                chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user;
+
+        final String? name = user?.getTitle();
+
+        title = name ?? title;
+        break;
+
+      case ChatKind.group:
+        if (chat.value.name != null) {
+          title = chat.value.name!.val;
+        } else {
+          final Iterable<String> names;
+
+          final List<RxUser> users = members.values
+              .take(3)
+              .map((e) => e.user)
+              .toList();
+
+          if (users.length < chat.value.membersCount && users.length < 3) {
+            names = chat.value.members.take(3).map((e) => e.user.getTitle());
+          } else {
+            names = users.take(3).map((e) => e.getTitle());
+          }
+
+          title = names.join('comma_space'.l10n);
+          if (chat.value.membersCount > 3) {
+            title += 'comma_space'.l10n + ('dot'.l10n * 3);
+          }
+        }
+        break;
+
+      case ChatKind.artemisUnknown:
+        // No-op.
+        break;
+    }
+
+    return title;
   }
 }
 

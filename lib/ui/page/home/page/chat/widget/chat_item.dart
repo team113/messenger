@@ -76,7 +76,10 @@ class ChatItemWidget extends StatefulWidget {
     required this.chat,
     required this.me,
     this.user,
-    this.avatar = true,
+    this.withName = false,
+    this.withAvatar = true,
+    this.appendAvatarPadding = true,
+    this.selectable = true,
     this.reads = const [],
     this.getUser,
     this.getItem,
@@ -111,8 +114,27 @@ class ChatItemWidget extends StatefulWidget {
   /// [User] posted this [item].
   final RxUser? user;
 
+  /// Indicator whether this [ChatItemWidget] should display [RxUser.title].
+  ///
+  /// For example, [Chat]-groups should display messages with titles.
+  final bool withName;
+
   /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
-  final bool avatar;
+  ///
+  /// For example, [Chat]-groups should display messages with avatars.
+  final bool withAvatar;
+
+  /// Indicator whether this [ChatItemWidget] should append a left padding in
+  /// place of [AvatarWidget] of [user].
+  ///
+  /// When an [withAvatar] is `true`, the padding is always applied
+  /// automatically. Otherwise setting this to `true` appends the padding as if
+  /// there's invisible [AvatarWidget] present.
+  final bool appendAvatarPadding;
+
+  /// Indicator whether this [ChatItemWidget] enables [selectable] in
+  /// [SelectionText.rich].
+  final bool selectable;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -761,7 +783,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       final List<Widget> children = [
         if (!_fromMe &&
             widget.chat.value?.isGroup == true &&
-            widget.avatar) ...[
+            widget.withName) ...[
           const SizedBox(height: 6),
           Row(
             children: [
@@ -774,7 +796,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       recognizer: TapGestureRecognizer()
                         ..onTap = () => widget.onUserPressed(_author),
                     ),
-                    selectable: PlatformUtils.isDesktop || menu,
+                    selectable:
+                        widget.selectable && (PlatformUtils.isDesktop || menu),
                     onChanged: (a) => _selection = a,
                     style: style.fonts.medium.regular.onBackground.copyWith(
                       color: color,
@@ -830,14 +853,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   msg.repliesTo.isNotEmpty ||
                       (!_fromMe &&
                           widget.chat.value?.isGroup == true &&
-                          widget.avatar)
+                          widget.withAvatar)
                   ? Radius.zero
                   : const Radius.circular(15),
               topRight:
                   msg.repliesTo.isNotEmpty ||
                       (!_fromMe &&
                           widget.chat.value?.isGroup == true &&
-                          widget.avatar)
+                          widget.withAvatar)
                   ? Radius.zero
                   : const Radius.circular(15),
               bottomLeft: _text != null
@@ -923,7 +946,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                       key: Key('Text_${widget.item.value.id}'),
                       selectable:
-                          (PlatformUtils.isDesktop || menu) && _text != null,
+                          (PlatformUtils.isDesktop || menu) &&
+                          _text != null &&
+                          widget.selectable,
                       onChanged: (a) => _selection = a,
                       style: style.fonts.medium.regular.onBackground,
                     ),
@@ -1003,7 +1028,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 children: [
                   if (!_fromMe &&
                       widget.chat.value?.isGroup == true &&
-                      widget.avatar) ...[
+                      widget.withAvatar) ...[
                     Padding(
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                       child: SelectionText.rich(
@@ -1279,12 +1304,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
-    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
-      (e) =>
-          !e.at.val.isBefore(widget.item.value.at.val) &&
-          e.memberId != _author.id,
-    );
-
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
     const AvatarRadius avatarRadius = AvatarRadius.medium;
@@ -1354,11 +1373,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Transform.translate(
               offset: const Offset(-12, 0),
               child: WidgetButton(
-                onPressed: () => MessageInfo.show(
-                  context,
-                  reads: reads ?? [],
-                  id: widget.item.value.id,
-                ),
+                onPressed: () =>
+                    MessageInfo.show(context, widget.item.value.id),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 2),
                   child: Row(
@@ -1381,30 +1397,62 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
-        if (!_fromMe && widget.chat.value!.isGroup)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: widget.avatar
-                ? InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: () => widget.onUserPressed(item.author),
-                    child: AvatarWidget.fromRxUser(
-                      widget.user,
-                      radius: avatarRadius,
-                    ),
-                  )
-                : const SizedBox(width: 34),
-          ),
+        AnimatedSwitcher(
+          duration: 150.milliseconds,
+          layoutBuilder: (currentChild, previousChildren) {
+            return Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: <Widget>[
+                ...previousChildren,
+                if (currentChild != null) currentChild,
+              ],
+            );
+          },
+          transitionBuilder: (child, animation) {
+            return SizeTransition(
+              sizeFactor: animation,
+              axis: Axis.horizontal,
+              axisAlignment: 0,
+              child: ScaleTransition(
+                scale: animation,
+                alignment: Alignment.center,
+                child: AnimatedSwitcher.defaultTransitionBuilder(
+                  child,
+                  animation,
+                ),
+              ),
+            );
+          },
+          child: !_fromMe && widget.chat.value?.isGroup == true
+              ? Padding(
+                  key: Key('${widget.withAvatar}${widget.appendAvatarPadding}'),
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                  child: widget.withAvatar
+                      ? InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => widget.onUserPressed(item.author),
+                          child: AvatarWidget.fromRxUser(
+                            widget.user,
+                            radius: avatarRadius,
+                          ),
+                        )
+                      : widget.appendAvatarPadding
+                      ? SizedBox(width: avatarRadius.toDouble() * 2)
+                      : const SizedBox(key: Key('1')),
+                )
+              : _fromMe
+              ? widget.appendAvatarPadding
+                    ? SizedBox(width: avatarRadius.toDouble() * 2)
+                    : const SizedBox(key: Key('3'))
+              : const SizedBox(key: Key('4')),
+        ),
         Flexible(
           child: LayoutBuilder(
             builder: (context, constraints) {
               final BoxConstraints itemConstraints = BoxConstraints(
-                maxWidth: min(
-                  550,
-                  constraints.maxWidth - avatarRadius.toDouble() * 2,
-                ),
+                maxWidth: 550,
               );
-
               return ConstrainedBox(
                 constraints: itemConstraints,
                 child: Material(
@@ -1423,11 +1471,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               : 'btn_message_info'.l10n,
                           trailing: const SvgIcon(SvgIcons.info),
                           inverted: const SvgIcon(SvgIcons.infoWhite),
-                          onPressed: () => MessageInfo.show(
-                            context,
-                            id: widget.item.value.id,
-                            reads: reads ?? [],
-                          ),
+                          onPressed: () =>
+                              MessageInfo.show(context, widget.item.value.id),
                         ),
                         if (copyable != null)
                           ContextMenuButton(
@@ -1636,6 +1681,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             },
           ),
         ),
+        if (_fromMe ||
+            (widget.chat.value?.isGroup == false && !widget.selectable))
+          AnimatedSize(duration: 150.milliseconds, child: SizedBox(width: 0))
+        else
+          AnimatedSize(
+            duration: 150.milliseconds,
+            child: SizedBox(width: avatarRadius.toDouble() * 2),
+          ),
       ],
     );
 
