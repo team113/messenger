@@ -2596,11 +2596,11 @@ extension ChatRxExt on RxChat {
             members.values
                 .firstWhereOrNull((u) => u.user.id != me)
                 ?.user
-                .getTitle() ??
+                .getTitle(withDeletedLabel: withDeletedLabel) ??
             chat.value.members
                 .firstWhereOrNull((e) => e.user.id != me)
                 ?.user
-                .getTitle();
+                .getTitle(withDeletedLabel: withDeletedLabel);
 
         title = name ?? title;
         break;
@@ -2617,9 +2617,15 @@ extension ChatRxExt on RxChat {
               .toList();
 
           if (users.length < chat.value.membersCount && users.length < 3) {
-            names = chat.value.members.take(3).map((e) => e.user.getTitle());
+            names = chat.value.members
+                .take(3)
+                .map(
+                  (e) => e.user.getTitle(withDeletedLabel: withDeletedLabel),
+                );
           } else {
-            names = users.take(3).map((e) => e.getTitle());
+            names = users
+                .take(3)
+                .map((e) => e.getTitle(withDeletedLabel: withDeletedLabel));
           }
 
           title = names.join('comma_space'.l10n);
