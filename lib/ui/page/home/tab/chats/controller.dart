@@ -25,6 +25,7 @@ import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:log_me/log_me.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
 import '/domain/model/attachment.dart';
@@ -290,6 +291,11 @@ class ChatsTabController extends GetxController {
     archived.sort();
 
     _archivedSubscription = _chatService.archived.items.changes.listen((event) {
+      Log.debug(
+        '_archivedSubscription -> ${event.op} -> ${event.value}',
+        '$runtimeType',
+      );
+
       switch (event.op) {
         case OperationKind.added:
           final entry = ChatEntry(event.value!, chats.sort);

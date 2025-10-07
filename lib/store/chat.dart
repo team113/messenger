@@ -148,11 +148,15 @@ class ChatRepository extends DisposableInterface
             final ChatVersion? stored = archived.items[e.id]?.ver;
 
             Log.info(
-              'onAdded -> $e -> stored == null(${stored == null}) || e.ver > stored(${e.ver > stored})',
+              'archived.onAdded -> $e -> stored == null(${stored == null}) || e.ver > stored(${e.ver > stored})',
             );
 
             if (stored == null || e.ver > stored) {
-              await archived.pagination?.put(e, store: false);
+              await archived.pagination?.put(
+                e,
+                ignoreBounds: true,
+                store: false,
+              );
             }
           },
           onRemoved: (e) async {
@@ -254,8 +258,14 @@ class ChatRepository extends DisposableInterface
   /// Subscriptions for the [paginated] chats changes.
   final Map<ChatId, StreamSubscription> _subscriptions = {};
 
+  /// Subscriptions for the [paginated] chats changes.
+  final Map<ChatId, StreamSubscription> _archiveSubscriptions = {};
+
   /// Subscriptions for the [paginated] changes populating the [_subscriptions].
   StreamSubscription? _paginatedSubscription;
+
+  /// Subscriptions for the [archived] changes populating the [_subscriptions].
+  StreamSubscription? _archivedSubscription;
 
   /// [Mutex]es guarding access to the [get] method.
   final Map<ChatId, Mutex> _getGuards = {};
@@ -314,7 +324,7 @@ class ChatRepository extends DisposableInterface
       _paginatedSubscription = paginated.changes.listen((e) {
         switch (e.op) {
           case OperationKind.added:
-            _subscriptions[e.key!] = e.value!.updates.listen((_) {});
+            _subscriptions[e.key!] ??= e.value!.updates.listen((_) {});
             break;
 
           case OperationKind.updated:
@@ -334,6 +344,31 @@ class ChatRepository extends DisposableInterface
       });
 
       _initLocalPagination();
+    }
+
+    if ((pagination ?? !WebUtils.isPopup) && _archivedSubscription == null) {
+      _archivedSubscription = archived.items.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _archiveSubscriptions[e.key!] ??= e.value!.updates.listen((_) {});
+            break;
+
+          case OperationKind.updated:
+            if (e.oldKey != e.key) {
+              final StreamSubscription? subscription =
+                  _archiveSubscriptions[e.oldKey];
+              if (subscription != null) {
+                _archiveSubscriptions[e.key!] = subscription;
+                _archiveSubscriptions.remove(e.oldKey);
+              }
+            }
+            break;
+
+          case OperationKind.removed:
+            _archiveSubscriptions.remove(e.key!)?.cancel();
+            break;
+        }
+      });
 
       archived.around();
     }
@@ -2558,6 +2593,11 @@ class ChatRepository extends DisposableInterface
               a.value.isArchived != b.value.isArchived,
           onAdded: (e) async {
             final ChatVersion? stored = paginated[e.id]?.ver;
+
+            Log.info(
+              'recent.onAdded -> $e -> stored == null(${stored == null}) || e.ver > stored(${e.ver > stored})',
+            );
+
             if (stored == null || e.ver > stored) {
               await recent?.put(e, store: false);
             }
