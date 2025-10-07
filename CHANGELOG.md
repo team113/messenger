@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/50)
 
+### Added
+
+- UI:
+    - Help page:
+        - Download logs button. ([#1458])
+
 ### Fixed
 
 - Web:
@@ -18,6 +24,7 @@ All user visible changes to this project will be documented in this file. This p
         - Inability to copy images to clipboard. ([#1457])
 
 [#1457]: /../../pull/1457
+[#1458]: /../../pull/1458
 
 
 

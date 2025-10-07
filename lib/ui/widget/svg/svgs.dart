@@ -1502,13 +1502,13 @@ class SvgIcons {
 
   static const SvgData download19 = SvgData(
     'assets/icons/download19.svg',
-    width: 12.89,
+    width: 19,
     height: 19,
   );
 
   static const SvgData download19White = SvgData(
     'assets/icons/download19_white.svg',
-    width: 12.89,
+    width: 19,
     height: 19,
   );
 
@@ -1924,5 +1924,35 @@ class SvgIcons {
     'assets/icons/remove_member_white.svg',
     width: 19,
     height: 18,
+  );
+
+  static const SvgData hideControls = SvgData(
+    'assets/icons/hide_controls.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData hideControlsWhite = SvgData(
+    'assets/icons/hide_controls_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData chat19 = SvgData(
+    'assets/icons/chat19.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData chat19White = SvgData(
+    'assets/icons/chat19_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData logs = SvgData(
+    'assets/icons/logs.svg',
+    width: 19,
+    height: 19,
   );
 }

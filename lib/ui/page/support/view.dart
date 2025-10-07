@@ -21,20 +21,27 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/config.dart';
+import '/domain/service/my_user.dart';
+import '/domain/service/notification.dart';
+import '/domain/service/session.dart';
 import '/l10n/l10n.dart';
 import '/pubspec.g.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/login/widget/prefix_button.dart';
 import '/ui/page/work/widget/project_block.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/get.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
+import 'log/controller.dart';
 import 'log/view.dart';
 
 /// [Routes.support] page.
@@ -46,7 +53,13 @@ class SupportView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: SupportController(Get.find()),
+      init: SupportController(
+        Get.find(),
+        Get.find(),
+        Get.findOrNull<MyUserService>(),
+        Get.findOrNull<SessionService>(),
+        Get.findOrNull<NotificationService>(),
+      ),
       builder: (SupportController c) {
         return Scaffold(
           appBar: CustomAppBar(
@@ -102,6 +115,7 @@ class SupportView extends StatelessWidget {
                         onPressed: c.checkingForUpdates.value
                             ? null
                             : c.checkForUpdates,
+                        style: style.fonts.normal.regular.primary,
                         prefix: c.checkingForUpdates.value
                             ? const Padding(
                                 key: Key('Loading'),
@@ -113,6 +127,21 @@ class SupportView extends StatelessWidget {
                     }),
                     const SizedBox(height: 8),
                   ],
+                  ActionButton(
+                    trailing: const SvgIcon(SvgIcons.logs),
+                    onPressed: () async {
+                      await LogController.download(
+                        sessions: c.sessions,
+                        sessionId: c.sessionId,
+                        userAgent: c.userAgent.value,
+                        myUser: c.myUser?.value,
+                        token: c.token,
+                        pushNotifications: c.pushNotifications,
+                      );
+                    },
+                    text: 'btn_download_logs'.l10n,
+                  ),
+                  const SizedBox(height: 8),
 
                   WidgetButton(
                     onPressed: () {},
