@@ -160,6 +160,7 @@ btn_download = Скачать
 btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
 btn_download_as = Скачать как
+btn_download_logs = Скачать логи
 btn_download_version = Скачать {$version}
 btn_edit = Редактировать
 btn_email = E-mail
