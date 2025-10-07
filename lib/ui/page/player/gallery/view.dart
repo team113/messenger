@@ -25,6 +25,7 @@ import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -248,7 +249,7 @@ class GalleryView extends StatelessWidget {
       if (chat != null) {
         avatar = AvatarWidget.fromRxChat(chat, radius: AvatarRadius.medium);
         title = Text(
-          chat.title,
+          chat.title(),
           style: style.fonts.medium.regular.onBackground,
         );
       } else {

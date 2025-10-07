@@ -164,7 +164,7 @@ class ChatInfoView extends StatelessWidget {
                 return AvatarWidget(
                   radius: AvatarRadius.largest,
                   shape: BoxShape.rectangle,
-                  title: c.chat?.title,
+                  title: c.chat?.title(withDeletedLabel: false),
                   color: c.chat?.chat.value.colorDiscriminant(c.me).sum(),
                   avatar: c.avatarDeleted.value || c.avatarImage.value == null
                       ? null
@@ -193,7 +193,7 @@ class ChatInfoView extends StatelessWidget {
             key: const Key('RenameChatField'),
             state: c.name,
             label: 'label_name'.l10n,
-            hint: c.chat?.title,
+            hint: c.chat?.title(),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             formatters: [LengthLimitingTextInputFormatter(100)],
           ),
@@ -520,7 +520,7 @@ class ChatInfoView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_reported1'.l10n),
         TextSpan(
-          text: c.chat?.title,
+          text: c.chat?.title(),
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_reported2'.l10n),
