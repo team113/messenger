@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/50)
+
+### Fixed
+
+- Web:
+    - Player:
+        - Inability to copy images to clipboard. ([#1457])
+
+[#1457]: /../../pull/1457
+
+
+
+
 ## [0.6.5] · 2025-10-06
 [0.6.5]: /../../tree/v0.6.5
 
