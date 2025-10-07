@@ -170,6 +170,7 @@ class WebUtils {
     String? lang,
     String? tag,
     String? icon,
+    List<WebNotificationAction> actions = const [],
   }) async {
     // No-op.
   }

@@ -1,2 +1,3 @@
-- Panel de contexto rediseñado para cambiar de estado mediante el botón de perfil.
+- Selección de mensajes rediseñada en el chat.
+- Modal de información de mensajes rediseñado.
 - Corrección de errores y mejoras de rendimiento.
