@@ -62,7 +62,7 @@ class CallCoverWidget extends StatelessWidget {
         if (user != null || chat != null)
           LayoutBuilder(
             builder: (context, constraints) {
-              final String? title = chat?.title.initials() ?? user?.title;
+              final String? title = chat?.title().initials() ?? user?.title;
               final int? color =
                   chat?.chat.value.colorDiscriminant(chat?.me).sum() ??
                   user?.user.value.num.val.sum();
