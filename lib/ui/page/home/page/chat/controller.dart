@@ -2581,7 +2581,7 @@ extension ChatViewExt on Chat {
 extension ChatRxExt on RxChat {
   /// Returns text represented title of this [RxChat].
   ///
-  /// If [withDeletedLabel] is true, then returns the title with the deleted
+  /// If [withDeletedLabel] is `true`, then returns the title with the deleted
   /// label for deleted users.
   String title({bool withDeletedLabel = true}) {
     String title = 'dot'.l10n * 3;
