@@ -160,6 +160,7 @@ btn_download = Descargar
 btn_download_all = Descargar todo
 btn_download_all_as = Descargar todo como
 btn_download_as = Descargar como
+btn_download_logs = Descargar registros
 btn_download_version = Descargar {$version}
 btn_edit = Editar
 btn_email = E-mail
