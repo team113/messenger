@@ -20,7 +20,7 @@ import 'package:messenger/store/chat_rx.dart';
 
 void main() {
   test('ListInsertAfter.insertAfter correctly inserts elements', () async {
-    final List list = [];
+    final List<int> list = [];
 
     expect(list..insertAfter(0, (p) => p < 0), [0]);
     expect(list..insertAfter(1, (p) => p < 1), [0, 1]);

@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/chat.dart';
@@ -371,7 +372,10 @@ class UserRepository extends DisposableInterface
   ) async {
     Log.debug('userEvents($id)', '$runtimeType');
 
-    final Stream events = await _graphQlProvider.userEvents(id, ver);
+    final Stream<QueryResult> events = await _graphQlProvider.userEvents(
+      id,
+      ver,
+    );
     return events.asyncExpand((event) async* {
       Log.trace('userEvents($id): ${event.data}', '$runtimeType');
 

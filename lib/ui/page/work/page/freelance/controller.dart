@@ -109,7 +109,7 @@ class FreelanceWorkController extends GetxController {
     final response = await (await PlatformUtils.dio).get(_url);
 
     if (response.statusCode == 200) {
-      issues.value = (response.data as List<dynamic>).map((e) {
+      issues.value = (response.data as List<Map<String, dynamic>>).map((e) {
         return Issue(
           title: e['title'],
           description: e['body'],

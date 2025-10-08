@@ -422,7 +422,9 @@ class AuthService extends DisposableService {
     );
 
     // If [ignoreLock] is `true`, then [WebUtils.protect] is ignored.
-    final Function protect = unsafe ? (fn) => fn() : WebUtils.protect;
+    final Function(Future Function()) protect = unsafe
+        ? (fn) => fn()
+        : WebUtils.protect;
 
     status.value = _hasAuthorization
         ? RxStatus.loadingMore()
