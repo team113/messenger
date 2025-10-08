@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Help page:
         - Download logs button. ([#1458])
+    - Archived chats. ([#1414], [#1255])
 
 ### Fixed
 
@@ -23,6 +24,8 @@ All user visible changes to this project will be documented in this file. This p
     - Player:
         - Inability to copy images to clipboard. ([#1457])
 
+[#1255]: /../../issues/1255
+[#1414]: /../../pull/1414
 [#1457]: /../../pull/1457
 [#1458]: /../../pull/1458
 
@@ -33,12 +36,6 @@ All user visible changes to this project will be documented in this file. This p
 [0.6.5]: /../../tree/v0.6.5
 
 [Diff](/../../compare/v0.6.4...v0.6.5) | [Milestone](/../../milestone/49)
-
-### Added
-
-- UI:
-    - Chats tab:
-        - Archived chats. ([#1414], [#1255])
 
 ### Changed
 
@@ -53,10 +50,8 @@ All user visible changes to this project will be documented in this file. This p
     - Login modal:
         - Meaningless formatting errors when leading/trailing spaces are present. ([#1448], [#1443])
 
-[#1255]: /../../issues/1255
 [#1379]: /../../issues/1379
 [#1410]: /../../issues/1410
-[#1414]: /../../pull/1414
 [#1416]: /../../pull/1416
 [#1437]: /../../pull/1437
 [#1443]: /../../issues/1443
