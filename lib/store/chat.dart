@@ -138,6 +138,7 @@ class ChatRepository extends DisposableInterface
       onKey: (e) => e.id,
       perPage: 15,
       provider: DriftGraphQlPageProvider(
+        alwaysFetch: true,
         driftProvider: DriftPageProvider(
           watch: ({int? after, int? before, ChatId? around}) {
             final int limit = (after ?? 0) + (before ?? 0) + 1;
@@ -147,8 +148,9 @@ class ChatRepository extends DisposableInterface
           onAdded: (e) async {
             final ChatVersion? stored = archived.items[e.id]?.ver;
 
-            Log.info(
+            Log.debug(
               'archived.onAdded -> $e -> stored == null(${stored == null}) || e.ver > stored(${e.ver > stored})',
+              '$runtimeType',
             );
 
             if (stored == null || e.ver > stored) {
@@ -160,8 +162,7 @@ class ChatRepository extends DisposableInterface
             }
           },
           onRemoved: (e) async {
-            Log.info('onRemoved -> $e');
-
+            Log.debug('archived.onRemoved -> $e', '$runtimeType');
             await archived.pagination?.remove(e.value.id, store: false);
           },
           onKey: (e) => e.value.id,
@@ -2594,8 +2595,9 @@ class ChatRepository extends DisposableInterface
           onAdded: (e) async {
             final ChatVersion? stored = paginated[e.id]?.ver;
 
-            Log.info(
+            Log.debug(
               'recent.onAdded -> $e -> stored == null(${stored == null}) || e.ver > stored(${e.ver > stored})',
+              '$runtimeType',
             );
 
             if (stored == null || e.ver > stored) {
@@ -2603,6 +2605,7 @@ class ChatRepository extends DisposableInterface
             }
           },
           onRemoved: (e) async {
+            Log.debug('recent.onRemoved -> $e', '$runtimeType');
             await recent?.remove(e.value.id, store: false);
           },
           onKey: (e) => e.value.id,

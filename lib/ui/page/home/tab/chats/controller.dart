@@ -980,15 +980,14 @@ class ChatsTabController extends GetxController {
         _scrollIsInvoked = false;
 
         if (scrollController.hasClients &&
-            hasNext.isTrue &&
             scrollController.position.pixels >
                 scrollController.position.maxScrollExtent - 500) {
           if (archivedOnly.value) {
-            if (_chatService.archived.nextLoading.isFalse) {
-              _chatService.archived.next();
+            if (archive.hasNext.isTrue && archive.nextLoading.isFalse) {
+              archive.next();
             }
           } else {
-            if (_chatService.nextLoading.isFalse) {
+            if (hasNext.isTrue && _chatService.nextLoading.isFalse) {
               _chatService.next();
             }
           }

@@ -181,7 +181,11 @@ class ChatsTabView extends StatelessWidget {
                                 fadeDuration: const Duration(milliseconds: 300),
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  key: Key('${c.archivedOnly.value}'),
+                                  key: Key(
+                                    c.archivedOnly.value
+                                        ? 'ArchivedChats'
+                                        : 'Chats',
+                                  ),
                                   c.archivedOnly.value
                                       ? 'label_hidden_chats'.l10n
                                       : 'label_chats'.l10n,
@@ -263,6 +267,7 @@ class ChatsTabView extends StatelessWidget {
                             inverted: const SvgIcon(SvgIcons.selectWhite),
                           ),
                           ContextMenuButton(
+                            key: const Key('CreateGroupButton'),
                             label: 'btn_create_group'.l10n,
                             onPressed: c.startGroupCreating,
                             trailing: const SvgIcon(SvgIcons.group),
@@ -270,8 +275,9 @@ class ChatsTabView extends StatelessWidget {
                           ),
                           ContextMenuDivider(),
                           ContextMenuButton(
+                            key: const Key('ArchiveChatsButton'),
                             label: 'btn_hidden_chats'.l10n,
-                            onPressed: () => c.toggleArchive(),
+                            onPressed: c.toggleArchive,
                             trailing: const SvgIcon(SvgIcons.visibleOff),
                             inverted: const SvgIcon(SvgIcons.visibleOffWhite),
                             spacer: c.archivedOnly.value
@@ -807,11 +813,12 @@ class ChatsTabView extends StatelessWidget {
                               child: tile(chat),
                             );
 
-                            if (i == c.elements.length - 1) {
+                            if (i == chats.length - 1) {
                               child = Column(
                                 children: [
                                   child,
-                                  if (c.archive.nextLoading.value)
+                                  if (c.archive.hasNext.isTrue ||
+                                      c.archive.nextLoading.value)
                                     const CustomProgressIndicator(
                                       key: Key('ArchiveLoading'),
                                     ),
