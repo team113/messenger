@@ -838,9 +838,7 @@ class ContactRepository extends DisposableInterface
 
     for (final c in query.edges) {
       final List<DtoUser> users = c.node.getDtoUsers();
-      for (final user in users) {
-        _userRepo.put(user);
-      }
+      users.forEach(_userRepo.put);
     }
 
     return Page(
@@ -873,9 +871,7 @@ class ContactRepository extends DisposableInterface
 
     for (final c in query.edges) {
       final List<DtoUser> users = c.node.getDtoUsers();
-      for (final user in users) {
-        _userRepo.put(user);
-      }
+      users.forEach(_userRepo.put);
     }
 
     return Page(

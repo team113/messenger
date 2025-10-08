@@ -1023,9 +1023,7 @@ class ChatController extends GetxController {
         _ready.setTag('local', '${id.isLocal}');
 
         if (itemId == null) {
-          for (final Rx<ChatItem> e in chat!.messages) {
-            _add(e);
-          }
+          chat!.messages.forEach(_add);
 
           _subscribeFor(chat: chat);
 

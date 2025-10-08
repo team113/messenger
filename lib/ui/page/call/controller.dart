@@ -1059,9 +1059,7 @@ class CallController extends GetxController {
     isCursorHidden.value = false;
 
     final mine = [...locals, ...focused].where((e) => e.member == me);
-    for (final Participant p in mine) {
-      unfocus(p);
-    }
+    mine.forEach(unfocus);
 
     if (floating) {
       if (secondaryAlignment.value != null) {

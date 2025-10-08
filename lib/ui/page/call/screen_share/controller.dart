@@ -92,9 +92,7 @@ class ScreenShareController extends GetxController {
       }
     });
 
-    for (final e in call.value.displays) {
-      initRenderer(e);
-    }
+    call.value.displays.forEach(initRenderer);
 
     selected.value = call.value.displays.firstOrNull;
 

@@ -538,11 +538,9 @@ class OngoingCall {
           // If [connected], then the dialed [User] will be added in [connect],
           // when handling [ChatMembersDialedAll].
           if (!connected) {
-            for (final UserId e in chat.members.items.keys.where(
-              (e) => e != me.id.userId,
-            )) {
-              _addDialing(e);
-            }
+            chat.members.items.keys
+                .where((e) => e != me.id.userId)
+                .forEach(_addDialing);
           }
         }
       }
@@ -2044,9 +2042,7 @@ class OngoingCall {
       }
 
       // Add the local tracks asynchronously.
-      for (final LocalMediaTrack track in tracks) {
-        _addLocalTrack(track);
-      }
+      tracks.forEach(_addLocalTrack);
 
       audioState.value = audioState.value == LocalTrackState.enabling
           ? LocalTrackState.enabled

@@ -535,9 +535,7 @@ class MessageFieldController extends GetxController {
     );
 
     if (result != null && result.files.isNotEmpty) {
-      for (final PlatformFile e in result.files) {
-        addPlatformAttachment(e);
-      }
+      result.files.forEach(addPlatformAttachment);
     }
   }
 

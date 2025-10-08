@@ -939,9 +939,7 @@ class ChatView extends StatelessWidget {
                         field.replied.add(element.note.value!);
                       }
 
-                      for (final Rx<ChatItem> e in element.forwards) {
-                        field.replied.add(e);
-                      }
+                      element.forwards.forEach(field.replied.add);
                     }
                   },
                   onCopy: (text) {

@@ -1803,9 +1803,7 @@ class RxChatImpl extends RxChat {
         }
       }
 
-      for (final Attachment a in all) {
-        replace(a);
-      }
+      all.forEach(replace);
 
       stored.value = item;
       put(stored);

@@ -98,9 +98,7 @@ class AccountsSwitcherController extends GetxController {
   void onInit() {
     _scheduleRebuild();
 
-    for (final e in _profiles.values) {
-      accounts.add(e);
-    }
+    _profiles.values.forEach(accounts.add);
     accounts.sort(_compareAccounts);
 
     _profilesSubscription = _profiles.changes.listen((e) async {
