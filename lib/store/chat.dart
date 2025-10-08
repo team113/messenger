@@ -246,6 +246,7 @@ class ChatRepository extends DisposableInterface
 
           case OperationKind.updated:
             if (e.oldKey != e.key) {
+              // ignore: cancel_subscriptions
               final StreamSubscription? subscription = _subscriptions[e.oldKey];
               if (subscription != null) {
                 _subscriptions[e.key!] = subscription;
