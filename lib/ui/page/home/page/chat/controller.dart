@@ -2189,7 +2189,7 @@ class ChatController extends GetxController {
   }
 
   /// Loads next and previous pages of the [RxChat.messages].
-  void _loadMessages() async {
+  Future<void> _loadMessages() async {
     if (!_messagesAreLoading) {
       _messagesAreLoading = true;
 

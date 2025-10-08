@@ -524,7 +524,7 @@ class WebUtils {
   }
 
   /// Refreshes the current browser's page.
-  static void setBadge(int count) async {
+  static Future<void> setBadge(int count) async {
     // No-op.
   }
 

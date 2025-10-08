@@ -78,7 +78,7 @@ class CropController extends GetxController {
   }
 
   /// Resolves image and initializes [dimensions].
-  void _initializeBitmap() async {
+  Future<void> _initializeBitmap() async {
     try {
       final Codec decoded = await instantiateImageCodec(image);
       final FrameInfo frame = await decoded.getNextFrame();

@@ -1068,7 +1068,7 @@ class _WindowListener extends WindowListener {
   void onWindowBlur() => onBlur?.call();
 
   @override
-  void onWindowResized() async => onResized?.call(
+  Future<void> onWindowResized() async => onResized?.call(
     MapEntry<Size, Offset>(
       await windowManager.getSize(),
       await windowManager.getPosition(),
@@ -1076,6 +1076,6 @@ class _WindowListener extends WindowListener {
   );
 
   @override
-  void onWindowMoved() async =>
+  Future<void> onWindowMoved() async =>
       onMoved?.call(await windowManager.getPosition());
 }

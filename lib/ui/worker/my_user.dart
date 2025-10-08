@@ -60,7 +60,7 @@ class MyUserWorker extends DisposableService {
   }
 
   /// Updates the application's badge with the provided [count].
-  void _updateBadge(int count) async {
+  Future<void> _updateBadge(int count) async {
     if (_lastUnreadChatsCount != count) {
       _lastUnreadChatsCount = count;
 

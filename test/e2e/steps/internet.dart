@@ -92,7 +92,7 @@ class DelayedInterceptor extends Interceptor {
   final Duration delay;
 
   @override
-  void onRequest(
+  Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {

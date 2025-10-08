@@ -2423,7 +2423,7 @@ class OngoingCall {
   }
 
   /// Picks the [audioDevice] based on the [devices] list.
-  void _pickAudioDevice() async {
+  Future<void> _pickAudioDevice() async {
     Log.debug('_pickAudioDevice()', '$runtimeType');
 
     // TODO: For Android and iOS, default device is __NOT__ the first one.
@@ -2439,7 +2439,7 @@ class OngoingCall {
   }
 
   /// Picks the [videoDevice] based on the provided [previous] and [removed].
-  void _pickVideoDevice([
+  Future<void> _pickVideoDevice([
     List<DeviceDetails> previous = const [],
     List<DeviceDetails> removed = const [],
   ]) async {
@@ -2459,7 +2459,7 @@ class OngoingCall {
   }
 
   /// Disables screen sharing, if the [screenDevice] is [removed].
-  void _pickScreenDevice(List<MediaDisplayDetails> removed) async {
+  Future<void> _pickScreenDevice(List<MediaDisplayDetails> removed) async {
     Log.debug(
       '_pickScreenDevice(removed: ${removed.map((e) => e.title())})',
       '$runtimeType',

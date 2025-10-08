@@ -803,7 +803,7 @@ class SubscriptionHandle {
   }
 
   /// Resubscribes to the events.
-  void _resubscribe({bool noVersion = false}) async {
+  Future<void> _resubscribe({bool noVersion = false}) async {
     Log.info('Reconnecting in $_backoffDuration...', _options.operationName);
 
     _cancel(_connection);

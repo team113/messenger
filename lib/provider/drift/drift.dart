@@ -389,7 +389,7 @@ final class CommonDriftProvider extends DisposableInterface {
   final List<StreamSubscription> _subscriptions = [];
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     super.onInit();
 
     Log.debug('onInit()', '$runtimeType');
@@ -537,7 +537,7 @@ final class ScopedDriftProvider extends DisposableInterface {
   final List<StreamSubscription> _subscriptions = [];
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     super.onInit();
 
     Log.debug('onInit()', '$runtimeType');

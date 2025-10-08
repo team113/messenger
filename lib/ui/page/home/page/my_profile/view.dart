@@ -105,7 +105,7 @@ class MyProfileView extends StatelessWidget {
         Get.find(),
       ),
       global: !Get.isRegistered<MyProfileController>(),
-      builder: (MyProfileController c) {
+      builder: (c) {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
           child: Scaffold(

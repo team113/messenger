@@ -495,7 +495,7 @@ class CacheWorker extends DisposableService {
   }
 
   /// Updates the [CacheInfo.size] and [CacheInfo.checksums] values.
-  void _updateInfo() async {
+  Future<void> _updateInfo() async {
     final Directory? cache = cacheDirectory.value ??=
         await PlatformUtils.cacheDirectory;
 
