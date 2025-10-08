@@ -491,7 +491,7 @@ class ChatView extends StatelessWidget {
                               initIndex: c.initIndex,
                               initOffset: c.initOffset,
                               initOffsetBasedOnBottom: true,
-                              disableCacheItems: kDebugMode ? true : false,
+                              disableCacheItems: kDebugMode,
                             ),
                           );
 

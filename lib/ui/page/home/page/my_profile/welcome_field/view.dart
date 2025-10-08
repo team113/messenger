@@ -124,9 +124,9 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Obx(() {
-          final bool grab = c.attachments.isNotEmpty
-              ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
-              : false;
+          final bool grab =
+              c.attachments.isNotEmpty &&
+              (125 + 2) * c.attachments.length > constraints.maxWidth - 16;
 
           return ConditionalBackdropFilter(
             condition: style.cardBlur > 0,

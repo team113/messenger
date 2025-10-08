@@ -1900,9 +1900,8 @@ class OngoingCall {
             );
 
             if (outputDevice.value == null) {
-              final bool speaker = PlatformUtils.isWeb
-                  ? true
-                  : videoState.value.isEnabled;
+              final bool speaker =
+                  PlatformUtils.isWeb || videoState.value.isEnabled;
 
               if (speaker) {
                 outputDevice.value = output.firstWhereOrNull(

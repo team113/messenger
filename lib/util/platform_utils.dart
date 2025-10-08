@@ -895,9 +895,8 @@ enum HapticKind { click, light }
 extension MobileExtensionOnContext on BuildContext {
   /// Returns `true` if [PlatformUtilsImpl.isMobile] and [MediaQuery]'s shortest
   /// side is less than `600p`, or otherwise always returns `false`.
-  bool get isMobile => PlatformUtils.isMobile
-      ? MediaQuery.sizeOf(this).shortestSide < 600
-      : false;
+  bool get isMobile =>
+      PlatformUtils.isMobile && MediaQuery.sizeOf(this).shortestSide < 600;
 
   /// Returns `true` if [MediaQuery]'s width is less than `600p` on desktop and
   /// [MediaQuery]'s shortest side is less than `600p` on mobile.

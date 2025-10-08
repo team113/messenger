@@ -1159,9 +1159,8 @@ class ReactivePlayerController {
   /// Updates the parameters according to the state of [controller].
   void _listener() {
     buffered.value = controller.value.buffered;
-    isBuffering.value = controller.value.isInitialized
-        ? controller.value.isBuffering
-        : true;
+    isBuffering.value =
+        !controller.value.isInitialized || controller.value.isBuffering;
     isLooping.value = controller.value.isLooping;
     isPlaying.value = controller.value.isPlaying;
     isCompleted.value = controller.value.isCompleted;
