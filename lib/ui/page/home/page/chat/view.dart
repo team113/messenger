@@ -165,532 +165,480 @@ class ChatView extends StatelessWidget {
 
           final bool isMonolog = c.chat!.chat.value.isMonolog;
 
-          return Actions(
-            actions: {
-              _SearchAction: CallbackAction<_SearchAction>(
-                onInvoke: (_) => c.toggleSearch(false),
-              ),
-            },
-            child: Shortcuts(
-              shortcuts: {
-                LogicalKeySet(
-                  LogicalKeyboardKey.control,
-                  LogicalKeyboardKey.keyF,
-                ): const _SearchAction(),
-                LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.keyF):
-                    const _SearchAction(),
-              },
-              child: CustomDropTarget(
-                key: Key('ChatView_$id'),
-                onPerformDrop: c.dropFiles,
-                builder: (dragging) => GestureDetector(
-                  onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-                  child: Stack(
-                    children: [
-                      Scaffold(
-                        resizeToAvoidBottomInset: true,
-                        appBar: CustomAppBar(
-                          title: Obx(() {
-                            if (c.searching.value) {
-                              return Theme(
-                                data: MessageFieldView.theme(context),
-                                child: Padding(
+          return CustomDropTarget(
+            key: Key('ChatView_$id'),
+            onPerformDrop: c.dropFiles,
+            builder: (dragging) => GestureDetector(
+              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+              child: Stack(
+                children: [
+                  Scaffold(
+                    resizeToAvoidBottomInset: true,
+                    appBar: CustomAppBar(
+                      title: Obx(() {
+                        if (c.searching.value) {
+                          return Theme(
+                            data: MessageFieldView.theme(context),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              child: Transform.translate(
+                                offset: const Offset(0, 1),
+                                child: ReactiveTextField(
+                                  key: const Key('SearchField'),
+                                  state: c.search,
+                                  hint: 'label_search'.l10n,
+                                  maxLines: 1,
+                                  filled: false,
+                                  dense: true,
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
+                                    vertical: 8,
                                   ),
-                                  child: Transform.translate(
-                                    offset: const Offset(0, 1),
-                                    child: ReactiveTextField(
-                                      key: const Key('SearchField'),
-                                      state: c.search,
-                                      hint: 'label_search'.l10n,
-                                      maxLines: 1,
-                                      filled: false,
-                                      dense: true,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8,
+                                  style:
+                                      style.fonts.medium.regular.onBackground,
+                                  onChanged: () {
+                                    c.query.value = c.search.text;
+                                    if (c.search.text.isEmpty) {
+                                      c.switchToMessages();
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        return Row(
+                          children: [
+                            WidgetButton(
+                              onPressed: onDetailsTap,
+                              child: Center(
+                                child: AvatarWidget.fromRxChat(
+                                  c.chat,
+                                  radius: AvatarRadius.big,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: InkWell(
+                                splashFactory: NoSplash.splashFactory,
+                                hoverColor: style.colors.transparent,
+                                highlightColor: style.colors.transparent,
+                                onTap: onDetailsTap,
+                                child: DefaultTextStyle.merge(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Obx(() {
+                                              return Text(
+                                                c.chat!.title(),
+                                                style: style
+                                                    .fonts
+                                                    .big
+                                                    .regular
+                                                    .onBackground,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              );
+                                            }),
+                                          ),
+                                          Obx(() {
+                                            if (c.chat?.chat.value.muted ==
+                                                null) {
+                                              return const SizedBox();
+                                            }
+
+                                            return const Padding(
+                                              padding: EdgeInsets.only(left: 5),
+                                              child: SvgIcon(SvgIcons.muted),
+                                            );
+                                          }),
+                                        ],
                                       ),
-                                      style: style
-                                          .fonts
-                                          .medium
-                                          .regular
-                                          .onBackground,
-                                      onChanged: () {
-                                        c.query.value = c.search.text;
-                                        if (c.search.text.isEmpty) {
-                                          c.switchToMessages();
-                                        }
-                                      },
-                                    ),
+                                      if (!isMonolog)
+                                        ChatSubtitle(c.chat!, c.me),
+                                    ],
                                   ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                          ],
+                        );
+                      }),
+                      padding: const EdgeInsets.only(left: 4),
+                      leading: [
+                        Obx(() {
+                          if (c.searching.value) {
+                            return const Padding(
+                              padding: EdgeInsets.only(left: 16),
+                              child: SvgIcon(SvgIcons.search),
+                            );
+                          }
+
+                          return const StyledBackButton();
+                        }),
+                      ],
+                      actions: [
+                        Obx(() {
+                          if (c.searching.value) {
+                            return WidgetButton(
+                              onPressed: () {
+                                if (c.searching.value) {
+                                  if (c.search.text.isNotEmpty) {
+                                    c.search.clear();
+                                    c.search.focus.requestFocus();
+                                    c.switchToMessages();
+                                  } else {
+                                    c.toggleSearch();
+                                  }
+                                } else {
+                                  c.toggleSearch();
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 21, 8),
+                                child: c.search.isEmpty.value
+                                    ? const SvgIcon(SvgIcons.closePrimary)
+                                    : const SvgIcon(SvgIcons.clearSearch),
+                              ),
+                            );
+                          }
+
+                          final bool blocked = c.chat?.blocked == true;
+                          final bool inCall = c.chat?.inCall.value ?? false;
+                          final bool isMonolog =
+                              c.chat?.chat.value.isMonolog == true;
+
+                          final List<Widget> children;
+
+                          // Display the join/end call button, if [Chat] has an
+                          // [OngoingCall] happening in it.
+                          if (c.chat!.chat.value.ongoingCall != null) {
+                            final Widget child;
+
+                            if (inCall) {
+                              child = Container(
+                                key: const Key('Drop'),
+                                height: 32,
+                                width: 32,
+                                decoration: BoxDecoration(
+                                  color: style.colors.danger,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: SvgIcon(SvgIcons.callEnd),
+                                ),
+                              );
+                            } else {
+                              child = Container(
+                                key: const Key('Join'),
+                                height: 32,
+                                width: 32,
+                                decoration: BoxDecoration(
+                                  color: style.colors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Center(
+                                  child: SvgIcon(SvgIcons.callStart),
                                 ),
                               );
                             }
 
-                            return Row(
-                              children: [
-                                WidgetButton(
-                                  onPressed: onDetailsTap,
-                                  child: Center(
-                                    child: AvatarWidget.fromRxChat(
-                                      c.chat,
-                                      radius: AvatarRadius.big,
-                                    ),
-                                  ),
+                            children = [
+                              AnimatedButton(
+                                key: const Key('ActiveCallButton'),
+                                onPressed: inCall ? c.dropCall : c.joinCall,
+                                child: SafeAnimatedSwitcher(
+                                  duration: 300.milliseconds,
+                                  child: child,
                                 ),
-                                const SizedBox(width: 10),
-                                Flexible(
-                                  child: InkWell(
-                                    splashFactory: NoSplash.splashFactory,
-                                    hoverColor: style.colors.transparent,
-                                    highlightColor: style.colors.transparent,
-                                    onTap: onDetailsTap,
-                                    child: DefaultTextStyle.merge(
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Flexible(
-                                                child: Obx(() {
-                                                  return Text(
-                                                    c.chat!.title(),
-                                                    style: style
-                                                        .fonts
-                                                        .big
-                                                        .regular
-                                                        .onBackground,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 1,
-                                                  );
-                                                }),
-                                              ),
-                                              Obx(() {
-                                                if (c.chat?.chat.value.muted ==
-                                                    null) {
-                                                  return const SizedBox();
-                                                }
-
-                                                return const Padding(
-                                                  padding: EdgeInsets.only(
-                                                    left: 5,
-                                                  ),
-                                                  child: SvgIcon(
-                                                    SvgIcons.muted,
-                                                  ),
-                                                );
-                                              }),
-                                            ],
-                                          ),
-                                          if (!isMonolog)
-                                            ChatSubtitle(c.chat!, c.me),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                              ],
-                            );
-                          }),
-                          padding: const EdgeInsets.only(left: 4),
-                          leading: [
-                            Obx(() {
-                              if (c.searching.value) {
-                                return const Padding(
-                                  padding: EdgeInsets.only(left: 16),
-                                  child: SvgIcon(SvgIcons.search),
-                                );
-                              }
-
-                              return const StyledBackButton();
-                            }),
-                          ],
-                          actions: [
-                            Obx(() {
-                              if (c.searching.value) {
-                                return WidgetButton(
-                                  onPressed: () {
-                                    if (c.searching.value) {
-                                      if (c.search.text.isNotEmpty) {
-                                        c.search.clear();
-                                        c.search.focus.requestFocus();
-                                        c.switchToMessages();
-                                      } else {
-                                        c.toggleSearch();
-                                      }
-                                    } else {
-                                      c.toggleSearch();
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      8,
-                                      8,
-                                      21,
-                                      8,
-                                    ),
-                                    child: c.search.isEmpty.value
-                                        ? const SvgIcon(SvgIcons.closePrimary)
-                                        : const SvgIcon(SvgIcons.clearSearch),
-                                  ),
-                                );
-                              }
-
-                              final bool blocked = c.chat?.blocked == true;
-                              final bool inCall = c.chat?.inCall.value ?? false;
-                              final bool isMonolog =
-                                  c.chat?.chat.value.isMonolog == true;
-
-                              final List<Widget> children;
-
-                              // Display the join/end call button, if [Chat] has an
-                              // [OngoingCall] happening in it.
-                              if (c.chat!.chat.value.ongoingCall != null) {
-                                final Widget child;
-
-                                if (inCall) {
-                                  child = Container(
-                                    key: const Key('Drop'),
-                                    height: 32,
-                                    width: 32,
-                                    decoration: BoxDecoration(
-                                      color: style.colors.danger,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Center(
-                                      child: SvgIcon(SvgIcons.callEnd),
-                                    ),
-                                  );
-                                } else {
-                                  child = Container(
-                                    key: const Key('Join'),
-                                    height: 32,
-                                    width: 32,
-                                    decoration: BoxDecoration(
-                                      color: style.colors.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Center(
-                                      child: SvgIcon(SvgIcons.callStart),
-                                    ),
-                                  );
-                                }
-
-                                children = [
-                                  AnimatedButton(
-                                    key: const Key('ActiveCallButton'),
-                                    onPressed: inCall ? c.dropCall : c.joinCall,
-                                    child: SafeAnimatedSwitcher(
-                                      duration: 300.milliseconds,
-                                      child: child,
-                                    ),
-                                  ),
-                                ];
-                              } else if (!blocked && !isMonolog) {
-                                children = [
-                                  AnimatedButton(
-                                    onPressed: () => c.call(true),
-                                    child: const SvgIcon(
-                                      SvgIcons.chatVideoCall,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 28),
-                                  AnimatedButton(
-                                    key: const Key('AudioCall'),
-                                    onPressed: () => c.call(false),
-                                    child: const SvgIcon(
-                                      SvgIcons.chatAudioCall,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                ];
-                              } else {
-                                // [Chat]-dialog is blocked, therefore no call
-                                // buttons should be displayed.
-                                children = [];
-                              }
-
-                              return Row(
-                                children: [
-                                  ...children,
-                                  Obx(() {
-                                    // TODO: Uncomment, when contacts are
-                                    //       implemented.
-                                    // final bool contact =
-                                    //     c.user?.user.value.contacts.isNotEmpty ??
-                                    //         false;
-
-                                    final Widget child = ContextMenuRegion(
-                                      key: c.moreKey,
-                                      selector: c.moreKey,
-                                      alignment: Alignment.topRight,
-                                      enablePrimaryTap: true,
-                                      margin: const EdgeInsets.only(
-                                        bottom: 4,
-                                        right: 12,
-                                      ),
-                                      actions: [
-                                        ContextMenuButton(
-                                          key: const Key('SearchItemsButton'),
-                                          label: 'label_search'.l10n,
-                                          onPressed: c.toggleSearch,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.search,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.searchWhite,
-                                          ),
-                                        ),
-
-                                        if (!c.selecting.value)
-                                          ContextMenuButton(
-                                            label: 'btn_select_messages'.l10n,
-                                            onPressed: c.selecting.toggle,
-                                            trailing: const SvgIcon(
-                                              SvgIcons.select,
-                                            ),
-                                            inverted: const SvgIcon(
-                                              SvgIcons.selectWhite,
-                                            ),
-                                          )
-                                        else
-                                          ContextMenuButton(
-                                            label: 'btn_cancel_selection'.l10n,
-                                            onPressed: c.selecting.toggle,
-                                            trailing: const SvgIcon(
-                                              SvgIcons.unselect,
-                                            ),
-                                            inverted: const SvgIcon(
-                                              SvgIcons.unselectWhite,
-                                            ),
-                                          ),
-                                      ],
-                                      child: Container(
-                                        key: const Key('MoreButton'),
-                                        padding: const EdgeInsets.only(
-                                          left: 20,
-                                          right: 21,
-                                        ),
-                                        height: double.infinity,
-                                        child: const SvgIcon(SvgIcons.more),
-                                      ),
-                                    );
-
-                                    return AnimatedButton(
-                                      child: SafeAnimatedSwitcher(
-                                        duration: 250.milliseconds,
-                                        child: child,
-                                      ),
-                                    );
-                                  }),
-                                ],
-                              );
-                            }),
-                          ],
-                        ),
-                        body: Stack(
-                          children: [
-                            // Required for the [Stack] to take [Scaffold]'s
-                            // size.
-                            IgnorePointer(
-                              child: ObscuredMenuInterceptor(
-                                child: Container(),
                               ),
-                            ),
-                            Obx(() {
-                              final Widget child = FlutterListView(
-                                key: const Key('MessagesList'),
-                                controller: c.listController,
-                                physics: c.isDraggingItem.value
-                                    ? const NeverScrollableScrollPhysics()
-                                    : const BouncingScrollPhysics(),
-                                reverse: true,
-                                delegate: FlutterListViewDelegate(
-                                  (context, i) => _listElement(context, c, i),
-                                  // ignore: invalid_use_of_protected_member
-                                  childCount: c.elements.value.length,
-                                  stickyAtTailer: true,
-                                  keepPosition: true,
-                                  keepPositionOffset: c.active.isTrue
-                                      ? c.keepPositionOffset.value
-                                      : 1,
-                                  onItemKey: (i) => c.elements.values
-                                      .elementAt(i)
-                                      .id
-                                      .toString(),
-                                  onItemSticky: (i) =>
-                                      c.elements.values.elementAt(i)
-                                          is DateTimeElement,
-                                  initIndex: c.initIndex,
-                                  initOffset: c.initOffset,
-                                  initOffsetBasedOnBottom: true,
-                                  disableCacheItems: kDebugMode ? true : false,
-                                ),
-                              );
+                            ];
+                          } else if (!blocked && !isMonolog) {
+                            children = [
+                              AnimatedButton(
+                                onPressed: () => c.call(true),
+                                child: const SvgIcon(SvgIcons.chatVideoCall),
+                              ),
+                              const SizedBox(width: 28),
+                              AnimatedButton(
+                                key: const Key('AudioCall'),
+                                onPressed: () => c.call(false),
+                                child: const SvgIcon(SvgIcons.chatAudioCall),
+                              ),
+                              const SizedBox(width: 10),
+                            ];
+                          } else {
+                            // [Chat]-dialog is blocked, therefore no call
+                            // buttons should be displayed.
+                            children = [];
+                          }
 
-                              if (PlatformUtils.isMobile) {
-                                if (!PlatformUtils.isWeb) {
-                                  return Scrollbar(
-                                    controller: c.listController,
-                                    child: child,
-                                  );
-                                } else {
-                                  return child;
-                                }
-                              }
+                          return Row(
+                            children: [
+                              ...children,
+                              Obx(() {
+                                // TODO: Uncomment, when contacts are
+                                //       implemented.
+                                // final bool contact =
+                                //     c.user?.user.value.contacts.isNotEmpty ??
+                                //         false;
 
-                              return ObscuredSelectionArea(
-                                key: Key('${c.selecting.value}'),
-                                onSelectionChanged: (a) =>
-                                    c.selection.value = a,
-                                contextMenuBuilder: (_, _) => const SizedBox(),
-                                selectionControls: EmptyTextSelectionControls(),
-                                child: ObscuredMenuInterceptor(child: child),
-                              );
-                            }),
-                            Obx(() {
-                              if (c.searching.value) {
-                                if (c.status.value.isLoadingMore) {
-                                  return const Center(
-                                    child: CustomProgressIndicator(),
-                                  );
-                                }
-                                // ignore: invalid_use_of_protected_member
-                                else if (c.elements.value.isEmpty) {
-                                  return Center(
-                                    child: SystemInfoPrompt(
-                                      key: const Key('NoMessages'),
-                                      'label_no_messages'.l10n,
+                                final Widget child = ContextMenuRegion(
+                                  key: c.moreKey,
+                                  selector: c.moreKey,
+                                  alignment: Alignment.topRight,
+                                  enablePrimaryTap: true,
+                                  margin: const EdgeInsets.only(
+                                    bottom: 4,
+                                    right: 12,
+                                  ),
+                                  actions: [
+                                    ContextMenuButton(
+                                      key: const Key('SearchItemsButton'),
+                                      label: 'label_search'.l10n,
+                                      onPressed: c.toggleSearch,
+                                      trailing: const SvgIcon(SvgIcons.search),
+                                      inverted: const SvgIcon(
+                                        SvgIcons.searchWhite,
+                                      ),
                                     ),
-                                  );
-                                }
-                              }
 
-                              if ((c.chat!.status.value.isSuccess ||
-                                      c.chat!.status.value.isEmpty) &&
-                                  c.chat!.messages.isEmpty) {
-                                final Widget? welcome = _welcomeMessage(
-                                  context,
-                                  c,
-                                );
-
-                                if (welcome != null) {
-                                  return Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: ListView(
-                                      reverse: true,
-                                      children: [
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: ConstrainedBox(
-                                            constraints: const BoxConstraints(
-                                              maxWidth: 550,
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                right: 48,
-                                              ),
-                                              child: welcome,
-                                            ),
-                                          ),
+                                    if (!c.selecting.value)
+                                      ContextMenuButton(
+                                        label: 'btn_select_messages'.l10n,
+                                        onPressed: c.selecting.toggle,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.select,
                                         ),
-                                      ],
+                                        inverted: const SvgIcon(
+                                          SvgIcons.selectWhite,
+                                        ),
+                                      )
+                                    else
+                                      ContextMenuButton(
+                                        label: 'btn_cancel_selection'.l10n,
+                                        onPressed: c.selecting.toggle,
+                                        trailing: const SvgIcon(
+                                          SvgIcons.unselect,
+                                        ),
+                                        inverted: const SvgIcon(
+                                          SvgIcons.unselectWhite,
+                                        ),
+                                      ),
+                                  ],
+                                  child: Container(
+                                    key: const Key('MoreButton'),
+                                    padding: const EdgeInsets.only(
+                                      left: 20,
+                                      right: 21,
                                     ),
-                                  );
-                                }
-
-                                if (isMonolog) {
-                                  return NotesBlock(
-                                    key: const Key('NoMessages'),
-                                  );
-                                }
-
-                                return Center(
-                                  child: SystemInfoPrompt(
-                                    key: const Key('NoMessages'),
-                                    'label_no_messages'.l10n,
+                                    height: double.infinity,
+                                    child: const SvgIcon(SvgIcons.more),
                                   ),
                                 );
-                              }
 
-                              if (c.status.value.isLoading) {
-                                return const Center(
-                                  child: CustomProgressIndicator(),
+                                return AnimatedButton(
+                                  child: SafeAnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: child,
+                                  ),
                                 );
-                              }
-
-                              return const SizedBox();
-                            }),
-                          ],
-                        ),
-                        floatingActionButton: Obx(() {
-                          return SizedBox(
-                            width: 50,
-                            height: 50,
-                            child: SafeAnimatedSwitcher(
-                              duration: 200.milliseconds,
-                              child: c.canGoBack.isTrue
-                                  ? FloatingActionButton.small(
-                                      onPressed: c.animateToBack,
-                                      child: const Icon(Icons.arrow_upward),
-                                    )
-                                  : c.canGoDown.isTrue
-                                  ? FloatingActionButton.small(
-                                      onPressed: c.animateToBottom,
-                                      child: const Icon(Icons.arrow_downward),
-                                    )
-                                  : const SizedBox(),
-                            ),
+                              }),
+                            ],
                           );
                         }),
-                        bottomNavigationBar: _bottomBar(c, context),
-                      ),
-                      IgnorePointer(
-                        child: SafeAnimatedSwitcher(
-                          duration: 200.milliseconds,
-                          child: dragging
-                              ? Container(
-                                  color: style.colors.onBackgroundOpacity27,
-                                  child: Center(
-                                    child: AnimatedDelayedScale(
-                                      duration: const Duration(
-                                        milliseconds: 300,
-                                      ),
-                                      beginScale: 1,
-                                      endScale: 1.06,
-                                      child: ConditionalBackdropFilter(
-                                        borderRadius: BorderRadius.circular(16),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            color: style
-                                                .colors
-                                                .onBackgroundOpacity27,
+                      ],
+                    ),
+                    body: Stack(
+                      children: [
+                        // Required for the [Stack] to take [Scaffold]'s
+                        // size.
+                        IgnorePointer(
+                          child: ObscuredMenuInterceptor(child: Container()),
+                        ),
+                        Obx(() {
+                          final Widget child = FlutterListView(
+                            key: const Key('MessagesList'),
+                            controller: c.listController,
+                            physics: c.isDraggingItem.value
+                                ? const NeverScrollableScrollPhysics()
+                                : const BouncingScrollPhysics(),
+                            reverse: true,
+                            delegate: FlutterListViewDelegate(
+                              (context, i) => _listElement(context, c, i),
+                              // ignore: invalid_use_of_protected_member
+                              childCount: c.elements.value.length,
+                              stickyAtTailer: true,
+                              keepPosition: true,
+                              keepPositionOffset: c.active.isTrue
+                                  ? c.keepPositionOffset.value
+                                  : 1,
+                              onItemKey: (i) =>
+                                  c.elements.values.elementAt(i).id.toString(),
+                              onItemSticky: (i) =>
+                                  c.elements.values.elementAt(i)
+                                      is DateTimeElement,
+                              initIndex: c.initIndex,
+                              initOffset: c.initOffset,
+                              initOffsetBasedOnBottom: true,
+                              disableCacheItems: kDebugMode ? true : false,
+                            ),
+                          );
+
+                          if (PlatformUtils.isMobile) {
+                            if (!PlatformUtils.isWeb) {
+                              return Scrollbar(
+                                controller: c.listController,
+                                child: child,
+                              );
+                            } else {
+                              return child;
+                            }
+                          }
+
+                          return ObscuredSelectionArea(
+                            key: Key('${c.selecting.value}'),
+                            onSelectionChanged: (a) => c.selection.value = a,
+                            contextMenuBuilder: (_, _) => const SizedBox(),
+                            selectionControls: EmptyTextSelectionControls(),
+                            child: ObscuredMenuInterceptor(child: child),
+                          );
+                        }),
+                        Obx(() {
+                          if (c.searching.value) {
+                            if (c.status.value.isLoadingMore) {
+                              return const Center(
+                                child: CustomProgressIndicator(),
+                              );
+                            }
+                            // ignore: invalid_use_of_protected_member
+                            else if (c.elements.value.isEmpty) {
+                              return Center(
+                                child: SystemInfoPrompt(
+                                  key: const Key('NoMessages'),
+                                  'label_no_messages'.l10n,
+                                ),
+                              );
+                            }
+                          }
+
+                          if ((c.chat!.status.value.isSuccess ||
+                                  c.chat!.status.value.isEmpty) &&
+                              c.chat!.messages.isEmpty) {
+                            final Widget? welcome = _welcomeMessage(context, c);
+
+                            if (welcome != null) {
+                              return Align(
+                                alignment: Alignment.bottomLeft,
+                                child: ListView(
+                                  reverse: true,
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: ConstrainedBox(
+                                        constraints: const BoxConstraints(
+                                          maxWidth: 550,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 48,
                                           ),
-                                          child: const Padding(
-                                            padding: EdgeInsets.all(16),
-                                            child: SvgIcon(SvgIcons.addBigger),
-                                          ),
+                                          child: welcome,
                                         ),
                                       ),
                                     ),
-                                  ),
+                                  ],
+                                ),
+                              );
+                            }
+
+                            if (isMonolog) {
+                              return NotesBlock(key: const Key('NoMessages'));
+                            }
+
+                            return Center(
+                              child: SystemInfoPrompt(
+                                key: const Key('NoMessages'),
+                                'label_no_messages'.l10n,
+                              ),
+                            );
+                          }
+
+                          if (c.status.value.isLoading) {
+                            return const Center(
+                              child: CustomProgressIndicator(),
+                            );
+                          }
+
+                          return const SizedBox();
+                        }),
+                      ],
+                    ),
+                    floatingActionButton: Obx(() {
+                      return SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: SafeAnimatedSwitcher(
+                          duration: 200.milliseconds,
+                          child: c.canGoBack.isTrue
+                              ? FloatingActionButton.small(
+                                  onPressed: c.animateToBack,
+                                  child: const Icon(Icons.arrow_upward),
                                 )
-                              : null,
+                              : c.canGoDown.isTrue
+                              ? FloatingActionButton.small(
+                                  onPressed: c.animateToBottom,
+                                  child: const Icon(Icons.arrow_downward),
+                                )
+                              : const SizedBox(),
                         ),
-                      ),
-                    ],
+                      );
+                    }),
+                    bottomNavigationBar: _bottomBar(c, context),
                   ),
-                ),
+                  IgnorePointer(
+                    child: SafeAnimatedSwitcher(
+                      duration: 200.milliseconds,
+                      child: dragging
+                          ? Container(
+                              color: style.colors.onBackgroundOpacity27,
+                              child: Center(
+                                child: AnimatedDelayedScale(
+                                  duration: const Duration(milliseconds: 300),
+                                  beginScale: 1,
+                                  endScale: 1.06,
+                                  child: ConditionalBackdropFilter(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        color:
+                                            style.colors.onBackgroundOpacity27,
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: SvgIcon(SvgIcons.addBigger),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -1513,9 +1461,4 @@ class AllowMultipleHorizontalDragGestureRecognizer
     extends HorizontalDragGestureRecognizer {
   @override
   void rejectGesture(int pointer) => acceptGesture(pointer);
-}
-
-/// [Intent] action for trigger search in chat.
-class _SearchAction extends Intent {
-  const _SearchAction();
 }

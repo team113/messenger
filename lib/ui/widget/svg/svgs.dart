@@ -134,8 +134,8 @@ class SvgIcons {
 
   static const SvgData searchGrey = SvgData(
     'assets/icons/search_grey.svg',
-    width: 17.76,
-    height: 17.77,
+    width: 16,
+    height: 16,
   );
 
   static const SvgData searchWhite = SvgData(

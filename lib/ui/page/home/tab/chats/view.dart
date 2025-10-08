@@ -93,7 +93,8 @@ class ChatsTabView extends StatelessWidget {
                     slivers: [
                       SliverAppBar(
                         elevation: 8,
-                        shadowColor: style.colors.onBackgroundOpacity50,
+                        forceElevated: true,
+                        shadowColor: style.colors.onBackgroundOpacity40,
                         surfaceTintColor: Colors.transparent,
                         backgroundColor: style.colors.onPrimary,
                         pinned: true,
@@ -234,13 +235,13 @@ class ChatsTabView extends StatelessWidget {
                                 }),
                               ],
                             ),
-                            if (!PlatformUtils.isMobile) _subAppBar(context, c),
+                            if (!PlatformUtils.isMobile) _subtitle(context, c),
                           ],
                         ),
                         flexibleSpace: PlatformUtils.isMobile
                             ? FlexibleSpaceBar(
                                 collapseMode: CollapseMode.parallax,
-                                background: _subAppBar(context, c),
+                                background: _subtitle(context, c),
                               )
                             : null,
                       ),
@@ -373,38 +374,99 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Returns the search field and system labels for [SliverAppBar]
-  Widget _subAppBar(BuildContext context, ChatsTabController c) {
+  /// Builds a search field and synchronization labels for [SliverAppBar].
+  Widget _subtitle(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final Widget? searchField = c.search.value == null
-          ? null
-          : Theme(
-              data: ChatsTabView.theme(context),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ReactiveTextField(
+      Widget? searchField;
+
+      if (c.search.value != null) {
+        final style = Theme.of(context).style;
+
+        final OutlineInputBorder border = OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(
+            color: style.colors.secondaryHighlightDark,
+            width: 0.5,
+          ),
+        );
+
+        final ThemeData theme = Theme.of(context).copyWith(
+          shadowColor: style.colors.onBackgroundOpacity27,
+          iconTheme: IconThemeData(color: style.colors.primaryHighlight),
+          inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
+            hintStyle: style.fonts.medium.regular.secondary,
+            border: border,
+            errorBorder: border,
+            enabledBorder: border,
+            focusedBorder: border.copyWith(
+              borderSide: BorderSide(color: style.colors.primary, width: 1),
+            ),
+            disabledBorder: border,
+            focusedErrorBorder: border,
+            focusColor: style.colors.onPrimary,
+            fillColor: style.colors.onPrimary,
+            hoverColor: style.colors.transparent,
+            filled: true,
+            isDense: true,
+          ),
+        );
+
+        searchField = Theme(
+          data: theme,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Stack(
+              children: [
+                ReactiveTextField(
                   key: const Key('SearchField'),
-                  prefixIcon: const SvgIcon(SvgIcons.searchGrey),
-                  suffix: WidgetButton(
-                    onPressed: c.clearSearch,
-                    child: Padding(
-                      padding: const EdgeInsets.all(2),
-                      child: const SvgIcon(SvgIcons.searchExit),
-                    ),
-                  ),
                   fillColor: style.colors.background,
                   state: c.search.value!.search,
                   hint: 'label_search'.l10n,
                   maxLines: 1,
+                  prefix: SizedBox(width: 24),
                   dense: true,
-                  padding: EdgeInsets.only(bottom: 10, top: 3),
+                  padding: EdgeInsets.fromLTRB(8, 12, 8, 12),
+                  style: style.fonts.normal.regular.onBackground,
                   onChanged: () =>
                       c.search.value!.query.value = c.search.value!.search.text,
                 ),
-              ),
-            );
+                Positioned(
+                  left: 12,
+                  top: 9,
+                  child: const SvgIcon(SvgIcons.searchGrey),
+                ),
+                Positioned(
+                  right: 12,
+                  top: 12,
+                  child: Obx(() {
+                    final Widget child;
+
+                    if (c.search.value!.search.isEmpty.value) {
+                      child = const SizedBox();
+                    } else {
+                      child = WidgetButton(
+                        key: Key('ClearSearchButton'),
+                        onPressed: c.clearSearch,
+                        child: Padding(
+                          padding: const EdgeInsets.all(2),
+                          child: const SvgIcon(SvgIcons.searchExit),
+                        ),
+                      );
+                    }
+
+                    return AnimatedSwitcher(
+                      duration: Duration(milliseconds: 250),
+                      child: child,
+                    );
+                  }),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
 
       final Widget synchronization;
 
@@ -492,10 +554,10 @@ class ChatsTabView extends StatelessWidget {
             child: Column(
               children: [
                 const SvgIcon(SvgIcons.notFound),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Text(
                   'label_no_chats'.l10n,
-                  style: style.fonts.small.regular.onBackground,
+                  style: style.fonts.medium.regular.secondary,
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -1130,42 +1192,5 @@ class ChatsTabView extends StatelessWidget {
     if (result == true) {
       await c.hideChats();
     }
-  }
-
-  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
-  static ThemeData theme(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    final OutlineInputBorder border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(25),
-      borderSide: BorderSide(color: style.colors.secondaryLight, width: 1),
-    );
-
-    return Theme.of(context).copyWith(
-      shadowColor: style.colors.onBackgroundOpacity27,
-      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
-      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-        hintStyle: style.fonts.medium.regular.secondary,
-        border: border,
-        errorBorder: border,
-        enabledBorder: border,
-        focusedBorder: border.copyWith(
-          borderSide: BorderSide(color: style.colors.primary, width: 1),
-        ),
-        disabledBorder: border,
-        focusedErrorBorder: border,
-        focusColor: style.colors.onPrimary,
-        fillColor: style.colors.onPrimary,
-        hoverColor: style.colors.transparent,
-        filled: true,
-        isDense: true,
-        contentPadding: EdgeInsets.fromLTRB(
-          15,
-          PlatformUtils.isDesktop ? 0 : 0,
-          15,
-          0,
-        ),
-      ),
-    );
   }
 }

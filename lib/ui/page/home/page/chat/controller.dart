@@ -576,6 +576,8 @@ class ChatController extends GetxController {
       }
     });
 
+    HardwareKeyboard.instance.addHandler(_keyboardHandler);
+
     super.onInit();
   }
 
@@ -624,6 +626,8 @@ class ChatController extends GetxController {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
+
+    HardwareKeyboard.instance.removeHandler(_keyboardHandler);
 
     for (final s in _fragmentSubscriptions) {
       s.cancel();
@@ -2412,6 +2416,41 @@ class ChatController extends GetxController {
     if (search.focus.hasFocus == false && search.text.isEmpty == true) {
       toggleSearch(true);
     }
+  }
+
+  /// Enables or disables search based on the [event].
+  bool _keyboardHandler(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.keyF:
+          final Set<PhysicalKeyboardKey> pressed =
+              HardwareKeyboard.instance.physicalKeysPressed;
+
+          final bool isMetaPressed = pressed.any(
+            (key) =>
+                key == PhysicalKeyboardKey.metaLeft ||
+                key == PhysicalKeyboardKey.metaRight,
+          );
+
+          final bool isControlPressed = pressed.any(
+            (key) =>
+                key == PhysicalKeyboardKey.controlLeft ||
+                key == PhysicalKeyboardKey.controlRight,
+          );
+
+          if (isMetaPressed || isControlPressed) {
+            toggleSearch();
+            return true;
+          }
+          break;
+
+        default:
+          // No-op.
+          break;
+      }
+    }
+
+    return false;
   }
 }
 
