@@ -80,6 +80,7 @@ import 'steps/has_group.dart';
 import 'steps/in_chat.dart';
 import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
+import 'steps/language.dart';
 import 'steps/long_press_chat.dart';
 import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
@@ -178,6 +179,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         contactIsIndeedDeleted,
         copyFromField,
         countUsers,
+        deleteUser,
         dismissChat,
         dismissContact,
         downloadFile,
@@ -278,6 +280,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seesNoDialogWithMe,
         seesNoDialogWithUser,
         seeUserInSearchResults,
+        selectLanguage,
         selectMessageText,
         sendsAttachmentToMe,
         sendsCountMessages,
