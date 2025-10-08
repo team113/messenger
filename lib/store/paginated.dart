@@ -303,8 +303,6 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
 
   /// Applies [transform] to the [value] item with its [key].
   FutureOr<void> _apply(K key, V value) {
-    Log.info('_apply($key) -> $value');
-
     final FutureOr<T?> itemOrFuture = transform(
       previous: items[key],
       data: value,
@@ -312,14 +310,12 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
 
     if (itemOrFuture is T?) {
       if (itemOrFuture != null) {
-        Log.info('_apply($key) -> items[key] = itemOrFuture');
         items[key] = itemOrFuture;
       }
     } else {
       return Future(() async {
         final item = await itemOrFuture;
         if (item != null) {
-          Log.info('_apply($key) -> items[key] = item');
           items[key] = item;
         }
       });
