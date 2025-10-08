@@ -18,11 +18,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controller.dart';
-import '../widget/more_button.dart';
 import '/themes.dart';
 import '/util/global_key.dart';
 import '/util/platform_utils.dart';
+import '../controller.dart';
+import '../widget/more_button.dart';
 
 /// Visual representation of the [MessageFieldController.panel].
 ///

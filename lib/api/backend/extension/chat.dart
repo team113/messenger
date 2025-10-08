@@ -15,21 +15,21 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
-import '/domain/model/chat_info.dart';
-import '/domain/model/chat_item_quote.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_info.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
 import '/store/chat.dart';
+import '/store/model/chat.dart';
 import '/store/model/chat_call.dart';
 import '/store/model/chat_item.dart';
-import '/store/model/chat.dart';
 import '/store/model/chat_member.dart';
+import '../schema.dart';
 import 'call.dart';
 import 'file.dart';
 import 'user.dart';

@@ -19,8 +19,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../widget/headline.dart';
-import '../widget/headlines.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
@@ -35,6 +33,8 @@ import '/ui/page/home/widget/sharable.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '../widget/headline.dart';
+import '../widget/headlines.dart';
 
 /// [Routes.style] fields section.
 class FieldsSection {

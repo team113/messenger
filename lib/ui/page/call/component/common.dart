@@ -18,11 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controller.dart';
-import '../widget/call_button.dart';
-import '../widget/call_title.dart';
-import '../widget/dock.dart';
-import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -30,6 +25,11 @@ import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/media_utils.dart';
 import '/util/platform_utils.dart';
+import '../controller.dart';
+import '../widget/call_button.dart';
+import '../widget/call_title.dart';
+import '../widget/dock.dart';
+import '../widget/round_button.dart';
 
 /// Button in a [CallView].
 ///

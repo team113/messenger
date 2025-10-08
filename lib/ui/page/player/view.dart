@@ -27,8 +27,8 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';

@@ -18,8 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../widget/headline.dart';
-import '../widget/headlines.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/my_profile/widget/background_preview.dart';
@@ -28,6 +26,8 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svg.dart';
+import '../widget/headline.dart';
+import '../widget/headlines.dart';
 
 /// [Routes.style] navigation section.
 class NavigationSection {

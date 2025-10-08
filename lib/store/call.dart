@@ -26,9 +26,9 @@ import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -40,12 +40,12 @@ import '/provider/drift/chat_credentials.dart';
 import '/provider/gql/exceptions.dart'
     show
         DeclineChatCallException,
-        LeaveChatCallException,
         JoinChatCallException,
-        ToggleChatCallHandException,
+        LeaveChatCallException,
         RedialChatCallMemberException,
-        TransformDialogCallIntoGroupCallException,
-        RemoveChatCallMemberException;
+        RemoveChatCallMemberException,
+        ToggleChatCallHandException,
+        TransformDialogCallIntoGroupCallException;
 import '/provider/gql/graphql.dart';
 import '/store/user.dart';
 import '/util/backoff.dart';

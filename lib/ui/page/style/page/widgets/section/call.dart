@@ -17,10 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../common/dummy_chat.dart';
-import '../common/dummy_user.dart';
-import '../widget/headline.dart';
-import '../widget/headlines.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
@@ -30,14 +26,18 @@ import '/ui/page/call/widget/animated_participant.dart';
 import '/ui/page/call/widget/call_button.dart';
 import '/ui/page/call/widget/call_title.dart';
 import '/ui/page/call/widget/chat_info_card.dart';
-import '/ui/page/call/widget/dock_decorator.dart';
 import '/ui/page/call/widget/dock.dart';
+import '/ui/page/call/widget/dock_decorator.dart';
 import '/ui/page/call/widget/drop_box.dart';
 import '/ui/page/call/widget/launchpad.dart';
 import '/ui/page/call/widget/raised_hand.dart';
 import '/ui/page/call/widget/reorderable_fit.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/global_key.dart';
+import '../common/dummy_chat.dart';
+import '../common/dummy_user.dart';
+import '../widget/headline.dart';
+import '../widget/headlines.dart';
 
 /// [Routes.style] call section.
 class CallSection {

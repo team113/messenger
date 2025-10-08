@@ -20,9 +20,9 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart';

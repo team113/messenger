@@ -27,10 +27,10 @@ import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
+import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
-import '/ui/widget/text_field.dart';
-import '/routes.dart';
 import 'view.dart';
 
 /// Controller of an [AccountsSwitcherView].

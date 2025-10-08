@@ -18,11 +18,11 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:analyzer/dart/analysis/features.dart' show FeatureSet;
 import 'package:analyzer/dart/analysis/utilities.dart' show parseFile;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
+import 'package:args/args.dart';
 
 /// Command-line utility scanning `.dart` files for unused `.ftl` labels.
 ///

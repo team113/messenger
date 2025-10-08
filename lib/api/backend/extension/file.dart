@@ -15,8 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../schema.dart';
 import '/domain/model/file.dart';
+import '../schema.dart';
 
 /// Extension adding models construction from a [PlainFileMixin].
 extension PlainFileConversion on PlainFileMixin {

@@ -31,8 +31,8 @@ import '/api/backend/schema.dart'
     show
         AddUserEmailErrorCode,
         AddUserPhoneErrorCode,
-        Presence,
         CropAreaInput,
+        Presence,
         UpdateUserAvatarErrorCode,
         UpdateUserCallCoverErrorCode;
 import '/domain/model/application_settings.dart';

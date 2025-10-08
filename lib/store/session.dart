@@ -42,8 +42,8 @@ import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
 import 'event/session.dart';
-import 'model/session_data.dart';
 import 'model/session.dart';
+import 'model/session_data.dart';
 
 /// [Session]s repository.
 class SessionRepository extends DisposableInterface

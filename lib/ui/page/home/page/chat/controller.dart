@@ -35,9 +35,9 @@ import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 import '/api/backend/schema.dart'
     hide
         ChatItemQuoteInput,
-        ChatMessageTextInput,
         ChatMessageAttachmentsInput,
-        ChatMessageRepliesInput;
+        ChatMessageRepliesInput,
+        ChatMessageTextInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';

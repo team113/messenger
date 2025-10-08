@@ -20,10 +20,10 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/chat_item.dart';
-import '../domain/repository/paginated.dart';
 import '/store/model/chat_item.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
+import '../domain/repository/paginated.dart';
 import 'pagination.dart';
 
 /// Implementation of a [Paginated].

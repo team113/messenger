@@ -25,9 +25,9 @@ import 'dart:js_interop' as js;
 import 'dart:js_interop_unsafe';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '/util/log.dart';
 import '/util/platform_utils.dart';

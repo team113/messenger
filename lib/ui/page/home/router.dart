@@ -19,8 +19,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';

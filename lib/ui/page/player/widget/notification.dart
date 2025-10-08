@@ -17,10 +17,10 @@
 
 import 'package:flutter/material.dart';
 
-import '../controller.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '../controller.dart';
 
 /// [PlayerNotification] visual representation.
 class PlayerNotificationWidget extends StatelessWidget {

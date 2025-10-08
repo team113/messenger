@@ -17,12 +17,12 @@
 
 import 'package:flutter/material.dart';
 
-import '../widget/headline.dart';
-import '../widget/headlines.dart';
 import '/routes.dart';
 import '/ui/page/call/widget/double_bounce_indicator.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/widget/progress_indicator.dart';
+import '../widget/headline.dart';
+import '../widget/headlines.dart';
 
 /// [Routes.style] animations section.
 class AnimationsSection {

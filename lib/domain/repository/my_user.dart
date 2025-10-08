@@ -16,10 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+
+import '/api/backend/schema.dart' show CropAreaInput, Presence;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
-
-import '/api/backend/schema.dart' show Presence, CropAreaInput;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';

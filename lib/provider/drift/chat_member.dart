@@ -22,9 +22,9 @@ import 'package:log_me/log_me.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/model/chat_member.dart';
-import '/store/model/chat.dart';
 import 'common.dart';
 import 'drift.dart';
 import 'user.dart';

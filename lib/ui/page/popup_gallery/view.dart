@@ -18,8 +18,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';

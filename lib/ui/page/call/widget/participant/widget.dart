@@ -18,16 +18,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../controller.dart';
-import '../call_cover.dart';
-import '../raised_hand.dart';
-import '../video_view.dart';
 import '/config.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/double_bounce_indicator.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
+import '../../controller.dart';
+import '../call_cover.dart';
+import '../raised_hand.dart';
+import '../video_view.dart';
 
 /// [Participant] visual representation.
 class ParticipantWidget extends StatelessWidget {

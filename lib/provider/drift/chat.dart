@@ -23,14 +23,14 @@ import 'package:drift/drift.dart';
 import 'package:log_me/log_me.dart';
 
 import '/domain/model/avatar.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
-import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
+import '/store/model/chat_item.dart';
 import 'common.dart';
 import 'drift.dart';
 

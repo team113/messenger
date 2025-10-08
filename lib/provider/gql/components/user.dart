@@ -19,11 +19,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart'
     as dio
-    show MultipartFile, Options, FormData, DioException;
+    show DioException, FormData, MultipartFile, Options;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '../base.dart';
-import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
@@ -35,6 +33,8 @@ import '/store/model/my_user.dart';
 import '/store/model/session.dart';
 import '/store/model/user.dart';
 import '/util/log.dart';
+import '../base.dart';
+import '../exceptions.dart';
 
 /// [MyUser] related functionality.
 mixin UserGraphQlMixin {

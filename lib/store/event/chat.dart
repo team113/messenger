@@ -17,14 +17,14 @@
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
-import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
+import '/store/model/chat_item.dart';
 
 /// Possible kinds of a [ChatEvent].
 enum ChatEventKind {

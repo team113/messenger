@@ -19,12 +19,12 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../controller.dart';
 import '/themes.dart';
 import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/markdown.dart';
+import '../controller.dart';
 
 /// Visual representation of the provided [issue].
 class IssueWidget extends StatelessWidget {

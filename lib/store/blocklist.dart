@@ -41,8 +41,8 @@ import 'model/blocklist.dart';
 import 'model/my_user.dart';
 import 'paginated.dart';
 import 'pagination.dart';
-import 'pagination/drift_graphql.dart';
 import 'pagination/drift.dart';
+import 'pagination/drift_graphql.dart';
 import 'pagination/graphql.dart';
 import 'user.dart';
 

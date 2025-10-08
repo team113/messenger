@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../widget/headline.dart';
 import '/config.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -26,6 +25,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '../widget/headline.dart';
 
 /// [Routes.style] images section.
 class ImagesSection {

@@ -23,8 +23,8 @@ import 'package:drift/drift.dart';
 
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/model/welcome_message.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/user.dart';

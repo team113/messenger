@@ -18,8 +18,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/service/chat.dart';

@@ -44,16 +44,16 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
+import '/provider/drift/chat.dart';
 import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
-import '/provider/drift/chat.dart';
 import '/provider/drift/draft.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
         PostChatMessageException,
-        StaleVersionException,
-        ReadChatException;
+        ReadChatException,
+        StaleVersionException;
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination.dart';

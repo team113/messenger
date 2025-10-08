@@ -22,8 +22,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/repository/paginated.dart';
 import '/ui/page/player/controller.dart';
 import '/ui/page/player/view.dart';

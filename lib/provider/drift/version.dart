@@ -25,8 +25,8 @@ import '/domain/model/user.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
-import '/store/model/session_data.dart';
 import '/store/model/session.dart';
+import '/store/model/session_data.dart';
 import '/util/new_type.dart';
 import 'drift.dart';
 

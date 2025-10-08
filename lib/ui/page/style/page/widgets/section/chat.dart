@@ -18,8 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../common/cat.dart';
-import '../widget/headline.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -39,6 +37,8 @@ import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/chat/widget/notes_block.dart';
 import '/ui/page/home/page/chat/widget/time_label.dart';
 import '/ui/page/home/page/chat/widget/unread_label.dart';
+import '../common/cat.dart';
+import '../widget/headline.dart';
 
 /// [Routes.style] chat section.
 class ChatSection {

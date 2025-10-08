@@ -17,16 +17,16 @@
 
 import 'dart:convert';
 
-import 'package:dio/dio.dart' as dio show Options, FormData;
+import 'package:dio/dio.dart' as dio show FormData, Options;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '../base.dart';
-import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/util/log.dart';
+import '../base.dart';
+import '../exceptions.dart';
 
 /// Authentication related functionality.
 mixin AuthGraphQlMixin {

@@ -57,6 +57,8 @@ import '/provider/gql/exceptions.dart'
         AddChatMemberException,
         ClearChatException,
         ConnectionException,
+        CreateChatDirectLinkException,
+        CreateDialogException,
         DeleteChatDirectLinkException,
         DeleteChatForwardException,
         DeleteChatMessageException,
@@ -71,9 +73,7 @@ import '/provider/gql/exceptions.dart'
         ToggleChatMuteException,
         UnfavoriteChatException,
         UpdateChatAvatarException,
-        UploadAttachmentException,
-        CreateChatDirectLinkException,
-        CreateDialogException;
+        UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';

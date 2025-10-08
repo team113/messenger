@@ -17,8 +17,8 @@
 
 import 'dart:async';
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter/services.dart' show ClipboardData;
+import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:messenger/api/backend/schema.graphql.dart';
 import 'package:messenger/domain/model/chat.dart';

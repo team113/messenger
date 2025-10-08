@@ -16,10 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
-import '/store/model/chat_item.dart';
+import '/domain/model/chat_item.dart';
 import '/store/model/chat.dart';
+import '/store/model/chat_item.dart';
 
 // ignore: todo
 // TODO: Change List<Object?> to List<String>.

@@ -20,12 +20,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../animated_transition.dart';
-import '../fit_view.dart';
 import '/themes.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/global_key.dart';
+import '../animated_transition.dart';
+import '../fit_view.dart';
 import 'controller.dart';
 
 /// Widget placing its [panel]ed item in a floating panel allowing to swap

@@ -15,11 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../model/contact.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '../model/contact.dart';
 
 /// Possible kinds of a [ChatContactEvent].
 enum ChatContactEventKind {

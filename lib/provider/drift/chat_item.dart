@@ -21,8 +21,8 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:log_me/log_me.dart';
 
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/store/model/chat_item.dart';

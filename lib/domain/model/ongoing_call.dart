@@ -40,9 +40,9 @@ import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'chat.dart';
 import 'chat_call.dart';
 import 'chat_item.dart';
-import 'chat.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 

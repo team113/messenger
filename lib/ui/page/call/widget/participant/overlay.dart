@@ -19,13 +19,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
-import '../../controller.dart';
-import '../conditional_backdrop.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
+import '../../controller.dart';
+import '../conditional_backdrop.dart';
 
 /// [Participant] overlay displaying its `muted` and `video status` icons.
 class ParticipantOverlayWidget extends StatelessWidget {

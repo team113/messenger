@@ -18,9 +18,9 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item_quote.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';

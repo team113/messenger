@@ -16,8 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/api/backend/extension/user.dart';
+import 'package:messenger/provider/gql/graphql.dart';
 
 import '../parameters/online_status.dart';
 import '../parameters/users.dart';

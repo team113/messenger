@@ -15,11 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/store/model/contact.dart';
 import '/store/model/user.dart';
+import '../schema.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [ChatContactMixin].

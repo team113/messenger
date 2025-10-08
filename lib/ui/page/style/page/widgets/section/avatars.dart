@@ -18,10 +18,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../common/cat.dart';
-import '../widget/headlines.dart';
 import '/routes.dart';
 import '/ui/page/home/widget/avatar.dart';
+import '../common/cat.dart';
+import '../widget/headlines.dart';
 
 /// [Routes.style] avatars section.
 class AvatarsSection {
