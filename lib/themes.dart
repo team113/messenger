@@ -1089,7 +1089,7 @@ class Palette {
 
   /// Linear interpolation between two [Palette] objects based on a given [t]
   /// value.
-  static Palette lerp(Palette color, Palette? other, double t) {
+  factory Palette.lerp(Palette color, Palette? other, double t) {
     if (other is! Palette) {
       return color;
     }

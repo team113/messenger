@@ -186,7 +186,7 @@ class PreciseDateTime extends NewType<DateTime>
   /// ```dart
   /// final now = PreciseDateTime.now();
   /// ```
-  static PreciseDateTime now() => PreciseDateTime(DateTime.now());
+  factory PreciseDateTime.now() => PreciseDateTime(DateTime.now());
 
   /// Returns this [PreciseDateTime] value in the UTC time zone.
   PreciseDateTime toUtc() =>
@@ -208,7 +208,7 @@ class PreciseDateTime extends NewType<DateTime>
   /// * `'2022-06-03T12:38:34.366000Z'`
   /// * `'2022-06-03T12:38:35Z'`
   ///
-  static PreciseDateTime parse(String formattedString) {
+  factory PreciseDateTime.parse(String formattedString) {
     if (formattedString.contains('.')) {
       var split = formattedString.split('.');
       if (split[1].length != 7) {

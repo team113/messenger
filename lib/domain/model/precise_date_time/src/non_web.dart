@@ -158,7 +158,7 @@ class PreciseDateTime extends NewType<DateTime>
   /// ```dart
   /// final now = PreciseDateTime.now();
   /// ```
-  static PreciseDateTime now() => PreciseDateTime(DateTime.now());
+  factory PreciseDateTime.now() => PreciseDateTime(DateTime.now());
 
   /// Returns this [PreciseDateTime] value in the UTC time zone.
   PreciseDateTime toUtc() => PreciseDateTime(val.toUtc());
@@ -220,6 +220,6 @@ class PreciseDateTime extends NewType<DateTime>
   /// For example, "2020-01-42" will be parsed as 2020-02-11, because the last
   /// valid date in that month is 2020-01-31, so 42 days is interpreted as 31
   /// days of that month plus 11 days into the next month.
-  static PreciseDateTime parse(String formattedString) =>
+  factory PreciseDateTime.parse(String formattedString) =>
       PreciseDateTime(DateTime.parse(formattedString));
 }

@@ -111,7 +111,7 @@ class ChatContactFavoritePosition extends NewType<double>
   const ChatContactFavoritePosition(super.val);
 
   /// Parses the provided [val] as a [ChatContactFavoritePosition].
-  static ChatContactFavoritePosition parse(String val) =>
+  factory ChatContactFavoritePosition.parse(String val) =>
       ChatContactFavoritePosition(double.parse(val));
 
   @override
