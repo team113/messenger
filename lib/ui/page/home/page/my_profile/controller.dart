@@ -500,7 +500,7 @@ class MyProfileController extends GetxController {
         final text = welcome.field.text.trim();
 
         if (text.isNotEmpty || welcome.attachments.isNotEmpty) {
-          final String previousText = text.toString();
+          final String previousText = text;
           final List<Attachment> previousAttachments = welcome.attachments
               .map((e) => e.value)
               .toList();

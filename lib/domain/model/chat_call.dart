@@ -171,7 +171,7 @@ class ChatCallCredentials {
   int get hashCode => val.hashCode;
 
   @override
-  String toString() => val.toString();
+  String toString() => val;
 
   @override
   bool operator ==(Object other) =>
