@@ -201,6 +201,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasGroupWithMembers,
         hasGroups,
         haveGroup1Named,
+        haveGroup2,
         haveGroup2Named,
         haveGroupNamed,
         haveInternetWithDelay,

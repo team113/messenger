@@ -11,7 +11,6 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/50)
 
-
 ### Added
 
 - UI:
