@@ -126,20 +126,19 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 children: [
                   FitView(
                     children: [
-                      _primary.entry == null
-                          ? KeyedSubtree(
-                              key: _primary.itemKey,
-                              child: Stack(
-                                children: [
-                                  widget.itemBuilder(_primary.item),
-                                  AnimatedDelayedSwitcher(
-                                    duration: 100.milliseconds,
-                                    child: widget.overlayBuilder(_primary.item),
-                                  ),
-                                ],
+                      if (_primary.entry == null)
+                        KeyedSubtree(
+                          key: _primary.itemKey,
+                          child: Stack(
+                            children: [
+                              widget.itemBuilder(_primary.item),
+                              AnimatedDelayedSwitcher(
+                                duration: 100.milliseconds,
+                                child: widget.overlayBuilder(_primary.item),
                               ),
-                            )
-                          : Container(),
+                            ],
+                          ),
+                        ),
                       if (widget.fit)
                         KeyedSubtree(
                           key: _paneled.itemKey,
