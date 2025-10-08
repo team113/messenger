@@ -210,12 +210,12 @@ class PreciseDateTime extends NewType<DateTime>
   ///
   factory PreciseDateTime.parse(String formattedString) {
     if (formattedString.contains('.')) {
-      var split = formattedString.split('.');
+      final split = formattedString.split('.');
       if (split[1].length != 7) {
         split[1] = '${split[1].replaceFirst('Z', '').padRight(6, '0')}Z';
       }
 
-      int microseconds =
+      final int microseconds =
           int.tryParse(split[1].substring(3).replaceFirst('Z', '')) ?? 0;
       split[1] = '${split[1].substring(0, 3)}Z';
       return PreciseDateTime(
@@ -230,7 +230,7 @@ class PreciseDateTime extends NewType<DateTime>
   @override
   String toString() {
     final formattedString = val.toString();
-    var split = formattedString.split('.');
+    final split = formattedString.split('.');
     if (microsecond > 0) {
       split[1] = split[1].replaceFirst('Z', '');
       String microsecondsStr = microsecond.toString().padLeft(3, '0');
@@ -242,7 +242,7 @@ class PreciseDateTime extends NewType<DateTime>
       }
 
       split[1] = split[1].substring(0, 3) + microsecondsStr;
-      var result = '${split.join('.')}Z';
+      final result = '${split.join('.')}Z';
       return result;
     }
 

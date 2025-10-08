@@ -179,9 +179,9 @@ extension L10nDateExtension on DateTime {
   ///
   /// [DateTime.now] is used if [now] is `null`.
   String toRelative([DateTime? now]) {
-    DateTime local = isUtc ? toLocal() : this;
-    DateTime relative = now ?? DateTime.now();
-    int days = relative._julianDayNumber() - local._julianDayNumber();
+    final DateTime local = isUtc ? toLocal() : this;
+    final DateTime relative = now ?? DateTime.now();
+    final int days = relative._julianDayNumber() - local._julianDayNumber();
 
     int months = 0;
     if (days >= 28) {
@@ -227,19 +227,19 @@ extension L10nDurationExtension on Duration {
   String hhMmSs() {
     var microseconds = inMicroseconds;
 
-    var hours = microseconds ~/ Duration.microsecondsPerHour;
+    final hours = microseconds ~/ Duration.microsecondsPerHour;
     microseconds = microseconds.remainder(Duration.microsecondsPerHour);
-    var hoursPadding = hours < 10 ? '0' : '';
+    final hoursPadding = hours < 10 ? '0' : '';
 
     if (microseconds < 0) microseconds = -microseconds;
 
-    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
+    final minutes = microseconds ~/ Duration.microsecondsPerMinute;
     microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
-    var minutesPadding = minutes < 10 ? '0' : '';
+    final minutesPadding = minutes < 10 ? '0' : '';
 
-    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
+    final seconds = microseconds ~/ Duration.microsecondsPerSecond;
     microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
-    var secondsPadding = seconds < 10 ? '0' : '';
+    final secondsPadding = seconds < 10 ? '0' : '';
 
     if (hours == 0) {
       return '$minutesPadding$minutes:$secondsPadding$seconds';
@@ -258,13 +258,13 @@ extension L10nDurationExtension on Duration {
 
     if (microseconds < 0) microseconds = -microseconds;
 
-    var hours = microseconds ~/ Duration.microsecondsPerHour;
+    final hours = microseconds ~/ Duration.microsecondsPerHour;
     microseconds = microseconds.remainder(Duration.microsecondsPerHour);
 
-    var minutes = microseconds ~/ Duration.microsecondsPerMinute;
+    final minutes = microseconds ~/ Duration.microsecondsPerMinute;
     microseconds = microseconds.remainder(Duration.microsecondsPerMinute);
 
-    var seconds = microseconds ~/ Duration.microsecondsPerSecond;
+    final seconds = microseconds ~/ Duration.microsecondsPerSecond;
     microseconds = microseconds.remainder(Duration.microsecondsPerSecond);
 
     String result = '$seconds ${'label_duration_second_short'.l10n}';

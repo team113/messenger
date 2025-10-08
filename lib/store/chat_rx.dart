@@ -302,7 +302,7 @@ class RxChatImpl extends RxChat {
     Log.debug('get firstUnread', '$runtimeType($id)');
 
     if (chat.value.unreadCount != 0) {
-      PreciseDateTime? myRead = chat.value.lastReads
+      final PreciseDateTime? myRead = chat.value.lastReads
           .firstWhereOrNull((e) => e.memberId == me)
           ?.at;
 
@@ -662,13 +662,13 @@ class RxChatImpl extends RxChat {
       firstUnreadIndex = messages.indexOf(firstUnread!);
     }
 
-    int lastReadIndex = messages.indexWhere(
+    final int lastReadIndex = messages.indexWhere(
       (m) => m.value.id == untilId,
       firstUnreadIndex,
     );
 
     if (lastReadIndex != -1 && firstUnreadIndex != -1) {
-      int read = messages
+      final int read = messages
           .skip(firstUnreadIndex)
           .take(lastReadIndex - firstUnreadIndex + 1)
           .where((e) => !e.value.id.isLocal && e.value.author.id != me)
@@ -891,7 +891,7 @@ class RxChatImpl extends RxChat {
     }
 
     if (dto.value.lastItem?.id == itemId) {
-      var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
+      final lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
 
       if (lastItem != null) {
         dto.value.lastItem = lastItem.value;
@@ -1026,7 +1026,7 @@ class RxChatImpl extends RxChat {
     Log.debug('attachments(item: $item)', '$runtimeType($id)');
 
     ChatItemsCursor? cursor;
-    ChatItemId? key = item;
+    final ChatItemId? key = item;
 
     if (item != null) {
       final DtoChatItem? dto = _pagination?.items[item];
@@ -2001,7 +2001,7 @@ class RxChatImpl extends RxChat {
 
         // Version ending with zeros mean it was received and persisted via
         // remote pagination.
-        bool versionAccounted =
+        final bool versionAccounted =
             versioned.ver > (ver ?? dto.ver) &&
             (ver ?? dto.ver).val.endsWith('000000000');
 
@@ -2176,7 +2176,7 @@ class RxChatImpl extends RxChat {
 
             case ChatEventKind.callMemberLeft:
               event as EventChatCallMemberLeft;
-              int? i =
+              final int? i =
                   dto.value.ongoingCall?.members.indexWhere(
                     (e) => e.user.id == event.user.id,
                   ) ??

@@ -54,7 +54,9 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
-    List<Page<dynamic>> pages = [const CustomPage(child: SizedBox.shrink())];
+    final List<Page<dynamic>> pages = [
+      const CustomPage(child: SizedBox.shrink()),
+    ];
 
     for (String route in _state.routes) {
       if (route.endsWith('/')) {
@@ -71,7 +73,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         );
       } else if (route.startsWith('${Routes.chats}/') &&
           route.endsWith(Routes.chatInfo)) {
-        String id = route
+        final String id = route
             .replaceFirst('${Routes.chats}/', '')
             .replaceAll(Routes.chatInfo, '');
         pages.add(
@@ -82,7 +84,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           ),
         );
       } else if (route.startsWith('${Routes.chats}/')) {
-        String id = route
+        final String id = route
             .replaceFirst('${Routes.chats}/', '')
             .replaceAll(Routes.chatInfo, '');
         pages.add(

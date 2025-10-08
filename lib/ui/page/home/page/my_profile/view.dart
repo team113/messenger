@@ -177,8 +177,9 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
       return Obx(() {
         final Widget animated;
 
-        bool hasPassword = c.myUser.value?.hasPassword == true;
-        bool hasEmail = c.myUser.value?.emails.confirmed.isNotEmpty == true;
+        final bool hasPassword = c.myUser.value?.hasPassword == true;
+        final bool hasEmail =
+            c.myUser.value?.emails.confirmed.isNotEmpty == true;
 
         if (!hasPassword || !hasEmail) {
           final InputBorder border = OutlineInputBorder(

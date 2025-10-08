@@ -515,7 +515,7 @@ class CallController extends GetxController {
       'state': state.value.name,
     };
 
-    bool isOutgoing =
+    final bool isOutgoing =
         (outgoing || state.value == OngoingCallState.local) && !started;
     if (isOutgoing) {
       args['type'] = 'outgoing';
@@ -628,7 +628,7 @@ class CallController extends GetxController {
               dockRect.value = dockKey.globalPaintBounds;
               relocateSecondary();
             });
-            DateTime begunAt = DateTime.now();
+            final DateTime begunAt = DateTime.now();
             _durationTimer = FixedTimer.periodic(
               const Duration(seconds: 1),
               () {
@@ -1343,12 +1343,12 @@ class CallController extends GetxController {
           secondaryBottomShifted != null) {
         // Intersection is less than zero and the secondary panel is higher than
         // it was before, so move it to its original position.
-        double bottom =
+        final double bottom =
             secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
 
         if (bottom > secondaryBottomShifted!) {
-          double difference = bottom - secondaryBottomShifted!;
+          final double difference = bottom - secondaryBottomShifted!;
           if (secondaryBottom.value != null) {
             if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
@@ -1387,7 +1387,7 @@ class CallController extends GetxController {
     secondaryTop.value ??=
         size.height - secondaryHeight.value - (secondaryBottom.value ?? 0);
 
-    List<MapEntry<Alignment, double>> alignments = [
+    final List<MapEntry<Alignment, double>> alignments = [
       MapEntry(
         Alignment.topLeft,
         Point(
@@ -1418,9 +1418,9 @@ class CallController extends GetxController {
       ),
     ]..sort((e1, e2) => e1.value.compareTo(e2.value));
 
-    Alignment align = alignments.first.key;
-    double left = secondaryLeft.value!;
-    double top = secondaryTop.value!;
+    final Alignment align = alignments.first.key;
+    final double left = secondaryLeft.value!;
+    final double top = secondaryTop.value!;
 
     secondaryTop.value = null;
     secondaryLeft.value = null;
@@ -1454,7 +1454,7 @@ class CallController extends GetxController {
 
   /// Calculates the [secondaryPanningOffset] based on the provided [offset].
   void calculateSecondaryPanning(Offset offset) {
-    Offset position =
+    final Offset position =
         (secondaryKey.currentContext?.findRenderObject() as RenderBox?)
             ?.localToGlobal(Offset.zero) ??
         Offset.zero;
@@ -1565,9 +1565,9 @@ class CallController extends GetxController {
   }) {
     switch (x) {
       case ScaleModeX.left:
-        double w = _applyWidth(context, width.value - dx!);
+        final double w = _applyWidth(context, width.value - dx!);
         if (width.value - dx == w) {
-          double l = _applyLeft(context, left.value + (width.value - w));
+          final double l = _applyLeft(context, left.value + (width.value - w));
           if (left.value + (width.value - w) == l) {
             left.value = l;
             width.value = w;
@@ -1579,9 +1579,9 @@ class CallController extends GetxController {
         break;
 
       case ScaleModeX.right:
-        double w = _applyWidth(context, width.value - dx!);
+        final double w = _applyWidth(context, width.value - dx!);
         if (width.value - dx == w) {
-          double r = left.value + w;
+          final double r = left.value + w;
           if (r < context.mediaQuerySize.width) {
             width.value = w;
           }
@@ -1594,9 +1594,9 @@ class CallController extends GetxController {
 
     switch (y) {
       case ScaleModeY.top:
-        double h = _applyHeight(context, height.value - dy!);
+        final double h = _applyHeight(context, height.value - dy!);
         if (height.value - dy == h) {
-          double t = _applyTop(context, top.value + (height.value - h));
+          final double t = _applyTop(context, top.value + (height.value - h));
           if (top.value + (height.value - h) == t) {
             top.value = t;
             height.value = h;
@@ -1608,9 +1608,9 @@ class CallController extends GetxController {
         break;
 
       case ScaleModeY.bottom:
-        double h = _applyHeight(context, height.value - dy!);
+        final double h = _applyHeight(context, height.value - dy!);
         if (height.value - dy == h) {
-          double b = top.value + h;
+          final double b = top.value + h;
           if (b < context.mediaQuerySize.height) {
             height.value = h;
           }
@@ -2150,7 +2150,7 @@ class CallController extends GetxController {
             break;
 
           case OperationKind.removed:
-            bool wasNotEmpty = primary.isNotEmpty;
+            final bool wasNotEmpty = primary.isNotEmpty;
             paneled.removeWhere((m) => m.member.id == e.key);
             locals.removeWhere((m) => m.member.id == e.key);
             focused.removeWhere((m) => m.member.id == e.key);

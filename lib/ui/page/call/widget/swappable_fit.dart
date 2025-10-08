@@ -255,7 +255,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
     final layout = _constraints?.biggest ?? MediaQuery.of(router.context!).size;
 
     for (int j = 0; j < _items.length; ++j) {
-      _SwappableItem<T> i = _items[j];
+      final _SwappableItem<T> i = _items[j];
       ++_locked;
 
       i.entry = OverlayEntry(

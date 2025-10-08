@@ -20,11 +20,19 @@ import 'package:messenger/domain/model/precise_date_time/src/web.dart';
 
 void main() async {
   test('PreciseDateTime returns correct results', () {
-    PreciseDateTime val1 = PreciseDateTime.parse('2022-06-03T12:38:34.366158Z');
-    PreciseDateTime val2 = PreciseDateTime.parse('2022-06-03T12:38:34.366Z');
-    PreciseDateTime val3 = PreciseDateTime.parse('2022-06-03T12:38:34.366000Z');
-    PreciseDateTime val4 = PreciseDateTime.parse('2022-06-03T12:38:35Z');
-    PreciseDateTime val5 = PreciseDateTime.parse('2022-06-03T12:38:34.366750Z');
+    final PreciseDateTime val1 = PreciseDateTime.parse(
+      '2022-06-03T12:38:34.366158Z',
+    );
+    final PreciseDateTime val2 = PreciseDateTime.parse(
+      '2022-06-03T12:38:34.366Z',
+    );
+    final PreciseDateTime val3 = PreciseDateTime.parse(
+      '2022-06-03T12:38:34.366000Z',
+    );
+    final PreciseDateTime val4 = PreciseDateTime.parse('2022-06-03T12:38:35Z');
+    final PreciseDateTime val5 = PreciseDateTime.parse(
+      '2022-06-03T12:38:34.366750Z',
+    );
 
     expect(val1.isBefore(val2), false);
     expect(val1.isAfter(val2), true);
@@ -91,21 +99,21 @@ void main() async {
       '2022-06-03 12:38:34.366750Z',
     );
 
-    var val6 = PreciseDateTime.parse('2022-06-03 12:38:34.366750Z');
+    final val6 = PreciseDateTime.parse('2022-06-03 12:38:34.366750Z');
     expect(val6.val.hour, 12);
     expect(val6.val.minute, 38);
     expect(val6.val.second, 34);
     expect(val6.val.millisecond, 366);
     expect(val6.microsecond, 750);
 
-    var val7 = PreciseDateTime.parse('2021-07-04T13:39:35.477Z');
+    final val7 = PreciseDateTime.parse('2021-07-04T13:39:35.477Z');
     expect(val7.val.hour, 13);
     expect(val7.val.minute, 39);
     expect(val7.val.second, 35);
     expect(val7.val.millisecond, 477);
     expect(val7.microsecond, 0);
 
-    var val8 = PreciseDateTime.fromMicrosecondsSinceEpoch(1640902500040001);
+    final val8 = PreciseDateTime.fromMicrosecondsSinceEpoch(1640902500040001);
     expect(val8.val.year, 2021);
     expect(val8.val.month, 12);
     expect(val8.val.day, 30);

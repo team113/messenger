@@ -1111,7 +1111,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _repliedMessage(ChatItemQuote item, BoxConstraints constraints) {
     final style = Theme.of(context).style;
 
-    bool fromMe = item.author == widget.me;
+    final bool fromMe = item.author == widget.me;
 
     Widget? content;
     List<Widget> additional = [];
@@ -1594,8 +1594,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             trailing: const SvgIcon(SvgIcons.delete19),
                             inverted: const SvgIcon(SvgIcons.delete19White),
                             onPressed: () async {
-                              bool isMonolog = widget.chat.value!.isMonolog;
-                              bool deletable =
+                              final bool isMonolog =
+                                  widget.chat.value!.isMonolog;
+                              final bool deletable =
                                   _fromMe &&
                                   !widget.chat.value!.isRead(
                                     widget.item.value,

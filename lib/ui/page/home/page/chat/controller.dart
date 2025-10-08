@@ -923,7 +923,9 @@ class ChatController extends GetxController {
             _topVisibleItem = positions.last;
 
             _lastVisibleItem = positions.firstWhereOrNull((e) {
-              ListElement? element = elements.values.elementAtOrNull(e.index);
+              final ListElement? element = elements.values.elementAtOrNull(
+                e.index,
+              );
               return element is ChatMessageElement ||
                   element is ChatInfoElement ||
                   element is ChatCallElement ||
@@ -1004,7 +1006,7 @@ class ChatController extends GetxController {
                 }
 
                 _determineFirstUnread();
-                var result = _calculateListViewIndex();
+                final result = _calculateListViewIndex();
                 initIndex = result.index;
                 initOffset = result.offset;
 
@@ -1680,7 +1682,7 @@ class ChatController extends GetxController {
   /// dialog.
   Future<void> downloadMediaAs(List<Attachment> attachments) async {
     try {
-      String? to = attachments.length > 1
+      final String? to = attachments.length > 1
           ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
           : await FilePicker.platform.saveFile(
               fileName: attachments.first.filename,
@@ -2336,7 +2338,7 @@ class ChatController extends GetxController {
     Future.delayed(1.milliseconds, () {
       if (listController.hasClients) {
         if (chat?.messages.isEmpty == false) {
-          var result = _calculateListViewIndex(false);
+          final result = _calculateListViewIndex(false);
 
           if (listController.position.hasContentDimensions) {
             listController.jumpTo(
@@ -2658,7 +2660,7 @@ extension IsChatItemEditable on ChatItem {
   bool isEditable(Chat chat, UserId me) {
     if (author.id == me) {
       if (this is ChatMessage) {
-        bool isRead = chat.isRead(this, me);
+        final bool isRead = chat.isRead(this, me);
         return at
                 .add(ChatController.editMessageTimeout)
                 .isAfter(PreciseDateTime.now()) ||

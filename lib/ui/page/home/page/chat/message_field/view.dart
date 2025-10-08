@@ -495,7 +495,10 @@ class MessageFieldView extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Obx(() {
-                int take = max(((constraints.maxWidth - 160) / 50).round(), 0);
+                final int take = max(
+                  ((constraints.maxWidth - 160) / 50).round(),
+                  0,
+                );
 
                 SchedulerBinding.instance.addPostFrameCallback((_) {
                   c.canPin.value = c.buttons.length < take;

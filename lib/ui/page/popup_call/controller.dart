@@ -74,7 +74,7 @@ class PopupCallController extends GetxController {
 
   @override
   void onInit() {
-    WebStoredCall? stored = WebUtils.getCall(chatId);
+    final WebStoredCall? stored = WebUtils.getCall(chatId);
     if (stored == null || WebUtils.getCredentials(me) == null) {
       return WebUtils.closeWindow();
     }
@@ -107,7 +107,7 @@ class PopupCallController extends GetxController {
           WebUtils.closeWindow();
         }
       } else if (e.key == 'call_${call?.value.chatId}') {
-        var stored = WebStoredCall.fromJson(json.decode(e.newValue!));
+        final stored = WebStoredCall.fromJson(json.decode(e.newValue!));
         call?.value.call.value = stored.call;
         call?.value.creds = call?.value.creds ?? stored.creds;
         call?.value.deviceId = call?.value.deviceId ?? stored.deviceId;

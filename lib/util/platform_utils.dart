@@ -167,7 +167,7 @@ class PlatformUtilsImpl {
     if (isWeb) {
       return WebUtils.onFocusChanged;
     } else if (isDesktop) {
-      _WindowListener listener = _WindowListener(
+      final _WindowListener listener = _WindowListener(
         onBlur: () => _focusController!.add(false),
         onFocus: () => _focusController!.add(true),
       );
@@ -281,7 +281,7 @@ class PlatformUtilsImpl {
     } else if (isDesktop) {
       StreamController<bool>? controller;
 
-      var windowListener = _WindowListener(
+      final windowListener = _WindowListener(
         onEnterFullscreen: () => controller!.add(true),
         onLeaveFullscreen: () => controller!.add(false),
       );
@@ -401,7 +401,7 @@ class PlatformUtilsImpl {
 
       // TODO: Remove when leanflutter/window_manager#131 is fixed:
       //       https://github.com/leanflutter/window_manager/issues/131
-      Size size = await WindowManager.instance.getSize();
+      final Size size = await WindowManager.instance.getSize();
       await WindowManager.instance.setSize(Size(size.width + 1, size.height));
     } else if (isMobile) {
       await SystemChrome.setEnabledSystemUIMode(
@@ -435,8 +435,8 @@ class PlatformUtilsImpl {
       final Directory directory = temporary
           ? await temporaryDirectory
           : await downloadsDirectory;
-      String name = p.basenameWithoutExtension(filename);
-      String ext = p.extension(filename);
+      final String name = p.basenameWithoutExtension(filename);
+      final String ext = p.extension(filename);
       File file = File('${directory.path}/$filename');
 
       // TODO: Compare hashes instead of sizes.

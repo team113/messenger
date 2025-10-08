@@ -50,12 +50,12 @@ class NativeFile {
     // If possible, determine the `MIME` type right away.
     if (mime == null) {
       if (path != null) {
-        var type = lookupMimeType(path!);
+        final type = lookupMimeType(path!);
         if (type != null) {
           mime = MediaType.parse(type);
         }
       } else if (bytes != null) {
-        var type = lookupMimeType(name, headerBytes: bytes);
+        final type = lookupMimeType(name, headerBytes: bytes);
         if (type != null) {
           mime = MediaType.parse(type);
         }
@@ -203,7 +203,7 @@ class NativeFile {
       if (_readStream != null) {
         return Future(() async {
           bytes.value = Uint8List.fromList(await _readStream!.first);
-          var type = MimeResolver.lookup(
+          final type = MimeResolver.lookup(
             path ?? name,
             headerBytes: bytes.value,
           );
@@ -222,11 +222,11 @@ class NativeFile {
   /// __Note:__ Be sure not to read the [stream] while this method executes.
   Future<Uint8List?> readFile() {
     return _readGuard.protect(() async {
-      var content = stream;
+      final content = stream;
       if (content != null) {
-        List<int> data = [];
+        final List<int> data = [];
 
-        StreamQueue queue = StreamQueue(content);
+        final StreamQueue queue = StreamQueue(content);
         while (await queue.hasNext) {
           data.addAll(await queue.next);
         }

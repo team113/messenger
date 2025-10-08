@@ -90,7 +90,7 @@ void main() async {
 
   Config.disableDragArea = true;
 
-  var graphQlProvider = MockGraphQlProvider();
+  final graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
@@ -222,7 +222,7 @@ void main() async {
       text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
     ),
   ).thenAnswer((_) {
-    var event = {
+    final event = {
       '__typename': 'ChatEventsVersioned',
       'events': [
         {
@@ -364,7 +364,7 @@ void main() async {
   testWidgets('ChatView successfully edits a ChatMessage', (
     WidgetTester tester,
   ) async {
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(
           AuthRepository(Get.find(), myUserProvider, credentialsProvider),
@@ -380,7 +380,7 @@ void main() async {
 
     authService.init();
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
         settingsProvider,
@@ -388,11 +388,11 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository = UserRepository(
+    final UserRepository userRepository = UserRepository(
       graphQlProvider,
       userProvider,
     );
-    BlocklistRepository blocklistRepository = Get.put(
+    final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
         blocklistProvider,
@@ -409,20 +409,21 @@ void main() async {
       settingsRepository,
       me: const UserId('me'),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        versionProvider,
-        monologProvider,
-        me: const UserId('me'),
-      ),
-    );
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
+          ChatRepository(
+            graphQlProvider,
+            chatProvider,
+            chatItemProvider,
+            chatMemberProvider,
+            callRepository,
+            draftProvider,
+            userRepository,
+            versionProvider,
+            monologProvider,
+            me: const UserId('me'),
+          ),
+        );
 
     final contactRepository = Get.put(
       ContactRepository(
@@ -434,7 +435,7 @@ void main() async {
     );
     Get.put(ContactService(contactRepository));
 
-    MyUserRepository myUserRepository = MyUserRepository(
+    final MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
       blocklistRepository,
@@ -444,7 +445,9 @@ void main() async {
     Get.put(MyUserService(authService, myUserRepository));
 
     Get.put(UserService(userRepository));
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService = Get.put(
+      ChatService(chatRepository, authService),
+    );
     Get.put(CallService(authService, chatService, callRepository));
     Get.put(NotificationService(graphQlProvider));
 
@@ -461,7 +464,7 @@ void main() async {
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    var message = find.richText('edit message', skipOffstage: false);
+    final message = find.richText('edit message', skipOffstage: false);
     expect(message, findsOneWidget);
     await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 10));

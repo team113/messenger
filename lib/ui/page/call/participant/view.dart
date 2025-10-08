@@ -160,7 +160,10 @@ class ParticipantView extends StatelessWidget {
                                 bool inCall = false;
                                 bool isRedialed = false;
 
-                                CallMember? member = call.value.members.values
+                                final CallMember? member = call
+                                    .value
+                                    .members
+                                    .values
                                     .firstWhereOrNull(
                                       (e) => e.id.userId == user.id,
                                     );

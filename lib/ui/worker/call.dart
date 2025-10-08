@@ -841,7 +841,7 @@ class CallWorker extends DisposableService {
               await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
             }
           } else if (events.$$typename == 'ChatEventsVersioned') {
-            var mixin =
+            final mixin =
                 events
                     as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
 
@@ -867,7 +867,7 @@ class CallWorker extends DisposableService {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallMemberLeft') {
-                var node =
+                final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
                 final call = _callService.calls[chatId];
 

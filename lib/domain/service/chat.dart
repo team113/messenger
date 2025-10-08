@@ -300,7 +300,7 @@ class ChatService extends DisposableService {
       throw UnimplementedError('Deletion of $item is not implemented.');
     }
 
-    Chat? chat = chats[item.chatId]?.chat.value;
+    final Chat? chat = chats[item.chatId]?.chat.value;
 
     if (item is ChatMessage) {
       if (item.status.value != SendingStatus.error) {

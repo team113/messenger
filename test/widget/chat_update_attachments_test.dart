@@ -118,7 +118,7 @@ void main() async {
   Config.files = '';
   Config.disableDragArea = true;
 
-  var graphQlProvider = MockGraphQlProvider();
+  final graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
@@ -417,7 +417,7 @@ void main() async {
       graphQlProvider.contactsEvents(any),
     ).thenAnswer((_) => contactEvents.stream);
 
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(
           AuthRepository(Get.find(), myUserProvider, credentialsProvider),
@@ -433,10 +433,10 @@ void main() async {
 
     authService.init();
 
-    UserRepository userRepository = Get.put(
+    final UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider),
     );
-    BlocklistRepository blocklistRepository = Get.put(
+    final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
         blocklistProvider,
@@ -445,7 +445,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
         settingsProvider,
@@ -463,20 +463,21 @@ void main() async {
       me: const UserId('me'),
     );
 
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        versionProvider,
-        monologProvider,
-        me: const UserId('me'),
-      ),
-    );
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
+          ChatRepository(
+            graphQlProvider,
+            chatProvider,
+            chatItemProvider,
+            chatMemberProvider,
+            callRepository,
+            draftProvider,
+            userRepository,
+            versionProvider,
+            monologProvider,
+            me: const UserId('me'),
+          ),
+        );
 
     final contactRepository = Get.put(
       ContactRepository(
@@ -503,7 +504,9 @@ void main() async {
     );
 
     Get.put(UserService(userRepository));
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService = Get.put(
+      ChatService(chatRepository, authService),
+    );
     Get.put(CallService(authService, chatService, callRepository));
 
     Get.put(CacheWorker(cacheProvider, null));

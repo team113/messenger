@@ -356,7 +356,7 @@ class GraphQlClient {
     SubscriptionConnection? connection;
     connection = SubscriptionConnection(
       stream.expand((event) {
-        Object? e = GraphQlProviderExceptions.parse(event);
+        final Object? e = GraphQlProviderExceptions.parse(event);
 
         if (e != null) {
           if (e is AuthorizationException) {

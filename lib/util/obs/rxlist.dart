@@ -114,14 +114,14 @@ class RxObsList<E> extends ListMixin<E>
 
   @override
   bool remove(Object? element) {
-    bool result = _value.remove(element);
+    final bool result = _value.remove(element);
     refresh();
     return result;
   }
 
   @override
   E removeAt(int index) {
-    E result = _value.removeAt(index);
+    final E result = _value.removeAt(index);
     refresh();
     return result;
   }

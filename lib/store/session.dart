@@ -372,7 +372,7 @@ class SessionRepository extends DisposableInterface
         this.sessions.sort();
         this.sessions.refresh();
       } else if (events.$$typename == 'SessionEventsVersioned') {
-        var mixin = events as SessionEventsVersionedMixin;
+        final mixin = events as SessionEventsVersionedMixin;
         yield SessionEventsVersioned(
           mixin.events.map((e) => _sessionEvent(e)).toList(),
           mixin.ver,

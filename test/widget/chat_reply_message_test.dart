@@ -89,7 +89,7 @@ void main() async {
 
   Config.disableDragArea = true;
 
-  var graphQlProvider = MockGraphQlProvider();
+  final graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
@@ -237,7 +237,7 @@ void main() async {
       repliesTo: [],
     ),
   ).thenAnswer((_) {
-    var event = {
+    final event = {
       '__typename': 'ChatEventsVersioned',
       'events': [
         {
@@ -503,7 +503,9 @@ void main() async {
     Get.put(MyUserService(authService, myUserRepository));
 
     Get.put(UserService(userRepository));
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService = Get.put(
+      ChatService(chatRepository, authService),
+    );
     Get.put(CallService(authService, chatService, callRepository));
 
     await tester.pumpWidget(
@@ -525,7 +527,7 @@ void main() async {
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    var message = find.richText('text message', skipOffstage: false);
+    final message = find.richText('text message', skipOffstage: false);
     expect(message, findsOneWidget);
 
     await tester.longPress(message);

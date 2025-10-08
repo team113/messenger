@@ -85,7 +85,7 @@ class FitWrap extends StatelessWidget {
     required Axis axis,
     required int length,
   }) {
-    var size = min(
+    final size = min(
       maxSize,
       axis == Axis.horizontal
           ? constraints.height / length
@@ -103,14 +103,14 @@ class FitWrap extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        double size = calculateSize(
+        final double size = calculateSize(
           maxSize: maxSize,
           constraints: Size(constraints.maxWidth, constraints.maxHeight),
           length: children.length,
           axis: axis,
         );
 
-        bool fitView = useFitView(
+        final bool fitView = useFitView(
           maxSize: maxSize,
           constraints: Size(constraints.maxWidth, constraints.maxHeight),
           length: children.length,

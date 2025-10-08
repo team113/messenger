@@ -41,7 +41,7 @@ class CallNotificationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    CallNotification notification = this.notification;
+    final CallNotification notification = this.notification;
     final String title;
 
     switch (notification.kind) {

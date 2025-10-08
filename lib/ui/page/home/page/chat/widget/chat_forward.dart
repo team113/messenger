@@ -569,7 +569,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       } else if (quote is ChatCallQuote) {
         String title = 'label_chat_call_ended'.l10n;
         String? time;
-        bool fromMe = widget.me == quote.author;
+        final bool fromMe = widget.me == quote.author;
         bool isMissed = false;
 
         final ChatCall? call = quote.original as ChatCall?;
@@ -1110,8 +1110,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           trailing: const SvgIcon(SvgIcons.delete19),
                           inverted: const SvgIcon(SvgIcons.delete19White),
                           onPressed: () async {
-                            bool isMonolog = widget.chat.value!.isMonolog;
-                            bool deletable =
+                            final bool isMonolog = widget.chat.value!.isMonolog;
+                            final bool deletable =
                                 widget.authorId == widget.me &&
                                 !widget.chat.value!.isRead(
                                   widget.forwards.first.value,

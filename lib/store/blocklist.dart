@@ -241,7 +241,7 @@ class BlocklistRepository extends DisposableInterface
     return _graphQlProvider.blocklistEvents(ver).asyncExpand((event) async* {
       Log.trace('_blocklistRemoteEvents(ver): ${event.data}', '$runtimeType');
 
-      var events = BlocklistEvents$Subscription.fromJson(
+      final events = BlocklistEvents$Subscription.fromJson(
         event.data!,
       ).blocklistEvents;
 
@@ -255,7 +255,7 @@ class BlocklistRepository extends DisposableInterface
             as BlocklistEvents$Subscription$BlocklistEvents$SubscriptionInitialized;
         // No-op.
       } else if (events.$$typename == 'Blocklist') {
-        var list =
+        final list =
             events as BlocklistEvents$Subscription$BlocklistEvents$Blocklist;
         yield BlocklistEventsBlocklist(
           list.blocklist.edges
@@ -274,7 +274,7 @@ class BlocklistRepository extends DisposableInterface
           list.blocklist.ver,
         );
       } else if (events.$$typename == 'BlocklistEventsVersioned') {
-        var mixin = events as BlocklistEventsVersionedMixin;
+        final mixin = events as BlocklistEventsVersionedMixin;
         yield BlocklistEventsEvent(
           BlocklistEventsVersioned(
             mixin.events.map((e) => _blocklistEvent(e)).toList(),

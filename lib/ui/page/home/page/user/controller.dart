@@ -489,7 +489,7 @@ class UserController extends GetxController {
   /// Opens a file choose popup and updates the `ChatContact.avatar` with the
   /// selected image, if any.
   Future<void> pickAvatar() async {
-    FilePickerResult? result = await PlatformUtils.pickFiles(
+    final FilePickerResult? result = await PlatformUtils.pickFiles(
       type: FileType.image,
       withReadStream: !PlatformUtils.isWeb,
       withData: PlatformUtils.isWeb,
@@ -693,8 +693,8 @@ extension DateTimeToAgo on DateTime {
   /// indicating how long ago this [DateTime] happened compared to
   /// [DateTime.now].
   String toDifferenceAgo() {
-    DateTime local = isUtc ? toLocal() : this;
-    Duration diff = DateTime.now().difference(local);
+    final DateTime local = isUtc ? toLocal() : this;
+    final Duration diff = DateTime.now().difference(local);
 
     return 'label_ago'.l10nfmt({
       'years': diff.inDays ~/ 365,

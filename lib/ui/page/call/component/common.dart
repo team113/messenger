@@ -88,7 +88,7 @@ class VideoButton extends CallButton {
 
   @override
   String get hint {
-    bool isVideo =
+    final bool isVideo =
         c.videoState.value == LocalTrackState.enabled ||
         c.videoState.value == LocalTrackState.enabling;
 
@@ -110,7 +110,7 @@ class VideoButton extends CallButton {
     bool opaque = false,
   }) {
     return Obx(() {
-      bool isVideo =
+      final bool isVideo =
           c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
       return CallButtonWidget(
@@ -134,7 +134,7 @@ class AudioButton extends CallButton {
 
   @override
   String get hint {
-    bool isAudio =
+    final bool isAudio =
         c.audioState.value == LocalTrackState.enabled ||
         c.audioState.value == LocalTrackState.enabling;
 
@@ -156,7 +156,7 @@ class AudioButton extends CallButton {
     bool opaque = false,
   }) {
     return Obx(() {
-      bool isAudio =
+      final bool isAudio =
           c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
       return CallButtonWidget(
@@ -180,7 +180,7 @@ class ScreenButton extends CallButton {
 
   @override
   String get hint {
-    bool isScreen =
+    final bool isScreen =
         c.screenShareState.value == LocalTrackState.enabled ||
         c.screenShareState.value == LocalTrackState.enabling;
 
@@ -196,7 +196,7 @@ class ScreenButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     return Obx(() {
-      bool isScreen =
+      final bool isScreen =
           c.screenShareState.value == LocalTrackState.enabled ||
           c.screenShareState.value == LocalTrackState.enabling;
       return CallButtonWidget(

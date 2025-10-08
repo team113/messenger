@@ -376,7 +376,7 @@ class WebUtils {
         '${info.productName}; ${info.displayVersion}; build ${info.buildLabEx};',
       );
 
-      Pointer<SYSTEM_INFO> lpSystemInfo = calloc<SYSTEM_INFO>();
+      final Pointer<SYSTEM_INFO> lpSystemInfo = calloc<SYSTEM_INFO>();
       try {
         GetNativeSystemInfo(lpSystemInfo);
 

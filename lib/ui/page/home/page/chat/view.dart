@@ -651,8 +651,8 @@ class ChatView extends StatelessWidget {
   Widget _listElement(BuildContext context, ChatController c, int i) {
     final style = Theme.of(context).style;
 
-    ListElement element = c.elements.values.elementAt(i);
-    bool isLast = i == 0;
+    final ListElement element = c.elements.values.elementAt(i);
+    final bool isLast = i == 0;
 
     ListElement? previous;
     bool previousSame = false;

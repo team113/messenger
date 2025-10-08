@@ -142,10 +142,10 @@ void main() async {
     );
     Get.put<GraphQlProvider>(graphQlProvider);
 
-    AuthRepository authRepository = Get.put(
+    final AuthRepository authRepository = Get.put(
       AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
     );
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         authRepository,
         credentialsProvider,
@@ -156,10 +156,10 @@ void main() async {
     router = RouterState(authService);
     authService.init();
 
-    UserRepository userRepository = Get.put(
+    final UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider),
     );
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
         settingsProvider,
@@ -178,7 +178,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatRepository chatRepository = Get.put(
+    final ChatRepository chatRepository = Get.put(
       ChatRepository(
         graphQlProvider,
         chatProvider,
@@ -192,8 +192,10 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
-    CallService callService = Get.put(
+    final ChatService chatService = Get.put(
+      ChatService(chatRepository, authService),
+    );
+    final CallService callService = Get.put(
       CallService(authService, chatService, callRepository),
     );
     callService.onReady();
@@ -431,10 +433,10 @@ void main() async {
 
     final graphQlProvider = _FakeGraphQlProvider();
 
-    AuthRepository authRepository = Get.put(
+    final AuthRepository authRepository = Get.put(
       AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
     );
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         authRepository,
         credentialsProvider,
@@ -445,7 +447,7 @@ void main() async {
     router = RouterState(authService);
     authService.init();
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
         settingsProvider,
@@ -453,7 +455,7 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository = Get.put(
+    final UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider),
     );
 
@@ -467,7 +469,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatRepository chatRepository = Get.put(
+    final ChatRepository chatRepository = Get.put(
       ChatRepository(
         graphQlProvider,
         chatProvider,
@@ -481,8 +483,10 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
-    CallService callService = Get.put(
+    final ChatService chatService = Get.put(
+      ChatService(chatRepository, authService),
+    );
+    final CallService callService = Get.put(
       CallService(authService, chatService, callRepository),
     );
     callService.onReady();

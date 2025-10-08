@@ -206,7 +206,7 @@ class UpgradeWorker extends DisposableService {
             return false;
           }
 
-          bool silent = latest.value != null;
+          final bool silent = latest.value != null;
           latest.value = release;
 
           Log.debug(

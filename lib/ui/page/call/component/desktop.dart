@@ -66,7 +66,7 @@ Widget desktopCall(CallController c, BuildContext context) {
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
-      List<Widget> content = [
+      final List<Widget> content = [
         const SvgImage.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
@@ -78,7 +78,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Secondary view possible alignment.
       Widget possibleContainer() {
         return Obx(() {
-          Alignment? alignment = c.possibleSecondaryAlignment.value;
+          final Alignment? alignment = c.possibleSecondaryAlignment.value;
           if (alignment == null) {
             return Container();
           }
@@ -403,7 +403,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Builds the [Launchpad] panel containing the [CallController.panel].
       Widget launchpad() {
         return Obx(() {
-          bool enabled =
+          final bool enabled =
               c.displayMore.isTrue &&
               c.primaryDrags.value == 0 &&
               c.secondaryDrags.value == 0;
@@ -457,7 +457,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       }
 
       // Footer part of the call with buttons.
-      List<Widget> footer = [
+      final List<Widget> footer = [
         // Animated bottom buttons.
         Align(
           alignment: Alignment.bottomCenter,
@@ -478,9 +478,9 @@ Widget desktopCall(CallController c, BuildContext context) {
         ),
       ];
 
-      List<Widget> ui = [
+      final List<Widget> ui = [
         Obx(() {
-          bool preferTitle = c.state.value != OngoingCallState.active;
+          final bool preferTitle = c.state.value != OngoingCallState.active;
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
             onDoubleTap: c.toggleFullscreen,
@@ -760,7 +760,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       ];
 
       // Combines all the stackable content into [Scaffold].
-      Widget scaffold = Scaffold(
+      final Widget scaffold = Scaffold(
         backgroundColor: style.colors.onBackground,
         body: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1077,7 +1077,7 @@ Widget _primaryView(CallController c) {
           onDragCompleted: onDragEnded,
           onDraggableCanceled: onDragEnded,
           overlayBuilder: (_DragData data) {
-            var participant = data.participant;
+            final participant = data.participant;
 
             // TODO: Uncomment when WebAssembly performance is fixed.
             // return LayoutBuilder(
@@ -1676,19 +1676,20 @@ Widget _secondaryView(CallController c, BuildContext context) {
               return Offset.zero;
             },
             overlayBuilder: (_DragData data) {
-              var participant = data.participant;
+              final participant = data.participant;
 
               return Obx(() {
-                bool? muted = participant.member.owner == MediaOwnerKind.local
+                final bool? muted =
+                    participant.member.owner == MediaOwnerKind.local
                     ? !c.audioState.value.isEnabled
                     : null;
 
-                bool anyDragIsHappening =
+                final bool anyDragIsHappening =
                     c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
                     c.secondaryDragged.value;
 
-                bool isHovered =
+                final bool isHovered =
                     c.hoveredParticipant.value == participant &&
                     !anyDragIsHappening;
 
@@ -1915,7 +1916,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
               top: top,
               bottom: bottom,
               child: Obx(() {
-                bool isAnyDrag =
+                final bool isAnyDrag =
                     c.secondaryDrags.value != 0 || c.primaryDrags.value != 0;
 
                 return SizedBox(

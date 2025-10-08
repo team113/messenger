@@ -417,10 +417,19 @@ class AvatarWidget extends StatelessWidget {
       gradient = style.colors.secondaryBackgroundLightest;
     }
 
-    double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
-    double minHeight = min(_minDiameter, constraints.smallest.shortestSide);
-    double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
-    double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
+    final double minWidth = min(
+      _minDiameter,
+      constraints.smallest.shortestSide,
+    );
+    final double minHeight = min(
+      _minDiameter,
+      constraints.smallest.shortestSide,
+    );
+    final double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
+    final double maxHeight = min(
+      _maxDiameter,
+      constraints.biggest.shortestSide,
+    );
 
     final ImageFile? image = maxWidth > 100
         ? avatar?.big
@@ -514,7 +523,7 @@ class AvatarWidget extends StatelessWidget {
 extension InitialsExtension on String {
   /// Returns initials (two letters which begin each word) of this string.
   String initials() {
-    List<String> words = split(' ').where((e) => e.isNotEmpty).toList();
+    final List<String> words = split(' ').where((e) => e.isNotEmpty).toList();
 
     if (words.length >= 2) {
       return '${words[0][0]}${words[1][0]}'.toUpperCase();

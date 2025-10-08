@@ -54,7 +54,7 @@ class FitView extends StatelessWidget {
     // To find the [mColumns], iterate through every possible number of
     // columns and pick the arrangement with [min]imal diagonal.
     for (int columns = 1; columns <= length; ++columns) {
-      int rows = (length / columns).ceil();
+      final int rows = (length / columns).ceil();
 
       // Current diagonal of a single square.
       double diagonal =
@@ -64,7 +64,7 @@ class FitView extends StatelessWidget {
 
       // If there's any [children] left outside, then their diagonal will
       // always be bigger, so we need to recalculate.
-      int outside = length % columns;
+      final int outside = length % columns;
       if (outside != 0) {
         // Diagonal of an outside [children] is calculated with some
         // coefficient to force the algorithm to pick non-standard
@@ -191,7 +191,7 @@ class FitView extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Number of columns.
-        int mColumns = calculate(
+        final int mColumns = calculate(
           constraints: constraints,
           length: children.length,
         );

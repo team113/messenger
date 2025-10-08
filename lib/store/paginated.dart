@@ -142,7 +142,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
       }
 
       // TODO: Probably shouldn't do that in the store.
-      int length = items.length;
+      final int length = items.length;
       for (int i = 0; i < 10 && hasNext.isTrue; i++) {
         await pagination!.next();
 
@@ -165,7 +165,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
       }
 
       // TODO: Probably shouldn't do that in the store.
-      int length = items.length;
+      final int length = items.length;
       for (int i = 0; i < 10 && hasPrevious.isTrue; i++) {
         await pagination!.previous();
 

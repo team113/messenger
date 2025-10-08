@@ -33,10 +33,10 @@ final StepDefinitionGeneric seesAs =
         provider.token = context.world.sessions[user1.name]?.token;
 
         await context.world.appDriver.waitUntil(() async {
-          var response = await provider.getUser(
+          final response = await provider.getUser(
             context.world.sessions[user2.name]!.userId,
           );
-          var user = response.user?.toModel();
+          final user = response.user?.toModel();
 
           return (status == OnlineStatus.online && user?.online == true) ||
               (status == OnlineStatus.offline && user?.online == false);

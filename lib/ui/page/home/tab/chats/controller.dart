@@ -957,7 +957,7 @@ class ChatEntry implements Comparable<ChatEntry> {
     _hasCall = _chat.chat.value.ongoingCall != null;
 
     _worker = ever(_chat.chat, (Chat chat) {
-      bool hasCall = chat.ongoingCall != null;
+      final bool hasCall = chat.ongoingCall != null;
       if (chat.updatedAt != _updatedAt || hasCall != _hasCall) {
         sort?.call();
         _updatedAt = chat.updatedAt;

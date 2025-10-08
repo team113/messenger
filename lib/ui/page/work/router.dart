@@ -44,7 +44,9 @@ class WorkRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
     /// [_NestedHomeView] is always included.
-    List<Page<dynamic>> pages = [const CustomPage(child: SizedBox.shrink())];
+    final List<Page<dynamic>> pages = [
+      const CustomPage(child: SizedBox.shrink()),
+    ];
 
     for (String route in _state.routes) {
       if (route.endsWith('/')) {

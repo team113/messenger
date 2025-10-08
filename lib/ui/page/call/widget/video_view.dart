@@ -256,7 +256,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
     final Widget builder = LayoutBuilder(
       builder: (context, constraints) {
-        RtcVideoRenderer renderer = widget.renderer;
+        final RtcVideoRenderer renderer = widget.renderer;
 
         BoxFit? fit;
         if (widget.source != MediaSourceKind.display) {

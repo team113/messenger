@@ -55,7 +55,7 @@ void main() async {
 
   await L10n.init();
 
-  var graphQlProvider = MockGraphQlProvider();
+  final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
@@ -79,7 +79,7 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(credentialsProvider);
 
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(
           AuthRepository(Get.find(), myUserProvider, credentialsProvider),

@@ -149,7 +149,7 @@ class _WorkViewState extends State<WorkView> {
 
         // Nested navigation widget that displays [navigator] in an [Expanded]
         // to take all the remaining from the [sideBar] space.
-        Widget navigation = Obx(() {
+        final Widget navigation = Obx(() {
           final bool isWork = router.routes.lastOrNull == Routes.work;
           return IgnorePointer(
             ignoring: isWork && context.isNarrow,

@@ -261,14 +261,14 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        Animation<double> fade = Tween(begin: 0.0, end: 1.0).animate(
+        final Animation<double> fade = Tween(begin: 0.0, end: 1.0).animate(
           CurvedAnimation(
             parent: _fading,
             curve: const Interval(0, 0.3, curve: Curves.ease),
           ),
         );
 
-        Animation<Offset> slide = Tween<Offset>(
+        final Animation<Offset> slide = Tween<Offset>(
           begin: const Offset(0, 1),
           end: Offset.zero,
         ).animate(CurvedAnimation(parent: _fading, curve: Curves.ease));

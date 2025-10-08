@@ -152,7 +152,7 @@ class AudioUtilsImpl {
           _players.remove(music);
           timer?.cancel();
 
-          Future<void>? dispose = jaPlayer?.dispose();
+          final Future<void>? dispose = jaPlayer?.dispose();
           jaPlayer = null;
           await dispose;
         },

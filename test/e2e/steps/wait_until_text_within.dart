@@ -33,7 +33,7 @@ final StepDefinitionGeneric untilTextExistsWithin =
       (text, existence, key, context) async {
         await context.world.appDriver.waitUntil(() async {
           await context.world.appDriver.waitForAppToSettle();
-          var finder = context.world.appDriver.findByDescendant(
+          final finder = context.world.appDriver.findByDescendant(
             context.world.appDriver.findBy(key.name, FindType.key),
             context.world.appDriver.findBy(text, FindType.text),
             firstMatchOnly: true,

@@ -140,7 +140,7 @@ final StepDefinitionGeneric hasFavoriteGroups =
         provider.token = context.world.sessions[user.name]?.token;
 
         for (int i = 0; i < count; i++) {
-          ChatMixin chat = await provider.createGroupChat([]);
+          final ChatMixin chat = await provider.createGroupChat([]);
           await provider.favoriteChat(
             chat.id,
             ChatFavoritePosition((i + 1).toDouble()),

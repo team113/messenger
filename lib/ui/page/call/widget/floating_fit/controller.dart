@@ -94,7 +94,7 @@ class FloatingFitController extends GetxController {
 
   @override
   void onInit() {
-    double floatingSize =
+    final double floatingSize =
         (size.shortestSide *
                 (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33))
             .clamp(_minHeight, 250);
@@ -146,10 +146,10 @@ class FloatingFitController extends GetxController {
           bottomShifted != null) {
         // Intersection is less than zero and the floating panel is higher than
         // it was before, so move it to its original position.
-        double bottom =
+        final double bottom =
             this.bottom.value ?? size.height - top.value! - height.value;
         if (bottom > bottomShifted!) {
-          double difference = bottom - bottomShifted!;
+          final double difference = bottom - bottomShifted!;
           if (this.bottom.value != null) {
             if (difference.abs() < intersect.height.abs() ||
                 intersect.width < 0) {
@@ -182,7 +182,7 @@ class FloatingFitController extends GetxController {
     this.left.value ??= size.width - width.value - (right.value ?? 0);
     this.top.value ??= size.height - height.value - (bottom.value ?? 0);
 
-    List<MapEntry<Alignment, double>> alignments = [
+    final List<MapEntry<Alignment, double>> alignments = [
       MapEntry(
         Alignment.topLeft,
         Point(
@@ -213,9 +213,9 @@ class FloatingFitController extends GetxController {
       ),
     ]..sort((e1, e2) => e1.value.compareTo(e2.value));
 
-    Alignment align = alignments.first.key;
-    double left = this.left.value!;
-    double top = this.top.value!;
+    final Alignment align = alignments.first.key;
+    final double left = this.left.value!;
+    final double top = this.top.value!;
 
     this.top.value = null;
     this.left.value = null;
@@ -250,7 +250,7 @@ class FloatingFitController extends GetxController {
 
   /// Calculates the [offset] based on the provided [offset].
   void calculatePanning(Offset offset) {
-    Offset position =
+    final Offset position =
         (floatingKey.currentContext?.findRenderObject() as RenderBox?)
             ?.localToGlobal(Offset.zero) ??
         Offset.zero;
@@ -291,9 +291,9 @@ class FloatingFitController extends GetxController {
 
   /// Scales the [width] according to the provided [scale].
   void _scaleWidth(double scale) {
-    double width = _applyWidth(unscaledSize! * scale);
+    final double width = _applyWidth(unscaledSize! * scale);
     if (width != this.width.value) {
-      double widthDifference = width - this.width.value;
+      final double widthDifference = width - this.width.value;
       this.width.value = width;
       left.value = _applyLeft(left.value! - widthDifference / 2);
       offset = offset?.translate(widthDifference / 2, 0);
@@ -302,9 +302,9 @@ class FloatingFitController extends GetxController {
 
   /// Scales the [height] according to the provided [scale].
   void _scaleHeight(double scale) {
-    double height = _applyHeight(unscaledSize! * scale);
+    final double height = _applyHeight(unscaledSize! * scale);
     if (height != this.height.value) {
-      double heightDifference = height - this.height.value;
+      final double heightDifference = height - this.height.value;
       this.height.value = height;
       top.value = _applyTop(top.value! - heightDifference / 2);
       offset = offset?.translate(0, heightDifference / 2);

@@ -209,7 +209,7 @@ class CallService extends DisposableService {
   Future<void> leave(ChatId chatId, [ChatCallDeviceId? deviceId]) async {
     Log.debug('leave($chatId, $deviceId)', '$runtimeType');
 
-    Rx<OngoingCall>? call = _callRepository[chatId];
+    final Rx<OngoingCall>? call = _callRepository[chatId];
     if (call != null) {
       deviceId ??= call.value.deviceId;
       call.value.state.value = OngoingCallState.ended;

@@ -54,7 +54,7 @@ Widget svgFromAsset(
   String? semanticsLabel,
   double? width,
 }) {
-  String path = package == null ? asset : 'packages/$package/$asset';
+  final String path = package == null ? asset : 'packages/$package/$asset';
   return _BrowserSvg(
     key: key,
     loader: _AssetSvgLoader(path),
@@ -154,8 +154,8 @@ class _AssetSvgLoader implements _SvgLoader {
     }
 
     return Future(() async {
-      String image = await PlatformUtils.loadString(asset);
-      Uint8List bytes = Uint8List.fromList(utf8.encode(image));
+      final String image = await PlatformUtils.loadString(asset);
+      final Uint8List bytes = Uint8List.fromList(utf8.encode(image));
 
       _cache[asset] = bytes;
       if (_cache.length > _cacheSize) {
@@ -279,10 +279,10 @@ class _BrowserSvgState extends State<_BrowserSvg> {
 
   Future<void> _loadImage() async {
     _loadIndex++;
-    var idx = _loadIndex;
+    final idx = _loadIndex;
 
     try {
-      FutureOr<Uint8List> future = widget.loader.load();
+      final FutureOr<Uint8List> future = widget.loader.load();
       if (future is Uint8List) {
         _imageBytes = future;
       } else {
@@ -290,7 +290,7 @@ class _BrowserSvgState extends State<_BrowserSvg> {
       }
 
       if (idx == _loadIndex) {
-        var b64 = base64.encode(_imageBytes!.toList());
+        final b64 = base64.encode(_imageBytes!.toList());
         _image = 'data:image/svg+xml;base64,$b64';
 
         if (mounted) {

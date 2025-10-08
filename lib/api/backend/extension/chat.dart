@@ -142,7 +142,9 @@ extension ChatCallConversion on ChatCallMixin {
 extension ChatMessageConversion on ChatMessageMixin {
   /// Constructs a new [DtoChatItem]s from this [ChatMessageMixin].
   DtoChatItem toDto(ChatItemsCursor cursor) {
-    List<DtoChatItemQuote> items = repliesTo.map((e) => e.toDto()).toList();
+    final List<DtoChatItemQuote> items = repliesTo
+        .map((e) => e.toDto())
+        .toList();
 
     return DtoChatMessage(
       ChatMessage(
@@ -547,13 +549,13 @@ extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
     final List<Attachment> attachments = [];
 
     if (node.$$typename == 'ChatMessage') {
-      var message = node as GetAttachments$Query$ChatItem$Node$ChatMessage;
+      final message = node as GetAttachments$Query$ChatItem$Node$ChatMessage;
       attachments.addAll(message.attachments.map((e) => e.toModel()));
 
       if (message.repliesTo.isNotEmpty) {
         for (final r in message.repliesTo) {
           if (r.$$typename == 'ChatMessageQuote') {
-            var replied =
+            final replied =
                 r
                     as GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$ChatMessageQuote;
             attachments.addAll(replied.attachments.map((e) => e.toModel()));
@@ -561,9 +563,9 @@ extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
         }
       }
     } else if (node.$$typename == 'ChatForward') {
-      var message = node as GetAttachments$Query$ChatItem$Node$ChatForward;
+      final message = node as GetAttachments$Query$ChatItem$Node$ChatForward;
       if (message.quote.$$typename == 'ChatMessageQuote') {
-        var quote =
+        final quote =
             message.quote
                 as GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote;
         attachments.addAll(quote.attachments.map((e) => e.toModel()));

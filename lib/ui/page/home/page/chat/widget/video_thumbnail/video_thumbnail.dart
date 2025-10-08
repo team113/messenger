@@ -160,8 +160,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    double width = widget.width ?? 300;
-    double height = widget.height ?? 300;
+    final double width = widget.width ?? 300;
+    final double height = widget.height ?? 300;
 
     if (_error != null) {
       return SizedBox(
@@ -264,7 +264,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     _cancelToken?.cancel();
     _cancelToken = CancelToken();
 
-    Uint8List? bytes = widget.bytes;
+    final Uint8List? bytes = widget.bytes;
     File? file;
 
     if (widget.path != null) {

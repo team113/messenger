@@ -67,11 +67,11 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(
+    final UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider),
     );
 
-    BlocklistRepository blocklistRepository = Get.put(
+    final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
         blocklistProvider,
@@ -81,7 +81,7 @@ void main() async {
       ),
     );
 
-    var profileService = Get.put(
+    final profileService = Get.put(
       MyUserService(
         Get.find(),
         MyUserRepository(

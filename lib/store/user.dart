@@ -155,7 +155,7 @@ class UserRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      RxUserImpl? user = users[id];
+      final RxUserImpl? user = users[id];
 
       if (user == null) {
         final DtoUser? stored = await _userLocal.read(id);

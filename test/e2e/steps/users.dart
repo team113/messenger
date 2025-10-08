@@ -40,7 +40,7 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
   'I am {user}',
   (TestUser user, context) async {
-    var password = UserPassword('123');
+    final password = UserPassword('123');
 
     final CustomUser me = await createUser(
       user: user,

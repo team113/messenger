@@ -50,7 +50,7 @@ mixin UserGraphQlMixin {
   Future<GetMyUser$Query> getMyUser({bool raw = false}) async {
     Log.debug('getMyUser(raw: $raw)', '$runtimeType');
 
-    QueryResult res = await client.query(
+    final QueryResult res = await client.query(
       QueryOptions(
         operationName: 'GetMyUser',
         document: GetMyUserQuery().document,
@@ -69,7 +69,7 @@ mixin UserGraphQlMixin {
     Log.debug('getUser($id)', '$runtimeType');
 
     final variables = GetUserArguments(id: id);
-    QueryResult res = await client.query(
+    final QueryResult res = await client.query(
       QueryOptions(
         operationName: 'GetUser',
         document: GetUserQuery(variables: variables).document,
@@ -138,7 +138,7 @@ mixin UserGraphQlMixin {
       last: last,
       before: before,
     );
-    QueryResult res = await client.query(
+    final QueryResult res = await client.query(
       QueryOptions(
         operationName: 'SearchUsers',
         document: SearchUsersQuery(variables: variables).document,
@@ -168,7 +168,7 @@ mixin UserGraphQlMixin {
     Log.debug('updateUserName($name)', '$runtimeType');
 
     final variables = UpdateUserNameArguments(name: name);
-    QueryResult res = await client.mutate(
+    final QueryResult res = await client.mutate(
       MutationOptions(
         operationName: 'UpdateUserName',
         document: UpdateUserNameMutation(variables: variables).document,
@@ -198,7 +198,7 @@ mixin UserGraphQlMixin {
     Log.debug('updateUserBio($bio)', '$runtimeType');
 
     final variables = UpdateUserBioArguments(bio: bio);
-    QueryResult res = await client.mutate(
+    final QueryResult res = await client.mutate(
       MutationOptions(
         operationName: 'UpdateUserBio',
         document: UpdateUserBioMutation(variables: variables).document,
@@ -230,7 +230,7 @@ mixin UserGraphQlMixin {
     Log.debug('updateUserStatus($text)', '$runtimeType');
 
     final variables = UpdateUserStatusArguments(text: text);
-    QueryResult res = await client.mutate(
+    final QueryResult res = await client.mutate(
       MutationOptions(
         operationName: 'UpdateUserStatus',
         document: UpdateUserStatusMutation(variables: variables).document,
@@ -260,7 +260,7 @@ mixin UserGraphQlMixin {
     Log.debug('updateUserLogin($login)', '$runtimeType');
 
     final variables = UpdateUserLoginArguments(login: login);
-    QueryResult res = await client.mutate(
+    final QueryResult res = await client.mutate(
       MutationOptions(
         operationName: 'UpdateUserLogin',
         document: UpdateUserLoginMutation(variables: variables).document,
@@ -297,7 +297,7 @@ mixin UserGraphQlMixin {
     Log.debug('updateUserPresence($presence)', '$runtimeType');
 
     final variables = UpdateUserPresenceArguments(presence: presence);
-    QueryResult res = await client.mutate(
+    final QueryResult res = await client.mutate(
       MutationOptions(
         operationName: 'UpdateUserPresence',
         document: UpdateUserPresenceMutation(variables: variables).document,
@@ -357,7 +357,7 @@ mixin UserGraphQlMixin {
       password: newPassword,
       confirmation: confirmation,
     );
-    QueryResult res = await client.mutate(
+    final QueryResult res = await client.mutate(
       MutationOptions(
         operationName: 'UpdateUserPassword',
         document: UpdateUserPasswordMutation(variables: variables).document,
@@ -1049,7 +1049,7 @@ mixin UserGraphQlMixin {
     final encodedBody = json.encode(body);
 
     try {
-      var response = await client.post(
+      final response = await client.post(
         file == null
             ? encodedBody
             : dio.FormData.fromMap({

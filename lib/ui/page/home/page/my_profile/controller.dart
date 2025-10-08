@@ -406,7 +406,7 @@ class MyProfileController extends GetxController {
 
         s.clear();
 
-        bool modalVisible = true;
+        final bool modalVisible = true;
 
         _myUserService
             .addUserPhone(phone, locale: L10n.chosen.value?.toString())
@@ -569,7 +569,7 @@ class MyProfileController extends GetxController {
 
   /// Opens an image choose popup and sets the selected file as a [background].
   Future<void> pickBackground() async {
-    FilePickerResult? result = await PlatformUtils.pickFiles(
+    final FilePickerResult? result = await PlatformUtils.pickFiles(
       type: FileType.custom,
       allowedExtensions: NativeFile.images,
       allowMultiple: false,

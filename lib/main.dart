@@ -487,7 +487,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
-                var node =
+                final node =
                     e
                         as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
                 if (node.userId == credentials.userId) {
@@ -496,7 +496,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                var node =
+                final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
                 if (node.user.id == credentials.userId) {
                   await FlutterCallkitIncoming.endCall(
@@ -504,7 +504,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallMemberLeft') {
-                var node =
+                final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
                 if (node.user.id == credentials.userId) {
                   await FlutterCallkitIncoming.endCall(
@@ -512,7 +512,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallDeclined') {
-                var node =
+                final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
                 if (node.user.id == credentials.userId) {
                   await FlutterCallkitIncoming.endCall(

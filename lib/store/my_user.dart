@@ -1269,7 +1269,9 @@ class MyUserRepository extends DisposableInterface
     ) async* {
       Log.trace('_myUserRemoteEvents(ver): ${event.data}', '$runtimeType');
 
-      var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
+      final events = MyUserEvents$Subscription.fromJson(
+        event.data!,
+      ).myUserEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         Log.debug(
@@ -1287,7 +1289,7 @@ class MyUserRepository extends DisposableInterface
 
         _setMyUser(events.toDto());
       } else if (events.$$typename == 'MyUserEventsVersioned') {
-        var mixin = events as MyUserEventsVersionedMixin;
+        final mixin = events as MyUserEventsVersionedMixin;
         yield MyUserEventsVersioned(
           mixin.events.map((e) => _myUserEvent(e)).toList(),
           mixin.ver,

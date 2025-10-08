@@ -108,10 +108,10 @@ void main() async {
       ),
     );
 
-    AuthRepository authRepository = Get.put(
+    final AuthRepository authRepository = Get.put(
       AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(authRepository, getStorage, accountProvider, locksProvider),
     );
 
@@ -165,10 +165,10 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(
+    final AuthRepository authRepository = Get.put(
       AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         authRepository,
         credsProvider,
@@ -240,10 +240,10 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(
+    final AuthRepository authRepository = Get.put(
       AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         authRepository,
         credsProvider,
@@ -289,10 +289,10 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(
+    final AuthRepository authRepository = Get.put(
       AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         authRepository,
         credsProvider,

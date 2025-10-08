@@ -86,7 +86,7 @@ class CallOverlayController extends GetxController {
 
           bool window = false;
 
-          var ongoingCall = event.value!.value;
+          final ongoingCall = event.value!.value;
           if (PlatformUtils.isWeb &&
               !PlatformUtils.isMobile &&
               _settings.value?.enablePopups != false) {
@@ -172,7 +172,7 @@ class CallOverlayController extends GetxController {
 
   /// Moves the given [call] to the end of the [calls].
   void orderFirst(OverlayCall call) {
-    var index = calls.indexOf(call);
+    final index = calls.indexOf(call);
     if (index != calls.length - 1) {
       calls.removeAt(index);
       calls.add(call);

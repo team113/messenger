@@ -208,8 +208,9 @@ class ReactiveTextField extends StatelessWidget {
     EdgeInsets? contentPadding = padding;
 
     if (prefix == null && dense != true && contentPadding == null) {
-      bool isFilled = filled ?? Theme.of(context).inputDecorationTheme.filled;
-      bool isDense = dense ?? PlatformUtils.isMobile;
+      final bool isFilled =
+          filled ?? Theme.of(context).inputDecorationTheme.filled;
+      final bool isDense = dense ?? PlatformUtils.isMobile;
       if (Theme.of(context).inputDecorationTheme.border?.isOutline != true) {
         if (isFilled) {
           contentPadding = isDense

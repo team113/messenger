@@ -36,7 +36,7 @@ class PlayerNotificationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    PlayerNotification notification = this.notification;
+    final PlayerNotification notification = this.notification;
     final String title;
 
     switch (notification.kind) {

@@ -94,7 +94,7 @@ void main() async {
   Config.files = 'test';
   Config.disableDragArea = true;
 
-  var graphQlProvider = MockGraphQlProvider();
+  final graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
@@ -204,7 +204,7 @@ void main() async {
       repliesTo: [],
     ),
   ).thenAnswer((_) {
-    var event = {
+    final event = {
       '__typename': 'ChatEventsVersioned',
       'events': [
         {
@@ -509,7 +509,7 @@ void main() async {
     await gesture.addPointer(location: Offset.zero);
     addTearDown(gesture.removePointer);
 
-    ChatController chatController = Get.find(
+    final ChatController chatController = Get.find(
       tag: '0d72d245-8425-467a-9ebd-082d4f47850b',
     );
     chatController.send.addPlatformAttachment(
@@ -521,7 +521,7 @@ void main() async {
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    AttachmentId id1 = Get.find<ChatController>(
+    final AttachmentId id1 = Get.find<ChatController>(
       tag: '0d72d245-8425-467a-9ebd-082d4f47850b',
     ).send.attachments.first.value.id;
 
@@ -547,10 +547,11 @@ void main() async {
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    AttachmentId id2 = (chatController.chat!.messages.last.value as ChatMessage)
-        .attachments
-        .first
-        .id;
+    final AttachmentId id2 =
+        (chatController.chat!.messages.last.value as ChatMessage)
+            .attachments
+            .first
+            .id;
 
     expect(find.byKey(Key('File_$id2'), skipOffstage: false), findsOneWidget);
 

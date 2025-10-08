@@ -73,7 +73,7 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
 
   @override
   V? remove(Object? key) {
-    V? removed = _keys.remove(key);
+    final V? removed = _keys.remove(key);
     _values.remove(removed);
 
     return removed;
@@ -88,7 +88,7 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
   /// Returns a [Comparator] for the provided [V].
   static Comparator<V> _defaultCompare<V>() {
     // If [V] is [Comparable], then just return it.
-    Object compare = Comparable.compare;
+    final Object compare = Comparable.compare;
     if (compare is Comparator<V>) {
       return compare;
     }

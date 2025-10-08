@@ -577,7 +577,7 @@ class OngoingCall {
       return;
     }
 
-    CallMemberId id = CallMemberId(_me.userId, deviceId);
+    final CallMemberId id = CallMemberId(_me.userId, deviceId);
     members[_me]?.id = id;
     members.move(_me, id);
     _me = id;
@@ -1494,7 +1494,7 @@ class OngoingCall {
     final MediaStreamSettings settings = MediaStreamSettings();
 
     if (audio) {
-      AudioTrackConstraints constraints = AudioTrackConstraints();
+      final AudioTrackConstraints constraints = AudioTrackConstraints();
 
       if (audioDevice != null) {
         constraints.deviceId(audioDevice.deviceId());
@@ -1525,14 +1525,16 @@ class OngoingCall {
     }
 
     if (video) {
-      DeviceVideoTrackConstraints constraints = DeviceVideoTrackConstraints();
+      final DeviceVideoTrackConstraints constraints =
+          DeviceVideoTrackConstraints();
       if (videoDevice != null) constraints.deviceId(videoDevice.deviceId());
       if (facingMode != null) constraints.idealFacingMode(facingMode);
       settings.deviceVideo(constraints);
     }
 
     if (screen) {
-      DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
+      final DisplayVideoTrackConstraints constraints =
+          DisplayVideoTrackConstraints();
       if (screenDevice != null) {
         constraints.deviceId(screenDevice.deviceId());
       }
@@ -1809,7 +1811,7 @@ class OngoingCall {
     if (!_toggleHandGuard.isLocked) {
       final CallMember me = members[_me]!;
 
-      bool raised = me.isHandRaised.value;
+      final bool raised = me.isHandRaised.value;
       await _toggleHandGuard.protect(() async {
         _handToggles.add(raised);
         await service.toggleHand(chatId.value, raised);
@@ -2355,7 +2357,7 @@ class OngoingCall {
       } else {
         _removeLocalTracks(kind, source);
 
-        Track t = Track(track);
+        final Track t = Track(track);
         members[_me]?.tracks.add(t);
 
         switch (source) {

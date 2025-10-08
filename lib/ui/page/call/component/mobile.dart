@@ -63,7 +63,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
 
       // Call stackable content.
-      List<Widget> content = [
+      final List<Widget> content = [
         const SvgImage.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
@@ -73,7 +73,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       ];
 
       // Layer of [Widget]s to display above the UI.
-      List<Widget> overlay = [];
+      final List<Widget> overlay = [];
 
       // Active call.
       if ((c.isGroup && isOutgoing) ||
@@ -230,7 +230,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         // Call is not active.
         content.add(
           Obx(() {
-            RtcVideoRenderer? local =
+            final RtcVideoRenderer? local =
                 (c.locals.firstOrNull?.video.value?.renderer.value ??
                         c.paneled.firstOrNull?.video.value?.renderer.value)
                     as RtcVideoRenderer?;
@@ -668,7 +668,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       ];
 
       // Combines all the stackable content into [Scaffold].
-      Widget scaffold = Scaffold(
+      final Widget scaffold = Scaffold(
         backgroundColor: style.colors.secondaryBackgroundLight,
         body: Stack(
           children: [
