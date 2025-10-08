@@ -368,7 +368,7 @@ class GraphQlClient {
 
             return [];
           } else {
-            throw e;
+            if (e is Exception) throw e;
           }
         }
 

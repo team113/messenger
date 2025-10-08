@@ -45,7 +45,7 @@ class GraphQlProviderExceptions {
     Exception Function(Map<String, dynamic>)? handleException,
   ]) {
     Object? exception = parse(result, handleException);
-    if (exception != null) throw exception;
+    if (exception != null && exception is Exception) throw exception;
   }
 
   /// Returns an exception of the given [result] with [handleException] if it
