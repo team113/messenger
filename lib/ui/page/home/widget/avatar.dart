@@ -212,7 +212,7 @@ class AvatarWidget extends StatelessWidget {
     return Obx(
       () => AvatarWidget(
         key: key,
-        isOnline: badge && user.user.value.online == true,
+        isOnline: badge && user.user.value.online,
         isAway: badge && user.user.value.presence == Presence.away,
         avatar: user.user.value.avatar,
         title: user.title,

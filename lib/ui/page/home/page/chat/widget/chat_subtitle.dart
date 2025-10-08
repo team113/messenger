@@ -131,8 +131,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
           );
         }
 
-        final bool isTyping =
-            widget.chat.typingUsers.any((e) => e.id != widget.me) == true;
+        final bool isTyping = widget.chat.typingUsers.any(
+          (e) => e.id != widget.me,
+        );
         if (isTyping) {
           if (!chat.isGroup) {
             return Row(

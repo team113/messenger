@@ -2409,7 +2409,7 @@ class ChatController extends GetxController {
 
   /// Disables the [search], if its focus is lost or its query is empty.
   void _disableSearchFocusListener() {
-    if (search.focus.hasFocus == false && search.text.isEmpty == true) {
+    if (search.focus.hasFocus == false && search.text.isEmpty) {
       toggleSearch(true);
     }
   }

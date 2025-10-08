@@ -147,7 +147,7 @@ class Block extends StatelessWidget {
     }
 
     return HighlightedContainer(
-      highlight: highlight == true,
+      highlight: highlight,
       child: Center(
         child: Container(
           padding: margin,

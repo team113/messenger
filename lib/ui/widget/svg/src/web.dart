@@ -293,7 +293,7 @@ class _BrowserSvgState extends State<_BrowserSvg> {
         var b64 = base64.encode(_imageBytes!.toList());
         _image = 'data:image/svg+xml;base64,$b64';
 
-        if (mounted == true) {
+        if (mounted) {
           setState(() {});
         }
       }

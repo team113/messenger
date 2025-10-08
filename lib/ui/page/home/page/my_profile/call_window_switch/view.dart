@@ -81,8 +81,7 @@ class CallWindowSwitchView extends StatelessWidget {
                     Obx(() {
                       return RectangleButton(
                         label: 'label_open_calls_in_window'.l10n,
-                        selected:
-                            (c.settings.value?.enablePopups ?? true) == true,
+                        selected: c.settings.value?.enablePopups ?? true,
                         onPressed: () => c.setPopupsEnabled(true),
                       );
                     }),

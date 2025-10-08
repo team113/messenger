@@ -2143,7 +2143,7 @@ class OngoingCall {
       );
 
       final List<CallMember> connected = members.values
-          .where((e) => e.isConnected.value == true && e.id != _me)
+          .where((e) => e.isConnected.value && e.id != _me)
           .toList();
 
       await _closeRoom(false);

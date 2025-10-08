@@ -583,7 +583,7 @@ Widget callTitle(CallController c) {
         ? 'label_call_joining'.l10n
         : isOutgoing
         ? 'label_call_calling'.l10n
-        : c.withVideo == true
+        : c.withVideo
         ? 'label_video_call'.l10nfmt(args)
         : 'label_audio_call'.l10nfmt(args);
 

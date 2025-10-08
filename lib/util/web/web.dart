@@ -336,11 +336,9 @@ class WebUtils {
 
     try {
       final locks = (await _getLocks().toDart) as JSArray;
-      held =
-          locks.toDart
-              .map((e) => e?.dartify() as Map?)
-              .any((e) => e?['name'] == 'mutex') ==
-          true;
+      held = locks.toDart
+          .map((e) => e?.dartify() as Map?)
+          .any((e) => e?['name'] == 'mutex');
     } catch (e) {
       held = false;
     }
@@ -629,9 +627,9 @@ class WebUtils {
     }
 
     final List<String> parameters = [
-      if (withAudio != true) 'audio=$withAudio',
-      if (withVideo != false) 'video=$withVideo',
-      if (withScreen != false) 'screen=$withScreen',
+      if (withAudio == false) 'audio=$withAudio',
+      if (withVideo) 'video=$withVideo',
+      if (withScreen) 'screen=$withScreen',
     ];
 
     final String query = parameters.isEmpty ? '' : '?${parameters.join('&')}';

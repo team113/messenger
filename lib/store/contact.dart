@@ -282,9 +282,8 @@ class ContactRepository extends DisposableInterface
               (email != null && u.contact.value.emails.contains(email)) ||
               (name != null &&
                   u.contact.value.name.val.toLowerCase().contains(
-                        name.val.toLowerCase(),
-                      ) ==
-                      true),
+                    name.val.toLowerCase(),
+                  )),
         )
         .toList();
 
