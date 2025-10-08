@@ -2174,7 +2174,7 @@ class RxChatImpl extends RxChat {
 
             case ChatEventKind.callMemberLeft:
               event as EventChatCallMemberLeft;
-              final int? i =
+              final int i =
                   dto.value.ongoingCall?.members.indexWhere(
                     (e) => e.user.id == event.user.id,
                   ) ??

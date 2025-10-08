@@ -487,7 +487,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       return;
     }
 
-    final Rect? rect = _dockKey.globalPaintBounds ?? Rect.zero;
+    final Rect rect = _dockKey.globalPaintBounds ?? Rect.zero;
     int indexToPlace =
         ((d.offset.dx -
                     rect.left -
@@ -681,5 +681,5 @@ class _ImmediateDelayedPointerState extends MultiDragPointerState {
   }
 
   @override
-  void accepted(starter) => starter(initialPosition);
+  void accepted(Drag? Function(Offset) starter) => starter(initialPosition);
 }
