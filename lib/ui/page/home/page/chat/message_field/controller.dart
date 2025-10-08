@@ -435,7 +435,7 @@ class MessageFieldController extends GetxController {
 
   /// Handles the [reader] to retrieve any content contained in it.
   Future<void> _pasteItem(ClipboardReader reader) async {
-    for (var e in reader.items) {
+    for (final e in reader.items) {
       bool handled = false;
 
       final List<DataFormat> formats = e.getFormats(Formats.standardFormats);
@@ -535,7 +535,7 @@ class MessageFieldController extends GetxController {
     );
 
     if (result != null && result.files.isNotEmpty) {
-      for (PlatformFile e in result.files) {
+      for (final PlatformFile e in result.files) {
         addPlatformAttachment(e);
       }
     }

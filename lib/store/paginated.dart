@@ -74,7 +74,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
     Log.debug('ensureInitialized()', '$runtimeType');
 
     if (_futures.isEmpty && !status.value.isSuccess) {
-      for (var f in initial) {
+      for (final f in initial) {
         if (f is Future<Map<K, T>>) {
           _futures.add(f..then(items.addAll));
         } else {
@@ -220,7 +220,7 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
     Log.debug('ensureInitialized()', '$runtimeType');
 
     if (_futures.isEmpty && !status.value.isSuccess) {
-      for (var f in initial) {
+      for (final f in initial) {
         if (f is Future<Map<K, T>>) {
           _futures.add(f..then(items.addAll));
         } else {
@@ -252,7 +252,7 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
     );
 
     if (page != null) {
-      for (var e in page.edges) {
+      for (final e in page.edges) {
         await _apply(pagination!.onKey(e), e);
       }
     }

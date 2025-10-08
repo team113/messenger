@@ -551,7 +551,7 @@ extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
       attachments.addAll(message.attachments.map((e) => e.toModel()));
 
       if (message.repliesTo.isNotEmpty) {
-        for (var r in message.repliesTo) {
+        for (final r in message.repliesTo) {
           if (r.$$typename == 'ChatMessageQuote') {
             var replied =
                 r

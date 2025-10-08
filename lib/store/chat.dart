@@ -300,7 +300,7 @@ class ChatRepository extends DisposableInterface
   Future<void> clear() {
     Log.debug('clear()', '$runtimeType');
 
-    for (var c in chats.entries) {
+    for (final c in chats.entries) {
       c.value.dispose();
     }
 
@@ -526,7 +526,7 @@ class ChatRepository extends DisposableInterface
 
     // TODO: Account [ChatForward]s.
     if (item is ChatMessage) {
-      for (var e in item.attachments.whereType<LocalAttachment>()) {
+      for (final e in item.attachments.whereType<LocalAttachment>()) {
         if (e.status.value == SendingStatus.error &&
             (e.upload.value == null || e.upload.value?.isCompleted == true)) {
           uploadAttachment(e)
@@ -770,7 +770,7 @@ class ChatRepository extends DisposableInterface
 
     final List<Future> futures = [];
 
-    for (var e in chats.values) {
+    for (final e in chats.values) {
       if (ids?.contains(e.id) == false) {
         continue;
       }
@@ -1488,7 +1488,7 @@ class ChatRepository extends DisposableInterface
       before: before,
     );
 
-    for (var e in query.chat!.members.edges) {
+    for (final e in query.chat!.members.edges) {
       _userRepo.put(e.node.user.toDto());
     }
 
@@ -2101,7 +2101,7 @@ class ChatRepository extends DisposableInterface
 
       case RecentChatsEventKind.list:
         var node = event as RecentChatsTop;
-        for (ChatData c in node.list) {
+        for (final ChatData c in node.list) {
           if (chats[c.chat.value.id] == null) {
             _putEntry(c, updateVersion: false);
           }
@@ -2391,7 +2391,7 @@ class ChatRepository extends DisposableInterface
 
     if (_localPagination != null) {
       // Remove the [DtoChat]s missing in local pagination from the database.
-      for (var e in _localPagination!.items.take(_pagination!.items.length)) {
+      for (final e in _localPagination!.items.take(_pagination!.items.length)) {
         if (_pagination?.items.none((b) => b.id == e.id) == true) {
           remove(e.id);
         }
@@ -2624,7 +2624,7 @@ class ChatRepository extends DisposableInterface
   }) {
     Log.trace('_chat($q, $recentCursor, $favoriteCursor)', '$runtimeType');
 
-    for (var m in q.members.nodes) {
+    for (final m in q.members.nodes) {
       _userRepo.put(m.user.toDto());
     }
 
@@ -2700,7 +2700,7 @@ class ChatRepository extends DisposableInterface
             '$runtimeType',
           );
 
-          for (var event in versioned.events) {
+          for (final event in versioned.events) {
             switch (event.kind) {
               case ChatEventKind.favorited:
                 // If we got an event about [Chat] that we don't have in

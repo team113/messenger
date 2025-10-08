@@ -200,7 +200,7 @@ final StepDefinitionGeneric signsOutSession = then1<TestUser, CustomWorld>(
 
     final sessions = context.world.sessions[testUser.name] ?? [];
 
-    for (var e in sessions.skip(1)) {
+    for (final e in sessions.skip(1)) {
       await provider.deleteSession(token: e.token);
     }
 

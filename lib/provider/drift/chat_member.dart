@@ -53,7 +53,7 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
     Log.debug('upsertBulk($chatId, $members)');
 
     await safe((db) async {
-      for (var member in members) {
+      for (final member in members) {
         final ChatMemberRow row = member.toDb(chatId);
         db.into(db.chatMembers).insert(row, onConflict: DoUpdate((_) => row));
       }

@@ -61,7 +61,7 @@ class SessionDriftProvider extends DriftProviderBaseWithScope {
 
   /// Inserts the provided [sessions] to the database.
   Future<void> upsertBulk(List<Session> sessions) async {
-    for (var session in sessions) {
+    for (final session in sessions) {
       await upsert(session);
     }
   }
@@ -102,7 +102,7 @@ class SessionDriftProvider extends DriftProviderBaseWithScope {
       stmt.orderBy([(u) => OrderingTerm.desc(u.lastActivatedAt)]);
       return stmt
           .watch()
-          .map((rows) => {for (var e in rows.map(_SessionDb.fromDb)) e.id: e})
+          .map((rows) => {for (final e in rows.map(_SessionDb.fromDb)) e.id: e})
           .changes();
     });
   }

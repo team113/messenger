@@ -113,7 +113,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     Iterable<DtoChatItem> items, {
     bool toView = false,
   }) async {
-    for (var e in items) {
+    for (final e in items) {
       _cache[e.value.id] = e;
     }
 
@@ -124,13 +124,13 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       );
 
       await db.batch((batch) {
-        for (var item in items) {
+        for (final item in items) {
           final ChatItemRow row = item.toDb();
           batch.insert(db.chatItems, row, onConflict: DoUpdate((_) => row));
         }
 
         if (toView) {
-          for (var item in items) {
+          for (final item in items) {
             final ChatItemViewRow row = item.toView();
             batch.insert(db.chatItemViews, row, onConflict: DoNothing());
           }

@@ -115,7 +115,7 @@ class ParticipantView extends StatelessWidget {
               child = Obx(() {
                 final List<RxUser> members = [];
 
-                for (var u in c.chat.value!.members.values.where(
+                for (final u in c.chat.value!.members.values.where(
                   (e) => e.user.id != c.me,
                 )) {
                   members.add(u.user);

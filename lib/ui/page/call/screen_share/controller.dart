@@ -85,14 +85,14 @@ class ScreenShareController extends GetxController {
     });
 
     _displaysSubscription = call.value.displays.listen((e) {
-      for (MediaDisplayDetails display in e) {
+      for (final MediaDisplayDetails display in e) {
         if (renderers[display] == null) {
           initRenderer(display);
         }
       }
     });
 
-    for (var e in call.value.displays) {
+    for (final e in call.value.displays) {
       initRenderer(e);
     }
 
@@ -126,12 +126,12 @@ class ScreenShareController extends GetxController {
 
   /// Disposes the [renderers] and frees the [LocalMediaTrack]s being used.
   void freeTracks() {
-    for (RtcVideoRenderer t in renderers.values) {
+    for (final RtcVideoRenderer t in renderers.values) {
       t.dispose();
     }
     renderers.clear();
 
-    for (LocalMediaTrack t in _localTracks) {
+    for (final LocalMediaTrack t in _localTracks) {
       t.free();
     }
     _localTracks.clear();

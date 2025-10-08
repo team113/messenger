@@ -474,16 +474,16 @@ class RxChatImpl extends RxChat {
     _worker?.dispose();
     _userWorker?.dispose();
 
-    for (StreamSubscription s in _userSubscriptions.values) {
+    for (final StreamSubscription s in _userSubscriptions.values) {
       s.cancel();
     }
-    for (var e in fragments.toList()) {
+    for (final e in fragments.toList()) {
       e.dispose();
     }
     for (final s in _fragmentSubscriptions) {
       s.cancel();
     }
-    for (var e in _attachments.toList()) {
+    for (final e in _attachments.toList()) {
       e.dispose();
     }
   }
@@ -872,11 +872,11 @@ class RxChatImpl extends RxChat {
     Log.debug('put($item)', '$runtimeType($id)');
 
     await _pagination?.put(item, ignoreBounds: ignoreBounds);
-    for (var e in fragments) {
+    for (final e in fragments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
 
-    for (var e in _attachments) {
+    for (final e in _attachments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
   }
@@ -886,7 +886,7 @@ class RxChatImpl extends RxChat {
     Log.debug('remove($itemId)', '$runtimeType($id)');
 
     _pagination?.remove(itemId);
-    for (var e in fragments) {
+    for (final e in fragments) {
       e.pagination?.remove(itemId);
     }
 
@@ -942,7 +942,7 @@ class RxChatImpl extends RxChat {
   void updateReads() {
     Log.debug('updateReads()', '$runtimeType($id)');
 
-    for (LastChatRead e in chat.value.lastReads) {
+    for (final LastChatRead e in chat.value.lastReads) {
       _updateReadFor(e.memberId, e.at);
     }
   }
@@ -970,7 +970,7 @@ class RxChatImpl extends RxChat {
 
       await clear();
 
-      for (var e in saved.whereType<DtoChatMessage>()) {
+      for (final e in saved.whereType<DtoChatMessage>()) {
         // Copy the [DtoChatMessage] to the new [Pagination].
         final DtoChatMessage copy = e.copyWith()
           ..value.chatId = newChat.value.id;
@@ -991,7 +991,7 @@ class RxChatImpl extends RxChat {
   Future<void> clear() async {
     Log.debug('clear()', '$runtimeType($id)');
 
-    for (var e in fragments) {
+    for (final e in fragments) {
       e.dispose();
     }
     fragments.clear();
@@ -1356,7 +1356,7 @@ class RxChatImpl extends RxChat {
     // [Chat] always contains first 3 members (due to GraphQL query specifying
     // those in the fragment), so we can immediately put them.
     if (chat.value.members.isNotEmpty || id.isLocal) {
-      for (ChatMember member in chat.value.members) {
+      for (final ChatMember member in chat.value.members) {
         _putMember(
           DtoChatMember(member.user, member.joinedAt, null),
           ignoreBounds: true,
@@ -1700,7 +1700,7 @@ class RxChatImpl extends RxChat {
   /// Should be called when a [ChatItem] is removed from the [messages] or the
   /// [MessagesPaginated.items].
   void _recalculateReadsFor(ChatItem item) {
-    for (LastChatRead i in reads) {
+    for (final LastChatRead i in reads) {
       if (item.at == i.at) {
         i.at = _lastReadAt(i.at) ?? i.at;
       }
@@ -1717,7 +1717,7 @@ class RxChatImpl extends RxChat {
       hasNext: hasNext.isTrue,
     );
 
-    for (var fragment in fragments) {
+    for (final fragment in fragments) {
       lastReadAt ??= _lastReadAmong(
         at,
         messages: fragment.items.values,
@@ -1782,7 +1782,7 @@ class RxChatImpl extends RxChat {
 
       if (item is ChatMessage) {
         all.addAll(item.attachments);
-        for (ChatItemQuote replied in item.repliesTo) {
+        for (final ChatItemQuote replied in item.repliesTo) {
           if (replied is ChatMessageQuote) {
             all.addAll(replied.attachments);
           }
@@ -1793,7 +1793,7 @@ class RxChatImpl extends RxChat {
           all.addAll(nested.attachments);
 
           if (nested.original != null) {
-            for (ChatItemQuote replied
+            for (final ChatItemQuote replied
                 in (nested.original as ChatMessage).repliesTo) {
               if (replied is ChatMessageQuote) {
                 all.addAll(replied.attachments);
@@ -1803,7 +1803,7 @@ class RxChatImpl extends RxChat {
         }
       }
 
-      for (Attachment a in all) {
+      for (final Attachment a in all) {
         replace(a);
       }
 
@@ -2016,7 +2016,7 @@ class RxChatImpl extends RxChat {
           shouldPutChat = true;
         }
 
-        for (var event in versioned.events) {
+        for (final event in versioned.events) {
           // Subscription was already disposed while processing the events.
           if (!subscribed) {
             return;
@@ -2377,7 +2377,9 @@ class RxChatImpl extends RxChat {
                       }
 
                       dto.value.members.clear();
-                      for (var m in members.pagination!.items.values.take(3)) {
+                      for (final m in members.pagination!.items.values.take(
+                        3,
+                      )) {
                         if (m.user != null) {
                           dto.value.members.add(
                             ChatMember(m.user!, m.joinedAt),
@@ -2456,7 +2458,7 @@ class RxChatImpl extends RxChat {
           }
         }
 
-        for (var e in itemsToPut) {
+        for (final e in itemsToPut) {
           await put(e);
         }
 

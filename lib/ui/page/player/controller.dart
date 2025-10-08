@@ -236,7 +236,7 @@ class PlayerController extends GetxController {
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
-    for (var e in source.values) {
+    for (final e in source.values) {
       final bool initial = e.id == key.value;
       posts.add(
         Post.fromMediaItem(e, initial: initial ? initialIndex : 0)..init(),
@@ -329,7 +329,7 @@ class PlayerController extends GetxController {
     _sourceSubscription?.cancel();
     _activityTimer?.cancel();
 
-    for (var e in posts) {
+    for (final e in posts) {
       e.dispose();
     }
 
@@ -855,14 +855,14 @@ class PlayerController extends GetxController {
                 .value
                 ?.play();
           } else {
-            for (var e in posts[i].items) {
+            for (final e in posts[i].items) {
               e.video.value?.pause();
             }
           }
         }
 
         final Post? items = posts.elementAtOrNull(index.value);
-        for (var e in items?.items ?? <PostItem>[]) {
+        for (final e in items?.items ?? <PostItem>[]) {
           e.video.value?.play();
         }
 
@@ -1006,7 +1006,7 @@ class Post implements Comparable<Post> {
   /// Disposes this [Post].
   void dispose() {
     horizontal.value.removeListener(_pageListener);
-    for (var e in items) {
+    for (final e in items) {
       e.dispose();
     }
   }

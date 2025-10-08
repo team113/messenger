@@ -700,7 +700,7 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
-                            for (var e in c.chats) {
+                            for (final e in c.chats) {
                               if ((!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&

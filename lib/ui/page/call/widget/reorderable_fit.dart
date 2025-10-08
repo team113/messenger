@@ -559,14 +559,14 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   @override
   void didUpdateWidget(covariant _ReorderableFit<T> oldWidget) {
-    for (var r in List<_ReorderableItem<T>>.from(_items, growable: false)) {
+    for (final r in List<_ReorderableItem<T>>.from(_items, growable: false)) {
       if (!widget.children.contains(r.item)) {
         _items.remove(r);
         _positions.remove(r.hashCode);
       }
     }
 
-    for (var r in widget.children) {
+    for (final r in widget.children) {
       if (!_items.any((e) => e.hashCode == r.hashCode)) {
         int? index = _positions[r.hashCode];
         if (index != null && index < _items.length) {

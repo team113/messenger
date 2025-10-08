@@ -166,7 +166,9 @@ class MyUserDriftProvider extends DriftProviderBase {
       return db
           .select(db.myUsers)
           .watch()
-          .map((items) => {for (var e in items.map(_MyUserDb.fromDb)) e.id: e})
+          .map(
+            (items) => {for (final e in items.map(_MyUserDb.fromDb)) e.id: e},
+          )
           .changes();
     });
   }

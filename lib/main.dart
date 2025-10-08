@@ -460,7 +460,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                 events
                     as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
 
-            for (var e in mixin.events) {
+            for (final e in mixin.events) {
               if (e.$$typename == 'EventChatCallFinished') {
                 await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
               } else if (e.$$typename == 'EventChatCallStarted') {
@@ -564,7 +564,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         Future.delayed(const Duration(milliseconds: 16), () async {
           final notifications = await plugin.getActiveNotifications();
 
-          for (var e in notifications) {
+          for (final e in notifications) {
             if (e.tag?.contains(thread ?? tag ?? '.....') == true) {
               plugin.cancel(e.id ?? 0, tag: e.tag);
             }

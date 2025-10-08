@@ -43,7 +43,7 @@ Future<void> main() {
       final int? level = data?['level'] is int ? data!['level'] as int : null;
 
       final Map<String, dynamic> traces = data?['traces'] ?? {};
-      for (var e in traces.entries) {
+      for (final e in traces.entries) {
         if (e.value is! Map<String, dynamic>) {
           continue;
         }

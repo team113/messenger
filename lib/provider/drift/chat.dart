@@ -115,11 +115,11 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
 
   /// Creates or updates the provided [items] in the database.
   Future<Iterable<DtoChat>> upsertBulk(Iterable<DtoChat> items) async {
-    for (var e in items) {
+    for (final e in items) {
       _cache[e.id] = e;
     }
 
-    for (var e in items) {
+    for (final e in items) {
       _controllers[e.id]?.add(e);
     }
 
@@ -127,7 +127,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       Log.debug('upsertBulk(${items.length} items)');
 
       await db.batch((batch) {
-        for (var item in items) {
+        for (final item in items) {
           final ChatRow row = item.toDb();
           batch.insert(db.chats, row, mode: InsertMode.insertOrReplace);
         }
@@ -136,7 +136,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       return items.toList();
     }, tag: 'chat.upsertBulk(${items.length} items)');
 
-    for (var e in items) {
+    for (final e in items) {
       _cache.remove(e.value.id);
     }
 

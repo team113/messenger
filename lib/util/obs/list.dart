@@ -100,7 +100,7 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
   @override
   void addAll(Iterable<E> iterable) {
     super.addAll(iterable);
-    for (var element in iterable) {
+    for (final element in iterable) {
       _changes.add(ListChangeNotification<E>.added(element, length - 1));
     }
   }

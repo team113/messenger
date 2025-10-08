@@ -129,7 +129,10 @@ class CallRepository extends DisposableInterface
 
     _remoteSubscription?.cancel(immediate: true);
 
-    for (Rx<OngoingCall> call in List.from(calls.values, growable: false)) {
+    for (final Rx<OngoingCall> call in List.from(
+      calls.values,
+      growable: false,
+    )) {
       remove(call.value.chatId.value);
     }
 
@@ -945,7 +948,7 @@ class CallRepository extends DisposableInterface
   ChatCall? _chatCall(ChatEventsVersionedMixin? m) {
     Log.trace('_chatCall($m)', '$runtimeType');
 
-    for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
+    for (final ChatEventsVersionedMixin$Events e in m?.events ?? []) {
       if (e.$$typename == 'EventChatCallStarted') {
         final node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
         for (final m in node.call.members) {

@@ -130,7 +130,7 @@ class UserRepository extends DisposableInterface
     return PaginatedImpl(
       pagination: pagination,
       initial: [
-        {for (var u in users) u.id: u},
+        {for (final u in users) u.id: u},
         if (num != null) searchByNum(num).then(toMap),
         if (login != null) searchByLogin(login).then(toMap),
         if (link != null) searchByLink(link).then(toMap),

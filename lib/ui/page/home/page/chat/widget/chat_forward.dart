@@ -271,11 +271,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
   @override
   void dispose() {
-    for (var w in _workers) {
+    for (final w in _workers) {
       w.dispose();
     }
 
-    for (var r in _recognizers) {
+    for (final r in _recognizers) {
       r.dispose();
     }
 
@@ -876,7 +876,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ? maxAvatars - 1
           : maxAvatars;
 
-      for (LastChatRead m in widget.reads.take(countUserAvatars)) {
+      for (final LastChatRead m in widget.reads.take(countUserAvatars)) {
         final User? user = widget.chat.value?.members
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
@@ -1068,7 +1068,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           onPressed: () async {
                             final List<ChatItemQuoteInput> quotes = [];
 
-                            for (Rx<ChatItem> item in widget.forwards) {
+                            for (final Rx<ChatItem> item in widget.forwards) {
                               quotes.add(ChatItemQuoteInput(item: item.value));
                             }
 
@@ -1222,7 +1222,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Populates the [_workers] invoking the [_populateSpans] on the
   /// [ChatForwardWidget.forwards] and [ChatForwardWidget.note] changes.
   void _populateWorkers() {
-    for (var w in _workers) {
+    for (final w in _workers) {
       w.dispose();
     }
     _workers.clear();
@@ -1263,7 +1263,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   void _populateGlobalKeys() {
     _galleryKeys.clear();
 
-    for (Rx<ChatItem> forward in widget.forwards) {
+    for (final Rx<ChatItem> forward in widget.forwards) {
       final ChatItemQuote item = (forward.value as ChatForward).quote;
       if (item is ChatMessageQuote) {
         _galleryKeys[forward.value.id] = item.attachments
@@ -1296,13 +1296,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [ChatForwardWidget.forwards] and [ChatForwardWidget.note] parsed through a
   /// [LinkParsingExtension.parseLinks] method.
   void _populateSpans() {
-    for (var r in _recognizers) {
+    for (final r in _recognizers) {
       r.dispose();
     }
     _recognizers.clear();
     _text.clear();
 
-    for (Rx<ChatItem> forward in widget.forwards) {
+    for (final Rx<ChatItem> forward in widget.forwards) {
       final ChatItemQuote item = (forward.value as ChatForward).quote;
       if (item is ChatMessageQuote) {
         final String? string = item.text?.val.trim();

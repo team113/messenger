@@ -557,7 +557,7 @@ class MyUserRepository extends DisposableInterface
       locale: locale,
     );
 
-    for (var e in events?.events ?? []) {
+    for (final e in events?.events ?? []) {
       final event = _myUserEvent(e);
 
       if (event is EventUserEmailAdded) {

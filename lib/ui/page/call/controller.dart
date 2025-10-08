@@ -1137,7 +1137,7 @@ class CallController extends GetxController {
     remotes.remove(participant);
     focused.remove(participant);
 
-    for (Participant r in List.from(focused, growable: false)) {
+    for (final Participant r in List.from(focused, growable: false)) {
       _putVideoFrom(r, focused);
     }
 
@@ -1187,11 +1187,11 @@ class CallController extends GetxController {
   /// [focus]es all [Participant]s, which means putting them in theirs `default`
   /// groups.
   void focusAll() {
-    for (Participant r in List.from(paneled, growable: false)) {
+    for (final Participant r in List.from(paneled, growable: false)) {
       _putVideoFrom(r, paneled);
     }
 
-    for (Participant r in List.from(focused, growable: false)) {
+    for (final Participant r in List.from(focused, growable: false)) {
       _putVideoFrom(r, focused);
     }
 
@@ -1201,7 +1201,7 @@ class CallController extends GetxController {
   /// [unfocus]es all [Participant]s, which means putting them in the [paneled]
   /// group.
   void unfocusAll() {
-    for (Participant r in List.from([
+    for (final Participant r in List.from([
       ...focused,
       ...locals,
       ...remotes,

@@ -77,7 +77,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
   @override
   void didUpdateWidget(covariant SwappableFit<T> oldWidget) {
-    for (T e in widget.items) {
+    for (final T e in widget.items) {
       if (_items.none((p) => p.item == e)) {
         _items.add(_SwappableItem(e));
       }

@@ -520,7 +520,7 @@ class CallWorker extends DisposableService {
       }
     });
 
-    for (Rx<OngoingCall> call in _callService.calls.values) {
+    for (final Rx<OngoingCall> call in _callService.calls.values) {
       handle(call.value.chatId.value, call.value);
     }
 
@@ -558,7 +558,7 @@ class CallWorker extends DisposableService {
           case Event.actionCallToggleMute:
             final bool? isMuted = event.body['isMuted'] as bool?;
             if (isMuted != null) {
-              for (var e in _callService.calls.entries) {
+              for (final e in _callService.calls.entries) {
                 e.value.value.setAudioEnabled(!isMuted);
               }
             }
@@ -600,7 +600,7 @@ class CallWorker extends DisposableService {
         );
 
         if (e is List) {
-          for (var event in e) {
+          for (final event in e) {
             Log.debug(
               'onInit() -> FlutterCallkitIncoming.activeCalls -> event -> ${event.runtimeType} -> ${event is Map}',
               '$runtimeType',
@@ -790,7 +790,7 @@ class CallWorker extends DisposableService {
       ),
     );
 
-    for (var e in _callService.calls.values) {
+    for (final e in _callService.calls.values) {
       e.value.setAudioEnabled(!_muted.value);
     }
 
@@ -845,7 +845,7 @@ class CallWorker extends DisposableService {
                 events
                     as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
 
-            for (var e in mixin.events) {
+            for (final e in mixin.events) {
               if (e.$$typename == 'EventChatCallFinished') {
                 final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
@@ -986,7 +986,7 @@ extension MuteHotKeyExtension on ApplicationSettings {
     final List<HotKeyModifier> modifiers = [];
     final List<PhysicalKeyboardKey> physicalKeys = [];
 
-    for (var e in keys) {
+    for (final e in keys) {
       final modifier = HotKeyModifier.values.firstWhereOrNull(
         (m) => m.name == e,
       );

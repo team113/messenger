@@ -527,7 +527,7 @@ class WebUtils {
           .toDart
           .then((js) => js.toDart);
 
-      for (var registration in registrations) {
+      for (final registration in registrations) {
         registration.active?.postMessage('closeAll:$chatId'.toJS);
       }
     } catch (e) {
@@ -796,7 +796,7 @@ class WebUtils {
       if (isFirefox) {
         final StreamController controller = StreamController(
           onCancel: () {
-            for (var e in stream.getTracks().toDart) {
+            for (final e in stream.getTracks().toDart) {
               e.stop();
             }
           },
@@ -804,7 +804,7 @@ class WebUtils {
 
         return controller.stream.listen((_) {});
       } else {
-        for (var e in stream.getTracks().toDart) {
+        for (final e in stream.getTracks().toDart) {
           e.stop();
         }
       }
@@ -837,7 +837,7 @@ class WebUtils {
       if (isFirefox) {
         final StreamController controller = StreamController(
           onCancel: () {
-            for (var e in stream.getTracks().toDart) {
+            for (final e in stream.getTracks().toDart) {
               e.stop();
             }
           },
@@ -845,7 +845,7 @@ class WebUtils {
 
         return controller.stream.listen((_) {});
       } else {
-        for (var e in stream.getTracks().toDart) {
+        for (final e in stream.getTracks().toDart) {
           e.stop();
         }
       }
@@ -1071,11 +1071,11 @@ class WebUtils {
   /// Handles the [key] event to invoke [_keyHandlers] related to it.
   static bool _handleBindKeys(KeyEvent key) {
     if (key is KeyUpEvent) {
-      for (var e in _keyHandlers.entries) {
+      for (final e in _keyHandlers.entries) {
         if (e.key.key == key.physicalKey) {
           bool modifiers = true;
 
-          for (var m in e.key.modifiers ?? <HotKeyModifier>[]) {
+          for (final m in e.key.modifiers ?? <HotKeyModifier>[]) {
             modifiers =
                 modifiers &&
                 switch (m) {
@@ -1098,7 +1098,7 @@ class WebUtils {
           }
 
           if (modifiers) {
-            for (var f in e.value) {
+            for (final f in e.value) {
               if (f()) {
                 return true;
               }

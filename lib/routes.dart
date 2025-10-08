@@ -243,7 +243,7 @@ class RouterState extends ChangeNotifier {
   void go(String to) {
     arguments = null;
 
-    for (var e in routes) {
+    for (final e in routes) {
       if (e != '/' && e != to) {
         _accounted.add(e);
       }
@@ -315,7 +315,7 @@ class RouterState extends ChangeNotifier {
 
   /// Removes the [routes] satisfying the provided [predicate].
   void removeWhere(bool Function(String element) predicate) {
-    for (String e in routes.toList(growable: false)) {
+    for (final String e in routes.toList(growable: false)) {
       if (predicate(e)) {
         routes.remove(route);
         _accounted.add(route);

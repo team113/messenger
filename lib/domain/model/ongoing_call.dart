@@ -462,7 +462,7 @@ class OngoingCall {
 
           final List<DeviceDetails> removed = [];
 
-          for (DeviceDetails d in previous) {
+          for (final DeviceDetails d in previous) {
             if (devices.none((p) => p.deviceId() == d.deviceId())) {
               removed.add(d);
             }
@@ -507,7 +507,7 @@ class OngoingCall {
 
         final List<MediaDisplayDetails> removed = [];
 
-        for (MediaDisplayDetails d in previous) {
+        for (final MediaDisplayDetails d in previous) {
           if (displays.none((p) => p.deviceId() == d.deviceId())) {
             removed.add(d);
           }
@@ -538,7 +538,7 @@ class OngoingCall {
           // If [connected], then the dialed [User] will be added in [connect],
           // when handling [ChatMembersDialedAll].
           if (!connected) {
-            for (UserId e in chat.members.items.keys.where(
+            for (final UserId e in chat.members.items.keys.where(
               (e) => e != me.id.userId,
             )) {
               _addDialing(e);
@@ -816,7 +816,7 @@ class OngoingCall {
                           _handToggles.firstOrNull == false) {
                         _handToggles.removeAt(0);
                       } else {
-                        for (MapEntry<CallMemberId, CallMember> m
+                        for (final MapEntry<CallMemberId, CallMember> m
                             in members.entries.where(
                               (e) => e.key.userId == node.user.id,
                             )) {
@@ -824,7 +824,7 @@ class OngoingCall {
                         }
                       }
 
-                      for (ChatCallMember m
+                      for (final ChatCallMember m
                           in (call.value?.members ?? []).where(
                             (e) => e.user.id == node.user.id,
                           )) {
@@ -840,7 +840,7 @@ class OngoingCall {
                           _handToggles.firstOrNull == true) {
                         _handToggles.removeAt(0);
                       } else {
-                        for (MapEntry<CallMemberId, CallMember> m
+                        for (final MapEntry<CallMemberId, CallMember> m
                             in members.entries.where(
                               (e) => e.key.userId == node.user.id,
                             )) {
@@ -848,7 +848,7 @@ class OngoingCall {
                         }
                       }
 
-                      for (ChatCallMember m
+                      for (final ChatCallMember m
                           in (call.value?.members ?? []).where(
                             (e) => e.user.id == node.user.id,
                           )) {
@@ -1256,13 +1256,13 @@ class OngoingCall {
       final List<Future> futures = [];
 
       if (enabled && isRemoteAudioEnabled.isFalse) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
+        for (final CallMember m in members.values.where((e) => e.id != _me)) {
           futures.add(m.setAudioEnabled(true));
         }
 
         isRemoteAudioEnabled.toggle();
       } else if (!enabled && isRemoteAudioEnabled.isTrue) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
+        for (final CallMember m in members.values.where((e) => e.id != _me)) {
           if (m.tracks.any((e) => e.kind == MediaKind.audio)) {
             futures.add(m.setAudioEnabled(false));
           }
@@ -1287,7 +1287,7 @@ class OngoingCall {
       final List<Future> futures = [];
 
       if (enabled && isRemoteVideoEnabled.isFalse) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
+        for (final CallMember m in members.values.where((e) => e.id != _me)) {
           futures.addAll([
             m.setVideoEnabled(true, source: MediaSourceKind.device),
             m.setVideoEnabled(true, source: MediaSourceKind.display),
@@ -1296,7 +1296,7 @@ class OngoingCall {
 
         isRemoteVideoEnabled.toggle();
       } else if (!enabled && isRemoteVideoEnabled.isTrue) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
+        for (final CallMember m in members.values.where((e) => e.id != _me)) {
           m.tracks.where((e) => e.kind == MediaKind.video).forEach((e) {
             futures.add(m.setVideoEnabled(false, source: e.source));
           });
@@ -1391,7 +1391,8 @@ class OngoingCall {
       return;
     }
 
-    for (var t in me.tracks.map((e) => e.track).whereType<LocalMediaTrack>()) {
+    for (final t
+        in me.tracks.map((e) => e.track).whereType<LocalMediaTrack>()) {
       if (!t.isAudioProcessingAvailable()) {
         Log.debug(
           'applyVoiceProcessing() -> audio processing not available for track $t',
@@ -1793,7 +1794,7 @@ class OngoingCall {
     Log.debug('toggleHand()', '$runtimeType');
 
     // Toggle the hands of all the devices of the authenticated [MyUser].
-    for (MapEntry<CallMemberId, CallMember> m in members.entries.where(
+    for (final MapEntry<CallMemberId, CallMember> m in members.entries.where(
       (e) => e.key.userId == _me.userId,
     )) {
       m.value.isHandRaised.toggle();
@@ -2041,7 +2042,7 @@ class OngoingCall {
       }
 
       // Add the local tracks asynchronously.
-      for (LocalMediaTrack track in tracks) {
+      for (final LocalMediaTrack track in tracks) {
         _addLocalTrack(track);
       }
 
@@ -2088,7 +2089,7 @@ class OngoingCall {
   void _disposeLocalMedia() {
     Log.debug('_disposeLocalMedia()', '$runtimeType');
 
-    for (Track t in members[_me]?.tracks ?? []) {
+    for (final Track t in members[_me]?.tracks ?? []) {
       t.dispose();
     }
     members[_me]?.tracks.clear();
@@ -2196,7 +2197,7 @@ class OngoingCall {
     _room = null;
 
     if (dispose) {
-      for (Track t in members.values.expand((e) => e.tracks)) {
+      for (final Track t in members.values.expand((e) => e.tracks)) {
         t.dispose();
       }
     }
@@ -2298,7 +2299,7 @@ class OngoingCall {
           : null,
     );
 
-    for (LocalMediaTrack track in tracks) {
+    for (final LocalMediaTrack track in tracks) {
       await _addLocalTrack(track);
     }
   }

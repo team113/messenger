@@ -820,7 +820,7 @@ class MyProfileController extends GetxController {
         final List<HotKeyModifier> modifiers = [];
         PhysicalKeyboardKey? lastKey;
 
-        for (var e in _keysRecorded) {
+        for (final e in _keysRecorded) {
           if (e.logicalKey.isModifier) {
             modifiers.add(e.logicalKey.asModifier!);
           } else {

@@ -388,7 +388,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       Rect endRect = _expandedKeys[_expanded].globalPaintBounds!;
 
       // Compensate another [_expandedKeys].
-      for (var e in _expandedKeys) {
+      for (final e in _expandedKeys) {
         if (_expandedKeys.indexOf(e) < _expanded) {
           endRect = endRect.translate(
             -(e.globalPaintBounds ?? Rect.zero).width / 2,
@@ -501,7 +501,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     }
 
     if (_expanded < 0) {
-      for (_DraggedItem<T> e in _items) {
+      for (final _DraggedItem<T> e in _items) {
         e.paintBounds = e.key.globalPaintBounds;
       }
     }

@@ -85,7 +85,7 @@ class VersionDriftProvider extends DriftProviderBase {
             .toList();
       }, exclusive: false);
 
-      for (var e in result ?? <(UserId, SessionData)>[]) {
+      for (final e in result ?? <(UserId, SessionData)>[]) {
         data[e.$1] = e.$2;
       }
 

@@ -433,7 +433,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void dispose() {
     _worker?.dispose();
-    for (var r in _recognizers) {
+    for (final r in _recognizers) {
       r.dispose();
     }
 
@@ -1319,7 +1319,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ? maxAvatars - 1
           : maxAvatars;
 
-      for (LastChatRead m in widget.reads.take(countUserAvatars)) {
+      for (final LastChatRead m in widget.reads.take(countUserAvatars)) {
         final User? user = widget.chat.value?.members
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
@@ -1811,7 +1811,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// parsed through a [LinkParsingExtension.parseLinks] method.
   void _populateSpans(ChatItem msg) {
     if (msg is ChatMessage) {
-      for (var r in _recognizers) {
+      for (final r in _recognizers) {
         r.dispose();
       }
       _recognizers.clear();
@@ -2131,7 +2131,7 @@ extension LinkParsingExtension on String {
     final List<TextSpan> spans = [];
     final List<String> links = [];
 
-    for (RegExpMatch match in matches) {
+    for (final RegExpMatch match in matches) {
       links.add(text.substring(match.start, match.end));
     }
 
@@ -2169,7 +2169,7 @@ extension LinkParsingExtension on String {
                 final String url = uri.toString();
                 final List<String> origins = [Config.origin, Config.link];
 
-                for (var e in origins) {
+                for (final e in origins) {
                   if (url.startsWith(e)) {
                     router.push(url.replaceFirst(e, ''));
                     return;

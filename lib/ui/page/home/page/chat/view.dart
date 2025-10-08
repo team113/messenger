@@ -867,7 +867,7 @@ class ChatView extends StatelessWidget {
                   onHide: () async {
                     final List<Future> futures = [];
 
-                    for (Rx<ChatItem> f in element.forwards) {
+                    for (final Rx<ChatItem> f in element.forwards) {
                       futures.add(c.hideChatItem(f.value));
                     }
 
@@ -880,7 +880,7 @@ class ChatView extends StatelessWidget {
                   onDelete: () async {
                     final List<Future> futures = [];
 
-                    for (Rx<ChatItem> f in element.forwards) {
+                    for (final Rx<ChatItem> f in element.forwards) {
                       futures.add(c.deleteMessage(f.value));
                     }
 
@@ -923,7 +923,7 @@ class ChatView extends StatelessWidget {
                         field.replied.any(
                           (i) => i.value.id == element.note.value?.value.id,
                         )) {
-                      for (Rx<ChatItem> e in element.forwards) {
+                      for (final Rx<ChatItem> e in element.forwards) {
                         field.replied.removeWhere(
                           (i) => i.value.id == e.value.id,
                         );
@@ -939,7 +939,7 @@ class ChatView extends StatelessWidget {
                         field.replied.add(element.note.value!);
                       }
 
-                      for (Rx<ChatItem> e in element.forwards) {
+                      for (final Rx<ChatItem> e in element.forwards) {
                         field.replied.add(e);
                       }
                     }
@@ -974,7 +974,7 @@ class ChatView extends StatelessWidget {
                       return;
                     }
 
-                    for (ChatItem item in [
+                    for (final ChatItem item in [
                       element.note.value?.value,
                       ...element.forwards.map((e) => e.value),
                     ].nonNulls) {

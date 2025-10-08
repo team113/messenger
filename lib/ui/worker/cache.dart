@@ -397,7 +397,7 @@ class CacheWorker extends DisposableService {
             .toList();
 
         final List<Future> futures = [];
-        for (var file in files) {
+        for (final file in files) {
           futures.add(
             Future(() async {
               try {
@@ -453,7 +453,7 @@ class CacheWorker extends DisposableService {
         final List<String> removed = [];
 
         final Map<File, FileStat> stats = {};
-        for (File file in files) {
+        for (final File file in files) {
           final FileStat stat = file.statSync();
           if (stat.type == FileSystemEntityType.notFound) {
             removed.add(p.basename(file.path));
@@ -465,7 +465,7 @@ class CacheWorker extends DisposableService {
         files.sortBy((f) => stats[f]!.accessed);
 
         int deleted = 0;
-        for (File file in files) {
+        for (final File file in files) {
           try {
             final FileStat? stat = stats[file];
 

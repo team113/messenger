@@ -88,7 +88,7 @@ class AuthRepository extends DisposableInterface
   @override
   void onInit() {
     _profilesSubscription = _myUserProvider.watch().listen((ops) {
-      for (var e in ops) {
+      for (final e in ops) {
         switch (e.op) {
           case OperationKind.added:
           case OperationKind.updated:

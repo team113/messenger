@@ -164,7 +164,7 @@ class RxObsSplayTreeMap<K, V>
 
   @override
   void clear() {
-    for (var entry in entries) {
+    for (final entry in entries) {
       _changes.add(MapChangeNotification<K, V>.removed(entry.key, entry.value));
     }
     _value.clear();

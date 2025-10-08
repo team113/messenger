@@ -216,7 +216,7 @@ class RxUserImpl extends RxUser {
         );
 
         userEntity.ver = versioned.ver;
-        for (var event in versioned.events) {
+        for (final event in versioned.events) {
           switch (event.kind) {
             case UserEventKind.avatarDeleted:
               userEntity.value.avatar = null;
@@ -313,7 +313,7 @@ class RxUserImpl extends RxUser {
           break;
         }
 
-        for (var event in versioned.events) {
+        for (final event in versioned.events) {
           _userLocal.upsert(event.user);
         }
         break;

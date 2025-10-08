@@ -83,7 +83,7 @@ class ObsMap<K, V> extends DelegatingMap<K, V> implements Map<K, V> {
 
   @override
   void addEntries(Iterable<MapEntry<K, V>> entries) {
-    for (var element in entries) {
+    for (final element in entries) {
       if (super.containsKey(element.key)) {
         super[element.key] = element.value;
         _changes.add(
@@ -104,7 +104,7 @@ class ObsMap<K, V> extends DelegatingMap<K, V> implements Map<K, V> {
 
   @override
   void clear() {
-    for (var entry in entries) {
+    for (final entry in entries) {
       _changes.add(MapChangeNotification<K, V>.removed(entry.key, entry.value));
     }
     super.clear();

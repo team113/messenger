@@ -912,7 +912,7 @@ class ChatController extends GetxController {
               <Rx<ChatItem>>[],
         );
 
-        for (Attachment e in draft?.attachments ?? []) {
+        for (final Attachment e in draft?.attachments ?? []) {
           send.attachments.add(MapEntry(GlobalKey(), e));
         }
 
@@ -1021,7 +1021,7 @@ class ChatController extends GetxController {
         _ready.setTag('local', '${id.isLocal}');
 
         if (itemId == null) {
-          for (Rx<ChatItem> e in chat!.messages) {
+          for (final Rx<ChatItem> e in chat!.messages) {
             _add(e);
           }
 
@@ -1585,7 +1585,7 @@ class ChatController extends GetxController {
   /// Downloads the provided image or video [attachments].
   Future<void> downloadMedia(List<Attachment> attachments, {String? to}) async {
     try {
-      for (Attachment attachment in attachments) {
+      for (final Attachment attachment in attachments) {
         if (attachment is! LocalAttachment) {
           await CacheWorker.instance
               .download(
@@ -1624,7 +1624,7 @@ class ChatController extends GetxController {
   ) async {
     // Tries downloading the [attachments].
     Future<void> download() async {
-      for (Attachment attachment in attachments) {
+      for (final Attachment attachment in attachments) {
         if (attachment is! LocalAttachment) {
           if (attachment is FileAttachment && attachment.isVideo) {
             MessagePopup.success('label_video_downloading'.l10n);
@@ -2676,7 +2676,7 @@ extension SelectedToItemsExtension on RxList<ListElement> {
   List<ChatItem> get asItems {
     final List<ChatItem> items = [];
 
-    for (var e in this) {
+    for (final e in this) {
       if (e is ChatMessageElement) {
         items.add(e.item.value);
       } else if (e is ChatCallElement) {
@@ -2688,7 +2688,7 @@ extension SelectedToItemsExtension on RxList<ListElement> {
           items.add(e.note.value!.value);
         }
 
-        for (var f in e.forwards) {
+        for (final f in e.forwards) {
           items.add(f.value);
         }
       }

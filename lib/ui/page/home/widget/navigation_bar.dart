@@ -82,7 +82,7 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
     final List<GlobalKey> keys = [];
 
     if (oldWidget.items.length != widget.items.length) {
-      for (var e in widget.items) {
+      for (final e in widget.items) {
         final int index = oldWidget.items.indexOf(e);
         keys.add(index == -1 ? GlobalKey() : _keys[index]);
       }

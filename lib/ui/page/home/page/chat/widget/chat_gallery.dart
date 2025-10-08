@@ -59,7 +59,7 @@ class RegularGallery extends StatelessWidget {
   Widget build(BuildContext context) {
     return PlayerView(
       source: FixedItemsPaginated({
-        for (var e in items) ...{e.id: e},
+        for (final e in items) ...{e.id: e},
       }),
       resourceId: resourceId,
       onReply: onReply,
@@ -173,7 +173,7 @@ class _PaginatedGalleryState extends State<PaginatedGallery> {
     _updates = widget.paginated?.updates.listen(null);
 
     if (widget.paginated != null) {
-      for (var e in widget.paginated!.items.values) {
+      for (final e in widget.paginated!.items.values) {
         _add(e.value);
       }
     }

@@ -185,7 +185,7 @@ class SessionRepository extends DisposableInterface
 
       final List<Future> futures = [];
       if (!wasNull) {
-        for (var e in sessions) {
+        for (final e in sessions) {
           futures.add(e.init());
         }
       }
@@ -203,7 +203,7 @@ class SessionRepository extends DisposableInterface
     Log.debug('_initSessionLocalSubscription()', '$runtimeType');
 
     _localSubscription = _sessionLocal.watch().listen((events) {
-      for (var e in events) {
+      for (final e in events) {
         switch (e.op) {
           case OperationKind.added:
           case OperationKind.updated:
@@ -366,7 +366,7 @@ class SessionRepository extends DisposableInterface
           );
         }
 
-        for (var e in sessions) {
+        for (final e in sessions) {
           this.sessions.add(RxSessionImpl(this, e)..init());
         }
         this.sessions.sort();

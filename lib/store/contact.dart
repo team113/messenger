@@ -298,7 +298,7 @@ class ContactRepository extends DisposableInterface
     return PaginatedImpl(
       pagination: pagination,
       initial: [
-        {for (var u in contacts) u.id: u},
+        {for (final u in contacts) u.id: u},
         if (email != null) searchByEmail(email).then(toMap),
         if (phone != null) searchByPhone(phone).then(toMap),
       ],
@@ -354,7 +354,7 @@ class ContactRepository extends DisposableInterface
 
     final ChatContact? contact = contacts[id]?.contact.value;
     if (contact != null) {
-      for (User user in contact.users) {
+      for (final User user in contact.users) {
         await _userRepo.removeContact(contact.id, user.id);
       }
     }
@@ -673,7 +673,7 @@ class ContactRepository extends DisposableInterface
 
           final Map<ChatContactId, DtoChatContact> entities = {};
 
-          for (var node in versioned.events) {
+          for (final node in versioned.events) {
             if (node.kind == ChatContactEventKind.created) {
               node as EventChatContactCreated;
               entities[node.contactId] = DtoChatContact(
@@ -740,7 +740,7 @@ class ContactRepository extends DisposableInterface
 
                 // Add the [entity.value] to the [node.user], as [User] has no
                 // events about its [User.contacts] list changes.
-                for (var e in entity.value.users) {
+                for (final e in entity.value.users) {
                   await _userRepo.addContact(entity.value, e.id);
                 }
                 break;
@@ -836,9 +836,9 @@ class ContactRepository extends DisposableInterface
 
     _sessionLocal.upsert(me, chatContactsListVersion: NewType(query.ver));
 
-    for (var c in query.edges) {
+    for (final c in query.edges) {
       final List<DtoUser> users = c.node.getDtoUsers();
-      for (var user in users) {
+      for (final user in users) {
         _userRepo.put(user);
       }
     }
@@ -871,9 +871,9 @@ class ContactRepository extends DisposableInterface
 
     _sessionLocal.upsert(me, chatContactsListVersion: NewType(query.ver));
 
-    for (var c in query.edges) {
+    for (final c in query.edges) {
       final List<DtoUser> users = c.node.getDtoUsers();
-      for (var user in users) {
+      for (final user in users) {
         _userRepo.put(user);
       }
     }

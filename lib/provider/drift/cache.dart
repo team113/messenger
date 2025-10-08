@@ -54,7 +54,7 @@ class CacheDriftProvider extends DriftProviderBase {
   Future<void> register(List<String> checksums) async {
     await safe((db) async {
       await db.batch((batch) {
-        for (var e in checksums) {
+        for (final e in checksums) {
           batch.insert(
             db.cache,
             CacheRow(checksum: e),

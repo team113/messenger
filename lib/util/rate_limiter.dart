@@ -61,7 +61,7 @@ class RateLimiter {
       }
 
       final taken = queue.take(requests);
-      for (var m in taken) {
+      for (final m in taken) {
         m.release();
       }
     });
@@ -98,7 +98,7 @@ class RateLimiter {
     _timer?.cancel();
     _timer = null;
 
-    for (var m in queue) {
+    for (final m in queue) {
       if (m.isLocked) {
         m.release();
       }

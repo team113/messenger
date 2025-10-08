@@ -248,7 +248,7 @@ class WelcomeFieldController extends GetxController {
     );
 
     if (result != null && result.files.isNotEmpty) {
-      for (PlatformFile e in result.files) {
+      for (final PlatformFile e in result.files) {
         addPlatformAttachment(e);
       }
     }
