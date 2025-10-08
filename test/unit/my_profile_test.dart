@@ -122,7 +122,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
-  var blocklist = {
+  Map<String, Object> blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',

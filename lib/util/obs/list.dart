@@ -86,7 +86,7 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
   void emit(ListChangeNotification<E> event) => _changes.add(event);
 
   @override
-  operator []=(int index, E value) {
+  void operator []=(int index, E value) {
     super[index] = value;
     _changes.add(ListChangeNotification<E>.updated(value, index));
   }

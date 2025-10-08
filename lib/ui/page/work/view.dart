@@ -60,7 +60,7 @@ class _WorkViewState extends State<WorkView> {
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return GetBuilder(

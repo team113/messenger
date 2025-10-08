@@ -213,7 +213,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   @override
   Future<void> reconnect() async {}
 
-  var userData = {
+  Map<String, Object> userData = {
     'id': 'me',
     'num': '1234567890123456',
     'login': 'login',
@@ -227,7 +227,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
-  var blocklist = {
+  Map<String, Object> blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',

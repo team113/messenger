@@ -120,7 +120,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     if (_deps == null) {

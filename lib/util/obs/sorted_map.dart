@@ -62,7 +62,7 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
   Stream<MapChangeNotification<K, V>> get changes => _keys.changes;
 
   @override
-  operator []=(K key, V value) {
+  void operator []=(K key, V value) {
     _values.remove(_keys[key]);
     _values.add(value);
     _keys[key] = value;
