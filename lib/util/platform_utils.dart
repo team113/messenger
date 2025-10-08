@@ -440,11 +440,11 @@ class PlatformUtilsImpl {
       File file = File('${directory.path}/$filename');
 
       // TODO: Compare hashes instead of sizes.
-      for (int i = 1; await file.exists() && await file.length() != size; ++i) {
+      for (int i = 1; file.existsSync() && await file.length() != size; ++i) {
         file = File('${directory.path}/$name ($i)$ext');
       }
 
-      if (await file.exists()) {
+      if (file.existsSync()) {
         return file;
       }
     }
@@ -559,7 +559,7 @@ class PlatformUtilsImpl {
                   : await downloadsDirectory;
 
               file = File('${directory.path}/$filename');
-              for (int i = 1; await file!.exists(); ++i) {
+              for (int i = 1; file!.existsSync(); ++i) {
                 file = File('${directory.path}/$name ($i)$extension');
               }
             } else {
