@@ -34,6 +34,7 @@ import '/util/platform_utils.dart';
 /// Button in a [CallView].
 ///
 /// Intended to be placed in a [Dock] to be reordered around.
+@immutable
 abstract class CallButton {
   const CallButton(this.c);
 

@@ -18,6 +18,7 @@
 import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -581,8 +582,9 @@ class UserTextStatus extends NewType<String> {
 
 /// [User]'s record in a blocklist of the authenticated [MyUser].
 @JsonSerializable()
+@immutable
 class BlocklistRecord implements Comparable<BlocklistRecord> {
-  BlocklistRecord({required this.userId, this.reason, required this.at});
+  const BlocklistRecord({required this.userId, this.reason, required this.at});
 
   /// Constructs a [BlocklistRecord] from the provided [json].
   factory BlocklistRecord.fromJson(Map<String, dynamic> json) =>

@@ -20,6 +20,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -352,6 +353,7 @@ class UpgradeWorker extends DisposableService {
 }
 
 /// Application release information.
+@immutable
 class Release {
   const Release({
     required this.name,
@@ -432,6 +434,7 @@ class Release {
 }
 
 /// Artifact of the [Release].
+@immutable
 class ReleaseArtifact {
   const ReleaseArtifact({required this.url, required this.os});
 

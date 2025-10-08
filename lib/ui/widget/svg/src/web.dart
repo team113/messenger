@@ -131,6 +131,7 @@ abstract class _SvgLoader {
 }
 
 /// SVG picture loader from an asset.
+@immutable
 class _AssetSvgLoader implements _SvgLoader {
   const _AssetSvgLoader(this.asset);
 

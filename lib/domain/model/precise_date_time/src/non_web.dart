@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '/util/new_type.dart';
@@ -23,9 +24,10 @@ part 'non_web.g.dart';
 
 /// [DateTime] considering the microseconds on any platform, including Web.
 @JsonSerializable()
+@immutable
 class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
-  PreciseDateTime(super.val, {int microsecond = 0});
+  const PreciseDateTime(super.val, {int microsecond = 0});
 
   /// Constructs a new [PreciseDateTime] instance with the given
   /// [microsecondsSinceEpoch].

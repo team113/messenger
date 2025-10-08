@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -244,6 +245,7 @@ class ChatMessageText extends NewType<String> {
 }
 
 /// Combined [at] and [id] unique identifier of a [ChatItem].
+@immutable
 class ChatItemKey implements Comparable<ChatItemKey> {
   const ChatItemKey(this.at, this.id);
 

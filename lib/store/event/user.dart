@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/foundation.dart';
+
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -309,8 +311,9 @@ class EventUserStatusUpdated extends UserEvent {
 }
 
 /// Event of a [WelcomeMessage] being deleted by its author.
+@immutable
 class EventUserWelcomeMessageDeleted extends UserEvent {
-  EventUserWelcomeMessageDeleted(super.userId, this.at);
+  const EventUserWelcomeMessageDeleted(super.userId, this.at);
 
   /// [PreciseDateTime] when the [WelcomeMessage] was deleted.
   final PreciseDateTime at;
@@ -327,8 +330,9 @@ class EventUserWelcomeMessageDeleted extends UserEvent {
 }
 
 /// Event of a [WelcomeMessage] being updated by its author.
+@immutable
 class EventUserWelcomeMessageUpdated extends UserEvent {
-  EventUserWelcomeMessageUpdated(
+  const EventUserWelcomeMessageUpdated(
     super.userId,
     this.at,
     this.text,

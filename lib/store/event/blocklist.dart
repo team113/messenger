@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/foundation.dart';
+
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/store/model/blocklist.dart';
@@ -89,6 +91,7 @@ abstract class BlocklistEvent {
 
 /// Event of a [BlocklistRecord] being added to blocklist of the authenticated
 /// [MyUser].
+@immutable
 class EventBlocklistRecordAdded extends BlocklistEvent {
   const EventBlocklistRecordAdded(super.user, super.at, this.reason);
 
@@ -111,6 +114,7 @@ class EventBlocklistRecordAdded extends BlocklistEvent {
 
 /// Event of a [BlocklistRecord] being removed from blocklist of the
 /// authenticated [MyUser].
+@immutable
 class EventBlocklistRecordRemoved extends BlocklistEvent {
   const EventBlocklistRecordRemoved(super.user, super.at);
 

@@ -2182,6 +2182,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 }
 
 /// [Draggable] data consisting of a [participant] and its [chatId].
+@immutable
 class _DragData {
   const _DragData(this.participant, this.chatId);
 

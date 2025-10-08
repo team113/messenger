@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '/api/backend/schema.dart';
@@ -156,8 +157,9 @@ class ChatCallMember {
 
 /// One-time secret credentials to authenticate a [ChatCall] with on a media
 /// server.
+@immutable
 class ChatCallCredentials {
-  ChatCallCredentials(this.val);
+  const ChatCallCredentials(this.val);
 
   /// Constructs the [ChatCallCredentials] from the provided [val].
   factory ChatCallCredentials.fromJson(String val) = ChatCallCredentials;
@@ -230,6 +232,7 @@ abstract class ChatMembersDialed {
 /// Information about all [ChatMember]s of a [Chat] being dialed (or redialed)
 /// by a [ChatCall].
 @JsonSerializable()
+@immutable
 class ChatMembersDialedAll implements ChatMembersDialed {
   const ChatMembersDialedAll(this.answeredMembers);
 
@@ -260,6 +263,7 @@ class ChatMembersDialedAll implements ChatMembersDialed {
 /// Information about concrete [ChatMember]s of a [Chat] being dialed (or
 /// redialed) by a [ChatCall].
 @JsonSerializable()
+@immutable
 class ChatMembersDialedConcrete implements ChatMembersDialed {
   const ChatMembersDialedConcrete(this.members);
 

@@ -1060,6 +1060,7 @@ class Post implements Comparable<Post> {
 }
 
 /// Single item of [Post] represented with an [Attachment].
+@immutable
 class PostItem {
   PostItem(this.attachment);
 
@@ -1172,8 +1173,9 @@ class ReactivePlayerController {
 }
 
 /// [ChatItem] with its [Attachment]s.
+@immutable
 class MediaItem implements Comparable<MediaItem> {
-  MediaItem(this.attachments, this.item);
+  const MediaItem(this.attachments, this.item);
 
   /// [Attachment] themselves.
   final List<Attachment> attachments;

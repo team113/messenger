@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'precise_date_time/precise_date_time.dart';
@@ -23,6 +24,7 @@ part 'mute_duration.g.dart';
 
 /// Mute duration of a [Chat] or [MyUser].
 @JsonSerializable()
+@immutable
 class MuteDuration {
   MuteDuration({this.until, this.forever});
 

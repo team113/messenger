@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
@@ -2630,6 +2631,7 @@ class RtcAudioRenderer extends RtcRenderer {
 
 /// Call member ID of an [OngoingCall] containing its [UserId] and
 /// [ChatCallDeviceId].
+@immutable
 class CallMemberId {
   const CallMemberId(this.userId, this.deviceId);
 

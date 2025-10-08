@@ -2416,6 +2416,7 @@ class ChatController extends GetxController {
 }
 
 /// ID of a [ListElement] containing its [PreciseDateTime] and [ChatItemId].
+@immutable
 class ListElementId implements Comparable<ListElementId> {
   const ListElementId(this.at, this.id);
 

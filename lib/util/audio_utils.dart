@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 import 'package:mutex/mutex.dart';
 
@@ -341,6 +342,7 @@ abstract class AudioSource {
 }
 
 /// [AudioSource] of the provided [asset].
+@immutable
 class AssetAudioSource extends AudioSource {
   const AssetAudioSource(this.asset);
 
@@ -359,6 +361,7 @@ class AssetAudioSource extends AudioSource {
 }
 
 /// [AudioSource] of the provided [file].
+@immutable
 class FileAudioSource extends AudioSource {
   const FileAudioSource(this.file);
 
@@ -377,6 +380,7 @@ class FileAudioSource extends AudioSource {
 }
 
 /// [AudioSource] of the provided [url].
+@immutable
 class UrlAudioSource extends AudioSource {
   const UrlAudioSource(this.url);
 

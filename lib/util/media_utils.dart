@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
@@ -427,6 +428,7 @@ enum AudioSpeakerKind { headphones, earpiece, speaker }
 /// Wrapper around a [MediaDeviceDetails] with [id] method.
 ///
 /// [id] may be overridden to represent a different device.
+@immutable
 class DeviceDetails extends MediaDeviceDetails {
   DeviceDetails(this._device);
 
