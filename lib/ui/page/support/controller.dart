@@ -18,19 +18,65 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/my_user.dart';
+import '/domain/model/push_token.dart';
+import '/domain/model/session.dart';
+import '/domain/repository/session.dart';
+import '/domain/service/auth.dart';
+import '/domain/service/my_user.dart';
+import '/domain/service/notification.dart';
+import '/domain/service/session.dart';
 import '/l10n/l10n.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 
 /// Controller of the `Routes.support` page.
 class SupportController extends GetxController {
-  SupportController(this._upgradeWorker);
+  SupportController(
+    this._upgradeWorker,
+    this._authService,
+    this._myUserService,
+    this._sessionService,
+    this._notificationService,
+  );
+
+  /// [PlatformUtilsImpl.userAgent] string.
+  final RxnString userAgent = RxnString();
+
+  /// Indicator whether [checkForUpdates] is currently being executed.
+  final RxBool checkingForUpdates = RxBool(false);
 
   /// [UpgradeWorker] to check for new application updates.
   final UpgradeWorker _upgradeWorker;
 
-  /// Indicator whether [checkForUpdates] is currently being executed.
-  final RxBool checkingForUpdates = RxBool(false);
+  /// [AuthService] used to retrieve the current [sessionId].
+  final AuthService _authService;
+
+  /// [MyUserService] used to retrieve the current [MyUser].
+  final MyUserService? _myUserService;
+
+  /// [SessionService] maintaining the [Session]s.
+  final SessionService? _sessionService;
+
+  /// [NotificationService] having the [DeviceToken] information.
+  final NotificationService? _notificationService;
+
+  /// Returns the currently authenticated [MyUser], if any.
+  Rx<MyUser?>? get myUser => _myUserService?.myUser;
+
+  /// Returns the [Session]s known to this device, if any.
+  RxList<RxSession>? get sessions => _sessionService?.sessions;
+
+  /// Returns the currently authenticated [SessionId], if any.
+  SessionId? get sessionId => _authService.credentials.value?.session.id;
+
+  /// Returns the [DeviceToken] of this device, if any.
+  DeviceToken? get token => _notificationService?.token;
+
+  /// Indicates whether the [NotificationService] reports push notifications as
+  /// being active.
+  bool? get pushNotifications => _notificationService?.pushNotifications;
 
   /// Fetches the application updates via the [UpgradeWorker].
   Future<void> checkForUpdates() async {

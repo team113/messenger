@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 
 /// Tile representing a the provided [chat] along with the [duration].
@@ -80,7 +81,7 @@ class ChatInfoCard extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                chat?.title ?? 'dot'.l10n * 3,
+                                chat?.title() ?? 'dot'.l10n * 3,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                                 style: style.fonts.big.regular.onPrimary,

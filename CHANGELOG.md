@@ -9,7 +9,39 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.7.0] · 2025-??-??
 [0.7.0]: /../../tree/v0.7.0
 
-[Diff](/../../compare/v0.6.4...v0.7.0) | [Milestone](/../../milestone/49)
+[Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/50)
+
+### Added
+
+- UI:
+    - Help page:
+        - Download logs button. ([#1458])
+
+### Changed:
+
+- UI:
+    - Chat page:
+        - Added the "Search in chat" action to the context menu. ([#1396], [#1438])
+        - Added a keyboard shortcuts "Ctrl+F"/"Cmd+F" to open search. ([#1396], [#1438])
+
+### Fixed
+
+- Web:
+    - Player:
+        - Inability to copy images to clipboard. ([#1457])
+
+[#1396]: /../../issues/1396
+[#1438]: /../../pull/1438
+[#1457]: /../../pull/1457
+[#1458]: /../../pull/1458
+
+
+
+
+## [0.6.5] · 2025-10-06
+[0.6.5]: /../../tree/v0.6.5
+
+[Diff](/../../compare/v0.6.4...v0.6.5) | [Milestone](/../../milestone/49)
 
 ### Changed
 
@@ -18,8 +50,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned app bar and search field. ([#1396], [#1438])
     - Chat page:
         - Redesigned messages selection. ([#1416], [#1410])
-        - Added the "Search in chat" action to the context menu. ([#1396], [#1438])
-        - Added a keyboard shortcuts "Ctrl+F"/"Cmd+F" to open search. ([#1396], [#1438])
+        - Redesigned message information. ([#1437], [#1379])
 
 ### Fixed
 
@@ -27,10 +58,10 @@ All user visible changes to this project will be documented in this file. This p
     - Login modal:
         - Meaningless formatting errors when leading/trailing spaces are present. ([#1448], [#1443])
 
-[#1396]: /../../issues/1396
+[#1379]: /../../issues/1379
 [#1410]: /../../issues/1410
 [#1416]: /../../pull/1416
-[#1438]: /../../pull/1438
+[#1437]: /../../pull/1437
 [#1443]: /../../issues/1443
 [#1448]: /../../issues/1448
 

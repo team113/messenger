@@ -18,6 +18,7 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
 import '../world/custom_world.dart';
@@ -34,7 +35,7 @@ final StepDefinitionGeneric seeNamedChat = then1<String, CustomWorld>(
       await context.world.appDriver.waitForAppToSettle();
 
       final controller = Get.find<ChatsTabController>();
-      return controller.chats.any((c) => c.rx.title == name);
+      return controller.chats.any((c) => c.rx.title() == name);
     });
   },
 );

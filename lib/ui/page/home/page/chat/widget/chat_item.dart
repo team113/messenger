@@ -1308,12 +1308,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
-    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
-      (e) =>
-          !e.at.val.isBefore(widget.item.value.at.val) &&
-          e.memberId != _author.id,
-    );
-
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
     const AvatarRadius avatarRadius = AvatarRadius.medium;
@@ -1383,11 +1377,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Transform.translate(
               offset: const Offset(-12, 0),
               child: WidgetButton(
-                onPressed: () => MessageInfo.show(
-                  context,
-                  reads: reads ?? [],
-                  id: widget.item.value.id,
-                ),
+                onPressed: () =>
+                    MessageInfo.show(context, widget.item.value.id),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 2),
                   child: Row(
@@ -1484,11 +1475,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                               : 'btn_message_info'.l10n,
                           trailing: const SvgIcon(SvgIcons.info),
                           inverted: const SvgIcon(SvgIcons.infoWhite),
-                          onPressed: () => MessageInfo.show(
-                            context,
-                            id: widget.item.value.id,
-                            reads: reads ?? [],
-                          ),
+                          onPressed: () =>
+                              MessageInfo.show(context, widget.item.value.id),
                         ),
                         if (copyable != null)
                           ContextMenuButton(

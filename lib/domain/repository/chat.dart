@@ -73,6 +73,9 @@ abstract class AbstractChatRepository {
   /// Returns an [RxChat] by the provided [id].
   FutureOr<RxChat?> get(ChatId id);
 
+  /// Returns a [ChatItem] by the provided [id].
+  FutureOr<ChatItem?> getItem(ChatItemId id);
+
   /// Removes a [Chat] identified by the provided [id] from the [chats].
   Future<void> remove(ChatId id);
 
@@ -248,9 +251,6 @@ abstract class RxChat implements Comparable<RxChat> {
 
   /// [Paginated] of [User]s being members of this [chat].
   Paginated<UserId, RxChatMember> get members;
-
-  /// Text representing the title of this [chat].
-  String get title;
 
   /// Reactive [Avatar] of this [chat].
   Rx<Avatar?> get avatar;

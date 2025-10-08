@@ -33,6 +33,7 @@ import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/user.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
 
 export 'view.dart';
@@ -515,7 +516,7 @@ class SearchController extends GetxController {
           return;
         }
 
-        final String title = monolog.title;
+        final String title = monolog.title();
         final String? name = myUser.name?.val;
         final String? login = myUser.login?.val;
         final String num = myUser.num.val;
@@ -543,7 +544,7 @@ class SearchController extends GetxController {
       // Predicates to filter [allChats] by.
       bool hidden(RxChat c) => c.chat.value.isHidden;
       bool matchesQuery(RxChat c) => _matchesQuery(
-        title: c.title,
+        title: c.title(),
         user: c.chat.value.isDialog
             ? c.members.values.firstWhereOrNull((u) => u.user.id != me)?.user
             : null,

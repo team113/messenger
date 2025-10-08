@@ -101,26 +101,27 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             : null,
       ),
       height: applySafeArea ? height : rawHeight,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        padding: padding,
+      child: Padding(
+        padding: padding ?? EdgeInsets.zero,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Spacer(),
             SizedBox(
               height: 59 - (padding?.top ?? 0) - (padding?.bottom ?? 0),
-              child: Row(
-                children: [
-                  ...leading,
-                  Expanded(
-                    child: DefaultTextStyle.merge(
-                      style: style.fonts.large.regular.onBackground,
-                      child: Center(child: title ?? const SizedBox.shrink()),
-                    ),
-                  ),
-                  ...actions,
-                ],
+              child: NavigationToolbar(
+                centerMiddle: true,
+                middleSpacing: 0,
+                middle: DefaultTextStyle.merge(
+                  style: style.fonts.large.regular.onBackground,
+                  child: title ?? const SizedBox.shrink(),
+                ),
+                leading: leading.isEmpty
+                    ? null
+                    : Row(mainAxisSize: MainAxisSize.min, children: leading),
+                trailing: actions.isEmpty
+                    ? null
+                    : Row(mainAxisSize: MainAxisSize.min, children: actions),
               ),
             ),
           ],
