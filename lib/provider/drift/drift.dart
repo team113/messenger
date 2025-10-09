@@ -293,17 +293,49 @@ class ScopedDatabase extends _$ScopedDatabase {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
-      onUpgrade: (m, b, a) async {
-        Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
+      onUpgrade: (m, from, to) async {
+        Log.info('MigrationStrategy.onUpgrade($from, $to)', '$runtimeType');
 
         if (_closed) {
           return;
         }
 
-        // TODO: Implement proper migrations.
-        if (a != b) {
-          if (a >= 2 && b <= 1) {
-            await m.addColumn(users, users.welcomeMessage);
+        if (from != to) {
+          bool migrated = false;
+
+          try {
+            if (to >= 3 && from <= 2) {
+              await m.addColumn(chats, chats.isArchived);
+              migrated = true;
+            }
+
+            if (to >= 2 && from <= 1) {
+              await m.addColumn(users, users.welcomeMessage);
+              migrated = true;
+            }
+          } catch (e) {
+            // Should log the error, but proceed with initialization, as
+            // otherwise `drift` won't allow application to run at all.
+            Log.error(
+              'Unable to perform migrations due to: $e',
+              '$runtimeType',
+            );
+          }
+
+          if (!migrated) {
+            Log.info(
+              'MigrationStrategy.onUpgrade($from, $to) -> migration did not succeed, thus deleting the tables',
+              '$runtimeType',
+            );
+
+            for (var e in m.database.allTables) {
+              await m.deleteTable(e.actualTableName);
+            }
+          } else {
+            Log.info(
+              'MigrationStrategy.onUpgrade($from, $to) -> migration did succeed',
+              '$runtimeType',
+            );
           }
         }
 
