@@ -189,11 +189,9 @@ class MyUserRepository extends DisposableInterface
       current: () => myUser.value?.name,
       saved: () async => (await _active)?.value.name,
       value: name,
-      mutation: (v, _) async {
-        return await Backoff.run(
-          () async {
-            return await _graphQlProvider.updateUserName(v);
-          },
+      mutation: (v, _) {
+        return Backoff.run(
+          () => _graphQlProvider.updateUserName(v),
           retryIf: (e) => e.isNetworkRelated,
           retries: 10,
         );
@@ -211,11 +209,9 @@ class MyUserRepository extends DisposableInterface
       current: () => myUser.value?.status,
       saved: () async => (await _active)?.value.status,
       value: status,
-      mutation: (v, _) async {
-        return await Backoff.run(
-          () async {
-            return await _graphQlProvider.updateUserStatus(v);
-          },
+      mutation: (v, _) {
+        return Backoff.run(
+          () => _graphQlProvider.updateUserStatus(v),
           retryIf: (e) => e.isNetworkRelated,
           retries: 10,
         );
@@ -233,11 +229,9 @@ class MyUserRepository extends DisposableInterface
       current: () => myUser.value?.bio,
       saved: () async => (await _active)?.value.bio,
       value: bio,
-      mutation: (v, _) async {
-        return await Backoff.run(
-          () async {
-            return await _graphQlProvider.updateUserBio(v);
-          },
+      mutation: (v, _) {
+        return Backoff.run(
+          () => _graphQlProvider.updateUserBio(v),
           retryIf: (e) => e.isNetworkRelated,
           retries: 10,
         );
@@ -270,11 +264,9 @@ class MyUserRepository extends DisposableInterface
       current: () => myUser.value?.presence,
       saved: () async => (await _active)?.value.presence,
       value: presence,
-      mutation: (v, _) async {
-        return await Backoff.run(
-          () async {
-            return await _graphQlProvider.updateUserPresence(v ?? presence);
-          },
+      mutation: (v, _) {
+        return Backoff.run(
+          () => _graphQlProvider.updateUserPresence(v ?? presence),
           retryIf: (e) => e.isNetworkRelated,
           retries: 10,
         );
@@ -428,22 +420,22 @@ class MyUserRepository extends DisposableInterface
         current: () => myUser.value?.emails.unconfirmed,
         saved: () async => (await _active)?.value.emails.unconfirmed,
         value: null,
-        mutation: (value, previous) async {
+        mutation: (value, previous) {
           if (previous != null) {
-            return await _graphQlProvider.removeUserEmail(
+            return _graphQlProvider.removeUserEmail(
               previous,
               confirmation: confirmation == null && password == null
                   ? null
                   : MyUserCredentials(code: confirmation, password: password),
             );
           } else if (value != null) {
-            return await _graphQlProvider.addUserEmail(
+            return _graphQlProvider.addUserEmail(
               value,
               confirmation: confirmation,
             );
           }
 
-          return null;
+          return Future(() => null);
         },
         update: (v, p) => myUser.update(
           (u) => p != null
@@ -492,22 +484,22 @@ class MyUserRepository extends DisposableInterface
         current: () => myUser.value?.phones.unconfirmed,
         saved: () async => (await _active)?.value.phones.unconfirmed,
         value: null,
-        mutation: (value, previous) async {
+        mutation: (value, previous) {
           if (previous != null) {
-            return await _graphQlProvider.removeUserPhone(
+            return _graphQlProvider.removeUserPhone(
               previous,
               confirmation: confirmation == null && password == null
                   ? null
                   : MyUserCredentials(code: confirmation, password: password),
             );
           } else if (value != null) {
-            return await _graphQlProvider.addUserPhone(
+            return _graphQlProvider.addUserPhone(
               value,
               confirmation: confirmation,
             );
           }
 
-          return null;
+          return Future(() => null);
         },
         update: (v, p) => myUser.update(
           (u) => p != null
@@ -594,23 +586,23 @@ class MyUserRepository extends DisposableInterface
       current: () => myUser.value?.phones.unconfirmed,
       saved: () async => (await _active)?.value.phones.unconfirmed,
       value: phone,
-      mutation: (value, previous) async {
+      mutation: (value, previous) {
         if (previous != null) {
-          return await _graphQlProvider.removeUserPhone(
+          return _graphQlProvider.removeUserPhone(
             previous,
             confirmation: confirmation == null
                 ? null
                 : MyUserCredentials(code: confirmation),
           );
         } else if (value != null) {
-          return await _graphQlProvider.addUserPhone(
+          return _graphQlProvider.addUserPhone(
             value,
             confirmation: confirmation,
             locale: locale,
           );
         }
 
-        return null;
+        return Future(() => null);
       },
       update: (v, p) => myUser.update(
         (u) => p != null
@@ -740,10 +732,10 @@ class MyUserRepository extends DisposableInterface
       current: () => myUser.value?.muted,
       saved: () async => (await _active)?.value.muted,
       value: mute,
-      mutation: (duration, _) async {
-        return await Backoff.run(
-          () async {
-            return await _graphQlProvider.toggleMyUserMute(
+      mutation: (duration, _) {
+        return Backoff.run(
+          () {
+            return _graphQlProvider.toggleMyUserMute(
               duration == null
                   ? null
                   : Muting(
@@ -829,9 +821,7 @@ class MyUserRepository extends DisposableInterface
     Log.debug('refresh()', '$runtimeType');
 
     final response = await Backoff.run(
-      () async {
-        return await _graphQlProvider.getMyUser();
-      },
+      _graphQlProvider.getMyUser,
       retryIf: (e) => e.isNetworkRelated,
       retries: 10,
     );

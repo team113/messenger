@@ -320,6 +320,7 @@ void main() async {
     await authService.createConfirmationCode(login: UserLogin('login'));
 
     expect(
+      // ignore: unnecessary_await_in_return
       () async => await authService.updateUserPassword(
         login: UserLogin('login'),
         code: ConfirmationCode('1111'),

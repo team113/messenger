@@ -33,7 +33,7 @@ final StepDefinitionGeneric seeContactAsDismissed = then1<String, CustomWorld>(
 
       final ChatContactId contactId = context.world.contacts[name]!;
 
-      return await context.world.appDriver.isPresent(
+      return context.world.appDriver.isPresent(
         context.world.appDriver.findByKeySkipOffstage('Dismissed_$contactId'),
       );
     });
@@ -49,7 +49,7 @@ final StepDefinitionGeneric seeNoContactsDismissed = then<CustomWorld>(
   (context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
-      return await context.world.appDriver.isPresent(
+      return context.world.appDriver.isPresent(
         context.world.appDriver.findByKeySkipOffstage('NoDismissed'),
       );
     });

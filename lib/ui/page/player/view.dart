@@ -278,7 +278,7 @@ class PlayerView extends StatelessWidget {
         height: aspect >= 1 ? null : double.infinity,
         checksum: attachment.original.checksum,
         fit: BoxFit.contain,
-        onForbidden: () async => await c.reload(post),
+        onForbidden: () => c.reload(post),
       );
     } else if (attachment is FileAttachment) {
       if (attachment.isVideo) {
@@ -289,7 +289,7 @@ class PlayerView extends StatelessWidget {
           checksum: attachment.original.checksum,
           volume: c.settings.value?.videoVolume,
           onVolumeChanged: c.setVideoVolume,
-          onError: () async => await c.reload(post),
+          onError: () => c.reload(post),
           loop: true,
           autoplay: false,
           onController: (e) {
@@ -370,23 +370,27 @@ class PlayerView extends StatelessWidget {
           if (!isVideo)
             ContextMenuButton(
               label: 'btn_copy'.l10n,
+              // ignore: unnecessary_await_in_return
               onPressed: () async => await c.copy(post, item),
             ),
 
           if (!PlatformUtils.isWeb && PlatformUtils.isMobile) ...[
             ContextMenuButton(
               label: 'btn_save_to_gallery'.l10n,
+              // ignore: unnecessary_await_in_return
               onPressed: () async => await c.saveToGallery(item),
             ),
           ] else ...[
             ContextMenuButton(
               label: 'btn_download'.l10n,
+              // ignore: unnecessary_await_in_return
               onPressed: () async => await c.download(item),
             ),
 
             if (!PlatformUtils.isWeb && PlatformUtils.isDesktop)
               ContextMenuButton(
                 label: 'btn_download_as'.l10n,
+                // ignore: unnecessary_await_in_return
                 onPressed: () async => await c.downloadAs(item),
               ),
           ],
@@ -1471,7 +1475,7 @@ class PlayerView extends StatelessWidget {
                               fit: BoxFit.cover,
                               width: constraints.maxWidth / 5,
                               height: constraints.maxWidth / 5,
-                              onError: () async => await c.reload(e),
+                              onError: () => c.reload(e),
                             ),
                             if (selected)
                               Container(

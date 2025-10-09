@@ -88,7 +88,7 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoBlocklistRecord?>(
+    return safe<DtoBlocklistRecord?>(
       (db) async {
         final stmt = db.select(db.blocklist)
           ..where((u) => u.userId.equals(id.val));

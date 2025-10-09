@@ -33,7 +33,7 @@ final StepDefinitionGeneric seeChatAsDismissed = then1<String, CustomWorld>(
 
       final ChatId chatId = context.world.groups[name]!;
 
-      return await context.world.appDriver.isPresent(
+      return context.world.appDriver.isPresent(
         context.world.appDriver.findByKeySkipOffstage('Dismissed_$chatId'),
       );
     });

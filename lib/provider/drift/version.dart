@@ -146,7 +146,7 @@ class VersionDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<SessionData?>((db) async {
+    return safe<SessionData?>((db) async {
       final stmt = db.select(db.versions)
         ..where((u) => u.userId.equals(id.val));
       final VersionRow? row = await stmt.getSingleOrNull();

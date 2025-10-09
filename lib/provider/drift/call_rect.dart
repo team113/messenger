@@ -80,7 +80,7 @@ class CallRectDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<Rect?>((db) async {
+    return safe<Rect?>((db) async {
       final stmt = db.select(db.callRectangles)
         ..where((u) => u.chatId.equals(id.val));
       final CallRectangleRow? row = await stmt.getSingleOrNull();

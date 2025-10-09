@@ -441,6 +441,7 @@ void main() async {
       await Future.delayed(Duration.zero);
 
       await expectLater(
+        // ignore: unnecessary_await_in_return
         () async => await chatService.sendChatMessage(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
           text: const ChatMessageText('text'),
@@ -468,5 +469,6 @@ void main() async {
     },
   );
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

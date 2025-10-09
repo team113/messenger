@@ -62,10 +62,10 @@ Future<void> _fieldHavingError(
 
       switch (hasError) {
         case true:
-          return await context.world.appDriver.isPresent(error);
+          return context.world.appDriver.isPresent(error);
 
         case false:
-          return await context.world.appDriver.isAbsent(error);
+          return context.world.appDriver.isAbsent(error);
       }
     }
 

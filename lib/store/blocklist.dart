@@ -74,16 +74,16 @@ class BlocklistRepository extends DisposableInterface
       perPage: 15,
       provider: DriftGraphQlPageProvider(
         driftProvider: DriftPageProvider(
-          fetch: ({required after, required before, UserId? around}) async {
-            return await _blocklistLocal.records(limit: after + before + 1);
+          fetch: ({required after, required before, UserId? around}) {
+            return _blocklistLocal.records(limit: after + before + 1);
           },
           onKey: (e) => e.value.userId,
           onCursor: (e) => e?.cursor,
           add: (e, {bool toView = true}) async {
             await _blocklistLocal.upsertBulk(e);
           },
-          delete: (e) async => await _blocklistLocal.delete(e),
-          reset: () async => await _blocklistLocal.clear(),
+          delete: _blocklistLocal.delete,
+          reset: _blocklistLocal.clear,
           isFirst: (_, _) =>
               _sessionLocal.data[me]?.blocklistSynchronized == true &&
               blocklist.rawLength >= (_blocklistCount ?? double.infinity),

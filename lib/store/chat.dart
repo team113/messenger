@@ -381,7 +381,7 @@ class ChatRepository extends DisposableInterface
 
     if (chatId.isLocal) {
       if (chatId.isLocalWith(me)) {
-        return await ensureRemoteMonolog();
+        return ensureRemoteMonolog();
       }
 
       try {
@@ -418,9 +418,7 @@ class ChatRepository extends DisposableInterface
 
     final ChatData chatData = _chat(
       await Backoff.run(
-        () async {
-          return await _graphQlProvider.createMonologChat(name: name);
-        },
+        () => _graphQlProvider.createMonologChat(name: name),
         retryIf: (e) => e.isNetworkRelated,
         retries: 10,
       ),
@@ -504,13 +502,13 @@ class ChatRepository extends DisposableInterface
     ChatMessageText? text,
     List<AttachmentId>? attachments,
     List<ChatItemId> repliesTo = const [],
-  }) async {
+  }) {
     Log.debug(
       'postChatMessage($chatId, $text, $attachments, $repliesTo)',
       '$runtimeType',
     );
 
-    return await _graphQlProvider.postChatMessage(
+    return _graphQlProvider.postChatMessage(
       chatId,
       text: text,
       attachments: attachments,
@@ -1628,9 +1626,7 @@ class ChatRepository extends DisposableInterface
         _localMonologFavoritePosition = newPosition;
         final ChatData monolog = _chat(
           await Backoff.run(
-            () async {
-              return await _graphQlProvider.createMonologChat();
-            },
+            _graphQlProvider.createMonologChat,
             retryIf: (e) => e.isNetworkRelated,
             retries: 10,
           ),
@@ -2145,7 +2141,7 @@ class ChatRepository extends DisposableInterface
           perPage: 15,
           provider: DriftPageProvider(
             fetch: ({required after, required before, ChatId? around}) async {
-              return await _chatLocal.favorite(limit: after + before + 1);
+              return _chatLocal.favorite(limit: after + before + 1);
             },
             onKey: (e) => e.value.id,
             onCursor: (e) => e?.favoriteCursor,
@@ -2154,8 +2150,8 @@ class ChatRepository extends DisposableInterface
                 await _chatLocal.upsertBulk(e);
               }
             },
-            delete: (e) async => await _chatLocal.delete(e),
-            reset: () async => await _chatLocal.clear(),
+            delete: _chatLocal.delete,
+            reset: _chatLocal.clear,
             isLast: (_, _) => true,
             isFirst: (_, _) => true,
             fulfilledWhenNone: true,
@@ -2169,8 +2165,8 @@ class ChatRepository extends DisposableInterface
           onKey: (e) => e.value.id,
           perPage: 15,
           provider: DriftPageProvider(
-            fetch: ({required after, required before, ChatId? around}) async {
-              return await _chatLocal.recent(limit: after + before + 1);
+            fetch: ({required after, required before, ChatId? around}) {
+              return _chatLocal.recent(limit: after + before + 1);
             },
             onKey: (e) => e.value.id,
             onCursor: (e) => e?.recentCursor,
@@ -2179,8 +2175,8 @@ class ChatRepository extends DisposableInterface
                 await _chatLocal.upsertBulk(e);
               }
             },
-            delete: (e) async => await _chatLocal.delete(e),
-            reset: () async => await _chatLocal.clear(),
+            delete: _chatLocal.delete,
+            reset: _chatLocal.clear,
             isLast: (_, _) => false,
             isFirst: (_, _) => true,
             fulfilledWhenNone: true,
@@ -2270,8 +2266,8 @@ class ChatRepository extends DisposableInterface
               await _chatLocal.upsertBulk(e);
             }
           },
-          delete: (e) async => await _chatLocal.delete(e),
-          reset: () async => await _chatLocal.clear(),
+          delete: _chatLocal.delete,
+          reset: _chatLocal.clear,
           isLast: (_, _) =>
               _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
           isFirst: (_, _) =>
@@ -2338,8 +2334,8 @@ class ChatRepository extends DisposableInterface
               await _chatLocal.upsertBulk(e);
             }
           },
-          delete: (e) async => await _chatLocal.delete(e),
-          reset: () async => await _chatLocal.clear(),
+          delete: _chatLocal.delete,
+          reset: _chatLocal.clear,
           isLast: (_, _) => false,
           isFirst: (_, _) => false,
           fulfilledWhenNone: true,
@@ -2569,7 +2565,7 @@ class ChatRepository extends DisposableInterface
       _putEntryGuards[chatId] = mutex;
     }
 
-    return await mutex.protect(() async {
+    return mutex.protect(() async {
       RxChatImpl? entry = chats[chatId];
 
       if (entry == null) {

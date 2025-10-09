@@ -147,7 +147,7 @@ class SessionRepository extends DisposableInterface
       _guards[ip] = mutex;
     }
 
-    return await mutex.protect(() async {
+    return mutex.protect(() async {
       IpAddress? address = ip;
 
       if (address == null) {

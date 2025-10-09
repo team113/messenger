@@ -40,7 +40,7 @@ final StepDefinitionGeneric seeContactSelection =
             'Contact_$contactId',
           );
 
-          return await context.world.appDriver.isPresent(
+          return context.world.appDriver.isPresent(
             context.world.appDriver.findByDescendant(
               contact,
               context.world.appDriver.findByKeySkipOffstage(

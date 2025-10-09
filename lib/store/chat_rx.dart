@@ -586,9 +586,9 @@ class RxChatImpl extends RxChat {
   }
 
   @override
-  Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item) async {
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item) {
     Log.debug('single($item)', '$runtimeType($id)');
-    return await _paginateAround(item, perPage: 1);
+    return _paginateAround(item, perPage: 1);
   }
 
   @override
@@ -1104,7 +1104,7 @@ class RxChatImpl extends RxChat {
                       at = item?.value.at;
                     }
 
-                    return await _driftItems.attachments(
+                    return _driftItems.attachments(
                       id,
                       before: before,
                       after: after,
@@ -1197,7 +1197,7 @@ class RxChatImpl extends RxChat {
               at = item?.value.at;
             }
 
-            return await _driftItems.view(
+            return _driftItems.view(
               id,
               before: before,
               after: after,
@@ -1233,10 +1233,9 @@ class RxChatImpl extends RxChat {
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.cursor,
-          add: (e, {bool toView = true}) async =>
-              await _driftItems.upsertBulk(e, toView: toView),
-          delete: (e) async => await _driftItems.delete(e),
-          reset: () async => await _driftItems.clear(),
+          add: _driftItems.upsertBulk,
+          delete: _driftItems.delete,
+          reset: _driftItems.clear,
           isFirst: (e, _) {
             if (e.value.id.isLocal) {
               return null;
@@ -1251,7 +1250,7 @@ class RxChatImpl extends RxChat {
 
             return chat.value.lastItem?.id == e.value.id;
           },
-          onNone: (k) async => await _driftItems.upsertView(id, k),
+          onNone: (k) => _driftItems.upsertView(id, k),
           compare: (a, b) => a.value.key.compareTo(b.value.key),
         ),
       ),
@@ -1319,15 +1318,14 @@ class RxChatImpl extends RxChat {
         perPage: 15,
         provider: DriftGraphQlPageProvider(
           driftProvider: DriftPageProvider(
-            fetch: ({required after, required before, UserId? around}) async {
-              return await _driftMembers.members(id, limit: before + after);
+            fetch: ({required after, required before, UserId? around}) {
+              return _driftMembers.members(id, limit: before + after);
             },
             onCursor: (DtoChatMember? item) => item?.cursor,
             onKey: (DtoChatMember item) => item.id,
-            add: (e, {bool toView = true}) async =>
-                await _driftMembers.upsertBulk(id, e),
-            delete: (e) async => await _driftMembers.delete(id, e),
-            reset: () async => await _driftMembers.clear(),
+            add: (e, {bool toView = true}) => _driftMembers.upsertBulk(id, e),
+            delete: (e) => _driftMembers.delete(id, e),
+            reset: _driftMembers.clear,
             isFirst: (_, i) => i >= chat.value.membersCount,
             isLast: (_, i) => i >= chat.value.membersCount,
             compare: (a, b) => a.compareTo(b),
@@ -1564,7 +1562,7 @@ class RxChatImpl extends RxChat {
                       at = item?.value.at;
                     }
 
-                    return await _driftItems.view(
+                    return _driftItems.view(
                       id,
                       before: before,
                       after: after,
@@ -1654,6 +1652,7 @@ class RxChatImpl extends RxChat {
     if (chat.value.muted?.until != null) {
       _muteTimer = Timer(
         chat.value.muted!.until!.val.difference(DateTime.now()),
+        // ignore: unnecessary_await_in_return
         () async => await _driftChat.upsert(dto..value.muted = null),
       );
     }

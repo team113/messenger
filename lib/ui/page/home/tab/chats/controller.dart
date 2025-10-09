@@ -907,7 +907,7 @@ class ChatsTabController extends GetxController {
         }
 
         if (!scrollController.hasClients) {
-          return await _ensureScrollable();
+          return _ensureScrollable();
         }
 
         // If the fetched initial page contains less elements than required to

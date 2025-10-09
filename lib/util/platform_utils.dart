@@ -472,7 +472,7 @@ class PlatformUtilsImpl {
       }
     }
 
-    return await download(
+    return download(
       url,
       url.split('/').lastOrNull ?? 'file',
       null,

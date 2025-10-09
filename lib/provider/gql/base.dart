@@ -196,7 +196,7 @@ class GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
     if (raw != null) {
-      return await _transaction(options.operationName, () async {
+      return _transaction(options.operationName, () async {
         final QueryResult result = await (await _newClient(
           raw,
         )).query(options).timeout(timeout);
@@ -204,10 +204,10 @@ class GraphQlClient {
         return result;
       });
     } else {
-      return await _middleware(() async {
+      return _middleware(() async {
         return _transaction(options.operationName, () async {
           final QueryResult result = await _queryLimiter.execute(
-            () async => await (await client).query(options).timeout(timeout),
+            () async => (await client).query(options).timeout(timeout),
           );
           GraphQlProviderExceptions.fire(result, onException);
           return result;
@@ -226,9 +226,9 @@ class GraphQlClient {
     MutationOptions options, {
     RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
-  }) async {
+  }) {
     if (raw != null) {
-      return await _transaction(options.operationName, () async {
+      return _transaction(options.operationName, () async {
         final QueryResult result = await (await _newClient(
           raw,
         )).mutate(options).timeout(timeout);
@@ -236,8 +236,8 @@ class GraphQlClient {
         return result;
       });
     } else {
-      return await _middleware(() async {
-        return await _transaction(options.operationName, () async {
+      return _middleware(() {
+        return _transaction(options.operationName, () async {
           final QueryResult result = await (await client)
               .mutate(options)
               .timeout(timeout);
@@ -274,14 +274,14 @@ class GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
   }) {
-    return _middleware(() async {
-      return await _transaction(operationName, () async {
+    return _middleware(() {
+      return _transaction(operationName, () async {
         final dio.Options authorized = options ?? dio.Options();
         authorized.headers = (authorized.headers ?? {});
         authorized.headers!['Authorization'] = 'Bearer $token';
 
         try {
-          return await (await PlatformUtils.dio).post<T>(
+          return (await PlatformUtils.dio).post<T>(
             '${Config.url}:${Config.port}${Config.graphql}',
             data: data,
             options: authorized,
@@ -402,7 +402,7 @@ class GraphQlClient {
       }
 
       await authExceptionHandler?.call(e);
-      return await fn();
+      return fn();
     } on Exception catch (e) {
       _errored = true;
       _reportException(e);
@@ -591,7 +591,7 @@ class GraphQlClient {
   /// [fn] will be recorded as a transaction.
   Future<T> _transaction<T>(String? operation, Future<T> Function() fn) async {
     if (operation == null || Config.sentryDsn.isEmpty || kDebugMode) {
-      return await fn();
+      return fn();
     }
 
     final ISentrySpan transaction = Sentry.startTransaction(

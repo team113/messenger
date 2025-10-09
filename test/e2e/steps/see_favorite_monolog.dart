@@ -42,14 +42,14 @@ final StepDefinitionGeneric seeMonologAsFavorite =
 
         switch (status) {
           case FavoriteStatus.favorite:
-            return await context.world.appDriver.isPresent(
+            return context.world.appDriver.isPresent(
               context.world.appDriver.findByKeySkipOffstage(
                 'FavoriteIndicator_$monolog',
               ),
             );
 
           case FavoriteStatus.unfavorite:
-            return await context.world.appDriver.isAbsent(
+            return context.world.appDriver.isAbsent(
               context.world.appDriver.findByKeySkipOffstage(
                 'FavoriteIndicator_$monolog',
               ),

@@ -65,7 +65,7 @@ class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<ChatCallCredentials?>(
+    return safe<ChatCallCredentials?>(
       (db) async {
         final stmt = db.select(db.callCredentials)
           ..where((u) => u.callId.equals(id.val));

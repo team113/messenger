@@ -224,6 +224,7 @@ void main() async {
       );
 
       await expectLater(
+        // ignore: unnecessary_await_in_return
         () async => await myUserService.toggleMute(null),
         throwsA(isA<ToggleMyUserMuteException>()),
       );
@@ -232,6 +233,7 @@ void main() async {
     },
   );
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 

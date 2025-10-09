@@ -98,6 +98,7 @@ void main() async {
     assert(profileService.myUser.value == profileService.myUser.value);
   });
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 

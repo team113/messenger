@@ -690,12 +690,12 @@ abstract class DriftProviderBase extends DisposableInterface {
     Future<T> Function(CommonDatabase db) callback, {
     bool exclusive = true,
     String? tag,
-  }) async {
+  }) {
     if (isClosed || db == null) {
-      return null;
+      return Future(() => null);
     }
 
-    return await _provider.wrapped(callback);
+    return _provider.wrapped(callback);
   }
 
   /// Listens to the [executor] through a non-closed [CommonDatabase].
@@ -724,13 +724,13 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   /// Completes the provided [action] as a [ScopedDriftProvider] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
     await _caught(
-      _scoped.wrapped((db) async {
-        return await WebUtils.protect(tag: '${_scoped.db?.userId}', () async {
+      _scoped.wrapped((db) {
+        return WebUtils.protect(tag: '${_scoped.db?.userId}', () {
           if (isClosed || _scoped.isClosed) {
-            return null;
+            return Future(() => null);
           }
 
-          return await _caught(db.transaction(action));
+          return _caught(db.transaction(action));
         });
       }),
     );
@@ -745,7 +745,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
     String? tag,
     bool exclusive = true,
     bool force = false,
-  }) async {
+  }) {
     if (PlatformUtils.isWeb && !force) {
       Log.debug(
         'safe(tag: $tag) -> await WebUtils.protect(tag: ${_scoped.db?.userId}, exclusive: $exclusive)...',
@@ -754,7 +754,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
 
       // WAL doesn't work in Web, thus guard all the writes/reads with Web Locks
       // API: https://github.com/simolus3/sqlite3.dart/issues/200
-      return await WebUtils.protect(
+      return WebUtils.protect(
         tag: '${_scoped.db?.userId}',
         exclusive: exclusive,
         () async {
@@ -775,7 +775,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
       );
     }
 
-    return await _scoped.wrapped(callback);
+    return _scoped.wrapped(callback);
   }
 
   /// Listens to the [executor] through a non-closed [ScopedDatabase].

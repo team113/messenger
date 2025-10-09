@@ -305,8 +305,8 @@ class CallRepository extends DisposableInterface
     calls[call.value.chatId.value] = call;
 
     final response = await Backoff.run(
-      () async {
-        return await _graphQlProvider.startChatCall(
+      () {
+        return _graphQlProvider.startChatCall(
           call.value.chatId.value,
           call.value.creds!,
           call.value.videoState.value == LocalTrackState.enabling ||
@@ -384,8 +384,8 @@ class CallRepository extends DisposableInterface
 
     try {
       final response = await Backoff.run(
-        () async {
-          return await _graphQlProvider.joinChatCall(
+        () {
+          return _graphQlProvider.joinChatCall(
             ongoing!.value.chatId.value,
             ongoing.value.creds!,
           );

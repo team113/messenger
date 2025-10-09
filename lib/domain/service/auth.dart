@@ -227,7 +227,7 @@ class AuthService extends DisposableService {
       }
     });
 
-    return await WebUtils.protect(() async {
+    return WebUtils.protect(() async {
       final List<Credentials> allCredentials = await _credentialsProvider.all();
       for (final Credentials e in allCredentials) {
         WebUtils.putCredentials(e);
@@ -529,7 +529,7 @@ class AuthService extends DisposableService {
       return Routes.auth;
     }
 
-    return await WebUtils.protect(() async {
+    return WebUtils.protect(() async {
       try {
         await _authRepository.deleteSession();
       } catch (e) {
@@ -645,7 +645,7 @@ class AuthService extends DisposableService {
       Log.debug('validateToken($creds)', '$runtimeType');
     }
 
-    return await WebUtils.protect(() async {
+    return WebUtils.protect(() async {
       // If [creds] are not provided, then validate the current [credentials].
       creds ??= credentials.value;
 
@@ -976,7 +976,7 @@ class AuthService extends DisposableService {
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
   Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', '$runtimeType');
-    return await _authRepository.useChatDirectLink(slug);
+    return _authRepository.useChatDirectLink(slug);
   }
 
   /// Puts the provided [creds] to [accounts].

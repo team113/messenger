@@ -67,7 +67,7 @@ class DraftDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<ChatMessage?>(
+    return safe<ChatMessage?>(
       (db) async {
         final stmt = db.select(db.drafts)
           ..where((u) => u.chatId.equals(id.val));

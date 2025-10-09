@@ -114,7 +114,7 @@ class CallService extends DisposableService {
       }
     } on CallAlreadyJoinedException catch (e) {
       await _callRepository.leave(chatId, e.deviceId);
-      return await join(
+      return join(
         chatId,
         withAudio: withAudio,
         withVideo: withVideo,

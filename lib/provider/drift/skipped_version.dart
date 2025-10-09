@@ -48,7 +48,7 @@ class SkippedVersionDriftProvider extends DriftProviderBase {
 
   /// Returns the skipped version stored in the database.
   Future<String?> read() async {
-    return await safe<String?>((db) async {
+    return safe<String?>((db) async {
       final stmt = db.select(db.skippedVersions)..where((e) => e.id.equals(0));
       final SkippedVersionRow? row = await stmt.getSingleOrNull();
       return row?.skipped;

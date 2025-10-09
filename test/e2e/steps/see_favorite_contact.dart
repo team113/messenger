@@ -45,7 +45,7 @@ final StepDefinitionGeneric seeContactAsFavorite =
 
           switch (status) {
             case FavoriteStatus.favorite:
-              return await context.world.appDriver.isPresent(
+              return context.world.appDriver.isPresent(
                 context.world.appDriver.findByKeySkipOffstage(
                   'FavoriteIndicator_$contactId',
                 ),

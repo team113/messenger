@@ -107,7 +107,7 @@ class MyUserDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<DtoMyUser?>(
+    return safe<DtoMyUser?>(
       (db) async {
         final stmt = db.select(db.myUsers)..where((u) => u.id.equals(id.val));
         final MyUserRow? row = await stmt.getSingleOrNull();

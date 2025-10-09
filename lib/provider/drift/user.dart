@@ -98,7 +98,7 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoUser?>(
+    return safe<DtoUser?>(
       (db) async {
         final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
         final UserRow? row = await stmt.getSingleOrNull();

@@ -99,7 +99,7 @@ class CacheDriftProvider extends DriftProviderBase {
 
   /// Returns the [CacheInfo] stored in the database.
   Future<CacheInfo?> read() async {
-    return await safe<CacheInfo?>((db) async {
+    return safe<CacheInfo?>((db) async {
       final stmt = db.select(db.cacheSummary)..where((u) => u.id.equals(0));
       final CacheSummaryRow? row = await stmt.getSingleOrNull();
 

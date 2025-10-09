@@ -59,7 +59,7 @@ class MonologDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<ChatId?>((db) async {
+    return safe<ChatId?>((db) async {
       try {
         final stmt = db.select(db.monologs)
           ..where((u) => u.userId.equals(id.val));

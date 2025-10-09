@@ -193,7 +193,7 @@ class GalleryView extends StatelessWidget {
                                   fit: BoxFit.cover,
                                   width: constraints.maxWidth,
                                   height: constraints.maxWidth,
-                                  onError: () async => await c.reload(e),
+                                  onError: () => c.reload(e),
                                 ),
                               );
                             });

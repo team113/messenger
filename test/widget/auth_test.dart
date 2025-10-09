@@ -195,11 +195,13 @@ void main() async {
     verify(router.go(Routes.home));
 
     await common.close();
+    // ignore: unnecessary_await_in_return
     await tester.runAsync(() async => await scoped.close());
 
     await Get.deleteAll(force: true);
   });
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 

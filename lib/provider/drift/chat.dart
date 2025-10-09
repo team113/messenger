@@ -150,7 +150,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoChat?>(
+    return safe<DtoChat?>(
       (db) async {
         final stmt = db.select(db.chats)..where((u) => u.id.equals(id.val));
 

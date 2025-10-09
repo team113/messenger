@@ -303,11 +303,13 @@ void main() async {
 
       await expectLater(
         () async =>
+            // ignore: unnecessary_await_in_return
             await myUserService.addUserEmail(UserEmail('test@dummy.com')),
         throwsA(isA<AddUserEmailException>()),
       );
 
       await expectLater(
+        // ignore: unnecessary_await_in_return
         () async => await myUserService.addUserEmail(
           UserEmail('test@dummy.com'),
           confirmation: ConfirmationCode('1234'),
@@ -325,6 +327,7 @@ void main() async {
     },
   );
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 

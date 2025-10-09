@@ -353,8 +353,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   }
 
   /// Returns the [T] items [fetch]ed.
-  Future<List<T>> _page() async {
-    return await _guard.protect(() async {
+  Future<List<T>> _page() {
+    return _guard.protect(() async {
       if (watch != null) {
         final stream = await watch!(
           after: _after,

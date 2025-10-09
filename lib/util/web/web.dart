@@ -386,17 +386,17 @@ class WebUtils {
     Future<T> Function() callback, {
     bool exclusive = true,
     String tag = 'mutex',
-  }) async {
+  }) {
     Mutex? mutex = exclusive ? _guards[tag] : Mutex();
     if (mutex == null) {
       mutex = Mutex();
       _guards[tag] = mutex;
     }
 
-    return await mutex.protect(() async {
+    return mutex.protect(() async {
       // Web Locks API is unavailable for some reason, so proceed without it.
       if (!_locksAvailable()) {
-        return await callback();
+        return callback();
       }
 
       final Completer<T> completer = Completer();
@@ -424,7 +424,7 @@ class WebUtils {
         }
       }
 
-      return await completer.future;
+      return completer.future;
     });
   }
 

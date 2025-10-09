@@ -86,7 +86,7 @@ class WindowRectDriftProvider extends DriftProviderBase {
       return _prefs;
     }
 
-    return await safe<WindowPreferences?>((db) async {
+    return safe<WindowPreferences?>((db) async {
       final stmt = db.select(db.windowRectangles)..where((u) => u.id.equals(0));
       final WindowRectangleRow? row = await stmt.getSingleOrNull();
 

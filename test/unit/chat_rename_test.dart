@@ -369,5 +369,6 @@ void main() async {
     },
   );
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

@@ -65,7 +65,7 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
   /// Returns the [DtoChatMember] stored in the database by the provided
   /// [chatId] and [userId], if any.
   Future<DtoChatMember?> read(ChatId chatId, UserId userId) async {
-    return await safe<DtoChatMember?>(
+    return safe<DtoChatMember?>(
       (db) async {
         final stmt = db.select(db.chatMembers).join([
           innerJoin(db.users, db.users.id.equalsExp(db.chatMembers.userId)),

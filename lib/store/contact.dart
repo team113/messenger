@@ -370,9 +370,9 @@ class ContactRepository extends DisposableInterface
     UserName name, {
     ChatContactsCursor? after,
     int? first,
-  }) async {
+  }) {
     Log.debug('searchByName($name, $after, $first)', '$runtimeType');
-    return await _search(name: name, after: after, first: first);
+    return _search(name: name, after: after, first: first);
   }
 
   /// Searches [ChatContact]s by the provided [UserEmail].

@@ -2170,7 +2170,7 @@ class ChatController extends GetxController {
         }
 
         if (!listController.hasClients) {
-          return await _ensureScrollable();
+          return _ensureScrollable();
         }
 
         // If the fetched initial page contains less elements than required to

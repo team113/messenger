@@ -42,12 +42,12 @@ final StepDefinitionGeneric seeChatMessages =
 
           switch (status) {
             case IterableAmount.no:
-              return await context.world.appDriver.isPresent(
+              return context.world.appDriver.isPresent(
                 context.world.appDriver.findByKeySkipOffstage('NoMessages'),
               );
 
             case IterableAmount.some:
-              return await context.world.appDriver.isAbsent(
+              return context.world.appDriver.isAbsent(
                 context.world.appDriver.findByKeySkipOffstage('NoMessages'),
               );
           }
@@ -76,7 +76,7 @@ final StepDefinitionGeneric seeChatMessage = when1<String, CustomWorld>(
             (e) => (e.item.value as ChatMessage).text?.val == text,
           );
 
-      return await context.world.appDriver.isPresent(
+      return context.world.appDriver.isPresent(
         context.world.appDriver.findByKeySkipOffstage(
           'Message_${message?.id.id}',
         ),
