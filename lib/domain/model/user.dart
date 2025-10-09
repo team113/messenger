@@ -213,15 +213,15 @@ class UserNum extends NewType<String> {
   /// Returns [UserNum] as [String] formatted in quartets.
   @override
   String toString() {
-    String formattedUserNum = '';
+    final formattedUserNum = StringBuffer();
 
     for (int i = 0; i < val.length; i++) {
       if (i % 4 == 0 && i > 0) {
-        formattedUserNum += 'hyphen'.l10n;
+        formattedUserNum.write('hyphen'.l10n);
       }
-      formattedUserNum += val[i];
+      formattedUserNum.write(val[i]);
     }
-    return formattedUserNum.trim();
+    return formattedUserNum.toString().trim();
   }
 
   /// Returns a [String] representing this [UserId].
