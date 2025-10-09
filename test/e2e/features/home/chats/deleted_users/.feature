@@ -22,19 +22,18 @@ Feature: Deleted users are displayed in chats
     And users Bob and Charlie
     And I have group with Bob and Charlie
     And Bob has dialog with me
-    And I wait until text "Bob" is present
-
-    When I select "English" language
 
     Then I see "Alice, Bob, Charlie" chat
-    Then I see "Bob" chat
+    And I see "Bob" chat
+    And I see avatar title as "Bo"
 
-    Then Bob is deleted
+    When I select "English" language
+    And Bob is deleted
     Then I see "Alice, Deleted Account, Charlie" chat
-    Then I see "Deleted Account" chat
+    And I see "Deleted Account" chat
+    And I see avatar title as "Bo"
 
-    # Проверяем, что заголовок аватара чата с Bob по прежнему "Bob"
-
-    # Кликаем по чату c "Bob"
-    # Проверяем, что заголовок профиля "Deleted Account"
-    # Проверяем, что заголовок аватара профиля Bob по прежнему "Bob"
+    When I tap "Bob" chat
+    And I go to Bob's page
+    Then I see user avatar title as "Bo"
+    And I see user title as "Deleted Account"

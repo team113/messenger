@@ -452,7 +452,7 @@ class AvatarWidget extends StatelessWidget {
                       style.fonts.normal.bold.onPrimary.fontSize! *
                       (maxWidth / 40.0),
                 ),
-
+                key: Key('AvatarTitleKey'),
                 // Disable the accessibility size settings for this [Text].
                 textScaler: const TextScaler.linear(1),
               ),

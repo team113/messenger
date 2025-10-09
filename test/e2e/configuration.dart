@@ -100,6 +100,7 @@ import 'steps/right_click_message.dart';
 import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
+import 'steps/see_avatar_title.dart';
 import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_dismissed.dart';
@@ -122,6 +123,7 @@ import 'steps/see_favorite_monolog.dart';
 import 'steps/see_field_having_error.dart';
 import 'steps/see_search_results.dart';
 import 'steps/see_sessions.dart';
+import 'steps/see_user_title.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
@@ -244,6 +246,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollToTop,
         scrollUntilPresent,
         seeAccountInAccounts,
+        seeAvatarTitle,
         seeBlockedUsers,
         seeChatAsDismissed,
         seeChatAsFavorite,
@@ -281,6 +284,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seesNoDialogWithMe,
         seesNoDialogWithUser,
         seeUserInSearchResults,
+        seeUserAvatarTitle,
+        seeUserTitle,
         selectLanguage,
         selectMessageText,
         sendsAttachmentToMe,
