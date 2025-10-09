@@ -157,8 +157,10 @@ class MessageFieldController extends GetxController {
       if (PlatformUtils.isAndroid) TakeVideoButton(pickVideoFromCamera),
       GalleryButton(pickMedia),
       FileButton(pickFile),
-    ] else
+    ] else ...[
+      if (PlatformUtils.isMobile) GalleryButton(pickPhotoOrVideo),
       AttachmentButton(pickFile),
+    ],
   ]);
 
   /// [ChatButton]s displayed (pinned) in the text field.
@@ -409,6 +411,13 @@ class MessageFieldController extends GetxController {
   Future<void> pickFile() {
     field.focus.unfocus();
     return _pickAttachment(FileType.any);
+  }
+
+  /// Opens a file choose popup and adds the [FileType.media] files to the
+  /// [attachments].
+  Future<void> pickPhotoOrVideo() {
+    field.focus.unfocus();
+    return _pickAttachment(FileType.media);
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it

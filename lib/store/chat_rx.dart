@@ -57,7 +57,6 @@ import '/provider/gql/exceptions.dart'
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
-import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/awaitable_timer.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -337,55 +336,6 @@ class RxChatImpl extends RxChat {
   /// Indicates whether this [RxChat] is listening to the remote updates.
   bool get subscribed => _remoteSubscription != null;
 
-  @override
-  String get title {
-    // [RxUser]s taking part in the [title] formation.
-    //
-    // Used to subscribe to the [RxUser.updates] to keep these [users]
-    // up-to-date.
-    final List<RxUser> users = [];
-
-    switch (chat.value.kind) {
-      case ChatKind.dialog:
-        final RxUser? rxUser = members.values
-            .firstWhereOrNull((u) => u.user.id != me)
-            ?.user;
-
-        if (rxUser != null) {
-          users.add(rxUser);
-        }
-        break;
-
-      case ChatKind.group:
-        if (chat.value.name == null) {
-          users.addAll(members.values.take(3).map((e) => e.user));
-        }
-        break;
-
-      case ChatKind.monolog:
-      case ChatKind.artemisUnknown:
-        // No-op.
-        break;
-    }
-
-    _userSubscriptions.removeWhere((k, v) {
-      if (users.none((u) => u.id == k)) {
-        v.cancel();
-        return true;
-      }
-
-      return false;
-    });
-
-    for (final e in users) {
-      if (_userSubscriptions[e.id] == null) {
-        _userSubscriptions[e.id] = e.updates.listen((_) {});
-      }
-    }
-
-    return chat.value.getTitle(users, me);
-  }
-
   /// Initializes this [RxChatImpl].
   Future<void> init() async {
     Log.debug('init()', '$runtimeType($id)');
@@ -406,6 +356,7 @@ class RxChatImpl extends RxChat {
     _initMembersPagination();
 
     _updateFields();
+    _updateUsersSubscriptions();
 
     if (chat.value.isDialog) {
       _updateAvatar();
@@ -417,6 +368,7 @@ class RxChatImpl extends RxChat {
     Chat previous = chat.value;
     _worker = ever(chat, (_) {
       _updateFields(previous: previous);
+      _updateUsersSubscriptions();
       previous = chat.value;
     });
 
@@ -1666,6 +1618,61 @@ class RxChatImpl extends RxChat {
     }
   }
 
+  /// Updates the [_userSubscriptions].
+  void _updateUsersSubscriptions() {
+    switch (chat.value.kind) {
+      case ChatKind.dialog:
+        final RxUser? rxUser = members.values
+            .firstWhereOrNull((u) => u.user.id != me)
+            ?.user;
+
+        if (rxUser != null) {
+          if (_userSubscriptions[rxUser.id] == null) {
+            _userSubscriptions[rxUser.id] = rxUser.updates.listen((_) {});
+          }
+        }
+        break;
+
+      case ChatKind.group:
+        if (chat.value.name != null) {
+          _userSubscriptions.removeWhere((k, v) {
+            v.cancel();
+            return true;
+          });
+        } else {
+          final users = members.values.take(3).map((e) => e.user).toList();
+
+          final bool membersEqual = const IterableEquality().equals(
+            _userSubscriptions.keys,
+            users.map((e) => e.id),
+          );
+
+          if (!membersEqual) {
+            _userSubscriptions.removeWhere((k, v) {
+              if (users.none((u) => u.id == k)) {
+                v.cancel();
+                return true;
+              }
+
+              return false;
+            });
+
+            for (final e in users) {
+              if (_userSubscriptions[e.id] == null) {
+                _userSubscriptions[e.id] = e.updates.listen((_) {});
+              }
+            }
+          }
+        }
+        break;
+
+      case ChatKind.monolog:
+      case ChatKind.artemisUnknown:
+        // No-op.
+        break;
+    }
+  }
+
   /// Updates the [avatar].
   void _updateAvatar() {
     Log.debug('_updateAvatar()', '$runtimeType($id)');
@@ -2070,6 +2077,16 @@ class RxChatImpl extends RxChat {
               write((chat) => chat.value.isHidden = true);
               continue;
 
+            case ChatEventKind.archived:
+              event as EventChatArchived;
+              write((chat) => chat.value.isArchived = true);
+              break;
+
+            case ChatEventKind.unarchived:
+              event as EventChatUnarchived;
+              write((chat) => chat.value.isArchived = false);
+              break;
+
             case ChatEventKind.itemDeleted:
               event as EventChatItemDeleted;
               remove(event.itemId);
@@ -2302,6 +2319,11 @@ class RxChatImpl extends RxChat {
 
               if (dto.value.isHidden) {
                 write((chat) => chat.value.isHidden = false);
+              }
+
+              // When muted, archived `Chat`s get unarchived.
+              if (dto.value.isArchived && dto.value.muted != null) {
+                write((chat) => chat.value.isArchived = false);
               }
 
               if (item.value is ChatMessage && item.value.author.id == me) {

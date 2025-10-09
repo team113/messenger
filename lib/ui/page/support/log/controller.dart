@@ -15,8 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:typed_data';
+
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/push_token.dart';
@@ -29,6 +32,7 @@ import '/domain/service/session.dart';
 import '/pubspec.g.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/util/log.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Controller of a [LogView].
@@ -80,8 +84,47 @@ class LogController extends GetxController {
     super.onInit();
   }
 
+  /// Creates and downloads the [report] as a `.txt` file.
+  static Future<void> download({
+    List<RxSession>? sessions,
+    SessionId? sessionId,
+    String? userAgent,
+    MyUser? myUser,
+    DeviceToken? token,
+    bool? pushNotifications,
+  }) async {
+    try {
+      final file = await PlatformUtils.createAndDownload(
+        'report_${DateTime.now().millisecondsSinceEpoch}.log',
+        Uint8List.fromList(
+          LogController.report(
+            sessions: sessions,
+            sessionId: sessionId,
+            userAgent: userAgent,
+            myUser: myUser,
+            token: token,
+            pushNotifications: pushNotifications,
+          ).codeUnits,
+        ),
+      );
+
+      if (file != null && PlatformUtils.isMobile) {
+        await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
+      }
+    } catch (e) {
+      MessagePopup.error(e);
+    }
+  }
+
   /// Returns a report of the technical information and [Log]s.
-  String report() {
+  static String report({
+    List<RxSession>? sessions,
+    SessionId? sessionId,
+    String? userAgent,
+    MyUser? myUser,
+    DeviceToken? token,
+    bool? pushNotifications,
+  }) {
     final Session? session = sessions
         ?.firstWhereOrNull((e) => e.session.value.id == sessionId)
         ?.session
@@ -92,7 +135,7 @@ class LogController extends GetxController {
 
 Created at: ${DateTime.now().toUtc()}
 Application: ${Pubspec.ref}
-User-Agent: ${userAgent.value}
+User-Agent: $userAgent
 Is PWA: ${CustomSafeArea.isPwa}
 
 MyUser:
@@ -103,6 +146,9 @@ $sessionId
 
 Session:
 ${session?.toJson()}
+
+Push Notifications are considered active:
+$pushNotifications
 
 Token:
 $token

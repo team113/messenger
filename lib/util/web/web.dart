@@ -485,6 +485,7 @@ class WebUtils {
     String? lang,
     String? tag,
     String? icon,
+    List<WebNotificationAction> actions = const [],
   }) async {
     final options = web.NotificationOptions();
 
@@ -502,6 +503,18 @@ class WebUtils {
     }
     if (icon != null) {
       options.icon = icon;
+    }
+    if (actions.isNotEmpty) {
+      options.actions = actions
+          .map(
+            (e) => web.NotificationAction(
+              action: e.id,
+              title: e.title,
+              icon: e.icon ?? '',
+            ),
+          )
+          .toList()
+          .toJS;
     }
 
     // TODO: `onSelectNotification` was used in `onclick` event in

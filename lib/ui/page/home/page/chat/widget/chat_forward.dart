@@ -863,10 +863,6 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       copyable = note.text?.val;
     }
 
-    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
-      (e) => e.at.val.isAfter(_at.val) && e.memberId != widget.authorId,
-    );
-
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
     const AvatarRadius avatarRadius = AvatarRadius.medium;
@@ -936,11 +932,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             Transform.translate(
               offset: const Offset(-12, 0),
               child: WidgetButton(
-                onPressed: () => MessageInfo.show(
-                  context,
-                  id: widget.forwards.first.value.id,
-                  reads: reads ?? [],
-                ),
+                onPressed: () =>
+                    MessageInfo.show(context, widget.forwards.first.value.id),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -1033,8 +1026,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           inverted: const SvgIcon(SvgIcons.infoWhite),
                           onPressed: () => MessageInfo.show(
                             context,
-                            id: widget.forwards.first.value.id,
-                            reads: reads ?? [],
+                            widget.forwards.first.value.id,
                           ),
                         ),
                         if (copyable != null)

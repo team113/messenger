@@ -370,6 +370,8 @@ class PlayerView extends StatelessWidget {
           if (!isVideo)
             ContextMenuButton(
               label: 'btn_copy'.l10n,
+              trailing: const SvgIcon(SvgIcons.copy19),
+              inverted: const SvgIcon(SvgIcons.copy19White),
               // ignore: unnecessary_await_in_return
               onPressed: () async => await c.copy(post, item),
             ),
@@ -377,12 +379,16 @@ class PlayerView extends StatelessWidget {
           if (!PlatformUtils.isWeb && PlatformUtils.isMobile) ...[
             ContextMenuButton(
               label: 'btn_save_to_gallery'.l10n,
+              trailing: const SvgIcon(SvgIcons.download19),
+              inverted: const SvgIcon(SvgIcons.download19White),
               // ignore: unnecessary_await_in_return
               onPressed: () async => await c.saveToGallery(item),
             ),
           ] else ...[
             ContextMenuButton(
               label: 'btn_download'.l10n,
+              trailing: const SvgIcon(SvgIcons.download19),
+              inverted: const SvgIcon(SvgIcons.download19White),
               // ignore: unnecessary_await_in_return
               onPressed: () async => await c.download(item),
             ),
@@ -390,6 +396,8 @@ class PlayerView extends StatelessWidget {
             if (!PlatformUtils.isWeb && PlatformUtils.isDesktop)
               ContextMenuButton(
                 label: 'btn_download_as'.l10n,
+                trailing: const SvgIcon(SvgIcons.download19),
+                inverted: const SvgIcon(SvgIcons.download19White),
                 // ignore: unnecessary_await_in_return
                 onPressed: () async => await c.downloadAs(item),
               ),
@@ -716,44 +724,54 @@ class PlayerView extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          ContextMenuRegion(
-            actions: [
-              if (onScrollTo != null)
+          Obx(() {
+            return ContextMenuRegion(
+              actions: [
+                if (onScrollTo != null)
+                  ContextMenuButton(
+                    label: 'btn_find_in_chat'.l10n,
+                    trailing: const SvgIcon(SvgIcons.chat19),
+                    inverted: const SvgIcon(SvgIcons.chat19White),
+                    onPressed: () {
+                      final Post? post = c.post;
+                      if (post != null) {
+                        onScrollTo?.call(post);
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
+
                 ContextMenuButton(
-                  label: 'btn_find_in_chat'.l10n,
-                  onPressed: () {
-                    final Post? post = c.post;
-                    if (post != null) {
-                      onScrollTo?.call(post);
-                      Navigator.of(context).pop();
+                  label: 'btn_save'.l10n,
+                  trailing: const SvgIcon(SvgIcons.copy19),
+                  inverted: const SvgIcon(SvgIcons.copy19White),
+                  onPressed: () async {
+                    final PostItem? item = c.item;
+
+                    if (item != null) {
+                      if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+                        await c.saveToGallery(item);
+                      } else {
+                        await c.download(item);
+                      }
                     }
                   },
                 ),
-              ContextMenuButton(
-                label: 'btn_save'.l10n,
-                onPressed: () async {
-                  final PostItem? item = c.item;
-
-                  if (item != null) {
-                    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-                      await c.saveToGallery(item);
-                    } else {
-                      await c.download(item);
-                    }
-                  }
-                },
+                if (c.interface.value)
+                  ContextMenuButton(
+                    label: 'btn_hide_interface'.l10n,
+                    trailing: const SvgIcon(SvgIcons.hideControls),
+                    inverted: const SvgIcon(SvgIcons.hideControlsWhite),
+                    onPressed: c.interface.toggle,
+                  ),
+              ],
+              enablePrimaryTap: true,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 21, 24, 21),
+                child: SvgIcon(SvgIcons.moreWhite),
               ),
-              ContextMenuButton(
-                label: 'btn_hide_interface'.l10n,
-                onPressed: c.interface.toggle,
-              ),
-            ],
-            enablePrimaryTap: true,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 21, 24, 21),
-              child: SvgIcon(SvgIcons.moreWhite),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );
