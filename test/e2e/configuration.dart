@@ -37,6 +37,7 @@ import 'mock/geo.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/appcast_version.dart';
+import 'parameters/archived_status.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
 import 'parameters/credentials.dart';
@@ -99,6 +100,7 @@ import 'steps/right_click_message.dart';
 import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
+import 'steps/see_archived_chat.dart';
 import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_dismissed.dart';
@@ -196,6 +198,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasFavoriteContacts,
         hasFavoriteGroups,
         hasGroupNamed,
+        hasGroupNamedInArchive,
         hasGroupWithMembers,
         hasGroups,
         haveGroup1Named,
@@ -242,11 +245,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollUntilPresent,
         seeAccountInAccounts,
         seeBlockedUsers,
+        seeChatAsArchived,
         seeChatAsDismissed,
         seeChatAsFavorite,
-        seeDialogAsFavorite,
         seeChatAsMuted,
-        seeDialogAsMuted,
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
@@ -263,6 +265,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeCountContacts,
         seeCountFavoriteChats,
         seeCountSessions,
+        seeDialogAsFavorite,
+        seeDialogAsMuted,
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeFavoriteDialogPosition,
@@ -346,6 +350,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AppcastVersionParameter(),
+        ArchivedStatusParameter(),
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
         CredentialsParameter(),

@@ -176,7 +176,21 @@ class ChatsTabView extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('label_chats'.l10n),
+                              AnimatedSizeAndFade(
+                                sizeDuration: const Duration(milliseconds: 300),
+                                fadeDuration: const Duration(milliseconds: 300),
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  key: Key(
+                                    c.archivedOnly.value
+                                        ? 'ArchivedChats'
+                                        : 'Chats',
+                                  ),
+                                  c.archivedOnly.value
+                                      ? 'label_hidden_chats'.l10n
+                                      : 'label_chats'.l10n,
+                                ),
+                              ),
                               AnimatedSizeAndFade(
                                 sizeDuration: const Duration(milliseconds: 300),
                                 fadeDuration: const Duration(milliseconds: 300),
@@ -218,6 +232,19 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
 
+                      if (c.archivedOnly.value) {
+                        return WidgetButton(
+                          onPressed: c.toggleArchive,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            child: SvgIcon(SvgIcons.back),
+                          ),
+                        );
+                      }
+
                       return const SizedBox(width: 21);
                     }),
                   ],
@@ -240,10 +267,31 @@ class ChatsTabView extends StatelessWidget {
                             inverted: const SvgIcon(SvgIcons.selectWhite),
                           ),
                           ContextMenuButton(
+                            key: const Key('CreateGroupButton'),
                             label: 'btn_create_group'.l10n,
                             onPressed: c.startGroupCreating,
                             trailing: const SvgIcon(SvgIcons.group),
                             inverted: const SvgIcon(SvgIcons.groupWhite),
+                          ),
+                          ContextMenuDivider(),
+                          ContextMenuButton(
+                            key: const Key('ArchiveChatsButton'),
+                            label: 'btn_hidden_chats'.l10n,
+                            onPressed: c.toggleArchive,
+                            trailing: const SvgIcon(SvgIcons.visibleOff),
+                            inverted: const SvgIcon(SvgIcons.visibleOffWhite),
+                            spacer: c.archivedOnly.value
+                                ? Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: const SvgIcon(SvgIcons.sentBlue),
+                                  )
+                                : null,
+                            spacerInverted: c.archivedOnly.value
+                                ? Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: const SvgIcon(SvgIcons.sentWhite),
+                                  )
+                                : null,
                           ),
                           ContextMenuDivider(),
                           ContextMenuButton(
@@ -348,6 +396,73 @@ class ChatsTabView extends StatelessWidget {
                   if (c.status.value.isLoading) {
                     return const Center(
                       child: CustomProgressIndicator.primary(),
+                    );
+                  }
+
+                  // Builds a [RecentChatTile] from the provided
+                  // [RxChat].
+                  Widget tile(
+                    RxChat e, {
+                    Widget Function(Widget)? avatarBuilder,
+                  }) {
+                    final bool selected = c.selectedChats.contains(e.id);
+
+                    return RecentChatTile(
+                      e,
+                      key: e.chat.value.isMonolog
+                          ? const Key('ChatMonolog')
+                          : Key('RecentChat_${e.id}'),
+                      me: c.me,
+                      blocked: e.blocked,
+                      selected: c.selecting.value ? selected : null,
+                      getUser: c.getUser,
+                      avatarBuilder: c.selecting.value
+                          ? (child) => WidgetButton(
+                              onPressed: () =>
+                                  router.dialog(e.chat.value, c.me),
+                              child: child,
+                            )
+                          : avatarBuilder,
+                      onJoin: () => c.joinCall(e.id),
+                      onDrop: () => c.dropCall(e.id),
+                      onLeave: e.chat.value.isMonolog
+                          ? null
+                          : () => c.leaveChat(e.id),
+                      onHide: () => c.hideChat(e.id),
+                      onArchive: () =>
+                          c.archiveChat(e.id, !e.chat.value.isArchived),
+                      onMute: e.chat.value.isMonolog || e.chat.value.id.isLocal
+                          ? null
+                          : () => c.muteChat(e.id),
+                      onUnmute:
+                          e.chat.value.isMonolog || e.chat.value.id.isLocal
+                          ? null
+                          : () => c.unmuteChat(e.id),
+                      onFavorite:
+                          e.chat.value.id.isLocal && !e.chat.value.isMonolog
+                          ? null
+                          : () => c.favoriteChat(e.id),
+                      onUnfavorite:
+                          e.chat.value.id.isLocal && !e.chat.value.isMonolog
+                          ? null
+                          : () => c.unfavoriteChat(e.id),
+                      onSelect: c.toggleSelecting,
+
+                      // TODO: Uncomment, when contacts are implemented.
+                      // onContact: (b) => b
+                      //     ? c.addToContacts(e)
+                      //     : c.removeFromContacts(e),
+                      // inContacts: e.chat.value.isDialog
+                      //     ? () => c.inContacts(e)
+                      //     : null,
+                      onTap: c.selecting.value ? () => c.selectChat(e) : null,
+                      onDismissed: () => c.dismiss(e),
+                      enableContextMenu: !c.selecting.value,
+                      trailing: c.selecting.value
+                          ? [SelectedDot(selected: selected, size: 20)]
+                          : null,
+                      hasCall: c.status.value.isLoadingMore ? false : null,
+                      onPerformDrop: (f) => c.sendFiles(e.id, f),
                     );
                   }
 
@@ -666,10 +781,78 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     }
+                  } else if (c.archivedOnly.value) {
+                    final List<RxChat> chats = [];
+
+                    for (var e in c.archived) {
+                      if ((!e.id.isLocal ||
+                              e.messages.isNotEmpty ||
+                              e.chat.value.isMonolog) &&
+                          !e.chat.value.isHidden &&
+                          e.chat.value.isArchived &&
+                          !e.hidden.value) {
+                        chats.add(e.rx);
+                      }
+                    }
+
+                    child = Scrollbar(
+                      controller: c.scrollController,
+                      child: AnimationLimiter(
+                        key: const Key('Archive'),
+                        child: ListView.builder(
+                          key: const Key('ArchiveScrollable'),
+                          controller: c.scrollController,
+                          itemCount: chats.length,
+                          itemBuilder: (_, i) {
+                            final RxChat chat = chats[i];
+                            Widget child = Padding(
+                              padding: const EdgeInsets.only(
+                                left: 10,
+                                right: 10,
+                              ),
+                              child: tile(chat),
+                            );
+
+                            if (i == chats.length - 1) {
+                              child = Column(
+                                children: [
+                                  child,
+                                  if (c.archive.hasNext.isTrue ||
+                                      c.archive.nextLoading.value)
+                                    const CustomProgressIndicator(
+                                      key: Key('ArchiveLoading'),
+                                    ),
+                                ],
+                              );
+                            }
+
+                            return AnimationConfiguration.staggeredList(
+                              position: i,
+                              duration: const Duration(milliseconds: 375),
+                              child: SlideAnimation(
+                                horizontalOffset: 50,
+                                child: FadeInAnimation(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      top: i == 0 ? 3 : 0,
+                                      bottom: i == c.elements.length - 1
+                                          ? 4
+                                          : 0,
+                                    ),
+                                    child: child,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
                   } else {
                     if (c.chats.none((e) {
                       return (!e.id.isLocal || e.chat.value.isMonolog) &&
-                          !e.chat.value.isHidden &&
+                          (!e.chat.value.isHidden ||
+                              !e.chat.value.isArchived) &&
                           !e.hidden.value;
                     })) {
                       if (c.status.value.isLoadingMore) {
@@ -705,6 +888,7 @@ class ChatsTabView extends StatelessWidget {
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
                                   !e.chat.value.isHidden &&
+                                  !e.chat.value.isArchived &&
                                   !e.hidden.value) {
                                 if (e.chat.value.ongoingCall != null) {
                                   calls.add(e.rx);
@@ -715,87 +899,6 @@ class ChatsTabView extends StatelessWidget {
                                   chats.add(e.rx);
                                 }
                               }
-                            }
-
-                            // Builds a [RecentChatTile] from the provided
-                            // [RxChat].
-                            Widget tile(
-                              RxChat e, {
-                              Widget Function(Widget)? avatarBuilder,
-                            }) {
-                              final bool selected = c.selectedChats.contains(
-                                e.id,
-                              );
-
-                              return RecentChatTile(
-                                e,
-                                key: e.chat.value.isMonolog
-                                    ? const Key('ChatMonolog')
-                                    : Key('RecentChat_${e.id}'),
-                                me: c.me,
-                                blocked: e.blocked,
-                                selected: c.selecting.value ? selected : null,
-                                getUser: c.getUser,
-                                avatarBuilder: c.selecting.value
-                                    ? (child) => WidgetButton(
-                                        onPressed: () =>
-                                            router.dialog(e.chat.value, c.me),
-                                        child: child,
-                                      )
-                                    : avatarBuilder,
-                                onJoin: () => c.joinCall(e.id),
-                                onDrop: () => c.dropCall(e.id),
-                                onLeave: e.chat.value.isMonolog
-                                    ? null
-                                    : () => c.leaveChat(e.id),
-                                onHide: () => c.hideChat(e.id),
-                                onMute:
-                                    e.chat.value.isMonolog ||
-                                        e.chat.value.id.isLocal
-                                    ? null
-                                    : () => c.muteChat(e.id),
-                                onUnmute:
-                                    e.chat.value.isMonolog ||
-                                        e.chat.value.id.isLocal
-                                    ? null
-                                    : () => c.unmuteChat(e.id),
-                                onFavorite:
-                                    e.chat.value.id.isLocal &&
-                                        !e.chat.value.isMonolog
-                                    ? null
-                                    : () => c.favoriteChat(e.id),
-                                onUnfavorite:
-                                    e.chat.value.id.isLocal &&
-                                        !e.chat.value.isMonolog
-                                    ? null
-                                    : () => c.unfavoriteChat(e.id),
-                                onSelect: c.toggleSelecting,
-
-                                // TODO: Uncomment, when contacts are implemented.
-                                // onContact: (b) => b
-                                //     ? c.addToContacts(e)
-                                //     : c.removeFromContacts(e),
-                                // inContacts: e.chat.value.isDialog
-                                //     ? () => c.inContacts(e)
-                                //     : null,
-                                onTap: c.selecting.value
-                                    ? () => c.selectChat(e)
-                                    : null,
-                                onDismissed: () => c.dismiss(e),
-                                enableContextMenu: !c.selecting.value,
-                                trailing: c.selecting.value
-                                    ? [
-                                        SelectedDot(
-                                          selected: selected,
-                                          size: 20,
-                                        ),
-                                      ]
-                                    : null,
-                                hasCall: c.status.value.isLoadingMore
-                                    ? false
-                                    : null,
-                                onPerformDrop: (f) => c.sendFiles(e.id, f),
-                              );
                             }
 
                             return CustomScrollView(
@@ -1140,12 +1243,12 @@ class ChatsTabView extends StatelessWidget {
         WidgetButton(
           onPressed: c.selectedChats.isEmpty
               ? null
-              : () => _hideChats(context, c),
+              : () => _archiveChats(context, c),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
               child: Text(
-                'btn_hide'.l10n,
+                c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
                 style: style.fonts.normal.regular.primary,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1202,7 +1305,7 @@ class ChatsTabView extends StatelessWidget {
           ),
         ),
         WidgetButton(
-          onPressed: c.createGroup,
+          onPressed: c.creatingStatus.value.isEmpty ? c.createGroup : null,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
@@ -1217,6 +1320,35 @@ class ChatsTabView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  /// Opens a popup window to confirm archiving or unarchiving the selected
+  /// chats.
+  static Future<void> _archiveChats(
+    BuildContext context,
+    ChatsTabController c,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      c.archivedOnly.value ? 'label_show_chats'.l10n : 'label_hide_chats'.l10n,
+      description: [
+        TextSpan(
+          text: c.archivedOnly.value
+              ? 'label_show_chats_modal_description'.l10n
+              : 'label_hide_chats_modal_description'.l10n,
+        ),
+      ],
+      button: (context) => MessagePopup.primaryButton(
+        context,
+        label: c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
+        icon: c.archivedOnly.value
+            ? SvgIcons.visibleOffWhite
+            : SvgIcons.visibleOnWhite,
+      ),
+    );
+
+    if (result == true) {
+      await c.archiveChats(!c.archivedOnly.value);
+    }
   }
 
   /// Opens a confirmation popup hiding the selected chats.
