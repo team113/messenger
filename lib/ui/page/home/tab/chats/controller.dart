@@ -25,6 +25,7 @@ import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:log_me/log_me.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
 import '/domain/model/attachment.dart';
@@ -40,6 +41,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -57,6 +59,7 @@ import '/provider/gql/exceptions.dart'
         HideChatException,
         JoinChatCallException,
         RemoveChatMemberException,
+        ToggleChatArchivationException,
         ToggleChatMuteException,
         UnfavoriteChatException;
 import '/routes.dart';
@@ -85,6 +88,9 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   final RxList<ChatEntry> chats = RxList();
 
+  /// Reactive list of sorted archived [Chat]s.
+  final RxList<ChatEntry> archived = RxList();
+
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
@@ -93,6 +99,9 @@ class ChatsTabController extends GetxController {
 
   /// Indicator whether [search]ing is active.
   final RxBool searching = RxBool(false);
+
+  /// Indicator whether chat archive viewing is active.
+  final RxBool archivedOnly = RxBool(false);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -153,6 +162,9 @@ class ChatsTabController extends GetxController {
   /// Subscription for the [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
 
+  /// Subscription for the [ChatService.archived] changes.
+  late final StreamSubscription _archivedSubscription;
+
   /// Subscription for [SearchController.chats], [SearchController.users] and
   /// [SearchController.contacts] changes updating the [elements].
   StreamSubscription? _searchSubscription;
@@ -189,6 +201,9 @@ class ChatsTabController extends GetxController {
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
   ChatId get monolog => _chatService.monolog;
+
+  /// Returns the [Paginated] of [RxChat] being in archive.
+  Paginated<ChatId, RxChat> get archive => _chatService.archived;
 
   @override
   void onInit() {
@@ -269,6 +284,42 @@ class ChatsTabController extends GetxController {
       }
     });
 
+    archived.value = RxList(
+      archive.values.map((e) => ChatEntry(e, chats.sort)).toList(),
+    );
+    archived.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
+    archived.sort();
+
+    _archivedSubscription = _chatService.archived.items.changes.listen((event) {
+      Log.debug(
+        '_archivedSubscription -> ${event.op} -> ${event.value}',
+        '$runtimeType',
+      );
+
+      switch (event.op) {
+        case OperationKind.added:
+          final entry = ChatEntry(event.value!, chats.sort);
+          archived.add(entry);
+          archived.sort();
+          break;
+
+        case OperationKind.removed:
+          archived.removeWhere((e) {
+            if (e.chat.value.id == event.key) {
+              e.dispose();
+              return true;
+            }
+
+            return false;
+          });
+          break;
+
+        case OperationKind.updated:
+          archived.sort();
+          break;
+      }
+    });
+
     if (_chatService.status.value.isSuccess) {
       SchedulerBinding.instance.addPostFrameCallback(
         (_) => _ensureScrollable(),
@@ -299,6 +350,7 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
+    _archivedSubscription.cancel();
     _statusSubscription?.cancel();
 
     _searchSubscription?.cancel();
@@ -396,6 +448,44 @@ class ChatsTabController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
+    }
+  }
+
+  /// Archives or unarchives the specified [Chat] identified by the provided
+  /// [id].
+  Future<void> archiveChat(ChatId id, bool archive) async {
+    try {
+      await _chatService.archiveChat(id, archive);
+    } on ToggleChatArchivationException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Archives or unarchives the [selectedChats].
+  Future<void> archiveChats(bool archive) async {
+    selecting.value = false;
+
+    router.navigation.value = !selecting.value;
+    router.navigator.value = null;
+
+    try {
+      await Future.wait(
+        selectedChats.map(
+          (chatId) => _chatService.archiveChat(chatId, archive),
+        ),
+      );
+    } on ToggleChatArchivationException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      selectedChats.clear();
     }
   }
 
@@ -687,6 +777,7 @@ class ChatsTabController extends GetxController {
               e.chat.value.ongoingCall == null &&
               e.chat.value.favoritePosition != null &&
               !e.chat.value.isHidden &&
+              !e.chat.value.isArchived &&
               !e.hidden.value,
         )
         .toList();
@@ -771,6 +862,11 @@ class ChatsTabController extends GetxController {
       MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
     }
+  }
+
+  /// Toggles the [archivedOnly].
+  void toggleArchive() {
+    archivedOnly.value = !archivedOnly.value;
   }
 
   /// Enables and initializes or disables and disposes the [search].
@@ -884,11 +980,17 @@ class ChatsTabController extends GetxController {
         _scrollIsInvoked = false;
 
         if (scrollController.hasClients &&
-            hasNext.isTrue &&
-            _chatService.nextLoading.isFalse &&
             scrollController.position.pixels >
                 scrollController.position.maxScrollExtent - 500) {
-          _chatService.next();
+          if (archivedOnly.value) {
+            if (archive.hasNext.isTrue && archive.nextLoading.isFalse) {
+              archive.next();
+            }
+          } else {
+            if (hasNext.isTrue && _chatService.nextLoading.isFalse) {
+              _chatService.next();
+            }
+          }
         }
       });
     }

@@ -30,6 +30,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -440,7 +441,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                       children: [
                         Flexible(
                           child: Text(
-                            c.chat.value?.title ?? ('dot'.l10n * 3),
+                            c.chat.value?.title() ?? ('dot'.l10n * 3),
                             style: style.fonts.small.regular.onPrimary,
                             overflow: TextOverflow.ellipsis,
                           ),

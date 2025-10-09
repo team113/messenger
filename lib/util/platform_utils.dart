@@ -17,15 +17,16 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_custom_cursor/cursor_manager.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:flutter_native_badge/flutter_native_badge.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
@@ -681,9 +682,42 @@ class PlatformUtilsImpl {
               .last;
       extension ??= '.bin';
 
-      final item = DataWriterItem(
-        suggestedName: '${DateTime.now().millisecondsSinceEpoch}.$extension',
-      );
+      final String suggestedName =
+          '${DateTime.now().millisecondsSinceEpoch}.$extension';
+
+      // Web's Clipboard API support only `text/plain`, `text/html` and
+      // `image/png`, thus always try to encode image as PNG.
+      if (isWeb) {
+        try {
+          final Codec decoded = await instantiateImageCodec(data);
+          final FrameInfo frame = await decoded.getNextFrame();
+
+          try {
+            final ByteData? png = await frame.image.toByteData(
+              format: ImageByteFormat.png,
+            );
+
+            if (png != null) {
+              final item = DataWriterItem(suggestedName: suggestedName);
+              item.add(
+                Formats.png(
+                  png.buffer.asUint8List(png.offsetInBytes, png.lengthInBytes),
+                ),
+              );
+              await clipboard.write([item]);
+            }
+          } finally {
+            // This object must be disposed by the recipient of the frame info.
+            frame.image.dispose();
+          }
+
+          return;
+        } catch (e) {
+          rethrow;
+        }
+      }
+
+      final item = DataWriterItem(suggestedName: suggestedName);
       item.add(format(data));
       await clipboard.write([item]);
     }
