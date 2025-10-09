@@ -57,7 +57,7 @@ final StepDefinitionGeneric seeAvatarTitle = then1<String, CustomWorld>(
 /// - Then I see user avatar title as "Deleted Account"
 final StepDefinitionGeneric seeUserAvatarTitle = then1<String, CustomWorld>(
   'I see user avatar title as {string}',
-      (String title, context) async {
+  (String title, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
