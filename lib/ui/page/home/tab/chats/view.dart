@@ -1099,12 +1099,12 @@ class ChatsTabView extends StatelessWidget {
         WidgetButton(
           onPressed: c.selectedChats.isEmpty
               ? null
-              : () => _hideChats(context, c),
+              : () => _archiveChats(context, c),
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
               child: Text(
-                'btn_hide'.l10n,
+                c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
                 style: style.fonts.normal.regular.primary,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -1161,7 +1161,7 @@ class ChatsTabView extends StatelessWidget {
           ),
         ),
         WidgetButton(
-          onPressed: c.createGroup,
+          onPressed: c.creatingStatus.value.isEmpty ? c.createGroup : null,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
@@ -1176,6 +1176,35 @@ class ChatsTabView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  /// Opens a popup window to confirm archiving or unarchiving the selected
+  /// chats.
+  static Future<void> _archiveChats(
+    BuildContext context,
+    ChatsTabController c,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      c.archivedOnly.value ? 'label_show_chats'.l10n : 'label_hide_chats'.l10n,
+      description: [
+        TextSpan(
+          text: c.archivedOnly.value
+              ? 'label_show_chats_modal_description'.l10n
+              : 'label_hide_chats_modal_description'.l10n,
+        ),
+      ],
+      button: (context) => MessagePopup.primaryButton(
+        context,
+        label: c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
+        icon: c.archivedOnly.value
+            ? SvgIcons.visibleOffWhite
+            : SvgIcons.visibleOnWhite,
+      ),
+    );
+
+    if (result == true) {
+      await c.archiveChats(!c.archivedOnly.value);
+    }
   }
 
   /// Opens a confirmation popup hiding the selected chats.

@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Help page:
         - Download logs button. ([#1458])
+    - Archived chats. ([#1414], [#1255])
 
 ### Changed:
 
@@ -30,7 +31,9 @@ All user visible changes to this project will be documented in this file. This p
     - Player:
         - Inability to copy images to clipboard. ([#1457])
 
+[#1255]: /../../issues/1255
 [#1396]: /../../issues/1396
+[#1414]: /../../pull/1414
 [#1438]: /../../pull/1438
 [#1457]: /../../pull/1457
 [#1458]: /../../pull/1458

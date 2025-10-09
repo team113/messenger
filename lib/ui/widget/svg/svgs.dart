@@ -284,14 +284,26 @@ class SvgIcons {
 
   static const SvgData visibleOff = SvgData(
     'assets/icons/visible_off.svg',
-    width: 17.07,
-    height: 15.14,
+    width: 20,
+    height: 18,
   );
 
   static const SvgData visibleOn = SvgData(
     'assets/icons/visible_on.svg',
-    width: 17.07,
-    height: 11.97,
+    width: 21,
+    height: 18,
+  );
+
+  static const SvgData visibleOffWhite = SvgData(
+    'assets/icons/visible_off_white.svg',
+    width: 20,
+    height: 18,
+  );
+
+  static const SvgData visibleOnWhite = SvgData(
+    'assets/icons/visible_on_white.svg',
+    width: 21,
+    height: 18,
   );
 
   static const SvgData copy = SvgData(
