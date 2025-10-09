@@ -175,7 +175,7 @@ class CallSection {
               height: 400,
               child: ReorderableFit(
                 children: List.generate(5, (i) => i),
-                itemBuilder: (i) => Container(
+                itemBuilder: (i) => ColoredBox(
                   color: Colors.primaries[i],
                   child: Center(child: Text('$i')),
                 ),

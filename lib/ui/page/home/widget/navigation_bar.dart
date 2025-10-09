@@ -269,7 +269,7 @@ class CustomNavigationBarItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
+    return ColoredBox(
       color: style.colors.transparent,
       child: Center(
         child: Badge(

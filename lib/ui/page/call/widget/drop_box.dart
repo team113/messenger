@@ -36,7 +36,7 @@ class DropBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
+    return ColoredBox(
       color: style.colors.onBackgroundOpacity27,
       child: Center(
         child: AnimatedDelayedScale(

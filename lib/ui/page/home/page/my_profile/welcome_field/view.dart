@@ -135,7 +135,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
               topLeft: style.cardRadius.topLeft,
               topRight: style.cardRadius.topRight,
             ),
-            child: Container(
+            child: ColoredBox(
               color: style.colors.onPrimaryOpacity50,
               child: AnimatedSize(
                 duration: 400.milliseconds,

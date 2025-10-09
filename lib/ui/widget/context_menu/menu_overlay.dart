@@ -91,7 +91,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
           },
           child: FadeTransition(
             opacity: _animation,
-            child: Container(
+            child: ColoredBox(
               color: style.colors.transparent,
               child: Stack(
                 fit: StackFit.expand,

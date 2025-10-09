@@ -346,7 +346,7 @@ class MessageFieldView extends StatelessWidget {
             );
           }
 
-          return Container(
+          return ColoredBox(
             color: style.colors.background,
             child: AnimatedSize(
               duration: 400.milliseconds,

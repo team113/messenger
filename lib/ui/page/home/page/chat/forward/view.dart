@@ -157,7 +157,7 @@ class ChatForwardView extends StatelessWidget {
                 child: SafeAnimatedSwitcher(
                   duration: 200.milliseconds,
                   child: dragging
-                      ? Container(
+                      ? ColoredBox(
                           color: style.colors.onBackgroundOpacity27,
                           child: Center(
                             child: AnimatedDelayedScale(

@@ -1989,7 +1989,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 condition:
                                     (c.minimized.isFalse ||
                                     c.fullscreen.isTrue),
-                                child: Container(
+                                child: ColoredBox(
                                   color: ConditionalBackdropFilter.enabled
                                       ? style.colors.onSecondaryOpacity60
                                       : style.colors.onSecondaryOpacity88,
@@ -2048,7 +2048,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     child:
                         c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0
-                        ? Container(
+                        ? ColoredBox(
                             color: style.colors.onBackgroundOpacity27,
                             child: Center(
                               child: AnimatedDelayedScale(
