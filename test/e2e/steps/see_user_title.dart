@@ -15,11 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/avatar.dart';
-import 'package:messenger/routes.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
