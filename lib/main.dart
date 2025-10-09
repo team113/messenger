@@ -627,9 +627,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(
-        context,
-      ).copyWith(textScaler: const TextScaler.linear(1)),
+      data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
       child: MaterialApp.router(
         routerDelegate: router.delegate,
         routeInformationParser: router.parser,

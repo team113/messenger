@@ -28,7 +28,7 @@ class AnimatedSlider extends StatefulWidget {
     this.curve = Curves.easeOut,
     this.reverseCurve = Curves.easeOut,
     this.beginOffset = const Offset(0.0, 1.55),
-    this.endOffset = const Offset(0.0, 0.0),
+    this.endOffset = Offset.zero,
     this.translate = true,
     this.listener,
   });

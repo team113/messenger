@@ -104,7 +104,7 @@ class _MinimizableViewState extends State<MinimizableView>
             router.context!,
           ).extension<Style>()!.colors.onBackgroundOpacity40,
           blurRadius: 10.0,
-          offset: const Offset(0, 0),
+          offset: Offset.zero,
         ),
       ],
     ),

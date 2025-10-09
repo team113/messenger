@@ -42,7 +42,7 @@ class CropController extends GetxController {
   final Rx<CropRotation> rotation = Rx(CropRotation.up);
 
   /// [Size] of the [image].
-  final Rx<Size> dimensions = Rx(const Size(0, 0));
+  final Rx<Size> dimensions = Rx(Size.zero);
 
   /// [PictureInfo] of the [image] being an SVG.
   PictureInfo? svg;

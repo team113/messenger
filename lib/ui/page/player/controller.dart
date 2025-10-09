@@ -364,7 +364,7 @@ class PlayerController extends GetxController {
         video.pause();
       } else {
         if (isFinished) {
-          video.seekTo(const Duration());
+          video.seekTo(Duration.zero);
         }
 
         video.play();

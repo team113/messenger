@@ -405,7 +405,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
         padding = EdgeInsets.only(left: 3, right: width - minWidth - 8);
       }
     } else if (widget.unconstrained) {
-      padding = const EdgeInsets.only(left: 0, right: 0);
+      padding = EdgeInsets.zero;
     } else {
       padding = EdgeInsets.only(
         left: max(0, _bounds.left - 10),

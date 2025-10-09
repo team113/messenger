@@ -628,7 +628,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 duration: 400.milliseconds,
                 translate: false,
                 beginOffset: const Offset(0, -1),
-                endOffset: const Offset(0, 0),
+                endOffset: Offset.zero,
                 isOpen:
                     c.state.value == OngoingCallState.active &&
                     c.showHeader.value,

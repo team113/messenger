@@ -189,13 +189,13 @@ class IntroductionView extends StatelessWidget {
                     child: Animate(
                       effects: const [
                         FadeEffect(
-                          delay: Duration(milliseconds: 0),
+                          delay: Duration.zero,
                           duration: Duration(milliseconds: 2000),
                         ),
                         MoveEffect(
-                          delay: Duration(milliseconds: 0),
+                          delay: Duration.zero,
                           begin: Offset(0, 100),
-                          end: Offset(0, 0),
+                          end: Offset.zero,
                           curve: Curves.ease,
                           duration: Duration(milliseconds: 1000),
                         ),

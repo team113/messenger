@@ -105,7 +105,7 @@ class CallCoverWidget extends StatelessWidget {
                     ),
 
                     // Disable the accessibility size settings for this [Text].
-                    textScaler: const TextScaler.linear(1),
+                    textScaler: TextScaler.noScaling,
                   ),
                 ),
               );

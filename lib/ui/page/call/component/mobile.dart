@@ -416,7 +416,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   0,
                   -50 - MediaQuery.of(context).padding.top,
                 ),
-                endOffset: const Offset(0, 0),
+                endOffset: Offset.zero,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(11),
