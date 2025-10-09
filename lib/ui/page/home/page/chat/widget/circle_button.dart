@@ -39,7 +39,7 @@ class CircleButton extends StatelessWidget {
     return AnimatedButton(
       enabled: onPressed != null,
       onPressed: onPressed,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           boxShadow: [

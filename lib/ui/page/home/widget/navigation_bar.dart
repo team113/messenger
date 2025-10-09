@@ -98,7 +98,7 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         boxShadow: [
           CustomBoxShadow(

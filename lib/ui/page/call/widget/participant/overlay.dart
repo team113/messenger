@@ -153,7 +153,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
       final Widget child;
 
       if (hovered || additionally.isNotEmpty) {
-        child = Container(
+        child = DecoratedBox(
           key: const Key('Tooltip'),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),

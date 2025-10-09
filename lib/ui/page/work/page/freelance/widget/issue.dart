@@ -50,7 +50,7 @@ class IssueWidget extends StatelessWidget {
 
     return Column(
       children: [
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: style.cardRadius.copyWith(
               bottomLeft: expanded ? Radius.zero : style.cardRadius.bottomLeft,

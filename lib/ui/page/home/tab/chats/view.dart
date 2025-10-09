@@ -851,7 +851,7 @@ class ChatsTabView extends StatelessWidget {
                                             t,
                                           )!;
 
-                                          return Container(
+                                          return DecoratedBox(
                                             decoration: BoxDecoration(
                                               boxShadow: [
                                                 CustomBoxShadow(

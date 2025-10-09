@@ -437,7 +437,7 @@ class AvatarWidget extends StatelessWidget {
         ? avatar?.medium
         : avatar?.small;
 
-    final Widget defaultAvatar = Container(
+    final Widget defaultAvatar = DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,

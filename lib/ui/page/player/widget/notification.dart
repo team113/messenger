@@ -59,7 +59,7 @@ class PlayerNotificationWidget extends StatelessWidget {
         ],
       ),
       margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: style.colors.primaryAuxiliaryOpacity90,
           borderRadius: BorderRadius.circular(12),

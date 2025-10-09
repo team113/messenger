@@ -34,7 +34,7 @@ class ParticipantDecoratorWidget extends StatelessWidget {
         children: [
           const SizedBox.expand(),
           Positioned.fill(
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 border: Border.all(
                   color: style.colors.onBackgroundOpacity20,

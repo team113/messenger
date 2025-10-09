@@ -166,7 +166,7 @@ class ChatForwardView extends StatelessWidget {
                               endScale: 1.06,
                               child: ConditionalBackdropFilter(
                                 borderRadius: BorderRadius.circular(16),
-                                child: Container(
+                                child: DecoratedBox(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(16),
                                     color: style.colors.onBackgroundOpacity27,

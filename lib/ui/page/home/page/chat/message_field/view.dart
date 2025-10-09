@@ -156,7 +156,7 @@ class MessageFieldView extends StatelessWidget {
           },
           child: Theme(
             data: theme(context),
-            child: Container(
+            child: DecoratedBox(
               key: const Key('SendField'),
               decoration: BoxDecoration(
                 boxShadow: [
@@ -221,7 +221,7 @@ class MessageFieldView extends StatelessWidget {
 
                     return InitCallback(
                       callback: PlatformUtils.haptic,
-                      child: Container(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           boxShadow: [
                             CustomBoxShadow(
@@ -301,7 +301,7 @@ class MessageFieldView extends StatelessWidget {
 
                     return InitCallback(
                       callback: PlatformUtils.haptic,
-                      child: Container(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           boxShadow: [
                             CustomBoxShadow(
@@ -695,7 +695,7 @@ class MessageFieldView extends StatelessWidget {
                   child: ElasticAnimatedSwitcher(
                     child: e is LocalAttachment
                         ? e.status.value == SendingStatus.error
-                              ? Container(
+                              ? DecoratedBox(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: style.colors.onPrimary,

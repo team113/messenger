@@ -773,7 +773,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   c.top.value = c.top.value + d.delta.dy;
                   c.applyConstraints(context);
                 },
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: style.colors.transparent,
                     borderRadius: BorderRadius.circular(30),
@@ -2059,7 +2059,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                   condition:
                                       !c.minimized.value || c.fullscreen.value,
                                   borderRadius: BorderRadius.circular(16),
-                                  child: Container(
+                                  child: DecoratedBox(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(16),
                                       color:

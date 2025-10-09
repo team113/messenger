@@ -46,7 +46,7 @@ class DropBox extends StatelessWidget {
           child: ConditionalBackdropFilter(
             condition: withBlur,
             borderRadius: BorderRadius.circular(16),
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 color: withBlur

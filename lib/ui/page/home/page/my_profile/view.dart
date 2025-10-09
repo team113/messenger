@@ -1120,7 +1120,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
       Stack(
         children: [
           Positioned.fill(
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 border: style.primaryBorder,
                 borderRadius: BorderRadius.circular(10),

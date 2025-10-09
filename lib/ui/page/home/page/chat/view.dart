@@ -619,7 +619,7 @@ class ChatView extends StatelessWidget {
                                   endScale: 1.06,
                                   child: ConditionalBackdropFilter(
                                     borderRadius: BorderRadius.circular(16),
-                                    child: Container(
+                                    child: DecoratedBox(
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
                                         color:
@@ -1062,7 +1062,7 @@ class ChatView extends StatelessWidget {
             );
         final bool canDelete = c.selected.isNotEmpty;
 
-        return Container(
+        return DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
             boxShadow: [
@@ -1072,7 +1072,7 @@ class ChatView extends StatelessWidget {
               ),
             ],
           ),
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(color: style.cardColor),
             child: Column(
               mainAxisSize: MainAxisSize.min,

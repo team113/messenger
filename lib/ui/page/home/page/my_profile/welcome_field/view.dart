@@ -91,7 +91,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
 
     return Theme(
       data: MessageFieldView.theme(context),
-      child: Container(
+      child: DecoratedBox(
         key: const Key('SendField'),
         decoration: BoxDecoration(
           boxShadow: [
@@ -425,7 +425,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                   child: ElasticAnimatedSwitcher(
                     child: e is LocalAttachment
                         ? e.status.value == SendingStatus.error
-                              ? Container(
+                              ? DecoratedBox(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: style.colors.onPrimary,

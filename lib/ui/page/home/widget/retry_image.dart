@@ -287,7 +287,7 @@ class _RetryImageState extends State<RetryImage> {
               if (widget.cancelable)
                 Center(
                   child: _canceled
-                      ? Container(
+                      ? DecoratedBox(
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             boxShadow: [

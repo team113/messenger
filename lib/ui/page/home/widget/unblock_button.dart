@@ -33,7 +33,7 @@ class UnblockButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
+    return DecoratedBox(
       key: const Key('UnblockButton'),
       decoration: BoxDecoration(
         boxShadow: [

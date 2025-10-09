@@ -1012,7 +1012,7 @@ class IconsView extends StatelessWidget {
           ),
           Block(
             children: [
-              Container(
+              DecoratedBox(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: style.cardRadius,
@@ -1183,7 +1183,7 @@ class IconsView extends StatelessWidget {
           ),
           Block(
             children: [
-              Container(
+              DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: style.colors.onBackgroundOpacity50,
@@ -1200,7 +1200,7 @@ class IconsView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Container(
+              DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: style.colors.onBackgroundOpacity50,
@@ -1220,7 +1220,7 @@ class IconsView extends StatelessWidget {
           ),
           Block(
             children: [
-              Container(
+              DecoratedBox(
                 key: const Key('Tooltip'),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
@@ -1669,7 +1669,7 @@ Widget _navBar(BuildContext context, List<Widget> children) {
 Widget _messageCall(BuildContext context, IconsController c, SvgData icon) {
   final style = Theme.of(context).style;
 
-  return Container(
+  return DecoratedBox(
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10),
       color: style.colors.background,
@@ -1696,7 +1696,7 @@ Widget _messageCall(BuildContext context, IconsController c, SvgData icon) {
 Widget _messageStatus(BuildContext context, IconsController c, SvgData icon) {
   final style = Theme.of(context).style;
 
-  return Container(
+  return DecoratedBox(
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10),
       color: style.colors.background,
