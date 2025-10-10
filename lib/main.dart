@@ -159,7 +159,9 @@ Future<void> main() async {
               type: event.type,
             );
           }
+   
 
+   
 
           // [Backoff] related exceptions shouldn't be logged.
           if (exception is OperationCanceledException ||
