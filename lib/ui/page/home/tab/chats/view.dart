@@ -1094,8 +1094,8 @@ class ChatsTabView extends StatelessWidget {
       }
 
       return AnimationLimiter(
-        key: const Key('Chats'),
         child: CustomScrollView(
+          key: const Key('Chats'),
           slivers: [
             SliverPadding(
               padding: EdgeInsets.only(top: 4, left: 10, right: 10),
