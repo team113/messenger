@@ -16,68 +16,81 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Waits until the [Avatar] being displayed has the provided title.
+/// Waits until the [ChatAvatar] being displayed has the provided title.
 ///
 /// Examples:
-/// - Then I see avatar title as "Deleted Account"
-final StepDefinitionGeneric seeAvatarTitle = then1<String, CustomWorld>(
-  'I see avatar title as {string}',
-  (String title, context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
+/// - And I see avatar title as "Bo" for "Bob" chat
+final StepDefinitionGeneric seeAvatarTitleForChat =
+    then2<String, String, CustomWorld>(
+      'I see avatar title as {string} for {string} chat',
+      (String title, String chatName, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-      final finder = context.world.appDriver.findByKeySkipOffstage(
-        'AvatarTitleKey',
-      );
+          final controller = Get.find<ChatsTabController>();
 
-      for (int i = 0; i < finder.allCandidates.length; i++) {
-        final text = await context.world.appDriver.getText(finder.at(i));
+          final chat = controller.chats.firstWhere(
+            (c) => c.rx.title() == chatName,
+          );
 
-        if (text == title) {
-          return true;
-        }
-      }
+          final finder = context.world.appDriver.findByDescendant(
+            context.world.appDriver.findBy('Chat_${chat.id}', FindType.key),
+            context.world.appDriver.findByKeySkipOffstage('AvatarTitleKey'),
+            firstMatchOnly: true,
+          );
 
-      return false;
-    }, timeout: const Duration(seconds: 30));
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+          for (int i = 0; i < finder.allCandidates.length; i++) {
+            final text = await context.world.appDriver.getText(finder.at(i));
+
+            if (text == title) {
+              return true;
+            }
+          }
+
+          return false;
+        }, timeout: const Duration(seconds: 30));
+      },
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
+    );
 
 /// Waits until the [UserAvatar] being displayed has the provided title.
 ///
 /// Examples:
-/// - Then I see user avatar title as "Deleted Account"
-final StepDefinitionGeneric seeUserAvatarTitle = then1<String, CustomWorld>(
-  'I see user avatar title as {string}',
-  (String title, context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
+/// - Then I see avatar title as "Bo" in user profile
+final StepDefinitionGeneric seeAvatarTitleInUserProfile =
+    then1<String, CustomWorld>(
+      'I see avatar title as {string} in user profile',
+      (String title, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-      final userId = router.route.split('/')[2];
+          final userId = router.route.split('/')[2];
 
-      final finder = context.world.appDriver.findByDescendant(
-        context.world.appDriver.findBy('UserAvatar_$userId', FindType.key),
-        context.world.appDriver.findByKeySkipOffstage('AvatarTitleKey'),
-        firstMatchOnly: true,
-      );
+          final finder = context.world.appDriver.findByDescendant(
+            context.world.appDriver.findBy('UserAvatar_$userId', FindType.key),
+            context.world.appDriver.findByKeySkipOffstage('AvatarTitleKey'),
+            firstMatchOnly: true,
+          );
 
-      final text = await context.world.appDriver.getText(finder);
+          final text = await context.world.appDriver.getText(finder);
 
-      if (text == title) {
-        return true;
-      }
+          if (text == title) {
+            return true;
+          }
 
-      return false;
-    }, timeout: const Duration(seconds: 30));
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+          return false;
+        }, timeout: const Duration(seconds: 30));
+      },
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
+    );

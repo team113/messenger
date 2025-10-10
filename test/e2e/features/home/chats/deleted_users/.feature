@@ -27,15 +27,15 @@ Feature: Deleted users are displayed in chats
 
     Then I see "Alice, Bob, Charlie" chat
     And I see "Bob" chat
-    And I see avatar title as "Bo"
+    And I see avatar title as "Bo" for "Bob" chat
 
     Given I have "English" language set
     When Bob deletes their account
     Then I see "Alice, Deleted Account, Charlie" chat
     And I see "Deleted Account" chat
-    And I see avatar title as "Bo"
+    And I see avatar title as "Bo" for "Deleted Account" chat
 
     When I tap "Bob" chat
     And I go to Bob's page
-    Then I see user avatar title as "Bo"
+    Then I see avatar title as "Bo" in user profile
     And I see title as "Deleted Account" in user profile
