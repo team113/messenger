@@ -809,6 +809,7 @@ class ChatView extends StatelessWidget {
                     c.selecting.toggle();
                     c.selected.add(element);
                   },
+                  onSearch: c.toggleSearch,
                   onUserPressed: (user) {
                     ChatId chatId = ChatId.local(user.id);
                     if (user.dialog.isLocalWith(c.me)) {

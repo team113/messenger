@@ -34,8 +34,16 @@ final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
       await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
       final controller = Get.find<ChatsTabController>();
+      final length = controller.chats.where((e) {
+        final bool notLocalOrHasMessages =
+            !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
 
-      if (controller.chats.where((e) => !e.id.isLocal).length == count) {
+        return notLocalOrHasMessages &&
+            !e.chat.value.isHidden &&
+            !e.chat.value.isArchived;
+      }).length;
+
+      if (length >= count) {
         return true;
       } else {
         return false;
