@@ -250,7 +250,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollUntilPresent,
         seeAccountInAccounts,
         seeAvatarTitleForChat,
-        seeAvatarTitleInUserProfile,
+        seeAvatarTitleInUserView,
         seeBlockedUsers,
         seeChatAsArchived,
         seeChatAsDismissed,

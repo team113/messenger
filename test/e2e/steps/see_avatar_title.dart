@@ -67,7 +67,7 @@ final StepDefinitionGeneric seeAvatarTitleForChat =
 ///
 /// Examples:
 /// - Then I see avatar title as "Bo" in user profile
-final StepDefinitionGeneric seeAvatarTitleInUserProfile =
+final StepDefinitionGeneric seeAvatarTitleInUserView =
     then1<String, CustomWorld>(
       'I see avatar title as {string} in user profile',
       (String title, context) async {
