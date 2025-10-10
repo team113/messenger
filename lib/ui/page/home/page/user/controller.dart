@@ -566,8 +566,7 @@ extension UserViewExt on User {
   ///
   /// If [withDeletedLabel] is `true`, then returns the title with the deleted
   /// label for deleted users.
-  String title({bool withDeletedLabel = true}) =>
-      isDeleted && withDeletedLabel
+  String title({bool withDeletedLabel = true}) => isDeleted && withDeletedLabel
       ? 'label_deleted_account'.l10n
       : (contacts.firstOrNull?.name.val ?? name?.val ?? this.num.toString());
 

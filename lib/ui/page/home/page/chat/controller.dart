@@ -2619,9 +2619,7 @@ extension ChatRxExt on RxChat {
           if (users.length < chat.value.membersCount && users.length < 3) {
             names = chat.value.members
                 .take(3)
-                .map(
-                  (e) => e.user.title(withDeletedLabel: withDeletedLabel),
-                );
+                .map((e) => e.user.title(withDeletedLabel: withDeletedLabel));
           } else {
             names = users
                 .take(3)
