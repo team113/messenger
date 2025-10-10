@@ -125,7 +125,7 @@ import 'steps/see_favorite_monolog.dart';
 import 'steps/see_field_having_error.dart';
 import 'steps/see_search_results.dart';
 import 'steps/see_sessions.dart';
-import 'steps/see_user_title.dart';
+import 'steps/see_user_view.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
@@ -287,9 +287,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seesDialogWithMe,
         seesNoDialogWithMe,
         seesNoDialogWithUser,
+        seeTitleInUserView,
         seeUserInSearchResults,
         seeUserAvatarTitle,
-        seeUserTitle,
         selectLanguage,
         selectMessageText,
         sendsAttachmentToMe,

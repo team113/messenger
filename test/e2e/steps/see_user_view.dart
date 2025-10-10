@@ -23,9 +23,9 @@ import '../world/custom_world.dart';
 /// Waits until the [UserView] being displayed has the provided title.
 ///
 /// Examples:
-/// - Then I see user title as "Deleted Account"
-final StepDefinitionGeneric seeUserTitle = then1<String, CustomWorld>(
-  'I see user title as {string}',
+/// - Then I see title as "Bob" in user profile
+final StepDefinitionGeneric seeTitleInUserView = then1<String, CustomWorld>(
+  'I see title as {string} in user profile',
   (String title, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();

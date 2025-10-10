@@ -38,4 +38,4 @@ Feature: Deleted users are displayed in chats
     When I tap "Bob" chat
     And I go to Bob's page
     Then I see user avatar title as "Bo"
-    And I see user title as "Deleted Account"
+    And I see title as "Deleted Account" in user profile
