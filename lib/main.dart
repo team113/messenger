@@ -160,6 +160,7 @@ Future<void> main() async {
             );
           }
 
+
           // [Backoff] related exceptions shouldn't be logged.
           if (exception is OperationCanceledException ||
               exception.toString() == 'Data is not loaded') {
