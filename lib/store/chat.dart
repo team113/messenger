@@ -67,10 +67,10 @@ import '/provider/gql/exceptions.dart'
         ForwardChatItemsException,
         HideChatException,
         HideChatItemException,
-        ToggleChatArchivationException,
         RemoveChatMemberException,
         RenameChatException,
         StaleVersionException,
+        ToggleChatArchivationException,
         ToggleChatMuteException,
         UnfavoriteChatException,
         UpdateChatAvatarException,
@@ -357,6 +357,7 @@ class ChatRepository extends DisposableInterface
 
           case OperationKind.updated:
             if (e.oldKey != e.key) {
+              // ignore: cancel_subscriptions
               final StreamSubscription? subscription =
                   _archiveSubscriptions[e.oldKey];
               if (subscription != null) {
@@ -391,6 +392,8 @@ class ChatRepository extends DisposableInterface
     _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
     _paginatedSubscription?.cancel();
+    _archivedSubscription?.cancel();
+    _archiveSubscriptions.forEach((_, s) => s.cancel());
 
     super.onClose();
   }
