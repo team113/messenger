@@ -1668,7 +1668,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           label: 'btn_search_chat'.l10n,
                           trailing: const SvgIcon(SvgIcons.search),
                           inverted: const SvgIcon(SvgIcons.searchWhite),
-                          onPressed: () => widget.onSearch?.call(),
+                          onPressed: widget.onSearch,
                         ),
                         ContextMenuButton(
                           key: const Key('Select'),

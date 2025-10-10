@@ -75,6 +75,7 @@ class SearchController extends GetxController {
     required this.categories,
     this.chat,
     this.onSelected,
+    this.prePopulate = true,
   }) : assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
@@ -141,6 +142,10 @@ class SearchController extends GetxController {
   /// Callback, called on the [selectedContacts], [selectedChats],
   /// [selectedUsers] and [selectedRecent] changes.
   final void Function(SearchViewResults? results)? onSelected;
+
+  /// Indicator whether this [SearchController] should try populating the
+  /// results when initialized.
+  final bool prePopulate;
 
   /// Worker to react on the [usersSearch] status changes.
   Worker? _usersSearchWorker;

@@ -2445,7 +2445,7 @@ class ChatController extends GetxController {
           break;
 
         case LogicalKeyboardKey.escape:
-          toggleSearch(false);
+          toggleSearch(true);
           return true;
 
         default:

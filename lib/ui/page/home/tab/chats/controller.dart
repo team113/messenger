@@ -97,9 +97,6 @@ class ChatsTabController extends GetxController {
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
 
-  /// Indicator whether [search]ing is active.
-  final RxBool searching = RxBool(false);
-
   /// Indicator whether chat archive viewing is active.
   final RxBool archivedOnly = RxBool(false);
 
@@ -817,7 +814,7 @@ class ChatsTabController extends GetxController {
     archivedOnly.value = !archivedOnly.value;
   }
 
-  /// Enables and initializes the [search].
+  /// Initializes the [search].
   void _initSearch() {
     search.value = SearchController(
       _chatService,
@@ -831,6 +828,7 @@ class ChatsTabController extends GetxController {
         SearchCategory.contact,
         SearchCategory.user,
       ],
+      prePopulate: false,
     )..onInit();
 
     _searchSubscription =
@@ -885,8 +883,14 @@ class ChatsTabController extends GetxController {
   /// Intended to be used as a [HardwareKeyboard] listener.
   bool _escapeListener(KeyEvent e) {
     if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
-      if (groupCreating.value) {
+      if (search.value?.query.value.isNotEmpty == true) {
+        clearSearch();
+        return true;
+      } else if (groupCreating.value) {
         closeGroupCreating();
+        return true;
+      } else if (selecting.value) {
+        toggleSelecting();
         return true;
       }
     }
@@ -912,7 +916,7 @@ class ChatsTabController extends GetxController {
             }
           } else {
             if (hasNext.isTrue && _chatService.nextLoading.isFalse) {
-              // _chatService.next();
+              _chatService.next();
             }
           }
         }
@@ -962,8 +966,14 @@ class ChatsTabController extends GetxController {
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
   bool _onBack(bool _, RouteInfo _) {
-    if (groupCreating.isTrue) {
+    if (search.value?.query.value.isNotEmpty == true) {
+      clearSearch();
+      return true;
+    } else if (groupCreating.isTrue) {
       closeGroupCreating();
+      return true;
+    } else if (selecting.value) {
+      toggleSelecting();
       return true;
     }
 

@@ -1979,4 +1979,22 @@ class SvgIcons {
     width: 19,
     height: 19,
   );
+
+  static const SvgData deleteAction = SvgData(
+    'assets/icons/delete_action.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData hideAction = SvgData(
+    'assets/icons/hide_action.svg',
+    width: 21.69,
+    height: 19,
+  );
+
+  static const SvgData unhideAction = SvgData(
+    'assets/icons/unhide_action.svg',
+    width: 20,
+    height: 18,
+  );
 }

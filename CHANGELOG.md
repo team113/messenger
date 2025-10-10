@@ -22,7 +22,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chats tab:
-        - Redesigned searching. ([#1438], [#1396])
+        - Redesigned app bar and searching. ([#1438], [#1396])
     - Chat page:
         - "Ctrl+F"/"Cmd+F" toggling messages searching. ([#1438], [#1396])
 
@@ -50,8 +50,6 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
-    - Chats tab:
-        - Redesigned app bar and search field. ([#1396], [#1438])
     - Chat page:
         - Redesigned messages selection. ([#1416], [#1410])
         - Redesigned message information. ([#1437], [#1379])

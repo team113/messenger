@@ -32,7 +32,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.top = true,
     this.borderRadius,
     this.applySafeArea = true,
-    this.applyElevation = true,
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -59,8 +58,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Indicator whether [SafeArea] should be applied to the bar.
   final bool applySafeArea;
 
-  final bool applyElevation;
-
   /// Height of the [CustomAppBar].
   static double get height {
     double padding = 0;
@@ -83,20 +80,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final style = Theme.of(context).style;
 
     return Container(
+      height: applySafeArea ? height : rawHeight,
       decoration: BoxDecoration(
         color: style.cardColor,
         borderRadius: borderRadius,
-        boxShadow: applyElevation
-            ? [
-                CustomBoxShadow(
-                  blurRadius: 8,
-                  color: style.colors.onBackgroundOpacity13,
-                  blurStyle: BlurStyle.outer.workaround,
-                ),
-              ]
-            : null,
+        boxShadow: [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: style.colors.onBackgroundOpacity13,
+            blurStyle: BlurStyle.outer.workaround,
+          ),
+        ],
       ),
-      height: applySafeArea ? height : rawHeight,
+
       child: Padding(
         padding: padding ?? EdgeInsets.zero,
         child: Column(

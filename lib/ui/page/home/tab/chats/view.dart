@@ -1023,7 +1023,8 @@ class ChatsTabView extends StatelessWidget {
       //     ? () => c.inContacts(e)
       //     : null,
       onTap: c.selecting.value ? () => c.selectChat(e) : null,
-      onDismissed: () async => await c.archiveChat(e.id, true),
+      onDismissed: () async =>
+          await c.archiveChat(e.id, !e.chat.value.isArchived),
       enableContextMenu: !c.selecting.value,
       trailing: c.selecting.value
           ? [SelectedDot(selected: selected, size: 20)]
