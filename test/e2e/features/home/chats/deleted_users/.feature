@@ -29,8 +29,8 @@ Feature: Deleted users are displayed in chats
     And I see "Bob" chat
     And I see avatar title as "Bo"
 
-    When I select "English" language
-    And Bob deletes their account
+    Given I have "English" language set
+    When Bob deletes their account
     Then I see "Alice, Deleted Account, Charlie" chat
     And I see "Deleted Account" chat
     And I see avatar title as "Bo"

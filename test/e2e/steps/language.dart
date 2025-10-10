@@ -23,9 +23,9 @@ import '../world/custom_world.dart';
 /// Selects the application language.
 ///
 /// Examples:
-/// - `I select "English" language`
+/// - `Given I have "English" language set`
 final StepDefinitionGeneric selectLanguage = when1<String, CustomWorld>(
-  'I select {string} language',
+  'I have {string} language set',
   (languageName, context) async {
     await L10n.set(Language.fromTag(languageName) ?? L10n.languages.first);
 
