@@ -29,7 +29,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions = const [],
     this.padding,
     this.border,
-    this.margin = EdgeInsets.zero,
     this.top = true,
     this.borderRadius,
     this.applySafeArea = true,
@@ -47,9 +46,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   /// Padding to apply to the contents.
   final EdgeInsets? padding;
-
-  /// Margin to apply to the contents.
-  final EdgeInsets margin;
 
   /// [Border] to apply to this [CustomAppBar].
   final Border? border;

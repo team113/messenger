@@ -21,9 +21,10 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed:
 
 - UI:
+    - Chats tab:
+        - Redesigned searching. ([#1438], [#1396])
     - Chat page:
-        - Added the "Search in chat" action to the context menu. ([#1396], [#1438])
-        - Added a keyboard shortcuts "Ctrl+F"/"Cmd+F" to open search. ([#1396], [#1438])
+        - "Ctrl+F"/"Cmd+F" toggling messages searching. ([#1438], [#1396])
 
 ### Fixed
 

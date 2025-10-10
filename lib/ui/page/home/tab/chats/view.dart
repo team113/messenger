@@ -30,9 +30,7 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
-import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
@@ -43,6 +41,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
+import '/ui/widget/sliver_app_bar.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -83,275 +82,23 @@ class ChatsTabView extends StatelessWidget {
                     : style.colors.secondaryHighlight.withValues(alpha: 0),
               );
             }),
-            Obx(() {
-              return Scaffold(
-                resizeToAvoidBottomInset: false,
-                body: Scrollbar(
-                  controller: c.scrollController,
-                  child: CustomScrollView(
-                    controller: c.scrollController,
-                    slivers: [
-                      SliverAppBar(
-                        elevation: 8,
-                        forceElevated: true,
-                        shadowColor: style.colors.onBackgroundOpacity40,
-                        surfaceTintColor: Colors.transparent,
-                        backgroundColor: style.colors.onPrimary,
-                        pinned: true,
-                        floating: PlatformUtils.isMobile,
-                        titleSpacing: 0,
-                        expandedHeight: PlatformUtils.isMobile ? 106 : null,
-                        toolbarHeight: PlatformUtils.isMobile ? 56 : 106,
-                        title: Column(
-                          children: [
-                            CustomAppBar(
-                              applyElevation: false,
-                              title: Padding(
-                                padding: const EdgeInsets.only(left: 22),
-                                child: Row(
-                                  children: [
-                                    if (c.groupCreating.value)
-                                      Text('label_create_group'.l10n)
-                                    else if (c.selecting.value)
-                                      Text(
-                                        'label_selected'.l10nfmt({
-                                          'count': c.selectedChats.length,
-                                        }),
-                                      )
-                                    else
-                                      Text('label_chats'.l10n),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                Obx(() {
-                                  final Widget moreButton = ContextMenuRegion(
-                                    key: const Key('ChatsMenu'),
-                                    selector: c.moreKey,
-                                    alignment: Alignment.topRight,
-                                    enablePrimaryTap: true,
-                                    enableSecondaryTap: false,
-                                    enableLongTap: false,
-                                    margin: const EdgeInsets.only(
-                                      bottom: 4,
-                                      right: 0,
-                                    ),
-                                    actions: [
-                                      ContextMenuButton(
-                                        key: const Key('SelectChatsButton'),
-                                        label: 'btn_select'.l10n,
-                                        onPressed: c.toggleSelecting,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.select,
-                                        ),
-                                        inverted: const SvgIcon(
-                                          SvgIcons.selectWhite,
-                                        ),
-                                      ),
-                                      ContextMenuButton(
-                                        label: 'btn_create_group'.l10n,
-                                        onPressed: c.startGroupCreating,
-                                        trailing: const SvgIcon(SvgIcons.group),
-                                        inverted: const SvgIcon(
-                                          SvgIcons.groupWhite,
-                                        ),
-                                      ),
-                                      ContextMenuDivider(),
-                                      ContextMenuButton(
-                                        label: 'label_chat_monolog'.l10n,
-                                        onPressed: () => router.chat(c.monolog),
-                                        trailing: const SvgIcon(
-                                          SvgIcons.notesSmall,
-                                        ),
-                                        inverted: const SvgIcon(
-                                          SvgIcons.notesSmallWhite,
-                                        ),
-                                      ),
-                                    ],
-                                    child: AnimatedButton(
-                                      decorator: (child) {
-                                        return Container(
-                                          key: c.moreKey,
-                                          padding: const EdgeInsets.only(
-                                            left: 12,
-                                            right: 18,
-                                          ),
-                                          height: double.infinity,
-                                          child: Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                              10,
-                                              0,
-                                              10,
-                                              0,
-                                            ),
-                                            child: child,
-                                          ),
-                                        );
-                                      },
-                                      child: const SvgIcon(SvgIcons.more),
-                                    ),
-                                  );
-
-                                  final Widget closeButton = AnimatedButton(
-                                    key: const Key('CloseSelectingButton'),
-                                    onPressed: () {
-                                      if (c.selecting.value) {
-                                        c.toggleSelecting();
-                                      } else if (c.groupCreating.value) {
-                                        c.closeGroupCreating();
-                                      }
-                                    },
-                                    decorator: (child) {
-                                      return Container(
-                                        padding: const EdgeInsets.only(
-                                          left: 9,
-                                          right: 16,
-                                        ),
-                                        height: double.infinity,
-                                        child: child,
-                                      );
-                                    },
-                                    child: SizedBox(
-                                      width: 29.17,
-                                      child: SafeAnimatedSwitcher(
-                                        duration: 250.milliseconds,
-                                        child: const SvgIcon(
-                                          SvgIcons.closePrimary,
-                                          key: Key('CloseSearch'),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-
-                                  return Row(
-                                    children: [
-                                      if (c.selecting.value ||
-                                          c.groupCreating.value)
-                                        closeButton
-                                      else
-                                        moreButton,
-                                    ],
-                                  );
-                                }),
-                              ],
-                            ),
-                            if (!PlatformUtils.isMobile) _subtitle(context, c),
-                          ],
-                        ),
-                        flexibleSpace: PlatformUtils.isMobile
-                            ? FlexibleSpaceBar(
-                                collapseMode: CollapseMode.parallax,
-                                background: _subtitle(context, c),
-                              )
-                            : null,
+            Scaffold(
+              resizeToAvoidBottomInset: false,
+              body: NestedScrollView(
+                controller: c.scrollController,
+                headerSliverBuilder: (context, value) {
+                  return [
+                    SliverOverlapAbsorber(
+                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                        context,
                       ),
-                      Obx(() {
-                        final Widget? child;
-
-                        if (c.status.value.isLoading) {
-                          child = Center(
-                            child: CustomProgressIndicator.primary(),
-                          );
-                        } else if (c.groupCreating.isTrue) {
-                          child = _groupCreating(context, c);
-                        } else if (c.search.value?.search.isEmpty.value ==
-                            false) {
-                          child = _searchResult(context, c);
-                        } else {
-                          return _chats(context, c);
-                        }
-
-                        return SliverFillRemaining(
-                          child: ContextMenuInterceptor(
-                            margin: const EdgeInsets.fromLTRB(0, 64, 0, 0),
-                            child: SlidableAutoCloseBehavior(
-                              child: SafeAnimatedSwitcher(
-                                duration: const Duration(milliseconds: 250),
-                                child: child,
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    ],
-                  ),
-                ),
-              );
-            }),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 72,
-              child: Obx(() {
-                final action = c.dismissed.lastOrNull;
-
-                if (action != null) {
-                  return SafeAnimatedSwitcher(
-                    duration: 200.milliseconds,
-                    child: Padding(
-                      key: Key('Dismissed_${action.chat.id}'),
-                      padding: EdgeInsets.fromLTRB(
-                        10,
-                        0,
-                        10,
-                        MediaQuery.of(context).viewPadding.bottom,
-                      ),
-                      child: WidgetButton(
-                        key: const Key('Restore'),
-                        onPressed: action.cancel,
-                        child: Container(
-                          key: Key('${action.chat.id}'),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: style.colors.primary.withValues(alpha: .9),
-                            boxShadow: [
-                              CustomBoxShadow(
-                                blurRadius: 8,
-                                color: style.colors.onBackgroundOpacity13,
-                                blurStyle: BlurStyle.outer.workaround,
-                              ),
-                            ],
-                          ),
-                          height: CustomNavigationBar.height,
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          child: Stack(
-                            alignment: Alignment.centerLeft,
-                            children: [
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      value: action.remaining.value / 5000,
-                                      color: style.colors.onPrimary,
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${action.remaining.value ~/ 1000 + 1}',
-                                    style: style.fonts.small.regular.onPrimary,
-                                  ),
-                                ],
-                              ),
-                              Center(
-                                child: Text(
-                                  'btn_cancel'.l10n,
-                                  style: style.fonts.medium.regular.onPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      sliver: SliverSafeArea(sliver: _appBar(context, c)),
                     ),
-                  );
-                }
-
-                return const SizedBox(key: Key('NoDismissed'));
-              }),
+                  ];
+                },
+                floatHeaderSlivers: false,
+                body: _body(context, c),
+              ),
             ),
             Obx(() {
               if (c.creatingStatus.value.isLoading) {
@@ -374,10 +121,360 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Builds a search field and synchronization labels for [SliverAppBar].
-  Widget _subtitle(BuildContext context, ChatsTabController c) {
+  /// Builds a [BottomPaddedRow] for selecting the [Chat]s.
+  static Widget selectingBuilder(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
 
+    return BottomPaddedRow(
+      spacer: (_) {
+        return Container(
+          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
+          width: 1,
+          height: 24,
+        );
+      },
+      children: [
+        WidgetButton(
+          onPressed: c.readAll,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_read_all'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          onPressed: c.selectedChats.isEmpty
+              ? null
+              : () => _archiveChats(context, c),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          key: const Key('DeleteChatsButton'),
+          onPressed: c.selectedChats.isEmpty
+              ? null
+              : () => _hideChats(context, c),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_delete'.l10n,
+                style: style.fonts.normal.regular.danger,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds a [BottomPaddedRow] for creating a [Chat]-group.
+  static Widget createGroupBuilder(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    return BottomPaddedRow(
+      spacer: (_) {
+        return Container(
+          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
+          width: 1,
+          height: 24,
+        );
+      },
+      children: [
+        WidgetButton(
+          onPressed: c.closeGroupCreating,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_cancel'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          onPressed: c.creatingStatus.value.isEmpty ? c.createGroup : null,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_create'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Returns a [SliverAppBar] to build on the page.
+  Widget _appBar(BuildContext context, ChatsTabController c) {
+    return CustomSliverAppBar(
+      title: _title(context, c),
+      actions: [_more(context, c)],
+      hasFlexible: PlatformUtils.isMobile,
+      flexible: _search(context, c),
+    );
+  }
+
+  /// Returns a title to build in an [AppBar].
+  Widget _title(BuildContext context, ChatsTabController c) {
+    return Obx(() {
+      final Widget label;
+      final bool padded;
+
+      if (c.groupCreating.value) {
+        padded = false;
+        label = Padding(
+          key: Key('CreateGroup'),
+          padding: const EdgeInsets.only(left: 22),
+          child: Text('label_create_group'.l10n),
+        );
+      } else if (c.selecting.value) {
+        padded = false;
+        label = Padding(
+          key: Key('SelectChats'),
+          padding: const EdgeInsets.only(left: 22),
+          child: Text(
+            'label_selected'.l10nfmt({'count': c.selectedChats.length}),
+          ),
+        );
+      } else if (c.archivedOnly.value) {
+        padded = c.synchronizing;
+
+        label = Row(
+          key: Key('ArchivedChats'),
+          children: [
+            WidgetButton(
+              onPressed: c.toggleArchive,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  padded ? 0 : 16,
+                  18,
+                  padded ? 0 : 16,
+                ),
+                child: SvgIcon(SvgIcons.back),
+              ),
+            ),
+            Expanded(child: Text('label_hidden_chats'.l10n)),
+          ],
+        );
+      } else {
+        padded = false;
+        label = Padding(
+          key: Key('Chats'),
+          padding: const EdgeInsets.only(left: 22),
+          child: Text('label_chats'.l10n),
+        );
+      }
+
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: AnimatedSizeAndFade(
+              sizeDuration: const Duration(milliseconds: 300),
+              fadeDuration: const Duration(milliseconds: 300),
+              alignment: Alignment.centerLeft,
+              child: label,
+            ),
+          ),
+          AnimatedPadding(
+            duration: Duration(milliseconds: 250),
+            padding: padded ? EdgeInsets.only(left: 22) : EdgeInsets.zero,
+            child: _synchronization(context, c),
+          ),
+        ],
+      );
+    });
+  }
+
+  /// Returns a `More` action button to build in [_appBar].
+  Widget _more(BuildContext context, ChatsTabController c) {
+    return Obx(() {
+      final Widget moreButton = ContextMenuRegion(
+        key: const Key('ChatsMenu'),
+        selector: c.moreKey,
+        alignment: Alignment.topRight,
+        enablePrimaryTap: true,
+        enableSecondaryTap: false,
+        enableLongTap: false,
+        margin: const EdgeInsets.only(bottom: 4, right: 0),
+        actions: [
+          ContextMenuButton(
+            key: const Key('SelectChatsButton'),
+            label: 'btn_select'.l10n,
+            onPressed: c.toggleSelecting,
+            trailing: const SvgIcon(SvgIcons.select),
+            inverted: const SvgIcon(SvgIcons.selectWhite),
+          ),
+          ContextMenuButton(
+            key: const Key('CreateGroupButton'),
+            label: 'btn_create_group'.l10n,
+            onPressed: c.startGroupCreating,
+            trailing: const SvgIcon(SvgIcons.group),
+            inverted: const SvgIcon(SvgIcons.groupWhite),
+          ),
+          ContextMenuDivider(),
+          ContextMenuButton(
+            key: const Key('ArchiveChatsButton'),
+            label: 'btn_hidden_chats'.l10n,
+            onPressed: c.toggleArchive,
+            trailing: const SvgIcon(SvgIcons.visibleOff),
+            inverted: const SvgIcon(SvgIcons.visibleOffWhite),
+            spacer: c.archivedOnly.value
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: const SvgIcon(SvgIcons.sentBlue),
+                  )
+                : null,
+            spacerInverted: c.archivedOnly.value
+                ? Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: const SvgIcon(SvgIcons.sentWhite),
+                  )
+                : null,
+          ),
+          ContextMenuDivider(),
+          ContextMenuButton(
+            key: const Key('MonologChatButton'),
+            label: 'label_chat_monolog'.l10n,
+            onPressed: () => router.chat(c.monolog),
+            trailing: const SvgIcon(SvgIcons.notesSmall),
+            inverted: const SvgIcon(SvgIcons.notesSmallWhite),
+          ),
+        ],
+        child: AnimatedButton(
+          decorator: (child) {
+            return Container(
+              key: c.moreKey,
+              padding: const EdgeInsets.only(left: 12, right: 18),
+              height: double.infinity,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                child: child,
+              ),
+            );
+          },
+          child: const SvgIcon(SvgIcons.more),
+        ),
+      );
+
+      final Widget closeButton = AnimatedButton(
+        key: const Key('CloseSelectingButton'),
+        onPressed: () {
+          if (c.selecting.value) {
+            c.toggleSelecting();
+          } else if (c.groupCreating.value) {
+            c.closeGroupCreating();
+          }
+        },
+        decorator: (child) {
+          return Container(
+            padding: const EdgeInsets.only(left: 9, right: 16),
+            height: double.infinity,
+            child: child,
+          );
+        },
+        child: SizedBox(
+          width: 29.17,
+          child: SafeAnimatedSwitcher(
+            duration: 250.milliseconds,
+            child: const SvgIcon(
+              SvgIcons.closePrimary,
+              key: Key('CloseSearch'),
+            ),
+          ),
+        ),
+      );
+
+      return Row(
+        children: [
+          if (c.selecting.value || c.groupCreating.value)
+            closeButton
+          else
+            moreButton,
+        ],
+      );
+    });
+  }
+
+  /// Returns a [Text] indicating that synchronization is happening.
+  Widget _synchronization(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      final Widget synchronization;
+
+      if (!c.connected.value) {
+        synchronization = Padding(
+          padding: const EdgeInsets.only(left: 22, top: 2),
+          child: Center(
+            child: Text(
+              'label_waiting_for_connection'.l10n,
+              style: style.fonts.small.regular.secondary,
+              key: const Key('NotConnected'),
+            ),
+          ),
+        );
+      } else if (c.fetching.value == null && c.status.value.isLoadingMore) {
+        synchronization = Padding(
+          padding: const EdgeInsets.only(left: 22, top: 2),
+          child: Center(
+            child: Text(
+              'label_synchronization'.l10n,
+              style: style.fonts.small.regular.secondary,
+              key: const Key('Synchronization'),
+            ),
+          ),
+        );
+      } else {
+        synchronization = const SizedBox.shrink(key: Key('Connected'));
+      }
+
+      return SafeAnimatedSwitcher(
+        duration: 250.milliseconds,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: AllowOverflow(
+            child: AnimatedSizeAndFade(
+              sizeDuration: const Duration(milliseconds: 300),
+              fadeDuration: const Duration(milliseconds: 300),
+              child: synchronization,
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  /// Builds a search field for [SliverAppBar].
+  Widget _search(BuildContext context, ChatsTabController c) {
     return Obx(() {
       Widget? searchField;
 
@@ -468,65 +565,42 @@ class ChatsTabView extends StatelessWidget {
         );
       }
 
-      final Widget synchronization;
-
-      if (!c.connected.value) {
-        synchronization = Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Center(
-            child: Text(
-              'label_waiting_for_connection'.l10n,
-              style: style.fonts.small.regular.secondary,
-              key: const Key('NotConnected'),
-            ),
-          ),
-        );
-      } else if (c.fetching.value == null && c.status.value.isLoadingMore) {
-        synchronization = Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Center(
-            child: Text(
-              'label_synchronization'.l10n,
-              style: style.fonts.small.regular.secondary,
-              key: const Key('Synchronization'),
-            ),
-          ),
-        );
-      } else {
-        synchronization = const SizedBox.shrink(key: Key('Connected'));
-      }
-
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          searchField ?? SizedBox(),
-          SafeAnimatedSwitcher(
-            duration: 250.milliseconds,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: AllowOverflow(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AnimatedSizeAndFade(
-                      sizeDuration: const Duration(milliseconds: 300),
-                      fadeDuration: const Duration(milliseconds: 300),
-                      child: synchronization,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12.0),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: searchField ?? SizedBox(),
+        ),
       );
     });
   }
 
-  /// Returns search results
-  Widget _searchResult(BuildContext context, ChatsTabController c) {
+  /// Returns the body of this tab.
+  Widget _body(BuildContext context, ChatsTabController c) {
+    return Obx(() {
+      final Widget? child;
+
+      if (c.status.value.isLoading) {
+        child = Center(child: CustomProgressIndicator.primary());
+      } else if (c.groupCreating.isTrue) {
+        child = _groupCreating(context, c);
+      } else if (c.search.value?.search.isEmpty.value == false) {
+        child = _searchResults(context, c);
+      } else if (c.archivedOnly.value) {
+        child = _archive(context, c);
+      } else {
+        child = _chats(context, c);
+      }
+
+      return ContextMenuInterceptor(
+        margin: const EdgeInsets.fromLTRB(0, 64, 0, 0),
+        child: SlidableAutoCloseBehavior(child: child),
+      );
+    });
+  }
+
+  /// Returns search results of [Chat]s.
+  Widget _searchResults(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
     final RxStatus? searchStatus = c.search.value?.searchStatus.value;
 
@@ -544,35 +618,8 @@ class ChatsTabView extends StatelessWidget {
     }
 
     if (c.elements.isEmpty) {
-      return AnimatedDelayedSwitcher(
-        key: UniqueKey(),
-        delay: const Duration(milliseconds: 300),
-        child: Center(
-          key: const Key('NothingFound'),
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              children: [
-                const SvgIcon(SvgIcons.notFound),
-                const SizedBox(height: 16),
-                Text(
-                  'label_no_chats'.l10n,
-                  style: style.fonts.medium.regular.secondary,
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+      return _notFound(context);
     }
-
-    getCategoryLabel(SearchCategory category) => switch (category) {
-      SearchCategory.user => 'label_search_category_users'.l10n,
-      SearchCategory.chat ||
-      SearchCategory.recent => 'label_search_category_chats'.l10n,
-      SearchCategory.contact => 'label_search_category_contacts'.l10n,
-    };
 
     return Scrollbar(
       controller: c.search.value!.scrollController,
@@ -625,7 +672,7 @@ class ChatsTabView extends StatelessWidget {
                 ),
                 width: double.infinity,
                 child: Text(
-                  getCategoryLabel(element.category),
+                  element.category.l10n,
                   style: style.fonts.medium.regular.onBackground,
                 ),
               );
@@ -667,7 +714,7 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Returns widgets for creating a group
+  /// Returns list of [Chat]s formed to create a group.
   Widget _groupCreating(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
     final RxStatus? searchStatus = c.search.value?.searchStatus.value;
@@ -678,13 +725,7 @@ class ChatsTabView extends StatelessWidget {
         c.search.value?.users.isEmpty == true) {
       if ((searchStatus?.isSuccess ?? false) &&
           !(searchStatus?.isLoadingMore ?? false)) {
-        return Center(
-          key: UniqueKey(),
-          child: Text(
-            'label_nothing_found'.l10n,
-            style: style.fonts.small.regular.onBackground,
-          ),
-        );
+        return _notFound(context);
       }
 
       return Center(
@@ -805,121 +846,225 @@ class ChatsTabView extends StatelessWidget {
     );
   }
 
-  /// Returns calls, favorites and chats tiles
-  Widget _chats(BuildContext context, ChatsTabController c) {
+  /// Builds archived [RxChat]s.
+  Widget _archive(BuildContext context, ChatsTabController c) {
     final style = Theme.of(context).style;
 
-    final bool isCheck = c.chats.none((e) {
-      return (!e.id.isLocal || e.chat.value.isMonolog) &&
-          !e.chat.value.isHidden &&
-          !e.hidden.value;
-    });
+    return Obx(() {
+      final List<RxChat> chats = [];
 
-    if (isCheck) {
-      if (c.status.value.isLoadingMore) {
-        return SliverFillRemaining(
-          child: Center(
+      for (ChatEntry e in c.archived) {
+        final bool notLocalOrHasMessages =
+            !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
+
+        if (notLocalOrHasMessages &&
+            !e.chat.value.isHidden &&
+            e.chat.value.isArchived) {
+          chats.add(e.rx);
+        }
+      }
+
+      if (chats.isEmpty) {
+        if (c.status.value.isLoadingMore) {
+          return Center(
             key: UniqueKey(),
             child: ColoredBox(
               key: const Key('Loading'),
               color: style.colors.almostTransparent,
               child: const CustomProgressIndicator(),
             ),
+          );
+        }
+
+        return KeyedSubtree(
+          key: UniqueKey(),
+          child: Padding(
+            key: const Key('NoChats'),
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SvgIcon(SvgIcons.notFound),
+                const SizedBox(height: 16),
+                Text(
+                  'label_no_chats'.l10n,
+                  style: style.fonts.medium.regular.secondary,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         );
       }
 
-      return SliverFillRemaining(
-        child: KeyedSubtree(
-          key: UniqueKey(),
-          child: Center(
-            key: const Key('NoChats'),
-            child: Text('label_no_chats'.l10n),
-          ),
+      return AnimationLimiter(
+        key: const Key('Archive'),
+        child: ListView.builder(
+          key: const Key('ArchiveScrollable'),
+
+          itemCount: chats.length,
+          itemBuilder: (_, i) {
+            final RxChat chat = chats[i];
+
+            Widget child = Padding(
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              child: _tile(c, chat),
+            );
+
+            if (i == chats.length - 1) {
+              child = Column(
+                children: [
+                  child,
+                  if (c.archive.hasNext.isTrue || c.archive.nextLoading.value)
+                    const CustomProgressIndicator(key: Key('ArchiveLoading')),
+                ],
+              );
+            }
+
+            return AnimationConfiguration.staggeredList(
+              position: i,
+              duration: const Duration(milliseconds: 375),
+              child: SlideAnimation(
+                horizontalOffset: 50,
+                child: FadeInAnimation(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: i == 0 ? 3 : 0,
+                      bottom: i == c.elements.length - 1 ? 4 : 0,
+                    ),
+                    child: child,
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       );
-    }
+    });
+  }
 
-    return AnimationLimiter(
-      key: const Key('Chats'),
-      child: Obx(() {
-        final List<RxChat> calls = [];
-        final List<RxChat> favorites = [];
-        final List<RxChat> chats = [];
+  /// Builds a [RecentChatTile] from the provided [RxChat].
+  Widget _tile(
+    ChatsTabController c,
+    RxChat e, {
+    Widget Function(Widget)? avatarBuilder,
+  }) {
+    final bool selected = c.selectedChats.contains(e.id);
 
-        for (var e in c.chats) {
-          if ((!e.id.isLocal ||
-                  e.messages.isNotEmpty ||
-                  e.chat.value.isMonolog) &&
-              !e.chat.value.isHidden &&
-              !e.hidden.value) {
-            if (e.chat.value.ongoingCall != null) {
-              calls.add(e.rx);
-            } else if (e.chat.value.favoritePosition != null) {
-              favorites.add(e.rx);
-            } else {
-              chats.add(e.rx);
-            }
+    return RecentChatTile(
+      e,
+      key: e.chat.value.isMonolog
+          ? const Key('ChatMonolog')
+          : Key('RecentChat_${e.id}'),
+      me: c.me,
+      blocked: e.blocked,
+      selected: c.selecting.value ? selected : null,
+      getUser: c.getUser,
+      avatarBuilder: c.selecting.value
+          ? (child) => WidgetButton(
+              onPressed: () => router.dialog(e.chat.value, c.me),
+              child: child,
+            )
+          : avatarBuilder,
+      onJoin: () => c.joinCall(e.id),
+      onDrop: () => c.dropCall(e.id),
+      onLeave: e.chat.value.isMonolog ? null : () => c.leaveChat(e.id),
+      onHide: () => c.hideChat(e.id),
+      onArchive: () => c.archiveChat(e.id, !e.chat.value.isArchived),
+      onMute: e.chat.value.isMonolog || e.chat.value.id.isLocal
+          ? null
+          : () => c.muteChat(e.id),
+      onUnmute: e.chat.value.isMonolog || e.chat.value.id.isLocal
+          ? null
+          : () => c.unmuteChat(e.id),
+      onFavorite: e.chat.value.id.isLocal && !e.chat.value.isMonolog
+          ? null
+          : () => c.favoriteChat(e.id),
+      onUnfavorite: e.chat.value.id.isLocal && !e.chat.value.isMonolog
+          ? null
+          : () => c.unfavoriteChat(e.id),
+      onSelect: c.toggleSelecting,
+
+      // TODO: Uncomment, when contacts are implemented.
+      // onContact: (b) => b
+      //     ? c.addToContacts(e)
+      //     : c.removeFromContacts(e),
+      // inContacts: e.chat.value.isDialog
+      //     ? () => c.inContacts(e)
+      //     : null,
+      onTap: c.selecting.value ? () => c.selectChat(e) : null,
+      onDismissed: () async => await c.archiveChat(e.id, true),
+      enableContextMenu: !c.selecting.value,
+      trailing: c.selecting.value
+          ? [SelectedDot(selected: selected, size: 20)]
+          : null,
+      hasCall: c.status.value.isLoadingMore ? false : null,
+      onPerformDrop: (f) => c.sendFiles(e.id, f),
+    );
+  }
+
+  /// Builds a list of recent [RxChat]s.
+  Widget _chats(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      final List<RxChat> calls = [];
+      final List<RxChat> favorites = [];
+      final List<RxChat> chats = [];
+
+      for (ChatEntry e in c.chats) {
+        final bool notLocalOrHasMessages =
+            !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
+
+        if (notLocalOrHasMessages &&
+            !e.chat.value.isHidden &&
+            !e.chat.value.isArchived) {
+          if (e.chat.value.ongoingCall != null) {
+            calls.add(e.rx);
+          } else if (e.chat.value.favoritePosition != null) {
+            favorites.add(e.rx);
+          } else {
+            chats.add(e.rx);
           }
         }
+      }
 
-        // Builds a [RecentChatTile] from the provided
-        // [RxChat].
-        Widget tile(RxChat e, {Widget Function(Widget)? avatarBuilder}) {
-          final bool selected = c.selectedChats.contains(e.id);
-
-          return RecentChatTile(
-            e,
-            key: e.chat.value.isMonolog
-                ? const Key('ChatMonolog')
-                : Key('RecentChat_${e.id}'),
-            me: c.me,
-            blocked: e.blocked,
-            selected: c.selecting.value ? selected : null,
-            getUser: c.getUser,
-            avatarBuilder: c.selecting.value
-                ? (child) => WidgetButton(
-                    onPressed: () => router.dialog(e.chat.value, c.me),
-                    child: child,
-                  )
-                : avatarBuilder,
-            onJoin: () => c.joinCall(e.id),
-            onDrop: () => c.dropCall(e.id),
-            onLeave: e.chat.value.isMonolog ? null : () => c.leaveChat(e.id),
-            onHide: () => c.hideChat(e.id),
-            onMute: e.chat.value.isMonolog || e.chat.value.id.isLocal
-                ? null
-                : () => c.muteChat(e.id),
-            onUnmute: e.chat.value.isMonolog || e.chat.value.id.isLocal
-                ? null
-                : () => c.unmuteChat(e.id),
-            onFavorite: e.chat.value.id.isLocal && !e.chat.value.isMonolog
-                ? null
-                : () => c.favoriteChat(e.id),
-            onUnfavorite: e.chat.value.id.isLocal && !e.chat.value.isMonolog
-                ? null
-                : () => c.unfavoriteChat(e.id),
-            onSelect: c.toggleSelecting,
-
-            // TODO: Uncomment, when contacts are implemented.
-            // onContact: (b) => b
-            //     ? c.addToContacts(e)
-            //     : c.removeFromContacts(e),
-            // inContacts: e.chat.value.isDialog
-            //     ? () => c.inContacts(e)
-            //     : null,
-            onTap: c.selecting.value ? () => c.selectChat(e) : null,
-            onDismissed: () => c.dismiss(e),
-            enableContextMenu: !c.selecting.value,
-            trailing: c.selecting.value
-                ? [SelectedDot(selected: selected, size: 20)]
-                : null,
-            hasCall: c.status.value.isLoadingMore ? false : null,
-            onPerformDrop: (f) => c.sendFiles(e.id, f),
+      if (calls.isEmpty && favorites.isEmpty && chats.isEmpty) {
+        if (c.status.value.isLoadingMore) {
+          return Center(
+            key: UniqueKey(),
+            child: ColoredBox(
+              key: const Key('Loading'),
+              color: style.colors.almostTransparent,
+              child: const CustomProgressIndicator(),
+            ),
           );
         }
 
-        return SliverMainAxisGroup(
+        return KeyedSubtree(
+          key: UniqueKey(),
+          child: Padding(
+            key: const Key('NoChats'),
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SvgIcon(SvgIcons.notFound),
+                const SizedBox(height: 16),
+                Text(
+                  'label_no_chats'.l10n,
+                  style: style.fonts.medium.regular.secondary,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      return AnimationLimiter(
+        key: const Key('Chats'),
+        child: CustomScrollView(
           slivers: [
             SliverPadding(
               padding: EdgeInsets.only(top: 4, left: 10, right: 10),
@@ -931,7 +1076,7 @@ class ChatsTabView extends StatelessWidget {
                       duration: const Duration(milliseconds: 375),
                       child: SlideAnimation(
                         horizontalOffset: 50,
-                        child: FadeInAnimation(child: tile(e)),
+                        child: FadeInAnimation(child: _tile(c, e)),
                       ),
                     );
                   }).toList(),
@@ -982,7 +1127,8 @@ class ChatsTabView extends StatelessWidget {
                   return KeyedSubtree(
                     key: Key(chat.id.val),
                     child: Obx(() {
-                      final Widget child = tile(
+                      final Widget child = _tile(
+                        c,
                         chat,
                         avatarBuilder: (child) {
                           if (PlatformUtils.isMobile) {
@@ -1049,7 +1195,7 @@ class ChatsTabView extends StatelessWidget {
                       duration: const Duration(milliseconds: 375),
                       child: SlideAnimation(
                         horizontalOffset: 50,
-                        child: FadeInAnimation(child: tile(e)),
+                        child: FadeInAnimation(child: _tile(c, e)),
                       ),
                     );
                   }),
@@ -1064,117 +1210,35 @@ class ChatsTabView extends StatelessWidget {
               ),
             ),
           ],
-        );
-      }),
-    );
+        ),
+      );
+    });
   }
 
-  /// Builds a [BottomPaddedRow] for selecting the [Chat]s.
-  static Widget selectingBuilder(BuildContext context, ChatsTabController c) {
+  /// Builds a "not found" column with an icon.
+  Widget _notFound(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return BottomPaddedRow(
-      spacer: (_) {
-        return Container(
-          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
-          width: 1,
-          height: 24,
-        );
-      },
-      children: [
-        WidgetButton(
-          onPressed: c.readAll,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_read_all'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+    return AnimatedDelayedSwitcher(
+      key: UniqueKey(),
+      delay: const Duration(milliseconds: 300),
+      child: Center(
+        key: const Key('NothingFound'),
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            children: [
+              const SvgIcon(SvgIcons.notFound),
+              const SizedBox(height: 16),
+              Text(
+                'label_nothing_found'.l10n,
+                style: style.fonts.medium.regular.secondary,
+                textAlign: TextAlign.center,
               ),
-            ),
+            ],
           ),
         ),
-        WidgetButton(
-          onPressed: c.selectedChats.isEmpty
-              ? null
-              : () => _archiveChats(context, c),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-        WidgetButton(
-          key: const Key('DeleteChatsButton'),
-          onPressed: c.selectedChats.isEmpty
-              ? null
-              : () => _hideChats(context, c),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_delete'.l10n,
-                style: style.fonts.normal.regular.danger,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Builds a [BottomPaddedRow] for creating a [Chat]-group.
-  static Widget createGroupBuilder(BuildContext context, ChatsTabController c) {
-    final style = Theme.of(context).style;
-
-    return BottomPaddedRow(
-      spacer: (_) {
-        return Container(
-          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
-          width: 1,
-          height: 24,
-        );
-      },
-      children: [
-        WidgetButton(
-          onPressed: c.closeGroupCreating,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_cancel'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-        WidgetButton(
-          onPressed: c.creatingStatus.value.isEmpty ? c.createGroup : null,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_create'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 

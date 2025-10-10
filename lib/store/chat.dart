@@ -2182,7 +2182,10 @@ class ChatRepository extends DisposableInterface
         chat.value.firstItem ??=
             saved?.value.firstItem ?? rxChat.chat.value.firstItem;
 
-        if (saved == null || (saved.ver <= chat.ver || ignoreVersion)) {
+        if (saved == null ||
+            (saved.ver < chat.ver ||
+                ignoreVersion ||
+                (saved.ver == chat.ver && saved != chat))) {
           // Set the version to the [saved] one, if not [updateVersion].
           if (saved != null && !updateVersion) {
             chat.ver = saved.ver;

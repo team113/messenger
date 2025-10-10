@@ -135,9 +135,6 @@ class ChatsTabController extends GetxController {
   /// [GlobalKey] of the more button.
   final GlobalKey moreKey = GlobalKey();
 
-  /// [DismissedChat]s added in [dismiss].
-  final RxList<DismissedChat> dismissed = RxList();
-
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
 
@@ -204,6 +201,11 @@ class ChatsTabController extends GetxController {
 
   /// Returns the [Paginated] of [RxChat] being in archive.
   Paginated<ChatId, RxChat> get archive => _chatService.archived;
+
+  /// Indicator whether remote connection is still being configured.
+  bool get synchronizing =>
+      !connected.value ||
+      (fetching.value == null && status.value.isLoadingMore);
 
   @override
   void onInit() {
@@ -360,10 +362,6 @@ class ChatsTabController extends GetxController {
 
     for (StreamSubscription s in _userSubscriptions.values) {
       s.cancel();
-    }
-
-    for (var e in dismissed) {
-      e._timer.cancel();
     }
 
     fetching.value?.cancel();
@@ -764,8 +762,7 @@ class ChatsTabController extends GetxController {
               e.chat.value.ongoingCall == null &&
               e.chat.value.favoritePosition != null &&
               !e.chat.value.isHidden &&
-              !e.chat.value.isArchived &&
-              !e.hidden.value,
+              !e.chat.value.isArchived,
         )
         .toList();
 
@@ -795,42 +792,6 @@ class ChatsTabController extends GetxController {
     await favoriteChat(chatId, ChatFavoritePosition(position));
   }
 
-  /// Dismisses the [chat], adding it to the [dismissed].
-  void dismiss(RxChat chat) {
-    for (var e in List<DismissedChat>.from(dismissed, growable: false)) {
-      e._done(true);
-    }
-    dismissed.clear();
-
-    DismissedChat? entry;
-
-    entry = DismissedChat(
-      chat,
-      onDone: (d) {
-        if (d) {
-          hideChat(chat.id);
-        } else {
-          for (var e in chats) {
-            if (e.id == chat.id) {
-              e.hidden.value = false;
-            }
-          }
-        }
-
-        dismissed.remove(entry!);
-      },
-    );
-
-    router.removeWhere((e) => chat.chat.value.isRoute(e, me));
-    dismissed.add(entry);
-
-    for (var e in chats) {
-      if (e.id == chat.id) {
-        e.hidden.value = true;
-      }
-    }
-  }
-
   /// Reads all the [RxChat]s in the [chats] list.
   Future<void> readAll() async {
     final Future<void> future = _chatService.readAll(
@@ -856,11 +817,6 @@ class ChatsTabController extends GetxController {
     archivedOnly.value = !archivedOnly.value;
   }
 
-  /// Toggles the [archivedOnly].
-  void toggleArchive() {
-    archivedOnly.value = !archivedOnly.value;
-  }
-
   /// Enables and initializes the [search].
   void _initSearch() {
     search.value = SearchController(
@@ -868,6 +824,7 @@ class ChatsTabController extends GetxController {
       _userService,
       _contactService,
       _myUserService,
+      _sessionService,
       categories: [
         SearchCategory.recent,
         if (groupCreating.isFalse) SearchCategory.chat,
@@ -955,7 +912,7 @@ class ChatsTabController extends GetxController {
             }
           } else {
             if (hasNext.isTrue && _chatService.nextLoading.isFalse) {
-              _chatService.next();
+              // _chatService.next();
             }
           }
         }
@@ -1031,9 +988,6 @@ class ChatEntry implements Comparable<ChatEntry> {
       }
     });
   }
-
-  /// Indicator whether this [ChatEntry] is hidden.
-  final RxBool hidden = RxBool(false);
 
   /// [RxChat] itself.
   final RxChat _chat;
@@ -1118,51 +1072,4 @@ class RecentElement extends ListElement {
 
   /// [RxUser] itself.
   final RxUser user;
-}
-
-/// [RxChat] being dismissed.
-///
-/// Invokes the irreversible action (e.g. hiding the [chat]) when the
-/// [remaining] milliseconds have passed.
-class DismissedChat {
-  DismissedChat(this.chat, {void Function(bool)? onDone}) : _onDone = onDone {
-    _timer = Timer.periodic(32.milliseconds, (t) {
-      final value = remaining.value - 32;
-
-      if (remaining.value <= 0) {
-        remaining.value = 0;
-        _done(true);
-      } else {
-        remaining.value = value;
-      }
-    });
-  }
-
-  /// [RxChat] itself.
-  final RxChat chat;
-
-  /// Time in milliseconds before the [chat] invokes the irreversible action.
-  final RxInt remaining = RxInt(5000);
-
-  /// Callback, called when [_timer] is done counting the [remaining]
-  /// milliseconds.
-  final void Function(bool)? _onDone;
-
-  /// [Timer] counting milliseconds until the [remaining].
-  late final Timer _timer;
-
-  /// Indicator whether the [_done] was already invoked.
-  bool _invoked = false;
-
-  /// Cancels the dismissal.
-  void cancel() => _done();
-
-  /// Invokes the [_onDone] and cancels the [_timer].
-  void _done([bool done = false]) {
-    if (!_invoked) {
-      _invoked = true;
-      _onDone?.call(done);
-      _timer.cancel();
-    }
-  }
 }
