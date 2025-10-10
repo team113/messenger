@@ -51,6 +51,14 @@ class PreciseDateTime extends NewType<DateTime>
   factory PreciseDateTime.fromJson(Map<String, dynamic> json) =>
       _$PreciseDateTimeFromJson(json);
 
+  /// Constructs a [PreciseDateTime] instance with current date and time in the
+  /// local time zone.
+  ///
+  /// ```dart
+  /// final now = PreciseDateTime.now();
+  /// ```
+  factory PreciseDateTime.now() => PreciseDateTime(DateTime.now());
+
   /// Returns the number of microseconds since the "Unix epoch"
   /// 1970-01-01T00:00:00Z (UTC).
   ///
@@ -151,14 +159,6 @@ class PreciseDateTime extends NewType<DateTime>
   /// Be careful when working with dates in local time.
   PreciseDateTime subtract(Duration duration) =>
       PreciseDateTime(val.subtract(duration));
-
-  /// Constructs a [PreciseDateTime] instance with current date and time in the
-  /// local time zone.
-  ///
-  /// ```dart
-  /// final now = PreciseDateTime.now();
-  /// ```
-  factory PreciseDateTime.now() => PreciseDateTime(DateTime.now());
 
   /// Returns this [PreciseDateTime] value in the UTC time zone.
   PreciseDateTime toUtc() => PreciseDateTime(val.toUtc());
