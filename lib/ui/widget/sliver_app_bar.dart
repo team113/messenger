@@ -91,6 +91,7 @@ class CustomSliverAppBar extends StatelessWidget {
           ? FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
               background: flexible,
+              expandedTitleScale: 1,
             )
           : null,
       title: Container(
@@ -102,9 +103,7 @@ class CustomSliverAppBar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              height: applySafeArea
-                  ? CustomAppBar.height
-                  : CustomAppBar.rawHeight,
+              height: CustomAppBar.rawHeight,
               child: Padding(
                 padding: padding ?? EdgeInsets.zero,
                 child: Column(

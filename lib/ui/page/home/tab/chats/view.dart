@@ -92,7 +92,12 @@ class ChatsTabView extends StatelessWidget {
                       handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
                         context,
                       ),
-                      sliver: SliverSafeArea(sliver: _appBar(context, c)),
+                      sliver: SliverSafeArea(
+                        top: false,
+                        left: false,
+                        right: false,
+                        sliver: _appBar(context, c),
+                      ),
                     ),
                   ];
                 },
@@ -236,7 +241,7 @@ class ChatsTabView extends StatelessWidget {
       title: _title(context, c),
       actions: [_more(context, c)],
       hasFlexible: PlatformUtils.isMobile,
-      flexible: _search(context, c),
+      flexible: SafeArea(top: false, bottom: false, child: _search(context, c)),
     );
   }
 
@@ -524,7 +529,9 @@ class ChatsTabView extends StatelessWidget {
                   maxLines: 1,
                   prefix: SizedBox(width: 24),
                   dense: true,
-                  padding: EdgeInsets.fromLTRB(8, 12, 8, 12),
+                  padding: PlatformUtils.isIOS || PlatformUtils.isAndroid
+                      ? EdgeInsets.fromLTRB(8, 8, 8, 8)
+                      : EdgeInsets.fromLTRB(8, 12, 8, 12),
                   style: style.fonts.normal.regular.onBackground,
                   onChanged: () =>
                       c.search.value!.query.value = c.search.value!.search.text,
@@ -621,94 +628,101 @@ class ChatsTabView extends StatelessWidget {
       return _notFound(context);
     }
 
-    return Scrollbar(
-      controller: c.search.value!.scrollController,
-      child: AnimationLimiter(
-        key: const Key('Search'),
-        child: ListView.builder(
-          key: const Key('SearchScrollable'),
-          controller: c.search.value!.scrollController,
-          itemCount: c.elements.length,
-          itemBuilder: (_, i) {
-            final ListElement element = c.elements[i];
-            Widget child;
+    return MediaQuery.removePadding(
+      context: context,
 
-            if (element is ChatElement) {
-              final RxChat chat = element.chat;
-              child = Padding(
-                padding: const EdgeInsets.only(left: 10, right: 10),
-                child: Obx(() {
-                  return RecentChatTile(
-                    chat,
-                    key: Key('SearchChat_${chat.id}'),
-                    me: c.me,
-                    blocked: chat.blocked,
-                    getUser: c.getUser,
-                    onJoin: () => c.joinCall(chat.id),
-                    onDrop: () => c.dropCall(chat.id),
-                    hasCall: c.status.value.isLoadingMore ? false : null,
-                    onPerformDrop: (e) => c.sendFiles(chat.id, e),
-                  );
-                }),
-              );
-            } else if (element is ContactElement) {
-              child = SearchUserTile(
-                key: Key('SearchContact_${element.contact.id}'),
-                contact: element.contact,
-                onTap: () => c.openChat(contact: element.contact),
-              );
-            } else if (element is UserElement) {
-              child = SearchUserTile(
-                key: Key('SearchUser_${element.user.id}'),
-                user: element.user,
-                onTap: () => c.openChat(user: element.user),
-              );
-            } else if (element is DividerElement) {
-              child = Container(
-                margin: EdgeInsets.fromLTRB(10, i == 0 ? 0 : 8, 8, 3),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                width: double.infinity,
-                child: Text(
-                  element.category.l10n,
-                  style: style.fonts.medium.regular.onBackground,
-                ),
-              );
-            } else {
-              child = const SizedBox();
-            }
+      // This is required, as [SliverSafeArea] already shifts down the list.
+      removeTop: true,
 
-            if (i == c.elements.length - 1) {
-              if ((searchStatus?.isLoadingMore ?? false) ||
-                  (searchStatus?.isLoading ?? false)) {
-                child = Column(
-                  children: [
-                    child,
-                    const CustomProgressIndicator(key: Key('SearchLoading')),
-                  ],
+      child: Scrollbar(
+        controller: c.search.value!.scrollController,
+        child: AnimationLimiter(
+          key: const Key('Search'),
+          child: ListView.builder(
+            key: const Key('SearchScrollable'),
+            controller: c.search.value!.scrollController,
+            itemCount: c.elements.length,
+            itemBuilder: (_, i) {
+              final ListElement element = c.elements[i];
+              Widget child;
+
+              if (element is ChatElement) {
+                final RxChat chat = element.chat;
+                child = Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 10),
+                  child: Obx(() {
+                    return RecentChatTile(
+                      chat,
+                      key: Key('SearchChat_${chat.id}'),
+                      me: c.me,
+                      blocked: chat.blocked,
+                      getUser: c.getUser,
+                      onJoin: () => c.joinCall(chat.id),
+                      onDrop: () => c.dropCall(chat.id),
+                      hasCall: c.status.value.isLoadingMore ? false : null,
+                      onPerformDrop: (e) => c.sendFiles(chat.id, e),
+                    );
+                  }),
                 );
+              } else if (element is ContactElement) {
+                child = SearchUserTile(
+                  key: Key('SearchContact_${element.contact.id}'),
+                  contact: element.contact,
+                  onTap: () => c.openChat(contact: element.contact),
+                );
+              } else if (element is UserElement) {
+                child = SearchUserTile(
+                  key: Key('SearchUser_${element.user.id}'),
+                  user: element.user,
+                  onTap: () => c.openChat(user: element.user),
+                );
+              } else if (element is DividerElement) {
+                child = Container(
+                  margin: EdgeInsets.fromLTRB(10, i == 0 ? 0 : 8, 8, 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  width: double.infinity,
+                  child: Text(
+                    element.category.l10n,
+                    style: style.fonts.medium.regular.onBackground,
+                  ),
+                );
+              } else {
+                child = const SizedBox();
               }
-            }
 
-            return AnimationConfiguration.staggeredList(
-              position: i,
-              duration: const Duration(milliseconds: 375),
-              child: SlideAnimation(
-                horizontalOffset: 50,
-                child: FadeInAnimation(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: i == 0 ? 3 : 0,
-                      bottom: i == c.elements.length - 1 ? 4 : 0,
+              if (i == c.elements.length - 1) {
+                if ((searchStatus?.isLoadingMore ?? false) ||
+                    (searchStatus?.isLoading ?? false)) {
+                  child = Column(
+                    children: [
+                      child,
+                      const CustomProgressIndicator(key: Key('SearchLoading')),
+                    ],
+                  );
+                }
+              }
+
+              return AnimationConfiguration.staggeredList(
+                position: i,
+                duration: const Duration(milliseconds: 375),
+                child: SlideAnimation(
+                  horizontalOffset: 50,
+                  child: FadeInAnimation(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: i == 0 ? 4 : 0,
+                        bottom: i == c.elements.length - 1 ? 4 : 0,
+                      ),
+                      child: child,
                     ),
-                    child: child,
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -737,111 +751,121 @@ class ChatsTabView extends StatelessWidget {
       );
     }
 
-    return Scrollbar(
-      controller: c.search.value!.scrollController,
-      child: ListView.builder(
-        key: const Key('GroupCreating'),
+    return MediaQuery.removePadding(
+      context: context,
+
+      // This is required, as [SliverSafeArea] already shifts down the list.
+      removeTop: true,
+
+      child: Scrollbar(
         controller: c.search.value!.scrollController,
-        itemCount: c.elements.length,
-        itemBuilder: (context, i) {
-          final ListElement element = c.elements[i];
-          Widget child;
+        child: ListView.builder(
+          key: const Key('GroupCreating'),
+          controller: c.search.value!.scrollController,
+          padding: EdgeInsets.fromLTRB(0, 4, 0, 4),
+          itemCount: c.elements.length,
+          itemBuilder: (context, i) {
+            final ListElement element = c.elements[i];
+            Widget child;
 
-          if (element is RecentElement) {
-            child = Obx(() {
-              return SelectedTile(
-                user: element.user,
-                selected:
-                    c.search.value?.selectedRecent.contains(element.user) ??
-                    false,
-                onTap: () => c.search.value?.select(recent: element.user),
-              );
-            });
-          } else if (element is ContactElement) {
-            child = Obx(() {
-              return SelectedTile(
-                contact: element.contact,
-                selected:
-                    c.search.value?.selectedContacts.contains(
-                      element.contact,
-                    ) ??
-                    false,
-                onTap: () => c.search.value?.select(contact: element.contact),
-              );
-            });
-          } else if (element is UserElement) {
-            child = Obx(() {
-              return SelectedTile(
-                user: element.user,
-                selected:
-                    c.search.value?.selectedUsers.contains(element.user) ??
-                    false,
-                onTap: () => c.search.value?.select(user: element.user),
-              );
-            });
-          } else if (element is MyUserElement) {
-            child = Obx(() {
-              return SelectedTile(
-                myUser: c.myUser.value,
-                selected: true,
-                subtitle: [
-                  const SizedBox(height: 5),
-                  Text(
-                    'label_you'.l10n,
-                    style: style.fonts.small.regular.onPrimary,
-                  ),
-                ],
-              );
-            });
-          } else if (element is DividerElement) {
-            final String text;
+            if (element is RecentElement) {
+              child = Obx(() {
+                return SelectedTile(
+                  user: element.user,
+                  selected:
+                      c.search.value?.selectedRecent.contains(element.user) ??
+                      false,
+                  onTap: () => c.search.value?.select(recent: element.user),
+                );
+              });
+            } else if (element is ContactElement) {
+              child = Obx(() {
+                return SelectedTile(
+                  contact: element.contact,
+                  selected:
+                      c.search.value?.selectedContacts.contains(
+                        element.contact,
+                      ) ??
+                      false,
+                  onTap: () => c.search.value?.select(contact: element.contact),
+                );
+              });
+            } else if (element is UserElement) {
+              child = Obx(() {
+                return SelectedTile(
+                  user: element.user,
+                  selected:
+                      c.search.value?.selectedUsers.contains(element.user) ??
+                      false,
+                  onTap: () => c.search.value?.select(user: element.user),
+                );
+              });
+            } else if (element is MyUserElement) {
+              child = Obx(() {
+                return SelectedTile(
+                  myUser: c.myUser.value,
+                  selected: true,
+                  subtitle: [
+                    const SizedBox(height: 5),
+                    Text(
+                      'label_you'.l10n,
+                      style: style.fonts.small.regular.onPrimary,
+                    ),
+                  ],
+                );
+              });
+            } else if (element is DividerElement) {
+              final String text;
 
-            switch (element.category) {
-              case SearchCategory.recent:
-                text = 'label_recent'.l10n;
-                break;
+              switch (element.category) {
+                case SearchCategory.recent:
+                  text = 'label_recent'.l10n;
+                  break;
 
-              case SearchCategory.contact:
-                text = 'label_user'.l10n;
-                break;
+                case SearchCategory.contact:
+                  text = 'label_user'.l10n;
+                  break;
 
-              case SearchCategory.user:
-                text = 'label_user'.l10n;
-                break;
+                case SearchCategory.user:
+                  text = 'label_user'.l10n;
+                  break;
 
-              case SearchCategory.chat:
-                text = 'label_chat'.l10n;
-                break;
-            }
+                case SearchCategory.chat:
+                  text = 'label_chat'.l10n;
+                  break;
+              }
 
-            child = Center(
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(0, 2, 0, 2),
-                padding: const EdgeInsets.fromLTRB(0, 10, 0, 6),
-                width: double.infinity,
-                child: Center(
-                  child: Text(
-                    text,
-                    style: style.fonts.normal.regular.onBackground,
+              child = Center(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(0, 2, 0, 2),
+                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 6),
+                  width: double.infinity,
+                  child: Center(
+                    child: Text(
+                      text,
+                      style: style.fonts.normal.regular.onBackground,
+                    ),
                   ),
                 ),
-              ),
+              );
+            } else {
+              child = const SizedBox();
+            }
+
+            if (i == c.elements.length - 1 &&
+                ((searchStatus?.isLoadingMore ?? false) ||
+                    (searchStatus?.isLoading ?? false))) {
+              child = Column(
+                children: [child, const CustomProgressIndicator()],
+              );
+            }
+
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+              child: child,
             );
-          } else {
-            child = const SizedBox();
-          }
-
-          if (i == c.elements.length - 1 &&
-              ((searchStatus?.isLoadingMore ?? false) ||
-                  (searchStatus?.isLoading ?? false))) {
-            child = Column(children: [child, const CustomProgressIndicator()]);
-          }
-
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-            child: child,
-          );
-        },
+          },
+        ),
       ),
     );
   }
@@ -899,45 +923,51 @@ class ChatsTabView extends StatelessWidget {
 
       return AnimationLimiter(
         key: const Key('Archive'),
-        child: ListView.builder(
-          key: const Key('ArchiveScrollable'),
+        child: MediaQuery.removePadding(
+          context: context,
 
-          itemCount: chats.length,
-          itemBuilder: (_, i) {
-            final RxChat chat = chats[i];
+          // This is required, as [SliverSafeArea] already shifts down the list.
+          removeTop: true,
 
-            Widget child = Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10),
-              child: _tile(c, chat),
-            );
+          child: ListView.builder(
+            key: const Key('ArchiveScrollable'),
+            itemCount: chats.length,
+            itemBuilder: (_, i) {
+              final RxChat chat = chats[i];
 
-            if (i == chats.length - 1) {
-              child = Column(
-                children: [
-                  child,
-                  if (c.archive.hasNext.isTrue || c.archive.nextLoading.value)
-                    const CustomProgressIndicator(key: Key('ArchiveLoading')),
-                ],
+              Widget child = Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10),
+                child: _tile(c, chat),
               );
-            }
 
-            return AnimationConfiguration.staggeredList(
-              position: i,
-              duration: const Duration(milliseconds: 375),
-              child: SlideAnimation(
-                horizontalOffset: 50,
-                child: FadeInAnimation(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: i == 0 ? 3 : 0,
-                      bottom: i == c.elements.length - 1 ? 4 : 0,
+              if (i == chats.length - 1) {
+                child = Column(
+                  children: [
+                    child,
+                    if (c.archive.hasNext.isTrue || c.archive.nextLoading.value)
+                      const CustomProgressIndicator(key: Key('ArchiveLoading')),
+                  ],
+                );
+              }
+
+              return AnimationConfiguration.staggeredList(
+                position: i,
+                duration: const Duration(milliseconds: 375),
+                child: SlideAnimation(
+                  horizontalOffset: 50,
+                  child: FadeInAnimation(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: i == 0 ? 4 : 0,
+                        bottom: i == chats.length - 1 ? 4 : 0,
+                      ),
+                      child: child,
                     ),
-                    child: child,
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       );
     });
