@@ -115,7 +115,7 @@ class ChatItemWidget extends StatefulWidget {
   /// [User] posted this [item].
   final RxUser? user;
 
-  /// Indicator whether this [ChatItemWidget] should display [RxUser.title].
+  /// Indicator whether this [ChatItemWidget] should display [UserExt.title].
   ///
   /// For example, [Chat]-groups should display messages with titles.
   final bool withName;

@@ -111,7 +111,7 @@ class ChatForwardWidget extends StatefulWidget {
   /// [User] posted these [forwards].
   final RxUser? user;
 
-  /// Indicator whether this [ChatForwardWidget] should display [RxUser.title].
+  /// Indicator whether this [ChatForwardWidget] should display [UserExt.title].
   ///
   /// For example, [Chat]-groups should display messages with titles.
   final bool withName;
