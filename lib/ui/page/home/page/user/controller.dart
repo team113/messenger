@@ -566,8 +566,10 @@ extension UserViewExt on User {
   ///
   /// If [withDeletedLabel] is `true`, then returns the title with the deleted
   /// label for deleted users.
-  String getTitle({bool withDeletedLabel = true}) =>
-      isDeleted && withDeletedLabel ? 'label_deleted_account'.l10n : title;
+  String title({bool withDeletedLabel = true}) =>
+      isDeleted && withDeletedLabel
+      ? 'label_deleted_account'.l10n
+      : (contacts.firstOrNull?.name.val ?? name?.val ?? this.num.toString());
 
   /// Returns the string representation of this [User] to display as a subtitle.
   String? getSubtitle([PreciseDateTime? lastSeen]) {
@@ -609,9 +611,9 @@ extension UserExt on RxUser {
   ///
   /// If [withDeletedLabel] is `true`, then returns the title with the deleted
   /// label for deleted users.
-  String getTitle({bool withDeletedLabel = true}) =>
+  String title({bool withDeletedLabel = true}) =>
       contact.value?.contact.value.name.val ??
-      user.value.getTitle(withDeletedLabel: withDeletedLabel);
+      user.value.title(withDeletedLabel: withDeletedLabel);
 }
 
 /// Extension adding an ability to get text represented indication of how long

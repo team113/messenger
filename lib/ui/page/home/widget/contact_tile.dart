@@ -216,7 +216,7 @@ class ContactTile extends StatelessWidget {
 
     return Text(
       contact?.name.val ??
-          user?.getTitle() ??
+          user?.title() ??
           myUser?.name?.val ??
           myUser?.num.toString() ??
           'dot'.l10n,
