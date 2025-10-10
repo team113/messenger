@@ -34,7 +34,7 @@ final StepDefinitionGeneric tapChat = when1<String, CustomWorld>(
       FindType.key,
     );
 
-    // if chat is dialog
+    // If chat is dialog
     if (!finder.hasFound) {
       finder = context.world.appDriver.findBy(
         'Chat_${context.world.sessions[name]?.dialog}',

@@ -164,12 +164,12 @@ final countUsers = given2<int, TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
-/// Deletes the provided [TestUser].
+/// Simulates a [TestUser] deleting their account.
 ///
 /// Examples:
-/// - `Bob is deleted`
+/// - `Bob deletes their account`
 final StepDefinitionGeneric deleteUser = then1<TestUser, CustomWorld>(
-  '{user} is deleted',
+  '{user} deletes their account',
   (TestUser testUser, context) async {
     final provider = GraphQlProvider();
 

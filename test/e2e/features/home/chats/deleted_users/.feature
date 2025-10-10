@@ -17,18 +17,20 @@
 
 Feature: Deleted users are displayed in chats
 
-  Scenario: User see chats with deleted users
+  Scenario: User sees chats with deleted users
     Given I am Alice
     And users Bob and Charlie
     And I have group with Bob and Charlie
+    And I wait until text "Alice, Bob, Charlie" is present
     And Bob has dialog with me
+    And I wait until text "Bob" is present
 
     Then I see "Alice, Bob, Charlie" chat
     And I see "Bob" chat
     And I see avatar title as "Bo"
 
     When I select "English" language
-    And Bob is deleted
+    And Bob deletes their account
     Then I see "Alice, Deleted Account, Charlie" chat
     And I see "Deleted Account" chat
     And I see avatar title as "Bo"
