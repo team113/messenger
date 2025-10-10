@@ -52,6 +52,7 @@ import '/provider/drift/callkit_calls.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -309,7 +310,7 @@ class CallWorker extends DisposableService {
               void notify() {
                 if (_myUser.value?.muted == null &&
                     chat?.chat.value.muted == null) {
-                  final String? title = chat?.title() ?? c.caller?.title;
+                  final String? title = chat?.title() ?? c.caller?.title();
 
                   _notificationService.show(
                     title ?? 'label_incoming_call'.l10n,

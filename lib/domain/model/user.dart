@@ -134,10 +134,6 @@ class User {
   /// Sets the provided [ChatId] as a [dialog] of this [User].
   set dialog(ChatId dialog) => _dialog = dialog;
 
-  /// Returns text representing the title of this [User].
-  String get title =>
-      contacts.firstOrNull?.name.val ?? name?.val ?? num.toString();
-
   /// Returns the [Presence] of this [User].
   Presence? get presence =>
       presenceIndex == null ? null : Presence.values[presenceIndex!];

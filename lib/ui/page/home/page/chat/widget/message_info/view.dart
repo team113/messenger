@@ -23,6 +23,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -198,7 +199,7 @@ class MessageInfo extends StatelessWidget {
             SizedBox(width: 8),
             Expanded(
               child: Text(
-                member.title,
+                member.title(),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),

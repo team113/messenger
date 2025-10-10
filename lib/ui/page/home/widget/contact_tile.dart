@@ -25,6 +25,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -215,7 +216,7 @@ class ContactTile extends StatelessWidget {
 
     return Text(
       contact?.name.val ??
-          user?.title ??
+          user?.title() ??
           myUser?.name?.val ??
           myUser?.num.toString() ??
           'dot'.l10n,

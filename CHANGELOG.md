@@ -18,6 +18,12 @@ All user visible changes to this project will be documented in this file. This p
         - Download logs button. ([#1458])
     - Archived chats. ([#1414], [#1255])
 
+### Changed
+
+- UI:
+    - Home page:
+        - Display "Deleted Account" title for deleted users. ([#1445], [#1419])
+
 ### Fixed
 
 - Web:
@@ -28,6 +34,8 @@ All user visible changes to this project will be documented in this file. This p
 [#1414]: /../../pull/1414
 [#1457]: /../../pull/1457
 [#1458]: /../../pull/1458
+[#1445]: /../../pull/1445
+[#1419]: /../../issues/1419
 
 
 
