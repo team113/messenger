@@ -57,8 +57,7 @@ class PubspecBuilder implements Builder {
       '--tags',
       '--abbrev=0',
       '--dirty',
-      '--match',
-      'v*',
+      '--match=v*',
     ]);
     final ProcessResult rev = await Process.run('git', [
       'rev-list',
