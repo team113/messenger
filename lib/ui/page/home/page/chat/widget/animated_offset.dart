@@ -24,14 +24,14 @@ class AnimatedOffset extends ImplicitlyAnimatedWidget {
     required this.offset,
     required this.child,
     super.duration = const Duration(milliseconds: 250),
-    super.curve,
+    super.curve = Curves.linear,
     super.onEnd,
   });
 
-  /// [Offset] to apply to the [child].
+  /// Pixel offset to apply to the [child].
   final Offset offset;
 
-  /// [Widget] to offset.
+  /// The widget to translate.
   final Widget child;
 
   @override
@@ -39,35 +39,33 @@ class AnimatedOffset extends ImplicitlyAnimatedWidget {
       _AnimatedOffsetState();
 }
 
-/// State of an [AnimatedOffset] maintaining its [_animation] and [_transform].
 class _AnimatedOffsetState
     extends ImplicitlyAnimatedWidgetState<AnimatedOffset> {
-  /// [Animation] animating the [Offset] changes.
-  late Animation<Offset> _animation;
-
-  /// [Tween] to drive the [_animation] with.
-  Tween<Offset>? _transform;
+  Tween<Offset>? _offsetTween;
+  late Animation<Offset> _offsetAnimation;
 
   @override
   void forEachTween(TweenVisitor<dynamic> visitor) {
-    _transform =
-        visitor(
-              _transform,
-              widget.offset,
-              (value) => Tween<Offset>(begin: value as Offset),
-            )
-            as Tween<Offset>?;
+    _offsetTween = visitor(
+      _offsetTween,
+      widget.offset,
+      (dynamic value) => Tween<Offset>(begin: value as Offset),
+    ) as Tween<Offset>?;
   }
 
   @override
-  void didUpdateTweens() => _animation = animation.drive(_transform!);
+  void didUpdateTweens() {
+    // `animation` is provided by ImplicitlyAnimatedWidgetState and already
+    // wraps the controller with the given `curve`.
+    _offsetAnimation = animation.drive(_offsetTween!);
+  }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _animation,
+      animation: _offsetAnimation,
       builder: (_, child) =>
-          Transform.translate(offset: _animation.value, child: child!),
+          Transform.translate(offset: _offsetAnimation.value, child: child),
       child: widget.child,
     );
   }

@@ -93,6 +93,7 @@ import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
+import '../../../../../domain/service/chat_scroll_service.dart';
 import 'message_field/controller.dart';
 import 'view.dart';
 
@@ -435,6 +436,9 @@ class ChatController extends GetxController {
   /// if any.
   ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
+  /// Chat scroll service for jumpting to last position
+  late final ChatScrollService _scrollService = Get.find<ChatScrollService>();
+
   @override
   void onInit() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -579,13 +583,57 @@ class ChatController extends GetxController {
     super.onInit();
   }
 
+  void _restoreAnchor(SavedAnchor saved) {
+    void tryJump() {
+      if (!listController.hasClients ||
+          !listController.position.hasContentDimensions) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => tryJump());
+        return;
+      }
+
+      // wait until the anchor item is present
+      final idx = elements.values.toList().indexWhere(
+        (e) => e.id.toString() == saved.chatKey,
+      );
+      if (idx == -1) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => tryJump());
+        return;
+      }
+
+      _ignorePositionChanges = true;
+      listController.sliverController.jumpToIndex(
+        idx,
+        offsetBasedOnBottom: true,
+        offset: saved.offsetFromBottom,
+      );
+      _ignorePositionChanges = false;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => tryJump());
+  }
+
   @override
   void onReady() {
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
+    listController
+        .sliverController
+        .onPaintItemPositionsCallback = (height, positions) {
+      if (positions.isEmpty) return;
+
+      final FlutterListViewItemPosition bottomMost = positions.first;
+
+      final ListElement? el = elements.values.elementAtOrNull(bottomMost.index);
+      if (el == null) return;
+      _scrollService.setAnchor(
+        id.val,
+        SavedAnchor(el.id.toString(), bottomMost.offset),
+      );
+      _topVisibleItem = positions.last;
+    };
     AudioUtils.ensureInitialized();
     _fetchChat();
-
+    _jumpToLastPosition();
     if (!PlatformUtils.isMobile) {
       send.field.focus.requestFocus();
     }
@@ -2092,7 +2140,17 @@ class ChatController extends GetxController {
       _updateSticky();
       _updateFabStates();
       _loadMessages();
+      _saveLastPosition();
     }
+  }
+
+  void _saveLastPosition() {
+    final pos = listController.position;
+    if (!pos.hasPixels) return;
+
+    final fromBottom = pos.pixels;
+
+    _scrollService.setFromBottom(id.val, fromBottom);
   }
 
   /// Updates the [canGoDown] and [canGoBack] indicators based on the
@@ -2329,6 +2387,31 @@ class ChatController extends GetxController {
     }
 
     return _ListViewIndexCalculationResult(index, offset);
+  }
+
+  Future<void> _jumpToLastPosition() async {
+    final SavedAnchor? savedAnchor = _scrollService.getAnchor(id.val);
+    if (savedAnchor != null) {
+      _restoreAnchor(savedAnchor);
+    } else {
+      final savedPx = _scrollService.getFromBottom(id.val);
+      if (savedPx != null) {
+        void fallbackTryJump() {
+          if (!listController.hasClients ||
+              !listController.position.hasContentDimensions) {
+            WidgetsBinding.instance.addPostFrameCallback(
+              (_) => fallbackTryJump(),
+            );
+            return;
+          }
+          final pos = listController.position;
+
+          listController.jumpTo(savedPx.clamp(0.0, pos.maxScrollExtent));
+        }
+
+        WidgetsBinding.instance.addPostFrameCallback((_) => fallbackTryJump());
+      }
+    }
   }
 
   /// Scrolls to the last read message.

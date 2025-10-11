@@ -468,7 +468,7 @@ class ChatView extends StatelessWidget {
                         ),
                         Obx(() {
                           final Widget child = FlutterListView(
-                            key: const Key('MessagesList'),
+                            key: Key('MessagesList_${c.chat?.id}'),
                             controller: c.listController,
                             physics: c.isDraggingItem.value
                                 ? const NeverScrollableScrollPhysics()
@@ -514,6 +514,7 @@ class ChatView extends StatelessWidget {
                             child: ObscuredMenuInterceptor(child: child),
                           );
                         }),
+
                         Obx(() {
                           if (c.searching.value) {
                             if (c.status.value.isLoadingMore) {
