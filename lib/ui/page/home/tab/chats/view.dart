@@ -1004,8 +1004,8 @@ class ChatsTabView extends StatelessWidget {
                                                       GestureRecognizerFactoryWithHandlers<
                                                         DisableSecondaryButtonRecognizer
                                                       >(
-                                                        () =>
-                                                            DisableSecondaryButtonRecognizer(),
+                                                        DisableSecondaryButtonRecognizer
+                                                            .new,
                                                         (_) {},
                                                       ),
                                                 },

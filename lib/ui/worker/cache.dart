@@ -86,7 +86,7 @@ class CacheWorker extends DisposableService {
 
   @override
   Future<void> onInit() async {
-    _cacheLocal?.checksums().then((v) => hashes.addAll(v));
+    _cacheLocal?.checksums().then(hashes.addAll);
 
     info.value = await _cacheLocal?.read() ?? info.value;
 

@@ -523,7 +523,7 @@ class MessageFieldView extends StatelessWidget {
                       .take(take)
                       .toList()
                       .reversed
-                      .map((e) => ChatButtonWidget(e))
+                      .map(ChatButtonWidget.new)
                       .toList();
                 }
 

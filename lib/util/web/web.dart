@@ -403,7 +403,7 @@ class WebUtils {
 
       JSPromise function(JSAny? any) {
         return callback()
-            .then((val) => completer.complete(val))
+            .then(completer.complete)
             .onError(
               (e, stackTrace) =>
                   completer.completeError(e ?? Exception(), stackTrace),

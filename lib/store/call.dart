@@ -724,10 +724,7 @@ class CallRepository extends DisposableInterface
       } else if (events.$$typename == 'ChatCallEventsVersioned') {
         final mixin = events as ChatCallEventsVersionedMixin;
         yield ChatCallEventsEvent(
-          CallEventsVersioned(
-            mixin.events.map((e) => _callEvent(e)).toList(),
-            mixin.ver,
-          ),
+          CallEventsVersioned(mixin.events.map(_callEvent).toList(), mixin.ver),
         );
       }
     });

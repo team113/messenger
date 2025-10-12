@@ -237,7 +237,7 @@ Future<void> _runApp() async {
 
   Get.putOrGet<CommonDriftProvider>(
     () => CommonDriftProvider.from(
-      Get.putOrGet(() => CommonDatabase(), permanent: true),
+      Get.putOrGet(CommonDatabase.new, permanent: true),
     ),
     permanent: true,
   );

@@ -389,16 +389,13 @@ class UserRepository extends DisposableInterface
       } else if (events.$$typename == 'UserEventsVersioned') {
         final mixin = events as UserEventsVersionedMixin;
         yield UserEventsEvent(
-          UserEventsVersioned(
-            mixin.events.map((e) => _userEvent(e)).toList(),
-            mixin.ver,
-          ),
+          UserEventsVersioned(mixin.events.map(_userEvent).toList(), mixin.ver),
         );
       } else if (events.$$typename == 'BlocklistEventsVersioned') {
         final mixin = events as BlocklistEventsVersionedMixin;
         yield UserEventsBlocklistEventsEvent(
           BlocklistEventsVersioned(
-            mixin.events.map((e) => _blocklistEvent(e)).toList(),
+            mixin.events.map(_blocklistEvent).toList(),
             mixin.blocklistVer,
           ),
         );
@@ -463,7 +460,7 @@ class UserRepository extends DisposableInterface
         first: first ?? maxInt,
       );
 
-      pageInfo = response.searchUsers.pageInfo.toModel((c) => UsersCursor(c));
+      pageInfo = response.searchUsers.pageInfo.toModel(UsersCursor.new);
       dtoUsers.addAll(
         response.searchUsers.edges.map((c) => c.node.toDto()).toList(),
       );

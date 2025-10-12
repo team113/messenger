@@ -145,7 +145,7 @@ class ContactRepository extends DisposableInterface
 
     final events = ChatContactsEventsEvent(
       ChatContactEventsVersioned(
-        response.events.map((e) => _contactEvent(e)).toList(),
+        response.events.map(_contactEvent).toList(),
         response.ver,
         response.listVer,
       ),
@@ -843,7 +843,7 @@ class ContactRepository extends DisposableInterface
 
     return Page(
       RxList(query.edges.map((e) => e.node.toDto(cursor: e.cursor)).toList()),
-      query.pageInfo.toModel((c) => ChatContactsCursor(c)),
+      query.pageInfo.toModel(ChatContactsCursor.new),
     );
   }
 
@@ -878,7 +878,7 @@ class ContactRepository extends DisposableInterface
       RxList(
         query.edges.map((e) => e.node.toDto(favoriteCursor: e.cursor)).toList(),
       ),
-      query.pageInfo.toModel((c) => FavoriteChatContactsCursor(c)),
+      query.pageInfo.toModel(FavoriteChatContactsCursor.new),
     );
   }
 

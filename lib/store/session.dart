@@ -374,7 +374,7 @@ class SessionRepository extends DisposableInterface
       } else if (events.$$typename == 'SessionEventsVersioned') {
         final mixin = events as SessionEventsVersionedMixin;
         yield SessionEventsVersioned(
-          mixin.events.map((e) => _sessionEvent(e)).toList(),
+          mixin.events.map(_sessionEvent).toList(),
           mixin.ver,
           mixin.listVer,
         );

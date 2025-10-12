@@ -280,7 +280,7 @@ class UserView extends StatelessWidget {
             collapseOnTextTap: false,
             style: style.fonts.small.regular.secondary,
             urlStyle: style.fonts.small.regular.primary,
-            onUrlTap: (url) => launchUrlString(url),
+            onUrlTap: launchUrlString,
           ),
         ],
         const SizedBox(height: 16),

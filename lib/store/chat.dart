@@ -1650,7 +1650,7 @@ class ChatRepository extends DisposableInterface
 
     return Page(
       RxList(query.chat!.items.edges.map((e) => e.toDto()).toList()),
-      query.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c)),
+      query.chat!.items.pageInfo.toModel(ChatItemsCursor.new),
     );
   }
 
@@ -1681,7 +1681,7 @@ class ChatRepository extends DisposableInterface
       RxList(
         query.chat!.members.edges.map((e) => e.node.toDto(e.cursor)).toList(),
       ),
-      query.chat!.members.pageInfo.toModel((c) => ChatMembersCursor(c)),
+      query.chat!.members.pageInfo.toModel(ChatMembersCursor.new),
     );
   }
 
@@ -2577,14 +2577,7 @@ class ChatRepository extends DisposableInterface
       perPage: 15,
       provider: DriftGraphQlPageProvider(
         alwaysFetch: true,
-        graphQlProvider: GraphQlPageProvider(
-          fetch: ({after, before, first, last}) => _recentChats(
-            after: after,
-            first: first,
-            before: before,
-            last: last,
-          ),
-        ),
+        graphQlProvider: GraphQlPageProvider(fetch: _recentChats),
         driftProvider: DriftPageProvider(
           watch: ({int? after, int? before, ChatId? around}) async {
             final int limit = (after ?? 0) + (before ?? 0) + 1;
@@ -2812,7 +2805,7 @@ class ChatRepository extends DisposableInterface
             .map((e) => _chat(e.node, recentCursor: e.cursor).chat)
             .toList(),
       ),
-      query.pageInfo.toModel((c) => RecentChatsCursor(c)),
+      query.pageInfo.toModel(RecentChatsCursor.new),
     );
   }
 
@@ -2842,7 +2835,7 @@ class ChatRepository extends DisposableInterface
             .map((e) => _chat(e.node, favoriteCursor: e.cursor).chat)
             .toList(),
       ),
-      query.pageInfo.toModel((c) => FavoriteChatsCursor(c)),
+      query.pageInfo.toModel(FavoriteChatsCursor.new),
     );
   }
 
@@ -3086,7 +3079,7 @@ class ChatRepository extends DisposableInterface
                 as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
         yield FavoriteChatsEventsEvent(
           FavoriteChatsEventsVersioned(
-            mixin.events.map((e) => _favoriteChatsVersionedEvent(e)).toList(),
+            mixin.events.map(_favoriteChatsVersionedEvent).toList(),
             mixin.ver,
           ),
         );

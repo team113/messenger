@@ -482,7 +482,7 @@ class RxChatImpl extends RxChat {
             User(me ?? const UserId('dummy'), UserNum('1234123412341234')),
             PreciseDateTime.now(),
             text: text,
-            repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
+            repliesTo: repliesTo.map(ChatItemQuote.from).toList(),
             attachments: attachments,
           );
           _draftLocal.upsert(id, draft);
@@ -703,7 +703,7 @@ class RxChatImpl extends RxChat {
       chatId: chat.value.id,
       me: me!,
       text: text,
-      repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
+      repliesTo: repliesTo.map(ChatItemQuote.from).toList(),
       attachments: attachments ?? [],
       existingId: existingId,
       existingDateTime: existingDateTime,
@@ -782,7 +782,7 @@ class RxChatImpl extends RxChat {
 
         final event =
             response?.events
-                    .map((e) => _chatRepository.chatEvent(e))
+                    .map(_chatRepository.chatEvent)
                     .firstWhereOrNull((e) => e is EventChatItemPosted)
                 as EventChatItemPosted?;
 

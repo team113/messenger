@@ -644,15 +644,11 @@ class PlayerController extends GetxController {
         final ChatItem message = node.value;
 
         if (message is ChatMessage) {
-          post.items.value = message.attachments
-              .map((e) => PostItem(e))
-              .toList();
+          post.items.value = message.attachments.map(PostItem.new).toList();
         } else if (message is ChatForward) {
           final quote = message.quote;
           if (quote is ChatMessageQuote) {
-            post.items.value = quote.attachments
-                .map((e) => PostItem(e))
-                .toList();
+            post.items.value = quote.attachments.map(PostItem.new).toList();
           }
         }
       }

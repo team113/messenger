@@ -188,7 +188,7 @@ class MediaUtilsImpl {
             .where((e) => e.deviceId().isNotEmpty)
             .where((e) => kind == null || e.kind() == kind)
             .whereType<MediaDeviceDetails>()
-            .map((e) => DeviceDetails(e))
+            .map(DeviceDetails.new)
             .toList();
 
     // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.

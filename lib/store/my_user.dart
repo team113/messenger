@@ -1281,7 +1281,7 @@ class MyUserRepository extends DisposableInterface
       } else if (events.$$typename == 'MyUserEventsVersioned') {
         final mixin = events as MyUserEventsVersionedMixin;
         yield MyUserEventsVersioned(
-          mixin.events.map((e) => _myUserEvent(e)).toList(),
+          mixin.events.map(_myUserEvent).toList(),
           mixin.ver,
         );
       }

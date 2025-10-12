@@ -30,7 +30,7 @@ List<PreciseDateTime> fromGraphQLListDateTimeToDartListPreciseDateTime(
     .toList();
 List<String> fromDartListPreciseDateTimeToGraphQLListDataTime(
   List<PreciseDateTime> v,
-) => v.map((e) => fromDartPreciseDateTimeToGraphQLDateTime(e)).toList();
+) => v.map(fromDartPreciseDateTimeToGraphQLDateTime).toList();
 List<PreciseDateTime>?
 fromGraphQLListNullableDateTimeToDartListNullablePreciseDateTime(
   List<Object?>? v,
@@ -39,7 +39,7 @@ fromGraphQLListNullableDateTimeToDartListNullablePreciseDateTime(
     .toList();
 List<String>? fromDartListNullablePreciseDateTimeToGraphQLListNullableDateTime(
   List<PreciseDateTime>? v,
-) => v?.map((e) => fromDartPreciseDateTimeToGraphQLDateTime(e)).toList();
+) => v?.map(fromDartPreciseDateTimeToGraphQLDateTime).toList();
 
 PreciseDateTime? fromGraphQLDateTimeNullableToDartPreciseDateTimeNullable(
   String? v,
@@ -60,6 +60,4 @@ fromGraphQLListDateTimeNullableToDartListPreciseDateTimeNullable(
     .toList();
 List<String?> fromDartListPreciseDateTimeNullableToGraphQLListDateTimeNullable(
   List<PreciseDateTime?> v,
-) => v
-    .map((e) => fromDartPreciseDateTimeNullableToGraphQLDateTimeNullable(e))
-    .toList();
+) => v.map(fromDartPreciseDateTimeNullableToGraphQLDateTimeNullable).toList();

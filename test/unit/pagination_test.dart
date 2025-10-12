@@ -246,7 +246,7 @@ void main() async {
                   );
 
                   final PageInfo<ChatItemsCursor> info = q.chat!.items.pageInfo
-                      .toModel((c) => ChatItemsCursor(c));
+                      .toModel(ChatItemsCursor.new);
                   return Page(
                     RxList(q.chat!.items.edges.map((e) => e.toDto()).toList()),
                     PageInfo<ChatItemsCursor>(

@@ -393,7 +393,7 @@ class Release {
     final String date = xml.findElements('pubDate').first.innerText;
     final List<ReleaseArtifact> assets = xml
         .findElements('enclosure')
-        .map((e) => ReleaseArtifact.fromXml(e))
+        .map(ReleaseArtifact.fromXml)
         .toList();
 
     return Release(

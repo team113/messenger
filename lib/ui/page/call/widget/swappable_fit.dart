@@ -70,7 +70,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
   @override
   void initState() {
-    _items = widget.items.map((e) => _SwappableItem(e)).toList();
+    _items = widget.items.map(_SwappableItem.new).toList();
     _centered = widget.center;
     super.initState();
   }

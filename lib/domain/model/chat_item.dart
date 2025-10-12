@@ -237,7 +237,7 @@ class ChatMessageText extends NewType<String> {
       );
     }
 
-    return chunks.map((e) => ChatMessageText(e)).toList();
+    return chunks.map(ChatMessageText.new).toList();
   }
 
   /// Returns a [String] representing this [ChatMessageText].

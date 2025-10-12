@@ -552,7 +552,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   @override
   void initState() {
-    _items = widget.children.map((e) => _ReorderableItem(e)).toList();
+    _items = widget.children.map(_ReorderableItem.new).toList();
     AudioUtils.ensureInitialized();
     super.initState();
   }

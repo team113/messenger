@@ -94,7 +94,7 @@ class MessageFieldController extends GetxController {
         replied.value = item.repliesTo
             .map((e) => e.original)
             .nonNulls
-            .map((e) => Rx(e))
+            .map(Rx.new)
             .toList();
       } else {
         field.text = '';

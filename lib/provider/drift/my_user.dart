@@ -157,7 +157,7 @@ class MyUserDriftProvider extends DriftProviderBase {
       stmt.limit(limit);
     }
 
-    return (await stmt.get()).map((row) => _MyUserDb.fromDb(row)).toList();
+    return (await stmt.get()).map(_MyUserDb.fromDb).toList();
   }
 
   /// Returns the [Stream] of real-time changes happening with the [DtoMyUser]s.

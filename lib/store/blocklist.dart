@@ -195,7 +195,7 @@ class BlocklistRepository extends DisposableInterface
 
     return Page(
       query.edges.map((e) => e.node.toDto(cursor: e.cursor)).toList(),
-      query.pageInfo.toModel((c) => BlocklistCursor(c)),
+      query.pageInfo.toModel(BlocklistCursor.new),
     );
   }
 
@@ -277,7 +277,7 @@ class BlocklistRepository extends DisposableInterface
         final mixin = events as BlocklistEventsVersionedMixin;
         yield BlocklistEventsEvent(
           BlocklistEventsVersioned(
-            mixin.events.map((e) => _blocklistEvent(e)).toList(),
+            mixin.events.map(_blocklistEvent).toList(),
             mixin.blocklistVer,
           ),
         );

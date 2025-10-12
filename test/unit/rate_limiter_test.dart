@@ -31,7 +31,7 @@ void main() async {
     final List<Future> futures = [];
 
     for (var i = 0; i < requests * 5; ++i) {
-      futures.add(limiter.execute(() async => i)..then((v) => finished.add(v)));
+      futures.add(limiter.execute<int>(() async => i)..then(finished.add));
     }
 
     DateTime startedAt = DateTime.now();
@@ -77,7 +77,7 @@ void main() async {
     finished.clear();
     futures.clear();
     for (var i = 0; i < requests; ++i) {
-      futures.add(limiter.execute(() async => i)..then((v) => finished.add(v)));
+      futures.add(limiter.execute<int>(() async => i)..then(finished.add));
     }
 
     startedAt = DateTime.now();
@@ -105,10 +105,10 @@ void main() async {
     futures.clear();
     for (var i = 0; i < requests * 2; ++i) {
       futures.add(
-        limiter.execute(() async {
+        limiter.execute<int>(() async {
           await Future.delayed(per * 5);
           return i;
-        })..then((v) => finished.add(v)),
+        })..then(finished.add),
       );
     }
 
