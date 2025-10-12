@@ -162,7 +162,7 @@ class ChatCallCredentials {
   const ChatCallCredentials(this.val);
 
   /// Constructs the [ChatCallCredentials] from the provided [val].
-  factory ChatCallCredentials.fromJson(String val) = ChatCallCredentials;
+  const factory ChatCallCredentials.fromJson(String val) = ChatCallCredentials;
 
   /// Actual value of these [ChatCallCredentials].
   final String val;
