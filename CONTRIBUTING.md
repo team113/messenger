@@ -218,40 +218,6 @@ import 'home/page/widget/animated_button.dart';
 import 'widget/animated_button.dart';
 ```
 
-
-### Imports grouping and sorting
-
-__Do__ group Dart imports in the stated groups:
-1. Dart imports (`dart:io`, `dart:async`, etc).
-2. `package:` imports (`package:get`, `package:flutter`, `package:messenger`, etc).
-3. Relative imports (`/lib/util/platform_utils.dart`, `../controller.dart`).
-
-__Do__ sort imports within single group alphabetically.
-
-#### 🚫 Wrong
-```dart
-import '/lib/util/platform_utils.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../controller.dart';
-
-import 'dart:io';
-import 'dart:async';
-```
-
-#### 👍 Correct
-```dart
-import 'dart:async';
-import 'dart:io';
-
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
-
-import '../controller.dart';
-import '/lib/util/platform_utils.dart';
-```
-
-
 ### Classes, constructors, fields and methods ordering
 
 __DO__ place constructors first in class, as stated in [Flutter style guidelines][3]:

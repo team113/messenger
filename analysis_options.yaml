@@ -38,6 +38,7 @@ analyzer:
     use_key_in_widget_constructors: error
     valid_regexps: error
     no_wildcard_variable_uses: error
+    directives_ordering: error
   exclude:
     - '**/*.g.dart'
     - '**/*.graphql.dart'
