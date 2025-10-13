@@ -204,10 +204,12 @@ __DO__ document your code. Documentation must follow [Effective Dart] official r
 
 __DO__ use absolute or relative imports within `/lib` directory.
 
+Enabled linter rule [prefer_relative_imports](https://dart.dev/tools/linter-rules/prefer_relative_imports) mark all `package:` import lines as error! 
+Your task remains only to exclude deep `../`.
+
 #### 🚫 Wrong
 ```dart
 import '../../../../ui/widget/animated_button.dart'; // Too deep.
-import 'package:messenger/ui/widget/modal_popup.dart'; // `package:` import.
 ```
 
 #### 👍 Correct
