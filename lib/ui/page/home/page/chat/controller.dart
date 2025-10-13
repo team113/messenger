@@ -32,6 +32,7 @@ import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
+import '/domain/model/saved_chat_anchors.dart';
 import '/api/backend/schema.dart'
     hide
         ChatItemQuoteInput,
@@ -93,7 +94,7 @@ import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '../../../../../domain/service/chat_scroll_service.dart';
+import '/domain/service/chat_scroll_service.dart';
 import 'message_field/controller.dart';
 import 'view.dart';
 
@@ -109,7 +110,8 @@ class ChatController extends GetxController {
     this._userService,
     this._settingsRepository,
     this._contactService,
-    this._notificationService, {
+    this._notificationService,
+    this._scrollService, {
     this.itemId,
     this.onContext,
   });
@@ -437,7 +439,7 @@ class ChatController extends GetxController {
   ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
   /// Chat scroll service for jumpting to last position
-  late final ChatScrollService _scrollService = Get.find<ChatScrollService>();
+  final ChatScrollService _scrollService;
 
   @override
   void onInit() {
@@ -593,7 +595,7 @@ class ChatController extends GetxController {
 
       // wait until the anchor item is present
       final idx = elements.values.toList().indexWhere(
-        (e) => e.id.toString() == saved.chatKey,
+        (e) => e.id.toString() == saved.chatKey.val,
       );
       if (idx == -1) {
         WidgetsBinding.instance.addPostFrameCallback((_) => tryJump());
@@ -604,7 +606,7 @@ class ChatController extends GetxController {
       listController.sliverController.jumpToIndex(
         idx,
         offsetBasedOnBottom: true,
-        offset: saved.offsetFromBottom,
+        offset: saved.offsetFromBottom.val,
       );
       _ignorePositionChanges = false;
     }
@@ -626,8 +628,12 @@ class ChatController extends GetxController {
       final ListElement? el = elements.values.elementAtOrNull(bottomMost.index);
       if (el == null) return;
       _scrollService.setAnchor(
-        id.val,
-        SavedAnchor(el.id.toString(), bottomMost.offset),
+        id,
+        SavedAnchor(
+          ChatKey(el.id.toString()),
+          OffsetFromBottom(bottomMost.offset),
+        ),
+        me!,
       );
       _topVisibleItem = positions.last;
     };
@@ -2150,7 +2156,7 @@ class ChatController extends GetxController {
 
     final fromBottom = pos.pixels;
 
-    _scrollService.setFromBottom(id.val, fromBottom);
+    _scrollService.setFromBottom(id, fromBottom, me!);
   }
 
   /// Updates the [canGoDown] and [canGoBack] indicators based on the
@@ -2390,11 +2396,11 @@ class ChatController extends GetxController {
   }
 
   Future<void> _jumpToLastPosition() async {
-    final SavedAnchor? savedAnchor = _scrollService.getAnchor(id.val);
+    final SavedAnchor? savedAnchor = _scrollService.getAnchor(id, me!);
     if (savedAnchor != null) {
       _restoreAnchor(savedAnchor);
     } else {
-      final savedPx = _scrollService.getFromBottom(id.val);
+      final savedPx = _scrollService.getFromBottom(id, me!);
       if (savedPx != null) {
         void fallbackTryJump() {
           if (!listController.hasClients ||

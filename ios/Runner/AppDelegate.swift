@@ -271,7 +271,7 @@ import sqlite3
               chatId: chatId,
               myId: myId,
               data: data,
-              db: db
+              db: db,
             )
           }
         }

@@ -1,46 +1,55 @@
 import 'package:get/get.dart';
 
-class SavedAnchor {
-  final String chatKey;
-  final double offsetFromBottom;
-  const SavedAnchor(this.chatKey, this.offsetFromBottom);
-
-  @override
-  String toString() => 'SavedAnchor(key=$chatKey, off=$offsetFromBottom)';
-}
+import '../model/chat.dart';
+import '../model/saved_chat_anchors.dart';
+import '../model/user.dart';
 
 class ChatScrollService extends GetxService {
-  final Map<String, SavedAnchor> _anchorByChat = <String, SavedAnchor>{};
+  final Map<ScrollKey, SavedAnchor> _anchorByKey = <ScrollKey, SavedAnchor>{};
+  final Map<ScrollKey, double> _fromBottomByKey = <ScrollKey, double>{};
 
-  final Map<String, double> _fromBottomByChat = <String, double>{};
+  // ---- Anchor ----
+  SavedAnchor? getAnchor(ChatId chatId, UserId userId) =>
+      _anchorByKey[ScrollKey(userId, chatId)];
 
-  SavedAnchor? getAnchor(String chatId) => _anchorByChat[chatId];
-
-  void setAnchor(String chatId, SavedAnchor anchor) {
-    _anchorByChat[chatId] = anchor;
+  void setAnchor(ChatId chatId, SavedAnchor anchor, UserId userId) {
+    // debugPrint('ScrollCache setAnchor: ${userId.val} ${chatId.val}');
+    _anchorByKey[ScrollKey(userId, chatId)] = anchor;
   }
 
-  void clearAnchor(String chatId) {
-    _anchorByChat.remove(chatId);
+  void clearAnchor(ChatId chatId, UserId userId) {
+    _anchorByKey.remove(ScrollKey(userId, chatId));
   }
 
-  double? getFromBottom(String chatId) => _fromBottomByChat[chatId];
+  // ---- From-bottom pixels ----
+  double? getFromBottom(ChatId chatId, UserId userId) =>
+      _fromBottomByKey[ScrollKey(userId, chatId)];
 
-  void setFromBottom(String chatId, double fromBottom) {
-    _fromBottomByChat[chatId] = fromBottom;
+  void setFromBottom(ChatId chatId, double fromBottom, UserId userId) {
+    // debugPrint('ScrollCache setFromBottom: ${userId.val} ${chatId.val}');
+    _fromBottomByKey[ScrollKey(userId, chatId)] = fromBottom;
   }
 
-  void clearFromBottom(String chatId) {
-    _fromBottomByChat.remove(chatId);
+  void clearFromBottom(ChatId chatId, UserId userId) {
+    _fromBottomByKey.remove(ScrollKey(userId, chatId));
   }
 
-  void clearAll(String chatId) {
-    _anchorByChat.remove(chatId);
-    _fromBottomByChat.remove(chatId);
+  // ---- Clear helpers ----
+  void clearAllForChat(ChatId chatId, UserId userId) {
+    final key = ScrollKey(userId, chatId);
+    _anchorByKey.remove(key);
+    _fromBottomByKey.remove(key);
   }
 
+  /// Wipes all data for a given user (across all chats).
+  void clearAllForUser(UserId userId) {
+    _anchorByKey.removeWhere((k, _) => k.userId == userId);
+    _fromBottomByKey.removeWhere((k, _) => k.userId == userId);
+  }
+
+  /// Wipes absolutely everything (all users, all chats).
   void clearEverything() {
-    _anchorByChat.clear();
-    _fromBottomByChat.clear();
+    _anchorByKey.clear();
+    _fromBottomByKey.clear();
   }
 }

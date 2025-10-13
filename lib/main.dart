@@ -335,7 +335,7 @@ Future<void> _runApp() async {
   Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
   Get.put(UpgradeWorker(Get.findOrNull()));
   Get.put(LogWorker());
-  Get.put<ChatScrollService>(ChatScrollService(), permanent: true);
+  Get.put<ChatScrollService>(ChatScrollService());
   WebUtils.deleteLoader();
 
   runApp(App(key: UniqueKey()));

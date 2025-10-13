@@ -40,7 +40,7 @@ abstract class ChatItem {
 
   /// Constructs a [ChatItem] from the provided [json].
   factory ChatItem.fromJson(Map<String, dynamic> json) =>
-      switch (json  ['runtimeType']) {
+      switch (json['runtimeType']) {
         'ChatMessage' => ChatMessage.fromJson(json),
         'ChatCall' => ChatCall.fromJson(json),
         'ChatInfo' => ChatInfo.fromJson(json),

@@ -46,7 +46,6 @@ class ResetAppHook extends Hook {
 
     final drift = Get.findOrNull<CommonDriftProvider>();
     await drift?.reset();
-
     await Get.deleteAll();
 
     PlatformUtils.client?.interceptors.removeWhere(
