@@ -630,11 +630,11 @@ class BlocklistReason extends NewType<String> {
   /// Creates an object without any validation.
   const factory BlocklistReason.unchecked(String val) = BlocklistReason._;
 
-  /// Regular expression for basic [BlocklistReason] validation.
-  static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
-
   /// Constructs a [BlocklistRecord] from the provided [val].
   factory BlocklistReason.fromJson(String val) = BlocklistReason;
+
+  /// Regular expression for basic [BlocklistReason] validation.
+  static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
 
   /// Returns a [String] representing this [BlocklistReason].
   String toJson() => val;

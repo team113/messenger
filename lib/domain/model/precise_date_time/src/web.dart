@@ -52,6 +52,49 @@ class PreciseDateTime extends NewType<DateTime>
   factory PreciseDateTime.fromJson(Map<String, dynamic> json) =>
       _$PreciseDateTimeFromJson(json);
 
+  /// Constructs a [PreciseDateTime] instance with current date and time in the
+  /// local time zone.
+  ///
+  /// ```dart
+  /// final now = PreciseDateTime.now();
+  /// ```
+  factory PreciseDateTime.now() => PreciseDateTime(DateTime.now());
+
+  /// Constructs a new [PreciseDateTime] instance based on [formattedString].
+  ///
+  /// The function parses a subset of ISO 8601, which includes the subset
+  /// accepted by RFC 3339.
+  ///
+  /// This includes the output of [toString], which will be parsed back into a
+  /// [PreciseDateTime] object with the same time as the original.
+  ///
+  /// Examples of accepted strings:
+  ///
+  /// * `"2012-02-27 13:27:00,123456Z"`
+  /// * `'2022-06-03T12:38:34.366158Z'`
+  /// * `'2022-06-03T12:38:34.366Z'`
+  /// * `'2022-06-03T12:38:34.366000Z'`
+  /// * `'2022-06-03T12:38:35Z'`
+  ///
+  factory PreciseDateTime.parse(String formattedString) {
+    if (formattedString.contains('.')) {
+      final split = formattedString.split('.');
+      if (split[1].length != 7) {
+        split[1] = '${split[1].replaceFirst('Z', '').padRight(6, '0')}Z';
+      }
+
+      final int microseconds =
+          int.tryParse(split[1].substring(3).replaceFirst('Z', '')) ?? 0;
+      split[1] = '${split[1].substring(0, 3)}Z';
+      return PreciseDateTime(
+        DateTime.parse(split.join('.')),
+        microsecond: microseconds,
+      );
+    }
+
+    return PreciseDateTime(DateTime.parse(formattedString));
+  }
+
   /// Microsecond part of this [PreciseDateTime].
   final int microsecond;
 
@@ -180,52 +223,9 @@ class PreciseDateTime extends NewType<DateTime>
         (duration.inMicroseconds - duration.inMilliseconds * 1000),
   );
 
-  /// Constructs a [PreciseDateTime] instance with current date and time in the
-  /// local time zone.
-  ///
-  /// ```dart
-  /// final now = PreciseDateTime.now();
-  /// ```
-  factory PreciseDateTime.now() => PreciseDateTime(DateTime.now());
-
   /// Returns this [PreciseDateTime] value in the UTC time zone.
   PreciseDateTime toUtc() =>
       PreciseDateTime(val.toUtc(), microsecond: microsecond);
-
-  /// Constructs a new [PreciseDateTime] instance based on [formattedString].
-  ///
-  /// The function parses a subset of ISO 8601, which includes the subset
-  /// accepted by RFC 3339.
-  ///
-  /// This includes the output of [toString], which will be parsed back into a
-  /// [PreciseDateTime] object with the same time as the original.
-  ///
-  /// Examples of accepted strings:
-  ///
-  /// * `"2012-02-27 13:27:00,123456Z"`
-  /// * `'2022-06-03T12:38:34.366158Z'`
-  /// * `'2022-06-03T12:38:34.366Z'`
-  /// * `'2022-06-03T12:38:34.366000Z'`
-  /// * `'2022-06-03T12:38:35Z'`
-  ///
-  factory PreciseDateTime.parse(String formattedString) {
-    if (formattedString.contains('.')) {
-      final split = formattedString.split('.');
-      if (split[1].length != 7) {
-        split[1] = '${split[1].replaceFirst('Z', '').padRight(6, '0')}Z';
-      }
-
-      final int microseconds =
-          int.tryParse(split[1].substring(3).replaceFirst('Z', '')) ?? 0;
-      split[1] = '${split[1].substring(0, 3)}Z';
-      return PreciseDateTime(
-        DateTime.parse(split.join('.')),
-        microsecond: microseconds,
-      );
-    }
-
-    return PreciseDateTime(DateTime.parse(formattedString));
-  }
 
   @override
   String toString() {

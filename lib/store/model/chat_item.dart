@@ -85,6 +85,10 @@ abstract class DtoChatItem {
 class DtoChatInfo extends DtoChatItem {
   DtoChatInfo(super.value, super.cursor, super.ver);
 
+  /// Constructs a [DtoChatCall] from the provided [json].
+  factory DtoChatInfo.fromJson(Map<String, dynamic> json) =>
+      _$DtoChatInfoFromJson(json);
+
   @override
   int get hashCode => Object.hash(value, cursor, ver);
 
@@ -95,10 +99,6 @@ class DtoChatInfo extends DtoChatItem {
         value == other.value &&
         ver == other.ver;
   }
-
-  /// Constructs a [DtoChatCall] from the provided [json].
-  factory DtoChatInfo.fromJson(Map<String, dynamic> json) =>
-      _$DtoChatInfoFromJson(json);
 
   /// Returns a [Map] representing this [DtoChatInfo].
   @override

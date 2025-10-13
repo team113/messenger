@@ -227,7 +227,7 @@ __DO__ place constructors first in class, as stated in [Flutter style guidelines
 > This helps readers determine whether the class has a default implied constructor or not at a glance. If it was possible for a constructor to be anywhere in the class, then the reader would have to examine every line of the class to determine whether or not there was an implicit constructor or not.
 
 The methods, fields, getters, etc should sustain a consistent ordering to help read and understand code fluently. First rule is public first: when reading code someone else wrote, you usually interested in API you're working with: public classes, fields, methods, etc. Private counterparts are consider implementation-specific and should be moved lower in a file. Second rule is a recommendation towards ordering of constructors, methods, fields, etc, inside a class. The following order is suggested (notice the public/private rule being applied as well):
-1. Default constructor
+1. Default constructor (Enabled linter rule [sort_constructors_first](https://dart.dev/tools/linter-rules/sort_constructors_first) mark all constructors that are declared after other members as errors!)
 2. Named/other constructors
 3. Public fields
 4. Private fields

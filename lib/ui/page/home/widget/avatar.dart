@@ -104,45 +104,6 @@ class AvatarWidget extends StatelessWidget {
     opacity: opacity,
   );
 
-  /// Creates an [AvatarWidget] from the specified reactive [contact].
-  static Widget fromRxContact(
-    RxChatContact? contact, {
-    Key? key,
-    Avatar? avatar,
-    AvatarRadius? radius,
-    double opacity = 1,
-    bool badge = true,
-  }) {
-    if (contact == null) {
-      return AvatarWidget.fromContact(
-        key: key,
-        contact?.contact.value,
-        avatar: avatar,
-        radius: radius,
-        opacity: opacity,
-      );
-    }
-
-    return Obx(() {
-      return AvatarWidget(
-        key: key,
-        isOnline:
-            badge &&
-            contact.contact.value.users.length == 1 &&
-            contact.user.value?.user.value.online == true,
-        isAway:
-            badge && contact.user.value?.user.value.presence == Presence.away,
-        avatar: contact.user.value?.user.value.avatar,
-        title: contact.contact.value.name.val,
-        color: contact.user.value == null
-            ? contact.contact.value.name.val.sum()
-            : contact.user.value?.user.value.num.val.sum(),
-        radius: radius,
-        opacity: opacity,
-      );
-    });
-  }
-
   /// Creates an [AvatarWidget] from the specified [MyUser].
   factory AvatarWidget.fromMyUser(
     MyUser? myUser, {
@@ -188,43 +149,6 @@ class AvatarWidget extends StatelessWidget {
     constraints: constraints,
   );
 
-  /// Creates an [AvatarWidget] from the specified reactive [user].
-  static Widget fromRxUser(
-    RxUser? user, {
-    Key? key,
-    AvatarRadius? radius,
-    double opacity = 1,
-    bool badge = true,
-    BoxShape shape = BoxShape.circle,
-    BoxConstraints? constraints,
-  }) {
-    if (user == null) {
-      return AvatarWidget.fromUser(
-        user?.user.value,
-        key: key,
-        radius: radius,
-        opacity: opacity,
-        shape: shape,
-        constraints: constraints,
-      );
-    }
-
-    return Obx(
-      () => AvatarWidget(
-        key: key,
-        isOnline: badge && user.user.value.online,
-        isAway: badge && user.user.value.presence == Presence.away,
-        avatar: user.user.value.avatar,
-        title: user.title,
-        color: user.user.value.num.val.sum(),
-        radius: radius,
-        opacity: opacity,
-        shape: shape,
-        constraints: constraints,
-      ),
-    );
-  }
-
   /// Creates an [AvatarWidget] from the specified [chat]-monolog.
   factory AvatarWidget.fromMonolog(
     Chat? chat,
@@ -268,6 +192,82 @@ class AvatarWidget extends StatelessWidget {
     radius: radius,
     opacity: opacity,
   );
+
+  /// Creates an [AvatarWidget] from the specified reactive [contact].
+  static Widget fromRxContact(
+    RxChatContact? contact, {
+    Key? key,
+    Avatar? avatar,
+    AvatarRadius? radius,
+    double opacity = 1,
+    bool badge = true,
+  }) {
+    if (contact == null) {
+      return AvatarWidget.fromContact(
+        key: key,
+        contact?.contact.value,
+        avatar: avatar,
+        radius: radius,
+        opacity: opacity,
+      );
+    }
+
+    return Obx(() {
+      return AvatarWidget(
+        key: key,
+        isOnline:
+            badge &&
+            contact.contact.value.users.length == 1 &&
+            contact.user.value?.user.value.online == true,
+        isAway:
+            badge && contact.user.value?.user.value.presence == Presence.away,
+        avatar: contact.user.value?.user.value.avatar,
+        title: contact.contact.value.name.val,
+        color: contact.user.value == null
+            ? contact.contact.value.name.val.sum()
+            : contact.user.value?.user.value.num.val.sum(),
+        radius: radius,
+        opacity: opacity,
+      );
+    });
+  }
+
+  /// Creates an [AvatarWidget] from the specified reactive [user].
+  static Widget fromRxUser(
+    RxUser? user, {
+    Key? key,
+    AvatarRadius? radius,
+    double opacity = 1,
+    bool badge = true,
+    BoxShape shape = BoxShape.circle,
+    BoxConstraints? constraints,
+  }) {
+    if (user == null) {
+      return AvatarWidget.fromUser(
+        user?.user.value,
+        key: key,
+        radius: radius,
+        opacity: opacity,
+        shape: shape,
+        constraints: constraints,
+      );
+    }
+
+    return Obx(
+      () => AvatarWidget(
+        key: key,
+        isOnline: badge && user.user.value.online,
+        isAway: badge && user.user.value.presence == Presence.away,
+        avatar: user.user.value.avatar,
+        title: user.title,
+        color: user.user.value.num.val.sum(),
+        radius: radius,
+        opacity: opacity,
+        shape: shape,
+        constraints: constraints,
+      ),
+    );
+  }
 
   /// Creates an [AvatarWidget] from the specified [RxChat].
   static Widget fromRxChat(
