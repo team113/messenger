@@ -5,7 +5,6 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   errors:
-    invalid_use_of_visible_for_testing_member: error
     always_use_package_imports: error
     avoid_dynamic_calls: error
     avoid_empty_else: error
@@ -20,14 +19,18 @@ analyzer:
     close_sinks: error
     comment_references: error
     control_flow_in_finally: error
+    directives_ordering: error
     empty_statements: error
     hash_and_equals: error
+    invalid_use_of_visible_for_testing_member: error
     iterable_contains_unrelated_type: error
     list_remove_unrelated_type: error
     literal_only_boolean_expressions: error
     no_adjacent_strings_in_list: error
     no_duplicate_case_values: error
     no_logic_in_create_state: error
+    no_wildcard_variable_uses: error
+    prefer_relative_imports: error
     prefer_void_to_null: error
     test_types_in_equals: error
     throw_in_finally: error
@@ -37,8 +40,6 @@ analyzer:
     use_build_context_synchronously: error
     use_key_in_widget_constructors: error
     valid_regexps: error
-    no_wildcard_variable_uses: error
-    directives_ordering: error
   exclude:
     - '**/*.g.dart'
     - '**/*.graphql.dart'
