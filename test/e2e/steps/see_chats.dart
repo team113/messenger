@@ -43,11 +43,7 @@ final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
             !e.chat.value.isArchived;
       }).length;
 
-      if (length >= count) {
-        return true;
-      } else {
-        return false;
-      }
+      return length >= count;
     }, timeout: const Duration(seconds: 60));
   },
 );
@@ -64,14 +60,19 @@ final StepDefinitionGeneric seeCountFavoriteChats = then1<int, CustomWorld>(
       await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
       final controller = Get.find<ChatsTabController>();
-      if (controller.chats
-              .where((e) => e.chat.value.favoritePosition != null)
-              .length ==
-          count) {
-        return true;
-      } else {
-        return false;
-      }
+      final length = controller.chats.where((e) {
+        final bool notLocalOrHasMessages =
+            !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
+
+        final bool notHidden =
+            notLocalOrHasMessages &&
+            !e.chat.value.isHidden &&
+            !e.chat.value.isArchived;
+
+        return notHidden && e.chat.value.favoritePosition != null;
+      }).length;
+
+      return length >= count;
     }, timeout: const Duration(seconds: 30));
   },
 );
