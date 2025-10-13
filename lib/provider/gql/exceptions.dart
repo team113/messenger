@@ -44,8 +44,8 @@ class GraphQlProviderExceptions {
     QueryResult result, [
     Exception Function(Map<String, dynamic>)? handleException,
   ]) {
-    Object? exception = parse(result, handleException);
-    if (exception != null) throw exception;
+    final Object? exception = parse(result, handleException);
+    if (exception != null && exception is Exception) throw exception;
   }
 
   /// Returns an exception of the given [result] with [handleException] if it
@@ -93,7 +93,8 @@ class GraphQlProviderExceptions {
       }
 
       if (result.exception!.linkException! is ServerException) {
-        ServerException e = result.exception!.linkException! as ServerException;
+        final ServerException e =
+            result.exception!.linkException! as ServerException;
 
         // If the original exception is "Failed to parse header value", then
         // it's `AuthorizationException`.
@@ -111,7 +112,7 @@ class GraphQlProviderExceptions {
         // If there are `errors`, then it's a backend unspecified error.
         // It might be an internal error, bad request or request error.
         if (e.parsedResponse?.errors != null) {
-          var found = e.parsedResponse!.errors!.firstWhereOrNull(
+          final found = e.parsedResponse!.errors!.firstWhereOrNull(
             (v) => v.extensions != null && (v.extensions!['status'] == 401),
           );
           if (found != null) throw const AuthorizationException();

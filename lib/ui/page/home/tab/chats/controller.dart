@@ -346,7 +346,7 @@ class ChatsTabController extends GetxController {
       BackButtonInterceptor.remove(_onBack);
     }
 
-    for (var data in chats) {
+    for (final data in chats) {
       data.dispose();
     }
     _chatsSubscription.cancel();
@@ -357,11 +357,11 @@ class ChatsTabController extends GetxController {
     search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
-    for (StreamSubscription s in _userSubscriptions.values) {
+    for (final StreamSubscription s in _userSubscriptions.values) {
       s.cancel();
     }
 
-    for (var e in dismissed) {
+    for (final e in dismissed) {
       e._timer.cancel();
     }
 
@@ -810,7 +810,7 @@ class ChatsTabController extends GetxController {
 
   /// Dismisses the [chat], adding it to the [dismissed].
   void dismiss(RxChat chat) {
-    for (var e in List<DismissedChat>.from(dismissed, growable: false)) {
+    for (final e in List<DismissedChat>.from(dismissed, growable: false)) {
       e._done(true);
     }
     dismissed.clear();
@@ -823,7 +823,7 @@ class ChatsTabController extends GetxController {
         if (d) {
           hideChat(chat.id);
         } else {
-          for (var e in chats) {
+          for (final e in chats) {
             if (e.id == chat.id) {
               e.hidden.value = false;
             }
@@ -837,7 +837,7 @@ class ChatsTabController extends GetxController {
     router.removeWhere((e) => chat.chat.value.isRoute(e, me));
     dismissed.add(entry);
 
-    for (var e in chats) {
+    for (final e in chats) {
       if (e.id == chat.id) {
         e.hidden.value = true;
       }
@@ -911,14 +911,14 @@ class ChatsTabController extends GetxController {
 
               if (search.value?.recent.isNotEmpty == true) {
                 elements.add(const DividerElement(SearchCategory.chat));
-                for (RxUser c in search.value!.recent.values) {
+                for (final RxUser c in search.value!.recent.values) {
                   elements.add(RecentElement(c));
                 }
               }
             } else {
               if (search.value?.chats.isNotEmpty == true) {
                 elements.add(const DividerElement(SearchCategory.chat));
-                for (RxChat c in search.value!.chats.values) {
+                for (final RxChat c in search.value!.chats.values) {
                   elements.add(ChatElement(c));
                 }
               }
@@ -926,14 +926,14 @@ class ChatsTabController extends GetxController {
 
             if (search.value?.contacts.isNotEmpty == true) {
               elements.add(const DividerElement(SearchCategory.contact));
-              for (RxChatContact c in search.value!.contacts.values) {
+              for (final RxChatContact c in search.value!.contacts.values) {
                 elements.add(ContactElement(c));
               }
             }
 
             if (search.value?.users.isNotEmpty == true) {
               elements.add(const DividerElement(SearchCategory.user));
-              for (RxUser c in search.value!.users.values) {
+              for (final RxUser c in search.value!.users.values) {
                 elements.add(UserElement(c));
               }
             }
@@ -1009,7 +1009,7 @@ class ChatsTabController extends GetxController {
         }
 
         if (!scrollController.hasClients) {
-          return await _ensureScrollable();
+          return _ensureScrollable();
         }
 
         // If the fetched initial page contains less elements than required to
@@ -1059,7 +1059,7 @@ class ChatEntry implements Comparable<ChatEntry> {
     _hasCall = _chat.chat.value.ongoingCall != null;
 
     _worker = ever(_chat.chat, (Chat chat) {
-      bool hasCall = chat.ongoingCall != null;
+      final bool hasCall = chat.ongoingCall != null;
       if (chat.updatedAt != _updatedAt || hasCall != _hasCall) {
         sort?.call();
         _updatedAt = chat.updatedAt;

@@ -17,10 +17,10 @@
 
 import 'package:flutter/material.dart';
 
-import '../widget/headline.dart';
-import '../widget/playable_asset.dart';
 import '/routes.dart';
 import '/ui/page/style/widget/builder_wrap.dart';
+import '../widget/headline.dart';
+import '../widget/playable_asset.dart';
 
 /// [Routes.style] sounds section.
 class SoundsSection {

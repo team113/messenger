@@ -25,8 +25,8 @@ import 'package:drift/remote.dart' show DriftRemoteException;
 import '/domain/model/avatar.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/domain/model/welcome_message.dart';
 import '/store/model/my_user.dart';
 import '/util/obs/obs.dart';
@@ -107,7 +107,7 @@ class MyUserDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<DtoMyUser?>(
+    return safe<DtoMyUser?>(
       (db) async {
         final stmt = db.select(db.myUsers)..where((u) => u.id.equals(id.val));
         final MyUserRow? row = await stmt.getSingleOrNull();
@@ -157,7 +157,7 @@ class MyUserDriftProvider extends DriftProviderBase {
       stmt.limit(limit);
     }
 
-    return (await stmt.get()).map((row) => _MyUserDb.fromDb(row)).toList();
+    return (await stmt.get()).map(_MyUserDb.fromDb).toList();
   }
 
   /// Returns the [Stream] of real-time changes happening with the [DtoMyUser]s.
@@ -166,7 +166,9 @@ class MyUserDriftProvider extends DriftProviderBase {
       return db
           .select(db.myUsers)
           .watch()
-          .map((items) => {for (var e in items.map(_MyUserDb.fromDb)) e.id: e})
+          .map(
+            (items) => {for (final e in items.map(_MyUserDb.fromDb)) e.id: e},
+          )
           .changes();
     });
   }

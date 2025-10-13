@@ -41,8 +41,8 @@ import 'model/blocklist.dart';
 import 'model/my_user.dart';
 import 'paginated.dart';
 import 'pagination.dart';
-import 'pagination/drift_graphql.dart';
 import 'pagination/drift.dart';
+import 'pagination/drift_graphql.dart';
 import 'pagination/graphql.dart';
 import 'user.dart';
 
@@ -74,16 +74,16 @@ class BlocklistRepository extends DisposableInterface
       perPage: 15,
       provider: DriftGraphQlPageProvider(
         driftProvider: DriftPageProvider(
-          fetch: ({required after, required before, UserId? around}) async {
-            return await _blocklistLocal.records(limit: after + before + 1);
+          fetch: ({required after, required before, UserId? around}) {
+            return _blocklistLocal.records(limit: after + before + 1);
           },
           onKey: (e) => e.value.userId,
           onCursor: (e) => e?.cursor,
           add: (e, {bool toView = true}) async {
             await _blocklistLocal.upsertBulk(e);
           },
-          delete: (e) async => await _blocklistLocal.delete(e),
-          reset: () async => await _blocklistLocal.clear(),
+          delete: _blocklistLocal.delete,
+          reset: _blocklistLocal.clear,
           isFirst: (_, _) =>
               _sessionLocal.data[me]?.blocklistSynchronized == true &&
               blocklist.rawLength >= (_blocklistCount ?? double.infinity),
@@ -195,7 +195,7 @@ class BlocklistRepository extends DisposableInterface
 
     return Page(
       query.edges.map((e) => e.node.toDto(cursor: e.cursor)).toList(),
-      query.pageInfo.toModel((c) => BlocklistCursor(c)),
+      query.pageInfo.toModel(BlocklistCursor.new),
     );
   }
 
@@ -241,7 +241,7 @@ class BlocklistRepository extends DisposableInterface
     return _graphQlProvider.blocklistEvents(ver).asyncExpand((event) async* {
       Log.trace('_blocklistRemoteEvents(ver): ${event.data}', '$runtimeType');
 
-      var events = BlocklistEvents$Subscription.fromJson(
+      final events = BlocklistEvents$Subscription.fromJson(
         event.data!,
       ).blocklistEvents;
 
@@ -255,7 +255,7 @@ class BlocklistRepository extends DisposableInterface
             as BlocklistEvents$Subscription$BlocklistEvents$SubscriptionInitialized;
         // No-op.
       } else if (events.$$typename == 'Blocklist') {
-        var list =
+        final list =
             events as BlocklistEvents$Subscription$BlocklistEvents$Blocklist;
         yield BlocklistEventsBlocklist(
           list.blocklist.edges
@@ -274,10 +274,10 @@ class BlocklistRepository extends DisposableInterface
           list.blocklist.ver,
         );
       } else if (events.$$typename == 'BlocklistEventsVersioned') {
-        var mixin = events as BlocklistEventsVersionedMixin;
+        final mixin = events as BlocklistEventsVersionedMixin;
         yield BlocklistEventsEvent(
           BlocklistEventsVersioned(
-            mixin.events.map((e) => _blocklistEvent(e)).toList(),
+            mixin.events.map(_blocklistEvent).toList(),
             mixin.blocklistVer,
           ),
         );

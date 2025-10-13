@@ -60,7 +60,7 @@ class OutputSwitchController extends GetxController {
   StreamSubscription? _permissionSubscription;
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen((e) {
       devices.value = e.output().toList();
       selected.value = devices.firstWhereOrNull((e) => e.id() == _output);

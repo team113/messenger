@@ -33,8 +33,8 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -521,7 +521,7 @@ class CallWorker extends DisposableService {
       }
     });
 
-    for (Rx<OngoingCall> call in _callService.calls.values) {
+    for (final Rx<OngoingCall> call in _callService.calls.values) {
       handle(call.value.chatId.value, call.value);
     }
 
@@ -559,7 +559,7 @@ class CallWorker extends DisposableService {
           case Event.actionCallToggleMute:
             final bool? isMuted = event.body['isMuted'] as bool?;
             if (isMuted != null) {
-              for (var e in _callService.calls.entries) {
+              for (final e in _callService.calls.entries) {
                 e.value.value.setAudioEnabled(!isMuted);
               }
             }
@@ -601,7 +601,7 @@ class CallWorker extends DisposableService {
         );
 
         if (e is List) {
-          for (var event in e) {
+          for (final event in e) {
             Log.debug(
               'onInit() -> FlutterCallkitIncoming.activeCalls -> event -> ${event.runtimeType} -> ${event is Map}',
               '$runtimeType',
@@ -791,7 +791,7 @@ class CallWorker extends DisposableService {
       ),
     );
 
-    for (var e in _callService.calls.values) {
+    for (final e in _callService.calls.values) {
       e.value.setAudioEnabled(!_muted.value);
     }
 
@@ -842,11 +842,11 @@ class CallWorker extends DisposableService {
               await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
             }
           } else if (events.$$typename == 'ChatEventsVersioned') {
-            var mixin =
+            final mixin =
                 events
                     as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
 
-            for (var e in mixin.events) {
+            for (final e in mixin.events) {
               if (e.$$typename == 'EventChatCallFinished') {
                 final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
@@ -868,7 +868,7 @@ class CallWorker extends DisposableService {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallMemberLeft') {
-                var node =
+                final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
                 final call = _callService.calls[chatId];
 
@@ -987,7 +987,7 @@ extension MuteHotKeyExtension on ApplicationSettings {
     final List<HotKeyModifier> modifiers = [];
     final List<PhysicalKeyboardKey> physicalKeys = [];
 
-    for (var e in keys) {
+    for (final e in keys) {
       final modifier = HotKeyModifier.values.firstWhereOrNull(
         (m) => m.name == e,
       );

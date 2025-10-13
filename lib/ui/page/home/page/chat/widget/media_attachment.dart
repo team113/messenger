@@ -255,7 +255,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
             return Positioned(
               top: 10,
               right: 10,
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: style.colors.onBackgroundOpacity27,

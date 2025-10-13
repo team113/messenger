@@ -37,14 +37,14 @@ final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
   (text, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    RxChat? chat =
+    final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    ChatMessage message = chat!.messages
+    final ChatMessage message = chat!.messages
         .map((e) => e.value)
         .whereType<ChatMessage>()
         .firstWhere((e) => e.text?.val == text);
 
-    Finder finder = context.world.appDriver.findByKeySkipOffstage(
+    final Finder finder = context.world.appDriver.findByKeySkipOffstage(
       'Message_${message.id}',
     );
 

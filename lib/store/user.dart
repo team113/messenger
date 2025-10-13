@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/chat.dart';
@@ -129,7 +130,7 @@ class UserRepository extends DisposableInterface
     return PaginatedImpl(
       pagination: pagination,
       initial: [
-        {for (var u in users) u.id: u},
+        {for (final u in users) u.id: u},
         if (num != null) searchByNum(num).then(toMap),
         if (login != null) searchByLogin(login).then(toMap),
         if (link != null) searchByLink(link).then(toMap),
@@ -154,7 +155,7 @@ class UserRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      RxUserImpl? user = users[id];
+      final RxUserImpl? user = users[id];
 
       if (user == null) {
         final DtoUser? stored = await _userLocal.read(id);
@@ -371,7 +372,10 @@ class UserRepository extends DisposableInterface
   ) async {
     Log.debug('userEvents($id)', '$runtimeType');
 
-    final Stream events = await _graphQlProvider.userEvents(id, ver);
+    final Stream<QueryResult> events = await _graphQlProvider.userEvents(
+      id,
+      ver,
+    );
     return events.asyncExpand((event) async* {
       Log.trace('userEvents($id): ${event.data}', '$runtimeType');
 
@@ -385,16 +389,13 @@ class UserRepository extends DisposableInterface
       } else if (events.$$typename == 'UserEventsVersioned') {
         final mixin = events as UserEventsVersionedMixin;
         yield UserEventsEvent(
-          UserEventsVersioned(
-            mixin.events.map((e) => _userEvent(e)).toList(),
-            mixin.ver,
-          ),
+          UserEventsVersioned(mixin.events.map(_userEvent).toList(), mixin.ver),
         );
       } else if (events.$$typename == 'BlocklistEventsVersioned') {
         final mixin = events as BlocklistEventsVersionedMixin;
         yield UserEventsBlocklistEventsEvent(
           BlocklistEventsVersioned(
-            mixin.events.map((e) => _blocklistEvent(e)).toList(),
+            mixin.events.map(_blocklistEvent).toList(),
             mixin.blocklistVer,
           ),
         );
@@ -459,7 +460,7 @@ class UserRepository extends DisposableInterface
         first: first ?? maxInt,
       );
 
-      pageInfo = response.searchUsers.pageInfo.toModel((c) => UsersCursor(c));
+      pageInfo = response.searchUsers.pageInfo.toModel(UsersCursor.new);
       dtoUsers.addAll(
         response.searchUsers.edges.map((c) => c.node.toDto()).toList(),
       );

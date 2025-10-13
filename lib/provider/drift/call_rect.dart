@@ -46,7 +46,7 @@ class CallRectDriftProvider extends DriftProviderBaseWithScope {
     // Fetch the stored [Rect]s before, so that [OngoingCall] is displayed
     // without any latencies.
     _all().then((items) {
-      for (var e in items) {
+      for (final e in items) {
         _cache[e.$1] = e.$2;
       }
     });
@@ -80,7 +80,7 @@ class CallRectDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<Rect?>((db) async {
+    return safe<Rect?>((db) async {
       final stmt = db.select(db.callRectangles)
         ..where((u) => u.chatId.equals(id.val));
       final CallRectangleRow? row = await stmt.getSingleOrNull();

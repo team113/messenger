@@ -19,7 +19,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controller.dart';
 import '/domain/model/attachment.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -32,6 +31,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '../controller.dart';
 
 /// View for displaying [Post]s in a [GridView].
 class GalleryView extends StatelessWidget {
@@ -194,7 +194,7 @@ class GalleryView extends StatelessWidget {
                                   fit: BoxFit.cover,
                                   width: constraints.maxWidth,
                                   height: constraints.maxWidth,
-                                  onError: () async => await c.reload(e),
+                                  onError: () => c.reload(e),
                                 ),
                               );
                             });

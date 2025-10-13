@@ -50,7 +50,7 @@ class ChatDirectLinkController extends GetxController {
   );
 
   @override
-  void onReady() async {
+  Future<void> onReady() async {
     try {
       if (_auth.status.value.isSuccess) {
         await _useChatDirectLink();

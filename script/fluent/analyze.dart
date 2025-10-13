@@ -18,11 +18,11 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:analyzer/dart/analysis/features.dart' show FeatureSet;
 import 'package:analyzer/dart/analysis/utilities.dart' show parseFile;
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
+import 'package:args/args.dart';
 
 /// Command-line utility scanning `.dart` files for unused `.ftl` labels.
 ///
@@ -210,7 +210,7 @@ Future<void> main(List<String> argv) async {
 ///
 /// Takes either [path] to file or to folder.
 Future<List<File>> _gatherFtlFiles(String path) async {
-  if (await FileSystemEntity.isDirectory(path)) {
+  if (FileSystemEntity.isDirectorySync(path)) {
     return Directory(path)
         .list(recursive: true)
         .where((file) => file is File && file.path.endsWith('.ftl'))
@@ -218,7 +218,7 @@ Future<List<File>> _gatherFtlFiles(String path) async {
         .toList();
   }
   final f = File(path);
-  return await f.exists() ? [f] : <File>[];
+  return f.existsSync() ? [f] : <File>[];
 }
 
 /// Parses a `.ftl` file and returns a [Set] of keys.
@@ -226,7 +226,7 @@ Future<Set<String>> _parseFtlFile(String path) async {
   final labels = <String>{};
 
   final file = File(path);
-  if (!await file.exists()) {
+  if (!file.existsSync()) {
     stderr.writeln('Error: `.ftl` file not found: $path');
     exit(66); // EX_NOINPUT.
   }

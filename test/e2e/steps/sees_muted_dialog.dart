@@ -40,14 +40,14 @@ final StepDefinitionGeneric seeDialogAsMuted =
 
           switch (status) {
             case MutedStatus.muted:
-              return await context.world.appDriver.isPresent(
+              return context.world.appDriver.isPresent(
                 context.world.appDriver.findByKeySkipOffstage(
                   'MuteIndicator_$chatId',
                 ),
               );
 
             case MutedStatus.unmuted:
-              return await context.world.appDriver.isAbsent(
+              return context.world.appDriver.isAbsent(
                 context.world.appDriver.findByKeySkipOffstage(
                   'MuteIndicator_$chatId',
                 ),

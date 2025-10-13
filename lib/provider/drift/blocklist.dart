@@ -51,7 +51,7 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
   ) async {
     await safe((db) async {
       await db.batch((batch) {
-        for (var record in records) {
+        for (final record in records) {
           final BlocklistRow row = record.toDb();
           batch.insert(db.blocklist, row, onConflict: DoUpdate((_) => row));
         }
@@ -88,7 +88,7 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoBlocklistRecord?>(
+    return safe<DtoBlocklistRecord?>(
       (db) async {
         final stmt = db.select(db.blocklist)
           ..where((u) => u.userId.equals(id.val));

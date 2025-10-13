@@ -79,8 +79,8 @@ class _ScalerState extends State<Scaler> {
         widget.onDragStart?.call(details);
       },
       onPanUpdate: (details) {
-        var dx = details.globalPosition.dx - initX;
-        var dy = details.globalPosition.dy - initY;
+        final dx = details.globalPosition.dx - initX;
+        final dy = details.globalPosition.dy - initY;
         initX = details.globalPosition.dx;
         initY = details.globalPosition.dy;
         widget.onDragUpdate?.call(dx, dy);

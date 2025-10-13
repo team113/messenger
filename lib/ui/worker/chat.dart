@@ -377,7 +377,8 @@ class _ChatWatchData {
     final String name = author?.title ?? 'x';
     final String num = author?.num.toString() ?? ('dot'.l10n * 3);
     final String type = isGroup ? 'group' : 'dialog';
-    String attachmentsType = attachments.every((e) => e is ImageAttachment)
+    final String attachmentsType =
+        attachments.every((e) => e is ImageAttachment)
         ? 'image'
         : attachments.every((e) => e is FileAttachment && e.isVideo)
         ? 'video'

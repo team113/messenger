@@ -157,7 +157,7 @@ class ChatForwardView extends StatelessWidget {
                 child: SafeAnimatedSwitcher(
                   duration: 200.milliseconds,
                   child: dragging
-                      ? Container(
+                      ? ColoredBox(
                           color: style.colors.onBackgroundOpacity27,
                           child: Center(
                             child: AnimatedDelayedScale(
@@ -166,7 +166,7 @@ class ChatForwardView extends StatelessWidget {
                               endScale: 1.06,
                               child: ConditionalBackdropFilter(
                                 borderRadius: BorderRadius.circular(16),
-                                child: Container(
+                                child: DecoratedBox(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(16),
                                     color: style.colors.onBackgroundOpacity27,

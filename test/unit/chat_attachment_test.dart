@@ -337,6 +337,7 @@ void main() async {
     attachment.upload.value = Completer();
     attachment.upload.value?.future.then((_) {}, onError: (_) {});
     await expectLater(
+      // ignore: unnecessary_await_in_return
       () async => await chatService.uploadAttachment(attachment),
       throwsA(isA<UploadAttachmentException>()),
     );
@@ -349,6 +350,7 @@ void main() async {
     );
   });
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 

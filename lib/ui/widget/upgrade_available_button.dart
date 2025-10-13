@@ -97,10 +97,10 @@ class UpgradeAvailableButton extends StatelessWidget {
           : download == null
           ? () async {
               if (PlatformUtils.isWeb) {
-                return await WebUtils.refresh();
+                await WebUtils.refresh();
+              } else {
+                await UpgradePopupView.show(context, release: scheduled);
               }
-
-              await UpgradePopupView.show(context, release: scheduled);
             }
           : null,
       child: Container(

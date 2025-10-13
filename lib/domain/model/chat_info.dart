@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'avatar.dart';
@@ -108,6 +109,7 @@ abstract class ChatInfoAction {
 
 /// [ChatInfoAction] about a [ChatAvatar] being updated.
 @JsonSerializable()
+@immutable
 class ChatInfoActionAvatarUpdated implements ChatInfoAction {
   const ChatInfoActionAvatarUpdated(this.avatar);
 
@@ -140,6 +142,7 @@ class ChatInfoActionAvatarUpdated implements ChatInfoAction {
 
 /// [ChatInfoAction] about a [Chat] being created.
 @JsonSerializable()
+@immutable
 class ChatInfoActionCreated implements ChatInfoAction {
   const ChatInfoActionCreated(this.directLinkSlug);
 
@@ -171,6 +174,7 @@ class ChatInfoActionCreated implements ChatInfoAction {
 
 /// [ChatInfoAction] about a [ChatAvatar] being updated.
 @JsonSerializable()
+@immutable
 class ChatInfoActionMemberAdded implements ChatInfoAction {
   const ChatInfoActionMemberAdded(this.user, this.directLinkSlug);
 
@@ -209,6 +213,7 @@ class ChatInfoActionMemberAdded implements ChatInfoAction {
 
 /// [ChatInfoAction] about a [ChatMember] being removed from a [Chat].
 @JsonSerializable()
+@immutable
 class ChatInfoActionMemberRemoved implements ChatInfoAction {
   const ChatInfoActionMemberRemoved(this.user);
 
@@ -242,6 +247,7 @@ class ChatInfoActionMemberRemoved implements ChatInfoAction {
 
 /// [ChatInfoAction] about a [ChatName] being updated.
 @JsonSerializable()
+@immutable
 class ChatInfoActionNameUpdated implements ChatInfoAction {
   const ChatInfoActionNameUpdated(this.name);
 

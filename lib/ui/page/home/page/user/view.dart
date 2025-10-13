@@ -133,7 +133,7 @@ class UserView extends StatelessWidget {
           final List<Widget> children = [
             Container(width: double.infinity),
             Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+              padding: EdgeInsets.zero,
               child: Text(
                 c.contact.value?.contact.value.name.val ?? c.name.text,
                 style: style.fonts.larger.regular.onBackground,
@@ -280,7 +280,7 @@ class UserView extends StatelessWidget {
             collapseOnTextTap: false,
             style: style.fonts.small.regular.secondary,
             urlStyle: style.fonts.small.regular.primary,
-            onUrlTap: (url) => launchUrlString(url),
+            onUrlTap: launchUrlString,
           ),
         ],
         const SizedBox(height: 16),

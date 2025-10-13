@@ -26,9 +26,9 @@ import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -40,12 +40,12 @@ import '/provider/drift/chat_credentials.dart';
 import '/provider/gql/exceptions.dart'
     show
         DeclineChatCallException,
-        LeaveChatCallException,
         JoinChatCallException,
-        ToggleChatCallHandException,
+        LeaveChatCallException,
         RedialChatCallMemberException,
-        TransformDialogCallIntoGroupCallException,
-        RemoveChatCallMemberException;
+        RemoveChatCallMemberException,
+        ToggleChatCallHandException,
+        TransformDialogCallIntoGroupCallException;
 import '/provider/gql/graphql.dart';
 import '/store/user.dart';
 import '/util/backoff.dart';
@@ -129,7 +129,10 @@ class CallRepository extends DisposableInterface
 
     _remoteSubscription?.cancel(immediate: true);
 
-    for (Rx<OngoingCall> call in List.from(calls.values, growable: false)) {
+    for (final Rx<OngoingCall> call in List.from(
+      calls.values,
+      growable: false,
+    )) {
       remove(call.value.chatId.value);
     }
 
@@ -302,8 +305,8 @@ class CallRepository extends DisposableInterface
     calls[call.value.chatId.value] = call;
 
     final response = await Backoff.run(
-      () async {
-        return await _graphQlProvider.startChatCall(
+      () {
+        return _graphQlProvider.startChatCall(
           call.value.chatId.value,
           call.value.creds!,
           call.value.videoState.value == LocalTrackState.enabling ||
@@ -381,8 +384,8 @@ class CallRepository extends DisposableInterface
 
     try {
       final response = await Backoff.run(
-        () async {
-          return await _graphQlProvider.joinChatCall(
+        () {
+          return _graphQlProvider.joinChatCall(
             ongoing!.value.chatId.value,
             ongoing.value.creds!,
           );
@@ -721,10 +724,7 @@ class CallRepository extends DisposableInterface
       } else if (events.$$typename == 'ChatCallEventsVersioned') {
         final mixin = events as ChatCallEventsVersionedMixin;
         yield ChatCallEventsEvent(
-          CallEventsVersioned(
-            mixin.events.map((e) => _callEvent(e)).toList(),
-            mixin.ver,
-          ),
+          CallEventsVersioned(mixin.events.map(_callEvent).toList(), mixin.ver),
         );
       }
     });
@@ -945,7 +945,7 @@ class CallRepository extends DisposableInterface
   ChatCall? _chatCall(ChatEventsVersionedMixin? m) {
     Log.trace('_chatCall($m)', '$runtimeType');
 
-    for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
+    for (final ChatEventsVersionedMixin$Events e in m?.events ?? []) {
       if (e.$$typename == 'EventChatCallStarted') {
         final node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
         for (final m in node.call.members) {

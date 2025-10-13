@@ -23,14 +23,14 @@ import 'package:drift/drift.dart';
 import 'package:log_me/log_me.dart';
 
 import '/domain/model/avatar.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
-import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
+import '/store/model/chat_item.dart';
 import 'common.dart';
 import 'drift.dart';
 
@@ -116,11 +116,11 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
 
   /// Creates or updates the provided [items] in the database.
   Future<Iterable<DtoChat>> upsertBulk(Iterable<DtoChat> items) async {
-    for (var e in items) {
+    for (final e in items) {
       _cache[e.id] = e;
     }
 
-    for (var e in items) {
+    for (final e in items) {
       _controllers[e.id]?.add(e);
     }
 
@@ -128,7 +128,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       Log.debug('upsertBulk(${items.length} items)');
 
       await db.batch((batch) {
-        for (var item in items) {
+        for (final item in items) {
           final ChatRow row = item.toDb();
           batch.insert(db.chats, row, mode: InsertMode.insertOrReplace);
         }
@@ -137,7 +137,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       return items.toList();
     }, tag: 'chat.upsertBulk(${items.length} items)');
 
-    for (var e in items) {
+    for (final e in items) {
       _cache.remove(e.value.id);
     }
 
@@ -151,7 +151,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoChat?>(
+    return safe<DtoChat?>(
       (db) async {
         final stmt = db.select(db.chats)..where((u) => u.id.equals(id.val));
 

@@ -20,12 +20,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../animated_transition.dart';
-import '../fit_view.dart';
 import '/themes.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/global_key.dart';
+import '../animated_transition.dart';
+import '../fit_view.dart';
 import 'controller.dart';
 
 /// Widget placing its [panel]ed item in a floating panel allowing to swap
@@ -126,20 +126,19 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                 children: [
                   FitView(
                     children: [
-                      _primary.entry == null
-                          ? KeyedSubtree(
-                              key: _primary.itemKey,
-                              child: Stack(
-                                children: [
-                                  widget.itemBuilder(_primary.item),
-                                  AnimatedDelayedSwitcher(
-                                    duration: 100.milliseconds,
-                                    child: widget.overlayBuilder(_primary.item),
-                                  ),
-                                ],
+                      if (_primary.entry == null)
+                        KeyedSubtree(
+                          key: _primary.itemKey,
+                          child: Stack(
+                            children: [
+                              widget.itemBuilder(_primary.item),
+                              AnimatedDelayedSwitcher(
+                                duration: 100.milliseconds,
+                                child: widget.overlayBuilder(_primary.item),
                               ),
-                            )
-                          : Container(),
+                            ],
+                          ),
+                        ),
                       if (widget.fit)
                         KeyedSubtree(
                           key: _paneled.itemKey,

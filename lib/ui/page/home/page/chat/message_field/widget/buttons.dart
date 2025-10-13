@@ -23,6 +23,7 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
 /// Button in a [MessageFieldView].
+@immutable
 abstract class ChatButton {
   const ChatButton([this.onPressed]);
 

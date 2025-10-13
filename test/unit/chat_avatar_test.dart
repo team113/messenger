@@ -151,7 +151,7 @@ void main() async {
       ),
     );
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
         settingsProvider,
@@ -160,7 +160,7 @@ void main() async {
       ),
     );
 
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(
           AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
@@ -243,7 +243,7 @@ void main() async {
       const UpdateChatAvatarException(UpdateChatAvatarErrorCode.invalidSize),
     );
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
         settingsProvider,
@@ -252,7 +252,7 @@ void main() async {
       ),
     );
 
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(
           AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
@@ -325,6 +325,7 @@ void main() async {
     ]);
   });
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 

@@ -16,11 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 
 /// Changed [ChatMessageText].
+@immutable
 class ChangedChatMessageText {
   const ChangedChatMessageText(this.changed);
 
@@ -38,6 +40,7 @@ class ChangedChatMessageText {
 }
 
 /// Changed [Attachment]s.
+@immutable
 class ChangedChatMessageAttachments {
   const ChangedChatMessageAttachments(this.attachments);
 

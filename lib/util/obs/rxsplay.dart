@@ -108,7 +108,7 @@ class RxObsSplayTreeMap<K, V>
 
   @override
   V? remove(Object? key) {
-    V? result = _value.remove(key);
+    final V? result = _value.remove(key);
     if (result != null) {
       _changes.add(MapChangeNotification<K, V>.removed(key as K?, result));
     }
@@ -130,14 +130,14 @@ class RxObsSplayTreeMap<K, V>
 
   @override
   V putIfAbsent(K key, V Function() ifAbsent) {
-    V result = _value.putIfAbsent(key, ifAbsent);
+    final V result = _value.putIfAbsent(key, ifAbsent);
     refresh();
     return result;
   }
 
   @override
   V update(K key, V Function(V value) update, {V Function()? ifAbsent}) {
-    V result = _value.update(key, update, ifAbsent: ifAbsent);
+    final V result = _value.update(key, update, ifAbsent: ifAbsent);
     refresh();
     return result;
   }
@@ -164,7 +164,7 @@ class RxObsSplayTreeMap<K, V>
 
   @override
   void clear() {
-    for (var entry in entries) {
+    for (final entry in entries) {
       _changes.add(MapChangeNotification<K, V>.removed(entry.key, entry.value));
     }
     _value.clear();

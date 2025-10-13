@@ -156,7 +156,7 @@ class MessageFieldView extends StatelessWidget {
           },
           child: Theme(
             data: theme(context),
-            child: Container(
+            child: DecoratedBox(
               key: const Key('SendField'),
               decoration: BoxDecoration(
                 boxShadow: [
@@ -185,9 +185,9 @@ class MessageFieldView extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Obx(() {
-          final bool grab = c.attachments.isNotEmpty
-              ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
-              : false;
+          final bool grab =
+              c.attachments.isNotEmpty &&
+              (125 + 2) * c.attachments.length > constraints.maxWidth - 16;
 
           Widget? previews;
 
@@ -221,7 +221,7 @@ class MessageFieldView extends StatelessWidget {
 
                     return InitCallback(
                       callback: PlatformUtils.haptic,
-                      child: Container(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           boxShadow: [
                             CustomBoxShadow(
@@ -301,7 +301,7 @@ class MessageFieldView extends StatelessWidget {
 
                     return InitCallback(
                       callback: PlatformUtils.haptic,
-                      child: Container(
+                      child: DecoratedBox(
                         decoration: BoxDecoration(
                           boxShadow: [
                             CustomBoxShadow(
@@ -346,7 +346,7 @@ class MessageFieldView extends StatelessWidget {
             );
           }
 
-          return Container(
+          return ColoredBox(
             color: style.colors.background,
             child: AnimatedSize(
               duration: 400.milliseconds,
@@ -495,7 +495,10 @@ class MessageFieldView extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Obx(() {
-                int take = max(((constraints.maxWidth - 160) / 50).round(), 0);
+                final int take = max(
+                  ((constraints.maxWidth - 160) / 50).round(),
+                  0,
+                );
 
                 SchedulerBinding.instance.addPostFrameCallback((_) {
                   c.canPin.value = c.buttons.length < take;
@@ -520,7 +523,7 @@ class MessageFieldView extends StatelessWidget {
                       .take(take)
                       .toList()
                       .reversed
-                      .map((e) => ChatButtonWidget(e))
+                      .map(ChatButtonWidget.new)
                       .toList();
                 }
 
@@ -692,7 +695,7 @@ class MessageFieldView extends StatelessWidget {
                   child: ElasticAnimatedSwitcher(
                     child: e is LocalAttachment
                         ? e.status.value == SendingStatus.error
-                              ? Container(
+                              ? DecoratedBox(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: style.colors.onPrimary,

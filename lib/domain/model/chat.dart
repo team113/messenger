@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -506,12 +507,13 @@ class ChatName extends NewType<String> {
 }
 
 /// Position of this [Chat] in the favorites list of the authenticated [MyUser].
+@immutable
 class ChatFavoritePosition extends NewType<double>
     implements Comparable<ChatFavoritePosition> {
   const ChatFavoritePosition(super.val);
 
   /// Parses the provided [val] as a [ChatFavoritePosition].
-  static ChatFavoritePosition parse(String val) =>
+  factory ChatFavoritePosition.parse(String val) =>
       ChatFavoritePosition(double.parse(val));
 
   @override

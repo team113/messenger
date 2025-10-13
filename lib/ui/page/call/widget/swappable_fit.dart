@@ -70,14 +70,14 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
   @override
   void initState() {
-    _items = widget.items.map((e) => _SwappableItem(e)).toList();
+    _items = widget.items.map(_SwappableItem.new).toList();
     _centered = widget.center;
     super.initState();
   }
 
   @override
   void didUpdateWidget(covariant SwappableFit<T> oldWidget) {
-    for (T e in widget.items) {
+    for (final T e in widget.items) {
       if (_items.none((p) => p.item == e)) {
         _items.add(_SwappableItem(e));
       }
@@ -255,7 +255,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
     final layout = _constraints?.biggest ?? MediaQuery.of(router.context!).size;
 
     for (int j = 0; j < _items.length; ++j) {
-      _SwappableItem<T> i = _items[j];
+      final _SwappableItem<T> i = _items[j];
       ++_locked;
 
       i.entry = OverlayEntry(

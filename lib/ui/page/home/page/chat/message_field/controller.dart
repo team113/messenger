@@ -94,7 +94,7 @@ class MessageFieldController extends GetxController {
         replied.value = item.repliesTo
             .map((e) => e.original)
             .nonNulls
-            .map((e) => Rx(e))
+            .map(Rx.new)
             .toList();
       } else {
         field.text = '';
@@ -291,7 +291,7 @@ class MessageFieldController extends GetxController {
       );
     });
 
-    String route = router.route;
+    final String route = router.route;
     _routesWorker = ever(router.routes, (routes) {
       if (router.route != route) {
         _moreEntry?.remove();
@@ -423,7 +423,7 @@ class MessageFieldController extends GetxController {
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
   Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
+    final NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
     await _addAttachment(nativeFile);
   }
 
@@ -444,7 +444,7 @@ class MessageFieldController extends GetxController {
 
   /// Handles the [reader] to retrieve any content contained in it.
   Future<void> _pasteItem(ClipboardReader reader) async {
-    for (var e in reader.items) {
+    for (final e in reader.items) {
       bool handled = false;
 
       final List<DataFormat> formats = e.getFormats(Formats.standardFormats);
@@ -536,7 +536,7 @@ class MessageFieldController extends GetxController {
   /// Opens a file choose popup of the specified [type] and adds the selected
   /// files to the [attachments].
   Future<void> _pickAttachment(FileType type) async {
-    FilePickerResult? result = await PlatformUtils.pickFiles(
+    final FilePickerResult? result = await PlatformUtils.pickFiles(
       type: type,
       allowMultiple: true,
       withReadStream: true,
@@ -544,16 +544,17 @@ class MessageFieldController extends GetxController {
     );
 
     if (result != null && result.files.isNotEmpty) {
-      for (PlatformFile e in result.files) {
-        addPlatformAttachment(e);
-      }
+      result.files.forEach(addPlatformAttachment);
     }
   }
 
   /// Constructs a [NativeFile] from the specified [XFile] and adds it to the
   /// [attachments].
   Future<void> _addXFileAttachment(XFile xFile) async {
-    NativeFile nativeFile = NativeFile.fromXFile(xFile, await xFile.length());
+    final NativeFile nativeFile = NativeFile.fromXFile(
+      xFile,
+      await xFile.length(),
+    );
     await _addAttachment(nativeFile);
   }
 
@@ -564,12 +565,16 @@ class MessageFieldController extends GetxController {
   Future<void> _addAttachment(NativeFile file) async {
     if (file.size < maxAttachmentSize && _chatService != null) {
       try {
-        var attachment = LocalAttachment(file, status: SendingStatus.sending);
+        final attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(MapEntry(GlobalKey(), attachment));
 
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
+        final Attachment uploaded = await _chatService.uploadAttachment(
+          attachment,
+        );
 
-        int index = attachments.indexWhere((e) => e.value.id == attachment.id);
+        final int index = attachments.indexWhere(
+          (e) => e.value.id == attachment.id,
+        );
         if (index != -1) {
           attachments[index] = MapEntry(attachments[index].key, uploaded);
           onChanged?.call();

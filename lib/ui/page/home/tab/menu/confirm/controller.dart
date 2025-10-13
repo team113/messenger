@@ -179,7 +179,7 @@ class ConfirmLogoutController extends GetxController {
   void logout() {
     // Don't allow user to keep his profile, when no recovery methods are
     // available or any password set, as they won't be able to sign in.
-    _authService.logout(canRecover || hasPassword.value ? keep.value : false);
+    _authService.logout(canRecover || (hasPassword.value && keep.value));
 
     router.auth();
     router.tab = HomeTab.chats;

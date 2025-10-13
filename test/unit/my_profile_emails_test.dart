@@ -50,7 +50,7 @@ void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
-  var graphQlProvider = MockGraphQlProvider();
+  final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
@@ -177,7 +177,7 @@ void main() async {
         graphQlProvider.blocklistEvents(any),
       ).thenAnswer((_) => const Stream.empty());
 
-      AuthService authService = Get.put(
+      final AuthService authService = Get.put(
         AuthService(
           Get.put<AbstractAuthRepository>(
             AuthRepository(Get.find(), myUserProvider, credentialsProvider),
@@ -187,11 +187,11 @@ void main() async {
           locksProvider,
         ),
       );
-      UserRepository userRepository = Get.put(
+      final UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider),
       );
 
-      BlocklistRepository blocklistRepository = Get.put(
+      final BlocklistRepository blocklistRepository = Get.put(
         BlocklistRepository(
           graphQlProvider,
           blocklistProvider,
@@ -201,7 +201,7 @@ void main() async {
         ),
       );
 
-      AbstractMyUserRepository myUserRepository = MyUserRepository(
+      final AbstractMyUserRepository myUserRepository = MyUserRepository(
         graphQlProvider,
         myUserProvider,
         blocklistRepository,
@@ -211,7 +211,7 @@ void main() async {
       myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
       await Future.delayed(Duration.zero);
 
-      MyUserService myUserService = MyUserService(
+      final MyUserService myUserService = MyUserService(
         authService,
         myUserRepository,
       );
@@ -263,7 +263,7 @@ void main() async {
         ),
       ).thenThrow(const AddUserEmailException(AddUserEmailErrorCode.wrongCode));
 
-      AuthService authService = Get.put(
+      final AuthService authService = Get.put(
         AuthService(
           Get.put<AbstractAuthRepository>(
             AuthRepository(Get.find(), myUserProvider, credentialsProvider),
@@ -273,11 +273,11 @@ void main() async {
           locksProvider,
         ),
       );
-      UserRepository userRepository = Get.put(
+      final UserRepository userRepository = Get.put(
         UserRepository(graphQlProvider, userProvider),
       );
 
-      BlocklistRepository blocklistRepository = Get.put(
+      final BlocklistRepository blocklistRepository = Get.put(
         BlocklistRepository(
           graphQlProvider,
           blocklistProvider,
@@ -303,11 +303,13 @@ void main() async {
 
       await expectLater(
         () async =>
+            // ignore: unnecessary_await_in_return
             await myUserService.addUserEmail(UserEmail('test@dummy.com')),
         throwsA(isA<AddUserEmailException>()),
       );
 
       await expectLater(
+        // ignore: unnecessary_await_in_return
         () async => await myUserService.addUserEmail(
           UserEmail('test@dummy.com'),
           confirmation: ConfirmationCode('1234'),
@@ -325,6 +327,7 @@ void main() async {
     },
   );
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 

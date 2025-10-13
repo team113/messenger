@@ -16,9 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/foundation.dart';
-import 'package:web/web.dart' as web;
-
 import 'package:flutter/material.dart';
+import 'package:web/web.dart' as web;
 
 import '/util/platform_utils.dart';
 

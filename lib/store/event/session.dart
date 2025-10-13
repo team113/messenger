@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/foundation.dart';
+
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
@@ -53,6 +55,7 @@ abstract class SessionEvent {
 }
 
 /// Event of a new [Session] being created.
+@immutable
 class EventSessionCreated extends SessionEvent {
   const EventSessionCreated(
     super.id,
@@ -93,6 +96,7 @@ class EventSessionCreated extends SessionEvent {
 }
 
 /// Event of a [Session] being deleted.
+@immutable
 class EventSessionDeleted extends SessionEvent {
   const EventSessionDeleted(super.id, super.at);
 
@@ -108,6 +112,7 @@ class EventSessionDeleted extends SessionEvent {
 }
 
 /// Event of a [Session] being refreshed.
+@immutable
 class EventSessionRefreshed extends SessionEvent {
   const EventSessionRefreshed(super.userId, super.at, this.userAgent, this.ip);
 

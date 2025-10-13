@@ -209,7 +209,8 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
         : (document['user']?['agent']?['product'] ?? userAgentProduct);
 
-    String version = const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
+    final String version =
+        const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
         : (document['user']?['agent']?['version'] ?? '');
 

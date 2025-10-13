@@ -25,7 +25,6 @@ import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -60,6 +59,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/fixed_timer.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
 import 'data_attachment.dart';
@@ -433,7 +433,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   @override
   void dispose() {
     _worker?.dispose();
-    for (var r in _recognizers) {
+    for (final r in _recognizers) {
       r.dispose();
     }
 
@@ -1111,7 +1111,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   Widget _repliedMessage(ChatItemQuote item, BoxConstraints constraints) {
     final style = Theme.of(context).style;
 
-    bool fromMe = item.author == widget.me;
+    final bool fromMe = item.author == widget.me;
 
     Widget? content;
     List<Widget> additional = [];
@@ -1313,7 +1313,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ? maxAvatars - 1
           : maxAvatars;
 
-      for (LastChatRead m in widget.reads.take(countUserAvatars)) {
+      for (final LastChatRead m in widget.reads.take(countUserAvatars)) {
         final User? user = widget.chat.value?.members
             .firstWhereOrNull((e) => e.user.id == m.memberId)
             ?.user;
@@ -1582,8 +1582,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             trailing: const SvgIcon(SvgIcons.delete19),
                             inverted: const SvgIcon(SvgIcons.delete19White),
                             onPressed: () async {
-                              bool isMonolog = widget.chat.value!.isMonolog;
-                              bool deletable =
+                              final bool isMonolog =
+                                  widget.chat.value!.isMonolog;
+                              final bool deletable =
                                   _fromMe &&
                                   !widget.chat.value!.isRead(
                                     widget.item.value,
@@ -1799,7 +1800,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   /// parsed through a [LinkParsingExtension.parseLinks] method.
   void _populateSpans(ChatItem msg) {
     if (msg is ChatMessage) {
-      for (var r in _recognizers) {
+      for (final r in _recognizers) {
         r.dispose();
       }
       _recognizers.clear();
@@ -2119,7 +2120,7 @@ extension LinkParsingExtension on String {
     final List<TextSpan> spans = [];
     final List<String> links = [];
 
-    for (RegExpMatch match in matches) {
+    for (final RegExpMatch match in matches) {
       links.add(text.substring(match.start, match.end));
     }
 
@@ -2157,7 +2158,7 @@ extension LinkParsingExtension on String {
                 final String url = uri.toString();
                 final List<String> origins = [Config.origin, Config.link];
 
-                for (var e in origins) {
+                for (final e in origins) {
                   if (url.startsWith(e)) {
                     router.push(url.replaceFirst(e, ''));
                     return;

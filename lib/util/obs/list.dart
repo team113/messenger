@@ -86,7 +86,7 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
   void emit(ListChangeNotification<E> event) => _changes.add(event);
 
   @override
-  operator []=(int index, E value) {
+  void operator []=(int index, E value) {
     super[index] = value;
     _changes.add(ListChangeNotification<E>.updated(value, index));
   }
@@ -100,7 +100,7 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
   @override
   void addAll(Iterable<E> iterable) {
     super.addAll(iterable);
-    for (var element in iterable) {
+    for (final element in iterable) {
       _changes.add(ListChangeNotification<E>.added(element, length - 1));
     }
   }
@@ -113,8 +113,8 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
 
   @override
   bool remove(Object? value) {
-    int pos = indexOf(value as E);
-    bool hasRemoved = super.remove(value);
+    final int pos = indexOf(value as E);
+    final bool hasRemoved = super.remove(value);
     if (hasRemoved) {
       _changes.add(ListChangeNotification<E>.removed(value, pos));
     }
@@ -123,14 +123,14 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
 
   @override
   E removeAt(int index) {
-    E removed = super.removeAt(index);
+    final E removed = super.removeAt(index);
     _changes.add(ListChangeNotification<E>.removed(removed, index));
     return removed;
   }
 
   @override
   void removeWhere(bool Function(E p1) test) {
-    List<E> stored = List.from(this, growable: false);
+    final List<E> stored = List.from(this, growable: false);
     super.removeWhere(test);
 
     for (int i = 0; i < stored.length; ++i) {
@@ -150,7 +150,7 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
 
   @override
   void removeRange(int start, int end) {
-    List<E> stored = List.from(this, growable: false);
+    final List<E> stored = List.from(this, growable: false);
     super.removeRange(start, end);
 
     for (int i = start; i < end; ++i) {

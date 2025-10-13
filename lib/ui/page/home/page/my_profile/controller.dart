@@ -31,8 +31,8 @@ import '/api/backend/schema.dart'
     show
         AddUserEmailErrorCode,
         AddUserPhoneErrorCode,
-        Presence,
         CropAreaInput,
+        Presence,
         UpdateUserAvatarErrorCode,
         UpdateUserCallCoverErrorCode;
 import '/domain/model/application_settings.dart';
@@ -406,7 +406,7 @@ class MyProfileController extends GetxController {
 
         s.clear();
 
-        bool modalVisible = true;
+        final bool modalVisible = true;
 
         _myUserService
             .addUserPhone(phone, locale: L10n.chosen.value?.toString())
@@ -500,7 +500,7 @@ class MyProfileController extends GetxController {
         final text = welcome.field.text.trim();
 
         if (text.isNotEmpty || welcome.attachments.isNotEmpty) {
-          final String previousText = text.toString();
+          final String previousText = text;
           final List<Attachment> previousAttachments = welcome.attachments
               .map((e) => e.value)
               .toList();
@@ -569,7 +569,7 @@ class MyProfileController extends GetxController {
 
   /// Opens an image choose popup and sets the selected file as a [background].
   Future<void> pickBackground() async {
-    FilePickerResult? result = await PlatformUtils.pickFiles(
+    final FilePickerResult? result = await PlatformUtils.pickFiles(
       type: FileType.custom,
       allowedExtensions: NativeFile.images,
       allowMultiple: false,
@@ -820,7 +820,7 @@ class MyProfileController extends GetxController {
         final List<HotKeyModifier> modifiers = [];
         PhysicalKeyboardKey? lastKey;
 
-        for (var e in _keysRecorded) {
+        for (final e in _keysRecorded) {
           if (e.logicalKey.isModifier) {
             modifiers.add(e.logicalKey.asModifier!);
           } else {

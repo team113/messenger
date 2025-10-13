@@ -23,18 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import '../controller.dart';
-import '../widget/animated_participant.dart';
-import '../widget/call_cover.dart';
-import '../widget/conditional_backdrop.dart';
-import '../widget/floating_fit/view.dart';
-import '../widget/minimizable_view.dart';
-import '../widget/notification.dart';
-import '../widget/participant/decorator.dart';
-import '../widget/participant/overlay.dart';
-import '../widget/participant/widget.dart';
-import '../widget/swappable_fit.dart';
-import '../widget/video_view.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/ongoing_call.dart';
@@ -52,6 +40,18 @@ import '/ui/widget/svg/svg.dart';
 import '/util/global_key.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import '../controller.dart';
+import '../widget/animated_participant.dart';
+import '../widget/call_cover.dart';
+import '../widget/conditional_backdrop.dart';
+import '../widget/floating_fit/view.dart';
+import '../widget/minimizable_view.dart';
+import '../widget/notification.dart';
+import '../widget/participant/decorator.dart';
+import '../widget/participant/overlay.dart';
+import '../widget/participant/widget.dart';
+import '../widget/swappable_fit.dart';
+import '../widget/video_view.dart';
 import 'common.dart';
 
 /// Returns a mobile design of a [CallView].
@@ -64,7 +64,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
 
       // Call stackable content.
-      List<Widget> content = [
+      final List<Widget> content = [
         const SvgImage.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
@@ -74,7 +74,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       ];
 
       // Layer of [Widget]s to display above the UI.
-      List<Widget> overlay = [];
+      final List<Widget> overlay = [];
 
       // Active call.
       if ((c.isGroup && isOutgoing) ||
@@ -231,7 +231,7 @@ Widget mobileCall(CallController c, BuildContext context) {
         // Call is not active.
         content.add(
           Obx(() {
-            RtcVideoRenderer? local =
+            final RtcVideoRenderer? local =
                 (c.locals.firstOrNull?.video.value?.renderer.value ??
                         c.paneled.firstOrNull?.video.value?.renderer.value)
                     as RtcVideoRenderer?;
@@ -417,7 +417,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   0,
                   -50 - MediaQuery.of(context).padding.top,
                 ),
-                endOffset: const Offset(0, 0),
+                endOffset: Offset.zero,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(11),
@@ -669,7 +669,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       ];
 
       // Combines all the stackable content into [Scaffold].
-      Widget scaffold = Scaffold(
+      final Widget scaffold = Scaffold(
         backgroundColor: style.colors.secondaryBackgroundLight,
         body: Stack(
           children: [

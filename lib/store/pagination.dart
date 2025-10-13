@@ -153,7 +153,7 @@ class Pagination<T, C, K> {
           '$runtimeType',
         );
 
-        for (var e in page?.edges ?? []) {
+        for (final e in page?.edges ?? []) {
           items[onKey(e)] = e;
         }
 
@@ -203,7 +203,7 @@ class Pagination<T, C, K> {
           '$runtimeType',
         );
 
-        for (var e in page?.edges ?? []) {
+        for (final e in page?.edges ?? []) {
           items[onKey(e)] = e;
         }
 
@@ -256,7 +256,7 @@ class Pagination<T, C, K> {
                 );
 
                 final int before = items.length;
-                for (var e in page?.edges ?? []) {
+                for (final e in page?.edges ?? []) {
                   items[onKey(e)] = e;
                 }
 
@@ -318,7 +318,7 @@ class Pagination<T, C, K> {
                 );
 
                 final int before = items.length;
-                for (var e in page?.edges ?? []) {
+                for (final e in page?.edges ?? []) {
                   items[onKey(e)] = e;
                 }
 

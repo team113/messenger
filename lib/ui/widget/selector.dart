@@ -333,7 +333,7 @@ class _SelectorState<T> extends State<Selector<T>> {
                 onPointerUp: widget.onPointerUp == null
                     ? null
                     : (d) => widget.onPointerUp?.call(context),
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: style.contextMenuBackgroundColor,
                     borderRadius: style.contextMenuRadius,

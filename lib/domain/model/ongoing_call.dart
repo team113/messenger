@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
@@ -39,9 +40,9 @@ import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'chat.dart';
 import 'chat_call.dart';
 import 'chat_item.dart';
-import 'chat.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
@@ -461,7 +462,7 @@ class OngoingCall {
 
           final List<DeviceDetails> removed = [];
 
-          for (DeviceDetails d in previous) {
+          for (final DeviceDetails d in previous) {
             if (devices.none((p) => p.deviceId() == d.deviceId())) {
               removed.add(d);
             }
@@ -506,7 +507,7 @@ class OngoingCall {
 
         final List<MediaDisplayDetails> removed = [];
 
-        for (MediaDisplayDetails d in previous) {
+        for (final MediaDisplayDetails d in previous) {
           if (displays.none((p) => p.deviceId() == d.deviceId())) {
             removed.add(d);
           }
@@ -537,11 +538,9 @@ class OngoingCall {
           // If [connected], then the dialed [User] will be added in [connect],
           // when handling [ChatMembersDialedAll].
           if (!connected) {
-            for (UserId e in chat.members.items.keys.where(
-              (e) => e != me.id.userId,
-            )) {
-              _addDialing(e);
-            }
+            chat.members.items.keys
+                .where((e) => e != me.id.userId)
+                .forEach(_addDialing);
           }
         }
       }
@@ -576,7 +575,7 @@ class OngoingCall {
       return;
     }
 
-    CallMemberId id = CallMemberId(_me.userId, deviceId);
+    final CallMemberId id = CallMemberId(_me.userId, deviceId);
     members[_me]?.id = id;
     members.move(_me, id);
     _me = id;
@@ -815,7 +814,7 @@ class OngoingCall {
                           _handToggles.firstOrNull == false) {
                         _handToggles.removeAt(0);
                       } else {
-                        for (MapEntry<CallMemberId, CallMember> m
+                        for (final MapEntry<CallMemberId, CallMember> m
                             in members.entries.where(
                               (e) => e.key.userId == node.user.id,
                             )) {
@@ -823,7 +822,7 @@ class OngoingCall {
                         }
                       }
 
-                      for (ChatCallMember m
+                      for (final ChatCallMember m
                           in (call.value?.members ?? []).where(
                             (e) => e.user.id == node.user.id,
                           )) {
@@ -839,7 +838,7 @@ class OngoingCall {
                           _handToggles.firstOrNull == true) {
                         _handToggles.removeAt(0);
                       } else {
-                        for (MapEntry<CallMemberId, CallMember> m
+                        for (final MapEntry<CallMemberId, CallMember> m
                             in members.entries.where(
                               (e) => e.key.userId == node.user.id,
                             )) {
@@ -847,7 +846,7 @@ class OngoingCall {
                         }
                       }
 
-                      for (ChatCallMember m
+                      for (final ChatCallMember m
                           in (call.value?.members ?? []).where(
                             (e) => e.user.id == node.user.id,
                           )) {
@@ -1255,13 +1254,13 @@ class OngoingCall {
       final List<Future> futures = [];
 
       if (enabled && isRemoteAudioEnabled.isFalse) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
+        for (final CallMember m in members.values.where((e) => e.id != _me)) {
           futures.add(m.setAudioEnabled(true));
         }
 
         isRemoteAudioEnabled.toggle();
       } else if (!enabled && isRemoteAudioEnabled.isTrue) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
+        for (final CallMember m in members.values.where((e) => e.id != _me)) {
           if (m.tracks.any((e) => e.kind == MediaKind.audio)) {
             futures.add(m.setAudioEnabled(false));
           }
@@ -1286,7 +1285,7 @@ class OngoingCall {
       final List<Future> futures = [];
 
       if (enabled && isRemoteVideoEnabled.isFalse) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
+        for (final CallMember m in members.values.where((e) => e.id != _me)) {
           futures.addAll([
             m.setVideoEnabled(true, source: MediaSourceKind.device),
             m.setVideoEnabled(true, source: MediaSourceKind.display),
@@ -1295,7 +1294,7 @@ class OngoingCall {
 
         isRemoteVideoEnabled.toggle();
       } else if (!enabled && isRemoteVideoEnabled.isTrue) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
+        for (final CallMember m in members.values.where((e) => e.id != _me)) {
           m.tracks.where((e) => e.kind == MediaKind.video).forEach((e) {
             futures.add(m.setVideoEnabled(false, source: e.source));
           });
@@ -1390,7 +1389,8 @@ class OngoingCall {
       return;
     }
 
-    for (var t in me.tracks.map((e) => e.track).whereType<LocalMediaTrack>()) {
+    for (final t
+        in me.tracks.map((e) => e.track).whereType<LocalMediaTrack>()) {
       if (!t.isAudioProcessingAvailable()) {
         Log.debug(
           'applyVoiceProcessing() -> audio processing not available for track $t',
@@ -1492,7 +1492,7 @@ class OngoingCall {
     final MediaStreamSettings settings = MediaStreamSettings();
 
     if (audio) {
-      AudioTrackConstraints constraints = AudioTrackConstraints();
+      final AudioTrackConstraints constraints = AudioTrackConstraints();
 
       if (audioDevice != null) {
         constraints.deviceId(audioDevice.deviceId());
@@ -1523,14 +1523,16 @@ class OngoingCall {
     }
 
     if (video) {
-      DeviceVideoTrackConstraints constraints = DeviceVideoTrackConstraints();
+      final DeviceVideoTrackConstraints constraints =
+          DeviceVideoTrackConstraints();
       if (videoDevice != null) constraints.deviceId(videoDevice.deviceId());
       if (facingMode != null) constraints.idealFacingMode(facingMode);
       settings.deviceVideo(constraints);
     }
 
     if (screen) {
-      DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
+      final DisplayVideoTrackConstraints constraints =
+          DisplayVideoTrackConstraints();
       if (screenDevice != null) {
         constraints.deviceId(screenDevice.deviceId());
       }
@@ -1792,7 +1794,7 @@ class OngoingCall {
     Log.debug('toggleHand()', '$runtimeType');
 
     // Toggle the hands of all the devices of the authenticated [MyUser].
-    for (MapEntry<CallMemberId, CallMember> m in members.entries.where(
+    for (final MapEntry<CallMemberId, CallMember> m in members.entries.where(
       (e) => e.key.userId == _me.userId,
     )) {
       m.value.isHandRaised.toggle();
@@ -1807,7 +1809,7 @@ class OngoingCall {
     if (!_toggleHandGuard.isLocked) {
       final CallMember me = members[_me]!;
 
-      bool raised = me.isHandRaised.value;
+      final bool raised = me.isHandRaised.value;
       await _toggleHandGuard.protect(() async {
         _handToggles.add(raised);
         await service.toggleHand(chatId.value, raised);
@@ -1900,9 +1902,8 @@ class OngoingCall {
             );
 
             if (outputDevice.value == null) {
-              final bool speaker = PlatformUtils.isWeb
-                  ? true
-                  : videoState.value.isEnabled;
+              final bool speaker =
+                  PlatformUtils.isWeb || videoState.value.isEnabled;
 
               if (speaker) {
                 outputDevice.value = output.firstWhereOrNull(
@@ -2041,9 +2042,7 @@ class OngoingCall {
       }
 
       // Add the local tracks asynchronously.
-      for (LocalMediaTrack track in tracks) {
-        _addLocalTrack(track);
-      }
+      tracks.forEach(_addLocalTrack);
 
       audioState.value = audioState.value == LocalTrackState.enabling
           ? LocalTrackState.enabled
@@ -2088,7 +2087,7 @@ class OngoingCall {
   void _disposeLocalMedia() {
     Log.debug('_disposeLocalMedia()', '$runtimeType');
 
-    for (Track t in members[_me]?.tracks ?? []) {
+    for (final Track t in members[_me]?.tracks ?? []) {
       t.dispose();
     }
     members[_me]?.tracks.clear();
@@ -2143,7 +2142,7 @@ class OngoingCall {
       );
 
       final List<CallMember> connected = members.values
-          .where((e) => e.isConnected.value == true && e.id != _me)
+          .where((e) => e.isConnected.value && e.id != _me)
           .toList();
 
       await _closeRoom(false);
@@ -2196,7 +2195,7 @@ class OngoingCall {
     _room = null;
 
     if (dispose) {
-      for (Track t in members.values.expand((e) => e.tracks)) {
+      for (final Track t in members.values.expand((e) => e.tracks)) {
         t.dispose();
       }
     }
@@ -2298,7 +2297,7 @@ class OngoingCall {
           : null,
     );
 
-    for (LocalMediaTrack track in tracks) {
+    for (final LocalMediaTrack track in tracks) {
       await _addLocalTrack(track);
     }
   }
@@ -2354,7 +2353,7 @@ class OngoingCall {
       } else {
         _removeLocalTracks(kind, source);
 
-        Track t = Track(track);
+        final Track t = Track(track);
         members[_me]?.tracks.add(t);
 
         switch (source) {
@@ -2423,7 +2422,7 @@ class OngoingCall {
   }
 
   /// Picks the [audioDevice] based on the [devices] list.
-  void _pickAudioDevice() async {
+  Future<void> _pickAudioDevice() async {
     Log.debug('_pickAudioDevice()', '$runtimeType');
 
     // TODO: For Android and iOS, default device is __NOT__ the first one.
@@ -2439,7 +2438,7 @@ class OngoingCall {
   }
 
   /// Picks the [videoDevice] based on the provided [previous] and [removed].
-  void _pickVideoDevice([
+  Future<void> _pickVideoDevice([
     List<DeviceDetails> previous = const [],
     List<DeviceDetails> removed = const [],
   ]) async {
@@ -2459,7 +2458,7 @@ class OngoingCall {
   }
 
   /// Disables screen sharing, if the [screenDevice] is [removed].
-  void _pickScreenDevice(List<MediaDisplayDetails> removed) async {
+  Future<void> _pickScreenDevice(List<MediaDisplayDetails> removed) async {
     Log.debug(
       '_pickScreenDevice(removed: ${removed.map((e) => e.title())})',
       '$runtimeType',
@@ -2631,6 +2630,7 @@ class RtcAudioRenderer extends RtcRenderer {
 
 /// Call member ID of an [OngoingCall] containing its [UserId] and
 /// [ChatCallDeviceId].
+@immutable
 class CallMemberId {
   const CallMemberId(this.userId, this.deviceId);
 

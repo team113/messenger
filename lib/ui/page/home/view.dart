@@ -120,7 +120,7 @@ class _HomeViewState extends State<HomeView> {
   }
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     if (_deps == null) {
@@ -181,7 +181,7 @@ class _HomeViewState extends State<HomeView> {
           child: Row(
             children: [
               Obx(() {
-                double width = c.sideBarWidth.value;
+                final double width = c.sideBarWidth.value;
                 return ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: context.isNarrow ? context.width : width,
@@ -409,7 +409,7 @@ class _HomeViewState extends State<HomeView> {
                     ConditionalBackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
                       child: Obx(() {
-                        double width = c.sideBarWidth.value;
+                        final double width = c.sideBarWidth.value;
                         return ConstrainedBox(
                           constraints: BoxConstraints(
                             maxWidth: context.isNarrow ? 0 : width,

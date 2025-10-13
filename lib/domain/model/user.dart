@@ -18,6 +18,7 @@
 import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -212,15 +213,15 @@ class UserNum extends NewType<String> {
   /// Returns [UserNum] as [String] formatted in quartets.
   @override
   String toString() {
-    String formattedUserNum = '';
+    final formattedUserNum = StringBuffer();
 
     for (int i = 0; i < val.length; i++) {
       if (i % 4 == 0 && i > 0) {
-        formattedUserNum += 'hyphen'.l10n;
+        formattedUserNum.write('hyphen'.l10n);
       }
-      formattedUserNum += val[i];
+      formattedUserNum.write(val[i]);
     }
-    return formattedUserNum.trim();
+    return formattedUserNum.toString().trim();
   }
 
   /// Returns a [String] representing this [UserId].
@@ -581,8 +582,9 @@ class UserTextStatus extends NewType<String> {
 
 /// [User]'s record in a blocklist of the authenticated [MyUser].
 @JsonSerializable()
+@immutable
 class BlocklistRecord implements Comparable<BlocklistRecord> {
-  BlocklistRecord({required this.userId, this.reason, required this.at});
+  const BlocklistRecord({required this.userId, this.reason, required this.at});
 
   /// Constructs a [BlocklistRecord] from the provided [json].
   factory BlocklistRecord.fromJson(Map<String, dynamic> json) =>
@@ -628,11 +630,11 @@ class BlocklistReason extends NewType<String> {
   /// Creates an object without any validation.
   const factory BlocklistReason.unchecked(String val) = BlocklistReason._;
 
-  /// Regular expression for basic [BlocklistReason] validation.
-  static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
-
   /// Constructs a [BlocklistRecord] from the provided [val].
   factory BlocklistReason.fromJson(String val) = BlocklistReason;
+
+  /// Regular expression for basic [BlocklistReason] validation.
+  static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
 
   /// Returns a [String] representing this [BlocklistReason].
   String toJson() => val;

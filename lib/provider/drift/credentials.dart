@@ -67,7 +67,7 @@ class CredentialsDriftProvider extends DriftProviderBase {
         return;
       }
 
-      for (var e in await all()) {
+      for (final e in await all()) {
         data[e.userId] = e;
       }
 
@@ -173,7 +173,7 @@ class CredentialsDriftProvider extends DriftProviderBase {
       return stmt
           .watch()
           .map((rows) => rows.map(_CredentialsDb.fromDb).toList())
-          .map((i) => {for (var e in i) e.userId: e})
+          .map((i) => {for (final e in i) e.userId: e})
           .changes();
     });
   }

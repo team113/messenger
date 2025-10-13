@@ -21,12 +21,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../menu_interceptor/menu_interceptor.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/selector.dart';
 import '/util/platform_utils.dart';
+import '../menu_interceptor/menu_interceptor.dart';
 import 'menu.dart';
 import 'menu_overlay.dart';
 import 'mobile.dart';

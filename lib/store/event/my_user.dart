@@ -15,13 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/foundation.dart';
+
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/user_call_cover.dart';
 import '/store/model/my_user.dart';
 import 'changed.dart';
 
@@ -80,6 +82,7 @@ abstract class MyUserEvent {
 }
 
 /// Event of an [UserAvatar] being deleted.
+@immutable
 class EventUserAvatarRemoved extends MyUserEvent {
   const EventUserAvatarRemoved(super.userId);
 
@@ -94,6 +97,7 @@ class EventUserAvatarRemoved extends MyUserEvent {
 }
 
 /// Event of an [UserAvatar] being updated.
+@immutable
 class EventUserAvatarUpdated extends MyUserEvent {
   const EventUserAvatarUpdated(super.userId, this.avatar);
 
@@ -114,6 +118,7 @@ class EventUserAvatarUpdated extends MyUserEvent {
 }
 
 /// Event of a [UserBio] being deleted.
+@immutable
 class EventUserBioRemoved extends MyUserEvent {
   const EventUserBioRemoved(super.userId, this.at);
 
@@ -132,6 +137,7 @@ class EventUserBioRemoved extends MyUserEvent {
 }
 
 /// Event of a [UserBio] being updated.
+@immutable
 class EventUserBioUpdated extends MyUserEvent {
   const EventUserBioUpdated(super.userId, this.bio, this.at);
 
@@ -153,6 +159,7 @@ class EventUserBioUpdated extends MyUserEvent {
 }
 
 /// Event of an [UserCallCover] being deleted.
+@immutable
 class EventUserCallCoverRemoved extends MyUserEvent {
   const EventUserCallCoverRemoved(super.userId);
 
@@ -167,6 +174,7 @@ class EventUserCallCoverRemoved extends MyUserEvent {
 }
 
 /// Event of an [UserCallCover] being updated.
+@immutable
 class EventUserCallCoverUpdated extends MyUserEvent {
   const EventUserCallCoverUpdated(super.userId, this.callCover);
 
@@ -187,6 +195,7 @@ class EventUserCallCoverUpdated extends MyUserEvent {
 }
 
 /// Event of an [MyUser] coming offline.
+@immutable
 class EventUserCameOffline extends MyUserEvent {
   const EventUserCameOffline(super.userId, this.at);
 
@@ -204,6 +213,7 @@ class EventUserCameOffline extends MyUserEvent {
 }
 
 /// Event of an [MyUser] coming online.
+@immutable
 class EventUserCameOnline extends MyUserEvent {
   const EventUserCameOnline(super.userId);
 
@@ -218,6 +228,7 @@ class EventUserCameOnline extends MyUserEvent {
 }
 
 /// Event of an [MyUser] being deleted.
+@immutable
 class EventUserDeleted extends MyUserEvent {
   const EventUserDeleted(super.userId);
 
@@ -232,8 +243,9 @@ class EventUserDeleted extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s [ChatDirectLink] being deleted.
+@immutable
 class EventUserDirectLinkDeleted extends MyUserEvent {
-  EventUserDirectLinkDeleted(super.userId);
+  const EventUserDirectLinkDeleted(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.directLinkDeleted;
@@ -246,6 +258,7 @@ class EventUserDirectLinkDeleted extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s [ChatDirectLink] being updated.
+@immutable
 class EventUserDirectLinkUpdated extends MyUserEvent {
   const EventUserDirectLinkUpdated(super.userId, this.directLink);
 
@@ -264,6 +277,7 @@ class EventUserDirectLinkUpdated extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s [UserEmail] address being added.
+@immutable
 class EventUserEmailAdded extends MyUserEvent {
   const EventUserEmailAdded(super.userId, this.email, this.confirmed);
 
@@ -291,6 +305,7 @@ class EventUserEmailAdded extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s [UserEmail] address being deleted.
+@immutable
 class EventUserEmailRemoved extends MyUserEvent {
   const EventUserEmailRemoved(super.userId, this.email);
 
@@ -309,6 +324,7 @@ class EventUserEmailRemoved extends MyUserEvent {
 }
 
 /// Event of a [UserLogin] being updated.
+@immutable
 class EventUserLoginUpdated extends MyUserEvent {
   const EventUserLoginUpdated(super.userId, this.login);
 
@@ -338,6 +354,7 @@ class EventUserLoginRemoved extends MyUserEvent {
 }
 
 /// Event of an [MyUser] being muted.
+@immutable
 class EventUserMuted extends MyUserEvent {
   const EventUserMuted(super.userId, this.until);
 
@@ -356,6 +373,7 @@ class EventUserMuted extends MyUserEvent {
 }
 
 /// Event of an [UserName] being deleted.
+@immutable
 class EventUserNameRemoved extends MyUserEvent {
   const EventUserNameRemoved(super.userId);
 
@@ -370,6 +388,7 @@ class EventUserNameRemoved extends MyUserEvent {
 }
 
 /// Event of an [UserName] being updated.
+@immutable
 class EventUserNameUpdated extends MyUserEvent {
   const EventUserNameUpdated(super.userId, this.name);
 
@@ -388,6 +407,7 @@ class EventUserNameUpdated extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s password being updated.
+@immutable
 class EventUserPasswordUpdated extends MyUserEvent {
   const EventUserPasswordUpdated(super.userId);
 
@@ -402,6 +422,7 @@ class EventUserPasswordUpdated extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s phone number being added.
+@immutable
 class EventUserPhoneAdded extends MyUserEvent {
   const EventUserPhoneAdded(super.userId, this.phone, this.confirmed);
 
@@ -429,6 +450,7 @@ class EventUserPhoneAdded extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s phone number being deleted.
+@immutable
 class EventUserPhoneRemoved extends MyUserEvent {
   const EventUserPhoneRemoved(super.userId, this.phone);
 
@@ -447,6 +469,7 @@ class EventUserPhoneRemoved extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s [Presence] being updated.
+@immutable
 class EventUserPresenceUpdated extends MyUserEvent {
   const EventUserPresenceUpdated(super.userId, this.presence);
 
@@ -465,6 +488,7 @@ class EventUserPresenceUpdated extends MyUserEvent {
 }
 
 /// Event of an [UserTextStatus] being deleted.
+@immutable
 class EventUserStatusRemoved extends MyUserEvent {
   const EventUserStatusRemoved(super.userId);
 
@@ -479,6 +503,7 @@ class EventUserStatusRemoved extends MyUserEvent {
 }
 
 /// Event of an [UserTextStatus] being updated.
+@immutable
 class EventUserStatusUpdated extends MyUserEvent {
   const EventUserStatusUpdated(super.userId, this.status);
 
@@ -497,6 +522,7 @@ class EventUserStatusUpdated extends MyUserEvent {
 }
 
 /// Event of an [MyUser] being unmuted.
+@immutable
 class EventUserUnmuted extends MyUserEvent {
   const EventUserUnmuted(super.userId);
 
@@ -511,6 +537,7 @@ class EventUserUnmuted extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s unread `Chat`s count being updated.
+@immutable
 class EventUserUnreadChatsCountUpdated extends MyUserEvent {
   const EventUserUnreadChatsCountUpdated(super.userId, this.count);
 
@@ -529,8 +556,9 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
 }
 
 /// Event of a [WelcomeMessage] being deleted by its author.
+@immutable
 class EventUserWelcomeMessageDeleted extends MyUserEvent {
-  EventUserWelcomeMessageDeleted(super.userId, this.at);
+  const EventUserWelcomeMessageDeleted(super.userId, this.at);
 
   /// [PreciseDateTime] when the [WelcomeMessage] was deleted.
   final PreciseDateTime at;
@@ -547,8 +575,9 @@ class EventUserWelcomeMessageDeleted extends MyUserEvent {
 }
 
 /// Event of a [WelcomeMessage] being updated by its author.
+@immutable
 class EventUserWelcomeMessageUpdated extends MyUserEvent {
-  EventUserWelcomeMessageUpdated(
+  const EventUserWelcomeMessageUpdated(
     super.userId,
     this.at,
     this.text,

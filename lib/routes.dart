@@ -243,7 +243,7 @@ class RouterState extends ChangeNotifier {
   void go(String to) {
     arguments = null;
 
-    for (var e in routes) {
+    for (final e in routes) {
       if (e != '/' && e != to) {
         _accounted.add(e);
       }
@@ -256,7 +256,7 @@ class RouterState extends ChangeNotifier {
   /// Pushes [to] to the [routes] stack.
   void push(String to) {
     arguments = null;
-    int pageIndex = routes.indexWhere((e) => e == to);
+    final int pageIndex = routes.indexWhere((e) => e == to);
     if (pageIndex != -1) {
       while (routes.length - 1 > pageIndex) {
         pop();
@@ -315,7 +315,7 @@ class RouterState extends ChangeNotifier {
 
   /// Removes the [routes] satisfying the provided [predicate].
   void removeWhere(bool Function(String element) predicate) {
-    for (String e in routes.toList(growable: false)) {
+    for (final String e in routes.toList(growable: false)) {
       if (predicate(e)) {
         routes.remove(route);
         _accounted.add(route);
@@ -542,8 +542,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         ),
       ];
     } else if (_state.route.startsWith('${Routes.call}/')) {
-      Uri uri = Uri.parse(_state.route);
-      ChatId id = ChatId(uri.path.replaceFirst('${Routes.call}/', ''));
+      final Uri uri = Uri.parse(_state.route);
+      final ChatId id = ChatId(uri.path.replaceFirst('${Routes.call}/', ''));
 
       return [
         MaterialPage(
@@ -802,7 +802,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
     }
 
     /// [Routes.home] or [Routes.auth] page is always included.
-    List<Page<dynamic>> pages = [];
+    final List<Page<dynamic>> pages = [];
 
     if (_state._auth.status.value.isSuccess) {
       pages.add(

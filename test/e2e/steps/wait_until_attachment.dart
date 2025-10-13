@@ -41,7 +41,7 @@ final StepDefinitionGeneric untilAttachmentExists =
           final RxChat? chat = Get.find<ChatService>()
               .chats[ChatId(router.route.split('/').last)];
 
-          bool exist = chat!.messages
+          final bool exist = chat!.messages
               .map((m) => m.value)
               .whereType<ChatMessage>()
               .any((m) => m.attachments.any((a) => a.filename == filename));

@@ -88,7 +88,7 @@ class AuthRepository extends DisposableInterface
   @override
   void onInit() {
     _profilesSubscription = _myUserProvider.watch().listen((ops) {
-      for (var e in ops) {
+      for (final e in ops) {
         switch (e.op) {
           case OperationKind.added:
           case OperationKind.updated:
@@ -290,7 +290,7 @@ class AuthRepository extends DisposableInterface
 
     final response = await Backoff.run(
       () async {
-        return await _graphQlProvider.useChatDirectLink(slug);
+        return _graphQlProvider.useChatDirectLink(slug);
       },
       retryIf: (e) => e.isNetworkRelated,
       retries: 10,

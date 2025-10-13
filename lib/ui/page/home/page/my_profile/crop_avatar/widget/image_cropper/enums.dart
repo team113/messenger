@@ -63,7 +63,7 @@ extension CropRotationExtension on CropRotation {
   }
 
   /// Constructs a [CropRotation] from degrees.
-  static CropRotation? fromDegrees(final int degrees) {
+  static CropRotation? fromDegrees(int degrees) {
     return CropRotation.values.firstWhereOrNull((e) => e.degrees == degrees);
   }
 
@@ -96,11 +96,7 @@ extension CropRotationExtension on CropRotation {
   }
 
   /// Returns the [Offset] rotated from this [CropRotation].
-  Offset getRotatedOffset(
-    final Offset offset,
-    final double width,
-    final double height,
-  ) {
+  Offset getRotatedOffset(Offset offset, double width, double height) {
     return switch (this) {
       CropRotation.up => Offset(width * offset.dx, height * offset.dy),
       CropRotation.down => Offset(

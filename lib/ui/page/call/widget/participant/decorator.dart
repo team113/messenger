@@ -32,9 +32,9 @@ class ParticipantDecoratorWidget extends StatelessWidget {
         alignment: Alignment.center,
         fit: StackFit.passthrough,
         children: [
-          const SizedBox(width: double.infinity, height: double.infinity),
+          const SizedBox.expand(),
           Positioned.fill(
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 border: Border.all(
                   color: style.colors.onBackgroundOpacity20,

@@ -53,7 +53,7 @@ class BackgroundPreview extends StatelessWidget {
       children: [
         WidgetButton(
           onPressed: onPick,
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               border: style.primaryBorder,
               borderRadius: BorderRadius.circular(10),
@@ -150,7 +150,7 @@ class MessagePreviewWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 6, 10, 6),
       child: IntrinsicWidth(
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             color: fromMe ? style.readMessageColor : style.messageColor,
             borderRadius: BorderRadius.circular(15),

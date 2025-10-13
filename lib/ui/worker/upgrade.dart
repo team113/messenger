@@ -20,6 +20,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -153,14 +154,14 @@ class UpgradeWorker extends DisposableService {
 
   /// Invokes [_fetchBootstrapJs] over [PlatformUtilsImpl.isWeb] and
   /// [_fetchAppcast] otherwise to check against any updates being available.
-  Future<bool> fetchUpdates({bool force = false}) async {
+  Future<bool> fetchUpdates({bool force = false}) {
     if (Config.appcast.isNotEmpty) {
-      return await _fetchAppcast(force: force);
+      return _fetchAppcast(force: force);
     } else if (PlatformUtils.isWeb) {
-      return await _fetchBootstrapJs();
+      return _fetchBootstrapJs();
     }
 
-    return false;
+    return Future(() => false);
   }
 
   /// Fetches the [Config.appcast] file to [_schedulePopup], if new [Release] is
@@ -205,7 +206,7 @@ class UpgradeWorker extends DisposableService {
             return false;
           }
 
-          bool silent = latest.value != null;
+          final bool silent = latest.value != null;
           latest.value = release;
 
           Log.debug(
@@ -342,6 +343,7 @@ class UpgradeWorker extends DisposableService {
     if (delay) {
       await Future.delayed(_popupDelay, () {
         SchedulerBinding.instance.addPostFrameCallback(
+          // ignore: unnecessary_await_in_return
           (_) async => await displayPopup(),
         );
       });
@@ -352,6 +354,7 @@ class UpgradeWorker extends DisposableService {
 }
 
 /// Application release information.
+@immutable
 class Release {
   const Release({
     required this.name,
@@ -390,7 +393,7 @@ class Release {
     final String date = xml.findElements('pubDate').first.innerText;
     final List<ReleaseArtifact> assets = xml
         .findElements('enclosure')
-        .map((e) => ReleaseArtifact.fromXml(e))
+        .map(ReleaseArtifact.fromXml)
         .toList();
 
     return Release(
@@ -432,6 +435,7 @@ class Release {
 }
 
 /// Artifact of the [Release].
+@immutable
 class ReleaseArtifact {
   const ReleaseArtifact({required this.url, required this.os});
 

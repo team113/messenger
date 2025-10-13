@@ -18,9 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../widget/headline.dart';
 import '/routes.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
+import '../widget/headline.dart';
 
 /// [Routes.style] switches section.
 class SwitchesSection {

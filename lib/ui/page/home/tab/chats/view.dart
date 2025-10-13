@@ -883,7 +883,7 @@ class ChatsTabView extends StatelessWidget {
                             final List<RxChat> favorites = [];
                             final List<RxChat> chats = [];
 
-                            for (var e in c.chats) {
+                            for (final e in c.chats) {
                               if ((!e.id.isLocal ||
                                       e.messages.isNotEmpty ||
                                       e.chat.value.isMonolog) &&
@@ -954,7 +954,7 @@ class ChatsTabView extends StatelessWidget {
                                             t,
                                           )!;
 
-                                          return Container(
+                                          return DecoratedBox(
                                             decoration: BoxDecoration(
                                               boxShadow: [
                                                 CustomBoxShadow(
@@ -1004,8 +1004,8 @@ class ChatsTabView extends StatelessWidget {
                                                       GestureRecognizerFactoryWithHandlers<
                                                         DisableSecondaryButtonRecognizer
                                                       >(
-                                                        () =>
-                                                            DisableSecondaryButtonRecognizer(),
+                                                        DisableSecondaryButtonRecognizer
+                                                            .new,
                                                         (_) {},
                                                       ),
                                                 },

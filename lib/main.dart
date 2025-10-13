@@ -237,7 +237,7 @@ Future<void> _runApp() async {
 
   Get.putOrGet<CommonDriftProvider>(
     () => CommonDriftProvider.from(
-      Get.putOrGet(() => CommonDatabase(), permanent: true),
+      Get.putOrGet(CommonDatabase.new, permanent: true),
     ),
     permanent: true,
   );
@@ -460,7 +460,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                 events
                     as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
 
-            for (var e in mixin.events) {
+            for (final e in mixin.events) {
               if (e.$$typename == 'EventChatCallFinished') {
                 await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
               } else if (e.$$typename == 'EventChatCallStarted') {
@@ -487,7 +487,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
-                var node =
+                final node =
                     e
                         as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
                 if (node.userId == credentials.userId) {
@@ -496,7 +496,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                var node =
+                final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
                 if (node.user.id == credentials.userId) {
                   await FlutterCallkitIncoming.endCall(
@@ -504,7 +504,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallMemberLeft') {
-                var node =
+                final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
                 if (node.user.id == credentials.userId) {
                   await FlutterCallkitIncoming.endCall(
@@ -512,7 +512,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallDeclined') {
-                var node =
+                final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
                 if (node.user.id == credentials.userId) {
                   await FlutterCallkitIncoming.endCall(
@@ -564,7 +564,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         Future.delayed(const Duration(milliseconds: 16), () async {
           final notifications = await plugin.getActiveNotifications();
 
-          for (var e in notifications) {
+          for (final e in notifications) {
             if (e.tag?.contains(thread ?? tag ?? '.....') == true) {
               plugin.cancel(e.id ?? 0, tag: e.tag);
             }
@@ -627,9 +627,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(
-        context,
-      ).copyWith(textScaler: const TextScaler.linear(1)),
+      data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
       child: MaterialApp.router(
         routerDelegate: router.delegate,
         routeInformationParser: router.parser,

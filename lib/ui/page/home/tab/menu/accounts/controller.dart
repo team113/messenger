@@ -126,9 +126,7 @@ class AccountsController extends GetxController {
 
   @override
   void onInit() {
-    for (var e in _profiles.values) {
-      accounts.add(e);
-    }
+    _profiles.values.forEach(accounts.add);
     accounts.sort(_compareAccounts);
 
     _profilesSubscription = _profiles.changes.listen((e) async {

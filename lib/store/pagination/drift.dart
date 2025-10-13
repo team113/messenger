@@ -205,7 +205,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _timeoutTimer?.cancel();
     _watchSubscription?.cancel();
 
-    for (var e in _completers) {
+    for (final e in _completers) {
       if (!e.isCompleted) {
         e.complete([]);
       }
@@ -307,12 +307,12 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   Future<void> put(Iterable<T> items, {int Function(T, T)? compare}) async {
     final bool toView = compare == null;
 
-    for (var item in items) {
+    for (final item in items) {
       _account(OperationKind.added, onKey(item));
     }
 
     if (toView) {
-      for (var item in items) {
+      for (final item in items) {
         final int i = _list.indexWhere((e) => onKey(e) == onKey(item));
         if (i != -1) {
           _list[i] = item;
@@ -353,8 +353,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   }
 
   /// Returns the [T] items [fetch]ed.
-  Future<List<T>> _page() async {
-    return await _guard.protect(() async {
+  Future<List<T>> _page() {
+    return _guard.protect(() async {
       if (watch != null) {
         final stream = await watch!(
           after: _after,
@@ -366,7 +366,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
         _completers.add(completer = Completer());
 
         void handle(List<T> items) {
-          for (var e in items) {
+          for (final e in items) {
             final K key = onKey(e);
             final T? item = _items.firstWhereOrNull((m) => onKey(m) == key);
 
@@ -383,7 +383,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
           // `drift` emits `[]` when new [Chat] is created, so this check
           // ignores those events.
           if (items.isNotEmpty) {
-            for (var e in _items) {
+            for (final e in _items) {
               final K key = onKey(e);
               final T? item = items.firstWhereOrNull((m) => onKey(m) == key);
 

@@ -78,7 +78,7 @@ class DownloadDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<String?>((db) async {
+    return safe<String?>((db) async {
       final stmt = db.select(db.downloads)
         ..where((u) => u.checksum.equals(checksum));
       final DownloadRow? row = await stmt.getSingleOrNull();

@@ -112,7 +112,7 @@ void main() async {
   final sessionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
 
-  var chatData = {
+  final chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'name': null,
     'avatar': null,
@@ -134,7 +134,7 @@ void main() async {
     'ver': '0',
   };
 
-  var recentChats = {
+  final recentChats = {
     'recentChats': {
       'edges': [
         {'node': chatData, 'cursor': 'cursor'},
@@ -148,7 +148,7 @@ void main() async {
     },
   };
 
-  var favoriteChats = {
+  final favoriteChats = {
     'favoriteChats': {
       'edges': [],
       'pageInfo': {
@@ -220,7 +220,7 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  AbstractSettingsRepository settingsRepository = Get.put(
+  final AbstractSettingsRepository settingsRepository = Get.put(
     SettingsRepository(
       const UserId('me'),
       settingsProvider,
@@ -229,7 +229,7 @@ void main() async {
     ),
   );
 
-  AuthService authService = Get.put(
+  final AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(
         AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
@@ -393,5 +393,6 @@ void main() async {
     },
   );
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

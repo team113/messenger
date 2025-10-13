@@ -149,7 +149,7 @@ class CommonDatabase extends _$CommonDatabase {
               '$runtimeType',
             );
 
-            for (var e in m.database.allTables) {
+            for (final e in m.database.allTables) {
               await m.deleteTable(e.actualTableName);
             }
           } else {
@@ -192,7 +192,7 @@ class CommonDatabase extends _$CommonDatabase {
   Future<void> reset() async {
     Log.debug('reset()', '$runtimeType');
 
-    for (var e in allSchemaEntities) {
+    for (final e in allSchemaEntities) {
       if (e is TableInfo) {
         await e.deleteAll();
       } else {
@@ -376,7 +376,7 @@ class ScopedDatabase extends _$ScopedDatabase {
   Future<void> reset([bool recreate = true]) async {
     Log.debug('reset()', '$runtimeType');
 
-    for (var e in allSchemaEntities) {
+    for (final e in allSchemaEntities) {
       if (e is TableInfo) {
         await e.deleteAll();
       } else {
@@ -421,7 +421,7 @@ final class CommonDriftProvider extends DisposableInterface {
   final List<StreamSubscription> _subscriptions = [];
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     super.onInit();
 
     Log.debug('onInit()', '$runtimeType');
@@ -530,11 +530,11 @@ final class CommonDriftProvider extends DisposableInterface {
     db = null;
 
     // Close all the active streams.
-    for (var e in _controllers.toList()) {
+    for (final e in _controllers.toList()) {
       await e.close();
     }
 
-    for (var e in _subscriptions.toList()) {
+    for (final e in _subscriptions.toList()) {
       await e.cancel();
     }
 
@@ -569,7 +569,7 @@ final class ScopedDriftProvider extends DisposableInterface {
   final List<StreamSubscription> _subscriptions = [];
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     super.onInit();
 
     Log.debug('onInit()', '$runtimeType');
@@ -678,11 +678,11 @@ final class ScopedDriftProvider extends DisposableInterface {
     db = null;
 
     // Close all the active streams.
-    for (var e in _controllers.toList()) {
+    for (final e in _controllers.toList()) {
       await e.close();
     }
 
-    for (var e in _subscriptions.toList()) {
+    for (final e in _subscriptions.toList()) {
       await e.cancel();
     }
 
@@ -722,12 +722,12 @@ abstract class DriftProviderBase extends DisposableInterface {
     Future<T> Function(CommonDatabase db) callback, {
     bool exclusive = true,
     String? tag,
-  }) async {
+  }) {
     if (isClosed || db == null) {
-      return null;
+      return Future(() => null);
     }
 
-    return await _provider.wrapped(callback);
+    return _provider.wrapped(callback);
   }
 
   /// Listens to the [executor] through a non-closed [CommonDatabase].
@@ -756,13 +756,13 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   /// Completes the provided [action] as a [ScopedDriftProvider] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
     await _caught(
-      _scoped.wrapped((db) async {
-        return await WebUtils.protect(tag: '${_scoped.db?.userId}', () async {
+      _scoped.wrapped((db) {
+        return WebUtils.protect(tag: '${_scoped.db?.userId}', () {
           if (isClosed || _scoped.isClosed) {
-            return null;
+            return Future(() => null);
           }
 
-          return await _caught(db.transaction(action));
+          return _caught(db.transaction(action));
         });
       }),
     );
@@ -777,7 +777,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
     String? tag,
     bool exclusive = true,
     bool force = false,
-  }) async {
+  }) {
     if (PlatformUtils.isWeb && !force) {
       Log.debug(
         'safe(tag: $tag) -> await WebUtils.protect(tag: ${_scoped.db?.userId}, exclusive: $exclusive)...',
@@ -786,7 +786,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
 
       // WAL doesn't work in Web, thus guard all the writes/reads with Web Locks
       // API: https://github.com/simolus3/sqlite3.dart/issues/200
-      return await WebUtils.protect(
+      return WebUtils.protect(
         tag: '${_scoped.db?.userId}',
         exclusive: exclusive,
         () async {
@@ -807,7 +807,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
       );
     }
 
-    return await _scoped.wrapped(callback);
+    return _scoped.wrapped(callback);
   }
 
   /// Listens to the [executor] through a non-closed [ScopedDatabase].

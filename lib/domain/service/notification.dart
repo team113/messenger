@@ -171,7 +171,7 @@ class NotificationService extends DisposableService {
         );
       } catch (e) {
         Log.error(
-          'Failed to initialize push notifications: ${e.toString()}',
+          'Failed to initialize push notifications: $e',
           '$runtimeType',
         );
       }

@@ -19,14 +19,13 @@ import 'package:get/get.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
-
-import '/domain/service/auth.dart';
 
 /// Controller of the [Routes.erase] page.
 class EraseController extends GetxController {

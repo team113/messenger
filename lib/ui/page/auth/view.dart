@@ -123,7 +123,7 @@ class AuthView extends StatelessWidget {
         // All frames of the animation are drawn in offstage in order to
         // load all the images ahead of animation to reduce the possible
         // flickering.
-        List<Widget> header = [
+        final List<Widget> header = [
           Text(
             'label_messenger1'.l10n,
             style: style.fonts.largest.regular.secondary,

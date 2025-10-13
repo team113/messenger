@@ -24,6 +24,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
+import '/config.dart';
+import '/domain/model/avatar.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/ongoing_call.dart';
+import '/domain/model/user_call_cover.dart';
+import '/domain/repository/user.dart';
+import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/widget/animated_slider.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/svg/svg.dart';
+import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
@@ -41,22 +57,6 @@ import '../widget/participant/widget.dart';
 import '../widget/reorderable_fit.dart';
 import '../widget/scaler.dart';
 import '../widget/title_bar.dart';
-import '/config.dart';
-import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/ongoing_call.dart';
-import '/domain/model/user_call_cover.dart';
-import '/domain/repository/user.dart';
-import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/home/widget/animated_slider.dart';
-import '/ui/widget/animated_button.dart';
-import '/ui/widget/animated_switcher.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
-import '/ui/widget/svg/svg.dart';
-import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'common.dart';
 
 /// Returns a desktop design of a [CallView].
@@ -66,7 +66,7 @@ Widget desktopCall(CallController c, BuildContext context) {
   return LayoutBuilder(
     builder: (context, constraints) {
       // Call stackable content.
-      List<Widget> content = [
+      final List<Widget> content = [
         const SvgImage.asset(
           'assets/images/background_dark.svg',
           width: double.infinity,
@@ -78,7 +78,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Secondary view possible alignment.
       Widget possibleContainer() {
         return Obx(() {
-          Alignment? alignment = c.possibleSecondaryAlignment.value;
+          final Alignment? alignment = c.possibleSecondaryAlignment.value;
           if (alignment == null) {
             return Container();
           }
@@ -403,7 +403,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Builds the [Launchpad] panel containing the [CallController.panel].
       Widget launchpad() {
         return Obx(() {
-          bool enabled =
+          final bool enabled =
               c.displayMore.isTrue &&
               c.primaryDrags.value == 0 &&
               c.secondaryDrags.value == 0;
@@ -457,7 +457,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       }
 
       // Footer part of the call with buttons.
-      List<Widget> footer = [
+      final List<Widget> footer = [
         // Animated bottom buttons.
         Align(
           alignment: Alignment.bottomCenter,
@@ -478,9 +478,9 @@ Widget desktopCall(CallController c, BuildContext context) {
         ),
       ];
 
-      List<Widget> ui = [
+      final List<Widget> ui = [
         Obx(() {
-          bool preferTitle = c.state.value != OngoingCallState.active;
+          final bool preferTitle = c.state.value != OngoingCallState.active;
           return GestureDetector(
             behavior: HitTestBehavior.translucent,
             onDoubleTap: c.toggleFullscreen,
@@ -628,7 +628,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 duration: 400.milliseconds,
                 translate: false,
                 beginOffset: const Offset(0, -1),
-                endOffset: const Offset(0, 0),
+                endOffset: Offset.zero,
                 isOpen:
                     c.state.value == OngoingCallState.active &&
                     c.showHeader.value,
@@ -760,7 +760,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       ];
 
       // Combines all the stackable content into [Scaffold].
-      Widget scaffold = Scaffold(
+      final Widget scaffold = Scaffold(
         backgroundColor: style.colors.onBackground,
         body: Column(
           mainAxisSize: MainAxisSize.min,
@@ -773,7 +773,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                   c.top.value = c.top.value + d.delta.dy;
                   c.applyConstraints(context);
                 },
-                child: Container(
+                child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: style.colors.transparent,
                     borderRadius: BorderRadius.circular(30),
@@ -1077,7 +1077,7 @@ Widget _primaryView(CallController c) {
           onDragCompleted: onDragEnded,
           onDraggableCanceled: onDragEnded,
           overlayBuilder: (_DragData data) {
-            var participant = data.participant;
+            final participant = data.participant;
 
             // TODO: Uncomment when WebAssembly performance is fixed.
             // return LayoutBuilder(
@@ -1676,19 +1676,20 @@ Widget _secondaryView(CallController c, BuildContext context) {
               return Offset.zero;
             },
             overlayBuilder: (_DragData data) {
-              var participant = data.participant;
+              final participant = data.participant;
 
               return Obx(() {
-                bool? muted = participant.member.owner == MediaOwnerKind.local
+                final bool? muted =
+                    participant.member.owner == MediaOwnerKind.local
                     ? !c.audioState.value.isEnabled
                     : null;
 
-                bool anyDragIsHappening =
+                final bool anyDragIsHappening =
                     c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
                     c.secondaryDragged.value;
 
-                bool isHovered =
+                final bool isHovered =
                     c.hoveredParticipant.value == participant &&
                     !anyDragIsHappening;
 
@@ -1915,7 +1916,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
               top: top,
               bottom: bottom,
               child: Obx(() {
-                bool isAnyDrag =
+                final bool isAnyDrag =
                     c.secondaryDrags.value != 0 || c.primaryDrags.value != 0;
 
                 return SizedBox(
@@ -1988,7 +1989,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 condition:
                                     (c.minimized.isFalse ||
                                     c.fullscreen.isTrue),
-                                child: Container(
+                                child: ColoredBox(
                                   color: ConditionalBackdropFilter.enabled
                                       ? style.colors.onSecondaryOpacity60
                                       : style.colors.onSecondaryOpacity88,
@@ -2047,7 +2048,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     child:
                         c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0
-                        ? Container(
+                        ? ColoredBox(
                             color: style.colors.onBackgroundOpacity27,
                             child: Center(
                               child: AnimatedDelayedScale(
@@ -2058,7 +2059,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                   condition:
                                       !c.minimized.value || c.fullscreen.value,
                                   borderRadius: BorderRadius.circular(16),
-                                  child: Container(
+                                  child: DecoratedBox(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(16),
                                       color:
@@ -2182,6 +2183,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 }
 
 /// [Draggable] data consisting of a [participant] and its [chatId].
+@immutable
 class _DragData {
   const _DragData(this.participant, this.chatId);
 

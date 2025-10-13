@@ -17,7 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../widget/headlines.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
@@ -28,6 +27,7 @@ import '/ui/page/home/widget/contact_tile.dart';
 import '/ui/page/style/page/widgets/common/dummy_chat.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/selected_dot.dart';
+import '../widget/headlines.dart';
 
 /// [Routes.style] tiles section.
 class TilesSection {

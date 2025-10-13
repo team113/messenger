@@ -32,9 +32,9 @@ import 'package:video_player/video_player.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item_quote.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -236,7 +236,7 @@ class PlayerController extends GetxController {
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
-    for (var e in source.values) {
+    for (final e in source.values) {
       final bool initial = e.id == key.value;
       posts.add(
         Post.fromMediaItem(e, initial: initial ? initialIndex : 0)..init(),
@@ -329,7 +329,7 @@ class PlayerController extends GetxController {
     _sourceSubscription?.cancel();
     _activityTimer?.cancel();
 
-    for (var e in posts) {
+    for (final e in posts) {
       e.dispose();
     }
 
@@ -364,7 +364,7 @@ class PlayerController extends GetxController {
         video.pause();
       } else {
         if (isFinished) {
-          video.seekTo(const Duration());
+          video.seekTo(Duration.zero);
         }
 
         video.play();
@@ -644,15 +644,11 @@ class PlayerController extends GetxController {
         final ChatItem message = node.value;
 
         if (message is ChatMessage) {
-          post.items.value = message.attachments
-              .map((e) => PostItem(e))
-              .toList();
+          post.items.value = message.attachments.map(PostItem.new).toList();
         } else if (message is ChatForward) {
           final quote = message.quote;
           if (quote is ChatMessageQuote) {
-            post.items.value = quote.attachments
-                .map((e) => PostItem(e))
-                .toList();
+            post.items.value = quote.attachments.map(PostItem.new).toList();
           }
         }
       }
@@ -855,14 +851,14 @@ class PlayerController extends GetxController {
                 .value
                 ?.play();
           } else {
-            for (var e in posts[i].items) {
+            for (final e in posts[i].items) {
               e.video.value?.pause();
             }
           }
         }
 
         final Post? items = posts.elementAtOrNull(index.value);
-        for (var e in items?.items ?? <PostItem>[]) {
+        for (final e in items?.items ?? <PostItem>[]) {
           e.video.value?.play();
         }
 
@@ -1006,7 +1002,7 @@ class Post implements Comparable<Post> {
   /// Disposes this [Post].
   void dispose() {
     horizontal.value.removeListener(_pageListener);
-    for (var e in items) {
+    for (final e in items) {
       e.dispose();
     }
   }
@@ -1060,6 +1056,7 @@ class Post implements Comparable<Post> {
 }
 
 /// Single item of [Post] represented with an [Attachment].
+@immutable
 class PostItem {
   PostItem(this.attachment);
 
@@ -1159,9 +1156,8 @@ class ReactivePlayerController {
   /// Updates the parameters according to the state of [controller].
   void _listener() {
     buffered.value = controller.value.buffered;
-    isBuffering.value = controller.value.isInitialized
-        ? controller.value.isBuffering
-        : true;
+    isBuffering.value =
+        !controller.value.isInitialized || controller.value.isBuffering;
     isLooping.value = controller.value.isLooping;
     isPlaying.value = controller.value.isPlaying;
     isCompleted.value = controller.value.isCompleted;
@@ -1173,8 +1169,9 @@ class ReactivePlayerController {
 }
 
 /// [ChatItem] with its [Attachment]s.
+@immutable
 class MediaItem implements Comparable<MediaItem> {
-  MediaItem(this.attachments, this.item);
+  const MediaItem(this.attachments, this.item);
 
   /// [Attachment] themselves.
   final List<Attachment> attachments;

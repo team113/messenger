@@ -371,7 +371,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ]
       ..tagExpression = 'not @disabled'
       // ..tagExpression = '@problem'
-      ..createWorld = (config) => Future.sync(() => CustomWorld());
+      ..createWorld = (config) => Future.sync(CustomWorld.new);
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {

@@ -86,7 +86,7 @@ class CacheWorker extends DisposableService {
 
   @override
   Future<void> onInit() async {
-    _cacheLocal?.checksums().then((v) => hashes.addAll(v));
+    _cacheLocal?.checksums().then(hashes.addAll);
 
     info.value = await _cacheLocal?.read() ?? info.value;
 
@@ -94,7 +94,7 @@ class CacheWorker extends DisposableService {
         await PlatformUtils.cacheDirectory;
 
     // Recalculate the [info], if [FileStat.modified] mismatch is detected.
-    if (cache != null && info.value.modified != (await cache.stat()).modified) {
+    if (cache != null && info.value.modified != cache.statSync().modified) {
       _updateInfo();
     }
 
@@ -167,7 +167,7 @@ class CacheWorker extends DisposableService {
         if (cache != null) {
           final File file = File('${cache.path}/$checksum');
 
-          if (await file.exists()) {
+          if (file.existsSync()) {
             switch (responseType) {
               case CacheResponseType.file:
                 return CacheEntry(file: file);
@@ -268,11 +268,11 @@ class CacheWorker extends DisposableService {
 
       if (cache != null) {
         final File file = File('${cache.path}/$checksum');
-        if (!(await file.exists())) {
+        if (!file.existsSync()) {
           await file.writeAsBytes(data);
 
           info.value.size = info.value.size + data.length;
-          info.value.modified = (await cache.stat()).modified;
+          info.value.modified = cache.statSync().modified;
           info.refresh();
           hashes.add('$checksum');
           await _cacheLocal?.upsert(info.value);
@@ -337,7 +337,7 @@ class CacheWorker extends DisposableService {
       if (path != null) {
         file = File(path);
 
-        if (!await file.exists() || await file.length() != size) {
+        if (!file.existsSync() || await file.length() != size) {
           file = null;
           _downloadLocal?.delete(checksum);
         }
@@ -369,7 +369,7 @@ class CacheWorker extends DisposableService {
     if (downloading?.file != null) {
       final File file = downloading!.file!;
 
-      if (await file.exists() && await file.length() == size) {
+      if (file.existsSync() && await file.length() == size) {
         await OpenFile.open(file.path);
         return true;
       } else {
@@ -397,7 +397,7 @@ class CacheWorker extends DisposableService {
             .toList();
 
         final List<Future> futures = [];
-        for (var file in files) {
+        for (final file in files) {
           futures.add(
             Future(() async {
               try {
@@ -453,19 +453,19 @@ class CacheWorker extends DisposableService {
         final List<String> removed = [];
 
         final Map<File, FileStat> stats = {};
-        for (File file in files) {
-          final FileStat stat = await file.stat();
+        for (final File file in files) {
+          final FileStat stat = file.statSync();
           if (stat.type == FileSystemEntityType.notFound) {
             removed.add(p.basename(file.path));
           }
 
-          stats[file] = await file.stat();
+          stats[file] = file.statSync();
         }
 
         files.sortBy((f) => stats[f]!.accessed);
 
         int deleted = 0;
-        for (File file in files) {
+        for (final File file in files) {
           try {
             final FileStat? stat = stats[file];
 
@@ -485,7 +485,7 @@ class CacheWorker extends DisposableService {
         }
 
         info.value.size = info.value.size - deleted;
-        info.value.modified = (await cache.stat()).modified;
+        info.value.modified = cache.statSync().modified;
         info.refresh();
         hashes.removeAll(removed);
         await _cacheLocal?.upsert(info.value);
@@ -495,7 +495,7 @@ class CacheWorker extends DisposableService {
   }
 
   /// Updates the [CacheInfo.size] and [CacheInfo.checksums] values.
-  void _updateInfo() async {
+  Future<void> _updateInfo() async {
     final Directory? cache = cacheDirectory.value ??=
         await PlatformUtils.cacheDirectory;
 
@@ -510,14 +510,14 @@ class CacheWorker extends DisposableService {
             (FileSystemEntity file) async {
               if (file is File) {
                 checksums.add(p.basename(file.path));
-                final FileStat stat = await file.stat();
+                final FileStat stat = file.statSync();
                 size += stat.size;
               }
             },
             onDone: () async {
               await _cacheLocal?.clear();
               info.value.size = size;
-              info.value.modified = (await cache.stat()).modified;
+              info.value.modified = cache.statSync().modified;
               info.refresh();
               hashes.addAll(checksums);
               await _cacheLocal?.upsert(info.value);

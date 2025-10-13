@@ -19,13 +19,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
-import '../../controller.dart';
-import '../conditional_backdrop.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
+import '../../controller.dart';
+import '../conditional_backdrop.dart';
 
 /// [Participant] overlay displaying its `muted` and `video status` icons.
 class ParticipantOverlayWidget extends StatelessWidget {
@@ -66,12 +66,12 @@ class ParticipantOverlayWidget extends StatelessWidget {
         isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
       }
 
-      bool isVideoDisabled =
+      final bool isVideoDisabled =
           participant.video.value?.renderer.value == null &&
           (participant.video.value?.direction.value.isEmitting ?? false) &&
           participant.member.owner == MediaOwnerKind.remote;
 
-      bool isAudioDisabled =
+      final bool isAudioDisabled =
           participant.audio.value != null &&
           participant.audio.value!.renderer.value == null &&
           participant.source != MediaSourceKind.display &&
@@ -153,7 +153,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
       final Widget child;
 
       if (hovered || additionally.isNotEmpty) {
-        child = Container(
+        child = DecoratedBox(
           key: const Key('Tooltip'),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),

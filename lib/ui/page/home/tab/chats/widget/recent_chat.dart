@@ -776,7 +776,7 @@ class RecentChatTile extends StatelessWidget {
       } else if (e.file.isVideo) {
         if (e.file.path == null) {
           if (e.file.bytes.value == null) {
-            content = Container(
+            content = ColoredBox(
               color: inverted ? style.colors.onPrimary : style.colors.secondary,
               child: Icon(
                 Icons.video_file,
@@ -803,7 +803,7 @@ class RecentChatTile extends StatelessWidget {
           );
         }
       } else {
-        content = Container(
+        content = ColoredBox(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
           child: Center(
             child: SvgIcon(
@@ -840,7 +840,7 @@ class RecentChatTile extends StatelessWidget {
           ),
         );
       } else {
-        content = Container(
+        content = ColoredBox(
           color: inverted ? style.colors.onPrimary : style.colors.secondary,
           child: Center(
             child: SvgIcon(

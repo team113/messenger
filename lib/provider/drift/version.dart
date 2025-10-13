@@ -25,8 +25,8 @@ import '/domain/model/user.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
-import '/store/model/session_data.dart';
 import '/store/model/session.dart';
+import '/store/model/session_data.dart';
 import '/util/new_type.dart';
 import 'drift.dart';
 
@@ -85,7 +85,7 @@ class VersionDriftProvider extends DriftProviderBase {
             .toList();
       }, exclusive: false);
 
-      for (var e in result ?? <(UserId, SessionData)>[]) {
+      for (final e in result ?? <(UserId, SessionData)>[]) {
         data[e.$1] = e.$2;
       }
 
@@ -146,7 +146,7 @@ class VersionDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<SessionData?>((db) async {
+    return safe<SessionData?>((db) async {
       final stmt = db.select(db.versions)
         ..where((u) => u.userId.equals(id.val));
       final VersionRow? row = await stmt.getSingleOrNull();

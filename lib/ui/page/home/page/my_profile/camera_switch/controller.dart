@@ -70,7 +70,7 @@ class CameraSwitchController extends GetxController {
   StreamSubscription? _permissionSubscription;
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     _cameraWorker = ever(camera, (e) => initRenderer());
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
       (e) => devices.value = e.video().toList(),

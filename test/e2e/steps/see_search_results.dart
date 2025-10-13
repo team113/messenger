@@ -156,7 +156,7 @@ final StepDefinitionGeneric seeMonologInSearchResults = then<CustomWorld>(
       );
 
       if (!isPresent) {
-        return await context.world.appDriver.isPresent(
+        return context.world.appDriver.isPresent(
           context.world.appDriver.findBy('SearchChat_$monologId', FindType.key),
         );
       }

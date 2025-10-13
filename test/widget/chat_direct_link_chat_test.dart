@@ -17,8 +17,8 @@
 
 import 'dart:async';
 
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
@@ -82,7 +82,7 @@ void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
-  var graphQlProvider = Get.put(MockGraphQlProvider());
+  final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
 
   final myUserProvider = Get.put(MyUserDriftProvider(common));
@@ -134,7 +134,7 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  AuthService authService = Get.put(
+  final AuthService authService = Get.put(
     AuthService(
       AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
       credentialsProvider,
@@ -242,7 +242,7 @@ void main() async {
       ),
     ).thenAnswer((_) {
       ver = ver + BigInt.one;
-      var event = {
+      final event = {
         '__typename': 'ChatEventsVersioned',
         'events': [
           {
@@ -280,7 +280,7 @@ void main() async {
       ),
     ).thenAnswer((_) {
       ver = ver + BigInt.one;
-      var event = {
+      final event = {
         '__typename': 'ChatEventsVersioned',
         'events': [
           {
@@ -348,10 +348,10 @@ void main() async {
       graphQlProvider.sessionsEvents(any),
     ).thenAnswer((_) => const Stream.empty());
 
-    UserRepository userRepository = Get.put(
+    final UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider),
     );
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
         settingsProvider,
@@ -367,21 +367,22 @@ void main() async {
       settingsRepository,
       me: const UserId('me'),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        versionProvider,
-        monologProvider,
-        me: const UserId('me'),
-      ),
-    );
-    AbstractContactRepository contactRepository = ContactRepository(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
+          ChatRepository(
+            graphQlProvider,
+            chatProvider,
+            chatItemProvider,
+            chatMemberProvider,
+            callRepository,
+            draftProvider,
+            userRepository,
+            versionProvider,
+            monologProvider,
+            me: const UserId('me'),
+          ),
+        );
+    final AbstractContactRepository contactRepository = ContactRepository(
       graphQlProvider,
       UserRepository(graphQlProvider, userProvider),
       versionProvider,
@@ -390,10 +391,12 @@ void main() async {
 
     Get.put(ContactService(contactRepository));
     Get.put(UserService(userRepository));
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService = Get.put(
+      ChatService(chatRepository, authService),
+    );
     Get.put(CallService(authService, chatService, callRepository));
 
-    BlocklistRepository blocklistRepository = BlocklistRepository(
+    final BlocklistRepository blocklistRepository = BlocklistRepository(
       graphQlProvider,
       blocklistProvider,
       userRepository,
@@ -401,7 +404,7 @@ void main() async {
       me: const UserId('me'),
     );
 
-    MyUserRepository myUserRepository = Get.put(
+    final MyUserRepository myUserRepository = Get.put(
       MyUserRepository(
         graphQlProvider,
         myUserProvider,

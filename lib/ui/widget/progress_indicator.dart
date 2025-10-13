@@ -72,7 +72,7 @@ class CustomProgressIndicator extends StatelessWidget {
   /// Constructs a [CustomProgressIndicator] with a `small` style.
   const CustomProgressIndicator.bold({super.key, this.value})
     : size = 18,
-      padding = const EdgeInsets.all(0),
+      padding = EdgeInsets.zero,
       blur = false,
       backgroundColor = null,
       valueColor = null,

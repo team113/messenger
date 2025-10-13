@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
@@ -83,7 +84,7 @@ class MediaUtilsImpl {
         }
 
         WebUtils.onPanic((e) {
-          Log.error('Panic: ${e.toString()}', 'Jason');
+          Log.error('Panic: $e', 'Jason');
           _jason = null;
           __mediaManager = null;
         });
@@ -187,7 +188,7 @@ class MediaUtilsImpl {
             .where((e) => e.deviceId().isNotEmpty)
             .where((e) => kind == null || e.kind() == kind)
             .whereType<MediaDeviceDetails>()
-            .map((e) => DeviceDetails(e))
+            .map(DeviceDetails.new)
             .toList();
 
     // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.
@@ -427,6 +428,7 @@ enum AudioSpeakerKind { headphones, earpiece, speaker }
 /// Wrapper around a [MediaDeviceDetails] with [id] method.
 ///
 /// [id] may be overridden to represent a different device.
+@immutable
 class DeviceDetails extends MediaDeviceDetails {
   DeviceDetails(this._device);
 

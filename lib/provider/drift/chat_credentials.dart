@@ -65,7 +65,7 @@ class ChatCredentialsDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<ChatCallCredentials?>((db) async {
+    return safe<ChatCallCredentials?>((db) async {
       final stmt = db.select(db.chatCredentials)
         ..where((u) => u.chatId.equals(id.val));
       final ChatCredentialsRow? row = await stmt.getSingleOrNull();

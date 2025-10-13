@@ -75,7 +75,7 @@ class BackgroundDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<DtoBackground?>((db) async {
+    return safe<DtoBackground?>((db) async {
       final stmt = db.select(db.background)
         ..where((u) => u.userId.equals(id.val));
       final BackgroundRow? row = await stmt.getSingleOrNull();

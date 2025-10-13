@@ -57,7 +57,7 @@ class BuilderWrap<T> extends StatelessWidget {
         alignment: WrapAlignment.center,
         spacing: 16,
         runSpacing: 16,
-        children: children.map((e) => builder(e)).toList(),
+        children: children.map(builder).toList(),
       ),
     );
   }

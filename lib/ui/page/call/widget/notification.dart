@@ -41,7 +41,7 @@ class CallNotificationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    CallNotification notification = this.notification;
+    final CallNotification notification = this.notification;
     final String title;
 
     switch (notification.kind) {
@@ -108,7 +108,7 @@ class CallNotificationWidget extends StatelessWidget {
       child: ConditionalBackdropFilter(
         borderRadius: BorderRadius.circular(30),
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             color: style.colors.primaryAuxiliaryOpacity90,
             borderRadius: BorderRadius.circular(30),

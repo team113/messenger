@@ -17,9 +17,9 @@
 
 import 'package:flutter/material.dart';
 
-import '../widget/headline.dart';
 import '/routes.dart';
 import '/ui/page/home/tab/chats/widget/unread_counter.dart';
+import '../widget/headline.dart';
 
 /// [Routes.style] system section.
 class SystemSection {

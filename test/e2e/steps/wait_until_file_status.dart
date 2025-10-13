@@ -44,15 +44,15 @@ waitUntilFileStatus = then2<String, DownloadStatus, CustomWorld>(
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
-      RxChat? chat =
+      final RxChat? chat =
           Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-      Attachment? attachment = chat!.messages
+      final Attachment? attachment = chat!.messages
           .map((e) => e.value)
           .whereType<ChatMessage>()
           .expand((e) => e.attachments)
           .firstWhereOrNull((a) => a.filename == name);
 
-      Finder finder = context.world.appDriver.findByKeySkipOffstage(
+      final Finder finder = context.world.appDriver.findByKeySkipOffstage(
         'File_${attachment?.id}',
       );
 

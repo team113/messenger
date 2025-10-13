@@ -60,7 +60,7 @@ class MicrophoneSwitchController extends GetxController {
   StreamSubscription? _permissionSubscription;
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen((e) {
       devices.value = e.audio().toList();
       selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);

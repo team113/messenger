@@ -42,7 +42,7 @@ class CropController extends GetxController {
   final Rx<CropRotation> rotation = Rx(CropRotation.up);
 
   /// [Size] of the [image].
-  final Rx<Size> dimensions = Rx(const Size(0, 0));
+  final Rx<Size> dimensions = Rx(Size.zero);
 
   /// [PictureInfo] of the [image] being an SVG.
   PictureInfo? svg;
@@ -78,7 +78,7 @@ class CropController extends GetxController {
   }
 
   /// Resolves image and initializes [dimensions].
-  void _initializeBitmap() async {
+  Future<void> _initializeBitmap() async {
     try {
       final Codec decoded = await instantiateImageCodec(image);
       final FrameInfo frame = await decoded.getNextFrame();

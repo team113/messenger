@@ -115,7 +115,7 @@ class ParticipantView extends StatelessWidget {
               child = Obx(() {
                 final List<RxUser> members = [];
 
-                for (var u in c.chat.value!.members.values.where(
+                for (final u in c.chat.value!.members.values.where(
                   (e) => e.user.id != c.me,
                 )) {
                   members.add(u.user);
@@ -160,7 +160,10 @@ class ParticipantView extends StatelessWidget {
                                 bool inCall = false;
                                 bool isRedialed = false;
 
-                                CallMember? member = call.value.members.values
+                                final CallMember? member = call
+                                    .value
+                                    .members
+                                    .values
                                     .firstWhereOrNull(
                                       (e) => e.id.userId == user.id,
                                     );

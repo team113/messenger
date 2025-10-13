@@ -20,10 +20,10 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/domain/model/chat_item.dart';
-import '../domain/repository/paginated.dart';
 import '/store/model/chat_item.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
+import '../domain/repository/paginated.dart';
 import 'pagination.dart';
 
 /// Implementation of a [Paginated].
@@ -74,7 +74,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
     Log.debug('ensureInitialized()', '$runtimeType');
 
     if (_futures.isEmpty && !status.value.isSuccess) {
-      for (var f in initial) {
+      for (final f in initial) {
         if (f is Future<Map<K, T>>) {
           _futures.add(f..then(items.addAll));
         } else {
@@ -142,7 +142,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
       }
 
       // TODO: Probably shouldn't do that in the store.
-      int length = items.length;
+      final int length = items.length;
       for (int i = 0; i < 10 && hasNext.isTrue; i++) {
         await pagination!.next();
 
@@ -165,7 +165,7 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
       }
 
       // TODO: Probably shouldn't do that in the store.
-      int length = items.length;
+      final int length = items.length;
       for (int i = 0; i < 10 && hasPrevious.isTrue; i++) {
         await pagination!.previous();
 
@@ -220,7 +220,7 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
     Log.debug('ensureInitialized()', '$runtimeType');
 
     if (_futures.isEmpty && !status.value.isSuccess) {
-      for (var f in initial) {
+      for (final f in initial) {
         if (f is Future<Map<K, T>>) {
           _futures.add(f..then(items.addAll));
         } else {
@@ -252,7 +252,7 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
     );
 
     if (page != null) {
-      for (var e in page.edges) {
+      for (final e in page.edges) {
         await _apply(pagination!.onKey(e), e);
       }
     }

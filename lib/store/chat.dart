@@ -57,6 +57,8 @@ import '/provider/gql/exceptions.dart'
         AddChatMemberException,
         ClearChatException,
         ConnectionException,
+        CreateChatDirectLinkException,
+        CreateDialogException,
         DeleteChatDirectLinkException,
         DeleteChatForwardException,
         DeleteChatMessageException,
@@ -65,16 +67,14 @@ import '/provider/gql/exceptions.dart'
         ForwardChatItemsException,
         HideChatException,
         HideChatItemException,
-        ToggleChatArchivationException,
         RemoveChatMemberException,
         RenameChatException,
         StaleVersionException,
+        ToggleChatArchivationException,
         ToggleChatMuteException,
         UnfavoriteChatException,
         UpdateChatAvatarException,
-        UploadAttachmentException,
-        CreateChatDirectLinkException,
-        CreateDialogException;
+        UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
@@ -330,6 +330,7 @@ class ChatRepository extends DisposableInterface
 
           case OperationKind.updated:
             if (e.oldKey != e.key) {
+              // ignore: cancel_subscriptions
               final StreamSubscription? subscription = _subscriptions[e.oldKey];
               if (subscription != null) {
                 _subscriptions[e.key!] = subscription;
@@ -356,6 +357,7 @@ class ChatRepository extends DisposableInterface
 
           case OperationKind.updated:
             if (e.oldKey != e.key) {
+              // ignore: cancel_subscriptions
               final StreamSubscription? subscription =
                   _archiveSubscriptions[e.oldKey];
               if (subscription != null) {
@@ -390,6 +392,8 @@ class ChatRepository extends DisposableInterface
     _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
     _paginatedSubscription?.cancel();
+    _archivedSubscription?.cancel();
+    _archiveSubscriptions.forEach((_, s) => s.cancel());
 
     super.onClose();
   }
@@ -411,7 +415,7 @@ class ChatRepository extends DisposableInterface
   Future<void> clear() {
     Log.debug('clear()', '$runtimeType');
 
-    for (var c in chats.entries) {
+    for (final c in chats.entries) {
       c.value.dispose();
     }
 
@@ -461,7 +465,7 @@ class ChatRepository extends DisposableInterface
         if (id.isLocal) {
           chat ??= await _createLocalDialog(id.userId);
         } else if (chat == null) {
-          var query = (await _graphQlProvider.getChat(id)).chat;
+          final query = (await _graphQlProvider.getChat(id)).chat;
           if (query != null) {
             chat = await _putEntry(_chat(query));
           }
@@ -505,7 +509,7 @@ class ChatRepository extends DisposableInterface
 
     if (chatId.isLocal) {
       if (chatId.isLocalWith(me)) {
-        return await ensureRemoteMonolog();
+        return ensureRemoteMonolog();
       }
 
       try {
@@ -542,9 +546,7 @@ class ChatRepository extends DisposableInterface
 
     final ChatData chatData = _chat(
       await Backoff.run(
-        () async {
-          return await _graphQlProvider.createMonologChat(name: name);
-        },
+        () => _graphQlProvider.createMonologChat(name: name),
         retryIf: (e) => e.isNetworkRelated,
         retries: 10,
       ),
@@ -628,13 +630,13 @@ class ChatRepository extends DisposableInterface
     ChatMessageText? text,
     List<AttachmentId>? attachments,
     List<ChatItemId> repliesTo = const [],
-  }) async {
+  }) {
     Log.debug(
       'postChatMessage($chatId, $text, $attachments, $repliesTo)',
       '$runtimeType',
     );
 
-    return await _graphQlProvider.postChatMessage(
+    return _graphQlProvider.postChatMessage(
       chatId,
       text: text,
       attachments: attachments,
@@ -650,7 +652,7 @@ class ChatRepository extends DisposableInterface
 
     // TODO: Account [ChatForward]s.
     if (item is ChatMessage) {
-      for (var e in item.attachments.whereType<LocalAttachment>()) {
+      for (final e in item.attachments.whereType<LocalAttachment>()) {
         if (e.status.value == SendingStatus.error &&
             (e.upload.value == null || e.upload.value?.isCompleted == true)) {
           uploadAttachment(e)
@@ -831,7 +833,7 @@ class ChatRepository extends DisposableInterface
   Future<void> hideChat(ChatId id) async {
     Log.debug('hideChat($id)', '$runtimeType');
 
-    RxChatImpl? chat = chats[id];
+    final RxChatImpl? chat = chats[id];
     ChatData? monologData;
 
     chat?.chat.update((c) => c?.isHidden = true);
@@ -953,7 +955,7 @@ class ChatRepository extends DisposableInterface
 
     final List<Future> futures = [];
 
-    for (var e in chats.values) {
+    for (final e in chats.values) {
       if (ids?.contains(e.id) == false) {
         continue;
       }
@@ -1319,12 +1321,12 @@ class ChatRepository extends DisposableInterface
         );
       }
 
-      var response = await _graphQlProvider.uploadAttachment(
+      final response = await _graphQlProvider.uploadAttachment(
         upload,
         onSendProgress: (now, max) => attachment.progress.value = now / max,
       );
 
-      var model = response.attachment.toModel();
+      final model = response.attachment.toModel();
       attachment.id = model.id;
       attachment.filename = model.filename;
       attachment.original = model.original;
@@ -1648,7 +1650,7 @@ class ChatRepository extends DisposableInterface
 
     return Page(
       RxList(query.chat!.items.edges.map((e) => e.toDto()).toList()),
-      query.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c)),
+      query.chat!.items.pageInfo.toModel(ChatItemsCursor.new),
     );
   }
 
@@ -1671,7 +1673,7 @@ class ChatRepository extends DisposableInterface
       before: before,
     );
 
-    for (var e in query.chat!.members.edges) {
+    for (final e in query.chat!.members.edges) {
       _userRepo.put(e.node.user.toDto());
     }
 
@@ -1679,7 +1681,7 @@ class ChatRepository extends DisposableInterface
       RxList(
         query.chat!.members.edges.map((e) => e.node.toDto(e.cursor)).toList(),
       ),
-      query.chat!.members.pageInfo.toModel((c) => ChatMembersCursor(c)),
+      query.chat!.members.pageInfo.toModel(ChatMembersCursor.new),
     );
   }
 
@@ -1738,7 +1740,7 @@ class ChatRepository extends DisposableInterface
     ) async* {
       Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
 
-      var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+      final events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
         yield const ChatEventsInitialized();
@@ -1747,7 +1749,7 @@ class ChatRepository extends DisposableInterface
         final data = _chat(chat);
         yield ChatEventsChat(data.chat);
       } else if (events.$$typename == 'ChatEventsVersioned') {
-        var mixin =
+        final mixin =
             events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
         yield ChatEventsEvent(
           ChatEventsVersioned(mixin.events.map(chatEvent).toList(), mixin.ver),
@@ -1811,9 +1813,7 @@ class ChatRepository extends DisposableInterface
         _localMonologFavoritePosition = newPosition;
         final ChatData monolog = _chat(
           await Backoff.run(
-            () async {
-              return await _graphQlProvider.createMonologChat();
-            },
+            _graphQlProvider.createMonologChat,
             retryIf: (e) => e.isNetworkRelated,
             retries: 10,
           ),
@@ -1967,42 +1967,43 @@ class ChatRepository extends DisposableInterface
     Log.trace('chatEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventChatCleared') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCleared;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatCleared;
       return EventChatCleared(e.chatId, node.at);
     } else if (e.$$typename == 'EventChatUnreadItemsCountUpdated') {
-      var node =
+      final node =
           e as ChatEventsVersionedMixin$Events$EventChatUnreadItemsCountUpdated;
       return EventChatUnreadItemsCountUpdated(e.chatId, node.count);
     } else if (e.$$typename == 'EventChatItemPosted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemPosted;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatItemPosted;
       return EventChatItemPosted(e.chatId, node.item.toDto());
     } else if (e.$$typename == 'EventChatLastItemUpdated') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatLastItemUpdated;
+      final node =
+          e as ChatEventsVersionedMixin$Events$EventChatLastItemUpdated;
       return EventChatLastItemUpdated(e.chatId, node.lastItem?.toDto());
     } else if (e.$$typename == 'EventChatItemHidden') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemHidden;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatItemHidden;
       return EventChatItemHidden(e.chatId, node.itemId);
     } else if (e.$$typename == 'EventChatMuted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatMuted;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatMuted;
       return EventChatMuted(e.chatId, node.duration.toModel());
     } else if (e.$$typename == 'EventChatTypingStarted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStarted;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatTypingStarted;
       _userRepo.put(node.user.toDto());
       return EventChatTypingStarted(e.chatId, node.user.toModel());
     } else if (e.$$typename == 'EventChatUnmuted') {
       return EventChatUnmuted(e.chatId);
     } else if (e.$$typename == 'EventChatTypingStopped') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStopped;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatTypingStopped;
       _userRepo.put(node.user.toDto());
       return EventChatTypingStopped(e.chatId, node.user.toModel());
     } else if (e.$$typename == 'EventChatHidden') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatHidden;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatHidden;
       return EventChatHidden(e.chatId, node.at);
     } else if (e.$$typename == 'EventChatItemDeleted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemDeleted;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatItemDeleted;
       return EventChatItemDeleted(e.chatId, node.itemId);
     } else if (e.$$typename == 'EventChatItemEdited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemEdited;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatItemEdited;
       return EventChatItemEdited(
         e.chatId,
         node.itemId,
@@ -2011,21 +2012,22 @@ class ChatRepository extends DisposableInterface
         node.repliesTo?.changed.map((e) => e.toDto()).toList(),
       );
     } else if (e.$$typename == 'EventChatCallStarted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
       return EventChatCallStarted(e.chatId, node.call.toModel());
     } else if (e.$$typename == 'EventChatDirectLinkUsageCountUpdated') {
-      var node =
+      final node =
           e as ChatEventsVersionedMixin$Events$EventChatDirectLinkUsageCountUpdated;
       return EventChatDirectLinkUsageCountUpdated(e.chatId, node.usageCount);
     } else if (e.$$typename == 'EventChatCallFinished') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
       return EventChatCallFinished(e.chatId, node.call.toModel(), node.reason);
     } else if (e.$$typename == 'EventChatCallMemberLeft') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
       _userRepo.put(node.user.toDto());
       return EventChatCallMemberLeft(e.chatId, node.user.toModel(), node.at);
     } else if (e.$$typename == 'EventChatCallMemberJoined') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+      final node =
+          e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
       _userRepo.put(node.user.toDto());
       return EventChatCallMemberJoined(
         e.chatId,
@@ -2034,7 +2036,7 @@ class ChatRepository extends DisposableInterface
         node.at,
       );
     } else if (e.$$typename == 'EventChatCallMemberRedialed') {
-      var node =
+      final node =
           e as ChatEventsVersionedMixin$Events$EventChatCallMemberRedialed;
       _userRepo.put(node.user.toDto());
       return EventChatCallMemberRedialed(
@@ -2046,14 +2048,14 @@ class ChatRepository extends DisposableInterface
         node.byUser.toModel(),
       );
     } else if (e.$$typename == 'EventChatDelivered') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;
       return EventChatDelivered(e.chatId, node.until);
     } else if (e.$$typename == 'EventChatRead') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatRead;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatRead;
       _userRepo.put(node.byUser.toDto());
       return EventChatRead(e.chatId, node.byUser.toModel(), node.at);
     } else if (e.$$typename == 'EventChatCallDeclined') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
       _userRepo.put(node.user.toDto());
       return EventChatCallDeclined(
         e.chatId,
@@ -2063,13 +2065,13 @@ class ChatRepository extends DisposableInterface
         node.at,
       );
     } else if (e.$$typename == 'EventChatTotalItemsCountUpdated') {
-      var node =
+      final node =
           e as ChatEventsVersionedMixin$Events$EventChatTotalItemsCountUpdated;
       return EventChatTotalItemsCountUpdated(e.chatId, node.count);
     } else if (e.$$typename == 'EventChatDirectLinkDeleted') {
       return EventChatDirectLinkDeleted(e.chatId);
     } else if (e.$$typename == 'EventChatDirectLinkUpdated') {
-      var node =
+      final node =
           e as ChatEventsVersionedMixin$Events$EventChatDirectLinkUpdated;
       return EventChatDirectLinkUpdated(
         e.chatId,
@@ -2080,7 +2082,7 @@ class ChatRepository extends DisposableInterface
         ),
       );
     } else if (e.$$typename == 'EventChatCallMoved') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMoved;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatCallMoved;
       _userRepo.put(node.user.toDto());
       return EventChatCallMoved(
         e.chatId,
@@ -2100,13 +2102,13 @@ class ChatRepository extends DisposableInterface
       var node = e as ChatEventsVersionedMixin$Events$EventChatUnarchived;
       return EventChatUnarchived(e.chatId, node.at);
     } else if (e.$$typename == 'EventChatFavorited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatFavorited;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatFavorited;
       return EventChatFavorited(e.chatId, node.at, node.position);
     } else if (e.$$typename == 'EventChatUnfavorited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatUnfavorited;
+      final node = e as ChatEventsVersionedMixin$Events$EventChatUnfavorited;
       return EventChatUnfavorited(e.chatId, node.at);
     } else if (e.$$typename == 'EventChatCallConversationStarted') {
-      var node =
+      final node =
           e as ChatEventsVersionedMixin$Events$EventChatCallConversationStarted;
       return EventChatCallConversationStarted(
         e.chatId,
@@ -2115,7 +2117,7 @@ class ChatRepository extends DisposableInterface
         node.call.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
-      var node =
+      final node =
           e as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
       return EventChatCallAnswerTimeoutPassed(e.chatId, node.callId);
     } else {
@@ -2314,8 +2316,8 @@ class ChatRepository extends DisposableInterface
         break;
 
       case RecentChatsEventKind.list:
-        var node = event as RecentChatsTop;
-        for (ChatData c in node.list) {
+        final node = event as RecentChatsTop;
+        for (final ChatData c in node.list) {
           if (chats[c.chat.value.id] == null) {
             _putEntry(c, updateVersion: false);
           }
@@ -2410,7 +2412,7 @@ class ChatRepository extends DisposableInterface
           perPage: 15,
           provider: DriftPageProvider(
             fetch: ({required after, required before, ChatId? around}) async {
-              return await _chatLocal.favorite(limit: after + before + 1);
+              return _chatLocal.favorite(limit: after + before + 1);
             },
             onKey: (e) => e.value.id,
             onCursor: (e) => e?.favoriteCursor,
@@ -2419,8 +2421,8 @@ class ChatRepository extends DisposableInterface
                 await _chatLocal.upsertBulk(e);
               }
             },
-            delete: (e) async => await _chatLocal.delete(e),
-            reset: () async => await _chatLocal.clear(),
+            delete: _chatLocal.delete,
+            reset: _chatLocal.clear,
             isLast: (_, _) => true,
             isFirst: (_, _) => true,
             fulfilledWhenNone: true,
@@ -2434,8 +2436,8 @@ class ChatRepository extends DisposableInterface
           onKey: (e) => e.value.id,
           perPage: 15,
           provider: DriftPageProvider(
-            fetch: ({required after, required before, ChatId? around}) async {
-              return await _chatLocal.recent(limit: after + before + 1);
+            fetch: ({required after, required before, ChatId? around}) {
+              return _chatLocal.recent(limit: after + before + 1);
             },
             onKey: (e) => e.value.id,
             onCursor: (e) => e?.recentCursor,
@@ -2444,8 +2446,8 @@ class ChatRepository extends DisposableInterface
                 await _chatLocal.upsertBulk(e);
               }
             },
-            delete: (e) async => await _chatLocal.delete(e),
-            reset: () async => await _chatLocal.clear(),
+            delete: _chatLocal.delete,
+            reset: _chatLocal.clear,
             isLast: (_, _) => false,
             isFirst: (_, _) => true,
             fulfilledWhenNone: true,
@@ -2537,8 +2539,8 @@ class ChatRepository extends DisposableInterface
               await _chatLocal.upsertBulk(e);
             }
           },
-          delete: (e) async => await _chatLocal.delete(e),
-          reset: () async => await _chatLocal.clear(),
+          delete: _chatLocal.delete,
+          reset: _chatLocal.clear,
           isLast: (_, _) =>
               _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
           isFirst: (_, _) =>
@@ -2575,14 +2577,7 @@ class ChatRepository extends DisposableInterface
       perPage: 15,
       provider: DriftGraphQlPageProvider(
         alwaysFetch: true,
-        graphQlProvider: GraphQlPageProvider(
-          fetch: ({after, before, first, last}) => _recentChats(
-            after: after,
-            first: first,
-            before: before,
-            last: last,
-          ),
-        ),
+        graphQlProvider: GraphQlPageProvider(fetch: _recentChats),
         driftProvider: DriftPageProvider(
           watch: ({int? after, int? before, ChatId? around}) async {
             final int limit = (after ?? 0) + (before ?? 0) + 1;
@@ -2615,8 +2610,8 @@ class ChatRepository extends DisposableInterface
               await _chatLocal.upsertBulk(e);
             }
           },
-          delete: (e) async => await _chatLocal.delete(e),
-          reset: () async => await _chatLocal.clear(),
+          delete: _chatLocal.delete,
+          reset: _chatLocal.clear,
           isLast: (_, _) => false,
           isFirst: (_, _) => false,
           fulfilledWhenNone: true,
@@ -2672,7 +2667,7 @@ class ChatRepository extends DisposableInterface
 
     if (_localPagination != null) {
       // Remove the [DtoChat]s missing in local pagination from the database.
-      for (var e in _localPagination!.items.take(_pagination!.items.length)) {
+      for (final e in _localPagination!.items.take(_pagination!.items.length)) {
         if (_pagination?.items.none((b) => b.id == e.id) == true) {
           remove(e.id);
         }
@@ -2710,14 +2705,14 @@ class ChatRepository extends DisposableInterface
     return _graphQlProvider.recentChatsTopEvents(3).asyncExpand((event) async* {
       Log.trace('_recentChatsRemoteEvents(): ${event.data}', '$runtimeType');
 
-      var events = RecentChatsTopEvents$Subscription.fromJson(
+      final events = RecentChatsTopEvents$Subscription.fromJson(
         event.data!,
       ).recentChatsTopEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         yield const RecentChatsTopInitialized();
       } else if (events.$$typename == 'RecentChatsTop') {
-        var list =
+        final list =
             (events
                     as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
                 .list;
@@ -2725,14 +2720,14 @@ class ChatRepository extends DisposableInterface
           list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
         );
       } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
-        var mixin =
+        final mixin =
             events
                 as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
         yield EventRecentChatsUpdated(
           _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
         );
       } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
-        var mixin =
+        final mixin =
             events
                 as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
         yield EventRecentChatsDeleted(mixin.chatId);
@@ -2810,7 +2805,7 @@ class ChatRepository extends DisposableInterface
             .map((e) => _chat(e.node, recentCursor: e.cursor).chat)
             .toList(),
       ),
-      query.pageInfo.toModel((c) => RecentChatsCursor(c)),
+      query.pageInfo.toModel(RecentChatsCursor.new),
     );
   }
 
@@ -2824,7 +2819,7 @@ class ChatRepository extends DisposableInterface
   }) async {
     Log.debug('_favoriteChats($first, $after, $last, $before)', '$runtimeType');
 
-    FavoriteChats$Query$FavoriteChats query =
+    final FavoriteChats$Query$FavoriteChats query =
         (await _graphQlProvider.favoriteChats(
           first: first,
           after: after,
@@ -2840,7 +2835,7 @@ class ChatRepository extends DisposableInterface
             .map((e) => _chat(e.node, favoriteCursor: e.cursor).chat)
             .toList(),
       ),
-      query.pageInfo.toModel((c) => FavoriteChatsCursor(c)),
+      query.pageInfo.toModel(FavoriteChatsCursor.new),
     );
   }
 
@@ -2890,7 +2885,7 @@ class ChatRepository extends DisposableInterface
       _putEntryGuards[chatId] = mutex;
     }
 
-    return await mutex.protect(() async {
+    return mutex.protect(() async {
       RxChatImpl? entry = chats[chatId];
 
       if (entry == null) {
@@ -2947,7 +2942,7 @@ class ChatRepository extends DisposableInterface
   }) {
     Log.trace('_chat($q, $recentCursor, $favoriteCursor)', '$runtimeType');
 
-    for (var m in q.members.nodes) {
+    for (final m in q.members.nodes) {
       _userRepo.put(m.user.toDto());
     }
 
@@ -3009,7 +3004,7 @@ class ChatRepository extends DisposableInterface
         break;
 
       case FavoriteChatsEventsKind.event:
-        var versioned = (event as FavoriteChatsEventsEvent).event;
+        final versioned = (event as FavoriteChatsEventsEvent).event;
         final listVer = _sessionLocal.data[me]?.favoriteChatsListVersion;
 
         if (versioned.ver >= listVer) {
@@ -3023,7 +3018,7 @@ class ChatRepository extends DisposableInterface
             '$runtimeType',
           );
 
-          for (var event in versioned.events) {
+          for (final event in versioned.events) {
             switch (event.kind) {
               case ChatEventKind.favorited:
                 // If we got an event about [Chat] that we don't have in
@@ -3069,7 +3064,7 @@ class ChatRepository extends DisposableInterface
     ) async* {
       Log.trace('_favoriteChatsEvents: ${event.data}', '$runtimeType');
 
-      var events = FavoriteChatsEvents$Subscription.fromJson(
+      final events = FavoriteChatsEvents$Subscription.fromJson(
         event.data!,
       ).favoriteChatsEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
@@ -3079,12 +3074,12 @@ class ChatRepository extends DisposableInterface
       } else if (events.$$typename == 'FavoriteChatsList') {
         // No-op, as favorite chats are fetched through [Pagination].
       } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
-        var mixin =
+        final mixin =
             events
                 as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
         yield FavoriteChatsEventsEvent(
           FavoriteChatsEventsVersioned(
-            mixin.events.map((e) => _favoriteChatsVersionedEvent(e)).toList(),
+            mixin.events.map(_favoriteChatsVersionedEvent).toList(),
             mixin.ver,
           ),
         );
@@ -3100,7 +3095,7 @@ class ChatRepository extends DisposableInterface
     Log.trace('_favoriteChatsVersionedEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventChatFavorited') {
-      var node =
+      final node =
           e as FavoriteChatsEventsVersionedMixin$Events$EventChatFavorited;
       return EventChatFavorited(e.chatId, e.at, node.position);
     } else if (e.$$typename == 'EventChatUnfavorited') {

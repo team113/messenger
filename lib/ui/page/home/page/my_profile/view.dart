@@ -105,7 +105,7 @@ class MyProfileView extends StatelessWidget {
         Get.find(),
       ),
       global: !Get.isRegistered<MyProfileController>(),
-      builder: (MyProfileController c) {
+      builder: (c) {
         return GestureDetector(
           onTap: FocusManager.instance.primaryFocus?.unfocus,
           child: Scaffold(
@@ -177,8 +177,9 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
       return Obx(() {
         final Widget animated;
 
-        bool hasPassword = c.myUser.value?.hasPassword == true;
-        bool hasEmail = c.myUser.value?.emails.confirmed.isNotEmpty == true;
+        final bool hasPassword = c.myUser.value?.hasPassword == true;
+        final bool hasEmail =
+            c.myUser.value?.emails.confirmed.isNotEmpty == true;
 
         if (!hasPassword || !hasEmail) {
           final InputBorder border = OutlineInputBorder(
@@ -1014,7 +1015,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                       padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
                       child: Column(
                         children: files
-                            .map((e) => ChatItemWidget.fileAttachment(e))
+                            .map(ChatItemWidget.fileAttachment)
                             .toList(),
                       ),
                     ),
@@ -1119,7 +1120,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
       Stack(
         children: [
           Positioned.fill(
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 border: style.primaryBorder,
                 borderRadius: BorderRadius.circular(10),

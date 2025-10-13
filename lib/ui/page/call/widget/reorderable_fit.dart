@@ -205,7 +205,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
       return true;
     }
 
-    var size = min(
+    final size = min(
       maxSize,
       axis == Axis.horizontal
           ? constraints.height / length
@@ -246,11 +246,11 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          double rWidth = width ?? constraints.maxWidth;
-          double rHeight = height ?? constraints.maxHeight;
+          final double rWidth = width ?? constraints.maxWidth;
+          final double rHeight = height ?? constraints.maxHeight;
 
-          double wrapMaxSize = axis == Axis.horizontal ? rWidth : rHeight;
-          bool fitView = useFitView(
+          final double wrapMaxSize = axis == Axis.horizontal ? rWidth : rHeight;
+          final bool fitView = useFitView(
             maxSize: wrapMaxSize,
             constraints: Size(rWidth, rHeight),
             length: children.length,
@@ -269,7 +269,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
             // To find the [mColumns], iterate through every possible number of
             // columns and pick the arrangement with [min]imal diagonal.
             for (int columns = 1; columns <= children.length; ++columns) {
-              int rows = (children.length / columns).ceil();
+              final int rows = (children.length / columns).ceil();
 
               // Current diagonal of a single square.
               double diagonal =
@@ -278,7 +278,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
 
               // If there's any [children] left outside, then their diagonal will
               // always be bigger, so we need to recalculate.
-              int outside = children.length % columns;
+              final int outside = children.length % columns;
               if (outside != 0) {
                 // Diagonal of an outside [children] is calculated with some
                 // coefficient to force the algorithm to pick non-standard
@@ -552,23 +552,23 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
   @override
   void initState() {
-    _items = widget.children.map((e) => _ReorderableItem(e)).toList();
+    _items = widget.children.map(_ReorderableItem.new).toList();
     AudioUtils.ensureInitialized();
     super.initState();
   }
 
   @override
   void didUpdateWidget(covariant _ReorderableFit<T> oldWidget) {
-    for (var r in List<_ReorderableItem<T>>.from(_items, growable: false)) {
+    for (final r in List<_ReorderableItem<T>>.from(_items, growable: false)) {
       if (!widget.children.contains(r.item)) {
         _items.remove(r);
         _positions.remove(r.hashCode);
       }
     }
 
-    for (var r in widget.children) {
+    for (final r in widget.children) {
       if (!_items.any((e) => e.hashCode == r.hashCode)) {
-        int? index = _positions[r.hashCode];
+        final int? index = _positions[r.hashCode];
         if (index != null && index < _items.length) {
           _items.insert(index, _ReorderableItem(r));
           _positions.remove(r.hashCode);
@@ -588,7 +588,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     Widget cell(int index, [bool withOverlay = true]) {
       final style = Theme.of(context).style;
 
-      var item = _items[index];
+      final item = _items[index];
       return Stack(
         children: [
           if (widget.decoratorBuilder != null)
@@ -656,7 +656,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     if (_doughDragged?.item == b.data &&
                         b.data != item.item &&
                         (widget.onWillAccept?.call(b.data) ?? true)) {
-                      int i = _items.indexWhere((e) => e.item == b.data);
+                      final int i = _items.indexWhere((e) => e.item == b.data);
                       if (i != -1) {
                         _onWillAccept(b.data, index, i);
                       }
@@ -665,7 +665,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                   onWillAcceptWithDetails: (b) {
                     if (b != item.item &&
                         (widget.onWillAccept?.call(b.data) ?? true)) {
-                      int i = _items.indexWhere((e) => e.item == b);
+                      final int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
                         // If this item is not the [_doughDragged], then ignore
                         // it.
@@ -701,7 +701,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     if (_doughDragged?.item == b.data &&
                         b.data != item.item &&
                         (widget.onWillAccept?.call(b.data) ?? true)) {
-                      int i = _items.indexWhere((e) => e.item == b.data);
+                      final int i = _items.indexWhere((e) => e.item == b.data);
                       if (i != -1) {
                         _onWillAccept(b.data, index, i);
                       }
@@ -710,7 +710,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                   onWillAcceptWithDetails: (b) {
                     if (b != item.item &&
                         (widget.onWillAccept?.call(b.data) ?? true)) {
-                      int i = _items.indexWhere((e) => e.item == b);
+                      final int i = _items.indexWhere((e) => e.item == b);
                       if (i != -1) {
                         // If this item is not the [_doughDragged], then ignore
                         // it.
@@ -928,7 +928,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     Rect endRect = end.cellKey.globalPaintBounds!;
 
     if (beginRect != endRect) {
-      Offset offset = widget.onOffset?.call() ?? Offset.zero;
+      final Offset offset = widget.onOffset?.call() ?? Offset.zero;
       beginRect = beginRect.shift(offset);
       endRect = endRect.shift(offset);
 
@@ -968,7 +968,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
     Rect endRect = to.cellKey.globalPaintBounds!;
 
     if (beginRect != endRect) {
-      Offset offset = widget.onOffset?.call() ?? Offset.zero;
+      final Offset offset = widget.onOffset?.call() ?? Offset.zero;
       beginRect = beginRect.shift(offset);
       endRect = endRect.shift(offset);
 

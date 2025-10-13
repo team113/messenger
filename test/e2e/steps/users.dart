@@ -40,7 +40,7 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
   'I am {user}',
   (TestUser user, context) async {
-    var password = UserPassword('123');
+    final password = UserPassword('123');
 
     final CustomUser me = await createUser(
       user: user,
@@ -200,7 +200,7 @@ final StepDefinitionGeneric signsOutSession = then1<TestUser, CustomWorld>(
 
     final sessions = context.world.sessions[testUser.name] ?? [];
 
-    for (var e in sessions.skip(1)) {
+    for (final e in sessions.skip(1)) {
       await provider.deleteSession(token: e.token);
     }
 

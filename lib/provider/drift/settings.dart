@@ -95,7 +95,7 @@ class SettingsDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<DtoSettings?>((db) async {
+    return safe<DtoSettings?>((db) async {
       final stmt = db.select(db.settings)
         ..where((u) => u.userId.equals(id.val));
       final SettingsRow? row = await stmt.getSingleOrNull();

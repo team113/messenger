@@ -17,8 +17,6 @@
 
 import 'package:flutter/material.dart';
 
-import '../widget/headline.dart';
-import '../widget/headlines.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/auth/widget/cupertino_button.dart';
@@ -36,6 +34,8 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '../widget/headline.dart';
+import '../widget/headlines.dart';
 
 /// [Routes.style] buttons section.
 class ButtonsSection {

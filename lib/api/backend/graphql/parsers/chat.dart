@@ -16,10 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
-import '/store/model/chat_item.dart';
+import '/domain/model/chat_item.dart';
 import '/store/model/chat.dart';
+import '/store/model/chat_item.dart';
 
 // ignore: todo
 // TODO: Change List<Object?> to List<String>.
@@ -32,13 +32,13 @@ String fromDartChatIdToGraphQLChatId(ChatId v) => v.val;
 List<ChatId> fromGraphQLListChatIdToDartListChatId(List<Object?> v) =>
     v.map((e) => fromGraphQLChatIdToDartChatId(e as String)).toList();
 List<String> fromDartListChatIdToGraphQLListChatId(List<ChatId> v) =>
-    v.map((e) => fromDartChatIdToGraphQLChatId(e)).toList();
+    v.map(fromDartChatIdToGraphQLChatId).toList();
 List<ChatId>? fromGraphQLListNullableChatIdToDartListNullableChatId(
   List<Object?>? v,
 ) => v?.map((e) => fromGraphQLChatIdToDartChatId(e as String)).toList();
 List<String>? fromDartListNullableChatIdToGraphQLListNullableChatId(
   List<ChatId>? v,
-) => v?.map((e) => fromDartChatIdToGraphQLChatId(e)).toList();
+) => v?.map(fromDartChatIdToGraphQLChatId).toList();
 
 ChatId? fromGraphQLChatIdNullableToDartChatIdNullable(String? v) =>
     v == null ? null : ChatId(v);
@@ -50,7 +50,7 @@ List<ChatId?> fromGraphQLListChatIdNullableToDartListChatIdNullable(
     .toList();
 List<String?> fromDartListChatIdNullableToGraphQLListChatIdNullable(
   List<ChatId?> v,
-) => v.map((e) => fromDartChatIdNullableToGraphQLChatIdNullable(e)).toList();
+) => v.map(fromDartChatIdNullableToGraphQLChatIdNullable).toList();
 List<ChatId?>?
 fromGraphQLListNullableChatIdNullableToDartListNullableChatIdNullable(
   List<Object?>? v,
@@ -60,7 +60,7 @@ fromGraphQLListNullableChatIdNullableToDartListNullableChatIdNullable(
 List<String?>?
 fromDartListNullableChatIdNullableToGraphQLListNullableChatIdNullable(
   List<ChatId?>? v,
-) => v?.map((e) => fromDartChatIdNullableToGraphQLChatIdNullable(e)).toList();
+) => v?.map(fromDartChatIdNullableToGraphQLChatIdNullable).toList();
 
 // ChatItemId
 
@@ -71,13 +71,13 @@ List<ChatItemId> fromGraphQLListChatItemIdToDartListChatItemId(
 ) => v.map((e) => fromGraphQLChatItemIdToDartChatItemId(e as String)).toList();
 List<String> fromDartListChatItemIdToGraphQLListChatItemId(
   List<ChatItemId> v,
-) => v.map((e) => fromDartChatItemIdToGraphQLChatItemId(e)).toList();
+) => v.map(fromDartChatItemIdToGraphQLChatItemId).toList();
 List<ChatItemId>? fromGraphQLListNullableChatItemIdToDartListNullableChatItemId(
   List<Object?>? v,
 ) => v?.map((e) => fromGraphQLChatItemIdToDartChatItemId(e as String)).toList();
 List<String>? fromDartListNullableChatItemIdToGraphQLListNullableChatItemId(
   List<ChatItemId>? v,
-) => v?.map((e) => fromDartChatItemIdToGraphQLChatItemId(e)).toList();
+) => v?.map(fromDartChatItemIdToGraphQLChatItemId).toList();
 
 ChatItemId? fromGraphQLChatItemIdNullableToDartChatItemIdNullable(String? v) =>
     v == null ? null : ChatItemId(v);
@@ -93,9 +93,7 @@ List<ChatItemId?> fromGraphQLListChatItemIdNullableToDartListChatItemIdNullable(
     .toList();
 List<String?> fromDartListChatItemIdNullableToGraphQLListChatItemIdNullable(
   List<ChatItemId?> v,
-) => v
-    .map((e) => fromDartChatItemIdNullableToGraphQLChatItemIdNullable(e))
-    .toList();
+) => v.map(fromDartChatItemIdNullableToGraphQLChatItemIdNullable).toList();
 List<ChatItemId?>?
 fromGraphQLListNullableChatItemIdNullableToDartListNullableChatItemIdNullable(
   List<Object?>? v,
@@ -108,9 +106,7 @@ fromGraphQLListNullableChatItemIdNullableToDartListNullableChatItemIdNullable(
 List<String?>?
 fromDartListNullableChatItemIdNullableToGraphQLListNullableChatItemIdNullable(
   List<ChatItemId?>? v,
-) => v
-    ?.map((e) => fromDartChatItemIdNullableToGraphQLChatItemIdNullable(e))
-    .toList();
+) => v?.map(fromDartChatItemIdNullableToGraphQLChatItemIdNullable).toList();
 
 // ChatName
 
@@ -119,13 +115,13 @@ String fromDartChatNameToGraphQLChatName(ChatName v) => v.val;
 List<ChatName> fromGraphQLListChatNameToDartListChatName(List<Object?> v) =>
     v.map((e) => fromGraphQLChatNameToDartChatName(e as String)).toList();
 List<String> fromDartListChatNameToGraphQLListChatName(List<ChatName> v) =>
-    v.map((e) => fromDartChatNameToGraphQLChatName(e)).toList();
+    v.map(fromDartChatNameToGraphQLChatName).toList();
 List<ChatName>? fromGraphQLListNullableChatNameToDartListNullableChatName(
   List<Object?>? v,
 ) => v?.map((e) => fromGraphQLChatNameToDartChatName(e as String)).toList();
 List<String>? fromDartListNullableChatNameToGraphQLListNullableChatName(
   List<ChatName>? v,
-) => v?.map((e) => fromDartChatNameToGraphQLChatName(e)).toList();
+) => v?.map(fromDartChatNameToGraphQLChatName).toList();
 
 ChatName? fromGraphQLChatNameNullableToDartChatNameNullable(String? v) =>
     v == null ? null : ChatName.unchecked(v);
@@ -138,8 +134,7 @@ List<ChatName?> fromGraphQLListChatNameNullableToDartListChatNameNullable(
     .toList();
 List<String?> fromDartListChatNameNullableToGraphQLListChatNameNullable(
   List<ChatName?> v,
-) =>
-    v.map((e) => fromDartChatNameNullableToGraphQLChatNameNullable(e)).toList();
+) => v.map(fromDartChatNameNullableToGraphQLChatNameNullable).toList();
 List<ChatName?>?
 fromGraphQLListNullableChatNameNullableToDartListNullableChatNameNullable(
   List<Object?>? v,
@@ -151,9 +146,7 @@ fromGraphQLListNullableChatNameNullableToDartListNullableChatNameNullable(
 List<String?>?
 fromDartListNullableChatNameNullableToGraphQLListNullableChatNameNullable(
   List<ChatName?>? v,
-) => v
-    ?.map((e) => fromDartChatNameNullableToGraphQLChatNameNullable(e))
-    .toList();
+) => v?.map(fromDartChatNameNullableToGraphQLChatNameNullable).toList();
 
 // ChatVersion
 
@@ -165,7 +158,7 @@ List<ChatVersion> fromGraphQLListChatVersionToDartListChatVersion(
     v.map((e) => fromGraphQLChatVersionToDartChatVersion(e as String)).toList();
 List<String> fromDartListChatVersionToGraphQLListChatVersion(
   List<ChatVersion> v,
-) => v.map((e) => fromDartChatVersionToGraphQLChatVersion(e)).toList();
+) => v.map(fromDartChatVersionToGraphQLChatVersion).toList();
 List<ChatVersion>?
 fromGraphQLListNullableChatVersionToDartListNullableChatVersion(
   List<Object?>? v,
@@ -174,7 +167,7 @@ fromGraphQLListNullableChatVersionToDartListNullableChatVersion(
     .toList();
 List<String>? fromDartListNullableChatVersionToGraphQLListNullableChatVersion(
   List<ChatVersion>? v,
-) => v?.map((e) => fromDartChatVersionToGraphQLChatVersion(e)).toList();
+) => v?.map(fromDartChatVersionToGraphQLChatVersion).toList();
 
 ChatVersion? fromGraphQLChatVersionNullableToDartChatVersionNullable(
   String? v,
@@ -193,9 +186,7 @@ fromGraphQLListChatVersionNullableToDartListChatVersionNullable(
     .toList();
 List<String?> fromDartListChatVersionNullableToGraphQLListChatVersionNullable(
   List<ChatVersion?> v,
-) => v
-    .map((e) => fromDartChatVersionNullableToGraphQLChatVersionNullable(e))
-    .toList();
+) => v.map(fromDartChatVersionNullableToGraphQLChatVersionNullable).toList();
 List<ChatVersion?>?
 fromGraphQLListNullableChatVersionNullableToDartListNullableChatVersionNullable(
   List<Object?>? v,
@@ -208,9 +199,7 @@ fromGraphQLListNullableChatVersionNullableToDartListNullableChatVersionNullable(
 List<String?>?
 fromDartListNullableChatVersionNullableToGraphQLListNullableChatVersionNullable(
   List<ChatVersion?>? v,
-) => v
-    ?.map((e) => fromDartChatVersionNullableToGraphQLChatVersionNullable(e))
-    .toList();
+) => v?.map(fromDartChatVersionNullableToGraphQLChatVersionNullable).toList();
 
 // ChatMessageText
 
@@ -225,7 +214,7 @@ List<ChatMessageText> fromGraphQLListChatMessageTextToDartListChatMessageText(
     .toList();
 List<String> fromDartListChatMessageTextToGraphQLListChatMessageText(
   List<ChatMessageText> v,
-) => v.map((e) => fromDartChatMessageTextToGraphQLChatMessageText(e)).toList();
+) => v.map(fromDartChatMessageTextToGraphQLChatMessageText).toList();
 List<ChatMessageText>?
 fromGraphQLListNullableChatMessageTextToDartListNullableChatMessageText(
   List<Object?>? v,
@@ -235,7 +224,7 @@ fromGraphQLListNullableChatMessageTextToDartListNullableChatMessageText(
 List<String>?
 fromDartListNullableChatMessageTextToGraphQLListNullableChatMessageText(
   List<ChatMessageText>? v,
-) => v?.map((e) => fromDartChatMessageTextToGraphQLChatMessageText(e)).toList();
+) => v?.map(fromDartChatMessageTextToGraphQLChatMessageText).toList();
 
 ChatMessageText?
 fromGraphQLChatMessageTextNullableToDartChatMessageTextNullable(String? v) =>
@@ -257,9 +246,7 @@ List<String?>
 fromDartListChatMessageTextNullableToGraphQLListChatMessageTextNullable(
   List<ChatMessageText?> v,
 ) => v
-    .map(
-      (e) => fromDartChatMessageTextNullableToGraphQLChatMessageTextNullable(e),
-    )
+    .map(fromDartChatMessageTextNullableToGraphQLChatMessageTextNullable)
     .toList();
 List<ChatMessageText?>?
 fromGraphQLListNullableChatMessageTextNullableToDartListNullableChatMessageTextNullable(
@@ -275,9 +262,7 @@ List<String?>?
 fromDartListNullableChatMessageTextNullableToGraphQLListNullableChatMessageTextNullable(
   List<ChatMessageText?>? v,
 ) => v
-    ?.map(
-      (e) => fromDartChatMessageTextNullableToGraphQLChatMessageTextNullable(e),
-    )
+    ?.map(fromDartChatMessageTextNullableToGraphQLChatMessageTextNullable)
     .toList();
 
 // ChatItemVersion
@@ -293,7 +278,7 @@ List<ChatItemVersion> fromGraphQLListChatItemVersionToDartListChatItemVersion(
     .toList();
 List<String> fromDartListChatItemVersionToGraphQLListChatItemVersion(
   List<ChatItemVersion> v,
-) => v.map((e) => fromDartChatItemVersionToGraphQLChatItemVersion(e)).toList();
+) => v.map(fromDartChatItemVersionToGraphQLChatItemVersion).toList();
 List<ChatItemVersion>?
 fromGraphQLListNullableChatItemVersionToDartListNullableChatItemVersion(
   List<Object?>? v,
@@ -303,7 +288,7 @@ fromGraphQLListNullableChatItemVersionToDartListNullableChatItemVersion(
 List<String>?
 fromDartListNullableChatItemVersionToGraphQLListNullableChatItemVersion(
   List<ChatItemVersion>? v,
-) => v?.map((e) => fromDartChatItemVersionToGraphQLChatItemVersion(e)).toList();
+) => v?.map(fromDartChatItemVersionToGraphQLChatItemVersion).toList();
 
 ChatItemVersion?
 fromGraphQLChatItemVersionNullableToDartChatItemVersionNullable(String? v) =>
@@ -325,9 +310,7 @@ List<String?>
 fromDartListChatItemVersionNullableToGraphQLListChatItemVersionNullable(
   List<ChatItemVersion?> v,
 ) => v
-    .map(
-      (e) => fromDartChatItemVersionNullableToGraphQLChatItemVersionNullable(e),
-    )
+    .map(fromDartChatItemVersionNullableToGraphQLChatItemVersionNullable)
     .toList();
 List<ChatItemVersion?>?
 fromGraphQLListNullableChatItemVersionNullableToDartListNullableChatItemVersionNullable(
@@ -343,9 +326,7 @@ List<String?>?
 fromDartListNullableChatItemVersionNullableToGraphQLListNullableChatItemVersionNullable(
   List<ChatItemVersion?>? v,
 ) => v
-    ?.map(
-      (e) => fromDartChatItemVersionNullableToGraphQLChatItemVersionNullable(e),
-    )
+    ?.map(fromDartChatItemVersionNullableToGraphQLChatItemVersionNullable)
     .toList();
 
 // AttachmentId
@@ -360,7 +341,7 @@ List<AttachmentId> fromGraphQLListAttachmentIdToDartListAttachmentId(
     .toList();
 List<String> fromDartListAttachmentIdToGraphQLListAttachmentId(
   List<AttachmentId> v,
-) => v.map((e) => fromDartAttachmentIdToGraphQLAttachmentId(e)).toList();
+) => v.map(fromDartAttachmentIdToGraphQLAttachmentId).toList();
 List<AttachmentId>?
 fromGraphQLListNullableAttachmentIdToDartListNullableAttachmentId(
   List<Object?>? v,
@@ -369,7 +350,7 @@ fromGraphQLListNullableAttachmentIdToDartListNullableAttachmentId(
     .toList();
 List<String>? fromDartListNullableAttachmentIdToGraphQLListNullableAttachmentId(
   List<AttachmentId>? v,
-) => v?.map((e) => fromDartAttachmentIdToGraphQLAttachmentId(e)).toList();
+) => v?.map(fromDartAttachmentIdToGraphQLAttachmentId).toList();
 
 AttachmentId? fromGraphQLAttachmentIdNullableToDartAttachmentIdNullable(
   String? v,
@@ -389,9 +370,7 @@ fromGraphQLListAttachmentIdNullableToDartListAttachmentIdNullable(
     .toList();
 List<String?> fromDartListAttachmentIdNullableToGraphQLListAttachmentIdNullable(
   List<AttachmentId?> v,
-) => v
-    .map((e) => fromDartAttachmentIdNullableToGraphQLAttachmentIdNullable(e))
-    .toList();
+) => v.map(fromDartAttachmentIdNullableToGraphQLAttachmentIdNullable).toList();
 List<AttachmentId?>?
 fromGraphQLListNullableAttachmentIdNullableToDartListNullableAttachmentIdNullable(
   List<Object?>? v,
@@ -405,9 +384,7 @@ fromGraphQLListNullableAttachmentIdNullableToDartListNullableAttachmentIdNullabl
 List<String?>?
 fromDartListNullableAttachmentIdNullableToGraphQLListNullableAttachmentIdNullable(
   List<AttachmentId?>? v,
-) => v
-    ?.map((e) => fromDartAttachmentIdNullableToGraphQLAttachmentIdNullable(e))
-    .toList();
+) => v?.map(fromDartAttachmentIdNullableToGraphQLAttachmentIdNullable).toList();
 
 // ChatItemsCursor
 
@@ -422,7 +399,7 @@ List<ChatItemsCursor> fromGraphQLListChatItemsCursorToDartListChatItemsCursor(
     .toList();
 List<String> fromDartListChatItemsCursorToGraphQLListChatItemsCursor(
   List<ChatItemsCursor> v,
-) => v.map((e) => fromDartChatItemsCursorToGraphQLChatItemsCursor(e)).toList();
+) => v.map(fromDartChatItemsCursorToGraphQLChatItemsCursor).toList();
 List<ChatItemsCursor>?
 fromGraphQLListNullableChatItemsCursorToDartListNullableChatItemsCursor(
   List<Object?>? v,
@@ -432,7 +409,7 @@ fromGraphQLListNullableChatItemsCursorToDartListNullableChatItemsCursor(
 List<String>?
 fromDartListNullableChatItemsCursorToGraphQLListNullableChatItemsCursor(
   List<ChatItemsCursor>? v,
-) => v?.map((e) => fromDartChatItemsCursorToGraphQLChatItemsCursor(e)).toList();
+) => v?.map(fromDartChatItemsCursorToGraphQLChatItemsCursor).toList();
 
 ChatItemsCursor?
 fromGraphQLChatItemsCursorNullableToDartChatItemsCursorNullable(String? v) =>
@@ -454,9 +431,7 @@ List<String?>
 fromDartListChatItemsCursorNullableToGraphQLListChatItemsCursorNullable(
   List<ChatItemsCursor?> v,
 ) => v
-    .map(
-      (e) => fromDartChatItemsCursorNullableToGraphQLChatItemsCursorNullable(e),
-    )
+    .map(fromDartChatItemsCursorNullableToGraphQLChatItemsCursorNullable)
     .toList();
 List<ChatItemsCursor?>?
 fromGraphQLListNullableChatItemsCursorNullableToDartListNullableChatItemsCursorNullable(
@@ -472,9 +447,7 @@ List<String?>?
 fromDartListNullableChatItemsCursorNullableToGraphQLListNullableChatItemsCursorNullable(
   List<ChatItemsCursor?>? v,
 ) => v
-    ?.map(
-      (e) => fromDartChatItemsCursorNullableToGraphQLChatItemsCursorNullable(e),
-    )
+    ?.map(fromDartChatItemsCursorNullableToGraphQLChatItemsCursorNullable)
     .toList();
 
 // RecentChatsCursor
@@ -495,9 +468,7 @@ fromGraphQLListRecentChatsCursorToDartListRecentChatsCursor(List<Object?> v) =>
         .toList();
 List<String> fromDartListRecentChatsCursorToGraphQLListRecentChatsCursor(
   List<RecentChatsCursor> v,
-) => v
-    .map((e) => fromDartRecentChatsCursorToGraphQLRecentChatsCursor(e))
-    .toList();
+) => v.map(fromDartRecentChatsCursorToGraphQLRecentChatsCursor).toList();
 List<RecentChatsCursor>?
 fromGraphQLListNullableRecentChatsCursorToDartListNullableRecentChatsCursor(
   List<Object?>? v,
@@ -509,9 +480,7 @@ fromGraphQLListNullableRecentChatsCursorToDartListNullableRecentChatsCursor(
 List<String>?
 fromDartListNullableRecentChatsCursorToGraphQLListNullableRecentChatsCursor(
   List<RecentChatsCursor>? v,
-) => v
-    ?.map((e) => fromDartRecentChatsCursorToGraphQLRecentChatsCursor(e))
-    .toList();
+) => v?.map(fromDartRecentChatsCursorToGraphQLRecentChatsCursor).toList();
 
 RecentChatsCursor?
 fromGraphQLRecentChatsCursorNullableToDartRecentChatsCursorNullable(
@@ -535,12 +504,7 @@ List<String?>
 fromDartListRecentChatsCursorNullableToGraphQLListRecentChatsCursorNullable(
   List<RecentChatsCursor?> v,
 ) => v
-    .map(
-      (e) =>
-          fromDartRecentChatsCursorNullableToGraphQLRecentChatsCursorNullable(
-            e,
-          ),
-    )
+    .map(fromDartRecentChatsCursorNullableToGraphQLRecentChatsCursorNullable)
     .toList();
 List<RecentChatsCursor?>?
 fromGraphQLListNullableRecentChatsCursorNullableToDartListNullableRecentChatsCursorNullable(
@@ -557,12 +521,7 @@ List<String?>?
 fromDartListNullableRecentChatsCursorNullableToGraphQLListNullableRecentChatsCursorNullable(
   List<RecentChatsCursor?>? v,
 ) => v
-    ?.map(
-      (e) =>
-          fromDartRecentChatsCursorNullableToGraphQLRecentChatsCursorNullable(
-            e,
-          ),
-    )
+    ?.map(fromDartRecentChatsCursorNullableToGraphQLRecentChatsCursorNullable)
     .toList();
 
 // ChatFavoritePosition
@@ -585,9 +544,7 @@ fromGraphQLListChatFavoritePositionToDartListChatFavoritePosition(
     .toList();
 List<double> fromDartListChatFavoritePositionToGraphQLListChatFavoritePosition(
   List<ChatFavoritePosition> v,
-) => v
-    .map((e) => fromDartChatFavoritePositionToGraphQLChatFavoritePosition(e))
-    .toList();
+) => v.map(fromDartChatFavoritePositionToGraphQLChatFavoritePosition).toList();
 List<ChatFavoritePosition>?
 fromGraphQLListNullableChatFavoritePositionToDartListNullableChatFavoritePosition(
   List<Object?>? v,
@@ -601,9 +558,7 @@ fromGraphQLListNullableChatFavoritePositionToDartListNullableChatFavoritePositio
 List<double>?
 fromDartListNullableChatFavoritePositionToGraphQLListNullableChatFavoritePosition(
   List<ChatFavoritePosition>? v,
-) => v
-    ?.map((e) => fromDartChatFavoritePositionToGraphQLChatFavoritePosition(e))
-    .toList();
+) => v?.map(fromDartChatFavoritePositionToGraphQLChatFavoritePosition).toList();
 
 ChatFavoritePosition?
 fromGraphQLChatFavoritePositionNullableToDartChatFavoritePositionNullable(
@@ -629,10 +584,7 @@ fromDartListChatFavoritePositionNullableToGraphQLListChatFavoritePositionNullabl
   List<ChatFavoritePosition?> v,
 ) => v
     .map(
-      (e) =>
-          fromDartChatFavoritePositionNullableToGraphQLChatFavoritePositionNullable(
-            e,
-          ),
+      fromDartChatFavoritePositionNullableToGraphQLChatFavoritePositionNullable,
     )
     .toList();
 List<ChatFavoritePosition?>?
@@ -651,10 +603,7 @@ fromDartListNullableChatFavoritePositionNullableToGraphQLListNullableChatFavorit
   List<ChatFavoritePosition?>? v,
 ) => v
     ?.map(
-      (e) =>
-          fromDartChatFavoritePositionNullableToGraphQLChatFavoritePositionNullable(
-            e,
-          ),
+      fromDartChatFavoritePositionNullableToGraphQLChatFavoritePositionNullable,
     )
     .toList();
 
@@ -680,10 +629,7 @@ List<String>
 fromDartListFavoriteChatsListVersionToGraphQLListFavoriteChatsListVersion(
   List<FavoriteChatsListVersion> v,
 ) => v
-    .map(
-      (e) =>
-          fromDartFavoriteChatsListVersionToGraphQLFavoriteChatsListVersion(e),
-    )
+    .map(fromDartFavoriteChatsListVersionToGraphQLFavoriteChatsListVersion)
     .toList();
 List<FavoriteChatsListVersion>?
 fromGraphQLListNullableFavoriteChatsListVersionToDartListNullableFavoriteChatsListVersion(
@@ -699,10 +645,7 @@ List<String>?
 fromDartListNullableFavoriteChatsListVersionToGraphQLListNullableFavoriteChatsListVersion(
   List<FavoriteChatsListVersion>? v,
 ) => v
-    ?.map(
-      (e) =>
-          fromDartFavoriteChatsListVersionToGraphQLFavoriteChatsListVersion(e),
-    )
+    ?.map(fromDartFavoriteChatsListVersionToGraphQLFavoriteChatsListVersion)
     .toList();
 
 FavoriteChatsListVersion?
@@ -729,10 +672,7 @@ fromDartListFavoriteChatsListVersionNullableToGraphQLListFavoriteChatsListVersio
   List<FavoriteChatsListVersion?> v,
 ) => v
     .map(
-      (e) =>
-          fromDartFavoriteChatsListVersionNullableToGraphQLFavoriteChatsListVersionNullable(
-            e,
-          ),
+      fromDartFavoriteChatsListVersionNullableToGraphQLFavoriteChatsListVersionNullable,
     )
     .toList();
 List<FavoriteChatsListVersion?>?
@@ -751,10 +691,7 @@ fromDartListNullableFavoriteChatsListVersionNullableToGraphQLListNullableFavorit
   List<FavoriteChatsListVersion?>? v,
 ) => v
     ?.map(
-      (e) =>
-          fromDartFavoriteChatsListVersionNullableToGraphQLFavoriteChatsListVersionNullable(
-            e,
-          ),
+      fromDartFavoriteChatsListVersionNullableToGraphQLFavoriteChatsListVersionNullable,
     )
     .toList();
 
@@ -777,9 +714,7 @@ fromGraphQLListFavoriteChatsCursorToDartListFavoriteChatsCursor(
     .toList();
 List<String> fromDartListFavoriteChatsCursorToGraphQLListFavoriteChatsCursor(
   List<FavoriteChatsCursor> v,
-) => v
-    .map((e) => fromDartFavoriteChatsCursorToGraphQLFavoriteChatsCursor(e))
-    .toList();
+) => v.map(fromDartFavoriteChatsCursorToGraphQLFavoriteChatsCursor).toList();
 List<FavoriteChatsCursor>?
 fromGraphQLListNullableFavoriteChatsCursorToDartListNullableFavoriteChatsCursor(
   List<Object?>? v,
@@ -792,9 +727,7 @@ fromGraphQLListNullableFavoriteChatsCursorToDartListNullableFavoriteChatsCursor(
 List<String>?
 fromDartListNullableFavoriteChatsCursorToGraphQLListNullableFavoriteChatsCursor(
   List<FavoriteChatsCursor>? v,
-) => v
-    ?.map((e) => fromDartFavoriteChatsCursorToGraphQLFavoriteChatsCursor(e))
-    .toList();
+) => v?.map(fromDartFavoriteChatsCursorToGraphQLFavoriteChatsCursor).toList();
 
 FavoriteChatsCursor?
 fromGraphQLFavoriteChatsCursorNullableToDartFavoriteChatsCursorNullable(
@@ -819,10 +752,7 @@ fromDartListFavoriteChatsCursorNullableToGraphQLListFavoriteChatsCursorNullable(
   List<FavoriteChatsCursor?> v,
 ) => v
     .map(
-      (e) =>
-          fromDartFavoriteChatsCursorNullableToGraphQLFavoriteChatsCursorNullable(
-            e,
-          ),
+      fromDartFavoriteChatsCursorNullableToGraphQLFavoriteChatsCursorNullable,
     )
     .toList();
 List<FavoriteChatsCursor?>?
@@ -841,10 +771,7 @@ fromDartListNullableFavoriteChatsCursorNullableToGraphQLListNullableFavoriteChat
   List<FavoriteChatsCursor?>? v,
 ) => v
     ?.map(
-      (e) =>
-          fromDartFavoriteChatsCursorNullableToGraphQLFavoriteChatsCursorNullable(
-            e,
-          ),
+      fromDartFavoriteChatsCursorNullableToGraphQLFavoriteChatsCursorNullable,
     )
     .toList();
 
@@ -866,9 +793,7 @@ fromGraphQLListChatMembersCursorToDartListChatMembersCursor(List<Object?> v) =>
         .toList();
 List<String> fromDartListChatMembersCursorToGraphQLListChatMembersCursor(
   List<ChatMembersCursor> v,
-) => v
-    .map((e) => fromDartChatMembersCursorToGraphQLChatMembersCursor(e))
-    .toList();
+) => v.map(fromDartChatMembersCursorToGraphQLChatMembersCursor).toList();
 List<ChatMembersCursor>?
 fromGraphQLListNullableChatMembersCursorToDartListNullableChatMembersCursor(
   List<Object?>? v,
@@ -880,9 +805,7 @@ fromGraphQLListNullableChatMembersCursorToDartListNullableChatMembersCursor(
 List<String>?
 fromDartListNullableChatMembersCursorToGraphQLListNullableChatMembersCursor(
   List<ChatMembersCursor>? v,
-) => v
-    ?.map((e) => fromDartChatMembersCursorToGraphQLChatMembersCursor(e))
-    .toList();
+) => v?.map(fromDartChatMembersCursorToGraphQLChatMembersCursor).toList();
 
 ChatMembersCursor?
 fromGraphQLChatMembersCursorNullableToDartChatMembersCursorNullable(
@@ -906,12 +829,7 @@ List<String?>
 fromDartListChatMembersCursorNullableToGraphQLListChatMembersCursorNullable(
   List<ChatMembersCursor?> v,
 ) => v
-    .map(
-      (e) =>
-          fromDartChatMembersCursorNullableToGraphQLChatMembersCursorNullable(
-            e,
-          ),
-    )
+    .map(fromDartChatMembersCursorNullableToGraphQLChatMembersCursorNullable)
     .toList();
 List<ChatMembersCursor?>?
 fromGraphQLListNullableChatMembersCursorNullableToDartListNullableChatMembersCursorNullable(
@@ -928,10 +846,5 @@ List<String?>?
 fromDartListNullableChatMembersCursorNullableToGraphQLListNullableChatMembersCursorNullable(
   List<ChatMembersCursor?>? v,
 ) => v
-    ?.map(
-      (e) =>
-          fromDartChatMembersCursorNullableToGraphQLChatMembersCursorNullable(
-            e,
-          ),
-    )
+    ?.map(fromDartChatMembersCursorNullableToGraphQLChatMembersCursorNullable)
     .toList();

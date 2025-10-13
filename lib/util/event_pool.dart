@@ -76,9 +76,7 @@ class EventPool<T> {
   /// executed.
   bool lockedWith(T tag, Object? value) {
     final _PoolMutex? mutex = _mutexes[tag];
-    return mutex != null &&
-        mutex.isLocked == true &&
-        mutex.values.contains(value);
+    return mutex != null && mutex.isLocked && mutex.values.contains(value);
   }
 }
 

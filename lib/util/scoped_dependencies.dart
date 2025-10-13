@@ -30,7 +30,7 @@ class ScopedDependencies {
 
   /// Disposes all the scoped dependencies.
   void dispose() {
-    for (var e in _cleanup) {
+    for (final e in _cleanup) {
       e.call();
     }
     _cleanup.clear();

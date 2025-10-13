@@ -18,11 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controller.dart';
-import '../widget/call_button.dart';
-import '../widget/call_title.dart';
-import '../widget/dock.dart';
-import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -31,10 +26,16 @@ import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/media_utils.dart';
 import '/util/platform_utils.dart';
+import '../controller.dart';
+import '../widget/call_button.dart';
+import '../widget/call_title.dart';
+import '../widget/dock.dart';
+import '../widget/round_button.dart';
 
 /// Button in a [CallView].
 ///
 /// Intended to be placed in a [Dock] to be reordered around.
+@immutable
 abstract class CallButton {
   const CallButton(this.c);
 
@@ -88,7 +89,7 @@ class VideoButton extends CallButton {
 
   @override
   String get hint {
-    bool isVideo =
+    final bool isVideo =
         c.videoState.value == LocalTrackState.enabled ||
         c.videoState.value == LocalTrackState.enabling;
 
@@ -110,7 +111,7 @@ class VideoButton extends CallButton {
     bool opaque = false,
   }) {
     return Obx(() {
-      bool isVideo =
+      final bool isVideo =
           c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
       return CallButtonWidget(
@@ -134,7 +135,7 @@ class AudioButton extends CallButton {
 
   @override
   String get hint {
-    bool isAudio =
+    final bool isAudio =
         c.audioState.value == LocalTrackState.enabled ||
         c.audioState.value == LocalTrackState.enabling;
 
@@ -156,7 +157,7 @@ class AudioButton extends CallButton {
     bool opaque = false,
   }) {
     return Obx(() {
-      bool isAudio =
+      final bool isAudio =
           c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
       return CallButtonWidget(
@@ -180,7 +181,7 @@ class ScreenButton extends CallButton {
 
   @override
   String get hint {
-    bool isScreen =
+    final bool isScreen =
         c.screenShareState.value == LocalTrackState.enabled ||
         c.screenShareState.value == LocalTrackState.enabling;
 
@@ -196,7 +197,7 @@ class ScreenButton extends CallButton {
   @override
   Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     return Obx(() {
-      bool isScreen =
+      final bool isScreen =
           c.screenShareState.value == LocalTrackState.enabled ||
           c.screenShareState.value == LocalTrackState.enabling;
       return CallButtonWidget(
@@ -583,7 +584,7 @@ Widget callTitle(CallController c) {
         ? 'label_call_joining'.l10n
         : isOutgoing
         ? 'label_call_calling'.l10n
-        : c.withVideo == true
+        : c.withVideo
         ? 'label_video_call'.l10nfmt(args)
         : 'label_audio_call'.l10nfmt(args);
 

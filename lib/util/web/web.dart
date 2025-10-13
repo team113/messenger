@@ -336,11 +336,9 @@ class WebUtils {
 
     try {
       final locks = (await _getLocks().toDart) as JSArray;
-      held =
-          locks.toDart
-              .map((e) => e?.dartify() as Map?)
-              .any((e) => e?['name'] == 'mutex') ==
-          true;
+      held = locks.toDart
+          .map((e) => e?.dartify() as Map?)
+          .any((e) => e?['name'] == 'mutex');
     } catch (e) {
       held = false;
     }
@@ -388,24 +386,24 @@ class WebUtils {
     Future<T> Function() callback, {
     bool exclusive = true,
     String tag = 'mutex',
-  }) async {
+  }) {
     Mutex? mutex = exclusive ? _guards[tag] : Mutex();
     if (mutex == null) {
       mutex = Mutex();
       _guards[tag] = mutex;
     }
 
-    return await mutex.protect(() async {
+    return mutex.protect(() async {
       // Web Locks API is unavailable for some reason, so proceed without it.
       if (!_locksAvailable()) {
-        return await callback();
+        return callback();
       }
 
       final Completer<T> completer = Completer();
 
       JSPromise function(JSAny? any) {
         return callback()
-            .then((val) => completer.complete(val))
+            .then(completer.complete)
             .onError(
               (e, stackTrace) =>
                   completer.completeError(e ?? Exception(), stackTrace),
@@ -426,7 +424,7 @@ class WebUtils {
         }
       }
 
-      return await completer.future;
+      return completer.future;
     });
   }
 
@@ -542,7 +540,7 @@ class WebUtils {
           .toDart
           .then((js) => js.toDart);
 
-      for (var registration in registrations) {
+      for (final registration in registrations) {
         registration.active?.postMessage('closeAll:$chatId'.toJS);
       }
     } catch (e) {
@@ -642,9 +640,9 @@ class WebUtils {
     }
 
     final List<String> parameters = [
-      if (withAudio != true) 'audio=$withAudio',
-      if (withVideo != false) 'video=$withVideo',
-      if (withScreen != false) 'screen=$withScreen',
+      if (withAudio == false) 'audio=$withAudio',
+      if (withVideo) 'video=$withVideo',
+      if (withScreen) 'screen=$withScreen',
     ];
 
     final String query = parameters.isEmpty ? '' : '?${parameters.join('&')}';
@@ -811,7 +809,7 @@ class WebUtils {
       if (isFirefox) {
         final StreamController controller = StreamController(
           onCancel: () {
-            for (var e in stream.getTracks().toDart) {
+            for (final e in stream.getTracks().toDart) {
               e.stop();
             }
           },
@@ -819,7 +817,7 @@ class WebUtils {
 
         return controller.stream.listen((_) {});
       } else {
-        for (var e in stream.getTracks().toDart) {
+        for (final e in stream.getTracks().toDart) {
           e.stop();
         }
       }
@@ -852,7 +850,7 @@ class WebUtils {
       if (isFirefox) {
         final StreamController controller = StreamController(
           onCancel: () {
-            for (var e in stream.getTracks().toDart) {
+            for (final e in stream.getTracks().toDart) {
               e.stop();
             }
           },
@@ -860,7 +858,7 @@ class WebUtils {
 
         return controller.stream.listen((_) {});
       } else {
-        for (var e in stream.getTracks().toDart) {
+        for (final e in stream.getTracks().toDart) {
           e.stop();
         }
       }
@@ -1086,11 +1084,11 @@ class WebUtils {
   /// Handles the [key] event to invoke [_keyHandlers] related to it.
   static bool _handleBindKeys(KeyEvent key) {
     if (key is KeyUpEvent) {
-      for (var e in _keyHandlers.entries) {
+      for (final e in _keyHandlers.entries) {
         if (e.key.key == key.physicalKey) {
           bool modifiers = true;
 
-          for (var m in e.key.modifiers ?? <HotKeyModifier>[]) {
+          for (final m in e.key.modifiers ?? <HotKeyModifier>[]) {
             modifiers =
                 modifiers &&
                 switch (m) {
@@ -1113,7 +1111,7 @@ class WebUtils {
           }
 
           if (modifiers) {
-            for (var f in e.value) {
+            for (final f in e.value) {
               if (f()) {
                 return true;
               }

@@ -157,7 +157,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       oldWidget.items.map((e) => e.runtimeType).toList(),
       widget.items.map((e) => e.runtimeType).toList(),
     )) {
-      _items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
+      _items = widget.items.map(_DraggedItem<T>.new).toList();
       _populateExpandedKeys();
     }
 
@@ -166,7 +166,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   @override
   void initState() {
-    _items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
+    _items = widget.items.map(_DraggedItem<T>.new).toList();
     _expandedKeys = List.generate(_items.length + 1, (_) => GlobalKey());
     super.initState();
   }
@@ -195,7 +195,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: _items.mapMany((e) {
-          int i = _items.indexOf(e);
+          final int i = _items.indexOf(e);
           return [
             // Add the leading [Flexible]s, if this is the first item.
             if (i == 0) ...[
@@ -262,7 +262,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
                           setState(() {});
                         },
                         onDraggableCanceled: (_, o) {
-                          int index = _dragged!.key;
+                          final int index = _dragged!.key;
 
                           _expanded = index;
                           final _DraggedItem<T> dragged = _dragged!.value;
@@ -352,7 +352,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
 
   /// Adds the provided [item] to the [_items] and animates the addition.
   void _onAcceptWithDetails(DragTargetDetails<T> item) {
-    var data = _DraggedItem(item.data);
+    final data = _DraggedItem(item.data);
 
     if (_expanded > _items.length) {
       _expanded = _items.length;
@@ -360,13 +360,13 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       _expanded = 0;
     }
 
-    int i = _items.indexWhere((e) => e == data);
+    final int i = _items.indexWhere((e) => e == data);
     if (i == -1) {
-      int to = _expanded;
+      final int to = _expanded;
 
-      Rect? rect = _rect ?? _items.firstOrNull?.key.globalPaintBounds;
+      final Rect? rect = _rect ?? _items.firstOrNull?.key.globalPaintBounds;
 
-      Offset dragOffset = Offset(
+      final Offset dragOffset = Offset(
         item.offset.dx -
             (rect != null && _dragged != null ? rect.width : _size) / 2,
         item.offset.dy -
@@ -388,7 +388,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       Rect endRect = _expandedKeys[_expanded].globalPaintBounds!;
 
       // Compensate another [_expandedKeys].
-      for (var e in _expandedKeys) {
+      for (final e in _expandedKeys) {
         if (_expandedKeys.indexOf(e) < _expanded) {
           endRect = endRect.translate(
             -(e.globalPaintBounds ?? Rect.zero).width / 2,
@@ -449,8 +449,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
         to = _items.length;
       }
 
-      Rect begin = _items[i].key.globalPaintBounds!;
-      Rect end = _items[to].paintBounds!;
+      final Rect begin = _items[i].key.globalPaintBounds!;
+      final Rect end = _items[to].paintBounds!;
 
       _items.removeAt(i);
       _expandedKeys.removeAt(i);
@@ -487,7 +487,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       return;
     }
 
-    Rect? rect = _dockKey.globalPaintBounds ?? Rect.zero;
+    final Rect rect = _dockKey.globalPaintBounds ?? Rect.zero;
     int indexToPlace =
         ((d.offset.dx -
                     rect.left -
@@ -501,7 +501,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     }
 
     if (_expanded < 0) {
-      for (_DraggedItem<T> e in _items) {
+      for (final _DraggedItem<T> e in _items) {
         e.paintBounds = e.key.globalPaintBounds;
       }
     }
@@ -681,5 +681,5 @@ class _ImmediateDelayedPointerState extends MultiDragPointerState {
   }
 
   @override
-  void accepted(starter) => starter(initialPosition);
+  void accepted(Drag? Function(Offset) starter) => starter(initialPosition);
 }

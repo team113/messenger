@@ -491,7 +491,7 @@ class ChatView extends StatelessWidget {
                               initIndex: c.initIndex,
                               initOffset: c.initOffset,
                               initOffsetBasedOnBottom: true,
-                              disableCacheItems: kDebugMode ? true : false,
+                              disableCacheItems: kDebugMode,
                             ),
                           );
 
@@ -610,7 +610,7 @@ class ChatView extends StatelessWidget {
                     child: SafeAnimatedSwitcher(
                       duration: 200.milliseconds,
                       child: dragging
-                          ? Container(
+                          ? ColoredBox(
                               color: style.colors.onBackgroundOpacity27,
                               child: Center(
                                 child: AnimatedDelayedScale(
@@ -619,7 +619,7 @@ class ChatView extends StatelessWidget {
                                   endScale: 1.06,
                                   child: ConditionalBackdropFilter(
                                     borderRadius: BorderRadius.circular(16),
-                                    child: Container(
+                                    child: DecoratedBox(
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
                                         color:
@@ -651,8 +651,8 @@ class ChatView extends StatelessWidget {
   Widget _listElement(BuildContext context, ChatController c, int i) {
     final style = Theme.of(context).style;
 
-    ListElement element = c.elements.values.elementAt(i);
-    bool isLast = i == 0;
+    final ListElement element = c.elements.values.elementAt(i);
+    final bool isLast = i == 0;
 
     ListElement? previous;
     bool previousSame = false;
@@ -867,7 +867,7 @@ class ChatView extends StatelessWidget {
                   onHide: () async {
                     final List<Future> futures = [];
 
-                    for (Rx<ChatItem> f in element.forwards) {
+                    for (final Rx<ChatItem> f in element.forwards) {
                       futures.add(c.hideChatItem(f.value));
                     }
 
@@ -880,7 +880,7 @@ class ChatView extends StatelessWidget {
                   onDelete: () async {
                     final List<Future> futures = [];
 
-                    for (Rx<ChatItem> f in element.forwards) {
+                    for (final Rx<ChatItem> f in element.forwards) {
                       futures.add(c.deleteMessage(f.value));
                     }
 
@@ -923,7 +923,7 @@ class ChatView extends StatelessWidget {
                         field.replied.any(
                           (i) => i.value.id == element.note.value?.value.id,
                         )) {
-                      for (Rx<ChatItem> e in element.forwards) {
+                      for (final Rx<ChatItem> e in element.forwards) {
                         field.replied.removeWhere(
                           (i) => i.value.id == e.value.id,
                         );
@@ -939,9 +939,7 @@ class ChatView extends StatelessWidget {
                         field.replied.add(element.note.value!);
                       }
 
-                      for (Rx<ChatItem> e in element.forwards) {
-                        field.replied.add(e);
-                      }
+                      element.forwards.forEach(field.replied.add);
                     }
                   },
                   onCopy: (text) {
@@ -974,7 +972,7 @@ class ChatView extends StatelessWidget {
                       return;
                     }
 
-                    for (ChatItem item in [
+                    for (final ChatItem item in [
                       element.note.value?.value,
                       ...element.forwards.map((e) => e.value),
                     ].nonNulls) {
@@ -1064,7 +1062,7 @@ class ChatView extends StatelessWidget {
             );
         final bool canDelete = c.selected.isNotEmpty;
 
-        return Container(
+        return DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: style.cardRadius,
             boxShadow: [
@@ -1074,7 +1072,7 @@ class ChatView extends StatelessWidget {
               ),
             ],
           ),
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(color: style.cardColor),
             child: Column(
               mainAxisSize: MainAxisSize.min,

@@ -54,7 +54,7 @@ class CallKitCallsDriftProvider extends DriftProviderBase {
   /// Returns the [PreciseDateTime] stored in the database by the provided [id],
   /// if any.
   Future<PreciseDateTime?> read(String id) async {
-    return await safe<PreciseDateTime?>((db) async {
+    return safe<PreciseDateTime?>((db) async {
       final stmt = db.select(db.callKitCalls)..where((u) => u.id.equals(id));
       final CallKitCallRow? row = await stmt.getSingleOrNull();
       return row?.at;

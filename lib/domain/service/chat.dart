@@ -92,12 +92,9 @@ class ChatService extends DisposableService {
 
   /// Creates a group [Chat] with the provided members and the authenticated
   /// [MyUser], optionally [name]d.
-  Future<RxChat> createGroupChat(
-    List<UserId> memberIds, {
-    ChatName? name,
-  }) async {
+  Future<RxChat> createGroupChat(List<UserId> memberIds, {ChatName? name}) {
     Log.debug('createGroupChat($memberIds, $name)', '$runtimeType');
-    return await _chatRepository.createGroupChat(memberIds, name: name);
+    return _chatRepository.createGroupChat(memberIds, name: name);
   }
 
   /// Returns a [RxChat] by the provided [id].
@@ -317,7 +314,7 @@ class ChatService extends DisposableService {
       throw UnimplementedError('Deletion of $item is not implemented.');
     }
 
-    Chat? chat = chats[item.chatId]?.chat.value;
+    final Chat? chat = chats[item.chatId]?.chat.value;
 
     if (item is ChatMessage) {
       if (item.status.value != SendingStatus.error) {
@@ -365,7 +362,7 @@ class ChatService extends DisposableService {
   /// method.
   Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
     Log.debug('uploadAttachment($attachment)', '$runtimeType');
-    return await _chatRepository.uploadAttachment(attachment);
+    return _chatRepository.uploadAttachment(attachment);
   }
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and

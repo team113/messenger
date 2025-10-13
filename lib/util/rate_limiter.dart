@@ -47,7 +47,7 @@ class RateLimiter {
   /// Executes the [function] limited to the [requests] per [per].
   Future<T> execute<T>(FutureOr<T> Function() function) async {
     // Current [_iteration] to ignore the invoke, if mismatched.
-    int iteration = _iteration;
+    final int iteration = _iteration;
 
     // Start the [Timer] reducing the [_queue].
     _timer ??= Timer.periodic(per, (_) {
@@ -61,7 +61,7 @@ class RateLimiter {
       }
 
       final taken = queue.take(requests);
-      for (var m in taken) {
+      for (final m in taken) {
         m.release();
       }
     });
@@ -98,7 +98,7 @@ class RateLimiter {
     _timer?.cancel();
     _timer = null;
 
-    for (var m in queue) {
+    for (final m in queue) {
       if (m.isLocked) {
         m.release();
       }

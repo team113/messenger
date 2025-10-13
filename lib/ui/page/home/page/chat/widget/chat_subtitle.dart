@@ -28,8 +28,8 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/widget/animated_typing.dart';
-import '/util/platform_utils.dart';
 import '/util/fixed_timer.dart';
+import '/util/platform_utils.dart';
 
 /// Subtitle visual representation of a [RxChat].
 class ChatSubtitle extends StatefulWidget {
@@ -131,8 +131,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
           );
         }
 
-        final bool isTyping =
-            widget.chat.typingUsers.any((e) => e.id != widget.me) == true;
+        final bool isTyping = widget.chat.typingUsers.any(
+          (e) => e.id != widget.me,
+        );
         if (isTyping) {
           if (!chat.isGroup) {
             return Row(

@@ -15,8 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../schema.dart';
 import '/store/model/page_info.dart';
+import '../schema.dart';
 
 /// Extension adding models construction from [PageInfoMixin].
 extension PageInfoConversion on PageInfoMixin {

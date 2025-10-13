@@ -263,20 +263,6 @@ class RefreshTokenSecretInput extends NewType<String> {
 class Credentials {
   const Credentials(this.access, this.refresh, this.session, this.userId);
 
-  /// Created or refreshed [AccessToken] for authenticating the [Session].
-  ///
-  /// It will expire in 30 minutes after creation.
-  final AccessToken access;
-
-  /// [RefreshToken] of these [Credentials].
-  final RefreshToken refresh;
-
-  /// [Session] these [Credentials] represent.
-  final Session session;
-
-  /// ID of the currently authenticated [MyUser].
-  final UserId userId;
-
   /// Constructs [Credentials] from the provided [json].
   factory Credentials.fromJson(Map<String, dynamic> json) {
     try {
@@ -308,6 +294,20 @@ class Credentials {
       rethrow;
     }
   }
+
+  /// Created or refreshed [AccessToken] for authenticating the [Session].
+  ///
+  /// It will expire in 30 minutes after creation.
+  final AccessToken access;
+
+  /// [RefreshToken] of these [Credentials].
+  final RefreshToken refresh;
+
+  /// [Session] these [Credentials] represent.
+  final Session session;
+
+  /// ID of the currently authenticated [MyUser].
+  final UserId userId;
 
   /// Returns a [Map] containing data of these [Credentials].
   Map<String, dynamic> toJson() => _$CredentialsToJson(this);

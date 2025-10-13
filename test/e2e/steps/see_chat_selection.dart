@@ -40,7 +40,7 @@ final StepDefinitionGeneric seeChatSelection =
             'RecentChat_$chatId',
           );
 
-          return await context.world.appDriver.isPresent(
+          return context.world.appDriver.isPresent(
             context.world.appDriver.findByDescendant(
               chat,
               context.world.appDriver.findByKeySkipOffstage(

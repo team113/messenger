@@ -82,7 +82,7 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
     final List<GlobalKey> keys = [];
 
     if (oldWidget.items.length != widget.items.length) {
-      for (var e in widget.items) {
+      for (final e in widget.items) {
         final int index = oldWidget.items.indexOf(e);
         keys.add(index == -1 ? GlobalKey() : _keys[index]);
       }
@@ -98,7 +98,7 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         boxShadow: [
           CustomBoxShadow(
@@ -269,7 +269,7 @@ class CustomNavigationBarItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
+    return ColoredBox(
       color: style.colors.transparent,
       child: Center(
         child: Badge(

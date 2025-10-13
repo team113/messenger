@@ -17,10 +17,10 @@
 
 import 'package:flutter/material.dart';
 
-import '../controller.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '../controller.dart';
 
 /// [PlayerNotification] visual representation.
 class PlayerNotificationWidget extends StatelessWidget {
@@ -36,7 +36,7 @@ class PlayerNotificationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    PlayerNotification notification = this.notification;
+    final PlayerNotification notification = this.notification;
     final String title;
 
     switch (notification.kind) {
@@ -59,7 +59,7 @@ class PlayerNotificationWidget extends StatelessWidget {
         ],
       ),
       margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: style.colors.primaryAuxiliaryOpacity90,
           borderRadius: BorderRadius.circular(12),

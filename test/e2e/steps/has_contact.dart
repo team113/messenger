@@ -34,7 +34,7 @@ final StepDefinitionGeneric hasContacts = given2<TestUser, int, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
-    List<Future> futures = [];
+    final List<Future> futures = [];
 
     for (int i = 0; i < count; i++) {
       futures.add(
@@ -64,10 +64,10 @@ hasFavoriteContacts = given2<TestUser, int, CustomWorld>(
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
 
-    List<Future> futures = [];
+    final List<Future> futures = [];
 
     for (int i = 0; i < count; i++) {
-      Future future = Future(() async {
+      final Future future = Future(() async {
         final ChatContactEventsVersionedMixin result = await provider
             .createChatContact(name: UserName(i.toString().padLeft(2, '0')));
         final ChatContactId contactId =

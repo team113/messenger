@@ -67,11 +67,11 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository = Get.put(
+    final UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider),
     );
 
-    BlocklistRepository blocklistRepository = Get.put(
+    final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
         blocklistProvider,
@@ -81,7 +81,7 @@ void main() async {
       ),
     );
 
-    var profileService = Get.put(
+    final profileService = Get.put(
       MyUserService(
         Get.find(),
         MyUserRepository(
@@ -98,6 +98,7 @@ void main() async {
     assert(profileService.myUser.value == profileService.myUser.value);
   });
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 
@@ -122,7 +123,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     'online': {'__typename': 'UserOnline'},
   };
 
-  var blocklist = {
+  Map<String, Object> blocklist = {
     'edges': [],
     'pageInfo': {
       'endCursor': 'endCursor',

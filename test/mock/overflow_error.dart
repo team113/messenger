@@ -25,7 +25,7 @@ void ignoreOverflowErrors(
   bool ifIsOverflowError = false;
 
   // Detect overflow error.
-  var exception = details.exception;
+  final exception = details.exception;
   if (exception is FlutterError) {
     ifIsOverflowError = !exception.diagnostics.any(
       (e) => e.value.toString().startsWith('A RenderFlex overflowed by'),

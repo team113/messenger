@@ -91,7 +91,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
 
     return Theme(
       data: MessageFieldView.theme(context),
-      child: Container(
+      child: DecoratedBox(
         key: const Key('SendField'),
         decoration: BoxDecoration(
           boxShadow: [
@@ -124,9 +124,9 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Obx(() {
-          final bool grab = c.attachments.isNotEmpty
-              ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
-              : false;
+          final bool grab =
+              c.attachments.isNotEmpty &&
+              (125 + 2) * c.attachments.length > constraints.maxWidth - 16;
 
           return ConditionalBackdropFilter(
             condition: style.cardBlur > 0,
@@ -135,7 +135,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
               topLeft: style.cardRadius.topLeft,
               topRight: style.cardRadius.topRight,
             ),
-            child: Container(
+            child: ColoredBox(
               color: style.colors.onPrimaryOpacity50,
               child: AnimatedSize(
                 duration: 400.milliseconds,
@@ -425,7 +425,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                   child: ElasticAnimatedSwitcher(
                     child: e is LocalAttachment
                         ? e.status.value == SendingStatus.error
-                              ? Container(
+                              ? DecoratedBox(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: style.colors.onPrimary,

@@ -425,6 +425,7 @@ void main() async {
       );
 
       await expectLater(
+        // ignore: unnecessary_await_in_return
         () async => await myUserService.createChatDirectLink(
           ChatDirectLinkSlug('link'),
         ),

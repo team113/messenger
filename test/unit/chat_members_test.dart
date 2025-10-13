@@ -69,7 +69,7 @@ void main() async {
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));
 
-  var recentChats = {
+  final recentChats = {
     'recentChats': {
       'edges': [],
       'pageInfo': {
@@ -81,7 +81,7 @@ void main() async {
     },
   };
 
-  var favoriteChats = {
+  final favoriteChats = {
     'favoriteChats': {
       'edges': [],
       'pageInfo': {
@@ -94,13 +94,13 @@ void main() async {
     },
   };
 
-  var chatData = {
+  final chatData = {
     'num': '1234567890123456',
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
     'avatar': null,
   };
 
-  var addChatMemberData = {
+  final addChatMemberData = {
     'addChatMember': {
       '__typename': 'ChatEventsVersioned',
       'events': [
@@ -165,7 +165,7 @@ void main() async {
     },
   };
 
-  var removeChatMemberData = {
+  final removeChatMemberData = {
     'removeChatMember': {
       '__typename': 'ChatEventsVersioned',
       'events': [
@@ -495,5 +495,6 @@ void main() async {
     },
   );
 
+  // ignore: unnecessary_await_in_return
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

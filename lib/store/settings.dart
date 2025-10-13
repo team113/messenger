@@ -209,9 +209,9 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<Rect?> getCallRect(ChatId id) async {
+  Future<Rect?> getCallRect(ChatId id) {
     Log.debug('getCallRect($id)', '$runtimeType');
-    return await _callRectLocal.read(id);
+    return _callRectLocal.read(id);
   }
 
   @override

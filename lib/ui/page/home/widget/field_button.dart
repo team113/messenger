@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 
 import '/themes.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/text_field.dart';
 
 /// [ReactiveTextField]-styled button.

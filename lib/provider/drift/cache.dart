@@ -54,7 +54,7 @@ class CacheDriftProvider extends DriftProviderBase {
   Future<void> register(List<String> checksums) async {
     await safe((db) async {
       await db.batch((batch) {
-        for (var e in checksums) {
+        for (final e in checksums) {
           batch.insert(
             db.cache,
             CacheRow(checksum: e),
@@ -99,7 +99,7 @@ class CacheDriftProvider extends DriftProviderBase {
 
   /// Returns the [CacheInfo] stored in the database.
   Future<CacheInfo?> read() async {
-    return await safe<CacheInfo?>((db) async {
+    return safe<CacheInfo?>((db) async {
       final stmt = db.select(db.cacheSummary)..where((u) => u.id.equals(0));
       final CacheSummaryRow? row = await stmt.getSingleOrNull();
 

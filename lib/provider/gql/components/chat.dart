@@ -20,19 +20,19 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart'
     as dio
-    show MultipartFile, Options, FormData, DioException;
+    show DioException, FormData, MultipartFile, Options;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
-import '../base.dart';
-import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
-import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
+import '/store/model/chat_item.dart';
 import '/util/log.dart';
+import '../base.dart';
+import '../exceptions.dart';
 
 /// [Chat] related functionality.
 mixin ChatGraphQlMixin {
@@ -267,7 +267,10 @@ mixin ChatGraphQlMixin {
   ) async {
     Log.debug('renameChat($id, $name)', '$runtimeType');
 
-    RenameChatArguments variables = RenameChatArguments(id: id, name: name);
+    final RenameChatArguments variables = RenameChatArguments(
+      id: id,
+      name: name,
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'RenameChat',
@@ -432,7 +435,7 @@ mixin ChatGraphQlMixin {
     Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
 
     final variables = AddChatMemberArguments(chatId: chatId, userId: userId);
-    var result = await client.mutate(
+    final result = await client.mutate(
       MutationOptions(
         operationName: 'AddChatMember',
         document: AddChatMemberMutation(variables: variables).document,
@@ -470,11 +473,11 @@ mixin ChatGraphQlMixin {
   ) async {
     Log.debug('removeChatMember($chatId, $userId)', '$runtimeType');
 
-    RemoveChatMemberArguments variables = RemoveChatMemberArguments(
+    final RemoveChatMemberArguments variables = RemoveChatMemberArguments(
       chatId: chatId,
       userId: userId,
     );
-    var result = await client.mutate(
+    final result = await client.mutate(
       MutationOptions(
         operationName: 'RemoveChatMember',
         document: RemoveChatMemberMutation(variables: variables).document,
@@ -512,7 +515,7 @@ mixin ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> hideChat(ChatId chatId) async {
     Log.debug('hideChat($chatId)', '$runtimeType');
 
-    HideChatArguments variables = HideChatArguments(chatId: chatId);
+    final HideChatArguments variables = HideChatArguments(chatId: chatId);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'HideChat',
@@ -798,7 +801,7 @@ mixin ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> hideChatItem(ChatItemId id) async {
     Log.debug('hideChatItem($id)', '$runtimeType');
 
-    HideChatItemArguments variables = HideChatItemArguments(id: id);
+    final HideChatItemArguments variables = HideChatItemArguments(id: id);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'HideChatItem',
@@ -840,7 +843,9 @@ mixin ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> deleteChatMessage(ChatItemId id) async {
     Log.debug('deleteChatMessage($id)', '$runtimeType');
 
-    DeleteChatMessageArguments variables = DeleteChatMessageArguments(id: id);
+    final DeleteChatMessageArguments variables = DeleteChatMessageArguments(
+      id: id,
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'DeleteChatMessage',
@@ -882,7 +887,9 @@ mixin ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> deleteChatForward(ChatItemId id) async {
     Log.debug('deleteChatForward($id)', '$runtimeType');
 
-    DeleteChatForwardArguments variables = DeleteChatForwardArguments(id: id);
+    final DeleteChatForwardArguments variables = DeleteChatForwardArguments(
+      id: id,
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'DeleteChatForward',
@@ -932,7 +939,7 @@ mixin ChatGraphQlMixin {
     final encodedBody = json.encode(body);
 
     try {
-      var response = await client.post(
+      final response = await client.post(
         dio.FormData.fromMap({
           'operations': encodedBody,
           'map': '{ "file": ["variables.upload"] }',
@@ -1389,7 +1396,7 @@ mixin ChatGraphQlMixin {
     final encodedBody = json.encode(body);
 
     try {
-      var response = await client.post(
+      final response = await client.post(
         dio.FormData.fromMap({
           'operations': encodedBody,
           'map': '{ "file": ["variables.upload"] }',

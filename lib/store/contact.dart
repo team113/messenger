@@ -145,7 +145,7 @@ class ContactRepository extends DisposableInterface
 
     final events = ChatContactsEventsEvent(
       ChatContactEventsVersioned(
-        response.events.map((e) => _contactEvent(e)).toList(),
+        response.events.map(_contactEvent).toList(),
         response.ver,
         response.listVer,
       ),
@@ -282,9 +282,8 @@ class ContactRepository extends DisposableInterface
               (email != null && u.contact.value.emails.contains(email)) ||
               (name != null &&
                   u.contact.value.name.val.toLowerCase().contains(
-                        name.val.toLowerCase(),
-                      ) ==
-                      true),
+                    name.val.toLowerCase(),
+                  )),
         )
         .toList();
 
@@ -299,7 +298,7 @@ class ContactRepository extends DisposableInterface
     return PaginatedImpl(
       pagination: pagination,
       initial: [
-        {for (var u in contacts) u.id: u},
+        {for (final u in contacts) u.id: u},
         if (email != null) searchByEmail(email).then(toMap),
         if (phone != null) searchByPhone(phone).then(toMap),
       ],
@@ -355,7 +354,7 @@ class ContactRepository extends DisposableInterface
 
     final ChatContact? contact = contacts[id]?.contact.value;
     if (contact != null) {
-      for (User user in contact.users) {
+      for (final User user in contact.users) {
         await _userRepo.removeContact(contact.id, user.id);
       }
     }
@@ -371,9 +370,9 @@ class ContactRepository extends DisposableInterface
     UserName name, {
     ChatContactsCursor? after,
     int? first,
-  }) async {
+  }) {
     Log.debug('searchByName($name, $after, $first)', '$runtimeType');
-    return await _search(name: name, after: after, first: first);
+    return _search(name: name, after: after, first: first);
   }
 
   /// Searches [ChatContact]s by the provided [UserEmail].
@@ -674,7 +673,7 @@ class ContactRepository extends DisposableInterface
 
           final Map<ChatContactId, DtoChatContact> entities = {};
 
-          for (var node in versioned.events) {
+          for (final node in versioned.events) {
             if (node.kind == ChatContactEventKind.created) {
               node as EventChatContactCreated;
               entities[node.contactId] = DtoChatContact(
@@ -741,7 +740,7 @@ class ContactRepository extends DisposableInterface
 
                 // Add the [entity.value] to the [node.user], as [User] has no
                 // events about its [User.contacts] list changes.
-                for (var e in entity.value.users) {
+                for (final e in entity.value.users) {
                   await _userRepo.addContact(entity.value, e.id);
                 }
                 break;
@@ -837,16 +836,14 @@ class ContactRepository extends DisposableInterface
 
     _sessionLocal.upsert(me, chatContactsListVersion: NewType(query.ver));
 
-    for (var c in query.edges) {
+    for (final c in query.edges) {
       final List<DtoUser> users = c.node.getDtoUsers();
-      for (var user in users) {
-        _userRepo.put(user);
-      }
+      users.forEach(_userRepo.put);
     }
 
     return Page(
       RxList(query.edges.map((e) => e.node.toDto(cursor: e.cursor)).toList()),
-      query.pageInfo.toModel((c) => ChatContactsCursor(c)),
+      query.pageInfo.toModel(ChatContactsCursor.new),
     );
   }
 
@@ -872,18 +869,16 @@ class ContactRepository extends DisposableInterface
 
     _sessionLocal.upsert(me, chatContactsListVersion: NewType(query.ver));
 
-    for (var c in query.edges) {
+    for (final c in query.edges) {
       final List<DtoUser> users = c.node.getDtoUsers();
-      for (var user in users) {
-        _userRepo.put(user);
-      }
+      users.forEach(_userRepo.put);
     }
 
     return Page(
       RxList(
         query.edges.map((e) => e.node.toDto(favoriteCursor: e.cursor)).toList(),
       ),
-      query.pageInfo.toModel((c) => FavoriteChatContactsCursor(c)),
+      query.pageInfo.toModel(FavoriteChatContactsCursor.new),
     );
   }
 
@@ -934,13 +929,13 @@ class ContactRepository extends DisposableInterface
     Log.trace('_contactEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventChatContactCreated') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactCreated;
       return EventChatContactCreated(node.contactId, node.at, node.name);
     } else if (e.$$typename == 'EventChatContactDeleted') {
       return EventChatContactDeleted(e.contactId, e.at);
     } else if (e.$$typename == 'EventChatContactEmailAdded') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactEmailAdded;
       return EventChatContactEmailAdded(
         node.contactId,
@@ -948,7 +943,7 @@ class ContactRepository extends DisposableInterface
         node.email.email,
       );
     } else if (e.$$typename == 'EventChatContactEmailRemoved') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactEmailRemoved;
       return EventChatContactEmailRemoved(
         node.contactId,
@@ -956,11 +951,11 @@ class ContactRepository extends DisposableInterface
         node.email.email,
       );
     } else if (e.$$typename == 'EventChatContactFavorited') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactFavorited;
       return EventChatContactFavorited(node.contactId, node.at, node.position);
     } else if (e.$$typename == 'EventChatContactGroupAdded') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactGroupAdded;
       return EventChatContactGroupAdded(
         node.contactId,
@@ -968,7 +963,7 @@ class ContactRepository extends DisposableInterface
         Chat(node.group.id),
       );
     } else if (e.$$typename == 'EventChatContactGroupRemoved') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactGroupRemoved;
       return EventChatContactGroupRemoved(
         node.contactId,
@@ -976,11 +971,11 @@ class ContactRepository extends DisposableInterface
         node.groupId,
       );
     } else if (e.$$typename == 'EventChatContactNameUpdated') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactNameUpdated;
       return EventChatContactNameUpdated(node.contactId, node.at, node.name);
     } else if (e.$$typename == 'EventChatContactPhoneAdded') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactPhoneAdded;
       return EventChatContactPhoneAdded(
         node.contactId,
@@ -988,7 +983,7 @@ class ContactRepository extends DisposableInterface
         node.phone.phone,
       );
     } else if (e.$$typename == 'EventChatContactPhoneRemoved') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactPhoneRemoved;
       return EventChatContactPhoneRemoved(
         node.contactId,
@@ -998,7 +993,7 @@ class ContactRepository extends DisposableInterface
     } else if (e.$$typename == 'EventChatContactUnfavorited') {
       return EventChatContactUnfavorited(e.contactId, e.at);
     } else if (e.$$typename == 'EventChatContactUserAdded') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
       _userRepo.put(e.user.toDto());
 
@@ -1008,7 +1003,7 @@ class ContactRepository extends DisposableInterface
         node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatContactUserRemoved') {
-      var node =
+      final node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserRemoved;
 
       return EventChatContactUserRemoved(node.contactId, node.at, node.userId);

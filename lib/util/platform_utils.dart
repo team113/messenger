@@ -22,16 +22,16 @@ import 'dart:ui';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_custom_cursor/cursor_manager.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:flutter_native_badge/flutter_native_badge.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 import 'package:window_manager/window_manager.dart';
@@ -168,7 +168,7 @@ class PlatformUtilsImpl {
     if (isWeb) {
       return WebUtils.onFocusChanged;
     } else if (isDesktop) {
-      _WindowListener listener = _WindowListener(
+      final _WindowListener listener = _WindowListener(
         onBlur: () => _focusController!.add(false),
         onFocus: () => _focusController!.add(true),
       );
@@ -282,7 +282,7 @@ class PlatformUtilsImpl {
     } else if (isDesktop) {
       StreamController<bool>? controller;
 
-      var windowListener = _WindowListener(
+      final windowListener = _WindowListener(
         onEnterFullscreen: () => controller!.add(true),
         onLeaveFullscreen: () => controller!.add(false),
       );
@@ -402,7 +402,7 @@ class PlatformUtilsImpl {
 
       // TODO: Remove when leanflutter/window_manager#131 is fixed:
       //       https://github.com/leanflutter/window_manager/issues/131
-      Size size = await WindowManager.instance.getSize();
+      final Size size = await WindowManager.instance.getSize();
       await WindowManager.instance.setSize(Size(size.width + 1, size.height));
     } else if (isMobile) {
       await SystemChrome.setEnabledSystemUIMode(
@@ -436,16 +436,16 @@ class PlatformUtilsImpl {
       final Directory directory = temporary
           ? await temporaryDirectory
           : await downloadsDirectory;
-      String name = p.basenameWithoutExtension(filename);
-      String ext = p.extension(filename);
+      final String name = p.basenameWithoutExtension(filename);
+      final String ext = p.extension(filename);
       File file = File('${directory.path}/$filename');
 
       // TODO: Compare hashes instead of sizes.
-      for (int i = 1; await file.exists() && await file.length() != size; ++i) {
+      for (int i = 1; file.existsSync() && await file.length() != size; ++i) {
         file = File('${directory.path}/$name ($i)$ext');
       }
 
-      if (await file.exists()) {
+      if (file.existsSync()) {
         return file;
       }
     }
@@ -473,7 +473,7 @@ class PlatformUtilsImpl {
       }
     }
 
-    return await download(
+    return download(
       url,
       url.split('/').lastOrNull ?? 'file',
       null,
@@ -560,7 +560,7 @@ class PlatformUtilsImpl {
                   : await downloadsDirectory;
 
               file = File('${directory.path}/$filename');
-              for (int i = 1; await file!.exists(); ++i) {
+              for (int i = 1; file!.existsSync(); ++i) {
                 file = File('${directory.path}/$name ($i)$extension');
               }
             } else {
@@ -929,9 +929,8 @@ enum HapticKind { click, light }
 extension MobileExtensionOnContext on BuildContext {
   /// Returns `true` if [PlatformUtilsImpl.isMobile] and [MediaQuery]'s shortest
   /// side is less than `600p`, or otherwise always returns `false`.
-  bool get isMobile => PlatformUtils.isMobile
-      ? MediaQuery.sizeOf(this).shortestSide < 600
-      : false;
+  bool get isMobile =>
+      PlatformUtils.isMobile && MediaQuery.sizeOf(this).shortestSide < 600;
 
   /// Returns `true` if [MediaQuery]'s width is less than `600p` on desktop and
   /// [MediaQuery]'s shortest side is less than `600p` on mobile.
@@ -1103,7 +1102,7 @@ class _WindowListener extends WindowListener {
   void onWindowBlur() => onBlur?.call();
 
   @override
-  void onWindowResized() async => onResized?.call(
+  Future<void> onWindowResized() async => onResized?.call(
     MapEntry<Size, Offset>(
       await windowManager.getSize(),
       await windowManager.getPosition(),
@@ -1111,6 +1110,6 @@ class _WindowListener extends WindowListener {
   );
 
   @override
-  void onWindowMoved() async =>
+  Future<void> onWindowMoved() async =>
       onMoved?.call(await windowManager.getPosition());
 }

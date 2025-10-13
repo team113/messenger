@@ -256,7 +256,7 @@ class SearchView extends StatelessWidget {
                         }
 
                         if (i == childCount - 1) {
-                          Widget widget = child;
+                          final Widget widget = child;
                           child = Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [

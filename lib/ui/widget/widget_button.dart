@@ -56,7 +56,7 @@ class WidgetButton extends StatelessWidget {
         onTapUp: onPressedWithDetails,
         onLongPress: onLongPress,
         behavior: behavior,
-        child: Container(color: style.colors.transparent, child: child),
+        child: ColoredBox(color: style.colors.transparent, child: child),
       ),
     );
   }

@@ -83,7 +83,7 @@ class ObsMap<K, V> extends DelegatingMap<K, V> implements Map<K, V> {
 
   @override
   void addEntries(Iterable<MapEntry<K, V>> entries) {
-    for (var element in entries) {
+    for (final element in entries) {
       if (super.containsKey(element.key)) {
         super[element.key] = element.value;
         _changes.add(
@@ -104,7 +104,7 @@ class ObsMap<K, V> extends DelegatingMap<K, V> implements Map<K, V> {
 
   @override
   void clear() {
-    for (var entry in entries) {
+    for (final entry in entries) {
       _changes.add(MapChangeNotification<K, V>.removed(entry.key, entry.value));
     }
     super.clear();
@@ -112,7 +112,7 @@ class ObsMap<K, V> extends DelegatingMap<K, V> implements Map<K, V> {
 
   @override
   V? remove(Object? key) {
-    V? v = super.remove(key);
+    final V? v = super.remove(key);
     if (v != null) {
       _changes.add(MapChangeNotification<K, V>.removed(key as K?, v));
     }
@@ -124,10 +124,10 @@ class ObsMap<K, V> extends DelegatingMap<K, V> implements Map<K, V> {
   ///
   /// No-op, if element at the [oldKey] doesn't exist.
   void move(K oldKey, K newKey) {
-    V? v = super.remove(oldKey);
+    final V? v = super.remove(oldKey);
 
     if (v != null) {
-      V? n = super[newKey];
+      final V? n = super[newKey];
       if (n != null && n != v) {
         _changes.add(MapChangeNotification<K, V>.removed(newKey, n));
       }

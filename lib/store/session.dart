@@ -42,8 +42,8 @@ import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
 import 'event/session.dart';
-import 'model/session_data.dart';
 import 'model/session.dart';
+import 'model/session_data.dart';
 
 /// [Session]s repository.
 class SessionRepository extends DisposableInterface
@@ -147,7 +147,7 @@ class SessionRepository extends DisposableInterface
       _guards[ip] = mutex;
     }
 
-    return await mutex.protect(() async {
+    return mutex.protect(() async {
       IpAddress? address = ip;
 
       if (address == null) {
@@ -185,7 +185,7 @@ class SessionRepository extends DisposableInterface
 
       final List<Future> futures = [];
       if (!wasNull) {
-        for (var e in sessions) {
+        for (final e in sessions) {
           futures.add(e.init());
         }
       }
@@ -203,7 +203,7 @@ class SessionRepository extends DisposableInterface
     Log.debug('_initSessionLocalSubscription()', '$runtimeType');
 
     _localSubscription = _sessionLocal.watch().listen((events) {
-      for (var e in events) {
+      for (final e in events) {
         switch (e.op) {
           case OperationKind.added:
           case OperationKind.updated:
@@ -366,15 +366,15 @@ class SessionRepository extends DisposableInterface
           );
         }
 
-        for (var e in sessions) {
+        for (final e in sessions) {
           this.sessions.add(RxSessionImpl(this, e)..init());
         }
         this.sessions.sort();
         this.sessions.refresh();
       } else if (events.$$typename == 'SessionEventsVersioned') {
-        var mixin = events as SessionEventsVersionedMixin;
+        final mixin = events as SessionEventsVersionedMixin;
         yield SessionEventsVersioned(
-          mixin.events.map((e) => _sessionEvent(e)).toList(),
+          mixin.events.map(_sessionEvent).toList(),
           mixin.ver,
           mixin.listVer,
         );

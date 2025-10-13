@@ -56,7 +56,7 @@ class ScreenShareView extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    Widget framelessBuilder = const SizedBox(
+    final Widget framelessBuilder = const SizedBox(
       height: videoHeight,
       child: Center(child: CustomProgressIndicator()),
     );

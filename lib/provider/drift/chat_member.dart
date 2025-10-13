@@ -22,9 +22,9 @@ import 'package:log_me/log_me.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/model/chat_member.dart';
-import '/store/model/chat.dart';
 import 'common.dart';
 import 'drift.dart';
 import 'user.dart';
@@ -53,7 +53,7 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
     Log.debug('upsertBulk($chatId, $members)');
 
     await safe((db) async {
-      for (var member in members) {
+      for (final member in members) {
         final ChatMemberRow row = member.toDb(chatId);
         db.into(db.chatMembers).insert(row, onConflict: DoUpdate((_) => row));
       }
@@ -65,7 +65,7 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
   /// Returns the [DtoChatMember] stored in the database by the provided
   /// [chatId] and [userId], if any.
   Future<DtoChatMember?> read(ChatId chatId, UserId userId) async {
-    return await safe<DtoChatMember?>(
+    return safe<DtoChatMember?>(
       (db) async {
         final stmt = db.select(db.chatMembers).join([
           innerJoin(db.users, db.users.id.equalsExp(db.chatMembers.userId)),

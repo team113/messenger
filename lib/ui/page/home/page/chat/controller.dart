@@ -35,9 +35,9 @@ import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 import '/api/backend/schema.dart'
     hide
         ChatItemQuoteInput,
-        ChatMessageTextInput,
         ChatMessageAttachmentsInput,
-        ChatMessageRepliesInput;
+        ChatMessageRepliesInput,
+        ChatMessageTextInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -908,11 +908,11 @@ class ChatController extends GetxController {
 
         send.field.unsubmit();
         send.replied.value = List.from(
-          draft?.repliesTo.map((e) => e.original).nonNulls.map((e) => Rx(e)) ??
+          draft?.repliesTo.map((e) => e.original).nonNulls.map(Rx.new) ??
               <Rx<ChatItem>>[],
         );
 
-        for (Attachment e in draft?.attachments ?? []) {
+        for (final Attachment e in draft?.attachments ?? []) {
           send.attachments.add(MapEntry(GlobalKey(), e));
         }
 
@@ -923,7 +923,9 @@ class ChatController extends GetxController {
             _topVisibleItem = positions.last;
 
             _lastVisibleItem = positions.firstWhereOrNull((e) {
-              ListElement? element = elements.values.elementAtOrNull(e.index);
+              final ListElement? element = elements.values.elementAtOrNull(
+                e.index,
+              );
               return element is ChatMessageElement ||
                   element is ChatInfoElement ||
                   element is ChatCallElement ||
@@ -1004,7 +1006,7 @@ class ChatController extends GetxController {
                 }
 
                 _determineFirstUnread();
-                var result = _calculateListViewIndex();
+                final result = _calculateListViewIndex();
                 initIndex = result.index;
                 initOffset = result.offset;
 
@@ -1021,9 +1023,7 @@ class ChatController extends GetxController {
         _ready.setTag('local', '${id.isLocal}');
 
         if (itemId == null) {
-          for (Rx<ChatItem> e in chat!.messages) {
-            _add(e);
-          }
+          chat!.messages.forEach(_add);
 
           _subscribeFor(chat: chat);
 
@@ -1585,7 +1585,7 @@ class ChatController extends GetxController {
   /// Downloads the provided image or video [attachments].
   Future<void> downloadMedia(List<Attachment> attachments, {String? to}) async {
     try {
-      for (Attachment attachment in attachments) {
+      for (final Attachment attachment in attachments) {
         if (attachment is! LocalAttachment) {
           await CacheWorker.instance
               .download(
@@ -1624,7 +1624,7 @@ class ChatController extends GetxController {
   ) async {
     // Tries downloading the [attachments].
     Future<void> download() async {
-      for (Attachment attachment in attachments) {
+      for (final Attachment attachment in attachments) {
         if (attachment is! LocalAttachment) {
           if (attachment is FileAttachment && attachment.isVideo) {
             MessagePopup.success('label_video_downloading'.l10n);
@@ -1680,7 +1680,7 @@ class ChatController extends GetxController {
   /// dialog.
   Future<void> downloadMediaAs(List<Attachment> attachments) async {
     try {
-      String? to = attachments.length > 1
+      final String? to = attachments.length > 1
           ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
           : await FilePicker.platform.saveFile(
               fileName: attachments.first.filename,
@@ -2170,7 +2170,7 @@ class ChatController extends GetxController {
         }
 
         if (!listController.hasClients) {
-          return await _ensureScrollable();
+          return _ensureScrollable();
         }
 
         // If the fetched initial page contains less elements than required to
@@ -2189,7 +2189,7 @@ class ChatController extends GetxController {
   }
 
   /// Loads next and previous pages of the [RxChat.messages].
-  void _loadMessages() async {
+  Future<void> _loadMessages() async {
     if (!_messagesAreLoading) {
       _messagesAreLoading = true;
 
@@ -2336,7 +2336,7 @@ class ChatController extends GetxController {
     Future.delayed(1.milliseconds, () {
       if (listController.hasClients) {
         if (chat?.messages.isEmpty == false) {
-          var result = _calculateListViewIndex(false);
+          final result = _calculateListViewIndex(false);
 
           if (listController.position.hasContentDimensions) {
             listController.jumpTo(
@@ -2409,13 +2409,14 @@ class ChatController extends GetxController {
 
   /// Disables the [search], if its focus is lost or its query is empty.
   void _disableSearchFocusListener() {
-    if (search.focus.hasFocus == false && search.text.isEmpty == true) {
+    if (search.focus.hasFocus == false && search.text.isEmpty) {
       toggleSearch(true);
     }
   }
 }
 
 /// ID of a [ListElement] containing its [PreciseDateTime] and [ChatItemId].
+@immutable
 class ListElementId implements Comparable<ListElementId> {
   const ListElementId(this.at, this.id);
 
@@ -2673,7 +2674,7 @@ extension IsChatItemEditable on ChatItem {
   bool isEditable(Chat chat, UserId me) {
     if (author.id == me) {
       if (this is ChatMessage) {
-        bool isRead = chat.isRead(this, me);
+        final bool isRead = chat.isRead(this, me);
         return at
                 .add(ChatController.editMessageTimeout)
                 .isAfter(PreciseDateTime.now()) ||
@@ -2691,7 +2692,7 @@ extension SelectedToItemsExtension on RxList<ListElement> {
   List<ChatItem> get asItems {
     final List<ChatItem> items = [];
 
-    for (var e in this) {
+    for (final e in this) {
       if (e is ChatMessageElement) {
         items.add(e.item.value);
       } else if (e is ChatCallElement) {
@@ -2703,7 +2704,7 @@ extension SelectedToItemsExtension on RxList<ListElement> {
           items.add(e.note.value!.value);
         }
 
-        for (var f in e.forwards) {
+        for (final f in e.forwards) {
           items.add(f.value);
         }
       }

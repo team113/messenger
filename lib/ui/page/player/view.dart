@@ -27,8 +27,8 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -278,7 +278,7 @@ class PlayerView extends StatelessWidget {
         height: aspect >= 1 ? null : double.infinity,
         checksum: attachment.original.checksum,
         fit: BoxFit.contain,
-        onForbidden: () async => await c.reload(post),
+        onForbidden: () => c.reload(post),
       );
     } else if (attachment is FileAttachment) {
       if (attachment.isVideo) {
@@ -289,7 +289,7 @@ class PlayerView extends StatelessWidget {
           checksum: attachment.original.checksum,
           volume: c.settings.value?.videoVolume,
           onVolumeChanged: c.setVideoVolume,
-          onError: () async => await c.reload(post),
+          onError: () => c.reload(post),
           loop: true,
           autoplay: false,
           onController: (e) {
@@ -372,6 +372,7 @@ class PlayerView extends StatelessWidget {
               label: 'btn_copy'.l10n,
               trailing: const SvgIcon(SvgIcons.copy19),
               inverted: const SvgIcon(SvgIcons.copy19White),
+              // ignore: unnecessary_await_in_return
               onPressed: () async => await c.copy(post, item),
             ),
 
@@ -380,6 +381,7 @@ class PlayerView extends StatelessWidget {
               label: 'btn_save_to_gallery'.l10n,
               trailing: const SvgIcon(SvgIcons.download19),
               inverted: const SvgIcon(SvgIcons.download19White),
+              // ignore: unnecessary_await_in_return
               onPressed: () async => await c.saveToGallery(item),
             ),
           ] else ...[
@@ -387,6 +389,7 @@ class PlayerView extends StatelessWidget {
               label: 'btn_download'.l10n,
               trailing: const SvgIcon(SvgIcons.download19),
               inverted: const SvgIcon(SvgIcons.download19White),
+              // ignore: unnecessary_await_in_return
               onPressed: () async => await c.download(item),
             ),
 
@@ -395,6 +398,7 @@ class PlayerView extends StatelessWidget {
                 label: 'btn_download_as'.l10n,
                 trailing: const SvgIcon(SvgIcons.download19),
                 inverted: const SvgIcon(SvgIcons.download19White),
+                // ignore: unnecessary_await_in_return
                 onPressed: () async => await c.downloadAs(item),
               ),
           ],
@@ -1489,7 +1493,7 @@ class PlayerView extends StatelessWidget {
                               fit: BoxFit.cover,
                               width: constraints.maxWidth / 5,
                               height: constraints.maxWidth / 5,
-                              onError: () async => await c.reload(e),
+                              onError: () => c.reload(e),
                             ),
                             if (selected)
                               Container(

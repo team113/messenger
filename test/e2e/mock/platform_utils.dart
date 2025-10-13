@@ -52,7 +52,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     bool temporary = false,
     int retries = 5,
   }) async {
-    int total = 100;
+    final int total = 100;
     for (int count = 0; count <= total; count++) {
       if (cancelToken?.isCancelled == true) {
         return null;

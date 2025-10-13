@@ -55,7 +55,7 @@ class ChatInfoCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: style.cardRadius,
           color: style.colors.transparent,
@@ -87,12 +87,11 @@ class ChatInfoCard extends StatelessWidget {
                                 style: style.fonts.big.regular.onPrimary,
                               ),
                             ),
-                            duration == null
-                                ? const SizedBox()
-                                : Text(
-                                    duration!.hhMmSs(),
-                                    style: style.fonts.normal.regular.onPrimary,
-                                  ),
+                            if (duration != null)
+                              Text(
+                                duration!.hhMmSs(),
+                                style: style.fonts.normal.regular.onPrimary,
+                              ),
                           ],
                         ),
                         Padding(
