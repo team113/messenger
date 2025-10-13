@@ -6,8 +6,8 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.7.0] · 2025-??-??
-[0.7.0]: /../../tree/v0.7.0
+## [0.6.6] · 2025-10-13
+[0.6.6]: /../../tree/v0.6.6
 
 [Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/50)
 

@@ -1,3 +1,3 @@
-- Selección de mensajes rediseñada en el chat.
-- Modal de información de mensajes rediseñado.
-- Corrección de errores y mejoras de rendimiento.
+- Se añadieron chats archivados.
+- Se añadió un botón independiente para descargar registros.
+- Se corrigieron errores y se mejoraron el rendimiento.
