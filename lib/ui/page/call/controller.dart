@@ -46,8 +46,8 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
-import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/call/participant/controller.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/util/audio_utils.dart';
 import '/util/fixed_timer.dart';
 import '/util/global_key.dart';
