@@ -229,21 +229,21 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// [User].
   bool get _isRead {
     final Chat? chat = widget.chat.value;
-    if (chat == null) {
+    if (chat == null || !_fromMe) {
       return false;
     }
 
-    if (_fromMe) {
-      return chat.isRead(widget.forwards.first.value, widget.me, chat.members);
-    } else {
-      return chat.isReadBy(widget.forwards.first.value, widget.me);
-    }
+    // if (_fromMe) {
+    return chat.isRead(widget.forwards.first.value, widget.me, chat.members);
+    // } else {
+    //   return chat.isReadBy(widget.forwards.first.value, widget.me);
+    // }
   }
 
   /// Indicates whether this [ChatItem] was read only partially.
   bool get _isHalfRead {
     final Chat? chat = widget.chat.value;
-    if (chat == null) {
+    if (chat == null || !_fromMe) {
       return false;
     }
 
@@ -382,14 +382,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 'MessageStatus_${widget.note.value?.value.id ?? widget.forwards.firstOrNull?.value.id}',
                               ),
                               at: _at,
-                              status: SendingStatus.sent,
-                              read: _isRead,
-                              halfRead: _isHalfRead,
-                              delivered:
-                                  widget.chat.value?.lastDelivery.isBefore(
-                                    _at,
-                                  ) ==
-                                  false,
+                              status: _fromMe ? SendingStatus.sent : null,
+                              read: _fromMe ? _isRead : false,
+                              halfRead: _fromMe ? _isHalfRead : false,
+                              delivered: _fromMe
+                                  ? (widget.chat.value?.lastDelivery.isBefore(
+                                          _at,
+                                        ) ==
+                                        false)
+                                  : false,
                             ),
                           ],
                         ),
