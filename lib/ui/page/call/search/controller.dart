@@ -249,16 +249,21 @@ class SearchController extends GetxController {
     if (!_chatService.status.value.isSuccess) {
       _chatStatusWorker = ever(_chatService.status, (status) {
         if (status.isSuccess) {
-          _ensureScrollable();
-          populate();
+          if (prePopulate || query.value.isNotEmpty) {
+            _ensureScrollable();
+            populate();
+          }
+
           _chatStatusWorker?.dispose();
           _chatStatusWorker = null;
         }
       });
     }
 
-    _ensureScrollable();
-    populate();
+    if (prePopulate) {
+      _ensureScrollable();
+      populate();
+    }
 
     super.onInit();
   }

@@ -28,22 +28,23 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then I see 30 chats
 final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
-  'I see {int} chats',
+  'I see {int} chats\$',
   (count, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
       final controller = Get.find<ChatsTabController>();
-      final length = controller.chats.where((e) {
+
+      final Iterable<ChatEntry> chats = controller.chats.where((e) {
         final bool notLocalOrHasMessages =
             !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
 
         return notLocalOrHasMessages &&
             !e.chat.value.isHidden &&
             !e.chat.value.isArchived;
-      }).length;
+      });
 
-      return length >= count;
+      return chats.length == count;
     }, timeout: const Duration(seconds: 60));
   },
 );
@@ -72,7 +73,7 @@ final StepDefinitionGeneric seeCountFavoriteChats = then1<int, CustomWorld>(
         return notHidden && e.chat.value.favoritePosition != null;
       }).length;
 
-      return length >= count;
+      return length == count;
     }, timeout: const Duration(seconds: 30));
   },
 );

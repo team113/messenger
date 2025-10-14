@@ -29,6 +29,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/log.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/performance.dart';
@@ -423,6 +424,11 @@ Future<CustomUser> createUser({
       world.sessions[user.name]?.credentials = result.toModel();
     }
   }
+
+  Log.info(
+    'createUser() -> Created user `${user?.name}` with password: `$password` -> $customUser',
+    'E2E',
+  );
 
   provider.disconnect();
 

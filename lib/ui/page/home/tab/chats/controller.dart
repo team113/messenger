@@ -909,7 +909,8 @@ class ChatsTabController extends GetxController {
 
         if (scrollController.hasClients &&
             scrollController.position.pixels >
-                scrollController.position.maxScrollExtent - 500) {
+                scrollController.position.maxScrollExtent - 500 &&
+            !status.value.isLoading) {
           if (archivedOnly.value) {
             if (archive.hasNext.isTrue && archive.nextLoading.isFalse) {
               archive.next();
