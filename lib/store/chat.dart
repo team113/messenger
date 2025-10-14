@@ -2750,7 +2750,7 @@ class ChatRepository extends DisposableInterface
     return _graphQlProvider.recentChatsTopEvents(3, archived: true).asyncExpand((
       event,
     ) async* {
-      Log.info('_archiveChatsRemoteEvents(): ${event.data}', '$runtimeType');
+      Log.trace('_archiveChatsRemoteEvents(): ${event.data}', '$runtimeType');
 
       var events = RecentChatsTopEvents$Subscription.fromJson(
         event.data!,
