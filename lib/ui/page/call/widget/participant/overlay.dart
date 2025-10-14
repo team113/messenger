@@ -77,71 +77,28 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.source != MediaSourceKind.display &&
           participant.member.owner == MediaOwnerKind.remote;
 
-      final List<Widget> additionally = [];
+      final List<SvgData> connectionIcons = [
+        if (participant.member.quality.value <= 0)
+          SvgIcons.noSignalSmall
+        else if (participant.member.quality.value <= 1)
+          SvgIcons.lowSignalSmall,
+      ];
 
-      if (isAudioDisabled) {
-        additionally.add(
-          const Padding(
-            padding: EdgeInsets.only(left: 3, right: 3),
-            child: SvgIcon(SvgIcons.audioOffSmall),
-          ),
-        );
-      } else if (isMuted) {
-        additionally.add(
-          const Padding(
-            padding: EdgeInsets.only(left: 2, right: 2),
-            child: SvgIcon(SvgIcons.microphoneOffSmall),
-          ),
-        );
-      }
+      final List<SvgData> otherIcons = [
+        if (isAudioDisabled)
+          SvgIcons.audioOffSmall
+        else if (isMuted)
+          SvgIcons.microphoneOffSmall,
 
-      if (participant.member.quality.value <= 1) {
-        additionally.add(
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 3),
-            child: SvgIcon(
-              participant.member.quality.value <= 0
-                  ? SvgIcons.noSignalSmall
-                  : SvgIcons.lowSignalSmall,
-            ),
-          ),
-        );
-      }
+        if (participant.source == MediaSourceKind.display)
+          SvgIcons.screenShareSmall
+        else if (isVideoDisabled)
+          SvgIcons.videoOffSmall,
+      ];
 
-      if (participant.source == MediaSourceKind.display) {
-        if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 4));
-        }
-
-        if (isVideoDisabled) {
-          additionally.add(
-            const Padding(
-              padding: EdgeInsets.only(left: 4, right: 4),
-              child: SvgIcon(SvgIcons.screenShareSmall),
-            ),
-          );
-        } else {
-          additionally.add(
-            const Padding(
-              padding: EdgeInsets.only(left: 4, right: 4),
-              child: SvgIcon(SvgIcons.screenShareSmall),
-            ),
-          );
-        }
-      } else if (isVideoDisabled) {
-        if (additionally.isNotEmpty) {
-          additionally.add(const SizedBox(width: 4));
-        }
-        additionally.add(
-          const Padding(
-            padding: EdgeInsets.only(left: 5, right: 5),
-            child: SvgIcon(SvgIcons.videoOffSmall),
-          ),
-        );
-      }
-
-      final Widget name = Container(
-        padding: const EdgeInsets.only(left: 3, right: 3),
+      final Widget name = Transform.translate(
+        // Adjust vertical alignment to match design (default centering is slightly off)
+        offset: Offset(0, -2),
         child: Text(
           participant.user.value?.title ?? 'dot'.l10n * 3,
           style: style.fonts.normal.regular.onPrimary,
@@ -152,7 +109,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       final Widget child;
 
-      if (hovered || additionally.isNotEmpty) {
+      if (hovered || connectionIcons.isNotEmpty || otherIcons.isNotEmpty) {
         child = Container(
           key: const Key('Tooltip'),
           decoration: BoxDecoration(
@@ -175,25 +132,41 @@ class ParticipantOverlayWidget extends StatelessWidget {
                     ? style.colors.primaryAuxiliaryOpacity25
                     : style.colors.primaryAuxiliaryOpacity90,
               ),
-              padding: EdgeInsets.only(
-                left: 6,
-                right: additionally.length >= 2 ? 6 : 6,
-                top: 4,
-                bottom: 4,
-              ),
+              padding: EdgeInsets.all(8),
               height: 32,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ...additionally,
-                  if (additionally.isNotEmpty && hovered)
-                    const SizedBox(width: 3),
+                  if (connectionIcons.isNotEmpty)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 8,
+                      children: connectionIcons
+                          .map((e) => SvgIcon(e, width: 16, height: 16))
+                          .toList(),
+                    ),
+
+                  if (connectionIcons.isNotEmpty &&
+                      (otherIcons.isNotEmpty || hovered))
+                    _Separator(),
+
+                  if (otherIcons.isNotEmpty)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 8,
+                      children: otherIcons
+                          .map((e) => SvgIcon(e, width: 16, height: 16))
+                          .toList(),
+                    ),
+
+                  if (otherIcons.isNotEmpty && hovered) _Separator(),
+
                   Flexible(
-                    child: additionally.isEmpty
+                    child: connectionIcons.isEmpty && otherIcons.isEmpty
                         ? name
                         : AnimatedSize(
                             duration: 150.milliseconds,
-                            child: hovered ? name : const SizedBox(),
+                            child: hovered ? name : const SizedBox.shrink(),
                           ),
                   ),
                 ],
@@ -224,5 +197,19 @@ class ParticipantOverlayWidget extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+class _Separator extends StatelessWidget {
+  const _Separator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 8),
+      color: Theme.of(context).style.colors.onPrimaryOpacity20,
+      width: 1,
+      height: 10,
+    );
   }
 }
