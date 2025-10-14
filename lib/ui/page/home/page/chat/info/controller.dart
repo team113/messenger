@@ -44,6 +44,7 @@ import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/ui/page/home/controller_keyboard_handler_mixin.dart';
 import '/ui/page/home/page/my_profile/crop_avatar/view.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
@@ -54,7 +55,8 @@ import '/util/platform_utils.dart';
 export 'view.dart';
 
 /// Controller of the [Routes.chatInfo] page.
-class ChatInfoController extends GetxController {
+class ChatInfoController extends GetxController
+    with ControllerKeyboardHandlerMixin {
   ChatInfoController(
     this.chatId,
     this._chatService,
@@ -86,6 +88,14 @@ class ChatInfoController extends GetxController {
 
   /// [ItemScrollController] of the page's [ScrollablePositionedList].
   final ItemScrollController itemScrollController = ItemScrollController();
+
+  /// part of [ControllerKeyboardHandlerMixin]
+  @override
+  ScrollController get keyboardHandlerController => scrollController;
+
+  /// part of [ControllerKeyboardHandlerMixin]
+  @override
+  FocusNode focusNode = FocusNode();
 
   /// [ItemPositionsListener] of the page's [ScrollablePositionedList].
   final ItemPositionsListener positionsListener =

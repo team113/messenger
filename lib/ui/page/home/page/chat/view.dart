@@ -44,6 +44,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
+import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -467,31 +468,36 @@ class ChatView extends StatelessWidget {
                           child: ObscuredMenuInterceptor(child: Container()),
                         ),
                         Obx(() {
-                          final Widget child = FlutterListView(
-                            key: const Key('MessagesList'),
-                            controller: c.listController,
-                            physics: c.isDraggingItem.value
-                                ? const NeverScrollableScrollPhysics()
-                                : const BouncingScrollPhysics(),
-                            reverse: true,
-                            delegate: FlutterListViewDelegate(
-                              (context, i) => _listElement(context, c, i),
-                              // ignore: invalid_use_of_protected_member
-                              childCount: c.elements.value.length,
-                              stickyAtTailer: true,
-                              keepPosition: true,
-                              keepPositionOffset: c.active.isTrue
-                                  ? c.keepPositionOffset.value
-                                  : 1,
-                              onItemKey: (i) =>
-                                  c.elements.values.elementAt(i).id.toString(),
-                              onItemSticky: (i) =>
-                                  c.elements.values.elementAt(i)
-                                      is DateTimeElement,
-                              initIndex: c.initIndex,
-                              initOffset: c.initOffset,
-                              initOffsetBasedOnBottom: true,
-                              disableCacheItems: kDebugMode ? true : false,
+                          final Widget child = ScrollKeyboardHandler(
+                            controller: c,
+                            child: FlutterListView(
+                              key: const Key('MessagesList'),
+                              controller: c.listController,
+                              physics: c.isDraggingItem.value
+                                  ? const NeverScrollableScrollPhysics()
+                                  : const BouncingScrollPhysics(),
+                              reverse: true,
+                              delegate: FlutterListViewDelegate(
+                                (context, i) => _listElement(context, c, i),
+                                // ignore: invalid_use_of_protected_member
+                                childCount: c.elements.value.length,
+                                stickyAtTailer: true,
+                                keepPosition: true,
+                                keepPositionOffset: c.active.isTrue
+                                    ? c.keepPositionOffset.value
+                                    : 1,
+                                onItemKey: (i) => c.elements.values
+                                    .elementAt(i)
+                                    .id
+                                    .toString(),
+                                onItemSticky: (i) =>
+                                    c.elements.values.elementAt(i)
+                                        is DateTimeElement,
+                                initIndex: c.initIndex,
+                                initOffset: c.initOffset,
+                                initOffsetBasedOnBottom: true,
+                                disableCacheItems: kDebugMode ? true : false,
+                              ),
                             ),
                           );
 
