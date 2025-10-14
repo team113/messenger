@@ -1034,7 +1034,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                       child: SelectionText.rich(
                         TextSpan(
-                          text: widget.user?.title() ?? 'dot'.l10n * 3,
+                          text: widget.user?.title() ?? ('dot'.l10n * 3),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () => widget.onUserPressed(_author),
                         ),

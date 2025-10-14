@@ -6,10 +6,27 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/51)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Display "Deleted Account" title for deleted users. ([#1445], [#1419])
+
+[#1419]: /../../issues/1419
+[#1445]: /../../pull/1445
+
+
+
+
 ## [0.6.6] · 2025-10-13
 [0.6.6]: /../../tree/v0.6.6
 
-[Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/50)
+[Diff](/../../compare/v0.6.5...v0.6.6) | [Milestone](/../../milestone/50)
 
 ### Added
 
@@ -17,12 +34,6 @@ All user visible changes to this project will be documented in this file. This p
     - Help page:
         - Download logs button. ([#1458])
     - Archived chats. ([#1414], [#1255])
-
-### Changed
-
-- UI:
-    - Home page:
-        - Display "Deleted Account" title for deleted users. ([#1445], [#1419])
 
 ### Fixed
 
@@ -34,8 +45,6 @@ All user visible changes to this project will be documented in this file. This p
 [#1414]: /../../pull/1414
 [#1457]: /../../pull/1457
 [#1458]: /../../pull/1458
-[#1445]: /../../pull/1445
-[#1419]: /../../issues/1419
 
 
 

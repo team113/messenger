@@ -34,8 +34,7 @@ final StepDefinitionGeneric seeTitleInUserView = then1<String, CustomWorld>(
         'UserViewTitleKey',
       );
 
-      final text = await context.world.appDriver.getText(finder);
-
+      final String? text = await context.world.appDriver.getText(finder);
       if (text == title) {
         return true;
       }

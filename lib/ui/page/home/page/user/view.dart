@@ -136,7 +136,7 @@ class UserView extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: Text(
                 key: Key('UserViewTitleKey'),
-                c.user!.title(),
+                '${c.user?.title()}',
                 style: style.fonts.larger.regular.onBackground,
                 textAlign: TextAlign.center,
               ),

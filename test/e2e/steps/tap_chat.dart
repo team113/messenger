@@ -25,7 +25,7 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - When I tap "Dummy" chat
 final StepDefinitionGeneric tapChat = when1<String, CustomWorld>(
-  'I tap {string} chat',
+  'I tap {string} (?:chat|group|dialog)',
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
@@ -34,7 +34,7 @@ final StepDefinitionGeneric tapChat = when1<String, CustomWorld>(
       FindType.key,
     );
 
-    // If chat is dialog
+    // If chat is a dialog.
     if (!finder.hasFound) {
       finder = context.world.appDriver.findBy(
         'Chat_${context.world.sessions[name]?.dialog}',

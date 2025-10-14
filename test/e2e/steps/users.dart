@@ -171,12 +171,9 @@ final countUsers = given2<int, TestUser, CustomWorld>(
 final StepDefinitionGeneric deleteUser = then1<TestUser, CustomWorld>(
   '{user} deletes their account',
   (TestUser testUser, context) async {
-    final provider = GraphQlProvider();
-
+    final GraphQlProvider provider = GraphQlProvider();
     final CustomUser user = context.world.sessions[testUser.name]!.first;
-
-    final credentials = await user.credentials;
-
+    final Credentials credentials = await user.credentials;
     provider.token = credentials.access.secret;
 
     await provider.deleteMyUser();

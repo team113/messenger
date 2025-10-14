@@ -28,7 +28,6 @@ final StepDefinitionGeneric selectLanguage = when1<String, CustomWorld>(
   'I have {string} language set',
   (languageName, context) async {
     await L10n.set(Language.fromTag(languageName) ?? L10n.languages.first);
-
     await context.world.appDriver.waitForAppToSettle();
   },
 );
