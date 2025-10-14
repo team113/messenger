@@ -15,34 +15,19 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/l10n/l10n.dart';
 
 import '../world/custom_world.dart';
 
-/// Taps a [Chat] with the provided name.
+/// Selects the application language.
 ///
 /// Examples:
-/// - When I tap "Dummy" chat
-final StepDefinitionGeneric tapChat = when1<String, CustomWorld>(
-  'I tap {string} (?:chat|group|dialog)',
-  (name, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-
-    var finder = context.world.appDriver.findBy(
-      'Chat_${context.world.groups[name]}',
-      FindType.key,
-    );
-
-    // If chat is a dialog.
-    if (!finder.hasFound) {
-      finder = context.world.appDriver.findBy(
-        'Chat_${context.world.sessions[name]?.dialog}',
-        FindType.key,
-      );
-    }
-
-    await context.world.appDriver.nativeDriver.tap(finder);
+/// - `Given I have "English" language set`
+final StepDefinitionGeneric selectLanguage = when1<String, CustomWorld>(
+  'I have {string} language set',
+  (languageName, context) async {
+    await L10n.set(Language.fromTag(languageName) ?? L10n.languages.first);
     await context.world.appDriver.waitForAppToSettle();
   },
 );

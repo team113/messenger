@@ -15,34 +15,33 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 
+import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Taps a [Chat] with the provided name.
+/// Waits until the [UserView] being displayed has the provided title.
 ///
 /// Examples:
-/// - When I tap "Dummy" chat
-final StepDefinitionGeneric tapChat = when1<String, CustomWorld>(
-  'I tap {string} (?:chat|group|dialog)',
-  (name, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+/// - Then I see title as "Bob" in user profile
+final StepDefinitionGeneric seeTitleInUserView = then1<String, CustomWorld>(
+  'I see title as {string} in user profile',
+  (String title, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-    var finder = context.world.appDriver.findBy(
-      'Chat_${context.world.groups[name]}',
-      FindType.key,
-    );
-
-    // If chat is a dialog.
-    if (!finder.hasFound) {
-      finder = context.world.appDriver.findBy(
-        'Chat_${context.world.sessions[name]?.dialog}',
-        FindType.key,
+      final finder = context.world.appDriver.findByKeySkipOffstage(
+        'UserViewTitleKey',
       );
-    }
 
-    await context.world.appDriver.nativeDriver.tap(finder);
-    await context.world.appDriver.waitForAppToSettle();
+      final String? text = await context.world.appDriver.getText(finder);
+      if (text == title) {
+        return true;
+      }
+
+      return false;
+    }, timeout: const Duration(seconds: 30));
   },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

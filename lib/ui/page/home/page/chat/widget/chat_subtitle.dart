@@ -27,6 +27,7 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/util/platform_utils.dart';
 import '/util/fixed_timer.dart';
@@ -154,7 +155,7 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
           final Iterable<String> typings = widget.chat.typingUsers
               .where((e) => e.id != widget.me)
-              .map((e) => e.title);
+              .map((e) => e.title());
 
           return Row(
             mainAxisSize: MainAxisSize.min,

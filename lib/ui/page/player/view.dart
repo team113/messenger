@@ -44,6 +44,7 @@ import '/ui/page/home/page/chat/widget/video/widget/position.dart';
 import '/ui/page/home/page/chat/widget/video/widget/video_progress_bar.dart';
 import '/ui/page/home/page/chat/widget/video/widget/video_volume_bar.dart'
     show ProgressBarColors, VideoVolumeBar;
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -893,7 +894,7 @@ class PlayerView extends StatelessWidget {
                           SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              user.title,
+                              user.title(),
                               style: style.fonts.medium.bold.onPrimary,
                             ),
                           ),

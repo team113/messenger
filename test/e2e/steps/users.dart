@@ -164,6 +164,26 @@ final countUsers = given2<int, TestUser, CustomWorld>(
     ..timeout = const Duration(minutes: 5),
 );
 
+/// Simulates a [TestUser] deleting their account.
+///
+/// Examples:
+/// - `Bob deletes their account`
+final StepDefinitionGeneric deleteUser = then1<TestUser, CustomWorld>(
+  '{user} deletes their account',
+  (TestUser testUser, context) async {
+    final GraphQlProvider provider = GraphQlProvider();
+    final CustomUser user = context.world.sessions[testUser.name]!.first;
+    final Credentials credentials = await user.credentials;
+    provider.token = credentials.access.secret;
+
+    await provider.deleteMyUser();
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
 /// Signs in as the provided [TestUser] to create additional [Session] for them.
 ///
 /// Examples:

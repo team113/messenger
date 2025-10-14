@@ -37,6 +37,7 @@ import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
@@ -374,7 +375,7 @@ class _ChatWatchData {
     ChatMessageText? text,
     List<Attachment> attachments = const [],
   }) {
-    final String name = author?.title ?? 'x';
+    final String name = author?.title() ?? 'x';
     final String num = author?.num.toString() ?? ('dot'.l10n * 3);
     final String type = isGroup ? 'group' : 'dialog';
     String attachmentsType = attachments.every((e) => e is ImageAttachment)
@@ -409,19 +410,19 @@ class _ChatWatchData {
 
         if (author?.id == action.user.id) {
           return 'fcm_user_joined_group_by_link'.l10nfmt({
-            'authorName': action.user.title,
+            'authorName': action.user.title(),
             'authorNum': action.user.num.toString(),
           });
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_added_you_to_group'.l10nfmt({
-            'authorName': author?.title ?? 'x',
+            'authorName': author?.title() ?? 'x',
             'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
           });
         } else {
           return 'fcm_user_added_user'.l10nfmt({
-            'authorName': author?.title ?? 'x',
+            'authorName': author?.title() ?? 'x',
             'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
-            'userName': action.user.title,
+            'userName': action.user.title(),
             'userNum': action.user.num.toString(),
           });
         }
@@ -431,19 +432,19 @@ class _ChatWatchData {
 
         if (author?.id == action.user.id) {
           return 'fcm_user_left_group'.l10nfmt({
-            'authorName': action.user.title,
+            'authorName': action.user.title(),
             'authorNum': action.user.num.toString(),
           });
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_removed_you'.l10nfmt({
-            'authorName': author?.title ?? 'x',
+            'authorName': author?.title() ?? 'x',
             'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
           });
         } else {
           return 'fcm_user_removed_user'.l10nfmt({
-            'authorName': author?.title ?? 'x',
+            'authorName': author?.title() ?? 'x',
             'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
-            'userName': action.user.title,
+            'userName': action.user.title(),
             'userNum': action.user.num.toString(),
           });
         }
@@ -452,7 +453,7 @@ class _ChatWatchData {
         final action = info as ChatInfoActionAvatarUpdated;
 
         return 'fcm_group_avatar_changed'.l10nfmt({
-          'userName': author?.title ?? 'x',
+          'userName': author?.title() ?? 'x',
           'userNum': author?.num.toString() ?? ('dot'.l10n * 3),
           'operation': action.avatar == null ? 'remove' : 'update',
         });
@@ -461,7 +462,7 @@ class _ChatWatchData {
         final action = info as ChatInfoActionNameUpdated;
 
         return 'fcm_group_name_changed'.l10nfmt({
-          'userName': author?.title ?? 'x',
+          'userName': author?.title() ?? 'x',
           'userNum': author?.num.toString() ?? ('dot'.l10n * 3),
           'operation': action.name == null ? 'remove' : 'update',
           'groupName': action.name?.val ?? '',

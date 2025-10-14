@@ -599,6 +599,7 @@ label_delete_chats = Eliminar los chat(s)
 label_delete_email = Eliminar el e-mail
 label_delete_message = ¿Eliminar el mensaje?
 label_delete_messages = ¿Eliminar los mensajes?
+label_deleted_account = Cuenta Eliminada
 label_desktop_apps = Aplicaciones para computadora
 label_device_by_default = Por defecto - {$device}
 label_dialog_created = Diálogo creado
