@@ -27,7 +27,7 @@ import 'round_button.dart';
 class CallButtonWidget extends StatelessWidget {
   const CallButtonWidget({
     super.key,
-    this.asset,
+    required this.asset,
     this.offset,
     this.onPressed,
     this.hint,
@@ -44,7 +44,7 @@ class CallButtonWidget extends StatelessWidget {
            : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
 
   /// [SvgData] to display.
-  final SvgData? asset;
+  final SvgData asset;
 
   /// [Offset] to apply to the [asset].
   final Offset? offset;

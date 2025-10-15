@@ -389,7 +389,7 @@ class AcceptAudioButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] accepting a call with video.
+/// [CallButton] accepting a call with video.
 class AcceptVideoButton extends CallButton {
   const AcceptVideoButton(super.c, {this.highlight = false});
 
@@ -420,7 +420,7 @@ class AcceptVideoButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] declining a call.
+/// [CallButton] declining a call.
 class DeclineButton extends CallButton {
   const DeclineButton(super.c);
 
@@ -479,7 +479,7 @@ class EndCallButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] switching a speaker output.
+/// [CallButton] switching a speaker output.
 class SpeakerButton extends CallButton {
   const SpeakerButton(super.c);
 
@@ -527,7 +527,7 @@ class SpeakerButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] switching a local video stream.
+/// [CallButton] switching a local video stream.
 class SwitchButton extends CallButton {
   const SwitchButton(super.c);
 
