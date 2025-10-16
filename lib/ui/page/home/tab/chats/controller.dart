@@ -100,8 +100,11 @@ class ChatsTabController extends GetxController {
   /// Indicator whether chat archive viewing is active.
   final RxBool archivedOnly = RxBool(false);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [ScrollController] to pass to a [Scrollbar] of recent [RxChat]s.
+  final ScrollController chatsController = ScrollController();
+
+  /// [ScrollController] to pass to a [Scrollbar] of archived [RxChat]s.
+  final ScrollController archiveController = ScrollController();
 
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
@@ -206,7 +209,8 @@ class ChatsTabController extends GetxController {
 
   @override
   void onInit() {
-    scrollController.addListener(_scrollListener);
+    chatsController.addListener(_chatsListener);
+    archiveController.addListener(_archiveListener);
 
     chats.value = RxList(
       _chatService.paginated.values
@@ -274,7 +278,7 @@ class ChatsTabController extends GetxController {
             _userSubscriptions.remove(userId)?.cancel();
           }
 
-          _scrollListener();
+          _chatsListener();
           break;
 
         case OperationKind.updated:
@@ -311,6 +315,8 @@ class ChatsTabController extends GetxController {
 
             return false;
           });
+
+          _archiveListener();
           break;
 
         case OperationKind.updated:
@@ -341,7 +347,9 @@ class ChatsTabController extends GetxController {
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
-    scrollController.dispose();
+
+    chatsController.dispose();
+    archiveController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -900,16 +908,43 @@ class ChatsTabController extends GetxController {
 
   /// Requests the next page of [Chat]s based on the [ScrollController.position]
   /// value.
-  void _scrollListener() {
+  void _chatsListener() {
     if (!_scrollIsInvoked) {
       _scrollIsInvoked = true;
 
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _scrollIsInvoked = false;
 
-        if (scrollController.hasClients &&
-            scrollController.position.pixels >
-                scrollController.position.maxScrollExtent - 500 &&
+        if (chatsController.hasClients &&
+            chatsController.position.pixels >
+                chatsController.position.maxScrollExtent - 500 &&
+            !status.value.isLoading) {
+          if (archivedOnly.value) {
+            if (archive.hasNext.isTrue && archive.nextLoading.isFalse) {
+              archive.next();
+            }
+          } else {
+            if (hasNext.isTrue && _chatService.nextLoading.isFalse) {
+              _chatService.next();
+            }
+          }
+        }
+      });
+    }
+  }
+
+  /// Requests the next page of archived [Chat]s based on the
+  /// [ScrollController.position] value.
+  void _archiveListener() {
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _scrollIsInvoked = false;
+
+        if (chatsController.hasClients &&
+            chatsController.position.pixels >
+                chatsController.position.maxScrollExtent - 500 &&
             !status.value.isLoading) {
           if (archivedOnly.value) {
             if (archive.hasNext.isTrue && archive.nextLoading.isFalse) {
@@ -937,17 +972,25 @@ class ChatsTabController extends GetxController {
           return;
         }
 
-        if (!scrollController.hasClients) {
+        final ScrollController scroll = switch (archivedOnly.value) {
+          true => archiveController,
+          false => chatsController,
+        };
+
+        if (!scroll.hasClients) {
           return await _ensureScrollable();
         }
 
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
-        if (scrollController.position.maxScrollExtent < 50 &&
+        if (scroll.position.maxScrollExtent < 50 &&
             _chatService.nextLoading.isFalse) {
           final int amount = _chatService.paginated.length;
 
-          await _chatService.next();
+          await switch (archivedOnly.value) {
+            true => archive.next,
+            false => _chatService.next,
+          }();
 
           _chatsInitiallyFetched = _chatService.paginated.length;
 
@@ -960,7 +1003,7 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Invokes [closeSearch] if [searching], or [closeGroupCreating] if
+  /// Invokes [clearSearch] if [search]ing, or [closeGroupCreating] if
   /// [groupCreating].
   ///
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns

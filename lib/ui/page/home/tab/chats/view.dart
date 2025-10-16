@@ -85,7 +85,6 @@ class ChatsTabView extends StatelessWidget {
             Scaffold(
               resizeToAvoidBottomInset: false,
               body: NestedScrollView(
-                controller: c.scrollController,
                 headerSliverBuilder: (context, value) {
                   return [
                     SliverOverlapAbsorber(
@@ -931,6 +930,7 @@ class ChatsTabView extends StatelessWidget {
 
           child: ListView.builder(
             key: const Key('ArchiveScrollable'),
+            controller: c.archiveController,
             itemCount: chats.length,
             itemBuilder: (_, i) {
               final RxChat chat = chats[i];
@@ -1095,6 +1095,7 @@ class ChatsTabView extends StatelessWidget {
 
       return AnimationLimiter(
         child: CustomScrollView(
+          controller: c.chatsController,
           key: const Key('Chats'),
           slivers: [
             SliverPadding(
