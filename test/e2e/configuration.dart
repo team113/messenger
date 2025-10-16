@@ -263,6 +263,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactPosition,
         seeContactSelection,
         seeCountChats,
+        seeCountChatsOrMore,
         seeCountContacts,
         seeCountFavoriteChats,
         seeCountSessions,

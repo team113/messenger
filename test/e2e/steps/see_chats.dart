@@ -49,6 +49,33 @@ final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
   },
 );
 
+/// Indicates whether the provided count (or more) of [Chat]s are present within
+/// [ChatsTabView].
+///
+/// Examples:
+/// - Then I see 30 or more chats
+final StepDefinitionGeneric seeCountChatsOrMore = then1<int, CustomWorld>(
+  'I see {int} or more chats\$',
+  (count, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+
+      final controller = Get.find<ChatsTabController>();
+
+      final Iterable<ChatEntry> chats = controller.chats.where((e) {
+        final bool notLocalOrHasMessages =
+            !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
+
+        return notLocalOrHasMessages &&
+            !e.chat.value.isHidden &&
+            !e.chat.value.isArchived;
+      });
+
+      return chats.length >= count;
+    }, timeout: const Duration(seconds: 60));
+  },
+);
+
 /// Indicates whether the provided count of favorite [Chat]s are present within
 /// [ChatsTabView].
 ///
