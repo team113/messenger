@@ -20,8 +20,6 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
-import 'conditional_backdrop.dart';
 
 /// [FloatingActionButton] of some [icon] with an optional
 /// [text] and [hint].
@@ -35,7 +33,6 @@ class RoundFloatingButton extends StatelessWidget {
     this.showText = true,
     this.color,
     this.hint,
-    this.withBlur = false,
     this.minified = false,
     this.border,
   });
@@ -63,9 +60,6 @@ class RoundFloatingButton extends StatelessWidget {
   /// Background color of the button.
   final Color? color;
 
-  /// Indicator whether the button should have a blur under it or not.
-  final bool withBlur;
-
   /// Indicator whether the [text] provided should be smaller, or small
   /// otherwise.
   final bool minified;
@@ -78,7 +72,6 @@ class RoundFloatingButton extends StatelessWidget {
     final button = _IconButton(
       icon: icon,
       color: color,
-      withBlur: withBlur,
       onPressed: onPressed,
       offset: offset,
       border: border,
@@ -93,7 +86,6 @@ class RoundFloatingButton extends StatelessWidget {
       showText: showText,
       text: text!,
       minified: minified,
-      withBlur: withBlur,
       child: button,
     );
   }
@@ -102,7 +94,6 @@ class RoundFloatingButton extends StatelessWidget {
 /// [FloatingActionButton] of some [icon].
 class _ButtonCircle extends StatelessWidget {
   const _ButtonCircle({
-    required this.withBlur,
     required this.color,
     required this.onPressed,
     required this.icon,
@@ -117,9 +108,6 @@ class _ButtonCircle extends StatelessWidget {
   /// Background color of the button.
   final Color? color;
 
-  /// Indicator whether the button should have a blur under it or not.
-  final bool withBlur;
-
   /// [Offset] to apply to the [icon] or [asset].
   final Offset? offset;
 
@@ -128,37 +116,29 @@ class _ButtonCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Container(
+    return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 60, maxHeight: 60),
-      // Use [Palette.almostTransparent] instead of [Palette.transparent] to
-      // allow [ConditionalBackdropFilter] animate transparency correctly.
-      color: style.colors.almostTransparent,
-      child: ConditionalBackdropFilter(
-        condition: !WebUtils.isSafari && withBlur,
-        borderRadius: BorderRadius.circular(300),
-        child: Material(
-          elevation: 0,
-          color: color,
-          type: MaterialType.circle,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(300),
-            onTap: onPressed,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return Center(
-                  child: SizedBox(
-                    width: (constraints.maxWidth / 60) * (icon.width ?? 60),
-                    height: (constraints.maxHeight / 60) * (icon.height ?? 60),
-                    child: Transform.translate(
-                      offset: offset ?? Offset.zero,
-                      child: SvgIcon(icon),
-                    ),
+
+      child: Material(
+        elevation: 0,
+        color: color,
+        type: MaterialType.circle,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(300),
+          onTap: onPressed,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Center(
+                child: SizedBox(
+                  width: (constraints.maxWidth / 60) * (icon.width ?? 60),
+                  height: (constraints.maxHeight / 60) * (icon.height ?? 60),
+                  child: Transform.translate(
+                    offset: offset ?? Offset.zero,
+                    child: SvgIcon(icon),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -171,7 +151,6 @@ class _IconButton extends StatelessWidget {
   const _IconButton({
     required this.icon,
     required this.color,
-    required this.withBlur,
     required this.onPressed,
     required this.offset,
     required this.border,
@@ -195,9 +174,6 @@ class _IconButton extends StatelessWidget {
   /// Background color of the button.
   final Color? color;
 
-  /// Indicator whether the button should have a blur under it or not.
-  final bool withBlur;
-
   /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
 
@@ -205,7 +181,6 @@ class _IconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget button = _ButtonCircle(
       color: color,
-      withBlur: withBlur,
       onPressed: onPressed,
       offset: offset,
       icon: icon,
@@ -315,7 +290,6 @@ class _LabelledButton extends StatelessWidget {
     required this.showText,
     required this.text,
     required this.minified,
-    required this.withBlur,
   });
 
   /// Text under the button.
@@ -323,9 +297,6 @@ class _LabelledButton extends StatelessWidget {
 
   /// Indicator whether the [text] should be showed.
   final bool showText;
-
-  /// Indicator whether the button should have a blur under it or not.
-  final bool withBlur;
 
   /// Indicator whether the [text] provided should be smaller, or small
   /// otherwise.
@@ -337,11 +308,6 @@ class _LabelledButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-
-    final shadows = [
-      Shadow(blurRadius: 6, color: style.colors.onBackground),
-      Shadow(blurRadius: 6, color: style.colors.onBackground),
-    ];
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -357,9 +323,7 @@ class _LabelledButton extends StatelessWidget {
               textAlign: TextAlign.center,
               style: minified
                   ? style.fonts.smaller.regular.onPrimary
-                  : style.fonts.small.regular.onPrimary.copyWith(
-                      shadows: withBlur ? shadows : null,
-                    ),
+                  : style.fonts.small.regular.onPrimary,
               maxLines: 2,
             ),
           ),

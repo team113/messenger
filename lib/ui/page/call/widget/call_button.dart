@@ -100,7 +100,6 @@ class CallButtonWidget extends StatelessWidget {
         text: expanded || constrained ? hint : null,
         minified: !constrained,
         showText: expanded,
-        withBlur: withBlur,
         border: border,
         onPressed: onPressed,
       ),
