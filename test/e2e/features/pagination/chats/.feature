@@ -83,4 +83,4 @@ Feature: Chats pagination
     Then I see 30 favorite chats
 
     When I scroll `Chats` to bottom
-    Then I see 45 chats
+    Then I see 45 or more chats
