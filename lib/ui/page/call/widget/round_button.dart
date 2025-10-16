@@ -203,8 +203,6 @@ class _IconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     Widget button = _ButtonCircle(
       color: color,
       withBlur: withBlur,
@@ -225,23 +223,88 @@ class _IconButton extends StatelessWidget {
       return button;
     }
 
-    return Tooltip(
-      message: hint,
-      preferBelow: false,
-      verticalOffset: 38,
-      waitDuration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(color: style.colors.transparent),
-      textStyle: style.fonts.small.regular.onPrimary.copyWith(
-        shadows: [
-          Shadow(blurRadius: 6, color: style.colors.onBackground),
-          Shadow(blurRadius: 6, color: style.colors.onBackground),
-        ],
+    return _TooltipButton(hint: hint!, child: button);
+  }
+}
+
+/// [_ButtonCircle] with tooltip.
+class _TooltipButton extends StatefulWidget {
+  const _TooltipButton({required this.hint, required this.child});
+
+  /// Text that will show above the button on a hover.
+  final String hint;
+
+  /// Button content
+  final Widget child;
+
+  @override
+  State<_TooltipButton> createState() => _TooltipButtonState();
+}
+
+/// State of [_TooltipButton] used to keep the [_entry] and [_link].
+class _TooltipButtonState extends State<_TooltipButton> {
+  /// Link to the tooltip.
+  final _link = LayerLink();
+
+  /// Tooltip entry.
+  OverlayEntry? _entry;
+
+  @override
+  void dispose() {
+    _hide();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _link,
+      child: MouseRegion(
+        onEnter: (_) => _show(),
+        onExit: (_) => _hide(),
+        child: widget.child,
       ),
-      margin: EdgeInsets.zero,
-      padding: EdgeInsets.zero,
-      textAlign: TextAlign.center,
-      child: button,
     );
+  }
+
+  /// Shows the tooltip.
+  void _show() {
+    if (_entry != null) return;
+
+    final style = Theme.of(context).style;
+
+    _entry = OverlayEntry(
+      builder: (context) => IgnorePointer(
+        child: CompositedTransformFollower(
+          link: _link,
+          targetAnchor: Alignment.topCenter,
+          followerAnchor: Alignment.topCenter,
+          offset: Offset(0, -36),
+          showWhenUnlinked: false,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(),
+            child: Text(
+              widget.hint,
+              textAlign: TextAlign.center,
+              style: style.fonts.small.regular.onPrimary.copyWith(
+                shadows: [
+                  Shadow(blurRadius: 6, color: style.colors.onBackground),
+                  Shadow(blurRadius: 6, color: style.colors.onBackground),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context, rootOverlay: true).insert(_entry!);
+  }
+
+  /// Hides the tooltip.
+  void _hide() {
+    _entry?.remove();
+    _entry = null;
   }
 }
 
