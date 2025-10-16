@@ -85,7 +85,9 @@ class RoundFloatingButton extends StatelessWidget {
       hint: hint,
     );
 
-    if (text == null) return button;
+    if (text == null) {
+      return button;
+    }
 
     return _LabelledButton(
       showText: showText,
@@ -97,7 +99,7 @@ class RoundFloatingButton extends StatelessWidget {
   }
 }
 
-/// [FloatingActionButton] of some [icon]
+/// [FloatingActionButton] of some [icon].
 class _ButtonCircle extends StatelessWidget {
   const _ButtonCircle({
     required this.withBlur,
@@ -118,11 +120,11 @@ class _ButtonCircle extends StatelessWidget {
   /// Indicator whether the button should have a blur under it or not.
   final bool withBlur;
 
-  /// [SvgData] to display instead of [asset].
-  final SvgData icon;
-
   /// [Offset] to apply to the [icon] or [asset].
   final Offset? offset;
+
+  /// [SvgData] to display instead of [asset].
+  final SvgData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -211,22 +213,24 @@ class _IconButton extends StatelessWidget {
       icon: icon,
     );
 
-    button = border != null
-        ? DecoratedBox(
-            position: DecorationPosition.foreground,
-            decoration: BoxDecoration(shape: BoxShape.circle, border: border),
-            child: button,
-          )
-        : button;
+    if (border != null) {
+      button = DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration: BoxDecoration(shape: BoxShape.circle, border: border),
+        child: button,
+      );
+    }
 
-    if (hint == null || PlatformUtils.isMobile) return button;
+    if (hint == null || PlatformUtils.isMobile) {
+      return button;
+    }
 
     return Tooltip(
-      message: hint!,
+      message: hint,
       preferBelow: false,
       verticalOffset: 38,
       waitDuration: const Duration(milliseconds: 300),
-      decoration: BoxDecoration(color: Colors.transparent),
+      decoration: BoxDecoration(color: style.colors.transparent),
       textStyle: style.fonts.small.regular.onPrimary.copyWith(
         shadows: [
           Shadow(blurRadius: 6, color: style.colors.onBackground),
