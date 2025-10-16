@@ -52,7 +52,6 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException,
         UpdateChatContactNameException;
 import '/routes.dart';
-import '/ui/page/home/controller_keyboard_handler_mixin.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -60,8 +59,7 @@ import '/util/platform_utils.dart';
 export 'view.dart';
 
 /// Controller of the [Routes.user] page.
-class UserController extends GetxController
-    with ControllerKeyboardHandlerMixin {
+class UserController extends GetxController {
   UserController(
     this.id,
     this._userService,
@@ -93,14 +91,6 @@ class UserController extends GetxController
 
   /// [ItemScrollController] of the profile's [ScrollablePositionedList].
   final ItemScrollController itemScrollController = ItemScrollController();
-
-  /// part of [ControllerKeyboardHandlerMixin]
-  @override
-  ScrollController get keyboardHandlerController => scrollController;
-
-  /// part of [ControllerKeyboardHandlerMixin]
-  @override
-  FocusNode focusNode = FocusNode();
 
   /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
   final ItemPositionsListener positionsListener =

@@ -112,7 +112,7 @@ class ChatInfoView extends StatelessWidget {
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
             body: ScrollKeyboardHandler(
-              controller: c,
+              scrollController: c.scrollController,
               child: Scrollbar(
                 controller: c.scrollController,
                 child: ObscuredSelectionArea(

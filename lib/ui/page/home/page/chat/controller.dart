@@ -84,7 +84,6 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException,
         UploadAttachmentException;
 import '/routes.dart';
-import '/ui/page/home/controller_keyboard_handler_mixin.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
@@ -100,8 +99,7 @@ import 'view.dart';
 export 'view.dart';
 
 /// Controller of the [Routes.chats] page.
-class ChatController extends GetxController
-    with ControllerKeyboardHandlerMixin {
+class ChatController extends GetxController {
   ChatController(
     this.id,
     this._chatService,
@@ -179,14 +177,6 @@ class ChatController extends GetxController
   /// [Timer] for discarding any vertical movement in a [FlutterListView] of
   /// [ChatItem]s when non-`null`.
   final Rx<Timer?> horizontalScrollTimer = Rx(null);
-
-  /// part of [ControllerKeyboardHandlerMixin]
-  @override
-  ScrollController get keyboardHandlerController => listController;
-
-  /// part of [ControllerKeyboardHandlerMixin]
-  @override
-  FocusNode focusNode = FocusNode();
 
   /// Maximum [Duration] between some [ChatForward]s to consider them grouped.
   static const Duration groupForwardThreshold = Duration(milliseconds: 5);
