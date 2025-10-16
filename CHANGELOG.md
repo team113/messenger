@@ -14,8 +14,8 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
-    - Call page:
-        - Update call participant overlay. ([#1466], [#1453])
+    - Media panel:
+        - Updated overlay icons. ([#1466], [#1453])
 
 [#1453]: /../../issues/1453
 [#1466]: /../../pull/1466

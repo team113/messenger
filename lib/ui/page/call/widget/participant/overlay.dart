@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
@@ -77,24 +78,28 @@ class ParticipantOverlayWidget extends StatelessWidget {
           participant.source != MediaSourceKind.display &&
           participant.member.owner == MediaOwnerKind.remote;
 
-      final List<SvgData> connectionIcons = [
-        if (participant.member.quality.value <= 0)
-          SvgIcons.noSignalSmall
-        else if (participant.member.quality.value <= 1)
-          SvgIcons.lowSignalSmall,
-      ];
+      final List<List<SvgData>> icons = [
+        // Connection related icons.
+        [
+          if (participant.member.quality.value <= 0)
+            SvgIcons.noSignalSmall
+          else if (participant.member.quality.value <= 1)
+            SvgIcons.lowSignalSmall,
+        ],
 
-      final List<SvgData> otherIcons = [
-        if (isAudioDisabled)
-          SvgIcons.audioOffSmall
-        else if (isMuted)
-          SvgIcons.microphoneOffSmall,
+        // Status related icons.
+        [
+          if (isAudioDisabled)
+            SvgIcons.audioOffSmall
+          else if (isMuted)
+            SvgIcons.microphoneOffSmall,
 
-        if (participant.source == MediaSourceKind.display)
-          SvgIcons.screenShareSmall
-        else if (isVideoDisabled)
-          SvgIcons.videoOffSmall,
-      ];
+          if (participant.source == MediaSourceKind.display)
+            SvgIcons.screenShareSmall
+          else if (isVideoDisabled)
+            SvgIcons.videoOffSmall,
+        ],
+      ].whereNot((e) => e.isEmpty).toList();
 
       final Widget name = Transform.translate(
         // Adjust vertical alignment to match design (default centering is slightly off)
@@ -109,7 +114,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
 
       final Widget child;
 
-      if (hovered || connectionIcons.isNotEmpty || otherIcons.isNotEmpty) {
+      if (hovered || icons.isNotEmpty) {
         child = Container(
           key: const Key('Tooltip'),
           decoration: BoxDecoration(
@@ -122,55 +127,41 @@ class ParticipantOverlayWidget extends StatelessWidget {
               ),
             ],
           ),
-          child: ConditionalBackdropFilter(
-            condition: preferBackdrop,
-            borderRadius: BorderRadius.circular(30),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: preferBackdrop && ConditionalBackdropFilter.enabled
-                    ? style.colors.primaryAuxiliaryOpacity25
-                    : style.colors.primaryAuxiliaryOpacity90,
-              ),
-              padding: EdgeInsets.all(8),
-              height: 32,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (connectionIcons.isNotEmpty)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 8,
-                      children: connectionIcons
-                          .map((e) => SvgIcon(e, width: 16, height: 16))
-                          .toList(),
-                    ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: style.colors.primaryAuxiliaryOpacity90,
+            ),
+            padding: EdgeInsets.all(8),
+            height: 32,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ...icons
+                    .mapIndexed((i, e) {
+                      final bool isLast = i == icons.length - 1;
 
-                  if (connectionIcons.isNotEmpty &&
-                      (otherIcons.isNotEmpty || hovered))
-                    _Separator(),
-
-                  if (otherIcons.isNotEmpty)
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 8,
-                      children: otherIcons
-                          .map((e) => SvgIcon(e, width: 16, height: 16))
-                          .toList(),
-                    ),
-
-                  if (otherIcons.isNotEmpty && hovered) _Separator(),
-
-                  Flexible(
-                    child: connectionIcons.isEmpty && otherIcons.isEmpty
-                        ? name
-                        : AnimatedSize(
-                            duration: 150.milliseconds,
-                            child: hovered ? name : const SizedBox.shrink(),
-                          ),
-                  ),
-                ],
-              ),
+                      return [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 8,
+                          children: e
+                              .map((e) => SvgIcon(e, width: 16, height: 16))
+                              .toList(),
+                        ),
+                        if ((isLast && hovered) || !isLast) _Separator(),
+                      ];
+                    })
+                    .expand((e) => e),
+                Flexible(
+                  child: icons.isEmpty
+                      ? name
+                      : AnimatedSize(
+                          duration: 150.milliseconds,
+                          child: hovered ? name : const SizedBox.shrink(),
+                        ),
+                ),
+              ],
             ),
           ),
         );
