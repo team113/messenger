@@ -52,6 +52,7 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/line_divider.dart';
@@ -112,15 +113,18 @@ class MyProfileView extends StatelessWidget {
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Builder(
               builder: (context) {
-                final Widget child = ScrollablePositionedList.builder(
-                  key: const Key('MyProfileScrollable'),
-                  initialScrollIndex: c.listInitIndex,
+                final Widget child = ScrollKeyboardHandler(
                   scrollController: c.scrollController,
-                  itemScrollController: c.itemScrollController,
-                  itemPositionsListener: c.positionsListener,
-                  itemCount: ProfileTab.values.length,
-                  physics: const ClampingScrollPhysics(),
-                  itemBuilder: (context, i) => _block(context, c, i),
+                  child: ScrollablePositionedList.builder(
+                    key: const Key('MyProfileScrollable'),
+                    initialScrollIndex: c.listInitIndex,
+                    scrollController: c.scrollController,
+                    itemScrollController: c.itemScrollController,
+                    itemPositionsListener: c.positionsListener,
+                    itemCount: ProfileTab.values.length,
+                    physics: const ClampingScrollPhysics(),
+                    itemBuilder: (context, i) => _block(context, c, i),
+                  ),
                 );
 
                 if (PlatformUtils.isMobile) {
