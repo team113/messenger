@@ -470,6 +470,7 @@ class ChatView extends StatelessWidget {
                         Obx(() {
                           final Widget child = ScrollKeyboardHandler(
                             scrollController: c.listController,
+                            reverseList: true,
                             child: FlutterListView(
                               key: const Key('MessagesList'),
                               controller: c.listController,
