@@ -199,7 +199,7 @@ class _Separator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 8),
-      color: Theme.of(context).style.colors.onPrimaryOpacity20,
+      color: Theme.of(context).style.colors.onPrimaryOpacity25,
       width: 1,
       height: 10,
     );

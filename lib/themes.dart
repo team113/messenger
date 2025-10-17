@@ -766,8 +766,6 @@ class Palette {
            onPrimaryOpacity7 ?? onPrimary.withValues(alpha: 0.07),
        onPrimaryOpacity10 =
            onPrimaryOpacity10 ?? onPrimary.withValues(alpha: 0.10),
-       onPrimaryOpacity20 =
-           onPrimaryOpacity20 ?? onPrimary.withValues(alpha: 0.20),
        onPrimaryOpacity25 =
            onPrimaryOpacity25 ?? onPrimary.withValues(alpha: 0.25),
        onPrimaryOpacity50 =
@@ -895,11 +893,6 @@ class Palette {
   ///
   /// Used as a replied message background in [ChatItemWidget].
   final Color onPrimaryOpacity25;
-
-  /// 20% opacity of the [onPrimary] color.
-  ///
-  /// Used as a separator background in [ParticipantOverlayWidget].
-  final Color onPrimaryOpacity20;
 
   /// 7% opacity of the [onPrimary] color.
   ///
