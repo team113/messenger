@@ -15,15 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/widget/animated_button.dart';
@@ -223,14 +220,11 @@ class _WorkViewState extends State<WorkView> {
             if (!context.isNarrow) ...[
               Row(
                 children: [
-                  ConditionalBackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: context.isNarrow ? 0 : 350,
-                      ),
-                      child: const SizedBox.expand(),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: context.isNarrow ? 0 : 350,
                     ),
+                    child: const SizedBox.expand(),
                   ),
                   Expanded(
                     child: ColoredBox(color: style.colors.onBackgroundOpacity2),

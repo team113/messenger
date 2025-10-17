@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -26,7 +25,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/page/link/view.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -406,18 +404,15 @@ class _HomeViewState extends State<HomeView> {
               if (!context.isNarrow) ...[
                 Row(
                   children: [
-                    ConditionalBackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                      child: Obx(() {
-                        double width = c.sideBarWidth.value;
-                        return ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: context.isNarrow ? 0 : width,
-                          ),
-                          child: const SizedBox.expand(),
-                        );
-                      }),
-                    ),
+                    Obx(() {
+                      double width = c.sideBarWidth.value;
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: context.isNarrow ? 0 : width,
+                        ),
+                        child: const SizedBox.expand(),
+                      );
+                    }),
                     Expanded(
                       child: ColoredBox(
                         color: style.colors.onBackgroundOpacity2,

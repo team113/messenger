@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
 import 'animated_delayed_scale.dart';
-import 'conditional_backdrop.dart';
 
 /// Drag target indicator.
 class DropBox extends StatelessWidget {
@@ -43,22 +42,18 @@ class DropBox extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           beginScale: 1,
           endScale: 1.06,
-          child: ConditionalBackdropFilter(
-            condition: withBlur,
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: withBlur
-                    ? style.colors.onBackgroundOpacity27
-                    : style.colors.onBackgroundOpacity50,
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(dense ? 10 : 16),
-                child: dense
-                    ? const SvgIcon(SvgIcons.addBig)
-                    : const SvgIcon(SvgIcons.addBigger),
-              ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: withBlur
+                  ? style.colors.onBackgroundOpacity27
+                  : style.colors.onBackgroundOpacity50,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(dense ? 10 : 16),
+              child: dense
+                  ? const SvgIcon(SvgIcons.addBig)
+                  : const SvgIcon(SvgIcons.addBigger),
             ),
           ),
         ),

@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '../../controller.dart';
-import '../conditional_backdrop.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -34,7 +33,6 @@ class ParticipantOverlayWidget extends StatelessWidget {
     super.key,
     this.muted = false,
     this.hovered = false,
-    this.preferBackdrop = true,
   });
 
   /// [Participant] this [ParticipantOverlayWidget] represents.
@@ -48,9 +46,6 @@ class ParticipantOverlayWidget extends StatelessWidget {
   /// Indicator whether this [ParticipantOverlayWidget] is being hovered meaning
   /// its label should be visible.
   final bool hovered;
-
-  /// Indicator whether [ConditionalBackdropFilter] should be enabled.
-  final bool preferBackdrop;
 
   @override
   Widget build(BuildContext context) {
@@ -165,39 +160,33 @@ class ParticipantOverlayWidget extends StatelessWidget {
               ),
             ],
           ),
-          child: ConditionalBackdropFilter(
-            condition: preferBackdrop,
-            borderRadius: BorderRadius.circular(30),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: preferBackdrop && ConditionalBackdropFilter.enabled
-                    ? style.colors.primaryAuxiliaryOpacity25
-                    : style.colors.primaryAuxiliaryOpacity90,
-              ),
-              padding: EdgeInsets.only(
-                left: 6,
-                right: additionally.length >= 2 ? 6 : 6,
-                top: 4,
-                bottom: 4,
-              ),
-              height: 32,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ...additionally,
-                  if (additionally.isNotEmpty && hovered)
-                    const SizedBox(width: 3),
-                  Flexible(
-                    child: additionally.isEmpty
-                        ? name
-                        : AnimatedSize(
-                            duration: 150.milliseconds,
-                            child: hovered ? name : const SizedBox(),
-                          ),
-                  ),
-                ],
-              ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: style.colors.primaryAuxiliaryOpacity90,
+            ),
+            padding: EdgeInsets.only(
+              left: 6,
+              right: additionally.length >= 2 ? 6 : 6,
+              top: 4,
+              bottom: 4,
+            ),
+            height: 32,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ...additionally,
+                if (additionally.isNotEmpty && hovered)
+                  const SizedBox(width: 3),
+                Flexible(
+                  child: additionally.isEmpty
+                      ? name
+                      : AnimatedSize(
+                          duration: 150.milliseconds,
+                          child: hovered ? name : const SizedBox(),
+                        ),
+                ),
+              ],
             ),
           ),
         );

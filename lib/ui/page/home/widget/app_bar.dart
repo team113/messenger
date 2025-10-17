@@ -15,13 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Custom stylized and decorated [AppBar].
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -98,51 +95,43 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
-      child: ConditionalBackdropFilter(
-        condition: style.cardBlur > 0,
-        filter: ImageFilter.blur(
-          sigmaX: style.cardBlur,
-          sigmaY: style.cardBlur,
-        ),
-        borderRadius: borderRadius,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          decoration: BoxDecoration(
-            borderRadius: borderRadius,
-            border:
-                border ??
-                Border(
-                  top: BorderSide.none,
-                  left: style.cardBorder.left,
-                  right: style.cardBorder.right,
-                  bottom: style.cardBorder.bottom,
-                ),
-            color: style.cardColor,
-          ),
-          padding: padding,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Spacer(),
-              SizedBox(
-                height: 59 - (padding?.top ?? 0) - (padding?.bottom ?? 0),
-                child: NavigationToolbar(
-                  centerMiddle: true,
-                  middleSpacing: 0,
-                  middle: DefaultTextStyle.merge(
-                    style: style.fonts.large.regular.onBackground,
-                    child: title ?? const SizedBox.shrink(),
-                  ),
-                  leading: leading.isEmpty
-                      ? null
-                      : Row(mainAxisSize: MainAxisSize.min, children: leading),
-                  trailing: actions.isEmpty
-                      ? null
-                      : Row(mainAxisSize: MainAxisSize.min, children: actions),
-                ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          border:
+              border ??
+              Border(
+                top: BorderSide.none,
+                left: style.cardBorder.left,
+                right: style.cardBorder.right,
+                bottom: style.cardBorder.bottom,
               ),
-            ],
-          ),
+          color: style.cardColor,
+        ),
+        padding: padding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Spacer(),
+            SizedBox(
+              height: 59 - (padding?.top ?? 0) - (padding?.bottom ?? 0),
+              child: NavigationToolbar(
+                centerMiddle: true,
+                middleSpacing: 0,
+                middle: DefaultTextStyle.merge(
+                  style: style.fonts.large.regular.onBackground,
+                  child: title ?? const SizedBox.shrink(),
+                ),
+                leading: leading.isEmpty
+                    ? null
+                    : Row(mainAxisSize: MainAxisSize.min, children: leading),
+                trailing: actions.isEmpty
+                    ? null
+                    : Row(mainAxisSize: MainAxisSize.min, children: actions),
+              ),
+            ),
+          ],
         ),
       ),
     );

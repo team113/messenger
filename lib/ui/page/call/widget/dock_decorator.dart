@@ -15,14 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 
 /// [AnimatedSlider] wrapping a [child] within dock-decorated [Container].
@@ -93,23 +90,14 @@ class DockDecorator extends StatelessWidget {
               ],
             ),
             margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-            child: ConditionalBackdropFilter(
+            child: Container(
               key: dockKey,
-              borderRadius: BorderRadius.circular(30),
-              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: ConditionalBackdropFilter.enabled
-                      ? style.colors.primaryAuxiliaryOpacity25
-                      : style.colors.primaryAuxiliaryOpacity90,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  vertical: 13,
-                  horizontal: 5,
-                ),
-                child: child,
+              decoration: BoxDecoration(
+                color: style.colors.primaryAuxiliaryOpacity90,
+                borderRadius: BorderRadius.circular(30),
               ),
+              padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 5),
+              child: child,
             ),
           ),
         ),

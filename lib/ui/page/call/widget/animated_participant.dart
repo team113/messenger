@@ -33,7 +33,6 @@ class AnimatedParticipant extends StatelessWidget {
     super.key,
     this.muted = false,
     this.rounded = false,
-    this.withBlur = false,
   });
 
   /// [Participant] to display.
@@ -47,9 +46,6 @@ class AnimatedParticipant extends StatelessWidget {
   /// If `true`, occupies the [MediaQuery] sizes, thus intended to be displayed
   /// in center.
   final bool rounded;
-
-  /// Indicator whether [ParticipantOverlayWidget] should backdrop its labels.
-  final bool withBlur;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +76,6 @@ class AnimatedParticipant extends StatelessWidget {
               participant,
               muted: muted,
               hovered: rounded,
-              preferBackdrop: withBlur,
             ),
           ],
         ),

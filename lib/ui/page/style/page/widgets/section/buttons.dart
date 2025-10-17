@@ -223,7 +223,6 @@ class ButtonsSection {
             CallButtonWidget(
               color: style.colors.onSecondaryOpacity50,
               onPressed: () {},
-              withBlur: true,
               big: true,
               asset: SvgIcons.fullscreenEnter,
             ),

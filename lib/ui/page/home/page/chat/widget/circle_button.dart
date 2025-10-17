@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svg.dart';
 
@@ -50,19 +49,15 @@ class CircleButton extends StatelessWidget {
             ),
           ],
         ),
-        child: ConditionalBackdropFilter(
-          condition: false,
-          borderRadius: BorderRadius.circular(32),
-          child: Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: style.cardColor,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Transform.scale(scale: 0.75, child: SvgIcon(icon)),
-            ),
+        child: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+            color: style.cardColor,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Transform.scale(scale: 0.75, child: SvgIcon(icon)),
           ),
         ),
       ),

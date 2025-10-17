@@ -21,7 +21,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Circular progress indicator, which spins to indicate that the application is
 /// busy.
@@ -29,7 +28,6 @@ class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator({super.key, this.value})
     : size = 32,
       padding = const EdgeInsets.all(6),
-      blur = true,
       backgroundColor = null,
       valueColor = null,
       primary = false,
@@ -39,8 +37,7 @@ class CustomProgressIndicator extends StatelessWidget {
   /// Constructs a [CustomProgressIndicator] with a `primary` style.
   const CustomProgressIndicator.primary({super.key, this.value})
     : size = 40,
-      padding = const EdgeInsets.all(4),
-      blur = false,
+      padding = EdgeInsets.zero,
       backgroundColor = null,
       valueColor = null,
       primary = true,
@@ -51,7 +48,6 @@ class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator.big({super.key, this.value})
     : size = 64,
       padding = const EdgeInsets.all(6),
-      blur = true,
       backgroundColor = null,
       valueColor = null,
       primary = false,
@@ -62,7 +58,6 @@ class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator.small({super.key, this.value})
     : size = 32,
       padding = const EdgeInsets.all(6),
-      blur = true,
       backgroundColor = null,
       valueColor = null,
       primary = true,
@@ -72,8 +67,7 @@ class CustomProgressIndicator extends StatelessWidget {
   /// Constructs a [CustomProgressIndicator] with a `small` style.
   const CustomProgressIndicator.bold({super.key, this.value})
     : size = 18,
-      padding = const EdgeInsets.all(0),
-      blur = false,
+      padding = EdgeInsets.zero,
       backgroundColor = null,
       valueColor = null,
       primary = false,
@@ -106,36 +100,28 @@ class CustomProgressIndicator extends StatelessWidget {
   /// Size of this [CustomProgressIndicator].
   final double size;
 
-  /// Indicator whether a [ConditionalBackdropFilter] should be applied under
-  /// this [CustomProgressIndicator].
-  final bool blur;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return ConditionalBackdropFilter(
-      condition: blur,
-      borderRadius: BorderRadius.circular(60),
-      child: Container(
-        constraints: BoxConstraints(maxWidth: size, maxHeight: size),
-        decoration: const BoxDecoration(shape: BoxShape.circle),
-        padding: blur ? padding : EdgeInsets.zero,
-        child: _CustomCircularProgressIndicator(
-          value: value,
-          color: primary
-              ? style.colors.primary
-              : onPrimary
-              ? style.colors.onPrimary
-              : style.colors.secondaryHighlightDarkest,
-          backgroundColor:
-              backgroundColor ??
-              (onPrimary
-                  ? style.colors.onPrimaryOpacity50
-                  : style.colors.onPrimaryOpacity50),
-          valueColor: valueColor,
-          strokeWidth: strokeWidth,
-        ),
+    return Container(
+      constraints: BoxConstraints(maxWidth: size, maxHeight: size),
+      decoration: const BoxDecoration(shape: BoxShape.circle),
+      padding: padding,
+      child: _CustomCircularProgressIndicator(
+        value: value,
+        color: primary
+            ? style.colors.primary
+            : onPrimary
+            ? style.colors.onPrimary
+            : style.colors.secondaryHighlightDarkest,
+        backgroundColor:
+            backgroundColor ??
+            (onPrimary
+                ? style.colors.onPrimaryOpacity50
+                : style.colors.onPrimaryOpacity50),
+        valueColor: valueColor,
+        strokeWidth: strokeWidth,
       ),
     );
   }

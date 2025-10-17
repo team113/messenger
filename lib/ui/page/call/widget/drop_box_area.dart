@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import 'drop_box.dart';
 
 /// [DragTarget] with a [DropBox] within it.
@@ -92,22 +91,20 @@ class DropBoxArea<T extends Object> extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: ConditionalBackdropFilter(
-                    child: AnimatedContainer(
-                      duration: 300.milliseconds,
-                      color: candidate.isNotEmpty
-                          ? style.colors.onPrimaryOpacity7
-                          : style.colors.transparent,
-                      child: Center(
-                        child: SizedBox(
-                          width: axis == Axis.horizontal
-                              ? min(size, 150 + 44)
-                              : null,
-                          height: axis == Axis.horizontal
-                              ? null
-                              : min(size, 150 + 44),
-                          child: const DropBox(withBlur: false, dense: true),
-                        ),
+                  child: AnimatedContainer(
+                    duration: 300.milliseconds,
+                    color: candidate.isNotEmpty
+                        ? style.colors.onPrimaryOpacity7
+                        : style.colors.transparent,
+                    child: Center(
+                      child: SizedBox(
+                        width: axis == Axis.horizontal
+                            ? min(size, 150 + 44)
+                            : null,
+                        height: axis == Axis.horizontal
+                            ? null
+                            : min(size, 150 + 44),
+                        child: const DropBox(withBlur: false, dense: true),
                       ),
                     ),
                   ),

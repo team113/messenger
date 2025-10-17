@@ -15,15 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 
@@ -105,36 +102,29 @@ class CallNotificationWidget extends StatelessWidget {
         ],
       ),
       margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-      child: ConditionalBackdropFilter(
-        borderRadius: BorderRadius.circular(30),
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          decoration: BoxDecoration(
-            color: style.colors.primaryAuxiliaryOpacity90,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
-                  child: Text(
-                    title,
-                    style: style.fonts.normal.regular.onPrimary,
-                  ),
-                ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: style.colors.primaryAuxiliaryOpacity90,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 4, 12),
+                child: Text(title, style: style.fonts.normal.regular.onPrimary),
               ),
-              WidgetButton(
-                onPressed: onClose,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
-                  child: const SvgIcon(SvgIcons.closeSmall),
-                ),
+            ),
+            WidgetButton(
+              onPressed: onClose,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(8, 12, 12, 12),
+                child: const SvgIcon(SvgIcons.closeSmall),
               ),
-              const SizedBox(width: 6),
-            ],
-          ),
+            ),
+            const SizedBox(width: 6),
+          ],
         ),
       ),
     );

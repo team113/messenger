@@ -103,7 +103,6 @@ class VideoButton extends CallButton {
   @override
   Widget build({
     bool hinted = true,
-    bool blur = false,
     bool big = false,
     bool expanded = false,
     bool opaque = false,
@@ -118,7 +117,6 @@ class VideoButton extends CallButton {
         hinted: hinted,
         expanded: expanded,
         big: big,
-        withBlur: blur,
         constrained: c.isMobile,
         opaque: opaque,
         onPressed: c.toggleVideo,
@@ -149,7 +147,6 @@ class AudioButton extends CallButton {
   @override
   Widget build({
     bool hinted = true,
-    bool blur = false,
     bool big = false,
     bool expanded = false,
     bool opaque = false,
@@ -163,7 +160,6 @@ class AudioButton extends CallButton {
         asset: isAudio ? SvgIcons.callMicrophoneOn : SvgIcons.callMicrophoneOff,
         hinted: hinted,
         expanded: expanded,
-        withBlur: blur,
         big: big,
         constrained: c.isMobile,
         opaque: opaque,
@@ -377,7 +373,6 @@ class AcceptAudioButton extends CallButton {
       color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,
-      withBlur: expanded,
       big: big,
       constrained: c.isMobile,
       border: highlight
@@ -408,7 +403,6 @@ class AcceptVideoButton extends CallButton {
       color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,
-      withBlur: expanded,
       big: big,
       constrained: c.isMobile,
       border: highlight
@@ -436,7 +430,6 @@ class DeclineButton extends CallButton {
       color: style.colors.declineOpacity50,
       hinted: hinted,
       expanded: expanded,
-      withBlur: expanded,
       big: big,
       constrained: c.isMobile,
       onPressed: c.decline,
@@ -490,7 +483,6 @@ class SpeakerButton extends CallButton {
   @override
   Widget build({
     bool hinted = true,
-    bool blur = false,
     bool big = false,
     bool expanded = false,
     bool opaque = false,
@@ -501,7 +493,6 @@ class SpeakerButton extends CallButton {
         asset: asset,
         hinted: hinted,
         expanded: expanded,
-        withBlur: blur,
         big: big,
         constrained: c.isMobile,
         opaque: opaque,
@@ -538,7 +529,6 @@ class SwitchButton extends CallButton {
   @override
   Widget build({
     bool hinted = true,
-    bool blur = false,
     bool big = false,
     bool expanded = false,
     bool opaque = false,
@@ -551,7 +541,6 @@ class SwitchButton extends CallButton {
             : SvgIcons.callCameraBack,
         hinted: hinted,
         expanded: expanded,
-        withBlur: blur,
         big: big,
         constrained: c.isMobile,
         opaque: opaque,

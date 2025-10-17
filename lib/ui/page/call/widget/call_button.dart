@@ -33,7 +33,6 @@ class CallButtonWidget extends StatelessWidget {
     this.hint,
     this.hinted = true,
     this.expanded = false,
-    this.withBlur = false,
     this.opaque = false,
     this.color,
     this.border,
@@ -64,9 +63,6 @@ class CallButtonWidget extends StatelessWidget {
 
   /// Indicator whether the [hint] should be always displayed under the button.
   final bool expanded;
-
-  /// Indicator whether background should be blurred.
-  final bool withBlur;
 
   /// Indicator whether this [CallButtonWidget] should be constrained.
   final bool constrained;
