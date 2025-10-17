@@ -1328,8 +1328,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.fullscreenExit,
                         invert: true,
@@ -1340,8 +1339,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.fullscreenEnter,
                         invert: true,
@@ -1352,8 +1350,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.arrowLeft,
                         invert: true,
@@ -1365,8 +1362,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.arrowRight,
                         invert: true,
@@ -1378,8 +1374,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.arrowLeftDisabled,
                         invert: true,
@@ -1391,8 +1386,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.arrowRightDisabled,
                         invert: true,
@@ -1404,8 +1398,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.close,
                         invert: true,
@@ -1633,6 +1626,32 @@ class IconsView extends StatelessWidget {
         width: mini ? 32 : 64,
         height: mini ? 32 : 64,
       ),
+    );
+  }
+}
+
+/// [RoundFloatingButton] with specified [RoundFloatingButton.color].
+class _RoundFloatingButton extends StatelessWidget {
+  const _RoundFloatingButton({this.onPressed, required this.icon, this.offset});
+
+  /// Callback, called when the button is tapped or activated other way.
+  final void Function()? onPressed;
+
+  /// [SvgData] to display instead of [asset].
+  final SvgData icon;
+
+  /// [Offset] to apply to the [icon] or [asset].
+  final Offset? offset;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return RoundFloatingButton(
+      color: style.colors.onSecondaryOpacity50,
+      onPressed: onPressed,
+      icon: icon,
+      offset: offset,
     );
   }
 }
