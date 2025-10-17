@@ -2078,7 +2078,7 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Highlights the item with the provided [index].
+  /// Highlights the item with the provided [id].
   Future<void> _highlight(ListElementId id) async {
     highlighted.value = id;
 
