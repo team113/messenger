@@ -6,10 +6,29 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/51)
+
+### Changed
+
+- UI:
+    - Chats tab:
+        - Redesigned app bar and searching. ([#1438], [#1396])
+    - Chat page:
+        - "Ctrl+F"/"Cmd+F" toggling messages searching. ([#1438], [#1396])
+
+[#1396]: /../../issues/1396
+[#1438]: /../../pull/1438
+
+
+
+
 ## [0.6.6] · 2025-10-13
 [0.6.6]: /../../tree/v0.6.6
 
-[Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/50)
+[Diff](/../../compare/v0.6.5...v0.6.6) | [Milestone](/../../milestone/50)
 
 ### Added
 

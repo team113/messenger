@@ -114,3 +114,8 @@ QueryExecutor inMemory() {
     return WasmDatabase.inMemory(sqlite3);
   });
 }
+
+/// Clears any database related files from the filesystem.
+Future<void> clearDb() async {
+  await WebUtils.cleanIndexedDb();
+}

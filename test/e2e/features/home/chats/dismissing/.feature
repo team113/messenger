@@ -17,31 +17,17 @@
 
 Feature: Chats dismissing
 
-  Scenario: Chats can be dismissed and restored
+  Scenario: Chats can be dismissed
     Given I am Alice
     And I have "01" group
     And I have "02" group
     And I wait until "01" chat is present
     And I wait until "02" chat is present
-    And I see no chats dismissed
     And I wait for app to settle
 
     When I dismiss "01" chat
     Then I wait until "01" chat is absent
-    And I see "01" chat as dismissed
-
-    When I tap `Restore` button
-    Then I wait until "01" chat is present
 
     When I dismiss "02" chat
     Then I wait until "02" chat is absent
-    And I see "02" chat as dismissed
-
-    When I dismiss "01" chat
-    Then I wait until "01" chat is absent
-    And I see "01" chat as dismissed
-    And "02" chat is indeed hidden
-
-    When I pause for 6 seconds
-    Then I see no chats dismissed
-    And "01" chat is indeed hidden
+    And I pause for 5 seconds

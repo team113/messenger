@@ -32,7 +32,9 @@ import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/my_user.dart';
+import '/domain/service/session.dart';
 import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
 
@@ -51,7 +53,15 @@ enum SearchCategory {
   user,
 
   /// [Chat]s of the authenticated [MyUser].
-  chat,
+  chat;
+
+  /// Returns localized representation of this [SearchCategory].
+  String get l10n => switch (this) {
+    SearchCategory.user => 'label_search_category_users'.l10n,
+    SearchCategory.chat ||
+    SearchCategory.recent => 'label_search_category_chats'.l10n,
+    SearchCategory.contact => 'label_search_category_contacts'.l10n,
+  };
 }
 
 /// Controller for searching the provided [categories].
@@ -60,10 +70,12 @@ class SearchController extends GetxController {
     this._chatService,
     this._userService,
     this._contactService,
-    this._myUserService, {
+    this._myUserService,
+    this._sessionService, {
     required this.categories,
     this.chat,
     this.onSelected,
+    this.prePopulate = true,
   }) : assert(categories.isNotEmpty);
 
   /// [RxChat] this controller is bound to, if any.
@@ -131,6 +143,10 @@ class SearchController extends GetxController {
   /// [selectedUsers] and [selectedRecent] changes.
   final void Function(SearchViewResults? results)? onSelected;
 
+  /// Indicator whether this [SearchController] should try populating the
+  /// results when initialized.
+  final bool prePopulate;
+
   /// Worker to react on the [usersSearch] status changes.
   Worker? _usersSearchWorker;
 
@@ -173,8 +189,14 @@ class SearchController extends GetxController {
   /// [MyUserService] searching [myUser].
   final MyUserService _myUserService;
 
+  /// [SessionService] for checking the current [_connected] status.
+  final SessionService _sessionService;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
+
+  /// Indicates whether the current device is connected to any network.
+  bool get _connected => _sessionService.connected.value;
 
   /// Whether this [SearchController] has potentially more search results.
   bool get hasNext {
@@ -227,16 +249,21 @@ class SearchController extends GetxController {
     if (!_chatService.status.value.isSuccess) {
       _chatStatusWorker = ever(_chatService.status, (status) {
         if (status.isSuccess) {
-          _ensureScrollable();
-          populate();
+          if (prePopulate || query.value.isNotEmpty) {
+            _ensureScrollable();
+            populate();
+          }
+
           _chatStatusWorker?.dispose();
           _chatStatusWorker = null;
         }
       });
     }
 
-    _ensureScrollable();
-    populate();
+    if (prePopulate) {
+      _ensureScrollable();
+      populate();
+    }
 
     super.onInit();
   }
@@ -733,7 +760,7 @@ class SearchController extends GetxController {
         searchStatus.value = RxStatus.loadingMore();
 
         await _chatService.next();
-        await Future.delayed(1.milliseconds);
+        await Future.delayed(16.milliseconds);
 
         // Populate [chats] first until there's no more [Chat]s to fetch from
         // [ChatService.paginated], then it is safe to populate other
@@ -791,16 +818,19 @@ class SearchController extends GetxController {
         if (!scrollController.hasClients ||
             scrollController.position.maxScrollExtent < 50) {
           await _next();
-          _ensureScrollable();
+
+          if (_connected) {
+            Future.delayed(2.seconds, _ensureScrollable);
+          }
         } else {
           // Ensure all animations are finished as [scrollController.hasClients]
           // may be `true` during an animation.
           _ensureScrollableTimer?.cancel();
-          _ensureScrollableTimer = Timer(1.seconds, () async {
+          _ensureScrollableTimer = Timer(2.seconds, () async {
             if (!scrollController.hasClients ||
                 scrollController.position.maxScrollExtent < 50) {
               await _next();
-              _ensureScrollable();
+              Future.delayed(1.seconds, _ensureScrollable);
             }
           });
         }
