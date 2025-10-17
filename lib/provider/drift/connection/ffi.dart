@@ -85,7 +85,9 @@ Future<void> clearDb() async {
 
   await for (FileSystemEntity entity in dbFolder.list()) {
     if (entity is File) {
-      if (entity.path.endsWith('.sqlite')) {
+      if (entity.path.endsWith('.sqlite') ||
+          entity.path.endsWith('.sqlite-shm') ||
+          entity.path.endsWith('.sqlite-wal')) {
         await entity.delete();
       }
     }

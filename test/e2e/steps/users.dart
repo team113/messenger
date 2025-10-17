@@ -38,7 +38,7 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Given I am Alice
 final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
-  'I am {user}',
+  'I am {user}\$',
   (TestUser user, context) async {
     var password = UserPassword('123');
 
@@ -70,7 +70,7 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
 /// Examples:
 /// - `I sign in as Alice`
 final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
-  'I sign in as {user}',
+  'I sign in as {user}\$',
   (TestUser user, context) async {
     try {
       await Get.find<AuthService>().signInWith(
@@ -96,7 +96,7 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
 /// Examples:
 /// - `I logout`
 final StepDefinitionGeneric logout = then<CustomWorld>(
-  'I logout',
+  'I logout\$',
   (context) async {
     final CustomUser me = context.world.sessions.values
         .firstWhere((e) => e.userId == context.world.me)
@@ -139,7 +139,7 @@ final StepDefinitionGeneric userWithPassword = given1<TestUser, CustomWorld>(
 /// Examples:
 /// - `Given users Bob and Charlie`
 final twoUsers = given2<TestUser, TestUser, CustomWorld>(
-  'users {user} and {user}',
+  'users {user} and {user}\$',
   (TestUser user1, TestUser user2, context) async {
     await createUser(user: user1, world: context.world);
     await createUser(user: user2, world: context.world);
@@ -154,7 +154,7 @@ final twoUsers = given2<TestUser, TestUser, CustomWorld>(
 /// - `Given 10 users Bob`
 /// - `Given 20 users Charlie`
 final countUsers = given2<int, TestUser, CustomWorld>(
-  '{int} users {user}',
+  '{int} users {user}\$',
   (int count, TestUser user, context) async {
     for (int i = 0; i < count; i++) {
       await createUser(user: user, world: context.world);
@@ -169,7 +169,7 @@ final countUsers = given2<int, TestUser, CustomWorld>(
 /// Examples:
 /// - `Alice has another active session`
 final StepDefinitionGeneric hasSession = then1<TestUser, CustomWorld>(
-  '{user} has another active session',
+  '{user} has another active session\$',
   (TestUser testUser, context) async {
     final provider = GraphQlProvider();
 
@@ -194,7 +194,7 @@ final StepDefinitionGeneric hasSession = then1<TestUser, CustomWorld>(
 /// Examples:
 /// - `Alice signs out of another active sessions`
 final StepDefinitionGeneric signsOutSession = then1<TestUser, CustomWorld>(
-  '{user} signs out of another active sessions',
+  '{user} signs out of another active sessions\$',
   (TestUser testUser, context) async {
     final provider = GraphQlProvider();
 
