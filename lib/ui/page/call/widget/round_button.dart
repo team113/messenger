@@ -82,7 +82,7 @@ class RoundFloatingButton extends StatelessWidget {
       return button;
     }
 
-    return _LabelledButton(
+    return _LabeledButton(
       showText: showText,
       text: text!,
       minified: minified,
@@ -146,15 +146,15 @@ class _ButtonCircle extends StatelessWidget {
   }
 }
 
-/// [_ButtonCircle] with optional border and tooltip.
+/// [_ButtonCircle] with optional [border] and [hint].
 class _IconButton extends StatelessWidget {
   const _IconButton({
     required this.icon,
-    required this.color,
-    required this.onPressed,
-    required this.offset,
-    required this.border,
-    required this.hint,
+    this.color,
+    this.onPressed,
+    this.offset,
+    this.border,
+    this.hint,
   });
 
   /// Callback, called when the button is tapped or activated other way.
@@ -219,7 +219,7 @@ class _TooltipButton extends StatefulWidget {
 /// State of [_TooltipButton] used to keep the [_entry] and [_link].
 class _TooltipButtonState extends State<_TooltipButton> {
   /// Link to the tooltip.
-  final _link = LayerLink();
+  final LayerLink _link = LayerLink();
 
   /// Tooltip entry.
   OverlayEntry? _entry;
@@ -284,12 +284,12 @@ class _TooltipButtonState extends State<_TooltipButton> {
 }
 
 /// [_IconButton] with label below it.
-class _LabelledButton extends StatelessWidget {
-  const _LabelledButton({
-    required this.child,
-    required this.showText,
+class _LabeledButton extends StatelessWidget {
+  const _LabeledButton({
+    this.showText = false,
+    this.minified = false,
     required this.text,
-    required this.minified,
+    required this.child,
   });
 
   /// Text under the button.
@@ -302,7 +302,7 @@ class _LabelledButton extends StatelessWidget {
   /// otherwise.
   final bool minified;
 
-  /// Circle Icon part of [RoundFloatingButton]
+  /// Circle [Icon] part of [RoundFloatingButton].
   final Widget child;
 
   @override

@@ -1630,16 +1630,12 @@ class IconsView extends StatelessWidget {
   }
 }
 
-/// [RoundFloatingButton] with specified [RoundFloatingButton.color]
+/// [RoundFloatingButton] with specified [RoundFloatingButton.color].
 class _RoundFloatingButton extends StatelessWidget {
-  const _RoundFloatingButton({
-    required this.onPressed,
-    required this.icon,
-    this.offset,
-  });
+  const _RoundFloatingButton({this.onPressed, required this.icon, this.offset});
 
   /// Callback, called when the button is tapped or activated other way.
-  final void Function() onPressed;
+  final void Function()? onPressed;
 
   /// [SvgData] to display instead of [asset].
   final SvgData icon;
