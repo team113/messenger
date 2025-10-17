@@ -1,0 +1,74 @@
+apiVersion: v1
+entries:
+  messenger:
+  - annotations:
+      artifacthub.io/license: AGPL-3.0-or-later
+    apiVersion: v2
+    appVersion: 0.6.1
+    created: "2025-09-09T15:11:35.617978974Z"
+    description: Open-source front-end part of messenger by team113.
+    digest: 4cf58e31c171b62d678a45cdb91fa7b795271fe557f37b12360500ce39b53626
+    name: messenger
+    sources:
+    - https://github.com/team113/messenger
+    type: application
+    urls:
+    - https://team113.github.io/messenger/helm/messenger-0.1.4.tgz
+    version: 0.1.4
+  - annotations:
+      artifacthub.io/license: AGPL-3.0-or-later
+    apiVersion: v2
+    appVersion: 0.1.0-alpha.13.5
+    created: "2025-09-09T15:11:35.617328286Z"
+    description: Open-source front-end part of messenger by team113.
+    digest: da59b87ec3ae07a4a24a0939d775ae6a7168c5548f6105827e17b75779e608f0
+    name: messenger
+    sources:
+    - https://github.com/team113/messenger
+    type: application
+    urls:
+    - https://team113.github.io/messenger/helm/messenger-0.1.3.tgz
+    version: 0.1.3
+  - annotations:
+      artifacthub.io/license: AGPL-3.0-or-later
+    apiVersion: v2
+    appVersion: 0.1.0-alpha.13.3
+    created: "2025-09-09T15:11:35.616697244Z"
+    description: Open-source front-end part of messenger by team113.
+    digest: cd11914ba7919937912a5b3f8ad0fd710774f3f4c89dd61ff8c5c10e4ce4d01b
+    name: messenger
+    sources:
+    - https://github.com/team113/messenger
+    type: application
+    urls:
+    - https://team113.github.io/messenger/helm/messenger-0.1.2.tgz
+    version: 0.1.2
+  - annotations:
+      artifacthub.io/license: AGPL-3.0-or-later
+    apiVersion: v2
+    appVersion: 0.1.0-alpha.11.1
+    created: "2025-09-09T15:11:35.616014175Z"
+    description: Open-source front-end part of messenger by team113.
+    digest: 544d0a8623ffac5b1da3187125090a9e1c312871d7c7a50a35ef8ff416e5f053
+    name: messenger
+    sources:
+    - https://github.com/team113/messenger
+    type: application
+    urls:
+    - https://team113.github.io/messenger/helm/messenger-0.1.1.tgz
+    version: 0.1.1
+  - annotations:
+      artifacthub.io/license: AGPL-3.0-or-later
+    apiVersion: v2
+    appVersion: 0.1.0-alpha.6
+    created: "2025-09-09T15:11:35.615311528Z"
+    description: Open-source front-end part of messenger by team113.
+    digest: d4bb663eb57e582c699993c51eb6efe969ad2cc1e9b10d6ed2d90c861a0f6188
+    name: messenger
+    sources:
+    - https://github.com/team113/messenger
+    type: application
+    urls:
+    - https://team113.github.io/messenger/helm/messenger-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-09-09T15:11:35.614525946Z"
