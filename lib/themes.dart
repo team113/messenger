@@ -701,7 +701,6 @@ class Palette {
     required this.onPrimaryLight,
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity10,
-    Color? onPrimaryOpacity20,
     Color? onPrimaryOpacity25,
     Color? onPrimaryOpacity50,
     Color? onPrimaryOpacity95,
