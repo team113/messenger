@@ -104,7 +104,6 @@ import 'steps/scroll_until.dart';
 import 'steps/see_archived_chat.dart';
 import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
-import 'steps/see_chat_dismissed.dart';
 import 'steps/see_chat_members.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_named.dart';
@@ -247,7 +246,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeAccountInAccounts,
         seeBlockedUsers,
         seeChatAsArchived,
-        seeChatAsDismissed,
         seeChatAsFavorite,
         seeChatAsMuted,
         seeChatAvatarAs,
@@ -277,7 +275,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeMonologAsFavorite,
         seeMonologInSearchResults,
         seeNamedChat,
-        seeNoChatsDismissed,
         seeNoContactsDismissed,
         seesAs,
         seesDialogWithMe,
