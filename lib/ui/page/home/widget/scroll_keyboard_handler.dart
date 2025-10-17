@@ -80,7 +80,7 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
               widget.scrollController.animateTo(
                 ///safe clamp offset
                 newOffset.clamp(
-                  0.0,
+                  0,
                   widget.scrollController.position.maxScrollExtent,
                 ),
                 duration: duration ?? const Duration(milliseconds: 300),
