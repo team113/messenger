@@ -49,9 +49,16 @@ class ScrollKeyboardHandler extends StatefulWidget {
 }
 
 class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
+  final focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final focusNode = FocusNode();
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(focusNode);
