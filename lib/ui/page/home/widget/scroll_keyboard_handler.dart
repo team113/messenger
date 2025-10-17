@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -50,11 +52,83 @@ class ScrollKeyboardHandler extends StatefulWidget {
 
 class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   final focusNode = FocusNode();
+  final _keyHandler = _KeyRepeatHandler();
+  double scrollStep = 0;
+
+  ///holder to Option key pressed
+  bool isOptionPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _keyHandler.addListener(_handleRepeatedKey);
+  }
 
   @override
   void dispose() {
     focusNode.dispose();
     super.dispose();
+  }
+
+  /// Animates [widget.scrollController] to [newOffset] with [duration]?? Duration(milliseconds: 300)
+  void animateTo(double newOffset, [Duration? duration]) =>
+      widget.scrollController.animateTo(
+        ///safe clamp offset
+        newOffset.clamp(0, widget.scrollController.position.maxScrollExtent),
+        duration: duration ?? const Duration(milliseconds: 300),
+        curve: Curves.linear,
+      );
+
+  /// [scrollController] scroll up to [scrollStep]
+  void scrollPageUp({bool quick = false}) {
+    final newOffset =
+        widget.scrollController.offset +
+        (widget.reverseList ? scrollStep : -scrollStep);
+    animateTo(newOffset, quick ? const Duration(milliseconds: 150) : null);
+  }
+
+  /// [scrollController] scroll down to [scrollStep]
+  void scrollPageDown({bool quick = false}) {
+    final newOffset =
+        widget.scrollController.offset +
+        (widget.reverseList ? -scrollStep : scrollStep);
+    animateTo(newOffset, quick ? const Duration(milliseconds: 150) : null);
+  }
+
+  ///
+  ///commented out due to focus interception by input fields on the MyProfile page
+  ///
+  // void scrollUp({bool quick = false}) {
+  //   animateTo(
+  //     widget.scrollController.offset + (widget.reverseList ? 50 : -50),
+  //     quick
+  //         ? const Duration(milliseconds: 50)
+  //         : const Duration(milliseconds: 200),
+  //   );
+  // }
+
+  // void scrollDown({bool quick = false}) {
+  //   animateTo(
+  //     widget.scrollController.offset + (widget.reverseList ? -50 : 50),
+  //     quick
+  //         ? const Duration(milliseconds: 50)
+  //         : const Duration(milliseconds: 200),
+  //   );
+  // }
+
+  void _handleRepeatedKey(LogicalKeyboardKey key) {
+    if (key == LogicalKeyboardKey.pageUp ||
+        (isOptionPressed && key == LogicalKeyboardKey.arrowUp)) {
+      scrollPageUp(quick: true);
+    } else if (key == LogicalKeyboardKey.pageDown ||
+        (isOptionPressed && key == LogicalKeyboardKey.arrowDown)) {
+      scrollPageDown(quick: true);
+    }
+    // else if (!isOptionPressed && key == LogicalKeyboardKey.arrowUp) {
+    //   scrollUp(quick: true);
+    // } else if (!isOptionPressed && key == LogicalKeyboardKey.arrowDown) {
+    //   scrollDown(quick: true);
+    // }
   }
 
   @override
@@ -68,40 +142,8 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
       },
       child: LayoutBuilder(
         builder: (context, constraints) {
-          ///scroll step
-          final scrollStep =
-              constraints.maxHeight * (widget.scrollStepFactor ?? 0.9);
-
-          ///holder to Option key pressed
-          bool isOptionPressed = false;
-
-          /// Animates [widget.scrollController] to [newOffset] with [duration]?? Duration(milliseconds: 300)
-          void animateTo(double newOffset, [Duration? duration]) =>
-              widget.scrollController.animateTo(
-                ///safe clamp offset
-                newOffset.clamp(
-                  0,
-                  widget.scrollController.position.maxScrollExtent,
-                ),
-                duration: duration ?? const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-
-          /// [scrollController] scroll up to [scrollStep]
-          void scrollPageUp() {
-            final newOffset =
-                widget.scrollController.offset +
-                (widget.reverseList ? scrollStep : -scrollStep);
-            animateTo(newOffset);
-          }
-
-          /// [scrollController] scroll down to [scrollStep]
-          void scrollPageDown() {
-            final newOffset =
-                widget.scrollController.offset +
-                (widget.reverseList ? -scrollStep : scrollStep);
-            animateTo(newOffset);
-          }
+          ///update curent scroll step
+          scrollStep = constraints.maxHeight * (widget.scrollStepFactor ?? 0.9);
 
           /// keystroke interception function for [KeyboardListener]
           void handleKeyEvent(KeyEvent event) {
@@ -115,33 +157,22 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
                 return;
               }
 
-              if (isOptionPressed) {
-                if (logicalKey == LogicalKeyboardKey.arrowUp) {
-                  scrollPageUp();
-                  return;
-                } else if (logicalKey == LogicalKeyboardKey.arrowDown) {
-                  scrollPageDown();
-                  return;
-                }
-              }
+              _keyHandler.onKeyEvent(event);
 
-              if (logicalKey == LogicalKeyboardKey.pageUp) {
+              if (logicalKey == LogicalKeyboardKey.pageUp ||
+                  (isOptionPressed &&
+                      logicalKey == LogicalKeyboardKey.arrowUp)) {
                 scrollPageUp();
-              } else if (logicalKey == LogicalKeyboardKey.pageDown) {
+              } else if (logicalKey == LogicalKeyboardKey.pageDown ||
+                  (isOptionPressed &&
+                      logicalKey == LogicalKeyboardKey.arrowDown)) {
                 scrollPageDown();
-              } else if (logicalKey == LogicalKeyboardKey.arrowUp) {
-                animateTo(
-                  widget.scrollController.offset +
-                      (widget.reverseList ? 50 : -50),
-                  const Duration(milliseconds: 200),
-                );
-              } else if (logicalKey == LogicalKeyboardKey.arrowDown) {
-                animateTo(
-                  widget.scrollController.offset +
-                      (widget.reverseList ? -50 : 50),
-                  const Duration(milliseconds: 200),
-                );
               }
+              // else if (logicalKey == LogicalKeyboardKey.arrowUp) {
+              //   scrollUp();
+              // } else if (logicalKey == LogicalKeyboardKey.arrowDown) {
+              //   scrollDown();
+              // }
             } else if (event is KeyUpEvent) {
               final logicalKey = event.logicalKey;
 
@@ -150,6 +181,9 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
                   logicalKey == LogicalKeyboardKey.altRight) {
                 isOptionPressed = false;
               }
+              _keyHandler.onKeyEvent(event);
+            } else if (event is KeyRepeatEvent) {
+              _keyHandler.onKeyEvent(event);
             }
           }
 
@@ -162,5 +196,49 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
         },
       ),
     );
+  }
+}
+
+class _KeyRepeatHandler {
+  final _listeners = <void Function(LogicalKeyboardKey)>[];
+  final _pressedKeys = <LogicalKeyboardKey>{};
+  Timer? _timer;
+
+  void addListener(void Function(LogicalKeyboardKey) listener) {
+    _listeners.add(listener);
+  }
+
+  void onKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      _pressedKeys.add(event.logicalKey);
+      _startTimer();
+    } else if (event is KeyUpEvent) {
+      _pressedKeys.remove(event.logicalKey);
+      if (_pressedKeys.isEmpty) _stopTimer();
+    } else if (event is KeyRepeatEvent) {
+      _pressedKeys.add(event.logicalKey);
+      _startTimer();
+    }
+  }
+
+  void _startTimer() {
+    _timer ??= Timer.periodic(const Duration(milliseconds: 100), (_) {
+      for (final key in _pressedKeys) {
+        for (final listener in _listeners) {
+          listener(key);
+        }
+      }
+    });
+  }
+
+  void _stopTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  void dispose() {
+    _stopTimer();
+    _listeners.clear();
+    _pressedKeys.clear();
   }
 }
