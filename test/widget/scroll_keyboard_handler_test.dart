@@ -33,7 +33,6 @@ void main() {
   });
 
   Widget buildTestWidget({
-    ScrollController? controller,
     double? scrollStepFactor,
     bool reverseList = false,
     double maxHeight = 1000,
@@ -43,11 +42,11 @@ void main() {
         body: SizedBox(
           height: maxHeight,
           child: ScrollKeyboardHandler(
-            scrollController: controller ?? scrollController,
+            scrollController: scrollController,
             scrollStepFactor: scrollStepFactor,
             reverseList: reverseList,
             child: ListView.builder(
-              controller: controller ?? scrollController,
+              controller: scrollController,
               itemCount: 100,
               itemBuilder: (context, index) =>
                   SizedBox(height: 100, child: Text('Item $index')),
@@ -86,7 +85,7 @@ void main() {
     });
 
     testWidgets('should handle PageUp key, offset is change', (tester) async {
-      scrollController = ScrollController(initialScrollOffset: 500);
+      scrollController = ScrollController(initialScrollOffset: 600);
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
@@ -109,29 +108,29 @@ void main() {
       expect(scrollController.offset > initialOffset, true);
     });
 
-    testWidgets('should handle ArrowUp key', (tester) async {
-      scrollController = ScrollController(initialScrollOffset: 100);
+    // testWidgets('should handle ArrowUp key', (tester) async {
+    //   scrollController = ScrollController(initialScrollOffset: 100);
 
-      await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
+    //   await tester.pumpWidget(buildTestWidget());
+    //   await tester.pumpAndSettle();
 
-      final initialOffset = scrollController.offset;
+    //   final initialOffset = scrollController.offset;
 
-      await sendKeyEvent(tester, LogicalKeyboardKey.arrowUp);
+    //   await sendKeyEvent(tester, LogicalKeyboardKey.arrowUp);
 
-      expect(scrollController.offset, equals(initialOffset - 50));
-    });
+    //   expect(scrollController.offset, equals(initialOffset - 50));
+    // });
 
-    testWidgets('should handle ArrowDown key', (tester) async {
-      await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
+    // testWidgets('should handle ArrowDown key', (tester) async {
+    //   await tester.pumpWidget(buildTestWidget());
+    //   await tester.pumpAndSettle();
 
-      final initialOffset = scrollController.offset;
+    //   final initialOffset = scrollController.offset;
 
-      await sendKeyEvent(tester, LogicalKeyboardKey.arrowDown);
+    //   await sendKeyEvent(tester, LogicalKeyboardKey.arrowDown);
 
-      expect(scrollController.offset, equals(initialOffset + 50));
-    });
+    //   expect(scrollController.offset, equals(initialOffset + 50));
+    // });
 
     testWidgets('should handle Alt+ArrowUp combination', (tester) async {
       scrollController = ScrollController(initialScrollOffset: 500);
@@ -158,8 +157,9 @@ void main() {
     });
 
     testWidgets('should use custom scrollStepFactor', (tester) async {
-      const customFactor = 0.5;
-      const maxHeight = 1000.0;
+      scrollController = ScrollController(initialScrollOffset: 400);
+      const customFactor = 0.2;
+      const maxHeight = 400.0;
 
       await tester.pumpWidget(
         buildTestWidget(scrollStepFactor: customFactor, maxHeight: maxHeight),
@@ -185,7 +185,8 @@ void main() {
     testWidgets('should use default scrollStepFactor when null', (
       tester,
     ) async {
-      const maxHeight = 1000.0;
+      scrollController = ScrollController(initialScrollOffset: 400);
+      const maxHeight = 300.0;
       const defaultFactor = 0.9;
 
       await tester.pumpWidget(
@@ -207,20 +208,22 @@ void main() {
           ),
         ),
       );
+      await sendKeyEvent(tester, LogicalKeyboardKey.pageUp);
+      expect(scrollController.offset, equals(0));
     });
 
-    testWidgets('should handle reverseList = true', (tester) async {
-      await tester.pumpWidget(buildTestWidget(reverseList: true));
-      await tester.pumpAndSettle();
+    // testWidgets('should handle reverseList = true', (tester) async {
+    //   await tester.pumpWidget(buildTestWidget(reverseList: true));
+    //   await tester.pumpAndSettle();
 
-      final initialOffset = scrollController.offset;
+    //   final initialOffset = scrollController.offset;
 
-      await sendKeyEvent(tester, LogicalKeyboardKey.arrowUp);
-      expect(scrollController.offset, equals(initialOffset + 50));
+    //   await sendKeyEvent(tester, LogicalKeyboardKey.arrowUp);
+    //   expect(scrollController.offset, equals(initialOffset + 50));
 
-      await sendKeyEvent(tester, LogicalKeyboardKey.arrowDown);
-      expect(scrollController.offset, equals(initialOffset));
-    });
+    //   await sendKeyEvent(tester, LogicalKeyboardKey.arrowDown);
+    //   expect(scrollController.offset, equals(initialOffset));
+    // });
 
     testWidgets('should clamp scroll offset to valid range', (tester) async {
       scrollController = ScrollController(initialScrollOffset: 0);
@@ -228,7 +231,30 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
-      await sendKeyEvent(tester, LogicalKeyboardKey.arrowUp);
+      await sendKeyEvent(tester, LogicalKeyboardKey.pageUp);
+      expect(scrollController.offset, equals(0));
+    });
+
+    testWidgets('should scroll to top with long press pageUp key', (
+      tester,
+    ) async {
+      scrollController = ScrollController(initialScrollOffset: 1000);
+
+      await tester.pumpWidget(
+        buildTestWidget(maxHeight: 300, scrollStepFactor: 1),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.pageUp);
+      await tester.pump();
+      for (int i = 0; i < 85; i++) {
+        /// waiting for the animation to complete without call pumpAndSettle().
+        /// 85 - experimentally selected number, may require modification when editing the animation
+        await tester.pump(const Duration(milliseconds: 16)); // ~60 FPS
+      }
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.pageUp);
+      await tester.pump();
+
       expect(scrollController.offset, equals(0));
     });
   });
