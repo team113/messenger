@@ -108,30 +108,6 @@ void main() {
       expect(scrollController.offset > initialOffset, true);
     });
 
-    // testWidgets('should handle ArrowUp key', (tester) async {
-    //   scrollController = ScrollController(initialScrollOffset: 100);
-
-    //   await tester.pumpWidget(buildTestWidget());
-    //   await tester.pumpAndSettle();
-
-    //   final initialOffset = scrollController.offset;
-
-    //   await sendKeyEvent(tester, LogicalKeyboardKey.arrowUp);
-
-    //   expect(scrollController.offset, equals(initialOffset - 50));
-    // });
-
-    // testWidgets('should handle ArrowDown key', (tester) async {
-    //   await tester.pumpWidget(buildTestWidget());
-    //   await tester.pumpAndSettle();
-
-    //   final initialOffset = scrollController.offset;
-
-    //   await sendKeyEvent(tester, LogicalKeyboardKey.arrowDown);
-
-    //   expect(scrollController.offset, equals(initialOffset + 50));
-    // });
-
     testWidgets('should handle Alt+ArrowUp combination', (tester) async {
       scrollController = ScrollController(initialScrollOffset: 500);
 
@@ -211,19 +187,6 @@ void main() {
       await sendKeyEvent(tester, LogicalKeyboardKey.pageUp);
       expect(scrollController.offset, equals(0));
     });
-
-    // testWidgets('should handle reverseList = true', (tester) async {
-    //   await tester.pumpWidget(buildTestWidget(reverseList: true));
-    //   await tester.pumpAndSettle();
-
-    //   final initialOffset = scrollController.offset;
-
-    //   await sendKeyEvent(tester, LogicalKeyboardKey.arrowUp);
-    //   expect(scrollController.offset, equals(initialOffset + 50));
-
-    //   await sendKeyEvent(tester, LogicalKeyboardKey.arrowDown);
-    //   expect(scrollController.offset, equals(initialOffset));
-    // });
 
     testWidgets('should clamp scroll offset to valid range', (tester) async {
       scrollController = ScrollController(initialScrollOffset: 0);
