@@ -117,6 +117,12 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Repeated keystroke handler
   void _handleRepeatedKey(LogicalKeyboardKey key) {
+    if (!widget.scrollController.hasClients) {
+      debugPrint(
+        'ScrollKeyboardHandler: ScrollController not attached to any scroll views',
+      );
+      return;
+    }
     if (key == LogicalKeyboardKey.pageUp ||
         (isOptionPressed && key == LogicalKeyboardKey.arrowUp)) {
       scrollPageUp(quick: true);
@@ -128,6 +134,12 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Keystroke interception function for [KeyboardListener]
   void handleKeyEvent(KeyEvent event) {
+    if (!widget.scrollController.hasClients) {
+      debugPrint(
+        'ScrollKeyboardHandler: ScrollController not attached to any scroll views',
+      );
+      return;
+    }
     if (event is KeyDownEvent) {
       final logicalKey = event.logicalKey;
 
