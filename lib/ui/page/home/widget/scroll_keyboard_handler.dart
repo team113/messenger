@@ -20,6 +20,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+const defaultRepeatPeriodDuration = Duration(milliseconds: 100);
+const defaultLongScrollAnimationDuration = Duration(milliseconds: 300);
+const defaultQuickScrollAnimationDuration = Duration(milliseconds: 150);
+const defaultscrollStepFactor = 0.9;
+
 /// Internal repeater for long button presses
 class _KeyRepeatHandler {
   /// List of functions that subscribe to key press repeat events
@@ -52,7 +57,7 @@ class _KeyRepeatHandler {
 
   /// Starting timer to generate repeating events
   void _startTimer() {
-    _timer ??= Timer.periodic(const Duration(milliseconds: 100), (_) {
+    _timer ??= Timer.periodic(defaultRepeatPeriodDuration, (_) {
       for (final key in _pressedKeys) {
         for (final listener in _listeners) {
           listener(key);
@@ -81,7 +86,7 @@ class ScrollKeyboardHandler extends StatefulWidget {
   const ScrollKeyboardHandler({
     required this.scrollController,
     required this.child,
-    this.scrollStepFactor = 0.9,
+    this.scrollStepFactor = defaultscrollStepFactor,
     this.reverseList = false,
     super.key,
   });
@@ -91,7 +96,7 @@ class ScrollKeyboardHandler extends StatefulWidget {
 
   /// Factor to [constraints.maxHeight] from [LayoutBuilder]
   ///
-  /// If `null`, then = 0.9.
+  /// If `null`, then = 0.9(const [defaultscrollStepFactor]).
   final double? scrollStepFactor;
 
   /// Widget with [Scrollable] connected with [scrollController]
@@ -138,7 +143,7 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
       widget.scrollController.animateTo(
         ///safe clamp offset
         newOffset.clamp(0, widget.scrollController.position.maxScrollExtent),
-        duration: duration ?? const Duration(milliseconds: 300),
+        duration: duration ?? defaultLongScrollAnimationDuration,
         curve: Curves.linear,
       );
 
@@ -147,7 +152,7 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
     final newOffset =
         widget.scrollController.offset +
         (widget.reverseList ? scrollStep : -scrollStep);
-    animateTo(newOffset, quick ? const Duration(milliseconds: 150) : null);
+    animateTo(newOffset, quick ? defaultQuickScrollAnimationDuration : null);
   }
 
   /// [scrollController] scroll down to [scrollStep]
@@ -155,7 +160,7 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
     final newOffset =
         widget.scrollController.offset +
         (widget.reverseList ? -scrollStep : scrollStep);
-    animateTo(newOffset, quick ? const Duration(milliseconds: 150) : null);
+    animateTo(newOffset, quick ? defaultQuickScrollAnimationDuration : null);
   }
 
   /// Repeated keystroke handler
@@ -218,7 +223,9 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           /// Update curent scroll step by constraints info
-          scrollStep = constraints.maxHeight * (widget.scrollStepFactor ?? 0.9);
+          scrollStep =
+              constraints.maxHeight *
+              (widget.scrollStepFactor ?? defaultscrollStepFactor);
 
           return KeyboardListener(
             focusNode: focusNode,
