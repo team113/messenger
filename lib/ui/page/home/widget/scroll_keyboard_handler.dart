@@ -32,61 +32,6 @@ const defaultQuickScrollAnimationDuration = Duration(milliseconds: 150);
 /// Factor to scrolling height
 const defaultscrollStepFactor = 0.9;
 
-/// Internal repeater for long KeyboardKey presses
-class _KeyRepeatHandler {
-  /// List of functions that subscribe to key press repeat events
-  final _listeners = <void Function(LogicalKeyboardKey)>[];
-
-  /// Multiple currently pressed keys
-  final _pressedKeys = <LogicalKeyboardKey>{};
-
-  /// Timer for generating repeating events
-  Timer? _timer;
-
-  /// Adding subscriber to click-once events
-  void addListener(void Function(LogicalKeyboardKey) listener) {
-    _listeners.add(listener);
-  }
-
-  /// Handling keyboard events. Handles reactions to pressing, holding, and releasing keys, use [_pressedKeys] to hold keys
-  void onKeyEvent(KeyEvent event) {
-    if (event is KeyDownEvent) {
-      _pressedKeys.add(event.logicalKey);
-      _startTimer();
-    } else if (event is KeyUpEvent) {
-      _pressedKeys.remove(event.logicalKey);
-      if (_pressedKeys.isEmpty) _stopTimer();
-    } else if (event is KeyRepeatEvent) {
-      _pressedKeys.add(event.logicalKey);
-      _startTimer();
-    }
-  }
-
-  /// Starting timer to generate repeating events
-  void _startTimer() {
-    _timer ??= Timer.periodic(defaultRepeatPeriodDuration, (_) {
-      for (final key in _pressedKeys) {
-        for (final listener in _listeners) {
-          listener(key);
-        }
-      }
-    });
-  }
-
-  /// Stopping  timer
-  void _stopTimer() {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  /// Disposes this [_KeyRepeatHandler].
-  void dispose() {
-    _stopTimer();
-    _listeners.clear();
-    _pressedKeys.clear();
-  }
-}
-
 /// [Widget] keyboard handler to PageUp(Option/Alt+Up), PageDown(Option/Alt+Down).
 /// Scroll [scrollController] to (accessible_height_from_constraints * ([scrollStepFactor] ?? 0.9)) in PageUp and PageDown
 class ScrollKeyboardHandler extends StatefulWidget {
@@ -242,5 +187,60 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
         },
       ),
     );
+  }
+}
+
+/// Internal repeater for long KeyboardKey presses
+class _KeyRepeatHandler {
+  /// List of functions that subscribe to key press repeat events
+  final _listeners = <void Function(LogicalKeyboardKey)>[];
+
+  /// Multiple currently pressed keys
+  final _pressedKeys = <LogicalKeyboardKey>{};
+
+  /// Timer for generating repeating events
+  Timer? _timer;
+
+  /// Adding subscriber to click-once events
+  void addListener(void Function(LogicalKeyboardKey) listener) {
+    _listeners.add(listener);
+  }
+
+  /// Handling keyboard events. Handles reactions to pressing, holding, and releasing keys, use [_pressedKeys] to hold keys
+  void onKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      _pressedKeys.add(event.logicalKey);
+      _startTimer();
+    } else if (event is KeyUpEvent) {
+      _pressedKeys.remove(event.logicalKey);
+      if (_pressedKeys.isEmpty) _stopTimer();
+    } else if (event is KeyRepeatEvent) {
+      _pressedKeys.add(event.logicalKey);
+      _startTimer();
+    }
+  }
+
+  /// Starting timer to generate repeating events
+  void _startTimer() {
+    _timer ??= Timer.periodic(defaultRepeatPeriodDuration, (_) {
+      for (final key in _pressedKeys) {
+        for (final listener in _listeners) {
+          listener(key);
+        }
+      }
+    });
+  }
+
+  /// Stopping  timer
+  void _stopTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  /// Disposes this [_KeyRepeatHandler].
+  void dispose() {
+    _stopTimer();
+    _listeners.clear();
+    _pressedKeys.clear();
   }
 }
