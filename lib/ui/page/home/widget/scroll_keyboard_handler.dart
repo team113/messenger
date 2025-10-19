@@ -20,12 +20,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// Used in [_KeyRepeatHandler] in Timer to repeat
 const defaultRepeatPeriodDuration = Duration(milliseconds: 100);
+
+/// Default duration to scroll animation
 const defaultLongScrollAnimationDuration = Duration(milliseconds: 300);
+
+/// Default duration to scroll animation if PageUp/Down шы clamped
 const defaultQuickScrollAnimationDuration = Duration(milliseconds: 150);
+
+/// Factor to scrolling height
 const defaultscrollStepFactor = 0.9;
 
-/// Internal repeater for long button presses
+/// Internal repeater for long KeyboardKey presses
 class _KeyRepeatHandler {
   /// List of functions that subscribe to key press repeat events
   final _listeners = <void Function(LogicalKeyboardKey)>[];
@@ -94,7 +101,7 @@ class ScrollKeyboardHandler extends StatefulWidget {
   /// [ScrollController] to add scroll actions
   final ScrollController scrollController;
 
-  /// Factor to [constraints.maxHeight] from [LayoutBuilder]
+  /// Factor to  to scrolling height([constraints.maxHeight] from [LayoutBuilder])
   ///
   /// If `null`, then = 0.9(const [defaultscrollStepFactor]).
   final double? scrollStepFactor;
@@ -215,7 +222,6 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
     return GestureDetector(
       onTap: () {
         // On tap, request focus for this widget
-        FocusScope.of(context).requestFocus(focusNode);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           FocusScope.of(context).requestFocus(focusNode);
         });
