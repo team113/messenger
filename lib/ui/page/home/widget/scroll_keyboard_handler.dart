@@ -129,6 +129,7 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   @override
   void dispose() {
     focusNode.dispose();
+    _keyHandler.dispose();
     super.dispose();
   }
 
