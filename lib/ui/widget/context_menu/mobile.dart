@@ -284,11 +284,8 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                     behavior: HitTestBehavior.translucent,
                     onTap: _dismiss,
                     child: Container(
-                      color: Color.from(
+                      color: kCupertinoModalBarrierColor.withValues(
                         alpha: kCupertinoModalBarrierColor.a * _fading.value,
-                        red: kCupertinoModalBarrierColor.r,
-                        green: kCupertinoModalBarrierColor.g,
-                        blue: kCupertinoModalBarrierColor.b,
                       ),
                     ),
                   ),

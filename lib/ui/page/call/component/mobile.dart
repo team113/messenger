@@ -104,8 +104,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                 },
                 overlayBuilder: (e) {
                   return Obx(() {
+                    final bool audioEnabled = c.audioState.value.isEnabled;
+
                     final bool? muted = e.member.owner == MediaOwnerKind.local
-                        ? !c.audioState.value.isEnabled
+                        ? !audioEnabled
                         : null;
 
                     // TODO: Implement opened context menu detection for
@@ -130,8 +132,10 @@ Widget mobileCall(CallController c, BuildContext context) {
               fit: c.minimized.value,
               itemBuilder: (e) {
                 return Obx(() {
+                  final bool audioEnabled = c.audioState.value.isEnabled;
+
                   final bool? muted = e.member.owner == MediaOwnerKind.local
-                      ? !c.audioState.value.isEnabled
+                      ? !audioEnabled
                       : null;
 
                   return ContextMenuRegion(
