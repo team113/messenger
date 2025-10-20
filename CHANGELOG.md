@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/51)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
+
+[#1436]: /../../issues/1436
+[#1473]: /../../pull/1473
+
+
+
+
 ## [0.6.6] · 2025-10-13
 [0.6.6]: /../../tree/v0.6.6
 
