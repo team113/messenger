@@ -30,7 +30,7 @@ const defaultLongScrollAnimationDuration = Duration(milliseconds: 300);
 const defaultQuickScrollAnimationDuration = Duration(milliseconds: 150);
 
 /// Factor to scrolling height
-const defaultscrollStepFactor = 0.9;
+const defaultScrollStepFactor = 0.9;
 
 /// [Widget] keyboard handler to PageUp(Option/Alt+Up), PageDown(Option/Alt+Down).
 /// Scroll [scrollController] to (accessible_height_from_constraints * ([scrollStepFactor] ?? 0.9)) in PageUp and PageDown
@@ -38,7 +38,7 @@ class ScrollKeyboardHandler extends StatefulWidget {
   const ScrollKeyboardHandler({
     required this.scrollController,
     required this.child,
-    this.scrollStepFactor = defaultscrollStepFactor,
+    this.scrollStepFactor = defaultScrollStepFactor,
     this.reverseList = false,
     super.key,
   });
@@ -48,7 +48,7 @@ class ScrollKeyboardHandler extends StatefulWidget {
 
   /// Factor to  to scrolling height([constraints.maxHeight] from [LayoutBuilder])
   ///
-  /// If `null`, then = 0.9(const [defaultscrollStepFactor]).
+  /// If `null`, then = 0.9(const [defaultScrollStepFactor]).
   final double? scrollStepFactor;
 
   /// Widget with [Scrollable] connected with [scrollController]
@@ -185,10 +185,10 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
       },
       child: LayoutBuilder(
         builder: (context, constraints) {
-          /// Update curent scroll step by constraints info
+          /// Update current scroll step by constraints info
           scrollStep =
               constraints.maxHeight *
-              (widget.scrollStepFactor ?? defaultscrollStepFactor);
+              (widget.scrollStepFactor ?? defaultScrollStepFactor);
 
           return KeyboardListener(
             focusNode: focusNode,
