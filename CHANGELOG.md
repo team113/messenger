@@ -11,12 +11,21 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/51)
 
+### Added
+
+- UI:
+    - Chat, ChatInfo, User, MyProfile pages:
+        - add scrolling by pressing PageUp and PageDown keys ([#1228], [#1469])
+
+
 ### Fixed
 
 - UI:
     - Media panel:
         - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
 
+[#1228]: /../../issues/1228
+[#1469]: /../../pull/1469
 [#1436]: /../../issues/1436
 [#1473]: /../../pull/1473
 
