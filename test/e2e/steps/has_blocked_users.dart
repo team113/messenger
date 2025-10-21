@@ -31,8 +31,9 @@ final StepDefinitionGeneric blockedCountUsers =
     when2<TestUser, int, CustomWorld>(
       '{user} has {int} blocked users',
       (user, count, context) async {
-        final GraphQlProvider provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         final List<Future> futures = [];
 
@@ -45,7 +46,11 @@ final StepDefinitionGeneric blockedCountUsers =
           );
         }
 
-        await Future.wait(futures);
+        try {
+          await Future.wait(futures);
+        } finally {
+          provider.disconnect();
+        }
       },
       configuration: StepDefinitionConfiguration()
         ..timeout = Duration(minutes: 5),

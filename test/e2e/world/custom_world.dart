@@ -117,7 +117,9 @@ class CustomUser {
   FutureOr<Credentials> get credentials {
     if (_credentials == null) {
       return Future(() async {
-        final provider = GraphQlProvider();
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false;
+
         final response = await provider.signIn(
           identifier: MyUserIdentifier(num: userNum),
           credentials: MyUserCredentials(
@@ -125,6 +127,8 @@ class CustomUser {
           ),
         );
         _credentials = response.toModel();
+
+        provider.disconnect();
 
         return _credentials!;
       });

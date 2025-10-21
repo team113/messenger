@@ -171,7 +171,8 @@ final countUsers = given2<int, TestUser, CustomWorld>(
 final StepDefinitionGeneric hasSession = then1<TestUser, CustomWorld>(
   '{user} has another active session\$',
   (TestUser testUser, context) async {
-    final provider = GraphQlProvider();
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false;
 
     final CustomUser user = context.world.sessions[testUser.name]!.first;
 
@@ -196,7 +197,8 @@ final StepDefinitionGeneric hasSession = then1<TestUser, CustomWorld>(
 final StepDefinitionGeneric signsOutSession = then1<TestUser, CustomWorld>(
   '{user} signs out of another active sessions\$',
   (TestUser testUser, context) async {
-    final provider = GraphQlProvider();
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false;
 
     final sessions = context.world.sessions[testUser.name] ?? [];
 

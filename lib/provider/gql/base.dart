@@ -99,6 +99,16 @@ class GraphQlClient {
   /// Maximum possible period of exponential backoff reconnection.
   static const int maxReconnectPeriodMillis = 30000;
 
+  /// Indicator whether this [GraphQlClient] should allow [WebSocketLink]
+  /// connections.
+  ///
+  /// If `false`, then [subscribe] won't emit any data.
+  ///
+  /// Intended to be used for tests only, because tests may construct
+  /// [GraphQlClient]s on-the-flight just to do some queries or mutations, which
+  /// don't need WebSocket connections at all.
+  bool withWebSocket = true;
+
   /// Authorization bearer token.
   AccessTokenSecret? token;
 
@@ -273,12 +283,17 @@ class GraphQlClient {
     String? operationName,
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
+    RawClientOptions? raw,
   }) {
     return _middleware(() async {
       return await _transaction(operationName, () async {
         final dio.Options authorized = options ?? dio.Options();
         authorized.headers = (authorized.headers ?? {});
-        authorized.headers!['Authorization'] = 'Bearer $token';
+
+        if (raw == null || raw.token != null) {
+          authorized.headers!['Authorization'] =
+              'Bearer ${token ?? raw?.token}';
+        }
 
         try {
           return await (await PlatformUtils.dio).post<T>(
@@ -319,6 +334,7 @@ class GraphQlClient {
     _disposeWebSocket();
     _queryLimiter.clear();
     _subscriptionLimiter.clear();
+    _client?.link.dispose();
     _client = null;
   }
 

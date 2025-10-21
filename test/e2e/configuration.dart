@@ -400,7 +400,9 @@ Future<CustomUser> createUser({
   CustomWorld? world,
   UserPassword? password,
 }) async {
-  final provider = GraphQlProvider();
+  final GraphQlProvider provider = GraphQlProvider()
+    ..client.withWebSocket = false;
+
   final result = await provider.signUp();
   final success = result as SignUp$Mutation$CreateUser$CreateSessionOk;
 
@@ -427,9 +429,6 @@ Future<CustomUser> createUser({
     'createUser() -> Created user `${user?.name}` with password: `$password` -> $customUser',
     'E2E',
   );
-
-  // This ensures for some reason that subscriptions like recent chats work.
-  await Future.delayed(Duration(seconds: 1));
 
   provider.disconnect();
 

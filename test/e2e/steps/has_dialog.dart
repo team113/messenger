@@ -32,7 +32,9 @@ final StepDefinitionGeneric hasDialogWithMe = given1<TestUser, CustomWorld>(
   '{user} has dialog with me',
   (TestUser user, context) async {
     final AuthService authService = Get.find();
-    final GraphQlProvider provider = GraphQlProvider();
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false;
+
     provider.token = context.world.sessions[user.name]?.token;
 
     final chat = await provider.createDialogChat(
@@ -40,6 +42,7 @@ final StepDefinitionGeneric hasDialogWithMe = given1<TestUser, CustomWorld>(
     );
 
     context.world.sessions[user.name]?.dialog = chat.id;
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

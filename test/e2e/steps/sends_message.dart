@@ -37,12 +37,15 @@ final StepDefinitionGeneric sendsMessageToMe =
     and2<TestUser, String, CustomWorld>(
       '{user} sends {string} message to me',
       (TestUser user, String msg, context) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
+
         await provider.postChatMessage(
           context.world.sessions[user.name]!.dialog!,
           text: ChatMessageText(msg),
         );
+
         provider.disconnect();
       },
       configuration: StepDefinitionConfiguration()
@@ -59,8 +62,9 @@ final StepDefinitionGeneric sendsMessageToGroup =
     and3<TestUser, String, String, CustomWorld>(
       '{user} sends {string} message to {string} group',
       (TestUser user, String msg, String group, context) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         await provider.postChatMessage(
           context.world.groups[group]!,
@@ -83,8 +87,9 @@ final StepDefinitionGeneric sendsMessageWithException =
     and2<TestUser, ExceptionType, CustomWorld>(
       '{user} sends message to me and receives {exception} exception',
       (TestUser user, ExceptionType type, context) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         Object? exception;
 
@@ -125,8 +130,9 @@ final StepDefinitionGeneric sendsCountMessages =
     given3<TestUser, int, String, CustomWorld>(
       '{user} sends {int} messages to {string} group',
       (TestUser user, int count, String name, context) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         final ChatId chatId = context.world.groups[name]!;
         for (var i = 0; i < count; ++i) {
