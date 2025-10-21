@@ -572,7 +572,7 @@ class GraphQlClient {
       _disposeWebSocket();
 
       // WebSocket connection is meaningful only if the token is provided.
-      if (token != null) {
+      if (token != null && _wsLink != null) {
         await _newWebSocket();
         link = Link.split(
           (request) => request.isSubscription,
