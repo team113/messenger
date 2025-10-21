@@ -85,9 +85,18 @@ seeUserInSearchResults = then2<SearchCategory, TestUser, CustomWorld>(
             dy: 100,
           );
 
-          return context.world.appDriver.isPresent(
+          final bool hasUser = await context.world.appDriver.isPresent(
             context.world.appDriver.findBy('SearchUser_$userId', FindType.key),
           );
+
+          final bool hasChat = await context.world.appDriver.isPresent(
+            context.world.appDriver.findBy(
+              'SearchChat_${ChatId.local(userId)}',
+              FindType.key,
+            ),
+          );
+
+          return hasUser || hasChat;
 
         case SearchCategory.recent:
         case SearchCategory.chat:
