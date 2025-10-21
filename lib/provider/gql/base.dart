@@ -18,8 +18,9 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:dio/dio.dart' as dio show DioException, Options, Response;
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart'
+    as dio
+    show DioException, Options, Response, DioExceptionType;
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -205,25 +206,25 @@ class GraphQlClient {
     RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
-    if (raw != null) {
-      return await _transaction(options.operationName, () async {
-        final QueryResult result = await (await _newClient(
-          raw,
-        )).query(options).timeout(timeout);
-        GraphQlProviderExceptions.fire(result, onException);
-        return result;
-      });
-    } else {
-      return await _middleware(() async {
-        return _transaction(options.operationName, () async {
-          final QueryResult result = await _queryLimiter.execute(
-            () async => await (await client).query(options).timeout(timeout),
-          );
-          GraphQlProviderExceptions.fire(result, onException);
-          return result;
-        });
-      });
+    final dio.Response posted = await post(
+      const RequestSerializer().serializeRequest(options.asRequest),
+      operationName: options.operationName,
+      onException: onException,
+      raw: raw,
+    );
+
+    if (posted.data['data'] == null) {
+      throw GraphQlException([GraphQLError(message: posted.data.toString())]);
     }
+
+    final QueryResult query = QueryResult(
+      options: options,
+      source: QueryResultSource.network,
+      data: posted.data['data'],
+    );
+
+    GraphQlProviderExceptions.fire(query, onException);
+    return query;
   }
 
   /// Resolves a single mutation according to the [MutationOptions] specified
@@ -237,25 +238,25 @@ class GraphQlClient {
     RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
-    if (raw != null) {
-      return await _transaction(options.operationName, () async {
-        final QueryResult result = await (await _newClient(
-          raw,
-        )).mutate(options).timeout(timeout);
-        GraphQlProviderExceptions.fire(result, onException);
-        return result;
-      });
-    } else {
-      return await _middleware(() async {
-        return await _transaction(options.operationName, () async {
-          final QueryResult result = await (await client)
-              .mutate(options)
-              .timeout(timeout);
-          GraphQlProviderExceptions.fire(result, onException);
-          return result;
-        });
-      });
+    final dio.Response posted = await post(
+      const RequestSerializer().serializeRequest(options.asRequest),
+      operationName: options.operationName,
+      onException: onException,
+      raw: raw,
+    );
+
+    if (posted.data['data'] == null) {
+      throw GraphQlException([GraphQLError(message: posted.data.toString())]);
     }
+
+    final QueryResult query = QueryResult(
+      options: options,
+      source: QueryResultSource.network,
+      data: posted.data['data'],
+    );
+
+    GraphQlProviderExceptions.fire(query, onException);
+    return query;
   }
 
   /// Subscribes to a GraphQL subscription according to the [options] specified.
@@ -334,7 +335,6 @@ class GraphQlClient {
     _disposeWebSocket();
     _queryLimiter.clear();
     _subscriptionLimiter.clear();
-    _client?.link.dispose();
     _client = null;
   }
 
@@ -540,7 +540,10 @@ class GraphQlClient {
 
   /// Disposes the [_wsLink] and related resources.
   void _disposeWebSocket() {
-    Log.debug('_disposeWebSocket()', '$runtimeType');
+    if (_wsLink != null) {
+      Log.debug('_disposeWebSocket()', '$runtimeType');
+    }
+
     _checkConnectionTimer?.cancel();
     _backoffTimer?.cancel();
     _channelSubscription?.cancel();
@@ -572,13 +575,16 @@ class GraphQlClient {
       _disposeWebSocket();
 
       // WebSocket connection is meaningful only if the token is provided.
-      if (token != null && _wsLink != null) {
+      if (token != null) {
         await _newWebSocket();
-        link = Link.split(
-          (request) => request.isSubscription,
-          _wsLink!,
-          httpAuthLink,
-        );
+
+        if (_wsLink != null) {
+          link = Link.split(
+            (request) => request.isSubscription,
+            _wsLink!,
+            httpAuthLink,
+          );
+        }
       }
     }
 
@@ -642,12 +648,12 @@ class GraphQlClient {
           exception is TimeoutException ||
           exception is FormatException) {
         connected.value = false;
-      } else if (exception is DioException) {
+      } else if (exception is dio.DioException) {
         switch (exception.type) {
-          case DioExceptionType.connectionTimeout:
-          case DioExceptionType.sendTimeout:
-          case DioExceptionType.receiveTimeout:
-          case DioExceptionType.connectionError:
+          case dio.DioExceptionType.connectionTimeout:
+          case dio.DioExceptionType.sendTimeout:
+          case dio.DioExceptionType.receiveTimeout:
+          case dio.DioExceptionType.connectionError:
             connected.value = false;
             break;
 
