@@ -19,8 +19,16 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - "Ctrl+F"/"Cmd+F" toggling messages searching. ([#1438], [#1396])
 
+### Fixed
+
+- UI:
+    - Media panel:
+        - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
+
 [#1396]: /../../issues/1396
+[#1436]: /../../issues/1436
 [#1438]: /../../pull/1438
+[#1473]: /../../pull/1473
 
 
 
