@@ -472,6 +472,10 @@ class GraphQlClient {
 
   /// Populates the [_wsLink] with a new [WebSocketLink].
   Future<void> _newWebSocket() async {
+    if (!withWebSocket) {
+      return;
+    }
+
     Log.debug('_newWebSocket()', '$runtimeType');
 
     _wsLink = WebSocketLink(
