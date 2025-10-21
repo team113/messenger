@@ -78,5 +78,8 @@ class ResetAppHook extends Hook {
   @override
   Future<void> onAfterRun(TestConfiguration config) async {
     await Get.deleteAll(force: true);
+
+    await clearDb();
+    await super.onAfterRun(config);
   }
 }

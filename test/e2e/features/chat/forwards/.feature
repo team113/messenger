@@ -19,11 +19,11 @@ Feature: Chat items are forwarded correctly
 
   Background: User is in dialog with Bob
     Given I am Alice
+    And I pause for 5 seconds
     And users Bob and Charlie
     And Bob has dialog with me
     And Charlie has dialog with me
     And I am in chat with Bob
-    And I pause for 5 seconds
 
   Scenario: User forwards message
     When I fill `MessageField` field with "Wow!"

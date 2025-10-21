@@ -428,6 +428,9 @@ Future<CustomUser> createUser({
     'E2E',
   );
 
+  // This ensures for some reason that subscriptions like recent chats work.
+  await Future.delayed(Duration(seconds: 1));
+
   provider.disconnect();
 
   return customUser;
