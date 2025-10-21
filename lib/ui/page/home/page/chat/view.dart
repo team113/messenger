@@ -185,7 +185,7 @@ class ChatView extends StatelessWidget {
                               child: Transform.translate(
                                 offset: const Offset(0, 1),
                                 child: ReactiveTextField(
-                                  key: const Key('SearchField'),
+                                  key: const Key('SearchItemsField'),
                                   state: c.search,
                                   hint: 'label_search'.l10n,
                                   maxLines: 1,
