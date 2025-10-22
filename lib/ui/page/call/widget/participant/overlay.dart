@@ -197,9 +197,11 @@ class _Separator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 8),
-      color: Theme.of(context).style.colors.onPrimaryOpacity25,
+      color: style.colors.onPrimaryOpacity25,
       width: 1,
       height: 10,
     );
