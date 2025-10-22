@@ -634,7 +634,7 @@ label_for_learning_use_our_flutter_incubator1 = If you would like to learn/impro
 label_for_learning_use_our_flutter_incubator2 = Sandbox.
 label_for_learning_use_our_rust_incubator1 = If you would like to learn/improve your knowledge of Rust, you can use our{" "}
 label_for_learning_use_our_rust_incubator2 = Sandbox.
-label_forward_message = Forward message
+label_forward_message = Forward
 label_forwarded_message = Forwarded message
 label_forwarded_messages = {$count ->
     [1] Forwarded message
