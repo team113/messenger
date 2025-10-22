@@ -20,41 +20,27 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Used in [_KeyRepeatHandler] in Timer to repeat
-const defaultRepeatPeriodDuration = Duration(milliseconds: 100);
+import '/util/log.dart';
 
-/// Default duration to scroll animation
-const defaultLongScrollAnimationDuration = Duration(milliseconds: 300);
-
-/// Default duration to scroll animation if PageUp/Down шы clamped
-const defaultQuickScrollAnimationDuration = Duration(milliseconds: 150);
-
-/// Factor to scrolling height
-const defaultScrollStepFactor = 0.9;
-
-/// [Widget] keyboard handler to PageUp(Option/Alt+Up), PageDown(Option/Alt+Down).
-/// Scroll [scrollController] to (accessible_height_from_constraints * ([scrollStepFactor] ?? 0.9)) in PageUp and PageDown
+/// Widget that handles keyboard shortcuts for scrolling.
+///
+/// Handles PageUp (Option/Alt+Up) and PageDown (Option/Alt+Down) keys to scroll
+/// the [scrollController] by (accessible_height_from_constraints * 0.9).
 class ScrollKeyboardHandler extends StatefulWidget {
   const ScrollKeyboardHandler({
     required this.scrollController,
     required this.child,
-    this.scrollStepFactor = defaultScrollStepFactor,
     this.reverseList = false,
     super.key,
   });
 
-  /// [ScrollController] to add scroll actions
+  /// [ScrollController] to add scroll actions.
   final ScrollController scrollController;
 
-  /// Factor to  to scrolling height([constraints.maxHeight] from [LayoutBuilder])
-  ///
-  /// If `null`, then = 0.9(const [defaultScrollStepFactor]).
-  final double? scrollStepFactor;
-
-  /// Widget with [Scrollable] connected with [scrollController]
+  /// Widget with [Scrollable] connected with [scrollController].
   final Widget child;
 
-  /// Reverse direction of scroll
+  /// Whether to reverse the scroll direction.
   final bool reverseList;
 
   @override
@@ -62,80 +48,92 @@ class ScrollKeyboardHandler extends StatefulWidget {
 }
 
 class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
-  ///Focus node for capturing keyboard focus
-  final focusNode = FocusNode();
+  /// Default duration to scroll animation.
+  static const _defaultLongScrollAnimationDuration = Duration(
+    milliseconds: 300,
+  );
 
-  ///Repeater for long press of PageUp/Down buttons
+  /// Duration for scroll animations when PageUp/Down is clamped at boundaries.
+  static const _defaultQuickScrollAnimationDuration = Duration(
+    milliseconds: 150,
+  );
+
+  /// Factor determining how much of the visible area to scroll (0.9 = 90%).
+  static const _defaultScrollStepFactor = 0.9;
+
+  /// Focus node for capturing keyboard focus.
+  final _focusNode = FocusNode();
+
+  /// Repeater for long press of PageUp/Down buttons.
   final _keyHandler = _KeyRepeatHandler();
 
-  ///The current scroll step (calculated based on the container's height)
-  double scrollStep = 0;
+  /// Current scroll step calculated based on container height.
+  double _scrollStep = 0;
 
-  ///holder to Option(Alt) key pressed
-  bool isOptionPressed = false;
+  /// Tracks whether the Option/Alt key is currently pressed.
+  bool _isOptionPressed = false;
 
   @override
   void initState() {
     super.initState();
 
-    ///Subscribing to key press events
+    /// Subscribing to key press events.
     _keyHandler.addListener(_handleRepeatedKey);
   }
 
-  /// Disposes this [ScrollKeyboardHandler].
   @override
   void dispose() {
-    focusNode.dispose();
+    _focusNode.dispose();
     _keyHandler.dispose();
     super.dispose();
   }
 
-  /// Animates [widget.scrollController] to [newOffset] with [duration]?? Duration(milliseconds: 300)
-  void animateTo(double newOffset, [Duration? duration]) =>
+  /// Animates the [widget.scrollController] to the specified offset and [Duration].
+  void _animateTo(double newOffset, [Duration? duration]) =>
       widget.scrollController.animateTo(
         ///safe clamp offset
         newOffset.clamp(0, widget.scrollController.position.maxScrollExtent),
-        duration: duration ?? defaultLongScrollAnimationDuration,
+        duration: duration ?? _defaultLongScrollAnimationDuration,
         curve: Curves.linear,
       );
 
-  /// [scrollController] scroll up to [scrollStep]
-  void scrollPageUp({bool quick = false}) {
+  /// Scrolls up by [_scrollStep] amount.
+  void _scrollPageUp({bool quick = false}) {
     final newOffset =
         widget.scrollController.offset +
-        (widget.reverseList ? scrollStep : -scrollStep);
-    animateTo(newOffset, quick ? defaultQuickScrollAnimationDuration : null);
+        (widget.reverseList ? _scrollStep : -_scrollStep);
+    _animateTo(newOffset, quick ? _defaultQuickScrollAnimationDuration : null);
   }
 
-  /// [scrollController] scroll down to [scrollStep]
-  void scrollPageDown({bool quick = false}) {
+  /// Scrolls down by [_scrollStep] amount.
+  void _scrollPageDown({bool quick = false}) {
     final newOffset =
         widget.scrollController.offset +
-        (widget.reverseList ? -scrollStep : scrollStep);
-    animateTo(newOffset, quick ? defaultQuickScrollAnimationDuration : null);
+        (widget.reverseList ? -_scrollStep : _scrollStep);
+    _animateTo(newOffset, quick ? _defaultQuickScrollAnimationDuration : null);
   }
 
-  /// Repeated keystroke handler
+  /// Handles repeated key events from the key handler.
   void _handleRepeatedKey(LogicalKeyboardKey key) {
     if (!widget.scrollController.hasClients) {
-      debugPrint(
+      Log.debug(
         'ScrollKeyboardHandler: ScrollController not attached to any scroll views',
       );
       return;
     }
     if (key == LogicalKeyboardKey.pageUp ||
-        (isOptionPressed && key == LogicalKeyboardKey.arrowUp)) {
-      scrollPageUp(quick: true);
+        (_isOptionPressed && key == LogicalKeyboardKey.arrowUp)) {
+      _scrollPageUp(quick: true);
     } else if (key == LogicalKeyboardKey.pageDown ||
-        (isOptionPressed && key == LogicalKeyboardKey.arrowDown)) {
-      scrollPageDown(quick: true);
+        (_isOptionPressed && key == LogicalKeyboardKey.arrowDown)) {
+      _scrollPageDown(quick: true);
     }
   }
 
-  /// Keystroke interception function for [KeyboardListener]
-  void handleKeyEvent(KeyEvent event) {
+  /// Handles all keyboard events for this widget.
+  void _handleKeyEvent(KeyEvent event) {
     if (!widget.scrollController.hasClients) {
-      debugPrint(
+      Log.debug(
         'ScrollKeyboardHandler: ScrollController not attached to any scroll views',
       );
       return;
@@ -143,30 +141,30 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
     if (event is KeyDownEvent) {
       final logicalKey = event.logicalKey;
 
-      /// Option (Alt) keyDown
+      // Track Option/Alt key state.
       if (logicalKey == LogicalKeyboardKey.altLeft ||
           logicalKey == LogicalKeyboardKey.altRight) {
-        isOptionPressed = true;
+        _isOptionPressed = true;
         return;
       }
 
-      /// Pass the event to the repeat click handler
+      /// Pass the event to the repeat click handler.
       _keyHandler.onKeyEvent(event);
 
       if (logicalKey == LogicalKeyboardKey.pageUp ||
-          (isOptionPressed && logicalKey == LogicalKeyboardKey.arrowUp)) {
-        scrollPageUp();
+          (_isOptionPressed && logicalKey == LogicalKeyboardKey.arrowUp)) {
+        _scrollPageUp();
       } else if (logicalKey == LogicalKeyboardKey.pageDown ||
-          (isOptionPressed && logicalKey == LogicalKeyboardKey.arrowDown)) {
-        scrollPageDown();
+          (_isOptionPressed && logicalKey == LogicalKeyboardKey.arrowDown)) {
+        _scrollPageDown();
       }
     } else if (event is KeyUpEvent) {
       final logicalKey = event.logicalKey;
 
-      /// Option (Alt) keyUp
+      /// Option (Alt) keyUp.
       if (logicalKey == LogicalKeyboardKey.altLeft ||
           logicalKey == LogicalKeyboardKey.altRight) {
-        isOptionPressed = false;
+        _isOptionPressed = false;
       }
       _keyHandler.onKeyEvent(event);
     } else if (event is KeyRepeatEvent) {
@@ -178,22 +176,20 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // On tap, request focus for this widget
+        // On tap, request focus for this widget.
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          FocusScope.of(context).requestFocus(focusNode);
+          FocusScope.of(context).requestFocus(_focusNode);
         });
       },
       child: LayoutBuilder(
         builder: (context, constraints) {
-          /// Update current scroll step by constraints info
-          scrollStep =
-              constraints.maxHeight *
-              (widget.scrollStepFactor ?? defaultScrollStepFactor);
+          // Calculate scroll step based on available height.
+          _scrollStep = constraints.maxHeight * (_defaultScrollStepFactor);
 
           return KeyboardListener(
-            focusNode: focusNode,
+            focusNode: _focusNode,
             autofocus: true,
-            onKeyEvent: handleKeyEvent,
+            onKeyEvent: _handleKeyEvent,
             child: widget.child,
           );
         },
@@ -202,23 +198,29 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   }
 }
 
-/// Internal repeater for long KeyboardKey presses
+/// Handles repeated key events when keys are held down.
+///
+/// This class manages timers to generate repeated key events for keys that
+/// are pressed and held, providing continuous scrolling behavior.
 class _KeyRepeatHandler {
-  /// List of functions that subscribe to key press repeat events
+  /// Duration between repeated key events when a key is held down.
+  static const _defaultRepeatPeriodDuration = Duration(milliseconds: 100);
+
+  /// List of functions that subscribe to key press repeat events.
   final _listeners = <void Function(LogicalKeyboardKey)>[];
 
-  /// Multiple currently pressed keys
+  /// Multiple currently pressed keys.
   final _pressedKeys = <LogicalKeyboardKey>{};
 
-  /// Timer for generating repeating events
+  /// Timer for generating repeating events.
   Timer? _timer;
 
-  /// Adding subscriber to click-once events
+  /// Adding subscriber to click-once events.
   void addListener(void Function(LogicalKeyboardKey) listener) {
     _listeners.add(listener);
   }
 
-  /// Handling keyboard events. Handles reactions to pressing, holding, and releasing keys, use [_pressedKeys] to hold keys
+  /// Processes keyboard events and manages key state.
   void onKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
       _pressedKeys.add(event.logicalKey);
@@ -232,9 +234,9 @@ class _KeyRepeatHandler {
     }
   }
 
-  /// Starting timer to generate repeating events
+  /// Starts the timer for generating repeated key events.
   void _startTimer() {
-    _timer ??= Timer.periodic(defaultRepeatPeriodDuration, (_) {
+    _timer ??= Timer.periodic(_defaultRepeatPeriodDuration, (_) {
       for (final key in _pressedKeys) {
         for (final listener in _listeners) {
           listener(key);
@@ -243,7 +245,7 @@ class _KeyRepeatHandler {
     });
   }
 
-  /// Stopping  timer
+  /// Stops the repeat timer.
   void _stopTimer() {
     _timer?.cancel();
     _timer = null;
