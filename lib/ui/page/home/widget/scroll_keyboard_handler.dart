@@ -62,10 +62,10 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   static const _defaultScrollStepFactor = 0.9;
 
   /// Focus node for capturing keyboard focus.
-  final _focusNode = FocusNode();
+  final FocusNode _focusNode = FocusNode();
 
   /// Repeater for long press of PageUp/Down buttons.
-  final _keyHandler = _KeyRepeatHandler();
+  final _KeyRepeatHandler _keyHandler = _KeyRepeatHandler();
 
   /// Current scroll step calculated based on container height.
   double _scrollStep = 0;
@@ -79,13 +79,25 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
     /// Subscribing to key press events.
     _keyHandler.addListener(_handleRepeatedKey);
+    _startListeningToKeyboard();
   }
 
   @override
   void dispose() {
+    _stopListeningToKeyboard();
     _focusNode.dispose();
     _keyHandler.dispose();
     super.dispose();
+  }
+
+  /// Starts listening to global keyboard events.
+  void _startListeningToKeyboard() {
+    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+  }
+
+  /// Stops listening to global keyboard events.
+  void _stopListeningToKeyboard() {
+    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
   }
 
   /// Animates the [widget.scrollController] to the specified offset and [Duration].
@@ -121,6 +133,7 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
       );
       return;
     }
+
     if (key == LogicalKeyboardKey.pageUp ||
         (_isOptionPressed && key == LogicalKeyboardKey.arrowUp)) {
       _scrollPageUp(quick: true);
@@ -130,14 +143,15 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
     }
   }
 
-  /// Handles all keyboard events for this widget.
-  void _handleKeyEvent(KeyEvent event) {
+  /// Handles all keyboard events from HardwareKeyboard.
+  bool _handleKeyEvent(KeyEvent event) {
     if (!widget.scrollController.hasClients) {
       Log.debug(
         'ScrollKeyboardHandler: ScrollController not attached to any scroll views',
       );
-      return;
+      return false;
     }
+
     if (event is KeyDownEvent) {
       final logicalKey = event.logicalKey;
 
@@ -145,7 +159,7 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
       if (logicalKey == LogicalKeyboardKey.altLeft ||
           logicalKey == LogicalKeyboardKey.altRight) {
         _isOptionPressed = true;
-        return;
+        return false;
       }
 
       /// Pass the event to the repeat click handler.
@@ -154,9 +168,11 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
       if (logicalKey == LogicalKeyboardKey.pageUp ||
           (_isOptionPressed && logicalKey == LogicalKeyboardKey.arrowUp)) {
         _scrollPageUp();
+        return true; // Event handled
       } else if (logicalKey == LogicalKeyboardKey.pageDown ||
           (_isOptionPressed && logicalKey == LogicalKeyboardKey.arrowDown)) {
         _scrollPageDown();
+        return true; // Event handled
       }
     } else if (event is KeyUpEvent) {
       final logicalKey = event.logicalKey;
@@ -170,26 +186,27 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
     } else if (event is KeyRepeatEvent) {
       _keyHandler.onKeyEvent(event);
     }
+
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // On tap, request focus for this widget.
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Request focus when tapped to enable keyboard handling
+        if (mounted) {
           FocusScope.of(context).requestFocus(_focusNode);
-        });
+        }
       },
       child: LayoutBuilder(
         builder: (context, constraints) {
           // Calculate scroll step based on available height.
-          _scrollStep = constraints.maxHeight * (_defaultScrollStepFactor);
+          _scrollStep = constraints.maxHeight * _defaultScrollStepFactor;
 
-          return KeyboardListener(
+          return Focus(
             focusNode: _focusNode,
             autofocus: true,
-            onKeyEvent: _handleKeyEvent,
             child: widget.child,
           );
         },
