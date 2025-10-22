@@ -293,7 +293,7 @@ class GraphQlClient {
 
         if (raw == null || raw.token != null) {
           authorized.headers!['Authorization'] =
-              'Bearer ${token ?? raw?.token}';
+              'Bearer ${raw?.token ?? token}';
         }
 
         try {
