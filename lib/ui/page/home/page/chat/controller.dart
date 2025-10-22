@@ -435,6 +435,8 @@ class ChatController extends GetxController {
   /// if any.
   ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
+  static final Map<String, _ChatScrollPosition> _savedScrollPosition = {};
+
   @override
   void onInit() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -919,37 +921,45 @@ class ChatController extends GetxController {
         listController
             .sliverController
             .onPaintItemPositionsCallback = (height, positions) {
-          if (positions.isNotEmpty) {
-            _topVisibleItem = positions.last;
+          final FlutterListViewItemPosition? lastPosition =
+              _savedScrollPosition[id.val]?.itemPosition;
+          if (lastPosition != null) {
+            _topVisibleItem = lastPosition;
+            _lastVisibleItem = lastPosition;
+          } else {
+            if (positions.isNotEmpty) {
+              _topVisibleItem = positions.last;
 
-            _lastVisibleItem = positions.firstWhereOrNull((e) {
-              ListElement? element = elements.values.elementAtOrNull(e.index);
-              return element is ChatMessageElement ||
-                  element is ChatInfoElement ||
-                  element is ChatCallElement ||
-                  element is ChatForwardElement;
-            });
+              _lastVisibleItem = positions.firstWhereOrNull((e) {
+                ListElement? element = elements.values.elementAtOrNull(e.index);
+                return element is ChatMessageElement ||
+                    element is ChatInfoElement ||
+                    element is ChatCallElement ||
+                    element is ChatForwardElement;
+              });
+              debugPrint("offset seted:id ${_lastVisibleItem?.index}");
 
-            if (_lastVisibleItem != null &&
-                status.value.isSuccess &&
-                !status.value.isLoadingMore) {
-              final ListElement element = elements.values.elementAt(
-                _lastVisibleItem!.index,
-              );
+              if (_lastVisibleItem != null &&
+                  status.value.isSuccess &&
+                  !status.value.isLoadingMore) {
+                final ListElement element = elements.values.elementAt(
+                  _lastVisibleItem!.index,
+                );
 
-              // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
-              // then set the [_lastSeenItem] to this item.
-              if (!element.id.id.isLocal &&
-                  (_lastSeenItem.value == null ||
-                      element.id.at.isAfter(_lastSeenItem.value!.at))) {
-                if (element is ChatMessageElement) {
-                  _lastSeenItem.value = element.item.value;
-                } else if (element is ChatInfoElement) {
-                  _lastSeenItem.value = element.item.value;
-                } else if (element is ChatCallElement) {
-                  _lastSeenItem.value = element.item.value;
-                } else if (element is ChatForwardElement) {
-                  _lastSeenItem.value = element.forwards.last.value;
+                // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
+                // then set the [_lastSeenItem] to this item.
+                if (!element.id.id.isLocal &&
+                    (_lastSeenItem.value == null ||
+                        element.id.at.isAfter(_lastSeenItem.value!.at))) {
+                  if (element is ChatMessageElement) {
+                    _lastSeenItem.value = element.item.value;
+                  } else if (element is ChatInfoElement) {
+                    _lastSeenItem.value = element.item.value;
+                  } else if (element is ChatCallElement) {
+                    _lastSeenItem.value = element.item.value;
+                  } else if (element is ChatForwardElement) {
+                    _lastSeenItem.value = element.forwards.last.value;
+                  }
                 }
               }
             }
@@ -1073,6 +1083,7 @@ class ChatController extends GetxController {
         if (_lastSeenItem.value != null) {
           readChat(_lastSeenItem.value);
         }
+        // _restoreScrollPosition();
       }
 
       SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -2092,6 +2103,7 @@ class ChatController extends GetxController {
       _updateSticky();
       _updateFabStates();
       _loadMessages();
+      _saveCurrentScrollPosition();
     }
   }
 
@@ -2413,6 +2425,66 @@ class ChatController extends GetxController {
       toggleSearch(true);
     }
   }
+
+  /// Get [ChatItemId] from [ListElement] if exist
+  ChatItemId? _getItemIdFromElement(ListElement element) => switch (element) {
+    ChatMessageElement e => e.item.value.id,
+    ChatCallElement e => e.item.value.id,
+    ChatInfoElement e => e.item.value.id,
+    ChatForwardElement e => e.forwards.firstOrNull?.value.id,
+    _ => null,
+  };
+
+  void _saveCurrentScrollPosition() {
+    if (_topVisibleItem == null || elements.isEmpty) return;
+
+    final element = elements.values.elementAt(_topVisibleItem!.index);
+    final itemId = _getItemIdFromElement(element);
+
+    if (itemId != null) {
+      debugPrint(
+        'offset=${_topVisibleItem!.offset}; id= ${_topVisibleItem!.index}',
+      );
+      _savedScrollPosition[id.val] = _ChatScrollPosition(
+        itemId: itemId,
+        itemPosition: _topVisibleItem!, //50*2?
+      );
+    }
+  }
+
+  // bool _isElementWithId(ListElement element, ChatItemId itemId) {
+  //   return switch (element) {
+  //     ChatMessageElement e => e.item.value.id == itemId,
+  //     ChatCallElement e => e.item.value.id == itemId,
+  //     ChatInfoElement e => e.item.value.id == itemId,
+  //     ChatForwardElement e => e.forwards.any((f) => f.value.id == itemId),
+  //     _ => false,
+  //   };
+  // }
+
+  // int _findElementIndexById(ChatItemId itemId) {
+  //   for (int i = 0; i < elements.length; i++) {
+  //     if (_isElementWithId(elements.values.elementAt(i), itemId)) {
+  //       return i;
+  //     }
+  //   }
+  //   return -1; // not found
+  // }
+
+  // void _restoreScrollPosition() {
+  //   if (!status.value.isSuccess) return;
+
+  //   final savedPosition = _savedScrollPosition[id.val];
+  //   if (savedPosition == null) return;
+
+  //   // final itemIndex = _findElementIndexById(savedPosition.itemId!);
+
+  //   if (savedPosition.itemPosition !=null) {
+  //   initIndex = savedPosition.itemPosition!.index;
+  //   initOffset = savedPosition.itemPosition!.offset;
+  //   debugPrint('RESTORE offset=$initOffset; id= $initIndex');
+  //   }
+  // }
 }
 
 /// ID of a [ListElement] containing its [PreciseDateTime] and [ChatItemId].
@@ -2733,4 +2805,10 @@ class _ListViewIndexCalculationResult {
 
   /// Initial [FlutterListView] offset.
   final double offset;
+}
+
+class _ChatScrollPosition {
+  _ChatScrollPosition({this.itemId, this.itemPosition});
+  final ChatItemId? itemId;
+  final FlutterListViewItemPosition? itemPosition;
 }
