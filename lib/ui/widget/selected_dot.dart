@@ -53,7 +53,7 @@ class SelectedDot extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return SizedBox(
-      width: 30,
+      width: size,
       child: SafeAnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: selected
@@ -62,13 +62,13 @@ class SelectedDot extends StatelessWidget {
                 backgroundColor: inverted
                     ? style.colors.onPrimary
                     : style.colors.primary,
-                radius: size / 2,
+                radius: (size - 4) / 2,
                 child: Icon(
                   Icons.check,
                   color: inverted
                       ? style.colors.primary
                       : style.colors.onPrimary,
-                  size: 14,
+                  size: size - 10,
                 ),
               )
             : Container(

@@ -68,6 +68,7 @@ class MessageFieldView extends StatelessWidget {
     this.canAttach = true,
     this.constraints,
     this.applySafeArea = false,
+    this.circularBorderRadius = 0,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -100,6 +101,9 @@ class MessageFieldView extends StatelessWidget {
 
   /// Indicator whether [SafeArea] should be applied to the field.
   final bool applySafeArea;
+
+  /// Radius of the field's border.
+  final double circularBorderRadius;
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
@@ -438,98 +442,119 @@ class MessageFieldView extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Container(
-          key: c.fieldKey,
-          constraints: const BoxConstraints(minHeight: 56),
-          decoration: BoxDecoration(color: style.cardColor),
-          padding: applySafeArea
-              ? EdgeInsets.only(bottom: max(CustomNavigationBar.height - 56, 0))
-              : EdgeInsets.zero,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              WidgetButton(
-                onPressed: canAttach ? c.toggleMore : null,
-                child: AnimatedButton(
-                  child: SizedBox(
-                    width: 50,
-                    height: 56,
-                    child: Center(
-                      child: Obx(() {
-                        return AnimatedScale(
-                          duration: const Duration(milliseconds: 150),
-                          curve: Curves.bounceInOut,
-                          scale: c.moreOpened.value ? 1.1 : 1,
-                          child: const SvgIcon(SvgIcons.chatMore),
-                        );
-                      }),
+        return Obx(() {
+          BorderRadius borderRadius = BorderRadius.circular(circularBorderRadius);
+
+          if (c.attachments.isNotEmpty ||
+              c.quotes.isNotEmpty ||
+              c.replied.isNotEmpty) {
+            borderRadius = BorderRadius.vertical(
+              bottom: Radius.circular(circularBorderRadius),
+            );
+          }
+
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 400),
+            key: c.fieldKey,
+            constraints: const BoxConstraints(minHeight: 56),
+            decoration: BoxDecoration(
+              color: style.cardColor,
+              borderRadius: borderRadius,
+            ),
+            padding: applySafeArea
+                ? EdgeInsets.only(
+                    bottom: max(CustomNavigationBar.height - 56, 0),
+                  )
+                : EdgeInsets.zero,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                WidgetButton(
+                  onPressed: canAttach ? c.toggleMore : null,
+                  child: AnimatedButton(
+                    child: SizedBox(
+                      width: 50,
+                      height: 56,
+                      child: Center(
+                        child: Obx(() {
+                          return AnimatedScale(
+                            duration: const Duration(milliseconds: 150),
+                            curve: Curves.bounceInOut,
+                            scale: c.moreOpened.value ? 1.1 : 1,
+                            child: const SvgIcon(SvgIcons.chatMore),
+                          );
+                        }),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                    bottom: 13,
-                  ),
-                  child: Transform.translate(
-                    offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                    child: ReactiveTextField(
-                      onChanged: onChanged,
-                      key: fieldKey ?? const Key('MessageField'),
-                      state: c.field,
-                      hint: 'label_send_message_hint'.l10n,
-                      minLines: 1,
-                      maxLines: 7,
-                      filled: false,
-                      dense: true,
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      style: style.fonts.medium.regular.onBackground,
-                      type: TextInputType.multiline,
-                      textInputAction: TextInputAction.newline,
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                      bottom: 13,
+                    ),
+                    child: Transform.translate(
+                      offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                      child: ReactiveTextField(
+                        onChanged: onChanged,
+                        key: fieldKey ?? const Key('MessageField'),
+                        state: c.field,
+                        hint: 'label_send_message_hint'.l10n,
+                        minLines: 1,
+                        maxLines: 7,
+                        filled: false,
+                        dense: true,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        style: style.fonts.medium.regular.onBackground,
+                        type: TextInputType.multiline,
+                        textInputAction: TextInputAction.newline,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Obx(() {
-                int take = max(((constraints.maxWidth - 160) / 50).round(), 0);
+                const SizedBox(width: 10),
+                Obx(() {
+                  int take = max(
+                    ((constraints.maxWidth - 160) / 50).round(),
+                    0,
+                  );
 
-                SchedulerBinding.instance.addPostFrameCallback((_) {
-                  c.canPin.value = c.buttons.length < take;
-                });
+                  SchedulerBinding.instance.addPostFrameCallback((_) {
+                    c.canPin.value = c.buttons.length < take;
+                  });
 
-                final bool sendable =
-                    !c.field.isEmpty.value ||
-                    c.attachments.isNotEmpty ||
-                    c.replied.isNotEmpty;
+                  final bool sendable =
+                      !c.field.isEmpty.value ||
+                      c.attachments.isNotEmpty ||
+                      c.replied.isNotEmpty;
 
-                final List<Widget> children;
+                  final List<Widget> children;
 
-                if (sendable || c.buttons.isEmpty) {
-                  children = [
-                    ChatButtonWidget.send(
-                      key: sendKey ?? Key('Send'),
-                      onPressed: c.field.submit,
-                    ),
-                  ];
-                } else {
-                  children = c.buttons
-                      .take(take)
-                      .toList()
-                      .reversed
-                      .map((e) => ChatButtonWidget(e))
-                      .toList();
-                }
+                  if (sendable || c.buttons.isEmpty) {
+                    children = [
+                      ChatButtonWidget.send(
+                        key: sendKey ?? Key('Send'),
+                        onPressed: c.field.submit,
+                      ),
+                    ];
+                  } else {
+                    children = c.buttons
+                        .take(take)
+                        .toList()
+                        .reversed
+                        .map((e) => ChatButtonWidget(e))
+                        .toList();
+                  }
 
-                return Wrap(children: children);
-              }),
-              const SizedBox(width: 3),
-            ],
-          ),
-        );
+                  return Wrap(children: children);
+                }),
+                const SizedBox(width: 3),
+              ],
+            ),
+          );
+        });
       },
     );
   }

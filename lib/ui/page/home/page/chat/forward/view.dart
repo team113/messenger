@@ -122,6 +122,10 @@ class ChatForwardView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
+                    ModalPopupHeader(
+                      text: 'label_forward_message'.l10n,
+                      subtitle: 'select chat',
+                    ),
                     Expanded(
                       child: SearchView(
                         key: const Key('SearchView'),
@@ -130,7 +134,6 @@ class ChatForwardView extends StatelessWidget {
                           SearchCategory.contact,
                           SearchCategory.user,
                         ],
-                        title: 'label_forward_message'.l10n,
                         onSelected: (r) => c.selected.value = r,
                       ),
                     ),
@@ -147,6 +150,7 @@ class ChatForwardView extends StatelessWidget {
                               ) /
                               4,
                         ),
+                        circularBorderRadius: 12,
                         controller: c.send,
                       ),
                     ),

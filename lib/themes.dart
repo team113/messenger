@@ -290,7 +290,7 @@ class Themes {
         focusColor: colors.primary,
         hoverColor: colors.transparent,
         fillColor: colors.primary,
-        hintStyle: fonts.normal.regular.secondaryHighlightDarkest,
+        hintStyle: fonts.normal.regular.secondary,
         labelStyle: fonts.normal.regular.secondaryHighlightDarkest,
         errorStyle: fonts.small.regular.danger,
         helperStyle: fonts.normal.regular.secondaryHighlightDarkest,
