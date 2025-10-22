@@ -124,7 +124,7 @@ class ChatForwardView extends StatelessWidget {
                   children: [
                     ModalPopupHeader(
                       text: 'label_forward_message'.l10n,
-                      subtitle: 'select chat',
+                      subtitle: 'label_forward_subtitle'.l10n,
                     ),
                     Expanded(
                       child: SearchView(

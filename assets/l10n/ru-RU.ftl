@@ -648,6 +648,7 @@ label_for_learning_use_our_flutter_incubator2 = Песочницей.
 label_for_learning_use_our_rust_incubator1 = В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей{" "}
 label_for_learning_use_our_rust_incubator2 = Песочницей.
 label_forward_message = Переслать сообщение
+label_forward_subtitle = выбери чат
 label_forwarded_message = Пересланное сообщение
 label_forwarded_messages = {$count ->
     [1] Пересланное сообщение
