@@ -102,7 +102,8 @@ class ParticipantOverlayWidget extends StatelessWidget {
       ].whereNot((e) => e.isEmpty).toList();
 
       final Widget name = Transform.translate(
-        // Adjust vertical alignment to match design (default centering is slightly off).
+        // Adjust vertical alignment to match design
+        // (default centering is slightly off).
         offset: Offset(0, -2),
         child: Text(
           participant.user.value?.title ?? 'dot'.l10n * 3,
