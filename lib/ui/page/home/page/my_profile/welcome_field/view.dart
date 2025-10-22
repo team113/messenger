@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:get/get.dart';
@@ -27,7 +26,6 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/message_field/widget/chat_button.dart';
@@ -94,6 +92,10 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
       child: Container(
         key: const Key('SendField'),
         decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: style.cardRadius.topLeft,
+            topRight: style.cardRadius.topRight,
+          ),
           boxShadow: [
             CustomBoxShadow(
               blurRadius: 8,
@@ -101,16 +103,9 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
             ),
           ],
         ),
-        child: ConditionalBackdropFilter(
-          condition: style.cardBlur > 0,
-          filter: ImageFilter.blur(
-            sigmaX: style.cardBlur,
-            sigmaY: style.cardBlur,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [_buildHeader(c, context), _buildField(c, context)],
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [_buildHeader(c, context), _buildField(c, context)],
         ),
       ),
     );
@@ -128,69 +123,65 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
               ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
               : false;
 
-          return ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-            borderRadius: BorderRadius.only(
-              topLeft: style.cardRadius.topLeft,
-              topRight: style.cardRadius.topRight,
-            ),
-            child: Container(
+          return Container(
+            decoration: BoxDecoration(
               color: style.colors.onPrimaryOpacity50,
-              child: AnimatedSize(
-                duration: 400.milliseconds,
-                alignment: Alignment.bottomCenter,
-                curve: Curves.ease,
-                child: Container(
-                  width: double.infinity,
-                  padding: c.attachments.isNotEmpty || c.edited.value != null
-                      ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                      : EdgeInsets.zero,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (c.edited.value != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: _buildPreview(
-                            context,
-                            c,
-                            onClose: () => c.edited.value = null,
-                          ),
+              borderRadius: BorderRadius.only(
+                topLeft: style.cardRadius.topLeft,
+                topRight: style.cardRadius.topRight,
+              ),
+            ),
+            child: AnimatedSize(
+              duration: 400.milliseconds,
+              alignment: Alignment.bottomCenter,
+              curve: Curves.ease,
+              child: Container(
+                width: double.infinity,
+                padding: c.attachments.isNotEmpty || c.edited.value != null
+                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                    : EdgeInsets.zero,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (c.edited.value != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: _buildPreview(
+                          context,
+                          c,
+                          onClose: () => c.edited.value = null,
                         ),
-                      if (c.attachments.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: MouseRegion(
-                            cursor: grab
-                                ? CustomMouseCursors.grab
-                                : MouseCursor.defer,
-                            opaque: false,
-                            child: ScrollConfiguration(
-                              behavior: CustomScrollBehavior(),
-                              child: SingleChildScrollView(
-                                clipBehavior: Clip.none,
-                                physics: grab
-                                    ? null
-                                    : const NeverScrollableScrollPhysics(),
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: c.attachments
-                                      .map(
-                                        (e) => _buildAttachment(context, e, c),
-                                      )
-                                      .toList(),
-                                ),
+                      ),
+                    if (c.attachments.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: MouseRegion(
+                          cursor: grab
+                              ? CustomMouseCursors.grab
+                              : MouseCursor.defer,
+                          opaque: false,
+                          child: ScrollConfiguration(
+                            behavior: CustomScrollBehavior(),
+                            child: SingleChildScrollView(
+                              clipBehavior: Clip.none,
+                              physics: grab
+                                  ? null
+                                  : const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: c.attachments
+                                    .map((e) => _buildAttachment(context, e, c))
+                                    .toList(),
                               ),
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ],
-                  ),
+                  ],
                 ),
               ),
             ),
