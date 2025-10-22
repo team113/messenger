@@ -1968,7 +1968,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       topRight: borderRadius.topRight,
                                     )
                                   : BorderRadius.zero,
-                              child: Container(
+                              child: ColoredBox(
                                 color: style.colors.onSecondaryOpacity88,
                                 child: Row(
                                   children: [

@@ -25,6 +25,7 @@ import 'section/call.dart';
 import 'section/chat.dart';
 import 'section/fields.dart';
 import 'section/images.dart';
+import 'section/loaders.dart';
 import 'section/navigation.dart';
 import 'section/sounds.dart';
 import 'section/switches.dart';
@@ -51,6 +52,7 @@ class WidgetsView extends StatelessWidget {
         ...SystemSection.build(),
         ...NavigationSection.build(context),
         ...CallSection.build(context),
+        ...LoadersSection.build(context),
         ...SoundsSection.build(),
       ],
     );

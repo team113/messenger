@@ -92,6 +92,10 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
       child: Container(
         key: const Key('SendField'),
         decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(
+            topLeft: style.cardRadius.topLeft,
+            topRight: style.cardRadius.topRight,
+          ),
           boxShadow: [
             CustomBoxShadow(
               blurRadius: 8,
