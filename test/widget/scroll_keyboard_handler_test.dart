@@ -32,18 +32,13 @@ void main() {
     scrollController.dispose();
   });
 
-  Widget buildTestWidget({
-    double? scrollStepFactor,
-    bool reverseList = false,
-    double maxHeight = 1000,
-  }) {
+  Widget buildTestWidget({bool reverseList = false, double maxHeight = 1000}) {
     return MaterialApp(
       home: Scaffold(
         body: SizedBox(
           height: maxHeight,
           child: ScrollKeyboardHandler(
             scrollController: scrollController,
-            scrollStepFactor: scrollStepFactor,
             reverseList: reverseList,
             child: ListView.builder(
               controller: scrollController,
@@ -132,42 +127,14 @@ void main() {
       expect(scrollController.offset > initialOffset, true);
     });
 
-    testWidgets('should use custom scrollStepFactor', (tester) async {
-      scrollController = ScrollController(initialScrollOffset: 400);
-      const customFactor = 0.2;
-      const maxHeight = 400.0;
-
-      await tester.pumpWidget(
-        buildTestWidget(scrollStepFactor: customFactor, maxHeight: maxHeight),
-      );
-      await tester.pumpAndSettle();
-
-      final initialOffset = scrollController.offset;
-
-      await sendKeyEvent(tester, LogicalKeyboardKey.pageUp);
-
-      final expectedScroll = maxHeight * customFactor;
-      expect(
-        scrollController.offset,
-        equals(
-          (initialOffset - expectedScroll).clamp(
-            0,
-            scrollController.position.maxScrollExtent,
-          ),
-        ),
-      );
-    });
-
-    testWidgets('should use default scrollStepFactor when null', (
+    testWidgets('should scroll to start with alternative maxHeight', (
       tester,
     ) async {
       scrollController = ScrollController(initialScrollOffset: 400);
       const maxHeight = 300.0;
       const defaultFactor = 0.9;
 
-      await tester.pumpWidget(
-        buildTestWidget(scrollStepFactor: null, maxHeight: maxHeight),
-      );
+      await tester.pumpWidget(buildTestWidget(maxHeight: maxHeight));
       await tester.pumpAndSettle();
 
       final initialOffset = scrollController.offset;
@@ -203,16 +170,14 @@ void main() {
     ) async {
       scrollController = ScrollController(initialScrollOffset: 1000);
 
-      await tester.pumpWidget(
-        buildTestWidget(maxHeight: 300, scrollStepFactor: 1),
-      );
+      await tester.pumpWidget(buildTestWidget(maxHeight: 300));
       await tester.pumpAndSettle();
 
       await tester.sendKeyDownEvent(LogicalKeyboardKey.pageUp);
       await tester.pump();
-      for (int i = 0; i < 85; i++) {
+      for (int i = 0; i < 90; i++) {
         /// waiting for the animation to complete without call pumpAndSettle().
-        /// 85 - experimentally selected number, may require modification when editing the animation
+        /// 90 - experimentally selected number, may require modification when editing the animation
         await tester.pump(const Duration(milliseconds: 16)); // ~60 FPS
       }
       await tester.sendKeyUpEvent(LogicalKeyboardKey.pageUp);
