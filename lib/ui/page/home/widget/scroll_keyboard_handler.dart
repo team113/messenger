@@ -103,7 +103,7 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   /// Animates the [widget.scrollController] to the specified offset and [Duration].
   void _animateTo(double newOffset, [Duration? duration]) =>
       widget.scrollController.animateTo(
-        ///safe clamp offset
+        /// Safe clamp offset.
         newOffset.clamp(0, widget.scrollController.position.maxScrollExtent),
         duration: duration ?? _defaultLongScrollAnimationDuration,
         curve: Curves.linear,
@@ -194,7 +194,7 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Request focus when tapped to enable keyboard handling
+        // Request focus when tapped to enable keyboard handling.
         if (mounted) {
           FocusScope.of(context).requestFocus(_focusNode);
         }
