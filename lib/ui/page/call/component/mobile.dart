@@ -26,7 +26,6 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../controller.dart';
 import '../widget/animated_participant.dart';
 import '../widget/call_cover.dart';
-import '../widget/conditional_backdrop.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/notification.dart';
@@ -51,7 +50,6 @@ import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/global_key.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'common.dart';
 
 /// Returns a mobile design of a [CallView].
@@ -106,8 +104,10 @@ Widget mobileCall(CallController c, BuildContext context) {
                 },
                 overlayBuilder: (e) {
                   return Obx(() {
+                    final bool audioEnabled = c.audioState.value.isEnabled;
+
                     final bool? muted = e.member.owner == MediaOwnerKind.local
-                        ? !c.audioState.value.isEnabled
+                        ? !audioEnabled
                         : null;
 
                     // TODO: Implement opened context menu detection for
@@ -116,7 +116,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                       e,
                       muted: muted,
                       hovered: false,
-                      preferBackdrop: !c.minimized.value,
                     );
                   });
                 },
@@ -133,8 +132,10 @@ Widget mobileCall(CallController c, BuildContext context) {
               fit: c.minimized.value,
               itemBuilder: (e) {
                 return Obx(() {
+                  final bool audioEnabled = c.audioState.value.isEnabled;
+
                   final bool? muted = e.member.owner == MediaOwnerKind.local
-                      ? !c.audioState.value.isEnabled
+                      ? !audioEnabled
                       : null;
 
                   return ContextMenuRegion(
@@ -218,7 +219,6 @@ Widget mobileCall(CallController c, BuildContext context) {
                         e,
                         muted: muted,
                         rounded: animated,
-                        withBlur: !c.minimized.value,
                       );
                     },
                   );
@@ -554,9 +554,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 child: SlidingUpPanel(
                   controller: c.panelController,
                   boxShadow: null,
-                  color: ConditionalBackdropFilter.enabled
-                      ? style.colors.primaryDarkOpacity70
-                      : style.colors.primaryAuxiliaryOpacity90,
+                  color: style.colors.primaryAuxiliaryOpacity90,
                   backdropEnabled: true,
                   backdropOpacity: 0,
                   minHeight: minHeight,
@@ -565,30 +563,23 @@ Widget mobileCall(CallController c, BuildContext context) {
                     topLeft: Radius.circular(10),
                     topRight: Radius.circular(10),
                   ),
-                  panel: ConditionalBackdropFilter(
+                  panel: Column(
                     key: c.dockKey,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                    condition: !PlatformUtils.isIOS || !WebUtils.isSafari,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 12),
-                        Center(
-                          child: Container(
-                            width: 60,
-                            height: 3,
-                            decoration: BoxDecoration(
-                              color: style.colors.onPrimaryOpacity50,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                    children: [
+                      const SizedBox(height: 12),
+                      Center(
+                        child: Container(
+                          width: 60,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: style.colors.onPrimaryOpacity50,
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        Expanded(child: Column(children: panelChildren)),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(child: Column(children: panelChildren)),
+                    ],
                   ),
                   onPanelSlide: (d) {
                     c.keepUi(true);

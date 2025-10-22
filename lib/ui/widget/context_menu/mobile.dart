@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,7 +26,6 @@ import 'package:get/get.dart';
 
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/util/global_key.dart';
 import '/util/platform_utils.dart';
@@ -285,19 +283,9 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                   GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTap: _dismiss,
-                    child: ConditionalBackdropFilter(
-                      condition: !widget.showAbove,
-                      filter: ImageFilter.blur(
-                        sigmaX: 0.01 + 10 * _fading.value,
-                        sigmaY: 0.01 + 10 * _fading.value,
-                      ),
-                      child: Container(
-                        color: Color.from(
-                          alpha: kCupertinoModalBarrierColor.a * _fading.value,
-                          red: kCupertinoModalBarrierColor.r,
-                          green: kCupertinoModalBarrierColor.g,
-                          blue: kCupertinoModalBarrierColor.b,
-                        ),
+                    child: Container(
+                      color: kCupertinoModalBarrierColor.withValues(
+                        alpha: kCupertinoModalBarrierColor.a * _fading.value,
                       ),
                     ),
                   ),

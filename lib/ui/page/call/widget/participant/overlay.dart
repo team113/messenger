@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
 import '../../controller.dart';
-import '../conditional_backdrop.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -35,7 +34,6 @@ class ParticipantOverlayWidget extends StatelessWidget {
     super.key,
     this.muted = false,
     this.hovered = false,
-    this.preferBackdrop = true,
   });
 
   /// [Participant] this [ParticipantOverlayWidget] represents.
@@ -49,9 +47,6 @@ class ParticipantOverlayWidget extends StatelessWidget {
   /// Indicator whether this [ParticipantOverlayWidget] is being hovered meaning
   /// its label should be visible.
   final bool hovered;
-
-  /// Indicator whether [ConditionalBackdropFilter] should be enabled.
-  final bool preferBackdrop;
 
   @override
   Widget build(BuildContext context) {
