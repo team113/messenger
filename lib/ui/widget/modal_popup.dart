@@ -136,7 +136,7 @@ abstract class ModalPopup {
               padding: desktopPadding,
               decoration: BoxDecoration(
                 color: background ?? style.colors.background,
-                borderRadius: style.cardRadius,
+                borderRadius: BorderRadius.circular(16),
               ),
               child: ConstrainedBox(
                 constraints: desktopConstraints,
@@ -230,7 +230,7 @@ class ModalPopupHeader extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: 10,
-                        vertical: 20,
+                        vertical: 19,
                       ),
                       child: Center(
                         child: Text(
@@ -249,8 +249,12 @@ class ModalPopupHeader extends StatelessWidget {
                     key: const Key('CloseButton'),
                     onPressed: Navigator.of(context).pop,
                     child: Container(
-                      padding: const EdgeInsets.only(left: 12, right: 18),
-                      child: const SvgIcon(SvgIcons.closeSmallPrimary),
+                      padding: const EdgeInsets.only(left: 12, right: 17),
+                      child: const SvgIcon(
+                        SvgIcons.closeSmallPrimary,
+                        width: 9,
+                        height: 9,
+                      ),
                     ),
                   )
                 else
@@ -260,7 +264,7 @@ class ModalPopupHeader extends StatelessWidget {
 
             if (subtitle != null)
               Padding(
-                padding: const EdgeInsets.only(bottom: 20.0),
+                padding: const EdgeInsets.only(bottom: 18),
                 child: Row(
                   spacing: 8,
                   children: [
