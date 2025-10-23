@@ -28,6 +28,7 @@ import 'package:http/http.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
+import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '/config.dart';
@@ -44,7 +45,7 @@ import 'websocket/interface.dart'
     as websocket;
 
 /// Base GraphQl provider.
-class GraphQlProviderBase {
+class GraphQlProviderBase extends DisposableInterface {
   /// [GraphQlClient] of this provider.
   final GraphQlClient _client = GraphQlClient();
 
@@ -67,6 +68,14 @@ class GraphQlProviderBase {
   /// Indicates whether this [GraphQlClient] is successfully connected to the
   /// endpoint.
   RxBool get connected => _client.connected;
+
+  @override
+  void onClose() {
+    Log.info('onClose()', '$runtimeType');
+
+    disconnect();
+    super.onClose();
+  }
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
   Future<void> reconnect() => _client.reconnect();
@@ -94,6 +103,10 @@ class GraphQlProviderBase {
 
 /// Wrapper around [GraphQLClient] used to implement middleware capabilities.
 class GraphQlClient {
+  GraphQlClient() {
+    Log.debug('GraphQlClient()', '$runtimeType($_id)');
+  }
+
   /// Starting period of exponential backoff reconnection.
   static const int minReconnectPeriodMillis = 1000;
 
@@ -131,6 +144,8 @@ class GraphQlClient {
 
   /// [WebSocketLink] used by the [_client].
   WebSocketLink? _wsLink;
+
+  GraphQLWebSocketChannel? _wsChannel;
 
   /// Current authorization bearer token of the [_client].
   ///
@@ -181,6 +196,9 @@ class GraphQlClient {
 
   /// Handlers listening for [Exception]s happening with this client.
   final List<void Function(Exception?)> _handlers = [];
+
+  /// Unique ID of this [GraphQlClient] to differentiate it from others.
+  final String _id = const Uuid().v4();
 
   /// Returns [GraphQLClient] with or without [token] header authorization.
   Future<GraphQLClient> get client async {
@@ -320,7 +338,7 @@ class GraphQlClient {
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
   Future<void> reconnect() async {
-    Log.debug('reconnect()', '$runtimeType');
+    Log.debug('reconnect()', '$runtimeType($_id)');
 
     if (_client == null || _currentToken != token) {
       _client = await _newClient();
@@ -330,7 +348,7 @@ class GraphQlClient {
 
   /// Disconnects the [client] and disposes the connection.
   void disconnect() {
-    Log.debug('disconnect()', '$runtimeType');
+    Log.debug('disconnect()', '$runtimeType($_id)');
 
     _disposeWebSocket();
     _queryLimiter.clear();
@@ -476,7 +494,8 @@ class GraphQlClient {
       return;
     }
 
-    Log.debug('_newWebSocket()', '$runtimeType');
+    _disposeWebSocket();
+    Log.debug('_newWebSocket()', '$runtimeType($_id)');
 
     _wsLink = WebSocketLink(
       Config.ws,
@@ -489,9 +508,10 @@ class GraphQlClient {
         delayBetweenReconnectionAttempts: null,
         inactivityTimeout: const Duration(seconds: 15),
         connectFn: (Uri uri, Iterable<String>? protocols) async {
-          Log.debug('connectFn($uri, $protocols)', '$runtimeType');
+          Log.debug('connectFn($uri, $protocols)', '$runtimeType($_id)');
 
-          final GraphQLWebSocketChannel socket = websocket
+          _wsChannel?.sink.close();
+          _wsChannel = websocket
               .connect(
                 uri,
                 protocols: protocols,
@@ -501,9 +521,8 @@ class GraphQlClient {
               )
               .forGraphQL();
 
-          socket.stream = socket.stream.handleError((_, _) => false);
-
-          _channelSubscription = socket.stream.listen((_) {
+          _wsChannel?.stream = _wsChannel!.stream.handleError((_, _) => false);
+          _channelSubscription = _wsChannel?.stream.listen((e) {
             if (!_wsConnected) {
               Log.info('Connected', 'WebSocket');
               _checkConnectionTimer?.cancel();
@@ -521,7 +540,7 @@ class GraphQlClient {
             }
           }, onDone: _reconnect);
 
-          return socket;
+          return _wsChannel!;
         },
       ),
     );
@@ -541,19 +560,20 @@ class GraphQlClient {
   /// Disposes the [_wsLink] and related resources.
   void _disposeWebSocket() {
     if (_wsLink != null) {
-      Log.debug('_disposeWebSocket()', '$runtimeType');
+      Log.debug('_disposeWebSocket()', '$runtimeType($_id)');
     }
 
     _checkConnectionTimer?.cancel();
     _backoffTimer?.cancel();
     _channelSubscription?.cancel();
+    _wsChannel?.sink.close();
     _wsLink?.dispose();
     _wsLink = null;
   }
 
   /// Creates a new [GraphQLClient].
   Future<GraphQLClient> _newClient([RawClientOptions? raw]) async {
-    Log.debug('_newClient($raw)', '$runtimeType');
+    Log.debug('_newClient($raw)', '$runtimeType($_id)');
 
     final httpLink = HttpLink(
       '${Config.url}:${Config.port}${Config.graphql}',
