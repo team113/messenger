@@ -96,23 +96,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         duration: const Duration(milliseconds: 250),
         decoration: BoxDecoration(
           borderRadius: borderRadius,
-          border:
-              border ??
-              Border(
-                top: BorderSide.none,
-                left: style.cardBorder.left,
-                right: style.cardBorder.right,
-                bottom: style.cardBorder.bottom,
-              ),
+          border: border ?? style.cardBorder,
           color: style.cardColor,
         ),
-        padding: padding,
+        padding: padding ?? EdgeInsets.zero,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Spacer(),
             SizedBox(
-              height: 59 - (padding?.top ?? 0) - (padding?.bottom ?? 0),
+              height:
+                  59 -
+                  (padding?.top ?? 0) -
+                  (padding?.bottom ?? 0) -
+                  (border ?? style.cardBorder).top.width -
+                  (border ?? style.cardBorder).bottom.width,
               child: NavigationToolbar(
                 centerMiddle: true,
                 middleSpacing: 0,
