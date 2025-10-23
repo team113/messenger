@@ -76,8 +76,11 @@ void main() async {
   const int maxText = ChatMessageText.maxLength;
 
   final graphQlProvider = MockGraphQlProvider();
-  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));

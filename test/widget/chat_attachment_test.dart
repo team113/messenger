@@ -95,9 +95,12 @@ void main() async {
   Config.disableDragArea = true;
 
   var graphQlProvider = MockGraphQlProvider();
-  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   when(
     graphQlProvider.recentChatsTopEvents(3),

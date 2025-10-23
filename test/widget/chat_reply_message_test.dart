@@ -90,12 +90,15 @@ void main() async {
   Config.disableDragArea = true;
 
   var graphQlProvider = MockGraphQlProvider();
-  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
   when(
     graphQlProvider.getUser(const UserId('me')),
   ).thenAnswer((_) => Future.value(GetUser$Query.fromJson(userData)));
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   when(graphQlProvider.recentChatsTopEvents(3)).thenAnswer(
     (_) => Stream.value(

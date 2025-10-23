@@ -63,6 +63,9 @@ void main() async {
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   final graphQlProvider = MockGraphQlProvider();
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));

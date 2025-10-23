@@ -84,6 +84,9 @@ void main() async {
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
 
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));

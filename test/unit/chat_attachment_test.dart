@@ -69,6 +69,9 @@ void main() async {
 
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));

@@ -65,7 +65,6 @@ import 'chat_direct_link_test.mocks.dart';
 void main() async {
   setUp(() async {
     final graphQlProvider = MockGraphQlProvider();
-    Get.put<GraphQlProvider>(graphQlProvider);
 
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) async => Stream.fromIterable([
@@ -80,7 +79,12 @@ void main() async {
     );
 
     when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
+    when(
+      graphQlProvider.onStart,
+    ).thenReturn(InternalFinalCallback(callback: () {}));
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
+
+    Get.put<GraphQlProvider>(graphQlProvider);
 
     when(
       graphQlProvider.favoriteChatsEvents(any),

@@ -106,9 +106,12 @@ void main() async {
   final geoProvider = Get.put(GeoLocationDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
 
-  var graphQlProvider = Get.put(MockGraphQlProvider());
+  var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.connected).thenReturn(RxBool(true));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
   when(graphQlProvider.recentChatsTopEvents(3)).thenAnswer(
     (_) => Stream.value(
       QueryResult.internal(
@@ -149,6 +152,8 @@ void main() async {
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
+
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   AuthService authService = Get.put(
     AuthService(
