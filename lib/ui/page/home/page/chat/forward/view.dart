@@ -141,7 +141,7 @@ class ChatForwardView extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Obx(
                         () => MessageFieldView(
                           fieldKey: const Key('ForwardField'),

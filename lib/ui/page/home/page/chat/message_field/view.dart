@@ -461,19 +461,24 @@ class MessageFieldView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              WidgetButton(
+              AnimatedButton(
                 onPressed: canAttach ? c.toggleMore : null,
-                child: AnimatedButton(
-                  child: SizedBox(
-                    width: 50,
-                    height: 56,
-                    child: Center(
+                child: SizedBox(
+                  width: 46,
+                  height: 56,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 2.0),
                       child: Obx(() {
                         return AnimatedScale(
                           duration: const Duration(milliseconds: 150),
                           curve: Curves.bounceInOut,
                           scale: c.moreOpened.value ? 1.1 : 1,
-                          child: const SvgIcon(SvgIcons.chatMore),
+                          child: const SvgIcon(
+                            SvgIcons.chatMore,
+                            width: 26,
+                            height: 26,
+                          ),
                         );
                       }),
                     ),

@@ -309,6 +309,7 @@ class _SearchField extends StatelessWidget {
       key: const Key('SearchTextField'),
       state: state,
       hint: 'label_search'.l10n,
+      hintColor: style.colors.secondary,
       maxLines: 1,
       filled: true,
       dense: false,
