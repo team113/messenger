@@ -57,18 +57,20 @@ class SelectedDot extends StatelessWidget {
       child: SafeAnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: selected
-            ? CircleAvatar(
-                key: const Key('Selected'),
-                backgroundColor: inverted
-                    ? style.colors.onPrimary
-                    : style.colors.primary,
-                radius: (size - 4) / 2,
-                child: Icon(
-                  Icons.check,
-                  color: inverted
-                      ? style.colors.primary
-                      : style.colors.onPrimary,
-                  size: size - 10,
+            ? Center(
+                child: CircleAvatar(
+                  key: const Key('Selected'),
+                  backgroundColor: inverted
+                      ? style.colors.onPrimary
+                      : style.colors.primary,
+                  radius: (size - 4) / 2,
+                  child: Icon(
+                    Icons.check,
+                    color: inverted
+                        ? style.colors.primary
+                        : style.colors.onPrimary,
+                    size: size - 10,
+                  ),
                 ),
               )
             : Container(
