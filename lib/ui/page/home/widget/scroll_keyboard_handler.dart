@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '/routes.dart';
 import '/util/log.dart';
 
 /// Widget that handles keyboard shortcuts for scrolling.
@@ -56,6 +57,9 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Factor determining how much of the visible area to scroll (0.95 = 95%).
   static const double _stepFactor = 0.95;
+
+  /// Current Route from [RouteState].
+  final String _route = router.route;
 
   /// [Timer] repeating [_handleKey] invokes with the [_repeatedKey].
   Timer? _repeater;
@@ -159,6 +163,8 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Handles all keyboard events from HardwareKeyboard.
   bool _handleKeyEvent(KeyEvent event) {
+    /// Ignore KeyEvent when Widget unmounted or not on top of route.
+    if (_route != router.route || !mounted) return false;
     if (!widget.scrollController.hasClients) {
       Log.debug(
         'ScrollController not attached to any scroll views, ignoring',
