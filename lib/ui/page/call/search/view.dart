@@ -29,13 +29,16 @@ import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
+import '/ui/widget/svg/svgs.dart';
+import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'widget/search_field.dart';
 
 /// View of the [User]s search.
 class SearchView extends StatelessWidget {
@@ -100,8 +103,8 @@ class SearchView extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: SearchField(
+                padding: const EdgeInsets.symmetric(horizontal: 8.25),
+                child: _SearchField(
                   c.search,
                   onChanged: () => c.query.value = c.search.text,
                 ),
@@ -211,7 +214,7 @@ class SearchView extends StatelessWidget {
 
                         if (i == 0) {
                           child = Padding(
-                            padding: const EdgeInsets.only(top: 8),
+                            padding: const EdgeInsets.only(top: 6),
                             child: child,
                           );
                         }
@@ -226,13 +229,13 @@ class SearchView extends StatelessWidget {
                                 const SizedBox(height: 2),
                                 const CustomProgressIndicator(),
                               ],
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 6),
                             ],
                           );
                         }
 
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: child,
                         );
                       },
@@ -288,6 +291,57 @@ class SearchView extends StatelessWidget {
   }
 }
 
+/// [ReactiveTextField] styled as a search field.
+class _SearchField extends StatelessWidget {
+  const _SearchField(this.state, {this.onChanged});
+
+  /// State of the search [ReactiveTextField].
+  final TextFieldState state;
+
+  /// Callback, called when [_SearchField] changes.
+  final void Function()? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return ReactiveTextField(
+      key: const Key('SearchTextField'),
+      state: state,
+      hint: 'label_search'.l10n,
+      maxLines: 1,
+      filled: true,
+      dense: false,
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      style: style.fonts.normal.regular.onBackground,
+      onChanged: onChanged,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      prefix: Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10),
+        child: Transform.translate(
+          offset: Offset(0, 2),
+          child: SvgIcon(SvgIcons.search, width: 18, height: 18),
+        ),
+      ),
+      trailing: Obx(() {
+        final Widget child;
+
+        if (state.isEmpty.value) {
+          child = const SizedBox();
+        } else {
+          child = AnimatedButton(
+            key: const Key('ClearButton'),
+            onPressed: () => state.text = '',
+            child: SvgIcon(SvgIcons.clearSearch),
+          );
+        }
+
+        return SafeAnimatedSwitcher(duration: 200.milliseconds, child: child);
+      }),
+    );
+  }
+}
+
 /// [ChatTile] representing the provided [RxChat] as a recent [Chat] for [SearchView].
 class _ChatTile extends StatelessWidget {
   const _ChatTile(
@@ -313,7 +367,7 @@ class _ChatTile extends StatelessWidget {
       chat: rxChat,
       dimmed: false,
       status: [
-        const SizedBox(height: 28),
+        const SizedBox(width: 8),
 
         SelectedDot(selected: selected, size: 20),
       ],
@@ -322,7 +376,7 @@ class _ChatTile extends StatelessWidget {
       onTap: onTap,
       onForbidden: rxChat.updateAvatar,
       avatarRadius: AvatarRadius.big,
-      height: 56,
+      height: 55.5,
     );
   }
 }

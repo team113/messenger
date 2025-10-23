@@ -36,6 +36,9 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
+/// Maximum height of the [ChatForwardView].
+const double _maxHeight = 812;
+
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
 ///
 /// Intended to be displayed with the [show] method.
@@ -79,10 +82,10 @@ class ChatForwardView extends StatelessWidget {
       context: context,
       desktopConstraints: const BoxConstraints(
         maxWidth: double.infinity,
-        maxHeight: 800,
+        maxHeight: _maxHeight,
       ),
       mobilePadding: const EdgeInsets.only(bottom: 12),
-      desktopPadding: const EdgeInsets.only(bottom: 12),
+      desktopPadding: const EdgeInsets.only(bottom: 10),
       background: style.colors.background,
       child: ChatForwardView(
         key: const Key('ChatForwardView'),
@@ -138,7 +141,7 @@ class ChatForwardView extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: MessageFieldView(
                         fieldKey: const Key('ForwardField'),
                         sendKey: const Key('SendForward'),
@@ -146,7 +149,7 @@ class ChatForwardView extends StatelessWidget {
                           maxHeight:
                               min(
                                 MediaQuery.of(context).size.height - 10,
-                                800,
+                                _maxHeight,
                               ) /
                               4,
                         ),
