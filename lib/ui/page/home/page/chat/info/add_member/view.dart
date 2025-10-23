@@ -69,16 +69,18 @@ class AddChatMemberView extends StatelessWidget {
             children: [
               ModalPopupHeader(text: 'label_add_participants'.l10n),
 
-              SearchView(
-                categories: const [
-                  SearchCategory.recent,
-                  SearchCategory.contact,
-                  SearchCategory.user,
-                ],
-                submit: 'btn_add'.l10n,
-                onSubmit: c.addMembers,
-                enabled: c.status.value.isEmpty,
-                chat: c.chat.value,
+              Flexible(
+                child: SearchView(
+                  categories: const [
+                    SearchCategory.recent,
+                    SearchCategory.contact,
+                    SearchCategory.user,
+                  ],
+                  submit: 'btn_add'.l10n,
+                  onSubmit: c.addMembers,
+                  enabled: c.status.value.isEmpty,
+                  chat: c.chat.value,
+                ),
               ),
             ],
           );

@@ -103,7 +103,7 @@ class SearchView extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.25),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: _SearchField(
                   c.search,
                   onChanged: () => c.query.value = c.search.text,
