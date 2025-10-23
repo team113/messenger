@@ -38,7 +38,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -624,18 +623,14 @@ class ChatView extends StatelessWidget {
                                   duration: const Duration(milliseconds: 300),
                                   beginScale: 1,
                                   endScale: 1.06,
-                                  child: ConditionalBackdropFilter(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(16),
-                                        color:
-                                            style.colors.onBackgroundOpacity27,
-                                      ),
-                                      child: const Padding(
-                                        padding: EdgeInsets.all(16),
-                                        child: SvgIcon(SvgIcons.addBigger),
-                                      ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: style.colors.onBackgroundOpacity27,
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: SvgIcon(SvgIcons.addBigger),
                                     ),
                                   ),
                                 ),
