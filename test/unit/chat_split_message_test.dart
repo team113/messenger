@@ -64,7 +64,7 @@ import 'package:mockito/mockito.dart';
 import '../mock/platform_utils.dart';
 import 'chat_split_message_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider])
+@GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();

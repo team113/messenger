@@ -57,7 +57,7 @@ import 'package:mockito/mockito.dart';
 
 import 'chat_reply_message_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider])
+@GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   setUp(Get.reset);
 

@@ -82,7 +82,10 @@ import '../mock/audio_utils.dart';
 import '../mock/platform_utils.dart';
 import 'chat_attachment_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
+@GenerateNiceMocks([
+  MockSpec<GraphQlProvider>(),
+  MockSpec<PlatformRouteInformationProvider>(),
+])
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   AudioUtils = AudioUtilsMock();
@@ -98,6 +101,9 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(
     graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  when(
+    graphQlProvider.onDelete,
   ).thenReturn(InternalFinalCallback(callback: () {}));
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
   Get.put<GraphQlProvider>(graphQlProvider);

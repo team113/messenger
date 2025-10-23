@@ -55,7 +55,7 @@ import 'package:mockito/mockito.dart';
 
 import 'toggle_chat_mute_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider])
+@GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   setUp(Get.reset);
 

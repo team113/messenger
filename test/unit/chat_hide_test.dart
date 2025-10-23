@@ -60,7 +60,7 @@ import 'package:mockito/mockito.dart';
 import '../mock/geo_provider.dart';
 import 'chat_hide_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider])
+@GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   setUp(Get.reset);
 

@@ -75,7 +75,10 @@ import 'package:mockito/mockito.dart';
 import '../mock/geo_provider.dart';
 import 'chat_hide_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
+@GenerateNiceMocks([
+  MockSpec<GraphQlProvider>(),
+  MockSpec<PlatformRouteInformationProvider>(),
+])
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -111,6 +114,9 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(
     graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  when(
+    graphQlProvider.onDelete,
   ).thenReturn(InternalFinalCallback(callback: () {}));
   when(graphQlProvider.recentChatsTopEvents(3)).thenAnswer(
     (_) => Stream.value(

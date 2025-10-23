@@ -73,7 +73,10 @@ import 'package:mockito/mockito.dart';
 import '../mock/platform_utils.dart';
 import 'chat_direct_link_chat_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
+@GenerateNiceMocks([
+  MockSpec<GraphQlProvider>(),
+  MockSpec<PlatformRouteInformationProvider>(),
+])
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -82,11 +85,15 @@ void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
-  var graphQlProvider = Get.put(MockGraphQlProvider());
+  final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
   when(
     graphQlProvider.onStart,
   ).thenReturn(InternalFinalCallback(callback: () {}));
+  when(
+    graphQlProvider.onDelete,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
