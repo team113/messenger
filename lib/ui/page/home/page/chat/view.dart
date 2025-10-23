@@ -497,7 +497,7 @@ class ChatView extends StatelessWidget {
 
                           child = ScrollKeyboardHandler(
                             scrollController: c.listController,
-                            reverseList: true,
+                            reversed: true,
                             child: child,
                           );
 

@@ -39,7 +39,7 @@ void main() {
           height: maxHeight,
           child: ScrollKeyboardHandler(
             scrollController: scrollController,
-            reverseList: reverseList,
+            reversed: reverseList,
             child: ListView.builder(
               controller: scrollController,
               itemCount: 100,
