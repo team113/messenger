@@ -77,11 +77,13 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+    router.addListener(_updateHandler);
   }
 
   @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
+    router.removeListener(_updateHandler);
 
     _keepRepeater?.cancel();
     _repeater?.cancel();
@@ -99,6 +101,15 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
         return widget.child;
       },
     );
+  }
+
+  /// Check route and add or remove Handler.
+  void _updateHandler() {
+    if (_route == router.route) {
+      HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+    } else {
+      HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
+    }
   }
 
   /// Animates the [ScrollController] to the specified offset and [Duration].
@@ -163,8 +174,6 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Handles all keyboard events from HardwareKeyboard.
   bool _handleKeyEvent(KeyEvent event) {
-    /// Ignore KeyEvent when Widget unmounted or not on top of route.
-    if (_route != router.route || !mounted) return false;
     if (!widget.scrollController.hasClients) {
       Log.debug(
         'ScrollController not attached to any scroll views, ignoring',
