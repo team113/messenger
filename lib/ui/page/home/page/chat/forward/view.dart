@@ -142,19 +142,24 @@ class ChatForwardView extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: MessageFieldView(
-                        fieldKey: const Key('ForwardField'),
-                        sendKey: const Key('SendForward'),
-                        constraints: BoxConstraints(
-                          maxHeight:
-                              min(
-                                MediaQuery.of(context).size.height - 10,
-                                _maxHeight,
-                              ) /
-                              4,
+                      child: Obx(
+                        () => MessageFieldView(
+                          fieldKey: const Key('ForwardField'),
+                          sendKey: const Key('SendForward'),
+                          constraints: BoxConstraints(
+                            maxHeight:
+                                min(
+                                  MediaQuery.of(context).size.height - 10,
+                                  _maxHeight,
+                                ) /
+                                4,
+                          ),
+                          circularBorderRadius: 12,
+                          controller: c.send,
+                          sendButtonEnabled: c.selected.value != null
+                              ? !c.selected.value!.isEmpty
+                              : false,
                         ),
-                        circularBorderRadius: 12,
-                        controller: c.send,
                       ),
                     ),
                   ],
