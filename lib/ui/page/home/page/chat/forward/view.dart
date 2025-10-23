@@ -27,7 +27,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -164,17 +163,14 @@ class ChatForwardView extends StatelessWidget {
                               duration: const Duration(milliseconds: 300),
                               beginScale: 1,
                               endScale: 1.06,
-                              child: ConditionalBackdropFilter(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: style.colors.onBackgroundOpacity27,
-                                  ),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(16),
-                                    child: SvgIcon(SvgIcons.addBigger),
-                                  ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: style.colors.onBackgroundOpacity27,
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: SvgIcon(SvgIcons.addBigger),
                                 ),
                               ),
                             ),

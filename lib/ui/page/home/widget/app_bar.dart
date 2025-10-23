@@ -92,9 +92,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
-
-      child: Padding(
-        padding: padding ?? EdgeInsets.zero,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          border:
+              border ??
+              Border(
+                top: BorderSide.none,
+                left: style.cardBorder.left,
+                right: style.cardBorder.right,
+                bottom: style.cardBorder.bottom,
+              ),
+          color: style.cardColor,
+        ),
+        padding: padding,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
