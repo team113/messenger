@@ -14,8 +14,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
-    - Chat, ChatInfo, User, MyProfile pages:
-        - add scrolling by pressing PageUp and PageDown keys ([#1228], [#1469])
+    - Pages scrolling by pressing "PageUp" and "PageDown" keys. ([#1469], [#1228])
 
 
 ### Fixed
@@ -25,8 +24,8 @@ All user visible changes to this project will be documented in this file. This p
         - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
 
 [#1228]: /../../issues/1228
-[#1469]: /../../pull/1469
 [#1436]: /../../issues/1436
+[#1469]: /../../pull/1469
 [#1473]: /../../pull/1473
 
 

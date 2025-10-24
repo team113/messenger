@@ -23,25 +23,28 @@ import 'package:flutter/services.dart';
 import '/routes.dart';
 import '/util/log.dart';
 
-/// Widget that handles keyboard shortcuts for scrolling.
+/// Widget that handles keyboard shortcuts to scroll the provided
+/// [scrollController].
 ///
-/// Handles PageUp (Option/Alt+Up) and PageDown (Option/Alt+Down) keys to scroll
-/// the [scrollController] by a fraction of the [LayoutBuilder]'s height.
+/// Handles "PageUp" (Option/Alt+Up) and "PageDown" (Option/Alt+Down) keys to
+/// scroll the [scrollController] by a fraction of the [LayoutBuilder]'s height.
 class ScrollKeyboardHandler extends StatefulWidget {
   const ScrollKeyboardHandler({
     required this.scrollController,
     required this.child,
-    this.areKeysUpEnabled,
-    this.areKeysDownEnabled,
+    this.scrollUpEnabled,
+    this.scrollDownEnabled,
     this.reversed = false,
     super.key,
   });
 
-  /// Whether key events PageUp (Option/Alt+Up) should be handled by this widget.
-  final bool Function()? areKeysUpEnabled;
+  /// Whether key events "PageUp" (Option/Alt+Up) should be handled by this
+  /// widget.
+  final bool Function()? scrollUpEnabled;
 
-  /// Whether key events PageDown (Option/Alt+Down) should be handled by this widget.
-  final bool Function()? areKeysDownEnabled;
+  /// Whether key events "PageDown" (Option/Alt+Down) should be handled by this
+  /// widget.
+  final bool Function()? scrollDownEnabled;
 
   /// [ScrollController] to add scroll actions.
   final ScrollController scrollController;
@@ -131,9 +134,10 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Scrolls the [ScrollController] up by [_step] amount.
   Future<void> _scrollPageUp({bool quick = false}) {
-    if (widget.areKeysUpEnabled?.call() == false) {
-      return Future.delayed(Duration.zero);
+    if (widget.scrollUpEnabled?.call() == false) {
+      return Future.value();
     }
+
     return _animateTo(
       widget.scrollController.offset + (widget.reversed ? _step : -_step),
       quick ? _quickAnimationDuration : null,
@@ -142,20 +146,22 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Scrolls the [ScrollController] down by [_step] amount.
   Future<void> _scrollPageDown({bool quick = false}) {
-    if (widget.areKeysDownEnabled?.call() == false) {
-      return Future.delayed(Duration.zero);
+    if (widget.scrollDownEnabled?.call() == false) {
+      return Future.value();
     }
+
     return _animateTo(
       widget.scrollController.offset + (widget.reversed ? -_step : _step),
       quick ? _quickAnimationDuration : null,
     );
   }
 
-  /// Handles repeated key events from the key handler.
+  /// Handles the provided [key] to [_scrollPageUp] or [_scrollPageDown].
   bool _handleKey(LogicalKeyboardKey key, {bool quick = false}) {
     if (!widget.scrollController.hasClients) {
       Log.debug(
-        'ScrollKeyboardHandler: ScrollController not attached to any scroll views',
+        '_handleKey() -> `ScrollController` not attached to any scroll views',
+        '$runtimeType',
       );
 
       return false;
@@ -186,11 +192,12 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
     return false;
   }
 
-  /// Handles all keyboard events from HardwareKeyboard.
+  /// Handles the provided [event] to invoke [_handleKey] or to fire up the
+  /// [_repeater].
   bool _handleKeyEvent(KeyEvent event) {
     if (!widget.scrollController.hasClients) {
       Log.debug(
-        'ScrollController not attached to any scroll views, ignoring',
+        '_handleKeyEvent() -> `ScrollController` not attached to any scroll views',
         '$runtimeType',
       );
 
