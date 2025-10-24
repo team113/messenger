@@ -32,5 +32,6 @@ Feature: Chat transitions
     And I am in "Thoughts" group
     And I scroll `IntroductionScrollable` until `ProceedButton` is present
     And I tap `ProceedButton` button
+    And I pause for 5 seconds
     And I tap "How are you?" reply of "I am fine" message
     Then I see "How are you?" message
