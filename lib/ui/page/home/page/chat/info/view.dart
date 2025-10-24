@@ -40,6 +40,7 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
+import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/member_tile.dart';
 import '/ui/widget/obscured_selection_area.dart';
@@ -110,22 +111,25 @@ class ChatInfoView extends StatelessWidget {
 
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
-            body: Scrollbar(
-              controller: c.scrollController,
-              child: ObscuredSelectionArea(
-                contextMenuBuilder: (_, _) => const SizedBox(),
-                child: ScrollablePositionedList.builder(
-                  key: const Key('ChatInfoScrollable'),
-                  scrollController: c.scrollController,
-                  itemScrollController: c.itemScrollController,
-                  itemPositionsListener: c.positionsListener,
-                  itemCount: blocks.length,
-                  itemBuilder: (_, i) => Obx(() {
-                    return HighlightedContainer(
-                      highlight: c.highlighted.value == i,
-                      child: blocks[i],
-                    );
-                  }),
+            body: ScrollKeyboardHandler(
+              scrollController: c.scrollController,
+              child: Scrollbar(
+                controller: c.scrollController,
+                child: ObscuredSelectionArea(
+                  contextMenuBuilder: (_, _) => const SizedBox(),
+                  child: ScrollablePositionedList.builder(
+                    key: const Key('ChatInfoScrollable'),
+                    scrollController: c.scrollController,
+                    itemScrollController: c.itemScrollController,
+                    itemPositionsListener: c.positionsListener,
+                    itemCount: blocks.length,
+                    itemBuilder: (_, i) => Obx(() {
+                      return HighlightedContainer(
+                        highlight: c.highlighted.value == i,
+                        child: blocks[i],
+                      );
+                    }),
+                  ),
                 ),
               ),
             ),

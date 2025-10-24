@@ -34,6 +34,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
+import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/line_divider.dart';
 import '/ui/widget/obscured_selection_area.dart';
@@ -93,23 +94,26 @@ class UserView extends StatelessWidget {
 
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
-            body: Scrollbar(
-              controller: c.scrollController,
-              child: ObscuredSelectionArea(
-                contextMenuBuilder: (_, _) => const SizedBox(),
-                child: ScrollablePositionedList.builder(
-                  key: const Key('UserScrollable'),
-                  itemCount: blocks.length,
-                  itemBuilder: (_, i) => Obx(() {
-                    return HighlightedContainer(
-                      highlight: c.highlighted.value == i,
-                      child: blocks[i],
-                    );
-                  }),
-                  scrollController: c.scrollController,
-                  itemScrollController: c.itemScrollController,
-                  itemPositionsListener: c.positionsListener,
-                  addAutomaticKeepAlives: false,
+            body: ScrollKeyboardHandler(
+              scrollController: c.scrollController,
+              child: Scrollbar(
+                controller: c.scrollController,
+                child: ObscuredSelectionArea(
+                  contextMenuBuilder: (_, _) => const SizedBox(),
+                  child: ScrollablePositionedList.builder(
+                    key: const Key('UserScrollable'),
+                    itemCount: blocks.length,
+                    itemBuilder: (_, i) => Obx(() {
+                      return HighlightedContainer(
+                        highlight: c.highlighted.value == i,
+                        child: blocks[i],
+                      );
+                    }),
+                    scrollController: c.scrollController,
+                    itemScrollController: c.itemScrollController,
+                    itemPositionsListener: c.positionsListener,
+                    addAutomaticKeepAlives: false,
+                  ),
                 ),
               ),
             ),
