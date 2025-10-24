@@ -31,9 +31,17 @@ class ScrollKeyboardHandler extends StatefulWidget {
   const ScrollKeyboardHandler({
     required this.scrollController,
     required this.child,
+    this.areKeysUpEnabled,
+    this.areKeysDownEnabled,
     this.reversed = false,
     super.key,
   });
+
+  /// Whether key events PageUp (Option/Alt+Up) should be handled by this widget.
+  final bool Function()? areKeysUpEnabled;
+
+  /// Whether key events PageDown (Option/Alt+Down) should be handled by this widget.
+  final bool Function()? areKeysDownEnabled;
 
   /// [ScrollController] to add scroll actions.
   final ScrollController scrollController;
@@ -123,6 +131,9 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Scrolls the [ScrollController] up by [_step] amount.
   Future<void> _scrollPageUp({bool quick = false}) {
+    if (widget.areKeysUpEnabled?.call() == false) {
+      return Future.delayed(Duration.zero);
+    }
     return _animateTo(
       widget.scrollController.offset + (widget.reversed ? _step : -_step),
       quick ? _quickAnimationDuration : null,
@@ -131,6 +142,9 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Scrolls the [ScrollController] down by [_step] amount.
   Future<void> _scrollPageDown({bool quick = false}) {
+    if (widget.areKeysDownEnabled?.call() == false) {
+      return Future.delayed(Duration.zero);
+    }
     return _animateTo(
       widget.scrollController.offset + (widget.reversed ? -_step : _step),
       quick ? _quickAnimationDuration : null,

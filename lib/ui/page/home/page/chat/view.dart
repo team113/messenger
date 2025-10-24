@@ -499,6 +499,14 @@ class ChatView extends StatelessWidget {
                             scrollController: c.listController,
                             reversed: true,
                             child: child,
+                            // Check whether the cursor is at the beginning of the input field.
+                            areKeysUpEnabled: () =>
+                                c.send.field.controller.selection.baseOffset ==
+                                0,
+                            // Check whether the cursor is at the end of the input field.
+                            areKeysDownEnabled: () =>
+                                c.send.field.controller.selection.baseOffset ==
+                                c.send.field.controller.text.length,
                           );
 
                           if (PlatformUtils.isMobile) {
