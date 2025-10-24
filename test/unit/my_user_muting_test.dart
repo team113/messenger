@@ -43,13 +43,16 @@ import 'package:mockito/mockito.dart';
 
 import 'my_user_muting_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider])
+@GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));

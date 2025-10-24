@@ -31,8 +31,9 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric hasContacts = given2<TestUser, int, CustomWorld>(
   '{user} has {int} contacts',
   (TestUser user, int count, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false
+      ..token = context.world.sessions[user.name]?.token;
 
     List<Future> futures = [];
 
@@ -61,8 +62,9 @@ final StepDefinitionGeneric
 hasFavoriteContacts = given2<TestUser, int, CustomWorld>(
   '{user} has {int} favorite contacts',
   (TestUser user, int count, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false
+      ..token = context.world.sessions[user.name]?.token;
 
     List<Future> futures = [];
 

@@ -28,8 +28,7 @@ Feature: Searching deleted monolog
     And I tap `Proceed` button
     Then I wait until `ChatMonolog` is absent
 
-    When I tap `SearchButton` button
-    And I fill `SearchField` field with "Alice"
+    When I fill `SearchField` field with "Alice"
     Then I see monolog in search results
 
     When I fill `SearchField` field with "Notes"

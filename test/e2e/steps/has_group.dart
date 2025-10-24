@@ -49,8 +49,9 @@ final StepDefinitionGeneric hasGroupNamed =
     given2<TestUser, String, CustomWorld>(
       '{user} has {string} group\$',
       (TestUser user, String name, context) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         final ChatMixin chat = await provider.createGroupChat(
           [],
@@ -58,6 +59,7 @@ final StepDefinitionGeneric hasGroupNamed =
         );
 
         context.world.groups[name] = chat.id;
+
         provider.disconnect();
       },
       configuration: StepDefinitionConfiguration()
@@ -72,8 +74,9 @@ final StepDefinitionGeneric hasGroupNamedInArchive =
     given2<TestUser, String, CustomWorld>(
       '{user} has {string} group in archive\$',
       (TestUser user, String name, context) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         final ChatMixin chat = await provider.createGroupChat(
           [],
@@ -83,6 +86,7 @@ final StepDefinitionGeneric hasGroupNamedInArchive =
         await provider.toggleChatArchivation(chat.id, true);
 
         context.world.groups[name] = chat.id;
+
         provider.disconnect();
       },
       configuration: StepDefinitionConfiguration()
@@ -139,8 +143,9 @@ final StepDefinitionGeneric haveGroup2Named =
 final StepDefinitionGeneric hasGroups = given2<TestUser, int, CustomWorld>(
   '{user} has {int} groups',
   (TestUser user, int count, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false
+      ..token = context.world.sessions[user.name]?.token;
 
     for (int i = 0; i < count; i++) {
       await provider.createGroupChat([]);
@@ -161,8 +166,9 @@ final StepDefinitionGeneric hasFavoriteGroups =
     given2<TestUser, int, CustomWorld>(
       '{user} has {int} favorite groups',
       (TestUser user, int count, context) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         for (int i = 0; i < count; i++) {
           ChatMixin chat = await provider.createGroupChat([]);
@@ -187,8 +193,9 @@ final StepDefinitionGeneric hasGroupWithMembers =
     given3<TestUser, String, int, CustomWorld>(
       '{user} has {string} group with {int} members\$',
       (TestUser user, String name, int count, context) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         final List<CustomUser> users = await Future.wait(
           List.generate(count - 1, (_) => createUser()),
@@ -200,6 +207,8 @@ final StepDefinitionGeneric hasGroupWithMembers =
         );
 
         context.world.groups[name] = chat.id;
+
+        provider.disconnect();
       },
       configuration: StepDefinitionConfiguration()
         ..timeout = const Duration(minutes: 5),

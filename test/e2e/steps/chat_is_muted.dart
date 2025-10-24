@@ -31,7 +31,9 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric chatIsMuted = given1<String, CustomWorld>(
   '{string} chat is muted',
   (String name, context) async {
-    final provider = GraphQlProvider();
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false;
+
     final AuthService authService = Get.find();
     provider.token = authService.credentials.value!.access.secret;
 

@@ -44,8 +44,9 @@ final StepDefinitionGeneric postsNAttachmentsToGroup =
         String group,
         context,
       ) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         final response = await provider.uploadAttachment(
           dio.MultipartFile.fromBytes(

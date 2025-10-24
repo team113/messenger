@@ -36,11 +36,15 @@ final StepDefinitionGeneric monologAvailability =
       await context.world.appDriver.waitUntil(() async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final provider = GraphQlProvider();
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false;
+
         final AuthService authService = Get.find();
         provider.token = authService.credentials.value!.access.secret;
 
         final isLocal = (await provider.getMonolog()) == null;
+
+        provider.disconnect();
 
         switch (status) {
           case AvailabilityStatus.local:

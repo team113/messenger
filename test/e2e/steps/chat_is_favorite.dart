@@ -36,8 +36,11 @@ final StepDefinitionGeneric chatIsFavorite =
     given2<String, FavoriteStatus, CustomWorld>(
       '{string} chat is {favorite}',
       (String name, status, context) async {
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false;
+
         final ChatId chatId = context.world.groups[name]!;
-        final provider = GraphQlProvider();
+
         final AuthService authService = Get.find();
         provider.token = authService.credentials.value!.access.secret;
 

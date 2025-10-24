@@ -604,6 +604,14 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   final StreamController<QueryResult> _heartbeat = StreamController.broadcast();
 
   @override
+  InternalFinalCallback<void> get onStart =>
+      InternalFinalCallback(callback: () {});
+
+  @override
+  InternalFinalCallback<void> get onDelete =>
+      InternalFinalCallback(callback: () {});
+
+  @override
   Future<void> reconnect() async {
     // No-op.
   }

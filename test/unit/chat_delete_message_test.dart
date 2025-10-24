@@ -59,7 +59,7 @@ import 'package:mockito/mockito.dart';
 
 import 'chat_delete_message_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider])
+@GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   setUp(Get.reset);
 
@@ -67,8 +67,12 @@ void main() async {
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   final graphQlProvider = MockGraphQlProvider();
-  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));

@@ -36,8 +36,10 @@ final StepDefinitionGeneric renameContact =
         final ChatContactId contactId = context.world.contacts[user.name]!;
 
         final AuthService authService = Get.find();
-        final provider = GraphQlProvider();
-        provider.token = authService.credentials.value!.access.secret;
+
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = authService.credentials.value!.access.secret;
 
         await provider.changeContactName(contactId, UserName(name));
 

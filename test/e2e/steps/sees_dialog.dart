@@ -33,7 +33,8 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
   '{user} sees dialog with me in recent chats',
   (TestUser user, context) async {
-    final GraphQlProvider provider = GraphQlProvider();
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false;
 
     try {
       await context.world.appDriver.waitUntil(() async {
@@ -66,15 +67,19 @@ final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
 final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
   '{user} sees no dialog with me in recent chats',
   (TestUser user, context) async {
-    final GraphQlProvider provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false
+      ..token = context.world.sessions[user.name]?.token;
+
     final dialog = (await provider.recentChats(first: 120)).recentChats.edges
         .firstWhereOrNull(
           (e) =>
               e.node.kind == ChatKind.dialog &&
               e.node.members.nodes.any((m) => m.user.id == context.world.me),
         );
+
     provider.disconnect();
+
     assert(dialog == null, true);
   },
   configuration: StepDefinitionConfiguration()

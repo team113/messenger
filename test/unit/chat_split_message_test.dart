@@ -64,7 +64,7 @@ import 'package:mockito/mockito.dart';
 import '../mock/platform_utils.dart';
 import 'chat_split_message_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider])
+@GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
@@ -76,8 +76,11 @@ void main() async {
   const int maxText = ChatMessageText.maxLength;
 
   final graphQlProvider = MockGraphQlProvider();
-  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));

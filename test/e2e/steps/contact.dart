@@ -34,8 +34,9 @@ final StepDefinitionGeneric contact = given1<TestUser, CustomWorld>(
   'contact {user}',
   (TestUser user, context) async {
     final AuthService authService = Get.find();
-    final provider = GraphQlProvider();
-    provider.token = authService.credentials.value!.access.secret;
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false
+      ..token = authService.credentials.value!.access.secret;
 
     final contact = await provider.createChatContact(
       name: UserName(user.name),
@@ -62,8 +63,9 @@ final twoContacts = given2<TestUser, TestUser, CustomWorld>(
   'contacts {user} and {user}',
   (TestUser user1, TestUser user2, context) async {
     final AuthService authService = Get.find();
-    final provider = GraphQlProvider();
-    provider.token = authService.credentials.value!.access.secret;
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false
+      ..token = authService.credentials.value!.access.secret;
 
     final contact1 = await provider.createChatContact(
       name: UserName(user1.name),

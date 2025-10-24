@@ -72,3 +72,24 @@ QueryExecutor connect([UserId? userId]) {
 QueryExecutor inMemory() {
   return NativeDatabase.memory();
 }
+
+/// Clears any database related files from the filesystem.
+Future<void> clearDb() async {
+  final Directory dbFolder;
+
+  if (PlatformUtils.isIOS) {
+    dbFolder = Directory(await IosUtils.getSharedDirectory());
+  } else {
+    dbFolder = await PlatformUtils.libraryDirectory;
+  }
+
+  await for (FileSystemEntity entity in dbFolder.list()) {
+    if (entity is File) {
+      if (entity.path.endsWith('.sqlite') ||
+          entity.path.endsWith('.sqlite-shm') ||
+          entity.path.endsWith('.sqlite-wal')) {
+        await entity.delete();
+      }
+    }
+  }
+}

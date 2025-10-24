@@ -37,8 +37,9 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
   '{user} reads {string} message',
   (TestUser user, String msg, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false
+      ..token = context.world.sessions[user.name]?.token;
 
     final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
@@ -48,6 +49,7 @@ final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
         .firstWhere((e) => e.text?.val == msg);
 
     await provider.readChat(chat.id, message.id);
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()
@@ -63,8 +65,9 @@ final StepDefinitionGeneric readsAllMessages =
     when2<TestUser, String, CustomWorld>(
       '{user} reads all messages in {string} group',
       (TestUser user, String name, context) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         final ChatId chatId = context.world.groups[name]!;
         final ChatItemId lastItemId = (await provider.getChat(

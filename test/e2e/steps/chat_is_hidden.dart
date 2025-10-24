@@ -30,13 +30,21 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric chatIsIndeedHidden = given1<String, CustomWorld>(
   '{string} chat is indeed hidden',
   (String name, context) async {
-    final provider = GraphQlProvider();
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false;
+
     final AuthService authService = Get.find();
     provider.token = authService.credentials.value!.access.secret;
 
     await context.world.appDriver.waitUntil(() async {
       final response = await provider.getChat(context.world.groups[name]!);
-      return response.chat?.isHidden == true;
+      final isHidden = response.chat?.isHidden == true;
+
+      if (isHidden) {
+        provider.disconnect();
+      }
+
+      return isHidden;
     }, timeout: const Duration(seconds: 30));
   },
   configuration: StepDefinitionConfiguration()

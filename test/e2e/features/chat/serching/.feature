@@ -33,10 +33,10 @@ Feature: Chat item searching
     And I pause for 5 seconds
     And I tap `MoreButton` button
     And I tap `SearchItemsButton` button
-    And I fill `SearchField` field with "vacation"
+    And I fill `SearchItemsField` field with "vacation"
     Then I wait until `NoMessages` is present
 
-    When I fill `SearchField` field with "thought"
+    When I fill `SearchItemsField` field with "thought"
     Then I see "Deep thought..." message
 
     When I tap "Deep thought..." message

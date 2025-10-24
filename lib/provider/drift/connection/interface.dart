@@ -30,3 +30,10 @@ QueryExecutor inMemory() {
     'In-memory database isn\'t supported on this platform.',
   );
 }
+
+/// Clears any database related files from the filesystem.
+Future<void> clearDb() {
+  throw UnsupportedError(
+    'Database clearing isn\'t supported on this platform.',
+  );
+}
