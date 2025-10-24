@@ -35,6 +35,9 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
+/// Maximum height of the [ChatForwardView].
+const double _maxHeight = 812;
+
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
 ///
 /// Intended to be displayed with the [show] method.
@@ -78,10 +81,10 @@ class ChatForwardView extends StatelessWidget {
       context: context,
       desktopConstraints: const BoxConstraints(
         maxWidth: double.infinity,
-        maxHeight: 800,
+        maxHeight: _maxHeight,
       ),
       mobilePadding: const EdgeInsets.only(bottom: 12),
-      desktopPadding: const EdgeInsets.only(bottom: 12),
+      desktopPadding: const EdgeInsets.only(bottom: 10),
       background: style.colors.background,
       child: ChatForwardView(
         key: const Key('ChatForwardView'),
@@ -121,6 +124,10 @@ class ChatForwardView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
+                    ModalPopupHeader(
+                      text: 'label_forward_message'.l10n,
+                      subtitle: 'label_forward_subtitle'.l10n,
+                    ),
                     Expanded(
                       child: SearchView(
                         key: const Key('SearchView'),
@@ -129,24 +136,29 @@ class ChatForwardView extends StatelessWidget {
                           SearchCategory.contact,
                           SearchCategory.user,
                         ],
-                        title: 'label_forward_message'.l10n,
                         onSelected: (r) => c.selected.value = r,
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                      child: MessageFieldView(
-                        fieldKey: const Key('ForwardField'),
-                        sendKey: const Key('SendForward'),
-                        constraints: BoxConstraints(
-                          maxHeight:
-                              min(
-                                MediaQuery.of(context).size.height - 10,
-                                800,
-                              ) /
-                              4,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Obx(
+                        () => MessageFieldView(
+                          fieldKey: const Key('ForwardField'),
+                          sendKey: const Key('SendForward'),
+                          constraints: BoxConstraints(
+                            maxHeight:
+                                min(
+                                  MediaQuery.of(context).size.height - 10,
+                                  _maxHeight,
+                                ) /
+                                4,
+                          ),
+                          circularBorderRadius: 12,
+                          controller: c.send,
+                          sendButtonEnabled: c.selected.value != null
+                              ? !c.selected.value!.isEmpty
+                              : false,
                         ),
-                        controller: c.send,
                       ),
                     ),
                   ],

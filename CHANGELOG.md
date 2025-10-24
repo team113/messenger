@@ -14,11 +14,15 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - UI:
+    - Chat page:
+        - Redesigned forwarding modal. ([#1476], [#1408])
     - Media panel:
         - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
 
+[#1408]: /../../issues/1408
 [#1436]: /../../issues/1436
 [#1473]: /../../pull/1473
+[#1476]: /../../pull/1476
 
 
 

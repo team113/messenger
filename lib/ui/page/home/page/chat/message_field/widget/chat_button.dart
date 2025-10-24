@@ -26,6 +26,7 @@ class ChatButtonWidget extends StatelessWidget {
   /// Constructs a [ChatButtonWidget] from the provided [ChatButton].
   ChatButtonWidget(ChatButton button, {super.key})
     : onPressed = button.onPressed,
+      enabled = null,
       icon = Transform.translate(
         offset: button.offset,
         child: SvgIcon(button.asset),
@@ -36,9 +37,9 @@ class ChatButtonWidget extends StatelessWidget {
       );
 
   /// Constructs a send/forward [ChatButtonWidget].
-  ChatButtonWidget.send({super.key, this.onPressed})
+  ChatButtonWidget.send({super.key, this.onPressed, this.enabled})
     : icon = SvgIcon(SvgIcons.send),
-      disabledIcon = null;
+      disabledIcon = SvgIcon(SvgIcons.sendDisabled);
 
   /// Callback, called when this [ChatButtonWidget] is pressed.
   final void Function()? onPressed;
@@ -49,9 +50,15 @@ class ChatButtonWidget extends StatelessWidget {
   /// Disabled icon to display.
   final Widget? disabledIcon;
 
+  /// Whether this [ChatButtonWidget] is enabled.
+  ///
+  /// If `null`, the [ChatButtonWidget] is enabled if
+  /// the [ChatButtonWidget.onPressed] is not `null`.
+  final bool? enabled;
+
   @override
   Widget build(BuildContext context) {
-    final bool disabled = onPressed == null;
+    final bool disabled = onPressed == null || enabled == false;
 
     return AnimatedButton(
       onPressed: disabled ? null : onPressed,

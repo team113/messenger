@@ -64,10 +64,12 @@ class MessageFieldView extends StatelessWidget {
     this.onAttachmentError,
     this.fieldKey,
     this.sendKey,
+    this.sendButtonEnabled,
     this.canForward = false,
     this.canAttach = true,
     this.constraints,
     this.applySafeArea = false,
+    this.circularBorderRadius = 0,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -78,6 +80,12 @@ class MessageFieldView extends StatelessWidget {
 
   /// [Key] of a send button this [MessageFieldView] has.
   final Key? sendKey;
+
+  /// Indicator whether the send button should be enabled.
+  ///
+  /// If `null`, the send button is enabled if the [ChatButtonWidget.onPressed]
+  /// is not `null`.
+  final bool? sendButtonEnabled;
 
   /// Indicator whether forwarding is possible within this [MessageFieldView].
   final bool canForward;
@@ -100,6 +108,9 @@ class MessageFieldView extends StatelessWidget {
 
   /// Indicator whether [SafeArea] should be applied to the field.
   final bool applySafeArea;
+
+  /// Radius of the field's border.
+  final double circularBorderRadius;
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
@@ -437,31 +448,37 @@ class MessageFieldView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return LayoutBuilder(
-      builder: (context, constraints) {
-        return Container(
+      builder: (context, constraints) => Obx(() {
+        return _FieldContainer(
           key: c.fieldKey,
-          constraints: const BoxConstraints(minHeight: 56),
-          decoration: BoxDecoration(color: style.cardColor),
-          padding: applySafeArea
-              ? EdgeInsets.only(bottom: max(CustomNavigationBar.height - 56, 0))
-              : EdgeInsets.zero,
+          circularBorderRadius: circularBorderRadius,
+          previewOpen:
+              c.attachments.isNotEmpty ||
+              c.quotes.isNotEmpty ||
+              c.replied.isNotEmpty,
+          applySafeArea: applySafeArea,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              WidgetButton(
+              AnimatedButton(
                 onPressed: canAttach ? c.toggleMore : null,
-                child: AnimatedButton(
-                  child: SizedBox(
-                    width: 50,
-                    height: 56,
-                    child: Center(
+                child: SizedBox(
+                  width: 46,
+                  height: 56,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 2.0),
                       child: Obx(() {
                         return AnimatedScale(
                           duration: const Duration(milliseconds: 150),
                           curve: Curves.bounceInOut,
                           scale: c.moreOpened.value ? 1.1 : 1,
-                          child: const SvgIcon(SvgIcons.chatMore),
+                          child: const SvgIcon(
+                            SvgIcons.chatMore,
+                            width: 26,
+                            height: 26,
+                          ),
                         );
                       }),
                     ),
@@ -513,6 +530,7 @@ class MessageFieldView extends StatelessWidget {
                     ChatButtonWidget.send(
                       key: sendKey ?? Key('Send'),
                       onPressed: c.field.submit,
+                      enabled: sendButtonEnabled,
                     ),
                   ];
                 } else {
@@ -530,7 +548,7 @@ class MessageFieldView extends StatelessWidget {
             ],
           ),
         );
-      },
+      }),
     );
   }
 
@@ -997,6 +1015,55 @@ class MessageFieldView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Container for the [MessageFieldView] with a rounded border.
+class _FieldContainer extends StatelessWidget {
+  const _FieldContainer({
+    super.key,
+    required this.child,
+    required this.applySafeArea,
+    required this.circularBorderRadius,
+    required this.previewOpen,
+  });
+
+  /// Indicator whether the preview is open.
+  final bool previewOpen;
+
+  /// Indicator whether [SafeArea] should be applied to the field.
+  final bool applySafeArea;
+
+  /// Radius of the field's border.
+  final double circularBorderRadius;
+
+  /// Text field content
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    BorderRadius borderRadius = BorderRadius.circular(circularBorderRadius);
+
+    if (previewOpen) {
+      borderRadius = BorderRadius.vertical(
+        bottom: Radius.circular(circularBorderRadius),
+      );
+    }
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      constraints: const BoxConstraints(minHeight: 56),
+      decoration: BoxDecoration(
+        color: style.cardColor,
+        borderRadius: borderRadius,
+      ),
+      padding: applySafeArea
+          ? EdgeInsets.only(bottom: max(CustomNavigationBar.height - 56, 0))
+          : EdgeInsets.zero,
+      child: child,
     );
   }
 }
