@@ -435,7 +435,7 @@ class ChatController extends GetxController {
   /// if any.
   ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
-  static final Map<String, _ChatScrollPosition> _savedScrollPosition = {};
+  static final Map<String, _ChatScrollPosition?> _savedScrollPosition = {};
 
   @override
   void onInit() {
@@ -2430,33 +2430,36 @@ class ChatController extends GetxController {
 
   /// Save scroll position, used when leaving and re-entering it.
   void _saveCurrentScrollPosition() {
-    if (_lastVisibleItem == null || elements.isEmpty) return;
+    if (_topVisibleItem == null || elements.isEmpty) return;
 
-    final element = elements.values.elementAt(_lastVisibleItem!.index);
+    final element = elements.values.elementAt(_topVisibleItem!.index);
     final itemId = _getItemIdFromElement(element);
 
-    if (itemId != null) {
-      debugPrint(
-        'offset=${_lastVisibleItem!.offset}; id= ${_lastVisibleItem!.index}',
+    if (itemId != null && _topVisibleItem?.offset != null) {
+      Log.debug(
+        '_saveCurrentScrollPosition() ->'
+            ' save scroll position to ChatItemId($itemId)',
+        '$runtimeType',
       );
       _savedScrollPosition[id.val] = _ChatScrollPosition(
         itemId: itemId,
-        itemPosition: _lastVisibleItem!,
+        offset: _topVisibleItem!.offset,
       );
     }
   }
 
   /// Restore scroll position, used when leaving and re-entering it.
-  void _restoreScrollPosition() {
+  Future<void> _restoreScrollPosition() async {
     final _ChatScrollPosition? savedPosition = _savedScrollPosition[id.val];
-    if (savedPosition != null && savedPosition.itemId != null) {
-      animateTo(
-        savedPosition.itemId!,
-        offset: savedPosition.itemPosition?.offset ?? 50,
+    if (savedPosition != null) {
+      await animateTo(
+        savedPosition.itemId,
+        offset: savedPosition.offset,
+        ignoreElements: true,
       );
       Log.debug(
         '_restoreScrollPosition() ->'
-            ' restore scroll position to ChatItemId(${savedPosition.itemId?.val})',
+            ' restore scroll position to ChatItemId(${savedPosition.itemId})',
         '$runtimeType',
       );
     }
@@ -2785,11 +2788,11 @@ class _ListViewIndexCalculationResult {
 
 /// Chat scroll position for save and restore.
 class _ChatScrollPosition {
-  _ChatScrollPosition({this.itemId, this.itemPosition});
+  _ChatScrollPosition({required this.itemId, required this.offset});
 
-  /// Saved id
-  final ChatItemId? itemId;
+  /// Saved top position id
+  final ChatItemId itemId;
 
-  /// Saved [_lastVisibleItem]
-  final FlutterListViewItemPosition? itemPosition;
+  /// Saved top position offset
+  final double offset;
 }
