@@ -16,11 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '/routes.dart';
 import '/util/log.dart';
 
 /// Widget that handles keyboard shortcuts to scroll the provided
@@ -69,8 +69,13 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   /// Factor determining how much of the visible area to scroll (0.95 = 95%).
   static const double _stepFactor = 0.95;
 
-  /// Current Route from [RouteState].
-  final String _route = router.route;
+  /// UniqueKey's stored, to rule which [ScrollKeyboardHandler] created last.
+  static final _QueueNotifier<UniqueKey> _lastKeys = _QueueNotifier(
+    ListQueue(),
+  );
+
+  /// Current [State] Key to rule handler reaction on or off.
+  late UniqueKey _key;
 
   /// [Timer] repeating [_handleKey] invokes with the [_repeatedKey].
   Timer? _repeater;
@@ -87,14 +92,21 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   @override
   void initState() {
     super.initState();
-    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
-    router.addListener(_updateHandler);
+    _key = UniqueKey();
+
+    /// Avoid race condition.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _lastKeys.addLast(_key);
+      _lastKeys.addListener(_updateHandler);
+      HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+    });
   }
 
   @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
-    router.removeListener(_updateHandler);
+    _lastKeys.remove(_key);
+    _lastKeys.removeListener(_updateHandler);
 
     _keepRepeater?.cancel();
     _repeater?.cancel();
@@ -116,7 +128,7 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Check route and add or remove Handler.
   void _updateHandler() {
-    if (_route == router.route) {
+    if (_lastKeys.value.lastOrNull == _key) {
       HardwareKeyboard.instance.addHandler(_handleKeyEvent);
     } else {
       HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
@@ -158,7 +170,8 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
 
   /// Handles the provided [key] to [_scrollPageUp] or [_scrollPageDown].
   bool _handleKey(LogicalKeyboardKey key, {bool quick = false}) {
-    if (!widget.scrollController.hasClients) {
+    if (!widget.scrollController.hasClients &&
+        _lastKeys.value.lastOrNull == _key) {
       Log.debug(
         '_handleKey() -> `ScrollController` not attached to any scroll views',
         '$runtimeType',
@@ -195,7 +208,8 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
   /// Handles the provided [event] to invoke [_handleKey] or to fire up the
   /// [_repeater].
   bool _handleKeyEvent(KeyEvent event) {
-    if (!widget.scrollController.hasClients) {
+    if (!widget.scrollController.hasClients &&
+        _lastKeys.value.lastOrNull == _key) {
       Log.debug(
         '_handleKeyEvent() -> `ScrollController` not attached to any scroll views',
         '$runtimeType',
@@ -246,5 +260,22 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
     }
 
     return false;
+  }
+}
+
+/// [ValueNotifier] with [ListQueue] of [T] elements.
+class _QueueNotifier<T> extends ValueNotifier<ListQueue<T>> {
+  _QueueNotifier(super._value);
+
+  /// Forwards a addLast call with notify listeners.
+  void addLast(T listItem) {
+    value.addLast(listItem);
+    notifyListeners();
+  }
+
+  /// Forwards a remove call with notify listeners.
+  void remove(T listItem) {
+    value.remove(listItem);
+    notifyListeners();
   }
 }
