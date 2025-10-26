@@ -435,6 +435,7 @@ class ChatController extends GetxController {
   /// if any.
   ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
+  /// Stores scroll position, used when leaving and re-entering it.
   static final Map<String, _ChatScrollPosition?> _savedScrollPosition = {};
 
   @override
@@ -1076,7 +1077,6 @@ class ChatController extends GetxController {
         if (_lastSeenItem.value != null) {
           readChat(_lastSeenItem.value);
         }
-        // _restoreScrollPosition();
       }
 
       SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -2096,7 +2096,6 @@ class ChatController extends GetxController {
       _updateSticky();
       _updateFabStates();
       _loadMessages();
-      _saveCurrentScrollPosition();
     }
   }
 
@@ -2419,21 +2418,18 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Get [ChatItemId] from [ListElement] if exist
-  ChatItemId? _getItemIdFromElement(ListElement element) => switch (element) {
-    ChatMessageElement e => e.item.value.id,
-    ChatCallElement e => e.item.value.id,
-    ChatInfoElement e => e.item.value.id,
-    ChatForwardElement e => e.forwards.firstOrNull?.value.id,
-    _ => null,
-  };
-
   /// Save scroll position, used when leaving and re-entering it.
   void _saveCurrentScrollPosition() {
     if (_topVisibleItem == null || elements.isEmpty) return;
 
     final element = elements.values.elementAt(_topVisibleItem!.index);
-    final itemId = _getItemIdFromElement(element);
+    final itemId = switch (element) {
+      ChatMessageElement e => e.item.value.id,
+      ChatCallElement e => e.item.value.id,
+      ChatInfoElement e => e.item.value.id,
+      ChatForwardElement e => e.forwards.firstOrNull?.value.id,
+      _ => null,
+    };
 
     if (itemId != null && _topVisibleItem?.offset != null) {
       Log.debug(
