@@ -1,3 +1,2 @@
-- Se añadieron chats archivados.
-- Se añadió un botón independiente para descargar registros.
 - Se corrigieron errores y se mejoraron el rendimiento.
+ 

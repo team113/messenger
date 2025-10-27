@@ -1,3 +1,1 @@
-- Added archived chats.
-- Added separate button to download logs.
 - Bug fixes and performance improvements.
