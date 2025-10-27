@@ -11,17 +11,25 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/51)
 
-### Fixed
+### Changed
 
 - UI:
     - Chat page:
         - Redesigned forwarding modal. ([#1476], [#1408])
+    - Home page:
+        - Display "Deleted Account" title for deleted users. ([#1445], [#1419])
+
+### Fixed
+
+- UI:
     - Media panel:
         - Updated overlay icons. ([#1466], [#1453])
         - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
 
 [#1408]: /../../issues/1408
+[#1419]: /../../issues/1419
 [#1436]: /../../issues/1436
+[#1445]: /../../pull/1445
 [#1453]: /../../issues/1453
 [#1466]: /../../pull/1466
 [#1473]: /../../pull/1473
@@ -33,7 +41,7 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.6.6] · 2025-10-13
 [0.6.6]: /../../tree/v0.6.6
 
-[Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/50)
+[Diff](/../../compare/v0.6.5...v0.6.6) | [Milestone](/../../milestone/50)
 
 ### Added
 

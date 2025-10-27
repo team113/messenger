@@ -37,6 +37,7 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/widget/chat_gallery.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
@@ -959,7 +960,7 @@ class MessageFieldView extends StatelessWidget {
               user != null
                   ? Obx(() {
                       return Text(
-                        user.title,
+                        user.title(),
                         style: style.fonts.medium.regular.onBackground.copyWith(
                           color: color,
                         ),
