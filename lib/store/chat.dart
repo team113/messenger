@@ -2279,17 +2279,7 @@ class ChatRepository extends DisposableInterface
 
     _remoteSubscription?.close(immediate: true);
 
-    Log.debug(
-      '_initRemoteSubscription() -> await WebUtils.protect...',
-      '$runtimeType',
-    );
-
     await WebUtils.protect(() async {
-      Log.debug(
-        '_initRemoteSubscription() -> await WebUtils.protect... done!',
-        '$runtimeType',
-      );
-
       if (isClosed) {
         return;
       }
@@ -2298,11 +2288,6 @@ class ChatRepository extends DisposableInterface
       await _remoteSubscription!.execute(
         _recentChatsRemoteEvent,
         onError: (_) => _subscribedAt = DateTime.now(),
-      );
-
-      Log.debug(
-        '_initRemoteSubscription() -> await WebUtils.protect... done! and released!',
-        '$runtimeType',
       );
     }, tag: 'recentChatsEvents');
   }
