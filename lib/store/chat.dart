@@ -307,7 +307,10 @@ class ChatRepository extends DisposableInterface
     Future<void> Function(ChatId, UserId)? onMemberRemoved,
     bool? pagination,
   }) async {
-    Log.debug('init(onMemberRemoved)', '$runtimeType');
+    Log.debug(
+      'init(onMemberRemoved) for $me, invoked from: \n${StackTrace.current}',
+      '$runtimeType',
+    );
 
     this.onMemberRemoved = onMemberRemoved ?? this.onMemberRemoved;
 
@@ -375,6 +378,12 @@ class ChatRepository extends DisposableInterface
     }
 
     _monologLocal.read(me).then((v) => monolog = v ?? monolog);
+  }
+
+  @override
+  void onInit() {
+    Log.debug('onInit()', '$runtimeType');
+    super.onInit();
   }
 
   @override
@@ -2270,7 +2279,17 @@ class ChatRepository extends DisposableInterface
 
     _remoteSubscription?.close(immediate: true);
 
+    Log.debug(
+      '_initRemoteSubscription() -> await WebUtils.protect...',
+      '$runtimeType',
+    );
+
     await WebUtils.protect(() async {
+      Log.debug(
+        '_initRemoteSubscription() -> await WebUtils.protect... done!',
+        '$runtimeType',
+      );
+
       _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
       await _remoteSubscription!.execute(
         _recentChatsRemoteEvent,
