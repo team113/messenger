@@ -15,9 +15,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Media panel:
+        - Updated overlay icons. ([#1466], [#1453])
         - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
 
 [#1436]: /../../issues/1436
+[#1453]: /../../issues/1453
+[#1466]: /../../pull/1466
 [#1473]: /../../pull/1473
 
 
