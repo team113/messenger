@@ -17,8 +17,19 @@ All user visible changes to this project will be documented in this file. This p
     - Home page:
         - Display "Deleted Account" title for deleted users. ([#1445], [#1419])
 
+### Fixed
+
+- UI:
+    - Media panel:
+        - Updated overlay icons. ([#1466], [#1453])
+        - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
+
 [#1419]: /../../issues/1419
+[#1436]: /../../issues/1436
 [#1445]: /../../pull/1445
+[#1453]: /../../issues/1453
+[#1466]: /../../pull/1466
+[#1473]: /../../pull/1473
 
 
 
