@@ -942,38 +942,38 @@ class SvgIcons {
 
   static const SvgData audioOffSmall = SvgData(
     'assets/icons/audio_off_small.svg',
-    width: 16.73,
-    height: 15,
+    width: 15,
+    height: 16,
   );
 
   static const SvgData microphoneOffSmall = SvgData(
     'assets/icons/microphone_off_small.svg',
     width: 15,
-    height: 15,
+    height: 16,
   );
 
   static const SvgData lowSignalSmall = SvgData(
     'assets/icons/low_signal.svg',
-    width: 13.5,
-    height: 15.5,
+    width: 15,
+    height: 16,
   );
 
   static const SvgData noSignalSmall = SvgData(
     'assets/icons/no_signal.svg',
-    width: 13.5,
-    height: 15.5,
+    width: 15,
+    height: 16,
   );
 
   static const SvgData screenShareSmall = SvgData(
     'assets/icons/screen_share_small.svg',
-    width: 15.53,
-    height: 12.2,
+    width: 15,
+    height: 16,
   );
 
   static const SvgData videoOffSmall = SvgData(
     'assets/icons/video_off_small.svg',
-    width: 19.89,
-    height: 17,
+    width: 15,
+    height: 16,
   );
 
   static const SvgData menuBlocklist = SvgData(
