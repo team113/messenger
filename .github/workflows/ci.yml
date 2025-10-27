@@ -243,7 +243,7 @@ jobs:
                     ||     '' }}
       - run: make appcast.xml
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
@@ -533,7 +533,7 @@ jobs:
               ||     'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: build-${{ matrix.platform }}-${{ github.run_number }}
           path: artifacts/
@@ -558,7 +558,7 @@ jobs:
       #     filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
       #     directory: debug
       #   if: ${{ contains('apk appbundle ipa macos web', matrix.platform) }}
-      # - uses: actions/upload-artifact@v4
+      # - uses: actions/upload-artifact@v5
       #   with:
       #     name: debug-${{ matrix.platform }}-${{ github.run_number }}
       #     path: debug-${{ matrix.platform }}.zip
@@ -688,7 +688,7 @@ jobs:
         run: ${{ 'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
@@ -711,7 +711,7 @@ jobs:
 
       - run: make docs.dart clean=yes
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: dartdoc-${{ github.run_number }}
           path: doc/api/
@@ -776,7 +776,7 @@ jobs:
 
       - run: make docker.tar to-file=.cache/image.tar
                   tags=build-${{ github.run_number }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: docker-${{ github.run_number }}
           path: .cache/image.tar
