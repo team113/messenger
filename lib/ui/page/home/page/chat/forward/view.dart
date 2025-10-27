@@ -141,8 +141,8 @@ class ChatForwardView extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Obx(
-                        () => MessageFieldView(
+                      child: Obx(() {
+                        return MessageFieldView(
                           fieldKey: const Key('ForwardField'),
                           sendKey: const Key('SendForward'),
                           constraints: BoxConstraints(
@@ -158,8 +158,8 @@ class ChatForwardView extends StatelessWidget {
                           sendButtonEnabled: c.selected.value != null
                               ? !c.selected.value!.isEmpty
                               : false,
-                        ),
-                      ),
+                        );
+                      }),
                     ),
                   ],
                 ),

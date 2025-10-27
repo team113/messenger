@@ -274,9 +274,7 @@ class ModalPopupHeader extends StatelessWidget {
                         color: style.colors.secondaryHighlightDarkest,
                       ),
                     ),
-
                     Text(subtitle!, style: style.fonts.small.regular.secondary),
-
                     Expanded(
                       child: Container(
                         height: 1,

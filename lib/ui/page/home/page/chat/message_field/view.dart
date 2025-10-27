@@ -476,8 +476,8 @@ class MessageFieldView extends StatelessWidget {
                           scale: c.moreOpened.value ? 1.1 : 1,
                           child: const SvgIcon(
                             SvgIcons.chatMore,
-                            width: 26,
-                            height: 26,
+                            width: 22,
+                            height: 22,
                           ),
                         );
                       }),

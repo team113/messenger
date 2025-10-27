@@ -52,8 +52,8 @@ class ChatButtonWidget extends StatelessWidget {
 
   /// Whether this [ChatButtonWidget] is enabled.
   ///
-  /// If `null`, the [ChatButtonWidget] is enabled if
-  /// the [ChatButtonWidget.onPressed] is not `null`.
+  /// If `null`, the [ChatButtonWidget] is enabled if the
+  /// [ChatButtonWidget.onPressed] is not `null`.
   final bool? enabled;
 
   @override

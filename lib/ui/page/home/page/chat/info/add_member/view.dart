@@ -68,7 +68,6 @@ class AddChatMemberView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ModalPopupHeader(text: 'label_add_participants'.l10n),
-
               Flexible(
                 child: SearchView(
                   categories: const [
