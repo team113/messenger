@@ -24,6 +24,7 @@ import '../../controller.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 
@@ -101,7 +102,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
         // (default centering is slightly off).
         offset: Offset(0, -2),
         child: Text(
-          participant.user.value?.title ?? 'dot'.l10n * 3,
+          participant.user.value?.title() ?? 'dot'.l10n * 3,
           style: style.fonts.normal.regular.onPrimary,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,

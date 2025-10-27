@@ -610,6 +610,7 @@ label_delete_chat = Удалить чат(ы)
 label_delete_chats = Удалить чат(ы)
 label_delete_email = Удалить E-mail
 label_delete_message = Удалить сообщение?
+label_deleted_account = Удалённый Aккаунт
 label_delete_messages = Удалить сообщения?
 label_desktop_apps = Приложения для компьютера
 label_device_by_default = По умолчанию - {$device}
