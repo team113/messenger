@@ -343,14 +343,10 @@ class _SearchField extends StatelessWidget {
   }
 }
 
-/// [ChatTile] representing the provided [RxChat] as a recent [Chat] for [SearchView].
+/// [ChatTile] representing the provided [RxChat]
+/// as a recent [Chat] for [SearchView].
 class _ChatTile extends StatelessWidget {
-  const _ChatTile(
-    this.rxChat, {
-    super.key,
-    required this.onTap,
-    required this.selected,
-  });
+  const _ChatTile(this.rxChat, {super.key, this.onTap, this.selected = false});
 
   /// [RxChat] this [_ChatTile] is about.
   final RxChat rxChat;
@@ -359,7 +355,7 @@ class _ChatTile extends StatelessWidget {
   final bool selected;
 
   /// Callback, called when this [_ChatTile] is tapped.
-  final void Function() onTap;
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
