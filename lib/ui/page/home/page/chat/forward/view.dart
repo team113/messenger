@@ -35,9 +35,6 @@ import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// Maximum height of the [ChatForwardView].
-const double _maxHeight = 812;
-
 /// View for forwarding the provided [quotes] into the selected [Chat]s.
 ///
 /// Intended to be displayed with the [show] method.
@@ -65,6 +62,9 @@ class ChatForwardView extends StatelessWidget {
 
   /// Callback, called when the [quotes] are sent.
   final void Function()? onSent;
+
+  /// Maximum height of the [ChatForwardView].
+  static const double _maxHeight = 812;
 
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
@@ -153,7 +153,7 @@ class ChatForwardView extends StatelessWidget {
                                 ) /
                                 4,
                           ),
-                          circularBorderRadius: 12,
+                          rounded: true,
                           controller: c.send,
                           sendButtonEnabled: c.selected.value != null
                               ? !c.selected.value!.isEmpty

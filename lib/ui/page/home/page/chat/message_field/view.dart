@@ -69,7 +69,7 @@ class MessageFieldView extends StatelessWidget {
     this.canAttach = true,
     this.constraints,
     this.applySafeArea = false,
-    this.circularBorderRadius = 0,
+    this.rounded = false,
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -109,8 +109,8 @@ class MessageFieldView extends StatelessWidget {
   /// Indicator whether [SafeArea] should be applied to the field.
   final bool applySafeArea;
 
-  /// Radius of the field's border.
-  final double circularBorderRadius;
+  /// Indicator whether the field should be rounded.
+  final bool rounded;
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
@@ -451,7 +451,7 @@ class MessageFieldView extends StatelessWidget {
       builder: (context, constraints) => Obx(() {
         return _FieldContainer(
           key: c.fieldKey,
-          circularBorderRadius: circularBorderRadius,
+          rounded: rounded,
           previewOpen:
               c.attachments.isNotEmpty ||
               c.quotes.isNotEmpty ||
@@ -1025,7 +1025,7 @@ class _FieldContainer extends StatelessWidget {
     super.key,
     required this.child,
     required this.applySafeArea,
-    required this.circularBorderRadius,
+    required this.rounded,
     required this.previewOpen,
   });
 
@@ -1035,8 +1035,8 @@ class _FieldContainer extends StatelessWidget {
   /// Indicator whether [SafeArea] should be applied to the field.
   final bool applySafeArea;
 
-  /// Radius of the field's border.
-  final double circularBorderRadius;
+  /// Indicator whether the field should be rounded.
+  final bool rounded;
 
   /// Text field content
   final Widget child;
@@ -1044,6 +1044,8 @@ class _FieldContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    final double circularBorderRadius = rounded ? 12 : 0;
 
     BorderRadius borderRadius = BorderRadius.circular(circularBorderRadius);
 

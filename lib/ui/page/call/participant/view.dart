@@ -104,17 +104,19 @@ class ParticipantView extends StatelessWidget {
                           : null,
                     ),
 
-                    SearchView(
-                      categories: const [
-                        SearchCategory.recent,
-                        SearchCategory.contact,
-                        SearchCategory.user,
-                      ],
+                    Flexible(
+                      child: SearchView(
+                        categories: const [
+                          SearchCategory.recent,
+                          SearchCategory.contact,
+                          SearchCategory.user,
+                        ],
 
-                      submit: 'btn_add'.l10n,
-                      onSubmit: c.addMembers,
-                      enabled: c.status.value.isEmpty,
-                      chat: c.chat.value,
+                        submit: 'btn_add'.l10n,
+                        onSubmit: c.addMembers,
+                        enabled: c.status.value.isEmpty,
+                        chat: c.chat.value,
+                      ),
                     ),
                   ],
                 );
