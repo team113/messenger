@@ -370,7 +370,7 @@ class CacheWorker extends DisposableService {
       final File file = downloading!.file!;
 
       if (await file.exists() && await file.length() == size) {
-        await OpenFile.open(file.path);
+        await _openDirectoryOrFile(file);
         return true;
       } else {
         downloading.markAsNotStarted();
@@ -529,6 +529,19 @@ class CacheWorker extends DisposableService {
               _cacheSubscription = null;
             },
           );
+    }
+  }
+
+  /// Opens a [File] or a directory containing it.
+  Future<void> _openDirectoryOrFile(File file) async {
+    if (Platform.isWindows) {
+      await Process.start('explorer', ['/select,', p.normalize(file.path)]);
+    } else if (Platform.isMacOS) {
+      await Process.start('open', ['-R', p.normalize(file.path)]);
+    } else if (Platform.isLinux) {
+      await Process.start('xdg-open', [p.normalize(file.parent.path)]);
+    } else {
+      await OpenFile.open(file.path);
     }
   }
 }
