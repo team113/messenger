@@ -24,7 +24,6 @@ import 'package:messenger/domain/model/chat_item_quote.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
-import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
@@ -50,34 +49,11 @@ final StepDefinitionGeneric tapReply = then2<String, String, CustomWorld>(
             .repliesTo
             .firstWhere((e) => (e.original as ChatMessage).text?.val == reply);
 
-        Log.info('=== chat -> $chat', 'tapReply');
-        Log.info('=== quote -> ${quote.toJson()}', 'tapReply');
-        Log.info(
-          '=== messages(N) -> ${chat.messages.map((e) => e.value).whereType<ChatMessage>()}',
-          'tapReply',
-        );
-        Log.info(
-          '=== message(1) -> ${chat.messages.map((e) => e.value).whereType<ChatMessage>().firstWhere((e) => e.text?.val == message)}',
-          'tapReply',
-        );
-        Log.info(
-          '=== message(1).repliesTo -> ${chat.messages.map((e) => e.value).whereType<ChatMessage>().firstWhere((e) => e.text?.val == message).repliesTo.map((e) => e.toJson())}',
-          'tapReply',
-        );
-
         final Finder finder = context.world.appDriver.findByKeySkipOffstage(
           'Reply_${quote.original!.id}',
         );
 
-        Log.info(
-          '=== quote -> await await context.world.appDriver.nativeDriver.tap()...',
-          'tapReply',
-        );
         await context.world.appDriver.nativeDriver.tap(finder);
-        Log.info(
-          '=== quote -> await await context.world.appDriver.nativeDriver.tap()... done!',
-          'tapReply',
-        );
 
         return true;
       },
