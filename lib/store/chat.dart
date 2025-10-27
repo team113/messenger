@@ -2290,10 +2290,19 @@ class ChatRepository extends DisposableInterface
         '$runtimeType',
       );
 
+      if (isClosed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
       await _remoteSubscription!.execute(
         _recentChatsRemoteEvent,
         onError: (_) => _subscribedAt = DateTime.now(),
+      );
+
+      Log.debug(
+        '_initRemoteSubscription() -> await WebUtils.protect... done! and released!',
+        '$runtimeType',
       );
     }, tag: 'recentChatsEvents');
   }
