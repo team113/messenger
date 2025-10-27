@@ -69,8 +69,15 @@ final StepDefinitionGeneric tapReply = then2<String, String, CustomWorld>(
           'Reply_${quote.original!.id}',
         );
 
+        Log.info(
+          '=== quote -> await await context.world.appDriver.nativeDriver.tap()...',
+          'tapReply',
+        );
         await context.world.appDriver.nativeDriver.tap(finder);
-        await context.world.appDriver.waitForAppToSettle();
+        Log.info(
+          '=== quote -> await await context.world.appDriver.nativeDriver.tap()... done!',
+          'tapReply',
+        );
 
         return true;
       },
