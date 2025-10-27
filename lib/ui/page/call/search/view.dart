@@ -26,7 +26,6 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/animated_button.dart';
@@ -371,7 +370,6 @@ class _ChatTile extends StatelessWidget {
       enableContextMenu: false,
       onTap: onTap,
       onForbidden: rxChat.updateAvatar,
-      avatarRadius: AvatarRadius.big,
       height: 55.5,
     );
   }

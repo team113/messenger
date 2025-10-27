@@ -49,7 +49,6 @@ class ChatTile extends StatelessWidget {
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
     this.onForbidden,
-    this.avatarRadius = AvatarRadius.large,
   }) : titleBuilder = titleBuilder ?? _defaultBuilder,
        avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
@@ -106,9 +105,6 @@ class ChatTile extends StatelessWidget {
   /// Callback, called when [ChatAvatar] fetching fails with `Forbidden` error.
   final FutureOr<void> Function()? onForbidden;
 
-  /// Radius of the [AvatarWidget] this [ChatTile] displays.
-  final AvatarRadius avatarRadius;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -152,7 +148,10 @@ class ChatTile extends StatelessWidget {
                   avatarBuilder(
                     AvatarWidget.fromRxChat(
                       chat,
-                      radius: avatarRadius,
+                      radius: switch (height) {
+                        >= 65 => AvatarRadius.large,
+                        (_) => AvatarRadius.big,
+                      },
                       onForbidden: onForbidden,
                     ),
                   ),
