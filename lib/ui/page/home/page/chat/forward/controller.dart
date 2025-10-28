@@ -104,6 +104,7 @@ class ChatForwardController extends GetxController {
       _settingsRepository,
       text: text,
       attachments: attachments,
+      canPin: false,
       onSubmit: () async {
         if (selected.value?.isEmpty != false) {
           send.field.unsubmit();
