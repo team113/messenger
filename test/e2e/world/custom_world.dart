@@ -84,11 +84,6 @@ class CustomUser {
   CustomUser(Credentials this._credentials, this.userNum)
     : userId = _credentials.userId;
 
-  /// [Credentials] of this [CustomUser].
-  ///
-  /// Might be `null`, if authorization of this [CustomUser] is lost.
-  Credentials? _credentials;
-
   /// [UserNum] of this [CustomUser].
   final UserNum userNum;
 
@@ -104,6 +99,11 @@ class CustomUser {
   /// ID of the [Chat]-dialog with the authenticated [MyUser].
   ChatId? dialog;
 
+  /// [Credentials] of this [CustomUser].
+  ///
+  /// Might be `null`, if authorization of this [CustomUser] is lost.
+  Credentials? _credentials;
+
   /// Sets the [Credentials] to the provided [creds].
   set credentials(FutureOr<Credentials?> creds) {
     if (creds is Credentials?) {
@@ -117,7 +117,9 @@ class CustomUser {
   FutureOr<Credentials> get credentials {
     if (_credentials == null) {
       return Future(() async {
-        final provider = GraphQlProvider();
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false;
+
         final response = await provider.signIn(
           identifier: MyUserIdentifier(num: userNum),
           credentials: MyUserCredentials(
@@ -125,6 +127,8 @@ class CustomUser {
           ),
         );
         _credentials = response.toModel();
+
+        provider.disconnect();
 
         return _credentials!;
       });
@@ -135,4 +139,9 @@ class CustomUser {
 
   /// Returns the [AccessToken] of this [CustomUser].
   AccessTokenSecret? get token => _credentials?.access.secret;
+
+  @override
+  String toString() {
+    return 'CustomUser($userId, $userNum, slug: $slug, password: $password, dialog: $dialog)';
+  }
 }

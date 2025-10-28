@@ -604,7 +604,9 @@ Future<void> handlePushNotification(RemoteMessage message) async {
             : null;
 
         if (credentials != null) {
-          final provider = GraphQlProvider();
+          final GraphQlProvider provider = GraphQlProvider()
+            ..client.withWebSocket = false;
+
           provider.token = credentials.access.secret;
 
           try {

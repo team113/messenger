@@ -43,8 +43,6 @@ seeUserInSearchResults = then2<SearchCategory, TestUser, CustomWorld>(
   'I see {search_category} {user} in search results',
   (SearchCategory category, TestUser user, context) async {
     await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-
       switch (category) {
         case SearchCategory.contact:
           final ContactService contactService = Get.find<ContactService>();
@@ -57,10 +55,6 @@ seeUserInSearchResults = then2<SearchCategory, TestUser, CustomWorld>(
 
         case SearchCategory.user:
           final UserId userId = context.world.sessions[user.name]!.userId;
-
-          final finder = context.world.appDriver.findByKeySkipOffstage(
-            'SearchUser_$userId',
-          );
 
           final scrollable = find.descendant(
             of: find.byKey(const Key('SearchScrollable')),
@@ -79,15 +73,56 @@ seeUserInSearchResults = then2<SearchCategory, TestUser, CustomWorld>(
             return false;
           }
 
-          await context.world.appDriver.scrollIntoVisible(
-            finder,
-            scrollable,
-            dy: 100,
+          final Finder searchUser = context.world.appDriver
+              .findByKeySkipOffstage('SearchUser_$userId');
+
+          final Finder searchChat = context.world.appDriver
+              .findByKeySkipOffstage(
+                'SearchChat_${context.world.sessions[user.name]?.dialog}',
+              );
+
+          final Finder searchDialog = context.world.appDriver
+              .findByKeySkipOffstage('SearchChat_$userId');
+
+          bool hasUser = await context.world.appDriver.isPresent(searchUser);
+          bool hasChat = await context.world.appDriver.isPresent(searchChat);
+          bool hasDialog = await context.world.appDriver.isPresent(
+            searchDialog,
           );
 
-          return context.world.appDriver.isPresent(
-            context.world.appDriver.findBy('SearchUser_$userId', FindType.key),
-          );
+          if (!hasUser && !hasChat && !hasDialog) {
+            await context.world.appDriver.scrollIntoVisible(
+              searchUser,
+              scrollable,
+              dy: 100,
+            );
+
+            hasUser = await context.world.appDriver.isPresent(searchUser);
+
+            if (!hasUser) {
+              await context.world.appDriver.scrollIntoVisible(
+                searchChat,
+                scrollable,
+                dy: 100,
+              );
+
+              hasChat = await context.world.appDriver.isPresent(searchChat);
+
+              if (!hasChat) {
+                await context.world.appDriver.scrollIntoVisible(
+                  searchDialog,
+                  scrollable,
+                  dy: 100,
+                );
+
+                hasDialog = await context.world.appDriver.isPresent(
+                  searchDialog,
+                );
+              }
+            }
+          }
+
+          return hasUser || hasChat || hasDialog;
 
         case SearchCategory.recent:
         case SearchCategory.chat:

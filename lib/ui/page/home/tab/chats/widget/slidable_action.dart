@@ -26,6 +26,7 @@ class FadingSlidableAction extends StatelessWidget {
     super.key,
     required this.icon,
     required this.text,
+    this.danger = false,
     this.onPressed,
   });
 
@@ -34,6 +35,9 @@ class FadingSlidableAction extends StatelessWidget {
 
   /// Text of this action.
   final String text;
+
+  /// Indictor whether this [FadingSlidableAction] should have danger color.
+  final bool danger;
 
   /// Callback, called when this [FadingSlidableAction] is invoked.
   final void Function(BuildContext context)? onPressed;
@@ -55,7 +59,9 @@ class FadingSlidableAction extends StatelessWidget {
                 },
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.zero,
-                  backgroundColor: style.colors.danger,
+                  backgroundColor: danger
+                      ? style.colors.danger
+                      : style.colors.primary,
                   foregroundColor: style.colors.onPrimary,
                   shape: RoundedRectangleBorder(borderRadius: style.cardRadius),
                   side: BorderSide.none,
