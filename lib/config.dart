@@ -378,6 +378,12 @@ class Config {
     if (PlatformUtils.isIOS) {
       IosUtils.writeDefaults('url', url);
       IosUtils.writeDefaults('endpoint', graphql);
+
+      // Store user agent to use as a `User-Agent` header in Notification
+      // Service Extension.
+      PlatformUtils.userAgent.then((agent) {
+        IosUtils.writeDefaults('agent', agent);
+      });
     }
   }
 }
