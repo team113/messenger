@@ -82,6 +82,7 @@ import 'steps/has_group.dart';
 import 'steps/in_chat.dart';
 import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
+import 'steps/language.dart';
 import 'steps/long_press_chat.dart';
 import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
@@ -102,6 +103,7 @@ import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
 import 'steps/see_archived_chat.dart';
+import 'steps/see_avatar_title.dart';
 import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
 import 'steps/see_chat_members.dart';
@@ -123,6 +125,7 @@ import 'steps/see_favorite_monolog.dart';
 import 'steps/see_field_having_error.dart';
 import 'steps/see_search_results.dart';
 import 'steps/see_sessions.dart';
+import 'steps/see_user_view.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
@@ -180,6 +183,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         contactIsIndeedDeleted,
         copyFromField,
         countUsers,
+        deleteUser,
         dismissChat,
         dismissContact,
         downloadFile,
@@ -202,6 +206,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasGroupWithMembers,
         hasGroups,
         haveGroup1Named,
+        haveGroup2,
         haveGroup2Named,
         haveGroupNamed,
         haveInternetWithDelay,
@@ -244,6 +249,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollToTop,
         scrollUntilPresent,
         seeAccountInAccounts,
+        seeAvatarTitleForChat,
+        seeAvatarTitleInUserView,
         seeBlockedUsers,
         seeChatAsArchived,
         seeChatAsFavorite,
@@ -280,7 +287,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seesDialogWithMe,
         seesNoDialogWithMe,
         seesNoDialogWithUser,
+        seeTitleInUserView,
         seeUserInSearchResults,
+        selectLanguage,
         selectMessageText,
         sendsAttachmentToMe,
         sendsCountMessages,

@@ -21,6 +21,7 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
 import '../configuration.dart';
 import '../parameters/users.dart';
@@ -131,6 +132,28 @@ final StepDefinitionGeneric haveGroup2Named =
         ], name: ChatName(name));
 
         context.world.groups[name] = chat.id;
+      },
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
+    );
+
+/// Creates a [Chat]-group with the provided [User]s and the authenticated
+/// [MyUser].
+///
+/// Examples:
+/// - Given I have group with Bob and Charlie.
+final StepDefinitionGeneric haveGroup2 =
+    given2<TestUser, TestUser, CustomWorld>(
+      'I have group with {user} and {user}\$',
+      (TestUser bob, TestUser charlie, context) async {
+        final ChatService chatService = Get.find();
+
+        final chat = await chatService.createGroupChat([
+          context.world.sessions[bob.name]!.userId,
+          context.world.sessions[charlie.name]!.userId,
+        ], name: null);
+
+        context.world.groups[chat.title()] = chat.id;
       },
       configuration: StepDefinitionConfiguration()
         ..timeout = const Duration(minutes: 5),

@@ -46,6 +46,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/page/player/controller.dart';
@@ -115,7 +116,7 @@ class ChatItemWidget extends StatefulWidget {
   /// [User] posted this [item].
   final RxUser? user;
 
-  /// Indicator whether this [ChatItemWidget] should display [RxUser.title].
+  /// Indicator whether this [ChatItemWidget] should display [UserExt.title].
   ///
   /// For example, [Chat]-groups should display messages with titles.
   final bool withName;
@@ -510,7 +511,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         if (widget.chat.value?.isGroup == true) {
           content = userBuilder(message.author.id, (context, user) {
             if (user != null) {
-              final Map<String, dynamic> args = {'author': user.title};
+              final Map<String, dynamic> args = {'author': user.title()};
 
               return Text.rich(
                 TextSpan(
@@ -564,8 +565,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             final User user = rxUser?.user.value ?? action.user;
 
             final Map<String, dynamic> args = {
-              'author': widget.user?.title ?? message.author.title,
-              'user': rxUser?.title ?? action.user.title,
+              'author': widget.user?.title() ?? message.author.title(),
+              'user': rxUser?.title() ?? action.user.title(),
             };
 
             return Text.rich(
@@ -594,7 +595,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           final User user = widget.user?.user.value ?? action.user;
 
           final Map<String, dynamic> args = {
-            'author': widget.user?.title ?? action.user.title,
+            'author': widget.user?.title() ?? action.user.title(),
           };
 
           content = Text.rich(
@@ -625,8 +626,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             final User user = rxUser?.user.value ?? action.user;
 
             final Map<String, dynamic> args = {
-              'author': widget.user?.title ?? message.author.title,
-              'user': rxUser?.title ?? action.user.title,
+              'author': widget.user?.title() ?? message.author.title(),
+              'user': rxUser?.title() ?? action.user.title(),
             };
 
             return Text.rich(
@@ -655,7 +656,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           final User user = widget.user?.user.value ?? action.user;
 
           final Map<String, dynamic> args = {
-            'author': widget.user?.title ?? action.user.title,
+            'author': widget.user?.title() ?? action.user.title(),
           };
 
           content = Text.rich(
@@ -682,7 +683,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': widget.user?.title ?? user.title,
+          'author': widget.user?.title() ?? user.title(),
         };
 
         final String phrase1, phrase2;
@@ -714,7 +715,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': widget.user?.title ?? user.title,
+          'author': widget.user?.title() ?? user.title(),
           if (action.name != null) 'name': action.name?.val,
         };
 
@@ -796,7 +797,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                   child: SelectionText.rich(
                     TextSpan(
-                      text: widget.user?.title ?? 'dot'.l10n * 3,
+                      text: widget.user?.title() ?? 'dot'.l10n * 3,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () => widget.onUserPressed(_author),
                     ),
@@ -1037,7 +1038,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                       child: SelectionText.rich(
                         TextSpan(
-                          text: widget.user?.title ?? 'dot'.l10n * 3,
+                          text: widget.user?.title() ?? ('dot'.l10n * 3),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () => widget.onUserPressed(_author),
                         ),
@@ -1259,7 +1260,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   children: [
                     Expanded(
                       child: Text(
-                        user?.title ?? 'dot'.l10n * 3,
+                        user?.title() ?? 'dot'.l10n * 3,
                         style: style.fonts.medium.regular.onBackground.copyWith(
                           color: color,
                         ),
@@ -1330,7 +1331,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               futureOr: () => widget.getUser?.call(m.memberId),
               builder: (context, member) {
                 return Tooltip(
-                  message: member?.title ?? user?.title ?? ('dot'.l10n * 3),
+                  message: member?.title() ?? user?.title() ?? ('dot'.l10n * 3),
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(
