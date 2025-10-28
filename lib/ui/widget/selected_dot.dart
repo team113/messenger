@@ -18,58 +18,74 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 import 'animated_switcher.dart';
+
+/// Size of this [SelectedDot].
+enum SelectedDotSize { normal, big }
 
 /// Animated [CircleAvatar] representing a selection circle.
 class SelectedDot extends StatelessWidget {
   const SelectedDot({
     super.key,
     this.selected = false,
-    this.size = 24,
-    this.darken = 0,
-    this.inverted = true,
-    this.outlined = false,
+    this.size = SelectedDotSize.normal,
+    this.inverted = false,
   });
 
   /// Indicator whether this [SelectedDot] is selected.
   final bool selected;
 
-  /// Diameter of this [SelectedDot].
-  final double size;
-
-  /// Amount of darkening to apply to the background of this [SelectedDot].
-  final double darken;
+  /// Size of this [SelectedDot].
+  final SelectedDotSize size;
 
   /// Indicator whether this [SelectedDot] should have inverted color relative
   /// to its base one when [selected] is `true`.
   final bool inverted;
 
-  /// Indicator whether this [SelectedDot] should be outlined.
-  final bool outlined;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final double containerSize = switch (size) {
+      SelectedDotSize.normal => 20.0,
+      SelectedDotSize.big => 25.0,
+    };
+
+    final double borderWidth = switch (size) {
+      SelectedDotSize.normal => 1.5,
+      SelectedDotSize.big => 0.5,
+    };
+
     return SizedBox(
-      width: size,
+      width: containerSize,
+      height: containerSize,
       child: SafeAnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
         child: selected
-            ? Center(
-                child: CircleAvatar(
-                  key: const Key('Selected'),
-                  backgroundColor: inverted
-                      ? style.colors.onPrimary
-                      : style.colors.primary,
-                  radius: (size - 4) / 2,
+            ? DecoratedBox(
+                key: const Key('Selected'),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: inverted
+                        ? style.colors.onPrimary
+                        : style.colors.primary,
+                    width: borderWidth,
+                  ),
+                  color: inverted
+                      ? style.colors.primary
+                      : style.colors.onPrimary,
+                ),
+                child: Center(
                   child: Icon(
                     Icons.check,
                     color: inverted
-                        ? style.colors.primary
-                        : style.colors.onPrimary,
-                    size: size - 10,
+                        ? style.colors.onPrimary
+                        : style.colors.primary,
+                    size: switch (size) {
+                      SelectedDotSize.normal => 10,
+                      SelectedDotSize.big => 14,
+                    },
                   ),
                 ),
               )
@@ -78,23 +94,13 @@ class SelectedDot extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: outlined
-                        ? style.colors.primary
-                        : style.colors.secondaryHighlightDark.darken(darken),
-                    width: 1.5,
+                    color: style.colors.secondaryHighlightDarkest,
+                    width: borderWidth,
                   ),
+                  color: inverted
+                      ? style.colors.secondaryHighlight
+                      : style.colors.onPrimary,
                 ),
-                width: size,
-                height: size,
-                child: outlined
-                    ? Center(
-                        child: Icon(
-                          Icons.check,
-                          color: style.colors.primary,
-                          size: 14,
-                        ),
-                      )
-                    : null,
               ),
       ),
     );

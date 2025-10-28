@@ -1329,9 +1329,9 @@ class ChatView extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 4),
                         child: SelectedDot(
-                          inverted: false,
+                          inverted: true,
                           selected: selected,
-                          darken: 0.1,
+                          size: SelectedDotSize.big,
                         ),
                       ),
                     )

@@ -365,7 +365,7 @@ class _ChatTile extends StatelessWidget {
       dimmed: false,
       status: [
         const SizedBox(width: 8),
-        SelectedDot(selected: selected, size: 20),
+        SelectedDot(selected: selected),
       ],
       selected: selected,
       enableContextMenu: false,

@@ -1026,9 +1026,7 @@ class ChatsTabView extends StatelessWidget {
       onDismissed: () async =>
           await c.archiveChat(e.id, !e.chat.value.isArchived),
       enableContextMenu: !c.selecting.value,
-      trailing: c.selecting.value
-          ? [SelectedDot(selected: selected, size: 20)]
-          : null,
+      trailing: c.selecting.value ? [SelectedDot(selected: selected)] : null,
       hasCall: c.status.value.isLoadingMore ? false : null,
       onPerformDrop: (f) => c.sendFiles(e.id, f),
     );
