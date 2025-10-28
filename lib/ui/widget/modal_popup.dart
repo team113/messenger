@@ -249,7 +249,9 @@ class ModalPopupHeader extends StatelessWidget {
                     key: const Key('CloseButton'),
                     onPressed: Navigator.of(context).pop,
                     child: Container(
-                      padding: const EdgeInsets.only(left: 12, right: 17),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 16,
+                      ).copyWith(left: 12, right: 17),
                       child: const SvgIcon(
                         SvgIcons.closeSmallPrimary,
                         width: 9,
