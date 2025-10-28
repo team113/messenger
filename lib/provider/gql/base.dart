@@ -145,6 +145,8 @@ class GraphQlClient {
   /// [WebSocketLink] used by the [_client].
   WebSocketLink? _wsLink;
 
+  /// [GraphQLWebSocketChannel] of [_wsLink] to cancel it during
+  /// [_disposeWebSocket].
   GraphQLWebSocketChannel? _wsChannel;
 
   /// Current authorization bearer token of the [_client].

@@ -307,10 +307,7 @@ class ChatRepository extends DisposableInterface
     Future<void> Function(ChatId, UserId)? onMemberRemoved,
     bool? pagination,
   }) async {
-    Log.debug(
-      'init(onMemberRemoved) for $me, invoked from: \n${StackTrace.current}',
-      '$runtimeType',
-    );
+    Log.debug('init(onMemberRemoved) for $me', '$runtimeType');
 
     this.onMemberRemoved = onMemberRemoved ?? this.onMemberRemoved;
 
