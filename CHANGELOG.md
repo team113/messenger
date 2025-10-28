@@ -16,15 +16,25 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Pages scrolling by pressing "PageUp" and "PageDown" keys. ([#1469], [#1228])
 
+### Changed
+
+- UI:
+    - Home page:
+        - Display "Deleted Account" title for deleted users. ([#1445], [#1419])
 
 ### Fixed
 
 - UI:
     - Media panel:
+        - Updated overlay icons. ([#1466], [#1453])
         - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
 
 [#1228]: /../../issues/1228
+[#1419]: /../../issues/1419
 [#1436]: /../../issues/1436
+[#1453]: /../../issues/1453
+[#1445]: /../../pull/1445
+[#1466]: /../../pull/1466
 [#1469]: /../../pull/1469
 [#1473]: /../../pull/1473
 
@@ -34,7 +44,7 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.6.6] · 2025-10-13
 [0.6.6]: /../../tree/v0.6.6
 
-[Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/50)
+[Diff](/../../compare/v0.6.5...v0.6.6) | [Milestone](/../../milestone/50)
 
 ### Added
 
