@@ -673,7 +673,7 @@ mixin ChatGraphQlMixin {
   /// completes after initialization).
   Stream<QueryResult> recentChatsTopEvents(
     int count, {
-    bool noFavorite = false,
+    bool noFavorite = true,
     bool archived = false,
     bool? withOngoingCalls,
   }) {

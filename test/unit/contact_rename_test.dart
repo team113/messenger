@@ -36,7 +36,7 @@
 
 // import 'contact_rename_test.mocks.dart';
 
-// @GenerateMocks([GraphQlProvider])
+// @GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   // final CommonDriftProvider common = CommonDriftProvider.memory();
   // final ScopedDriftProvider scoped = ScopedDriftProvider.memory();

@@ -28,18 +28,50 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then I see 30 chats
 final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
-  'I see {int} chats',
+  'I see {int} chats\$',
   (count, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
       final controller = Get.find<ChatsTabController>();
 
-      if (controller.chats.where((e) => !e.id.isLocal).length == count) {
-        return true;
-      } else {
-        return false;
-      }
+      final Iterable<ChatEntry> chats = controller.chats.where((e) {
+        final bool notLocalOrHasMessages =
+            !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
+
+        return notLocalOrHasMessages &&
+            !e.chat.value.isHidden &&
+            !e.chat.value.isArchived;
+      });
+
+      return chats.length == count;
+    }, timeout: const Duration(seconds: 60));
+  },
+);
+
+/// Indicates whether the provided count (or more) of [Chat]s are present within
+/// [ChatsTabView].
+///
+/// Examples:
+/// - Then I see 30 or more chats
+final StepDefinitionGeneric seeCountChatsOrMore = then1<int, CustomWorld>(
+  'I see {int} or more chats\$',
+  (count, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+
+      final controller = Get.find<ChatsTabController>();
+
+      final Iterable<ChatEntry> chats = controller.chats.where((e) {
+        final bool notLocalOrHasMessages =
+            !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
+
+        return notLocalOrHasMessages &&
+            !e.chat.value.isHidden &&
+            !e.chat.value.isArchived;
+      });
+
+      return chats.length >= count;
     }, timeout: const Duration(seconds: 60));
   },
 );
@@ -56,14 +88,19 @@ final StepDefinitionGeneric seeCountFavoriteChats = then1<int, CustomWorld>(
       await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
       final controller = Get.find<ChatsTabController>();
-      if (controller.chats
-              .where((e) => e.chat.value.favoritePosition != null)
-              .length ==
-          count) {
-        return true;
-      } else {
-        return false;
-      }
+      final length = controller.chats.where((e) {
+        final bool notLocalOrHasMessages =
+            !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
+
+        final bool notHidden =
+            notLocalOrHasMessages &&
+            !e.chat.value.isHidden &&
+            !e.chat.value.isArchived;
+
+        return notHidden && e.chat.value.favoritePosition != null;
+      }).length;
+
+      return length == count;
     }, timeout: const Duration(seconds: 30));
   },
 );
