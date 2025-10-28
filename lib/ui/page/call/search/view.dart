@@ -91,6 +91,7 @@ class SearchView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         chat: chat,
         categories: categories,
         onSelected: onSelected,

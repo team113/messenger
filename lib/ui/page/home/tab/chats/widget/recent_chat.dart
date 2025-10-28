@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -195,7 +196,11 @@ class RecentChatTile extends StatelessWidget {
         groupTag: 'chat',
         enabled: onHide != null,
         endActionPane: ActionPane(
-          extentRatio: 0.33,
+          extentRatio: max(
+            0.33 * (onHide != null ? 1 : 0) +
+                0.33 * (onArchive != null ? 1 : 0),
+            0.01,
+          ),
           motion: const StretchMotion(),
           dismissible: onDismissed == null
               ? null
@@ -203,9 +208,23 @@ class RecentChatTile extends StatelessWidget {
           children: [
             FadingSlidableAction(
               onPressed: _hideChat,
-              icon: const Icon(Icons.delete),
+              icon: SvgIcon(SvgIcons.deleteAction, height: 18),
+              danger: true,
               text: 'btn_delete'.l10n,
             ),
+
+            if (chat.isArchived)
+              FadingSlidableAction(
+                onPressed: _archiveChat,
+                icon: SvgIcon(SvgIcons.unhideAction, height: 18),
+                text: 'btn_unhide'.l10n,
+              )
+            else
+              FadingSlidableAction(
+                onPressed: _archiveChat,
+                icon: SvgIcon(SvgIcons.hideAction, height: 18),
+                text: 'btn_hide'.l10n,
+              ),
           ],
         ),
         child: CustomDropTarget(

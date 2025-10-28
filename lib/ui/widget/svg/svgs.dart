@@ -132,6 +132,12 @@ class SvgIcons {
     height: 17.77,
   );
 
+  static const SvgData searchGrey = SvgData(
+    'assets/icons/search_grey.svg',
+    width: 16,
+    height: 16,
+  );
+
   static const SvgData searchWhite = SvgData(
     'assets/icons/search_white.svg',
     width: 17.76,
@@ -158,8 +164,8 @@ class SvgIcons {
 
   static const SvgData searchExit = SvgData(
     'assets/icons/search_exit.svg',
-    width: 11,
-    height: 11,
+    width: 9,
+    height: 9,
   );
 
   static const SvgData chatsSwitch = SvgData(
@@ -358,6 +364,12 @@ class SvgIcons {
     'assets/icons/delete.svg',
     width: 16.75,
     height: 15.99,
+  );
+
+  static const SvgData notFound = SvgData(
+    'assets/icons/not_found.svg',
+    width: 126,
+    height: 125,
   );
 
   static const SvgData notes = SvgData(
@@ -1972,5 +1984,23 @@ class SvgIcons {
     'assets/icons/logs.svg',
     width: 19,
     height: 19,
+  );
+
+  static const SvgData deleteAction = SvgData(
+    'assets/icons/delete_action.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData hideAction = SvgData(
+    'assets/icons/hide_action.svg',
+    width: 21.69,
+    height: 19,
+  );
+
+  static const SvgData unhideAction = SvgData(
+    'assets/icons/unhide_action.svg',
+    width: 20,
+    height: 18,
   );
 }
