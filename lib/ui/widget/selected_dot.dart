@@ -39,7 +39,7 @@ class SelectedDot extends StatelessWidget {
   final SelectedDotSize size;
 
   /// Indicator whether this [SelectedDot] should have inverted color relative
-  /// to its base one when [selected] is `true`.
+  /// to its base one.
   final bool inverted;
 
   @override
