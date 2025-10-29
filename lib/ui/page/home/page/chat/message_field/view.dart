@@ -106,6 +106,9 @@ class MessageFieldView extends StatelessWidget {
   /// Indicator whether the field should be rounded.
   final bool rounded;
 
+  /// Border radius value when [rounded] is true.
+  static const Radius _borderRadius = Radius.circular(15.0);
+
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
     final style = Theme.of(context).style;
@@ -352,7 +355,12 @@ class MessageFieldView extends StatelessWidget {
           }
 
           return Container(
-            color: style.colors.background,
+            decoration: BoxDecoration(
+              color: style.colors.background,
+              borderRadius: BorderRadius.vertical(
+                top: rounded ? _borderRadius : Radius.zero,
+              ),
+            ),
             child: AnimatedSize(
               duration: 400.milliseconds,
               alignment: Alignment.bottomCenter,
@@ -445,7 +453,7 @@ class MessageFieldView extends StatelessWidget {
       builder: (context, constraints) => Obx(() {
         return _FieldContainer(
           key: c.fieldKey,
-          rounded: rounded,
+          borderRadius: rounded ? _borderRadius : Radius.zero,
           previewOpen:
               c.attachments.isNotEmpty ||
               c.quotes.isNotEmpty ||
@@ -1020,7 +1028,7 @@ class _FieldContainer extends StatelessWidget {
     super.key,
     required this.child,
     required this.applySafeArea,
-    required this.rounded,
+    required this.borderRadius,
     required this.previewOpen,
   });
 
@@ -1030,8 +1038,8 @@ class _FieldContainer extends StatelessWidget {
   /// Indicator whether [SafeArea] should be applied to the field.
   final bool applySafeArea;
 
-  /// Indicator whether the field should be rounded.
-  final bool rounded;
+  /// Border radius of the container.
+  final Radius borderRadius;
 
   /// Text field content
   final Widget child;
@@ -1040,22 +1048,15 @@ class _FieldContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final double circularBorderRadius = rounded ? 12 : 0;
-
-    BorderRadius borderRadius = BorderRadius.circular(circularBorderRadius);
-
-    if (previewOpen) {
-      borderRadius = BorderRadius.vertical(
-        bottom: Radius.circular(circularBorderRadius),
-      );
-    }
-
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),
       constraints: const BoxConstraints(minHeight: 56),
       decoration: BoxDecoration(
         color: style.cardColor,
-        borderRadius: borderRadius,
+        borderRadius: BorderRadius.vertical(
+          bottom: borderRadius,
+          top: previewOpen ? Radius.zero : borderRadius,
+        ),
       ),
       padding: applySafeArea
           ? EdgeInsets.only(bottom: max(CustomNavigationBar.height - 56, 0))
