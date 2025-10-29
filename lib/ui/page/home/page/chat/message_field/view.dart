@@ -65,7 +65,6 @@ class MessageFieldView extends StatelessWidget {
     this.onAttachmentError,
     this.fieldKey,
     this.sendKey,
-    this.sendButtonEnabled,
     this.canForward = false,
     this.canAttach = true,
     this.constraints,
@@ -81,12 +80,6 @@ class MessageFieldView extends StatelessWidget {
 
   /// [Key] of a send button this [MessageFieldView] has.
   final Key? sendKey;
-
-  /// Indicator whether the send button should be enabled.
-  ///
-  /// If `null`, the send button is enabled if the [ChatButtonWidget.onPressed]
-  /// is not `null`.
-  final bool? sendButtonEnabled;
 
   /// Indicator whether forwarding is possible within this [MessageFieldView].
   final bool canForward;
@@ -530,8 +523,9 @@ class MessageFieldView extends StatelessWidget {
                   children = [
                     ChatButtonWidget.send(
                       key: sendKey ?? Key('Send'),
-                      onPressed: c.field.submit,
-                      enabled: sendButtonEnabled,
+                      onPressed: c.field.submittable.isTrue
+                          ? c.field.submit
+                          : null,
                     ),
                   ];
                 } else {

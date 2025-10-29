@@ -96,6 +96,9 @@ class ChatForwardController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
+  /// Subscription to the [selected] stream.
+  late final StreamSubscription<SearchViewResults?> _selectedSubscription;
+
   @override
   void onInit() {
     send = MessageFieldController(
@@ -225,11 +228,18 @@ class ChatForwardController extends GetxController {
       },
     );
 
+    send.field.submittable.value = false;
+
+    _selectedSubscription = selected.listen((e) {
+      send.field.submittable.value = e != null && !e.isEmpty;
+    });
+
     super.onInit();
   }
 
   @override
   void onClose() {
+    _selectedSubscription.cancel();
     send.onClose();
     scrollController.dispose();
     super.onClose();
