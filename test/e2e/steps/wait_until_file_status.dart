@@ -97,6 +97,18 @@ waitUntilFileStatus = then2<String, DownloadStatus, CustomWorld>(
           'E2E',
         );
 
+        if (!hasWithinFile && status == DownloadStatus.inProgress) {
+          // File might've already downloaded, thus when expecting in progress
+          // status, we should also check for downloaded one.
+          return await context.world.appDriver.isPresent(
+            context.world.appDriver.findByDescendant(
+              finder,
+              context.world.appDriver.findByKeySkipOffstage('Downloaded'),
+              firstMatchOnly: true,
+            ),
+          );
+        }
+
         return hasWithinFile;
       }
 
