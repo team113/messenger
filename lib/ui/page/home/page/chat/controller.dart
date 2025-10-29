@@ -576,6 +576,8 @@ class ChatController extends GetxController {
       }
     });
 
+    HardwareKeyboard.instance.addHandler(_keyboardHandler);
+
     super.onInit();
   }
 
@@ -624,6 +626,8 @@ class ChatController extends GetxController {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
+
+    HardwareKeyboard.instance.removeHandler(_keyboardHandler);
 
     for (final s in _fragmentSubscriptions) {
       s.cancel();
@@ -2074,7 +2078,7 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Highlights the item with the provided [index].
+  /// Highlights the item with the provided [id].
   Future<void> _highlight(ListElementId id) async {
     highlighted.value = id;
 
@@ -2413,6 +2417,45 @@ class ChatController extends GetxController {
       toggleSearch(true);
     }
   }
+
+  /// Enables or disables search based on the [event].
+  bool _keyboardHandler(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.keyF:
+          final Set<PhysicalKeyboardKey> pressed =
+              HardwareKeyboard.instance.physicalKeysPressed;
+
+          final bool isMetaPressed = pressed.any(
+            (key) =>
+                key == PhysicalKeyboardKey.metaLeft ||
+                key == PhysicalKeyboardKey.metaRight,
+          );
+
+          final bool isControlPressed = pressed.any(
+            (key) =>
+                key == PhysicalKeyboardKey.controlLeft ||
+                key == PhysicalKeyboardKey.controlRight,
+          );
+
+          if (isMetaPressed || isControlPressed) {
+            toggleSearch();
+            return true;
+          }
+          break;
+
+        case LogicalKeyboardKey.escape:
+          toggleSearch(true);
+          return true;
+
+        default:
+          // No-op.
+          break;
+      }
+    }
+
+    return false;
+  }
 }
 
 /// ID of a [ListElement] containing its [PreciseDateTime] and [ChatItemId].
@@ -2596,11 +2639,11 @@ extension ChatRxExt on RxChat {
             members.values
                 .firstWhereOrNull((u) => u.user.id != me)
                 ?.user
-                .title ??
+                .title(withDeletedLabel: withDeletedLabel) ??
             chat.value.members
                 .firstWhereOrNull((e) => e.user.id != me)
                 ?.user
-                .title;
+                .title(withDeletedLabel: withDeletedLabel);
 
         title = name ?? title;
         break;
@@ -2617,9 +2660,13 @@ extension ChatRxExt on RxChat {
               .toList();
 
           if (users.length < chat.value.membersCount && users.length < 3) {
-            names = chat.value.members.take(3).map((e) => e.user.title);
+            names = chat.value.members
+                .take(3)
+                .map((e) => e.user.title(withDeletedLabel: withDeletedLabel));
           } else {
-            names = users.take(3).map((e) => e.title);
+            names = users
+                .take(3)
+                .map((e) => e.title(withDeletedLabel: withDeletedLabel));
           }
 
           title = names.join('comma_space'.l10n);

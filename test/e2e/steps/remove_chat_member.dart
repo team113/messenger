@@ -47,8 +47,9 @@ removeGroupMember = then3<TestUser, TestUser, String, CustomWorld>(
       throw ArgumentError('`$groupName` is not found in `CustomWorld.groups`.');
     }
 
-    final provider = GraphQlProvider();
-    provider.token = kicker.token;
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false
+      ..token = kicker.token;
 
     await provider.removeChatMember(groupId, kicked.userId);
 

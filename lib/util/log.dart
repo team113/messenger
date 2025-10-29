@@ -18,6 +18,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -166,7 +167,7 @@ class LogEntry {
 
 /// Extension adding obscured getter to [NewType]s.
 extension ObscuredNewTypeExtension on NewType {
-  /// Returns this value as a obscured string.
+  /// Returns this value as an obscured string.
   ///
   /// Intended to be used to obscure sensitive information in [Log]s:
   /// ```dart
@@ -174,5 +175,23 @@ extension ObscuredNewTypeExtension on NewType {
   /// // - prints `[Type] signIn(password: null)`, when `null`;
   /// Log.debug('signIn(password: ${password?.obscured})', '$runtimeType');
   /// ```
-  String get obscured => '***';
+  String get obscured {
+    if (Config.logObfuscated) {
+      return '***';
+    }
+
+    return toString();
+  }
+}
+
+/// Extension adding obscured getter to [JsonSerializable]s.
+extension JsonSerializableExtension on JsonSerializable {
+  /// Returns this value as an obscured string.
+  String get obscured {
+    if (Config.logObfuscated) {
+      return '***';
+    }
+
+    return toJson().toString();
+  }
 }

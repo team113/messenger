@@ -135,7 +135,8 @@ class UserView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: Text(
-                c.contact.value?.contact.value.name.val ?? c.name.text,
+                key: Key('UserViewTitleKey'),
+                '${c.user?.title()}',
                 style: style.fonts.larger.regular.onBackground,
                 textAlign: TextAlign.center,
               ),
@@ -405,7 +406,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text: c.user?.title,
+          text: c.user?.title(),
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
@@ -457,7 +458,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_reported1'.l10n),
         TextSpan(
-          text: c.user?.title,
+          text: c.user?.title(),
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_reported2'.l10n),

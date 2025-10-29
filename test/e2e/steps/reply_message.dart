@@ -35,8 +35,9 @@ final StepDefinitionGeneric repliesToMessage =
     when4<TestUser, String, String, String, CustomWorld>(
       '{user} replies to {string} message with {string} text in {string} group',
       (TestUser user, String text, String reply, String name, context) async {
-        final provider = GraphQlProvider();
-        provider.token = context.world.sessions[user.name]?.token;
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false
+          ..token = context.world.sessions[user.name]?.token;
 
         final ChatId chatId = context.world.groups[name]!;
 

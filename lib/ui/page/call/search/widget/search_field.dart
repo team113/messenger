@@ -48,7 +48,6 @@ class SearchField extends StatelessWidget {
       height: CustomAppBar.rawHeight,
       child: Obx(() {
         return CustomAppBar(
-          margin: const EdgeInsets.fromLTRB(0, 4, 0, 0),
           top: false,
           borderRadius: style.cardRadius,
           border: state.isFocused.value || !state.isEmpty.value
