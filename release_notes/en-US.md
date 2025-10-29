@@ -1,3 +1,4 @@
-- Added archived chats.
-- Added separate button to download logs.
+- Added "Ctrl+F"/"Cmd+F" keyboard shortcuts to toggle messages searching.
+- Added "Deleted Account" title displaying for deleted users.
+- Redesigned app bar and searching on chats tab.
 - Bug fixes and performance improvements.
