@@ -46,63 +46,87 @@ class SelectedDot extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    return SafeAnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: selected
+          ? _DotContainer(
+              key: const Key('Selected'),
+              size: size,
+              borderColor: inverted
+                  ? style.colors.onPrimary
+                  : style.colors.primary,
+              backgroundColor: inverted
+                  ? style.colors.primary
+                  : style.colors.onPrimary,
+              child: Center(
+                child: Icon(
+                  Icons.check,
+                  color: inverted
+                      ? style.colors.onPrimary
+                      : style.colors.primary,
+                  size: switch (size) {
+                    SelectedDotSize.normal => 10,
+                    SelectedDotSize.big => 14,
+                  },
+                ),
+              ),
+            )
+          : _DotContainer(
+              key: const Key('Unselected'),
+              size: size,
+              borderColor: style.colors.secondaryHighlightDarkest,
+              backgroundColor: inverted
+                  ? style.colors.secondaryHighlight
+                  : style.colors.onPrimary,
+            ),
+    );
+  }
+}
+
+/// [Container] representing a selection circle.
+class _DotContainer extends StatelessWidget {
+  const _DotContainer({
+    super.key,
+    required this.size,
+    required this.backgroundColor,
+    required this.borderColor,
+    this.child,
+  });
+
+  /// Size of this [SelectedDot].
+  final SelectedDotSize size;
+
+  /// Background [Color] of this [SelectedDot].
+  final Color backgroundColor;
+
+  /// Border [Color] of this [SelectedDot].
+  final Color borderColor;
+
+  /// Widget to be placed in the center of this [SelectedDot].
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
     final double containerSize = switch (size) {
       SelectedDotSize.normal => 20.0,
       SelectedDotSize.big => 25.0,
     };
 
-    final double borderWidth = switch (size) {
-      SelectedDotSize.normal => 1.5,
-      SelectedDotSize.big => 0.5,
-    };
-
-    return SizedBox(
+    return Container(
       width: containerSize,
       height: containerSize,
-      child: SafeAnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        child: selected
-            ? DecoratedBox(
-                key: const Key('Selected'),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: inverted
-                        ? style.colors.onPrimary
-                        : style.colors.primary,
-                    width: borderWidth,
-                  ),
-                  color: inverted
-                      ? style.colors.primary
-                      : style.colors.onPrimary,
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.check,
-                    color: inverted
-                        ? style.colors.onPrimary
-                        : style.colors.primary,
-                    size: switch (size) {
-                      SelectedDotSize.normal => 10,
-                      SelectedDotSize.big => 14,
-                    },
-                  ),
-                ),
-              )
-            : Container(
-                key: const Key('Unselected'),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: style.colors.secondaryHighlightDarkest,
-                    width: borderWidth,
-                  ),
-                  color: inverted
-                      ? style.colors.secondaryHighlight
-                      : style.colors.onPrimary,
-                ),
-              ),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: borderColor,
+          width: switch (size) {
+            SelectedDotSize.normal => 1.5,
+            SelectedDotSize.big => 0.5,
+          },
+        ),
+        color: backgroundColor,
       ),
+      child: child,
     );
   }
 }
