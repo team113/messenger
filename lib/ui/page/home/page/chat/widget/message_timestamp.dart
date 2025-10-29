@@ -174,7 +174,7 @@ class MessageTimestamp extends StatelessWidget {
     }
 
     if (_isSent) {
-      return inverted ? SvgIcons.sent : SvgIcons.sentWhite;
+      return inverted ? SvgIcons.sentWhite : SvgIcons.sent;
     }
 
     return null;

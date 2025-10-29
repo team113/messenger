@@ -21,6 +21,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/provider/drift/connection/connection.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/get.dart';
@@ -32,6 +33,12 @@ import '../steps/internet.dart';
 class ResetAppHook extends Hook {
   @override
   int get priority => 1;
+
+  @override
+  Future<void> onBeforeRun(TestConfiguration config) async {
+    await clearDb();
+    await super.onBeforeRun(config);
+  }
 
   @override
   Future<void> onBeforeScenario(
@@ -71,5 +78,8 @@ class ResetAppHook extends Hook {
   @override
   Future<void> onAfterRun(TestConfiguration config) async {
     await Get.deleteAll(force: true);
+
+    await clearDb();
+    await super.onAfterRun(config);
   }
 }

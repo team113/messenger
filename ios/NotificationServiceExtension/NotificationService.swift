@@ -188,6 +188,10 @@ class NotificationService: UNNotificationServiceExtension {
       request.httpMethod = "POST"
       request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
+      if let agent = defaults!.value(forKey: "agent") as? String {
+        request.setValue(agent, forHTTPHeaderField: "User-Agent")
+      }
+
       let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "network")
 
       do {

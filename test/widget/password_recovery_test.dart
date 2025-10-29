@@ -44,7 +44,10 @@ import 'package:mockito/mockito.dart';
 import '../mock/platform_utils.dart';
 import 'password_recovery_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
+@GenerateNiceMocks([
+  MockSpec<GraphQlProvider>(),
+  MockSpec<PlatformRouteInformationProvider>(),
+])
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -56,6 +59,12 @@ void main() async {
   await L10n.init();
 
   var graphQlProvider = MockGraphQlProvider();
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  when(
+    graphQlProvider.onDelete,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
