@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/animated_typing.dart';
@@ -194,7 +196,11 @@ class RecentChatTile extends StatelessWidget {
         groupTag: 'chat',
         enabled: onHide != null,
         endActionPane: ActionPane(
-          extentRatio: 0.33,
+          extentRatio: max(
+            0.33 * (onHide != null ? 1 : 0) +
+                0.33 * (onArchive != null ? 1 : 0),
+            0.01,
+          ),
           motion: const StretchMotion(),
           dismissible: onDismissed == null
               ? null
@@ -202,9 +208,23 @@ class RecentChatTile extends StatelessWidget {
           children: [
             FadingSlidableAction(
               onPressed: _hideChat,
-              icon: const Icon(Icons.delete),
+              icon: SvgIcon(SvgIcons.deleteAction, height: 18),
+              danger: true,
               text: 'btn_delete'.l10n,
             ),
+
+            if (chat.isArchived)
+              FadingSlidableAction(
+                onPressed: _archiveChat,
+                icon: SvgIcon(SvgIcons.unhideAction, height: 18),
+                text: 'btn_unhide'.l10n,
+              )
+            else
+              FadingSlidableAction(
+                onPressed: _archiveChat,
+                icon: SvgIcon(SvgIcons.hideAction, height: 18),
+                text: 'btn_hide'.l10n,
+              ),
           ],
         ),
         child: CustomDropTarget(
@@ -367,7 +387,7 @@ class RecentChatTile extends StatelessWidget {
 
       final Iterable<String> typings = rxChat.typingUsers
           .where((User user) => user.id != me)
-          .map((User user) => user.title);
+          .map((User user) => user.title());
 
       if (typings.isNotEmpty) {
         if (!rxChat.chat.value.isGroup) {
@@ -649,7 +669,7 @@ class RecentChatTile extends StatelessWidget {
               if (chat.isGroup) {
                 content = userBuilder(item.author.id, (context, user) {
                   final Map<String, dynamic> args = {
-                    'author': user?.title ?? item.author.title,
+                    'author': user?.title() ?? item.author.title(),
                   };
 
                   return Text('label_group_created_by'.l10nfmt(args));
@@ -665,12 +685,12 @@ class RecentChatTile extends StatelessWidget {
               final action = item.action as ChatInfoActionMemberAdded;
 
               content = userBuilder(action.user.id, (context, user) {
-                final String userName = user?.title ?? action.user.title;
+                final String userName = user?.title() ?? action.user.title();
 
                 if (item.author.id != action.user.id) {
                   return userBuilder(item.author.id, (context, author) {
                     final Map<String, dynamic> args = {
-                      'author': author?.title ?? item.author.title,
+                      'author': author?.title() ?? item.author.title(),
                       'user': userName,
                     };
 
@@ -689,8 +709,8 @@ class RecentChatTile extends StatelessWidget {
                 content = userBuilder(item.author.id, (context, author) {
                   return userBuilder(action.user.id, (context, user) {
                     final Map<String, dynamic> args = {
-                      'author': author?.title ?? item.author.title,
-                      'user': user?.title ?? action.user.title,
+                      'author': author?.title() ?? item.author.title(),
+                      'user': user?.title() ?? action.user.title(),
                     };
 
                     return Text('label_user_removed_user'.l10nfmt(args));
@@ -700,7 +720,7 @@ class RecentChatTile extends StatelessWidget {
                 content = userBuilder(action.user.id, (context, rxUser) {
                   return Text(
                     'label_was_removed'.l10nfmt({
-                      'author': rxUser?.title ?? action.user.title,
+                      'author': rxUser?.title() ?? action.user.title(),
                     }),
                   );
                 });
@@ -712,7 +732,7 @@ class RecentChatTile extends StatelessWidget {
 
               content = userBuilder(item.author.id, (context, user) {
                 final Map<String, dynamic> args = {
-                  'author': user?.title ?? item.author.title,
+                  'author': user?.title() ?? item.author.title(),
                 };
 
                 if (action.avatar == null) {
@@ -728,7 +748,7 @@ class RecentChatTile extends StatelessWidget {
 
               content = userBuilder(item.author.id, (context, user) {
                 final Map<String, dynamic> args = {
-                  'author': user?.title ?? item.author.title,
+                  'author': user?.title() ?? item.author.title(),
                   'name': action.name?.val,
                 };
 

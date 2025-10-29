@@ -307,7 +307,7 @@ class ChatRepository extends DisposableInterface
     Future<void> Function(ChatId, UserId)? onMemberRemoved,
     bool? pagination,
   }) async {
-    Log.debug('init(onMemberRemoved)', '$runtimeType');
+    Log.debug('init(onMemberRemoved) for $me', '$runtimeType');
 
     this.onMemberRemoved = onMemberRemoved ?? this.onMemberRemoved;
 
@@ -375,6 +375,12 @@ class ChatRepository extends DisposableInterface
     }
 
     _monologLocal.read(me).then((v) => monolog = v ?? monolog);
+  }
+
+  @override
+  void onInit() {
+    Log.debug('onInit()', '$runtimeType');
+    super.onInit();
   }
 
   @override
@@ -2182,7 +2188,10 @@ class ChatRepository extends DisposableInterface
         chat.value.firstItem ??=
             saved?.value.firstItem ?? rxChat.chat.value.firstItem;
 
-        if (saved == null || (saved.ver <= chat.ver || ignoreVersion)) {
+        if (saved == null ||
+            (saved.ver < chat.ver ||
+                ignoreVersion ||
+                (saved.ver == chat.ver && saved != chat))) {
           // Set the version to the [saved] one, if not [updateVersion].
           if (saved != null && !updateVersion) {
             chat.ver = saved.ver;
@@ -2268,6 +2277,10 @@ class ChatRepository extends DisposableInterface
     _remoteSubscription?.close(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
       await _remoteSubscription!.execute(
         _recentChatsRemoteEvent,
@@ -2744,39 +2757,43 @@ class ChatRepository extends DisposableInterface
   Stream<RecentChatsEvent> _archiveChatsRemoteEvents() {
     Log.debug('_archiveChatsRemoteEvents()', '$runtimeType');
 
-    return _graphQlProvider.recentChatsTopEvents(3, archived: true).asyncExpand((
-      event,
-    ) async* {
-      Log.info('_archiveChatsRemoteEvents(): ${event.data}', '$runtimeType');
+    // TODO: Remove when multiple [_graphQlProvider.recentChatsTopEvents] are
+    //       not interfering with each other.
+    return const Stream.empty();
 
-      var events = RecentChatsTopEvents$Subscription.fromJson(
-        event.data!,
-      ).recentChatsTopEvents;
+    // return _graphQlProvider.recentChatsTopEvents(1, archived: true).asyncExpand((
+    //   event,
+    // ) async* {
+    //   Log.trace('_archiveChatsRemoteEvents(): ${event.data}', '$runtimeType');
 
-      if (events.$$typename == 'SubscriptionInitialized') {
-        yield const RecentChatsTopInitialized();
-      } else if (events.$$typename == 'RecentChatsTop') {
-        var list =
-            (events
-                    as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
-                .list;
-        yield RecentChatsTop(
-          list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
-        );
-      } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
-        var mixin =
-            events
-                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
-        yield EventRecentChatsUpdated(
-          _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
-        );
-      } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
-        var mixin =
-            events
-                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
-        yield EventRecentChatsDeleted(mixin.chatId);
-      }
-    });
+    //   var events = RecentChatsTopEvents$Subscription.fromJson(
+    //     event.data!,
+    //   ).recentChatsTopEvents;
+
+    //   if (events.$$typename == 'SubscriptionInitialized') {
+    //     yield const RecentChatsTopInitialized();
+    //   } else if (events.$$typename == 'RecentChatsTop') {
+    //     var list =
+    //         (events
+    //                 as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
+    //             .list;
+    //     yield RecentChatsTop(
+    //       list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
+    //     );
+    //   } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
+    //     var mixin =
+    //         events
+    //             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
+    //     yield EventRecentChatsUpdated(
+    //       _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
+    //     );
+    //   } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
+    //     var mixin =
+    //         events
+    //             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
+    //     yield EventRecentChatsDeleted(mixin.chatId);
+    //   }
+    // });
   }
 
   /// Fetches [DtoChat]s ordered by their last updating time with pagination.

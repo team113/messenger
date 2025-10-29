@@ -177,6 +177,10 @@ class FileAttachment extends Attachment {
   @override
   Map<String, dynamic> toJson() =>
       _$FileAttachmentToJson(this)..['runtimeType'] = 'FileAttachment';
+
+  @override
+  String toString() =>
+      'FileAttachment(id: $id, size: ${original.size}, filename: $filename)';
 }
 
 /// Unique ID of an [Attachment].

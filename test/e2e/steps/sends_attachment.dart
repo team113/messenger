@@ -38,8 +38,9 @@ final StepDefinitionGeneric
 sendsAttachmentToMe = and2<TestUser, String, CustomWorld>(
   '{user} sends {string} attachment to me',
   (TestUser user, String filename, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false
+      ..token = context.world.sessions[user.name]?.token;
 
     final String? type = MimeResolver.lookup(filename);
     final MediaType? mime = type != null ? MediaType.parse(type) : null;

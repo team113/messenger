@@ -37,7 +37,7 @@ import 'package:mockito/mockito.dart';
 
 import 'auth_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider])
+@GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   final CommonDriftProvider common = Get.put(
     CommonDriftProvider.memory(),

@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -94,9 +94,11 @@ class LogController extends GetxController {
     bool? pushNotifications,
   }) async {
     try {
+      final encoder = Utf8Encoder();
+
       final file = await PlatformUtils.createAndDownload(
         'report_${DateTime.now().millisecondsSinceEpoch}.log',
-        Uint8List.fromList(
+        encoder.convert(
           LogController.report(
             sessions: sessions,
             sessionId: sessionId,
@@ -104,7 +106,7 @@ class LogController extends GetxController {
             myUser: myUser,
             token: token,
             pushNotifications: pushNotifications,
-          ).codeUnits,
+          ),
         ),
       );
 
