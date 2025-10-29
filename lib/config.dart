@@ -110,6 +110,10 @@ class Config {
   /// Maximum allowed [Log.maxLogs] amount of log entries to keep.
   static int logAmount = 4096;
 
+  /// Indicator whether [Log]s should obfuscate any private information
+  /// (messages, tokens, etc).
+  static bool logObfuscated = true;
+
   /// URL of a Sparkle Appcast XML file.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
@@ -241,6 +245,10 @@ class Config {
         ? const int.fromEnvironment('SOCAPP_LOG_AMOUNT')
         : (document['log']?['amount'] ?? 4096);
 
+    logObfuscated = const bool.hasEnvironment('SOCAPP_LOG_OBFUSCATED')
+        ? const bool.fromEnvironment('SOCAPP_LOG_OBFUSCATED')
+        : (document['log']?['obfuscated'] ?? !kDebugMode);
+
     appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
         ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
         : (document['appcast']?['url'] ?? appcast);
@@ -350,6 +358,7 @@ class Config {
               );
             }
             logAmount = _asInt(remote['log']?['amount']) ?? logAmount;
+            logObfuscated = remote['log']?['obfuscated'] ?? logObfuscated;
             origin = url;
           }
         }
@@ -378,6 +387,12 @@ class Config {
     if (PlatformUtils.isIOS) {
       IosUtils.writeDefaults('url', url);
       IosUtils.writeDefaults('endpoint', graphql);
+
+      // Store user agent to use as a `User-Agent` header in Notification
+      // Service Extension.
+      PlatformUtils.userAgent.then((agent) {
+        IosUtils.writeDefaults('agent', agent);
+      });
     }
   }
 }

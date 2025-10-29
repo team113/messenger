@@ -29,6 +29,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/log.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/performance.dart';
@@ -105,7 +106,6 @@ import 'steps/see_archived_chat.dart';
 import 'steps/see_avatar_title.dart';
 import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
-import 'steps/see_chat_dismissed.dart';
 import 'steps/see_chat_members.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_named.dart';
@@ -253,7 +253,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeAvatarTitleInUserView,
         seeBlockedUsers,
         seeChatAsArchived,
-        seeChatAsDismissed,
         seeChatAsFavorite,
         seeChatAsMuted,
         seeChatAvatarAs,
@@ -269,6 +268,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactPosition,
         seeContactSelection,
         seeCountChats,
+        seeCountChatsOrMore,
         seeCountContacts,
         seeCountFavoriteChats,
         seeCountSessions,
@@ -282,7 +282,6 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeMonologAsFavorite,
         seeMonologInSearchResults,
         seeNamedChat,
-        seeNoChatsDismissed,
         seeNoContactsDismissed,
         seesAs,
         seesDialogWithMe,
@@ -410,7 +409,9 @@ Future<CustomUser> createUser({
   CustomWorld? world,
   UserPassword? password,
 }) async {
-  final provider = GraphQlProvider();
+  final GraphQlProvider provider = GraphQlProvider()
+    ..client.withWebSocket = false;
+
   final result = await provider.signUp();
   final success = result as SignUp$Mutation$CreateUser$CreateSessionOk;
 
@@ -432,6 +433,11 @@ Future<CustomUser> createUser({
       world.sessions[user.name]?.credentials = result.toModel();
     }
   }
+
+  Log.info(
+    'createUser() -> Created user `${user?.name}` with password: `$password` -> $customUser',
+    'E2E',
+  );
 
   provider.disconnect();
 
