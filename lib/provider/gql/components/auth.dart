@@ -115,7 +115,7 @@ mixin AuthGraphQlMixin {
     token ??= this.token;
 
     Log.debug(
-      'deleteSession(id: $id, confirmation: ***, token: $token)',
+      'deleteSession(id: $id, confirmation: ${confirmation?.obscured}, token: $token)',
       '$runtimeType',
     );
 
@@ -176,7 +176,7 @@ mixin AuthGraphQlMixin {
     required MyUserIdentifier identifier,
   }) async {
     Log.debug(
-      'signIn(identifier: identifier, credentials: credentials)',
+      'signIn(identifier: ${identifier.obscured}, credentials: ${credentials.obscured})',
       '$runtimeType',
     );
 
@@ -250,7 +250,10 @@ mixin AuthGraphQlMixin {
     RefreshTokenSecret secret, {
     RefreshSessionSecretsInput? input,
   }) async {
-    Log.debug('refreshSession($secret, input: $input)', '$runtimeType');
+    Log.debug(
+      'refreshSession(${secret.obscured}, input: ${input?.obscured})',
+      '$runtimeType',
+    );
 
     final variables = RefreshSessionArguments(secret: secret, kw$new: input);
     final QueryResult result = await client.mutate(
@@ -363,7 +366,7 @@ mixin AuthGraphQlMixin {
     required ConfirmationCode code,
   }) async {
     Log.debug(
-      'validateConfirmationCode(identifier: $identifier, code: $code)',
+      'validateConfirmationCode(identifier: ${identifier.obscured}, code: $code)',
       '$runtimeType',
     );
 
