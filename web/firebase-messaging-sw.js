@@ -17,18 +17,21 @@
 
 importScripts('./firebase-credentials.js');
 
+const routeChannel = new BroadcastChannel("route");
+
 // Registers `notificationclick` handler for closing notification and navigating
 // to the chat specified in the payload.
 self.addEventListener('notificationclick', function (event) {
   async function handle() {
-    // This is our payload from locally showed notification.
-    const payload = event.notification?.lang;
-
-    event.notification.close();
+    // This is our payload from the showed notification.
+    const payload = event.notification?.data;
     console.log('`notificationclick` triggered from ServiceWorker:', payload);
 
-    await self.clients.claim();
+    const link = payload.webpush.link;
 
+    event.notification.close();
+
+    await self.clients.claim();
     let clientList = await self.clients.matchAll({
       type: 'window',
       includeUncontrolled: true
@@ -38,12 +41,20 @@ self.addEventListener('notificationclick', function (event) {
       // Ignore separate windows of calls and galleries.
       if (!client.url.includes('/call') && !client.url.includes('/gallery')) {
         client.focus();
-        client.navigate(payload);
+
+        if (link) {
+          routeChannel.postMessage(link);
+        }
+
         return;
       }
     }
 
-    self.clients.openWindow(payload);
+    if (link) {
+      await self.clients.openWindow(link);
+    } else {
+      await self.clients.openWindow('/');
+    }
   }
 
   event.waitUntil(handle());
@@ -95,7 +106,7 @@ messaging.onMessage(async (payload) => {
   else {
     // Try to set a badge, if available.
     if (navigator.setAppBadge) {
-      let unreadCount = 1;
+      let unreadCount = payload.data.badge ?? 1;
 
       if (unreadCount && unreadCount > 0) {
         navigator.setAppBadge(unreadCount);
