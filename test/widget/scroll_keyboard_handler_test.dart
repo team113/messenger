@@ -132,7 +132,7 @@ void main() {
     ) async {
       scrollController = ScrollController(initialScrollOffset: 400);
       const maxHeight = 300.0;
-      const defaultFactor = 0.9;
+      const defaultFactor = 0.95;
 
       await tester.pumpWidget(buildTestWidget(maxHeight: maxHeight));
       await tester.pumpAndSettle();
@@ -174,10 +174,13 @@ void main() {
       await tester.sendKeyDownEvent(LogicalKeyboardKey.pageUp);
       await tester.pump();
 
-      // Experimentally selected number, may require modification when editing the animation.
-      for (int i = 0; i < 90; i++) {
+      // Experimentally selected number, may require modification when editing
+      // the animation.
+      for (int i = 0; i < 100; i++) {
         // Waiting for the animation to complete without call pumpAndSettle().
-        await tester.pump(const Duration(milliseconds: 16)); // ~60 FPS
+        await tester.sendKeyRepeatEvent(LogicalKeyboardKey.pageUp);
+        await tester.pump();
+        await tester.pumpAndSettle(const Duration(milliseconds: 16));
       }
 
       await tester.sendKeyUpEvent(LogicalKeyboardKey.pageUp);
