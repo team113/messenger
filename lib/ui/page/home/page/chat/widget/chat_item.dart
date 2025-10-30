@@ -2183,7 +2183,7 @@ extension LinkParsingExtension on String {
 class _EditContextMenuButton extends ContextMenuButton {
   _EditContextMenuButton({super.onPressed})
     : super(
-        key: const Key('EditButton'),
+        key: const Key('EditMessageButton'),
         label: 'btn_edit'.l10n,
         trailing: const SvgIcon(SvgIcons.edit),
         inverted: const SvgIcon(SvgIcons.editWhite),
