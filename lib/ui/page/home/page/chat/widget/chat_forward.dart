@@ -1082,7 +1082,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   widget.me,
                                 )))
                           ContextMenuButton(
-                            key: const Key('EditButton'),
+                            key: const Key('EditMessageButton'),
                             label: 'btn_edit'.l10n,
                             trailing: const SvgIcon(SvgIcons.edit),
                             inverted: const SvgIcon(SvgIcons.editWhite),
