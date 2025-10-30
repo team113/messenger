@@ -83,10 +83,14 @@ class NotificationService extends DisposableService {
   /// [_active].
   StreamSubscription? _onActivityChanged;
 
-  /// Subscription to the [WebUtils.onBroadcastMessage] playing the notification
+  /// Subscription to a [WebUtils.onBroadcastMessage] playing the notification
   /// sound on web platforms and updating the [_tags] when push notifications
   /// are received.
   StreamSubscription? _onBroadcastMessage;
+
+  /// Subscription to the [WebUtils.onBroadcastMessage] changing the [router]
+  /// location.
+  StreamSubscription? _onRouteMessage;
 
   /// Indicator whether the application is active.
   bool _active = true;
@@ -186,6 +190,7 @@ class NotificationService extends DisposableService {
     _foregroundSubscription?.cancel();
     _onActivityChanged?.cancel();
     _onBroadcastMessage?.cancel();
+    _onRouteMessage?.cancel();
   }
 
   // TODO: Implement icons and attachments on non-web platforms.
@@ -234,7 +239,9 @@ class NotificationService extends DisposableService {
       WebUtils.showNotification(
         title,
         body: body,
-        lang: payload,
+        data: {
+          'webpush': {'link': payload},
+        },
         icon: icon?.url ?? image,
         tag: tag,
       ).onError((_, _) => false);
@@ -390,6 +397,14 @@ class NotificationService extends DisposableService {
     void Function(NotificationResponse)? onResponse,
   }) async {
     Log.debug('_initLocalNotifications(onResponse)', '$runtimeType');
+
+    _onRouteMessage = WebUtils.onBroadcastMessage(name: 'route').listen((e) {
+      Log.debug('_onRouteMessage() -> $e', '$runtimeType');
+
+      if (e is String) {
+        router.go(e);
+      }
+    });
 
     if (PlatformUtils.isWeb) {
       // Permission request is happening in `index.html` via a script tag due to
@@ -563,7 +578,7 @@ class NotificationService extends DisposableService {
     }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((message) {
+      _onBroadcastMessage = WebUtils.onBroadcastMessage().listen((message) {
         final String? chatId = message['data']?['chatId'];
         final String? chatItemId = message['data']?['chatItemId'];
 
