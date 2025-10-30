@@ -6,15 +6,26 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.6.7] · 2025-10-29
-[0.6.7]: /../../tree/v0.6.7
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
 
-[Diff](/../../compare/v0.6.6...v0.6.7) | [Milestone](/../../milestone/51)
+[Diff](/../../compare/v0.6.7...v0.7.0) | [Milestone](/../../milestone/52)
 
 ### Added
 
 - UI:
     - Pages scrolling by pressing "PageUp" and "PageDown" keys. ([#1469], [#1228])
+
+[#1228]: /../../issues/1228
+[#1469]: /../../pull/1469
+
+
+
+
+## [0.6.7] · 2025-10-29
+[0.6.7]: /../../tree/v0.6.7
+
+[Diff](/../../compare/v0.6.6...v0.6.7) | [Milestone](/../../milestone/51)
 
 ### Changed
 
@@ -33,15 +44,13 @@ All user visible changes to this project will be documented in this file. This p
         - Updated overlay icons. ([#1466], [#1453])
         - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
 
-[#1228]: /../../issues/1228
 [#1396]: /../../issues/1396
 [#1419]: /../../issues/1419
 [#1436]: /../../issues/1436
-[#1453]: /../../issues/1453
 [#1438]: /../../pull/1438
 [#1445]: /../../pull/1445
+[#1453]: /../../issues/1453
 [#1466]: /../../pull/1466
-[#1469]: /../../pull/1469
 [#1473]: /../../pull/1473
 
 

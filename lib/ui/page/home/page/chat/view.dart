@@ -498,7 +498,6 @@ class ChatView extends StatelessWidget {
                           child = ScrollKeyboardHandler(
                             scrollController: c.listController,
                             reversed: true,
-                            child: child,
 
                             // Only allow scrolling up when cursor is at the
                             // beginning of the input field.
@@ -513,6 +512,8 @@ class ChatView extends StatelessWidget {
                                 c.send.field.controller.selection.baseOffset ==
                                     c.send.field.controller.text.length ||
                                 c.send.field.isFocused.isFalse,
+
+                            child: child,
                           );
 
                           if (PlatformUtils.isMobile) {

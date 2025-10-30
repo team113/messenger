@@ -74,12 +74,12 @@ void main() {
   }
 
   group('ScrollKeyboardHandler', () {
-    testWidgets('should build without errors', (tester) async {
+    testWidgets('Builds without errors', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       expect(find.byType(ScrollKeyboardHandler), findsOneWidget);
     });
 
-    testWidgets('should handle PageUp key, offset is change', (tester) async {
+    testWidgets('Handles "PageUp" key', (tester) async {
       scrollController = ScrollController(initialScrollOffset: 600);
 
       await tester.pumpWidget(buildTestWidget());
@@ -92,7 +92,7 @@ void main() {
       expect(scrollController.offset < initialOffset, true);
     });
 
-    testWidgets('should handle PageDown key, offset is change', (tester) async {
+    testWidgets('Handles "PageDown" key', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
@@ -103,7 +103,7 @@ void main() {
       expect(scrollController.offset > initialOffset, true);
     });
 
-    testWidgets('should handle Alt+ArrowUp combination', (tester) async {
+    testWidgets('Handles "Alt+ArrowUp" combination', (tester) async {
       scrollController = ScrollController(initialScrollOffset: 500);
 
       await tester.pumpWidget(buildTestWidget());
@@ -116,7 +116,7 @@ void main() {
       expect(scrollController.offset < initialOffset, true);
     });
 
-    testWidgets('should handle Alt+ArrowDown combination', (tester) async {
+    testWidgets('Handles "Alt+ArrowDown" combination', (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
 
@@ -127,7 +127,7 @@ void main() {
       expect(scrollController.offset > initialOffset, true);
     });
 
-    testWidgets('should scroll to start with alternative maxHeight', (
+    testWidgets('Scrolls to start with alternative `maxHeight`', (
       tester,
     ) async {
       scrollController = ScrollController(initialScrollOffset: 400);
@@ -155,7 +155,7 @@ void main() {
       expect(scrollController.offset, equals(0));
     });
 
-    testWidgets('should clamp scroll offset to valid range', (tester) async {
+    testWidgets('Clamps scroll offset to valid range', (tester) async {
       scrollController = ScrollController(initialScrollOffset: 0);
 
       await tester.pumpWidget(buildTestWidget());
@@ -165,9 +165,7 @@ void main() {
       expect(scrollController.offset, equals(0));
     });
 
-    testWidgets('should scroll to top with long press pageUp key', (
-      tester,
-    ) async {
+    testWidgets('Scrolls to top with long press "PageUp" key', (tester) async {
       scrollController = ScrollController(initialScrollOffset: 1000);
 
       await tester.pumpWidget(buildTestWidget(maxHeight: 300));
@@ -175,11 +173,13 @@ void main() {
 
       await tester.sendKeyDownEvent(LogicalKeyboardKey.pageUp);
       await tester.pump();
+
+      // Experimentally selected number, may require modification when editing the animation.
       for (int i = 0; i < 90; i++) {
-        /// waiting for the animation to complete without call pumpAndSettle().
-        /// 90 - experimentally selected number, may require modification when editing the animation
+        // Waiting for the animation to complete without call pumpAndSettle().
         await tester.pump(const Duration(milliseconds: 16)); // ~60 FPS
       }
+
       await tester.sendKeyUpEvent(LogicalKeyboardKey.pageUp);
       await tester.pump();
 
