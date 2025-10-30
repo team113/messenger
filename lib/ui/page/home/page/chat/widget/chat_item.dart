@@ -1529,13 +1529,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     widget.item.value,
                                     widget.me,
                                   )))
-                            ContextMenuButton(
-                              key: const Key('EditButton'),
-                              label: 'btn_edit'.l10n,
-                              trailing: const SvgIcon(SvgIcons.edit),
-                              inverted: const SvgIcon(SvgIcons.editWhite),
-                              onPressed: widget.onEdit,
-                            ),
+                            _EditContextMenuButton(onPressed: widget.onEdit),
                           if (media.isNotEmpty) ...[
                             if (PlatformUtils.isDesktop)
                               ContextMenuButton(
@@ -1579,13 +1573,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 onPressed: () => widget.onSave?.call(media),
                               ),
                           ],
-                          ContextMenuButton(
-                            key: const Key('DeleteMessageButton'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_delete'.l10n
-                                : 'btn_delete_message'.l10n,
-                            trailing: const SvgIcon(SvgIcons.delete19),
-                            inverted: const SvgIcon(SvgIcons.delete19White),
+                          _DeleteMessageButton(
                             onPressed: () async {
                               bool isMonolog = widget.chat.value!.isMonolog;
                               bool deletable =
@@ -1637,13 +1625,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ),
                         ],
                         if (item.status.value == SendingStatus.error) ...[
-                          ContextMenuButton(
-                            key: const Key('EditButton'),
-                            label: 'btn_edit'.l10n,
-                            trailing: const SvgIcon(SvgIcons.edit),
-                            inverted: const SvgIcon(SvgIcons.editWhite),
-                            onPressed: widget.onEdit,
-                          ),
+                          _EditContextMenuButton(onPressed: widget.onEdit),
                           ContextMenuButton(
                             key: const Key('Resend'),
                             label: PlatformUtils.isMobile
@@ -1653,13 +1635,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             inverted: const SvgIcon(SvgIcons.sendSmallWhite),
                             onPressed: widget.onResend,
                           ),
-                          ContextMenuButton(
-                            key: const Key('DeleteMessageButton'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_delete'.l10n
-                                : 'btn_delete_message'.l10n,
-                            trailing: const SvgIcon(SvgIcons.delete19),
-                            inverted: const SvgIcon(SvgIcons.delete19White),
+                          _DeleteMessageButton(
                             onPressed: () async {
                               final bool? pressed = await MessagePopup.alert(
                                 'label_delete_message'.l10n,
@@ -2201,4 +2177,28 @@ extension LinkParsingExtension on String {
 
     return TextSpan(children: spans);
   }
+}
+
+/// [ContextMenuButton] for editing a [ChatItem].
+class _EditContextMenuButton extends ContextMenuButton {
+  _EditContextMenuButton({super.onPressed})
+    : super(
+        key: const Key('EditButton'),
+        label: 'btn_edit'.l10n,
+        trailing: const SvgIcon(SvgIcons.edit),
+        inverted: const SvgIcon(SvgIcons.editWhite),
+      );
+}
+
+/// [ContextMenuButton] for deleting a [ChatItem].
+class _DeleteMessageButton extends ContextMenuButton {
+  _DeleteMessageButton({super.onPressed})
+    : super(
+        key: const Key('DeleteMessageButton'),
+        label: PlatformUtils.isMobile
+            ? 'btn_delete'.l10n
+            : 'btn_delete_message'.l10n,
+        trailing: const SvgIcon(SvgIcons.delete19),
+        inverted: const SvgIcon(SvgIcons.delete19White),
+      );
 }
