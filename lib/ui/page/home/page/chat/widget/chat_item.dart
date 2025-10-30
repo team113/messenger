@@ -1638,6 +1638,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ],
                         if (item.status.value == SendingStatus.error) ...[
                           ContextMenuButton(
+                            key: const Key('EditButton'),
+                            label: 'btn_edit'.l10n,
+                            trailing: const SvgIcon(SvgIcons.edit),
+                            inverted: const SvgIcon(SvgIcons.editWhite),
+                            onPressed: widget.onEdit,
+                          ),
+                          ContextMenuButton(
                             key: const Key('Resend'),
                             label: PlatformUtils.isMobile
                                 ? 'btn_resend'.l10n
