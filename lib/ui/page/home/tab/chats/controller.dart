@@ -689,6 +689,11 @@ class ChatsTabController extends GetxController {
     groupCreating.value = true;
     search.value?.search.clear();
     search.value?.query.value = '';
+    search.value?.categories = [
+      SearchCategory.recent,
+      SearchCategory.contact,
+      SearchCategory.user,
+    ];
     router.navigation.value = false;
     router.navigator.value = (context) =>
         ChatsTabView.createGroupBuilder(context, this);
@@ -698,6 +703,14 @@ class ChatsTabController extends GetxController {
   /// Disables and disposes the group creating.
   void closeGroupCreating() {
     groupCreating.value = false;
+    search.value?.search.clear();
+    search.value?.query.value = '';
+    search.value?.categories = [
+      SearchCategory.recent,
+      SearchCategory.chat,
+      SearchCategory.contact,
+      SearchCategory.user,
+    ];
     router.navigation.value = true;
     router.navigator.value = null;
   }
@@ -832,7 +845,7 @@ class ChatsTabController extends GetxController {
       _sessionService,
       categories: [
         SearchCategory.recent,
-        if (groupCreating.isFalse) SearchCategory.chat,
+        SearchCategory.chat,
         SearchCategory.contact,
         SearchCategory.user,
       ],

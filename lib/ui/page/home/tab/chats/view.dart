@@ -29,7 +29,6 @@ import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
 import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/animated_button.dart';
@@ -814,37 +813,16 @@ class ChatsTabView extends StatelessWidget {
                 );
               });
             } else if (element is DividerElement) {
-              final String text;
-
-              switch (element.category) {
-                case SearchCategory.recent:
-                  text = 'label_recent'.l10n;
-                  break;
-
-                case SearchCategory.contact:
-                  text = 'label_user'.l10n;
-                  break;
-
-                case SearchCategory.user:
-                  text = 'label_user'.l10n;
-                  break;
-
-                case SearchCategory.chat:
-                  text = 'label_chat'.l10n;
-                  break;
-              }
-
-              child = Center(
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(0, 2, 0, 2),
-                  padding: const EdgeInsets.fromLTRB(0, 10, 0, 6),
-                  width: double.infinity,
-                  child: Center(
-                    child: Text(
-                      text,
-                      style: style.fonts.normal.regular.onBackground,
-                    ),
-                  ),
+              child = Container(
+                margin: EdgeInsets.fromLTRB(10, i == 0 ? 0 : 8, 8, 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                width: double.infinity,
+                child: Text(
+                  element.category.l10n,
+                  style: style.fonts.medium.regular.onBackground,
                 ),
               );
             } else {
