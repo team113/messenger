@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.7...v0.7.0) | [Milestone](/../../milestone/52)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned media attachments. ([#1480], [#1412])
+
+[#1412]: /../../issues/1412
+[#1480]: /../../pull/1480
+
+
+
+
 ## [0.6.7] · 2025-10-29
 [0.6.7]: /../../tree/v0.6.7
 
