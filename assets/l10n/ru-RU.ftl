@@ -549,7 +549,6 @@ label_call_title =
     }
 label_call_window = Окно звонка
 label_camera = Камера
-label_chat = Чат
 label_change_password = Изменить пароль
 label_chat_call_declined = Отклонённый звонок
 label_chat_call_ended = Завершённый звонок
@@ -796,7 +795,6 @@ label_public_section_hint = Аватар, имя, о Вас, ...
 label_reason = Причина
 label_reason_described = Причина: {$reason}
 label_reason_hint = Укажите причину
-label_recent = Недавние
 label_reconnecting_ellipsis = Переподключение...
 label_recover_account = Восстановление доступа
 label_recover_account_description = Укажите Ваш Gapopa ID, логин или E-mail.
@@ -937,7 +935,6 @@ label_unread_messages = {$quantity ->
 }
 label_unmuted = Звук включен
 label_update_available = Доступно обновление
-label_user = Пользователь
 label_user_added_user = {$author} добавил(а) {$user}
 label_user_added_user1 = {$author}{" "}
 label_user_added_user2 = добавил(а)
