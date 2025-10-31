@@ -50,7 +50,7 @@ class ChatService extends DisposableService {
   final AuthService _authService;
 
   /// Stores scroll position, used when leaving and re-entering it.
-  static final Map<String, ChatScrollPosition?> _savedScrollPosition = {};
+  final Map<String, ChatScrollPosition?> _savedScrollPosition = {};
 
   /// Returns the [RxStatus] of the [paginated] initialization.
   Rx<RxStatus> get status => _chatRepository.status;
