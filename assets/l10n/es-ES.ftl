@@ -537,7 +537,6 @@ label_call_title =
     }
 label_call_window = Ventana de llamada
 label_camera = Cámara
-label_chat = Chat
 label_change_password = Cambiar la contrseña
 label_chat_call_declined = Llamada rechazada
 label_chat_call_ended = Llamada terminada
@@ -785,7 +784,6 @@ label_public_section_hint = Avatar, nombre, a cerca de Usted, ...
 label_reason = Motivo
 label_reason_described = Motivo: {$reason}
 label_reason_hint = Escriba el motivo
-label_recent = Recientes
 label_reconnecting_ellipsis = Reconectando...
 label_recover_account = Recuperación de acceso
 label_recover_account_description = Ingrese su Gapopa ID, usuario o e-mail
@@ -923,7 +921,6 @@ label_unread_messages =
     }
 label_unmuted = Sonido activado
 label_update_available = Actualización disponible
-label_user = Usuario
 label_user_added_user = {$author} agregó {$user}
 label_user_added_user1 = {$author}{" "}
 label_user_added_user2 = agregó
