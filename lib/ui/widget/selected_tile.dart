@@ -40,7 +40,6 @@ class SelectedTile extends StatelessWidget {
     this.selected = false,
     this.subtitle = const [],
     this.onTap,
-    this.darken = 0,
     this.onAvatarTap = _defaultAvatarTap,
   });
 
@@ -66,10 +65,6 @@ class SelectedTile extends StatelessWidget {
   /// Callback, called when this [SelectedTile] is pressed.
   final void Function()? onTap;
 
-  /// Amount of darkening to apply to the background of [ContactTile] or
-  /// [ChatTile].
-  final double darken;
-
   /// Callback, called when an [AvatarWidget] of this [SelectedTile] is pressed.
   final void Function(UserId id)? onAvatarTap;
 
@@ -82,10 +77,7 @@ class SelectedTile extends StatelessWidget {
         selected: selected,
         subtitle: subtitle,
         onTap: onTap,
-        darken: darken,
-        trailing: [
-          if (myUser == null) SelectedDot(selected: selected, darken: darken),
-        ],
+        trailing: [if (myUser == null) SelectedDot(selected: selected)],
       );
     }
 
@@ -95,7 +87,6 @@ class SelectedTile extends StatelessWidget {
       myUser: myUser,
       selected: selected,
       subtitle: subtitle,
-      darken: darken,
       onTap: onTap,
       avatarBuilder: (c) => WidgetButton(
         onPressed: onAvatarTap == null
@@ -105,9 +96,7 @@ class SelectedTile extends StatelessWidget {
               ),
         child: c,
       ),
-      trailing: [
-        if (myUser == null) SelectedDot(selected: selected, darken: darken),
-      ],
+      trailing: [if (myUser == null) SelectedDot(selected: selected)],
     );
   }
 

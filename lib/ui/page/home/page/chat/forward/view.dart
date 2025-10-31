@@ -63,6 +63,9 @@ class ChatForwardView extends StatelessWidget {
   /// Callback, called when the [quotes] are sent.
   final void Function()? onSent;
 
+  /// Maximum height of the [ChatForwardView].
+  static const double _maxHeight = 812;
+
   /// Displays a [ChatForwardView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context,
@@ -78,10 +81,10 @@ class ChatForwardView extends StatelessWidget {
       context: context,
       desktopConstraints: const BoxConstraints(
         maxWidth: double.infinity,
-        maxHeight: 800,
+        maxHeight: _maxHeight,
       ),
       mobilePadding: const EdgeInsets.only(bottom: 12),
-      desktopPadding: const EdgeInsets.only(bottom: 12),
+      desktopPadding: const EdgeInsets.only(bottom: 10),
       background: style.colors.background,
       child: ChatForwardView(
         key: const Key('ChatForwardView'),
@@ -121,6 +124,10 @@ class ChatForwardView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
+                    ModalPopupHeader(
+                      text: 'label_forward_message'.l10n,
+                      subtitle: 'label_forward_subtitle'.l10n,
+                    ),
                     Expanded(
                       child: SearchView(
                         key: const Key('SearchView'),
@@ -129,12 +136,11 @@ class ChatForwardView extends StatelessWidget {
                           SearchCategory.contact,
                           SearchCategory.user,
                         ],
-                        title: 'label_forward_message'.l10n,
                         onSelected: (r) => c.selected.value = r,
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: MessageFieldView(
                         fieldKey: const Key('ForwardField'),
                         sendKey: const Key('SendForward'),
@@ -142,10 +148,11 @@ class ChatForwardView extends StatelessWidget {
                           maxHeight:
                               min(
                                 MediaQuery.of(context).size.height - 10,
-                                800,
+                                _maxHeight,
                               ) /
                               4,
                         ),
+                        rounded: true,
                         controller: c.send,
                       ),
                     ),
