@@ -36,3 +36,18 @@ Feature: Failure sent messages are correctly edited and sent.
     And I fill `MessageField` field with "Hi"
     And I tap `Send` button
     Then I wait until status of "Hi" message is sent
+
+  Scenario: User deletes one of the file attachments when edit failure message
+    Given I do not have Internet
+    When I attach "test.txt" file
+    And I attach "test2.txt" file
+    And I tap `Send` button
+    Then I wait until status of "test2.txt" attachment is error
+
+    Given I have Internet without delay
+    When I long press message with "test.txt"
+    And I tap `EditMessageButton` button
+    And I remove "test2.txt" file
+    And I tap `Send` button
+    Then I wait until status of "test.txt" attachment is sending
+    And I wait until status of "test.txt" attachment is sent
