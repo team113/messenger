@@ -106,8 +106,8 @@ class MessageFieldView extends StatelessWidget {
   /// Indicator whether the field should be rounded.
   final bool rounded;
 
-  /// Border radius value when [rounded] is true.
-  static const Radius _borderRadius = Radius.circular(15.0);
+  /// Border radius value when [rounded] is `true`.
+  static const Radius _borderRadius = Radius.circular(15);
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {

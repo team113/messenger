@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import 'animated_switcher.dart';
 
-/// Size of this [SelectedDot].
+/// Size of a [SelectedDot].
 enum SelectedDotSize { normal, big }
 
 /// Animated [CircleAvatar] representing a selection circle.
@@ -46,39 +46,39 @@ class SelectedDot extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final Widget dot;
+
+    if (selected) {
+      dot = _DotContainer(
+        key: const Key('Selected'),
+        size: size,
+        border: inverted ? style.colors.onPrimary : style.colors.primary,
+        background: inverted ? style.colors.primary : style.colors.onPrimary,
+        child: Center(
+          child: Icon(
+            Icons.check,
+            color: inverted ? style.colors.onPrimary : style.colors.primary,
+            size: switch (size) {
+              SelectedDotSize.normal => 10,
+              SelectedDotSize.big => 14,
+            },
+          ),
+        ),
+      );
+    } else {
+      dot = _DotContainer(
+        key: const Key('Unselected'),
+        size: size,
+        border: style.colors.secondaryHighlightDarkest,
+        background: inverted
+            ? style.colors.secondaryHighlight
+            : style.colors.onPrimary,
+      );
+    }
+
     return SafeAnimatedSwitcher(
       duration: const Duration(milliseconds: 200),
-      child: selected
-          ? _DotContainer(
-              key: const Key('Selected'),
-              size: size,
-              borderColor: inverted
-                  ? style.colors.onPrimary
-                  : style.colors.primary,
-              backgroundColor: inverted
-                  ? style.colors.primary
-                  : style.colors.onPrimary,
-              child: Center(
-                child: Icon(
-                  Icons.check,
-                  color: inverted
-                      ? style.colors.onPrimary
-                      : style.colors.primary,
-                  size: switch (size) {
-                    SelectedDotSize.normal => 10,
-                    SelectedDotSize.big => 14,
-                  },
-                ),
-              ),
-            )
-          : _DotContainer(
-              key: const Key('Unselected'),
-              size: size,
-              borderColor: style.colors.secondaryHighlightDarkest,
-              backgroundColor: inverted
-                  ? style.colors.secondaryHighlight
-                  : style.colors.onPrimary,
-            ),
+      child: dot,
     );
   }
 }
@@ -88,8 +88,8 @@ class _DotContainer extends StatelessWidget {
   const _DotContainer({
     super.key,
     required this.size,
-    required this.backgroundColor,
-    required this.borderColor,
+    required this.background,
+    required this.border,
     this.child,
   });
 
@@ -97,34 +97,34 @@ class _DotContainer extends StatelessWidget {
   final SelectedDotSize size;
 
   /// Background [Color] of this [SelectedDot].
-  final Color backgroundColor;
+  final Color background;
 
   /// Border [Color] of this [SelectedDot].
-  final Color borderColor;
+  final Color border;
 
   /// Widget to be placed in the center of this [SelectedDot].
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
-    final double containerSize = switch (size) {
+    final double dimension = switch (size) {
       SelectedDotSize.normal => 20.0,
       SelectedDotSize.big => 25.0,
     };
 
     return Container(
-      width: containerSize,
-      height: containerSize,
+      width: dimension,
+      height: dimension,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: borderColor,
+          color: border,
           width: switch (size) {
             SelectedDotSize.normal => 1.5,
             SelectedDotSize.big => 0.5,
           },
         ),
-        color: backgroundColor,
+        color: background,
       ),
       child: child,
     );

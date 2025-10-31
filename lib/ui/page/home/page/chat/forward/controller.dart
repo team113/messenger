@@ -93,11 +93,12 @@ class ChatForwardController extends GetxController {
   /// [MessageFieldController] controller sending the [ChatMessage].
   late final MessageFieldController send;
 
+  /// Subscription to the [selected] stream changing
+  /// [ReactiveFieldState.submittable] depending on the [SearchViewResults].
+  StreamSubscription<SearchViewResults?>? _selectedSubscription;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
-
-  /// Subscription to the [selected] stream.
-  late final StreamSubscription<SearchViewResults?> _selectedSubscription;
 
   @override
   void onInit() {
@@ -108,7 +109,7 @@ class ChatForwardController extends GetxController {
       text: text,
       attachments: attachments,
       canPin: false,
-      onSubmit: () => _sendForwardMessage(),
+      onSubmit: _send,
     );
 
     send.field.submittable.value = false;
@@ -122,13 +123,13 @@ class ChatForwardController extends GetxController {
 
   @override
   void onClose() {
-    _selectedSubscription.cancel();
+    _selectedSubscription?.cancel();
     send.onClose();
     scrollController.dispose();
     super.onClose();
   }
 
-  /// Returns an [User] from [UserService] by the provided [id].
+  /// Returns a [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Adds the specified [event] files to the [attachments].
@@ -141,8 +142,8 @@ class ChatForwardController extends GetxController {
     }
   }
 
-  /// Sends the forward message.
-  Future<void> _sendForwardMessage() async {
+  /// Forms and sends the forwarded message.
+  Future<void> _send() async {
     if (selected.value?.isEmpty != false) {
       send.field.unsubmit();
       return;
