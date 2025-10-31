@@ -479,7 +479,7 @@ void main() async {
     await tester.longPress(message);
     await tester.pumpAndSettle(const Duration(seconds: 10));
 
-    await tester.tap(find.byKey(const Key('EditButton')));
+    await tester.tap(find.byKey(const Key('EditMessageButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.enterText(find.byKey(const Key('MessageField')), 'new text');

@@ -785,22 +785,44 @@ class ChatController extends GetxController {
 
           _stopTyping();
 
-          if (edit.value!.field.text.trim().isNotEmpty ||
+          final bool textNotEmpty = edit.value!.field.text.trim().isNotEmpty;
+
+          if (textNotEmpty ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
             try {
-              await _chatService.editChatMessage(
-                item,
-                text: ChatMessageTextInput(
-                  ChatMessageText(edit.value!.field.text),
-                ),
-                attachments: ChatMessageAttachmentsInput(
-                  edit.value!.attachments.map((e) => e.value).toList(),
-                ),
-                repliesTo: ChatMessageRepliesInput(
-                  edit.value!.replied.map((e) => e.value.id).toList(),
-                ),
-              );
+              if (item.status.value == SendingStatus.error) {
+                await resendItem(
+                  ChatMessage(
+                    item.id,
+                    item.chatId,
+                    item.author,
+                    item.at,
+                    text: textNotEmpty
+                        ? ChatMessageText(edit.value!.field.text)
+                        : null,
+                    attachments: edit.value!.attachments
+                        .map((e) => e.value)
+                        .toList(),
+                    repliesTo: edit.value!.replied
+                        .map((e) => ChatItemQuote.from(e.value))
+                        .toList(),
+                  ),
+                );
+              } else {
+                await _chatService.editChatMessage(
+                  item,
+                  text: ChatMessageTextInput(
+                    ChatMessageText(edit.value!.field.text),
+                  ),
+                  attachments: ChatMessageAttachmentsInput(
+                    edit.value!.attachments.map((e) => e.value).toList(),
+                  ),
+                  repliesTo: ChatMessageRepliesInput(
+                    edit.value!.replied.map((e) => e.value.id).toList(),
+                  ),
+                );
+              }
 
               closeEditing();
 

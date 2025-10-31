@@ -21,11 +21,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Redesigned forward message modal. ([#1476], [#1408])
+        - Redesigned media attachments. ([#1480], [#1412])
 
 [#1228]: /../../issues/1228
 [#1408]: /../../issues/1408
+[#1412]: /../../issues/1412
 [#1469]: /../../pull/1469
 [#1476]: /../../pull/1476
+[#1480]: /../../pull/1480
 
 
 

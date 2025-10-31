@@ -1,0 +1,7 @@
+<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1.07143" y="1.07143" width="12.8571" height="12.8571" rx="6.42857" stroke="black"
+        stroke-opacity="0.12" stroke-width="2.14286" />
+    <path
+        d="M7.50028 7.50028L5.35742 9.64314M7.50028 7.50028L9.64314 9.64314M7.50028 7.50028L9.64314 5.35742M7.50028 7.50028L5.35742 5.35742"
+        stroke="#63B4FF" stroke-width="1.60714" stroke-linecap="round" />
+</svg>
