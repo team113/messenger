@@ -585,6 +585,12 @@ class SvgIcons {
     height: 21.91,
   );
 
+  static const SvgData sendDisabled = SvgData(
+    'assets/icons/send_disabled.svg',
+    width: 25.44,
+    height: 21.91,
+  );
+
   static const SvgData audioMessage = SvgData(
     'assets/icons/audio_message.svg',
     width: 18.87,

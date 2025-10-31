@@ -64,6 +64,7 @@ class MessageFieldController extends GetxController {
     List<ChatItemQuoteInput> quotes = const [],
     List<Attachment> attachments = const [],
     this.onKeyUp,
+    this.canPin = true,
   }) : quotes = RxList(quotes),
        attachments = RxList(
          attachments.map((e) => MapEntry(GlobalKey(), e)).toList(),
@@ -166,8 +167,11 @@ class MessageFieldController extends GetxController {
   /// [ChatButton]s displayed (pinned) in the text field.
   late final RxList<ChatButton> buttons;
 
+  /// Indicator whether there is space for more [ChatButton]s to be pinned.
+  final RxBool hasSpaceForPins = RxBool(true);
+
   /// Indicator whether any more [ChatButton] can be added to the [buttons].
-  final RxBool canPin = RxBool(true);
+  final bool canPin;
 
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;

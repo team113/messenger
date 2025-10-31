@@ -93,20 +93,32 @@ class ParticipantView extends StatelessWidget {
           switch (c.stage.value) {
             case ParticipantsFlowStage.search:
               child = Obx(() {
-                return SearchView(
-                  categories: const [
-                    SearchCategory.recent,
-                    SearchCategory.contact,
-                    SearchCategory.user,
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ModalPopupHeader(
+                      text: 'label_add_participants'.l10n,
+                      onBack: initial == ParticipantsFlowStage.participants
+                          ? () => c.stage.value =
+                                ParticipantsFlowStage.participants
+                          : null,
+                    ),
+
+                    Flexible(
+                      child: SearchView(
+                        categories: const [
+                          SearchCategory.recent,
+                          SearchCategory.contact,
+                          SearchCategory.user,
+                        ],
+
+                        submit: 'btn_add'.l10n,
+                        onSubmit: c.addMembers,
+                        enabled: c.status.value.isEmpty,
+                        chat: c.chat.value,
+                      ),
+                    ),
                   ],
-                  title: 'label_add_participants'.l10n,
-                  onBack: initial == ParticipantsFlowStage.participants
-                      ? () => c.stage.value = ParticipantsFlowStage.participants
-                      : null,
-                  submit: 'btn_add'.l10n,
-                  onSubmit: c.addMembers,
-                  enabled: c.status.value.isEmpty,
-                  chat: c.chat.value,
                 );
               });
               break;

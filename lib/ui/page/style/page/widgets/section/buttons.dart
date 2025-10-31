@@ -171,23 +171,6 @@ class ButtonsSection {
               selected: true,
             ),
           ),
-          (
-            headline: 'RectangleButton.radio',
-            widget: RectangleButton(
-              onPressed: () {},
-              label: 'Label',
-              radio: true,
-            ),
-          ),
-          (
-            headline: 'RectangleButton.radio(selected: true)',
-            widget: RectangleButton(
-              onPressed: () {},
-              label: 'Label',
-              selected: true,
-              radio: true,
-            ),
-          ),
         ],
       ),
       Headline(

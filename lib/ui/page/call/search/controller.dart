@@ -134,7 +134,7 @@ class SearchController extends GetxController {
   late final TextFieldState search;
 
   /// [SearchCategory]ies to search through.
-  final List<SearchCategory> categories;
+  List<SearchCategory> categories;
 
   /// Reactive value of the [search] field passed to the [_search] method.
   final RxString query = RxString('');
@@ -598,22 +598,28 @@ class SearchController extends GetxController {
       // Predicates to filter [allChats] by.
       bool remoteDialog(RxChat c) => c.chat.value.isDialog && !c.id.isLocal;
       bool hidden(RxChat c) => c.chat.value.isHidden;
-      bool inChats(RxChat c) => chats.containsKey(c.chat.value.id);
+      bool inChats(RxChat c) =>
+          categories.contains(SearchCategory.chat) &&
+          chats.containsKey(c.chat.value.id);
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.user.id != me)?.user;
       bool isMember(RxUser u) => chat?.members.items.containsKey(u.id) ?? false;
       bool matchesQuery(RxUser user) => _matchesQuery(user: user);
 
-      final Iterable<RxUser> filtered = allChats
+      Iterable<RxUser> filtered = allChats
           .where(remoteDialog)
           .whereNot(inChats)
           .whereNot(hidden)
           .sorted()
           .map(toUser)
           .nonNulls
-          .whereNot(isMember)
-          .take(3)
-          .where(matchesQuery);
+          .whereNot(isMember);
+
+      if (categories.contains(SearchCategory.chat)) {
+        filtered = filtered.take(3);
+      }
+
+      filtered = filtered.where(matchesQuery);
 
       recent.value = {for (final RxUser u in filtered) u.id: u};
     }

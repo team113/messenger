@@ -537,7 +537,6 @@ label_call_title =
     }
 label_call_window = Ventana de llamada
 label_camera = Cámara
-label_chat = Chat
 label_change_password = Cambiar la contrseña
 label_chat_call_declined = Llamada rechazada
 label_chat_call_ended = Llamada terminada
@@ -638,6 +637,7 @@ label_for_learning_use_our_flutter_incubator2 = Sandbox.
 label_for_learning_use_our_rust_incubator1 = Si desea aprender/mejorar sus habilidades en Rust, puede usar nuestro{" "}
 label_for_learning_use_our_rust_incubator2 = Sandbox.
 label_forward_message = Reenviar mensaje
+label_forward_subtitle = elige un chat
 label_forwarded_message = Mensaje reeinviado
 label_forwarded_messages =
     {$count ->
@@ -785,7 +785,6 @@ label_public_section_hint = Avatar, nombre, a cerca de Usted, ...
 label_reason = Motivo
 label_reason_described = Motivo: {$reason}
 label_reason_hint = Escriba el motivo
-label_recent = Recientes
 label_reconnecting_ellipsis = Reconectando...
 label_recover_account = Recuperación de acceso
 label_recover_account_description = Ingrese su Gapopa ID, usuario o e-mail
@@ -923,7 +922,6 @@ label_unread_messages =
     }
 label_unmuted = Sonido activado
 label_update_available = Actualización disponible
-label_user = Usuario
 label_user_added_user = {$author} agregó {$user}
 label_user_added_user1 = {$author}{" "}
 label_user_added_user2 = agregó
