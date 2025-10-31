@@ -49,6 +49,9 @@ class ChatService extends DisposableService {
   /// [AuthService] to get an authorized user.
   final AuthService _authService;
 
+  /// Stores scroll position, used when leaving and re-entering it.
+  static final Map<String, ChatScrollPosition?> _savedScrollPosition = {};
+
   /// Returns the [RxStatus] of the [paginated] initialization.
   Rx<RxStatus> get status => _chatRepository.status;
 
@@ -453,6 +456,21 @@ class ChatService extends DisposableService {
     await _chatRepository.toggleChatMute(id, mute);
   }
 
+  /// Save scroll position, used when leaving and re-entering it.
+  void saveScrollPosition(ChatId id, ChatItemId? itemId, double? offset) {
+    if (itemId != null && offset != null) {
+      _savedScrollPosition[id.val] = ChatScrollPosition(
+        itemId: itemId,
+        offset: offset,
+      );
+    }
+  }
+
+  /// Restore scroll position, used when leaving and re-entering it.
+  ChatScrollPosition? getScrollPosition(ChatId id) {
+    return _savedScrollPosition[id.val];
+  }
+
   /// Callback, called when a [User] identified by the provided [userId] gets
   /// removed from the specified [Chat].
   ///
@@ -532,4 +550,15 @@ extension CompareListsExtension<T> on Iterable<T> {
 
     return true;
   }
+}
+
+/// Chat scroll position for save and restore.
+class ChatScrollPosition {
+  ChatScrollPosition({required this.itemId, required this.offset});
+
+  /// Saved top position id
+  final ChatItemId itemId;
+
+  /// Saved top position offset
+  final double offset;
 }

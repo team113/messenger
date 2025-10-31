@@ -435,9 +435,6 @@ class ChatController extends GetxController {
   /// if any.
   ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
-  /// Stores scroll position, used when leaving and re-entering it.
-  static final Map<String, _ChatScrollPosition?> _savedScrollPosition = {};
-
   @override
   void onInit() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -2437,16 +2434,15 @@ class ChatController extends GetxController {
             ' save scroll position to ChatItemId($itemId)',
         '$runtimeType',
       );
-      _savedScrollPosition[id.val] = _ChatScrollPosition(
-        itemId: itemId,
-        offset: _topVisibleItem!.offset,
-      );
+      _chatService.saveScrollPosition(id, itemId, _topVisibleItem!.offset);
     }
   }
 
   /// Restore scroll position, used when leaving and re-entering it.
   Future<void> _restoreScrollPosition() async {
-    final _ChatScrollPosition? savedPosition = _savedScrollPosition[id.val];
+    final ChatScrollPosition? savedPosition = _chatService.getScrollPosition(
+      id,
+    );
     if (savedPosition != null) {
       await animateTo(
         savedPosition.itemId,
@@ -2779,16 +2775,5 @@ class _ListViewIndexCalculationResult {
   final int index;
 
   /// Initial [FlutterListView] offset.
-  final double offset;
-}
-
-/// Chat scroll position for save and restore.
-class _ChatScrollPosition {
-  _ChatScrollPosition({required this.itemId, required this.offset});
-
-  /// Saved top position id
-  final ChatItemId itemId;
-
-  /// Saved top position offset
   final double offset;
 }
