@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.7...v0.7.0) | [Milestone](/../../milestone/52)
+
+### Added
+
+- UI:
+    - Pages scrolling by pressing "PageUp" and "PageDown" keys. ([#1469], [#1228])
+
+[#1228]: /../../issues/1228
+[#1469]: /../../pull/1469
+
+
+
+
 ## [0.6.7] · 2025-10-29
 [0.6.7]: /../../tree/v0.6.7
 
@@ -30,7 +46,6 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1396]: /../../issues/1396
 [#1419]: /../../issues/1419
-[#1436]: /../../issues/1436
 [#1436]: /../../issues/1436
 [#1438]: /../../pull/1438
 [#1445]: /../../pull/1445
