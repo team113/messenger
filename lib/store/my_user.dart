@@ -46,6 +46,7 @@ import '/provider/gql/graphql.dart';
 import '/util/backoff.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
+import '/util/native_file.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -680,30 +681,7 @@ class MyUserRepository extends DisposableInterface
     if (file != null) {
       await file.ensureCorrectMediaType();
 
-      if (file.stream != null) {
-        upload = dio.MultipartFile.fromStream(
-          () => file.stream!,
-          file.size,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else if (file.bytes.value != null) {
-        upload = dio.MultipartFile.fromBytes(
-          file.bytes.value!,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else if (file.path != null) {
-        upload = await dio.MultipartFile.fromFile(
-          file.path!,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else {
-        throw ArgumentError(
-          'At least stream, bytes or path should be specified.',
-        );
-      }
+      upload = await file.toMultipartFile();
     }
 
     final UserAvatar? avatar = myUser.value?.avatar;
@@ -773,30 +751,7 @@ class MyUserRepository extends DisposableInterface
     if (file != null) {
       await file.ensureCorrectMediaType();
 
-      if (file.stream != null) {
-        upload = dio.MultipartFile.fromStream(
-          () => file.stream!,
-          file.size,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else if (file.bytes.value != null) {
-        upload = dio.MultipartFile.fromBytes(
-          file.bytes.value!,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else if (file.path != null) {
-        upload = await dio.MultipartFile.fromFile(
-          file.path!,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else {
-        throw ArgumentError(
-          'At least stream, bytes or path should be specified.',
-        );
-      }
+      upload = await file.toMultipartFile();
     }
 
     final UserCallCover? callCover = myUser.value?.callCover;
