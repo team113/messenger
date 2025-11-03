@@ -1,5 +1,2 @@
-- Se han añadido los atajos de teclado "Ctrl+F"/"Cmd+F" para activar la búsqueda de mensajes.
-- Se ha añadido el título "Cuenta eliminada" para los usuarios eliminados.
-- Se ha rediseñado la barra de la aplicación y la función de búsqueda en la pestaña de chats.
-- Se corrigieron errores y se mejoraron el rendimiento.
- 
+- Se ha añadido la función de desplazamiento de páginas pulsando las teclas Re Pág y Av Pág.
+- Se ha rediseñado la ventana modal para reenviar mensajes en el chat.
