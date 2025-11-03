@@ -148,7 +148,10 @@ class ChatTile extends StatelessWidget {
                   avatarBuilder(
                     AvatarWidget.fromRxChat(
                       chat,
-                      radius: AvatarRadius.large,
+                      radius: switch (height) {
+                        >= 65 => AvatarRadius.large,
+                        (_) => AvatarRadius.big,
+                      },
                       onForbidden: onForbidden,
                     ),
                   ),

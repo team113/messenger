@@ -16,8 +16,16 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Pages scrolling by pressing "PageUp" and "PageDown" keys. ([#1469], [#1228])
 
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned forward message modal. ([#1476], [#1408])
+
 [#1228]: /../../issues/1228
+[#1408]: /../../issues/1408
 [#1469]: /../../pull/1469
+[#1476]: /../../pull/1476
 
 
 
