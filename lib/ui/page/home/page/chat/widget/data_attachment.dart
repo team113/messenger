@@ -86,6 +86,8 @@ class _DataAttachmentState extends State<DataAttachment> {
           SendingStatus.sending => _Progress(
             key: const Key('Sending'),
             progress: e.progress.value,
+            // TODO: Remove when implement upload cancellation.
+            showCancelIcon: false,
           ),
           SendingStatus.sent => SvgIcon(
             key: const Key('Sent'),
@@ -142,17 +144,24 @@ class _DataAttachmentState extends State<DataAttachment> {
 
 /// [CircularProgressIndicator] with close icon in the center.
 class _Progress extends StatelessWidget {
-  const _Progress({super.key, required this.progress});
+  const _Progress({
+    super.key,
+    required this.progress,
+    this.showCancelIcon = true,
+  });
 
   /// Progress value.
   final double progress;
+
+  /// Whether to show a cancel icon.
+  final bool showCancelIcon; // TODO: Remove when implement upload cancellation.
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       children: [
-        SvgIcon(SvgIcons.downloadFileCancelProgress),
+        if (showCancelIcon) SvgIcon(SvgIcons.downloadFileCancelProgress),
 
         SizedBox(
           width: 13,
