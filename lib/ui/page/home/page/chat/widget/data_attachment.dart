@@ -153,8 +153,9 @@ class _Progress extends StatelessWidget {
   /// Progress value.
   final double progress;
 
+  // TODO: Remove when implement upload cancellation.
   /// Whether to show a cancel icon.
-  final bool showCancelIcon; // TODO: Remove when implement upload cancellation.
+  final bool showCancelIcon;
 
   @override
   Widget build(BuildContext context) {
