@@ -1296,7 +1296,7 @@ class ChatRepository extends DisposableInterface
       attachment.status.refresh();
 
       var response = await _graphQlProvider.uploadAttachment(
-        await attachment.file.toChatMultipartFile(),
+        await attachment.file.toMultipartFile(),
         onSendProgress: (now, max) => attachment.progress.value = now / max,
       );
 

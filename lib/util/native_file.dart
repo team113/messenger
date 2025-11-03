@@ -21,17 +21,11 @@ import 'package:dio/dio.dart';
 
 import '/domain/model/native_file.dart';
 
+/// Extension adding a method to construct a [MultipartFile] from [NativeFile].
 extension NativeFileExtension on NativeFile {
-  Future<MultipartFile> toChatMultipartFile() async {
-    String filename = name;
-
-    if (filename.replaceAll(' ', '').isEmpty) {
-      if (mime != null) {
-        filename = '${DateTime.now().microsecondsSinceEpoch}.${mime!.subtype}';
-      } else {
-        filename = '${DateTime.now().microsecondsSinceEpoch}';
-      }
-    }
+  /// Converts the [NativeFile] to a [MultipartFile].
+  Future<MultipartFile> toMultipartFile() async {
+    final String filename = _resolveFilename();
 
     if (path != null) {
       return await MultipartFile.fromFile(
@@ -39,57 +33,49 @@ extension NativeFileExtension on NativeFile {
         filename: filename,
         contentType: mime,
       );
-    } else if (bytes.value != null) {
-      final bytes = this.bytes.value!;
+    }
 
-      const int chunkSize = 64 * 1024;
-
-      Stream<List<int>> createStream() async* {
-        for (int offset = 0; offset < bytes.length; offset += chunkSize) {
-          final end = (offset + chunkSize > bytes.length)
-              ? bytes.length
-              : offset + chunkSize;
-          yield bytes.sublist(offset, end);
-        }
-      }
-
+    final byteData = bytes.value;
+    if (byteData != null) {
       return MultipartFile.fromStream(
-        createStream,
-        bytes.length,
+        () => _chunkedStream(byteData),
+        byteData.length,
         filename: filename,
         contentType: mime,
       );
-    } else {
-      throw ArgumentError(
-        'At least stream, bytes or path should be specified.',
-      );
     }
-  }
 
-  Future<MultipartFile> toMultipartFile() async {
     if (stream != null) {
       return MultipartFile.fromStream(
         () => stream!,
         size,
-        filename: name,
+        filename: filename,
         contentType: mime,
       );
-    } else if (bytes.value != null) {
-      return MultipartFile.fromBytes(
-        bytes.value!,
-        filename: name,
-        contentType: mime,
-      );
-    } else if (path != null) {
-      return await MultipartFile.fromFile(
-        path!,
-        filename: name,
-        contentType: mime,
-      );
-    } else {
-      throw ArgumentError(
-        'At least stream, bytes or path should be specified.',
-      );
+    }
+
+    throw ArgumentError('At least stream, bytes or path should be specified.');
+  }
+
+  /// Returns a valid filename, using timestamp if the original name is empty.
+  String _resolveFilename() {
+    var result = name.trim();
+    if (result.isNotEmpty) return result;
+
+    final timestamp = DateTime.now().microsecondsSinceEpoch;
+    return mime != null ? '$timestamp.${mime!.subtype}' : '$timestamp';
+  }
+
+  /// Creates a chunked stream from bytes to allow proper progress callbacks.
+  Stream<List<int>> _chunkedStream(
+    List<int> bytes, {
+    int chunkSize = 64 * 1024,
+  }) async* {
+    for (int offset = 0; offset < bytes.length; offset += chunkSize) {
+      final end = (offset + chunkSize > bytes.length)
+          ? bytes.length
+          : offset + chunkSize;
+      yield bytes.sublist(offset, end);
     }
   }
 }
