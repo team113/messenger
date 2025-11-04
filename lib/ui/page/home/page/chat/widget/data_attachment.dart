@@ -86,6 +86,7 @@ class _DataAttachmentState extends State<DataAttachment> {
           SendingStatus.sending => _Progress(
             key: const Key('Sending'),
             progress: e.progress.value,
+
             // TODO: Remove when implement upload cancellation.
             showCancelIcon: false,
           ),

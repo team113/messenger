@@ -41,10 +41,10 @@ final StepDefinitionGeneric removeMessageAttachment =
       await context.world.appDriver.waitUntil(() async {
         await context.world.appDriver.waitForAppToSettle();
 
-        RxChat? chat = Get.find<ChatService>()
+        final RxChat? chat = Get.find<ChatService>()
             .chats[ChatId(router.route.split('/').lastOrNull ?? '')];
 
-        Attachment? attachment = chat!.messages
+        final Attachment? attachment = chat!.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
             .expand((e) => e.attachments)

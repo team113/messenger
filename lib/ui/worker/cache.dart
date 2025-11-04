@@ -535,10 +535,14 @@ class CacheWorker extends DisposableService {
   /// Opens a [File] or a directory containing it.
   Future<void> _openDirectoryOrFile(File file) async {
     if (Platform.isWindows) {
+      // `explorer` is always included on Windows.
       await Process.start('explorer', ['/select,', p.normalize(file.path)]);
     } else if (Platform.isMacOS) {
+      // `open` is always included on macOS.
       await Process.start('open', ['-R', p.normalize(file.path)]);
     } else if (Platform.isLinux) {
+      // `xdg-open` seems to be installed by default in a large amount of
+      // distros, thus we may rely on it installed on the user's machine.
       await Process.start('xdg-open', [p.normalize(file.parent.path)]);
     } else {
       await OpenFile.open(file.path);

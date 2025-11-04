@@ -15,7 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Failure sent messages are correctly edited and sent.
+Feature: Message editing
 
   Background: User is in dialog with Bob
     Given I am Alice
@@ -24,7 +24,7 @@ Feature: Failure sent messages are correctly edited and sent.
     And I am in chat with Bob
     And I wait for app to settle
 
-  Scenario: User changes text of the message when edit failure message
+  Scenario: User can change text of a failed message by editing it
     Given I do not have Internet
     When I fill `MessageField` field with "Hello"
     And I tap `Send` button
@@ -37,7 +37,7 @@ Feature: Failure sent messages are correctly edited and sent.
     And I tap `Send` button
     Then I wait until status of "Hi" message is sent
 
-  Scenario: User deletes one of the file attachments when edit failure message
+  Scenario: User can change attachments of a failed message by editing it
     Given I do not have Internet
     When I attach "test.txt" file
     And I attach "test2.txt" file

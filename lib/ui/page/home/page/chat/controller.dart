@@ -785,9 +785,9 @@ class ChatController extends GetxController {
 
           _stopTyping();
 
-          final bool textNotEmpty = edit.value!.field.text.trim().isNotEmpty;
+          final bool hasText = edit.value!.field.text.trim().isNotEmpty;
 
-          if (textNotEmpty ||
+          if (hasText ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
             try {
@@ -798,7 +798,7 @@ class ChatController extends GetxController {
                     item.chatId,
                     item.author,
                     item.at,
-                    text: textNotEmpty
+                    text: hasText
                         ? ChatMessageText(edit.value!.field.text)
                         : null,
                     attachments: edit.value!.attachments

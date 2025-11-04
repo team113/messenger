@@ -53,7 +53,6 @@ import '/ui/page/player/controller.dart';
 import '/ui/page/player/view.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/checkbox_button.dart';
-import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
@@ -1508,44 +1507,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             EditContextMenuButton(onPressed: widget.onEdit),
                           if (media.isNotEmpty) ...[
                             if (PlatformUtils.isDesktop)
-                              ContextMenuButton(
-                                key: const Key('DownloadButton'),
-                                label: media.length == 1
-                                    ? 'btn_download'.l10n
-                                    : 'btn_download_all'.l10n,
-                                trailing: const SvgIcon(SvgIcons.download19),
-                                inverted: const SvgIcon(
-                                  SvgIcons.download19White,
-                                ),
+                              DownloadContextMenuButton(
+                                single: media.length == 1,
                                 onPressed: () => widget.onDownload?.call(media),
                               ),
                             if (PlatformUtils.isDesktop && !PlatformUtils.isWeb)
-                              ContextMenuButton(
-                                key: const Key('DownloadAsButton'),
-                                label: media.length == 1
-                                    ? 'btn_download_as'.l10n
-                                    : 'btn_download_all_as'.l10n,
-                                trailing: const SvgIcon(SvgIcons.download19),
-                                inverted: const SvgIcon(
-                                  SvgIcons.download19White,
-                                ),
+                              DownloadAsContextMenuButton(
+                                single: media.length == 1,
                                 onPressed: () =>
                                     widget.onDownloadAs?.call(media),
                               ),
                             if (PlatformUtils.isMobile && !PlatformUtils.isWeb)
-                              ContextMenuButton(
-                                key: const Key('SaveButton'),
-                                label: media.length == 1
-                                    ? PlatformUtils.isMobile
-                                          ? 'btn_save'.l10n
-                                          : 'btn_save_to_gallery'.l10n
-                                    : PlatformUtils.isMobile
-                                    ? 'btn_save_all'.l10n
-                                    : 'btn_save_to_gallery_all'.l10n,
-                                trailing: const SvgIcon(SvgIcons.download19),
-                                inverted: const SvgIcon(
-                                  SvgIcons.download19White,
-                                ),
+                              SaveContextMenuButton(
+                                single: media.length == 1,
                                 onPressed: () => widget.onSave?.call(media),
                               ),
                           ],
@@ -1602,15 +1576,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ],
                         if (item.status.value == SendingStatus.error) ...[
                           EditContextMenuButton(onPressed: widget.onEdit),
-                          ContextMenuButton(
-                            key: const Key('Resend'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_resend'.l10n
-                                : 'btn_resend_message'.l10n,
-                            trailing: const SvgIcon(SvgIcons.sendSmall),
-                            inverted: const SvgIcon(SvgIcons.sendSmallWhite),
-                            onPressed: widget.onResend,
-                          ),
+                          ResendContextMenuButton(onPressed: widget.onResend),
                           DeleteContextMenuButton(
                             onPressed: () async {
                               final bool? pressed = await MessagePopup.alert(
@@ -1624,12 +1590,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             },
                           ),
                         ],
-                        ContextMenuButton(
-                          label: 'btn_search_chat'.l10n,
-                          trailing: const SvgIcon(SvgIcons.search),
-                          inverted: const SvgIcon(SvgIcons.searchWhite),
-                          onPressed: widget.onSearch,
-                        ),
+                        SearchContextMenuButton(onPressed: widget.onSearch),
                         SelectContextMenuButton(onPressed: widget.onSelect),
                       ],
                       builder: PlatformUtils.isMobile

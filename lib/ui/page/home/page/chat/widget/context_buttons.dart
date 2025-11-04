@@ -23,7 +23,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 
-/// [ContextMenuButton] for copying a [ChatItem].
+/// [ContextMenuButton] for copying text of a [ChatItem].
 class CopyContextMenuButton extends ContextMenuButton {
   CopyContextMenuButton({super.onPressed})
     : super(
@@ -31,6 +31,19 @@ class CopyContextMenuButton extends ContextMenuButton {
         label: PlatformUtils.isMobile ? 'btn_copy'.l10n : 'btn_copy_text'.l10n,
         trailing: const SvgIcon(SvgIcons.copy19),
         inverted: const SvgIcon(SvgIcons.copy19White),
+      );
+}
+
+/// [ContextMenuButton] for resending a [ChatItem].
+class ResendContextMenuButton extends ContextMenuButton {
+  ResendContextMenuButton({super.onPressed})
+    : super(
+        key: const Key('Resend'),
+        label: PlatformUtils.isMobile
+            ? 'btn_resend'.l10n
+            : 'btn_resend_message'.l10n,
+        trailing: const SvgIcon(SvgIcons.sendSmall),
+        inverted: const SvgIcon(SvgIcons.sendSmallWhite),
       );
 }
 
@@ -71,7 +84,7 @@ class ForwardContextMenuButton extends ContextMenuButton {
       );
 }
 
-/// [ContextMenuButton] for information about a [ChatItem].
+/// [ContextMenuButton] for displaying information about a [ChatItem].
 class InformationContextMenuButton extends ContextMenuButton {
   InformationContextMenuButton({super.key, super.onPressed})
     : super(
@@ -104,5 +117,56 @@ class SelectContextMenuButton extends ContextMenuButton {
         label: 'btn_select_messages'.l10n,
         trailing: const SvgIcon(SvgIcons.select),
         inverted: const SvgIcon(SvgIcons.selectWhite),
+      );
+}
+
+/// [ContextMenuButton] for downloading [Attachment]s from a [ChatItem].
+class DownloadContextMenuButton extends ContextMenuButton {
+  DownloadContextMenuButton({super.onPressed, bool single = true})
+    : super(
+        key: const Key('DownloadButton'),
+        label: single ? 'btn_download'.l10n : 'btn_download_all'.l10n,
+        trailing: const SvgIcon(SvgIcons.download19),
+        inverted: const SvgIcon(SvgIcons.download19White),
+      );
+}
+
+/// [ContextMenuButton] for downloading [Attachment]s with a "as" dialog from a
+/// [ChatItem].
+class DownloadAsContextMenuButton extends ContextMenuButton {
+  DownloadAsContextMenuButton({super.onPressed, bool single = true})
+    : super(
+        key: const Key('DownloadAsButton'),
+        label: single ? 'btn_download_as'.l10n : 'btn_download_all_as'.l10n,
+        trailing: const SvgIcon(SvgIcons.download19),
+        inverted: const SvgIcon(SvgIcons.download19White),
+      );
+}
+
+/// [ContextMenuButton] for saving [Attachment]s to a gallery from a [ChatItem].
+class SaveContextMenuButton extends ContextMenuButton {
+  SaveContextMenuButton({super.onPressed, bool single = true})
+    : super(
+        key: const Key('SaveButton'),
+        label: single
+            ? PlatformUtils.isMobile
+                  ? 'btn_save'.l10n
+                  : 'btn_save_to_gallery'.l10n
+            : PlatformUtils.isMobile
+            ? 'btn_save_all'.l10n
+            : 'btn_save_to_gallery_all'.l10n,
+        trailing: const SvgIcon(SvgIcons.download19),
+        inverted: const SvgIcon(SvgIcons.download19White),
+      );
+}
+
+/// [ContextMenuButton] for searching a [Chat].
+class SearchContextMenuButton extends ContextMenuButton {
+  SearchContextMenuButton({super.onPressed})
+    : super(
+        key: const Key('SearchFromItemButton'),
+        label: 'btn_search_chat'.l10n,
+        trailing: const SvgIcon(SvgIcons.search),
+        inverted: const SvgIcon(SvgIcons.searchWhite),
       );
 }
