@@ -21,6 +21,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
@@ -96,8 +97,14 @@ class LogController extends GetxController {
     try {
       final encoder = Utf8Encoder();
 
+      final DateTime utc = DateTime.now().toUtc();
+
+      final String app = PlatformUtils.isWeb
+          ? Config.origin
+          : Config.userAgentProduct;
+
       final file = await PlatformUtils.createAndDownload(
-        'report_${DateTime.now().millisecondsSinceEpoch}.log',
+        '${app.toLowerCase()}_bug_report_${utc.year.toString().padLeft(4, '0')}.${utc.month.toString().padLeft(2, '0')}.${utc.day.toString().padLeft(2, '0')}_${utc.hour.toString().padLeft(2, '0')}.${utc.minute.toString().padLeft(2, '0')}.${utc.second.toString().padLeft(2, '0')}.log',
         encoder.convert(
           LogController.report(
             sessions: sessions,
