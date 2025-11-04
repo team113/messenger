@@ -20,8 +20,8 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1412]: /../../issues/1412
 [#1493]: /../../issues/1493
-[#1494]: /../../pull/1494
 [#1480]: /../../pull/1480
+[#1494]: /../../pull/1494
 
 
 
