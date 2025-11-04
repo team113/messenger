@@ -49,5 +49,4 @@ Feature: Message editing
     And I tap `EditMessageButton` button
     And I remove "test2.txt" file
     And I tap `Send` button
-    Then I wait until status of "test.txt" attachment is sending
-    And I wait until status of "test.txt" attachment is sent
+    Then I wait until status of "test.txt" attachment is sent
