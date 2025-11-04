@@ -791,42 +791,27 @@ class ChatController extends GetxController {
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
             try {
-              if (item.status.value == SendingStatus.error) {
-                await resendItem(
-                  ChatMessage(
-                    item.id,
-                    item.chatId,
-                    item.author,
-                    item.at,
-                    text: hasText
-                        ? ChatMessageText(edit.value!.field.text)
-                        : null,
-                    attachments: edit.value!.attachments
-                        .map((e) => e.value)
-                        .toList(),
-                    repliesTo: edit.value!.replied
-                        .map((e) => ChatItemQuote.from(e.value))
-                        .toList(),
-                  ),
-                );
-              } else {
-                await _chatService.editChatMessage(
-                  item,
-                  text: ChatMessageTextInput(
-                    ChatMessageText(edit.value!.field.text),
-                  ),
-                  attachments: ChatMessageAttachmentsInput(
-                    edit.value!.attachments.map((e) => e.value).toList(),
-                  ),
-                  repliesTo: ChatMessageRepliesInput(
-                    edit.value!.replied.map((e) => e.value.id).toList(),
-                  ),
-                );
-              }
+              await _chatService.editChatMessage(
+                item,
+                text: ChatMessageTextInput(
+                  ChatMessageText(edit.value!.field.text),
+                ),
+                attachments: ChatMessageAttachmentsInput(
+                  edit.value!.attachments.map((e) => e.value).toList(),
+                ),
+                repliesTo: ChatMessageRepliesInput(
+                  edit.value!.replied.map((e) => e.value.id).toList(),
+                ),
+              );
 
               closeEditing();
 
               send.field.focus.requestFocus();
+
+              // If the message is not sent yet, resend it.
+              if (item.status.value == SendingStatus.error) {
+                await resendItem(item);
+              }
             } on EditChatMessageException catch (e) {
               if (e.code == EditChatMessageErrorCode.blocked) {
                 _showBlockedPopup();

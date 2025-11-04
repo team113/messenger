@@ -1025,6 +1025,11 @@ class ChatRepository extends DisposableInterface
       });
     }
 
+    // If the message is not sent yet, do not edit it by server.
+    if (message.status.value == SendingStatus.error) {
+      return;
+    }
+
     final List<Future>? uploads = attachments?.changed
         .mapIndexed((i, e) {
           if (e is LocalAttachment) {
