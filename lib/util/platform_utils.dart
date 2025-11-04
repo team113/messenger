@@ -30,6 +30,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
@@ -918,6 +919,23 @@ class PlatformUtilsImpl {
       }
     } catch (_) {
       // No-op.
+    }
+  }
+
+  /// Opens a [File] or a directory containing it.
+  Future<void> openDirectoryOrFile(File file) async {
+    if (PlatformUtils.isWindows) {
+      // `explorer` is always included on Windows.
+      await Process.start('explorer', ['/select,', p.normalize(file.path)]);
+    } else if (PlatformUtils.isMacOS) {
+      // `open` is always included on macOS.
+      await Process.start('open', ['-R', p.normalize(file.path)]);
+    } else if (PlatformUtils.isLinux) {
+      // `xdg-open` seems to be installed by default in a large amount of
+      // distros, thus we may rely on it installed on the user's machine.
+      await Process.start('xdg-open', [p.normalize(file.parent.path)]);
+    } else {
+      await OpenFile.open(file.path);
     }
   }
 }

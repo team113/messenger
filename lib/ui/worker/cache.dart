@@ -27,7 +27,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_thumbhash/flutter_thumbhash.dart' as t;
 import 'package:get/get.dart' hide Response;
 import 'package:mutex/mutex.dart';
-import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
 
 import '/domain/model/cache_info.dart';
@@ -370,7 +369,7 @@ class CacheWorker extends DisposableService {
       final File file = downloading!.file!;
 
       if (await file.exists() && await file.length() == size) {
-        await _openDirectoryOrFile(file);
+        await PlatformUtils.openDirectoryOrFile(file);
         return true;
       } else {
         downloading.markAsNotStarted();
@@ -529,23 +528,6 @@ class CacheWorker extends DisposableService {
               _cacheSubscription = null;
             },
           );
-    }
-  }
-
-  /// Opens a [File] or a directory containing it.
-  Future<void> _openDirectoryOrFile(File file) async {
-    if (Platform.isWindows) {
-      // `explorer` is always included on Windows.
-      await Process.start('explorer', ['/select,', p.normalize(file.path)]);
-    } else if (Platform.isMacOS) {
-      // `open` is always included on macOS.
-      await Process.start('open', ['-R', p.normalize(file.path)]);
-    } else if (Platform.isLinux) {
-      // `xdg-open` seems to be installed by default in a large amount of
-      // distros, thus we may rely on it installed on the user's machine.
-      await Process.start('xdg-open', [p.normalize(file.parent.path)]);
-    } else {
-      await OpenFile.open(file.path);
     }
   }
 }
