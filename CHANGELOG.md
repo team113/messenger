@@ -16,8 +16,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Inability to move caret in message field up and down. ([#1494], [#1493])
+        - Upload progress indicator not updating during file upload. ([#1492], [#1491])
 
+[#1491]: /../../issues/1491
 [#1493]: /../../issues/1493
+[#1492]: /../../pull/1492
 [#1494]: /../../pull/1494
 
 
@@ -39,18 +42,10 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned forward message modal. ([#1476], [#1408])
 
-### Fixed
-
-- UI:
-    - Chat page:
-        - Fix progress indicator for uploading files. ([#1492], [#1491])
-
 [#1228]: /../../issues/1228
 [#1408]: /../../issues/1408
-[#1491]: /../../issues/1491
 [#1469]: /../../pull/1469
 [#1476]: /../../pull/1476
-[#1492]: /../../pull/1492
 
 
 
