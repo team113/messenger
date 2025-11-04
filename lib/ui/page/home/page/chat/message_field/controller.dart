@@ -214,9 +214,12 @@ class MessageFieldController extends GetxController {
 
   /// Handles the new lines for the provided [KeyEvent] in the [field].
   static KeyEventResult handleNewLines(KeyEvent e, TextFieldState field) {
-    if ((e.logicalKey == LogicalKeyboardKey.enter ||
-            e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
-        e is KeyDownEvent) {
+    if (e is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+
+    if (e.logicalKey == LogicalKeyboardKey.enter ||
+        e.logicalKey == LogicalKeyboardKey.numpadEnter) {
       final Set<PhysicalKeyboardKey> pressed =
           HardwareKeyboard.instance.physicalKeysPressed;
 
