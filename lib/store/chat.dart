@@ -83,7 +83,7 @@ import '/store/pagination/graphql.dart';
 import '/store/user.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
-import '/util/native_file.dart';
+import '/util/multipart_utils.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
@@ -1296,7 +1296,7 @@ class ChatRepository extends DisposableInterface
       attachment.status.refresh();
 
       var response = await _graphQlProvider.uploadAttachment(
-        await attachment.file.toMultipartFile(),
+        await multipartFromNativeFile(attachment.file),
         onSendProgress: (now, max) => attachment.progress.value = now / max,
       );
 
@@ -1473,7 +1473,7 @@ class ChatRepository extends DisposableInterface
     if (file != null) {
       await file.ensureCorrectMediaType();
 
-      upload = await file.toMultipartFile();
+      upload = await multipartFromNativeFile(file);
     }
 
     final RxChatImpl? chat = chats[id];

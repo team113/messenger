@@ -21,8 +21,12 @@ import 'package:dio/dio.dart';
 
 import '/domain/model/native_file.dart';
 
+/// Converts the [NativeFile] to a [MultipartFile].
+Future<MultipartFile> multipartFromNativeFile(NativeFile file) =>
+    file.toMultipartFile();
+
 /// Extension adding a method to construct a [MultipartFile] from [NativeFile].
-extension NativeFileExtension on NativeFile {
+extension _NativeFileExtension on NativeFile {
   /// Converts the [NativeFile] to a [MultipartFile].
   Future<MultipartFile> toMultipartFile() async {
     final String filename = _resolveFilename();

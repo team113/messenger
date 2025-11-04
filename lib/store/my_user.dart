@@ -46,7 +46,7 @@ import '/provider/gql/graphql.dart';
 import '/util/backoff.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
-import '/util/native_file.dart';
+import '/util/multipart_utils.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -681,7 +681,7 @@ class MyUserRepository extends DisposableInterface
     if (file != null) {
       await file.ensureCorrectMediaType();
 
-      upload = await file.toMultipartFile();
+      upload = await multipartFromNativeFile(file);
     }
 
     final UserAvatar? avatar = myUser.value?.avatar;
@@ -751,7 +751,7 @@ class MyUserRepository extends DisposableInterface
     if (file != null) {
       await file.ensureCorrectMediaType();
 
-      upload = await file.toMultipartFile();
+      upload = await multipartFromNativeFile(file);
     }
 
     final UserCallCover? callCover = myUser.value?.callCover;
