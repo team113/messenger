@@ -188,14 +188,16 @@ class _ScrollKeyboardHandlerState extends State<ScrollKeyboardHandler> {
       case LogicalKeyboardKey.arrowUp:
         if (HardwareKeyboard.instance.isAltPressed) {
           _scrollPageUp(quick: quick);
+          return true;
         }
-        return true;
+        break;
 
       case LogicalKeyboardKey.arrowDown:
         if (HardwareKeyboard.instance.isAltPressed) {
           _scrollPageDown(quick: quick);
+          return true;
         }
-        return true;
+        break;
     }
 
     return false;

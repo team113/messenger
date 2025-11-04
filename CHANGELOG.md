@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.8...v0.7.0) | [Milestone](/../../milestone/53)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to move caret in message field up and down. ([#1494], [#1493])
+
+[#1493]: /../../issues/1493
+[#1494]: /../../pull/1494
+
+
+
+
 ## [0.6.8] · 2025-11-03
 [0.6.8]: /../../tree/v0.6.8
 
