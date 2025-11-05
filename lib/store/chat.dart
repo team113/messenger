@@ -1026,12 +1026,19 @@ class ChatRepository extends DisposableInterface
     }
 
     final List<Future>? uploads = attachments?.changed
-        .mapIndexed((i, e) {
+        .map((e) {
           if (e is LocalAttachment) {
             return e.upload.value?.future.then(
               (a) {
-                attachments.changed[i] = a;
-                (item?.value as ChatMessage).attachments[i] = a;
+                final index = attachments.changed.indexOf(e);
+
+                if (a != null) {
+                  attachments.changed[index] = a;
+                  (item?.value as ChatMessage).attachments[index] = a;
+                } else {
+                  attachments.changed.removeAt(index);
+                  (item?.value as ChatMessage).attachments.removeAt(index);
+                }
               },
               onError: (_) {
                 // No-op, as failed upload attempts are handled below.
@@ -1275,7 +1282,7 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
+  Future<Attachment?> uploadAttachment(LocalAttachment attachment) async {
     Log.debug('uploadAttachment($attachment)', '$runtimeType');
 
     if (attachment.upload.value?.isCompleted != false) {
@@ -1328,6 +1335,7 @@ class ChatRepository extends DisposableInterface
       var response = await _graphQlProvider.uploadAttachment(
         upload,
         onSendProgress: (now, max) => attachment.progress.value = now / max,
+        cancelToken: attachment.cancelToken,
       );
 
       var model = response.attachment.toModel();
@@ -1338,6 +1346,13 @@ class ChatRepository extends DisposableInterface
       attachment.status.value = SendingStatus.sent;
       attachment.progress.value = 1;
       return model;
+    } on dio.DioException {
+      if (attachment.cancelToken.isCancelled) {
+        attachment.upload.value?.complete(null);
+        return null;
+      }
+
+      rethrow;
     } catch (e) {
       if (attachment.read.value?.isCompleted == false) {
         attachment.read.value?.complete(null);

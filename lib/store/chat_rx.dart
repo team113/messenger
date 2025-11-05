@@ -728,17 +728,43 @@ class RxChatImpl extends RxChat {
 
     _pending.add(message.value);
 
+    bool isEmptyMessage = false;
+
     try {
       if (attachments != null) {
         final List<Future> uploads = attachments
-            .mapIndexed((i, e) {
+            .map((e) {
               if (e is LocalAttachment) {
                 return e.upload.value?.future.then(
                   (a) {
-                    attachments[i] = a;
+                    final index = attachments.indexOf(e);
 
-                    // Frequent writes of byte data freezes the Web page.
-                    if (!PlatformUtils.isWeb) {
+                    if (a != null) {
+                      attachments[index] = a;
+
+                      // Frequent writes of byte data freezes the Web page.
+                      if (!PlatformUtils.isWeb) {
+                        put(message);
+                      }
+                    } else {
+                      attachments.removeAt(index);
+
+                      _pending.remove(message.value);
+
+                      message = DtoChatMessage.sending(
+                        chatId: chat.value.id,
+                        me: me!,
+                        text: text,
+                        repliesTo: repliesTo
+                            .map((e) => ChatItemQuote.from(e))
+                            .toList(),
+                        attachments: attachments,
+                        existingId: existingId ?? message.value.id,
+                        existingDateTime: existingDateTime,
+                      );
+
+                      _pending.add(message.value);
+
                       put(message);
                     }
                   },
@@ -764,6 +790,11 @@ class RxChatImpl extends RxChat {
         }
 
         await Future.wait(uploads);
+      }
+
+      if (attachments?.isEmpty == true && text == null && repliesTo.isEmpty) {
+        isEmptyMessage = true;
+        return message.value;
       }
 
       if (attachments?.whereType<LocalAttachment>().isNotEmpty == true) {
@@ -813,7 +844,12 @@ class RxChatImpl extends RxChat {
       _pending.remove(message.value);
       rethrow;
     } finally {
-      put(message);
+      if (isEmptyMessage) {
+        remove(message.value.id);
+        _pending.remove(message.value);
+      } else {
+        put(message);
+      }
     }
 
     return message.value;

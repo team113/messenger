@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart'
     as dio
-    show DioException, Options, Response, DioExceptionType;
+    show DioException, Options, Response, DioExceptionType, CancelToken;
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -305,6 +305,7 @@ class GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
     RawClientOptions? raw,
+    dio.CancelToken? cancelToken,
   }) {
     return _middleware(() async {
       return await _transaction(operationName, () async {
@@ -322,6 +323,7 @@ class GraphQlClient {
             data: data,
             options: authorized,
             onSendProgress: onSendProgress,
+            cancelToken: cancelToken,
           );
         } on dio.DioException catch (e) {
           if (e.response != null) {

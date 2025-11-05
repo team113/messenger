@@ -745,8 +745,13 @@ class MessageFieldView extends StatelessWidget {
                             : 0,
                         child: CloseButton(
                           key: const Key('RemovePickedFile'),
-                          onPressed: () =>
-                              c.attachments.removeWhere((a) => a.value == e),
+                          onPressed: () => c.attachments.removeWhere((a) {
+                            if (e is LocalAttachment) {
+                              e.cancelToken.cancel();
+                            }
+
+                            return a.value == e;
+                          }),
                         ),
                       );
                     }),

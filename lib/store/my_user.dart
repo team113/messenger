@@ -311,11 +311,17 @@ class MyUserRepository extends DisposableInterface
 
     try {
       final List<Future>? uploads = attachments
-          ?.mapIndexed((i, e) {
+          ?.map((e) {
             if (e is LocalAttachment) {
               return e.upload.value?.future.then(
                 (a) {
-                  attachments[i] = a;
+                  final index = attachments.indexOf(e);
+
+                  if (a != null) {
+                    attachments[index] = a;
+                  } else {
+                    attachments.removeAt(index);
+                  }
                 },
                 onError: (_) {
                   // No-op, as failed upload attempts are handled below.

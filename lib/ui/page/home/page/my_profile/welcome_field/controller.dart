@@ -271,11 +271,15 @@ class WelcomeFieldController extends GetxController {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(MapEntry(GlobalKey(), attachment));
 
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
+        final Attachment? uploaded = await _chatService.uploadAttachment(attachment);
 
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {
-          attachments[index] = MapEntry(attachments[index].key, uploaded);
+          if (uploaded != null) {
+            attachments[index] = MapEntry(attachments[index].key, uploaded);
+          } else {
+            attachments.removeAt(index);
+          }
         }
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);

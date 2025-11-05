@@ -20,7 +20,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart'
     as dio
-    show MultipartFile, Options, FormData, DioException;
+    show MultipartFile, Options, FormData, DioException, CancelToken;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -917,6 +917,7 @@ mixin ChatGraphQlMixin {
   uploadAttachment(
     dio.MultipartFile? attachment, {
     void Function(int count, int total)? onSendProgress,
+    dio.CancelToken? cancelToken,
   }) async {
     Log.debug('uploadAttachment($attachment, onSendProgress)', '$runtimeType');
 
@@ -946,6 +947,7 @@ mixin ChatGraphQlMixin {
                   as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentError)
               .code,
         ),
+        cancelToken: cancelToken,
       );
 
       if (response.data['data'] == null) {
