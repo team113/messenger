@@ -1025,7 +1025,8 @@ class ChatRepository extends DisposableInterface
       });
     }
 
-    // If the message is not sent yet, do not edit it by server.
+    // Don't upload the [Attachment]s and don't proceed with `editChatMessage`
+    // if the message's status is [SendingStatus.error].
     if (message.status.value == SendingStatus.error) {
       return;
     }

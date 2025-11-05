@@ -104,7 +104,7 @@ class _DataAttachmentState extends State<DataAttachment> {
       return Container(
         key: Key('File_${e.id}'),
         constraints: BoxConstraints(minWidth: 112),
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
         child: WidgetButton(
           onPressed: widget.onPressed,
           child: Column(

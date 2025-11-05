@@ -922,8 +922,16 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Opens a [File] or a directory containing it.
+  /// Opens a directory containing the provided [File].
+  ///
+  /// If directory cannot be opened (for example, on Android or iOS), then opens
+  /// the [File] itself.
   Future<void> openDirectoryOrFile(File file) async {
+    if (PlatformUtils.isWeb) {
+      // Web doesn't allow that.
+      return;
+    }
+
     if (PlatformUtils.isWindows) {
       // `explorer` is always included on Windows.
       await Process.start('explorer', ['/select,', p.normalize(file.path)]);
