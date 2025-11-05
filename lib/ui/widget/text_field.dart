@@ -45,6 +45,7 @@ class ReactiveTextField extends StatelessWidget {
     this.filled,
     this.formatters,
     this.hint,
+    this.hintColor,
     this.icon,
     this.label,
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
@@ -132,6 +133,9 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Optional hint of this [ReactiveTextField].
   final String? hint;
+
+  /// Optional hint color of this [ReactiveTextField].
+  final Color? hintColor;
 
   /// Callback, called when [TextField] is changed.
   ///
@@ -402,9 +406,9 @@ class ReactiveTextField extends StatelessWidget {
                 hintText: hint,
                 hintMaxLines: maxLines,
                 hintStyle: this.style?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).inputDecorationTheme.hintStyle?.color,
+                  color:
+                      hintColor ??
+                      Theme.of(context).inputDecorationTheme.hintStyle?.color,
                 ),
 
                 // Hide the error's text as the [AnimatedSize] below this

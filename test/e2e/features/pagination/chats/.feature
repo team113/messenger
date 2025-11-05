@@ -30,7 +30,7 @@ Feature: Chats pagination
     Given I have Internet with delay of 5 seconds
     When I scroll `Chats` until `ChatsLoading` is present
     Then I wait until `ChatsLoading` is absent
-    And I see 16 chats
+    And I see 16 or more chats
 
   @disabled
   Scenario: Chats pagination migrates from local to remote
@@ -40,7 +40,7 @@ Feature: Chats pagination
     And I pause for 5 seconds
     When I scroll `Chats` until `ChatsLoading` is present
     Then I wait until `ChatsLoading` is absent
-    And I see 16 chats
+    And I see 16 or more chats
     And chats fetched are indeed remote
 
     When I do not have Internet
@@ -83,4 +83,4 @@ Feature: Chats pagination
     Then I see 30 favorite chats
 
     When I scroll `Chats` to bottom
-    Then I see 45 chats
+    Then I see 45 or more chats

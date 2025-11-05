@@ -304,11 +304,12 @@ class WebUtils {
     return controller.stream;
   }
 
-  /// Returns a stream broadcasting the browser's broadcast channel changes.
-  static Stream<dynamic> get onBroadcastMessage {
+  /// Returns a stream broadcasting the browser's `fcm` broadcast channel
+  /// changes.
+  static Stream<dynamic> onBroadcastMessage({String name = 'fcm'}) {
     StreamController<dynamic>? controller;
 
-    final channel = web.BroadcastChannel('fcm');
+    final web.BroadcastChannel channel = web.BroadcastChannel(name);
 
     controller = StreamController(
       onListen: () {
@@ -487,6 +488,7 @@ class WebUtils {
     String? lang,
     String? tag,
     String? icon,
+    Map<String, dynamic> data = const {},
     List<WebNotificationAction> actions = const [],
   }) async {
     final options = web.NotificationOptions();
@@ -506,6 +508,10 @@ class WebUtils {
     if (icon != null) {
       options.icon = icon;
     }
+    if (data.isNotEmpty) {
+      options.data = data.jsify();
+    }
+
     if (actions.isNotEmpty) {
       options.actions = actions
           .map(

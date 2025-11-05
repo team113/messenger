@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
@@ -27,7 +26,6 @@ import 'package:medea_jason/medea_jason.dart';
 import '../controller.dart';
 import '../widget/animated_delayed_scale.dart';
 import '../widget/call_cover.dart';
-import '../widget/conditional_backdrop.dart';
 import '../widget/dock.dart';
 import '../widget/dock_decorator.dart';
 import '../widget/double_bounce_indicator.dart';
@@ -95,14 +93,10 @@ Widget desktopCall(CallController c, BuildContext context) {
 
           return Align(
             alignment: alignment,
-            child: ConditionalBackdropFilter(
-              child: Container(
-                height: height,
-                width: width,
-                color: ConditionalBackdropFilter.enabled
-                    ? style.colors.primaryAuxiliaryOpacity25
-                    : style.colors.primaryAuxiliaryOpacity90,
-              ),
+            child: Container(
+              height: height,
+              width: width,
+              color: style.colors.primaryAuxiliaryOpacity90,
             ),
           );
         });
@@ -657,68 +651,62 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ],
                     ),
                     margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
-                    child: ConditionalBackdropFilter(
-                      borderRadius: BorderRadius.circular(11),
-                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: ConditionalBackdropFilter.enabled
-                              ? style.colors.primaryAuxiliaryOpacity25
-                              : style.colors.primaryAuxiliaryOpacity90,
-                          borderRadius: BorderRadius.circular(11),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 10,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (c.fullscreen.value) ...[
-                              Text(
-                                'label_call_title'.l10nfmt(c.titleArguments),
-                                style: style.fonts.small.regular.onPrimary,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              Container(
-                                margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                                color: style.colors.onPrimary,
-                                width: 1,
-                                height: 12,
-                              ),
-                            ],
-                            AnimatedButton(
-                              enabled: c.draggedRenderer.value == null,
-                              onPressed: c.layoutAsPrimary,
-                              child: const SvgIcon(SvgIcons.callGallery),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: style.colors.primaryAuxiliaryOpacity90,
+                        borderRadius: BorderRadius.circular(11),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 10,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (c.fullscreen.value) ...[
+                            Text(
+                              'label_call_title'.l10nfmt(c.titleArguments),
+                              style: style.fonts.small.regular.onPrimary,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(width: 16),
-                            AnimatedButton(
-                              enabled: c.draggedRenderer.value == null,
-                              onPressed: () =>
-                                  c.layoutAsSecondary(floating: true),
-                              child: const SvgIcon(SvgIcons.callFloating),
+                            Container(
+                              margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                              color: style.colors.onPrimary,
+                              width: 1,
+                              height: 12,
                             ),
-                            const SizedBox(width: 16),
-                            AnimatedButton(
-                              enabled: c.draggedRenderer.value == null,
-                              onPressed: () =>
-                                  c.layoutAsSecondary(floating: false),
-                              child: const SvgIcon(SvgIcons.callSide),
-                            ),
-                            const SizedBox(width: 16),
-                            AnimatedButton(
-                              enabled: c.draggedRenderer.value == null,
-                              onPressed: c.toggleFullscreen,
-                              child: SvgIcon(
-                                c.fullscreen.value
-                                    ? SvgIcons.fullscreenExitSmall
-                                    : SvgIcons.fullscreenEnterSmall,
-                              ),
-                            ),
-                            if (c.fullscreen.value) const SizedBox(width: 4),
                           ],
-                        ),
+                          AnimatedButton(
+                            enabled: c.draggedRenderer.value == null,
+                            onPressed: c.layoutAsPrimary,
+                            child: const SvgIcon(SvgIcons.callGallery),
+                          ),
+                          const SizedBox(width: 16),
+                          AnimatedButton(
+                            enabled: c.draggedRenderer.value == null,
+                            onPressed: () =>
+                                c.layoutAsSecondary(floating: true),
+                            child: const SvgIcon(SvgIcons.callFloating),
+                          ),
+                          const SizedBox(width: 16),
+                          AnimatedButton(
+                            enabled: c.draggedRenderer.value == null,
+                            onPressed: () =>
+                                c.layoutAsSecondary(floating: false),
+                            child: const SvgIcon(SvgIcons.callSide),
+                          ),
+                          const SizedBox(width: 16),
+                          AnimatedButton(
+                            enabled: c.draggedRenderer.value == null,
+                            onPressed: c.toggleFullscreen,
+                            child: SvgIcon(
+                              c.fullscreen.value
+                                  ? SvgIcons.fullscreenExitSmall
+                                  : SvgIcons.fullscreenEnterSmall,
+                            ),
+                          ),
+                          if (c.fullscreen.value) const SizedBox(width: 4),
+                        ],
                       ),
                     ),
                   ),
@@ -1295,8 +1283,6 @@ Widget _primaryView(CallController c) {
                         key: ObjectKey(participant),
                         muted: muted,
                         hovered: isHovered,
-                        preferBackdrop:
-                            !c.minimized.value || c.fullscreen.value,
                       ),
                     ),
                   ),
@@ -1855,8 +1841,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 key: ObjectKey(participant),
                                 muted: muted,
                                 hovered: isHovered,
-                                preferBackdrop:
-                                    !c.minimized.value || c.fullscreen.value,
                               ),
                             ),
                           ),
@@ -1984,36 +1968,27 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       topRight: borderRadius.topRight,
                                     )
                                   : BorderRadius.zero,
-                              child: ConditionalBackdropFilter(
-                                condition:
-                                    (c.minimized.isFalse ||
-                                    c.fullscreen.isTrue),
-                                child: Container(
-                                  color: ConditionalBackdropFilter.enabled
-                                      ? style.colors.onSecondaryOpacity60
-                                      : style.colors.onSecondaryOpacity88,
-                                  child: Row(
-                                    children: [
-                                      const Spacer(),
-                                      AnimatedButton(
-                                        enabled: !isAnyDrag,
-                                        onPressed: c.focusAll,
-                                        decorator: (child) => Container(
-                                          padding: const EdgeInsets.fromLTRB(
-                                            8,
-                                            0,
-                                            12,
-                                            0,
-                                          ),
-                                          height: double.infinity,
-                                          child: child,
+                              child: ColoredBox(
+                                color: style.colors.onSecondaryOpacity88,
+                                child: Row(
+                                  children: [
+                                    const Spacer(),
+                                    AnimatedButton(
+                                      enabled: !isAnyDrag,
+                                      onPressed: c.focusAll,
+                                      decorator: (child) => Container(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          8,
+                                          0,
+                                          12,
+                                          0,
                                         ),
-                                        child: const SvgIcon(
-                                          SvgIcons.closeSmall,
-                                        ),
+                                        height: double.infinity,
+                                        child: child,
                                       ),
-                                    ],
-                                  ),
+                                      child: const SvgIcon(SvgIcons.closeSmall),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -2054,23 +2029,17 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 duration: const Duration(milliseconds: 300),
                                 beginScale: 1,
                                 endScale: 1.06,
-                                child: ConditionalBackdropFilter(
-                                  condition:
-                                      !c.minimized.value || c.fullscreen.value,
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color:
-                                          !c.minimized.value ||
-                                              c.fullscreen.value
-                                          ? style.colors.onBackgroundOpacity27
-                                          : style.colors.onBackgroundOpacity50,
-                                    ),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(16),
-                                      child: SvgIcon(SvgIcons.addBigger),
-                                    ),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    color:
+                                        !c.minimized.value || c.fullscreen.value
+                                        ? style.colors.onBackgroundOpacity27
+                                        : style.colors.onBackgroundOpacity50,
+                                  ),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: SvgIcon(SvgIcons.addBigger),
                                   ),
                                 ),
                               ),

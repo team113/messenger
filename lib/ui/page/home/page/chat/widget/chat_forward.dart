@@ -40,10 +40,10 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/checkbox_button.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -110,7 +110,7 @@ class ChatForwardWidget extends StatefulWidget {
   /// [User] posted these [forwards].
   final RxUser? user;
 
-  /// Indicator whether this [ChatForwardWidget] should display [RxUser.title].
+  /// Indicator whether this [ChatForwardWidget] should display [UserExt.title].
   ///
   /// For example, [Chat]-groups should display messages with titles.
   final bool withName;
@@ -342,7 +342,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                           child: SelectionText.rich(
                             TextSpan(
-                              text: widget.user?.title ?? 'dot'.l10n * 3,
+                              text: widget.user?.title() ?? 'dot'.l10n * 3,
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () =>
                                     router.user(widget.authorId, push: true),
@@ -470,7 +470,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: Padding(
                         padding: const EdgeInsets.only(right: 9),
                         child: SelectionText(
-                          user?.title ?? 'dot'.l10n * 3,
+                          user?.title() ?? 'dot'.l10n * 3,
                           selectable:
                               widget.selectable &&
                               (PlatformUtils.isDesktop || menu),
@@ -679,25 +679,18 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 right: timeInBubble ? 6 : 8,
                 bottom: 4,
                 child: timeInBubble
-                    ? ConditionalBackdropFilter(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 4, right: 4),
-                          decoration: BoxDecoration(
-                            color: style.colors.onBackgroundOpacity27,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: MessageTimestamp(
-                            at: quote.at,
-                            date: true,
-                            fontSize: style
-                                .fonts
-                                .smaller
-                                .regular
-                                .onBackground
-                                .fontSize,
-                            inverted: true,
-                          ),
+                    ? Container(
+                        padding: const EdgeInsets.only(left: 4, right: 4),
+                        decoration: BoxDecoration(
+                          color: style.colors.onBackgroundOpacity27,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: MessageTimestamp(
+                          at: quote.at,
+                          date: true,
+                          fontSize:
+                              style.fonts.smaller.regular.onBackground.fontSize,
+                          inverted: true,
                         ),
                       )
                     : MessageTimestamp(
@@ -752,7 +745,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                     child: SelectionText.rich(
                       TextSpan(
-                        text: widget.user?.title ?? 'dot'.l10n * 3,
+                        text: widget.user?.title() ?? 'dot'.l10n * 3,
                         recognizer: TapGestureRecognizer()
                           ..onTap = () =>
                               router.user(widget.authorId, push: true),
@@ -885,7 +878,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
               futureOr: () => widget.getUser?.call(m.memberId),
               builder: (context, member) {
                 return Tooltip(
-                  message: member?.title ?? user?.title ?? ('dot'.l10n * 3),
+                  message: member?.title() ?? user?.title() ?? ('dot'.l10n * 3),
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(

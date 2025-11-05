@@ -38,7 +38,7 @@ class ChatButtonWidget extends StatelessWidget {
   /// Constructs a send/forward [ChatButtonWidget].
   ChatButtonWidget.send({super.key, this.onPressed})
     : icon = SvgIcon(SvgIcons.send),
-      disabledIcon = null;
+      disabledIcon = SvgIcon(SvgIcons.sendDisabled);
 
   /// Callback, called when this [ChatButtonWidget] is pressed.
   final void Function()? onPressed;

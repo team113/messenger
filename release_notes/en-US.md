@@ -1,3 +1,2 @@
-- Added archived chats.
-- Added separate button to download logs.
-- Bug fixes and performance improvements.
+- Added pages scrolling by pressing Page Up and Page Down keys.
+- Redesigned forward message modal in chat.
