@@ -178,7 +178,7 @@ class ChatWorker extends DisposableService {
               body: 'label_you_were_added_to_group'.l10n,
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,
-              tag: c.chat.value.id.val,
+              tag: '${c.chat.value.id}',
             );
 
             await _flashTaskbarIcon();
@@ -201,6 +201,17 @@ class ChatWorker extends DisposableService {
       onNotification: (body, tag, image) async {
         // Displays a local notification via [NotificationService].
         Future<void> notify() async {
+          if (PlatformUtils.isMobile &&
+              !router.lifecycle.value.inForeground &&
+              _notificationService.pushNotifications) {
+            // Don't display the local notifications when app is in background
+            // on mobiles with push notifications enabled, as in this case a
+            // push should be displayed.
+            //
+            // Otherwise the local notification might duplicate the remote one.
+            return;
+          }
+
           if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
               c.title(),
@@ -339,7 +350,7 @@ class _ChatWatchData {
           if (body.isNotEmpty) {
             onNotification?.call(
               body.toString(),
-              chat.lastItem != null ? '${chat.id}_${chat.lastItem?.id}' : null,
+              chat.lastItem != null ? '${chat.id}-${chat.lastItem?.id}' : null,
               image,
             );
           }

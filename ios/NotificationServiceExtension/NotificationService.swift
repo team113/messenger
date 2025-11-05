@@ -37,6 +37,10 @@ class NotificationService: UNNotificationServiceExtension {
         }
       }
 
+      if let tag = userInfo["tag"] as? String {
+        cancelNotification(tag: String(tag.asHash))
+      }
+
       if request.content.title == "Canceled" && request.content.body.isEmpty {
         if let thread = userInfo["thread"] as? String {
           let center = UNUserNotificationCenter.current()
@@ -47,14 +51,11 @@ class NotificationService: UNNotificationServiceExtension {
             try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
           } else {
-
             cancelNotificationsContaining(thread: thread)
             try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
             return
           }
-        } else if let tag = userInfo["tag"] as? String {
-          cancelNotification(tag: tag)
         }
       } else {
         self.contentHandler = contentHandler
@@ -426,5 +427,13 @@ class NotificationService: UNNotificationServiceExtension {
 
       try? db.run(locksTable.filter(holderColumn == holder).delete())
     }
+  }
+}
+
+// Extension adding simplest hash function for `String`s.
+extension String {
+  /// Returns the simplest possible hash from that `String`.
+  var asHash: Int {
+    return self.utf16.reduce(0) { $0 + Int($1) }
   }
 }

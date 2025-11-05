@@ -297,7 +297,9 @@ class NotificationService extends DisposableService {
         // On Android notifications are replaced when ID and tag are the same,
         // and FCM notifications always have ID of zero, so in order for push
         // notifications to replace local, we set its ID as zero as well.
-        PlatformUtils.isAndroid ? 0 : Random().nextInt(1 << 31),
+        PlatformUtils.isAndroid
+            ? 0
+            : (tag?.asHash ?? Random().nextInt(1 << 31)),
         title,
         body,
         NotificationDetails(
@@ -318,12 +320,14 @@ class NotificationService extends DisposableService {
             attachments: [
               if (imagePath != null) DarwinNotificationAttachment(imagePath),
             ],
+            threadIdentifier: tag,
           ),
           macOS: DarwinNotificationDetails(
             sound: 'notification.caf',
             attachments: [
               if (imagePath != null) DarwinNotificationAttachment(imagePath),
             ],
+            threadIdentifier: tag,
           ),
         ),
         payload: payload,
@@ -545,7 +549,7 @@ class NotificationService extends DisposableService {
           tag:
               message.data['chatId'] != null &&
                   message.data['chatItemId'] != null
-              ? '${message.data['chatId']}_${message.data['chatItemId']}'
+              ? '${message.data['chatId']}-${message.data['chatItemId']}'
               : null,
         );
       }
@@ -717,4 +721,10 @@ class NotificationService extends DisposableService {
       _pushNotifications = false;
     }
   }
+}
+
+/// Extension adding simplest possible hash to a [String].
+extension on String {
+  /// Returns a hash of this [String] in its simplest form.
+  int get asHash => codeUnits.fold(0, (a, b) => a + b);
 }

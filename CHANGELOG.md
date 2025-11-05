@@ -16,9 +16,12 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Inability to move caret in message field up and down. ([#1494], [#1493])
+- Push notifications duplicating on iOS and Android. ([#1495], [#1472])
 
+[#1472]: /../../issues/1472
 [#1493]: /../../issues/1493
 [#1494]: /../../pull/1494
+[#1495]: /../../pull/1495
 
 
 
