@@ -203,10 +203,11 @@ class NotificationService extends DisposableService {
     String? payload,
     ImageFile? icon,
     String? tag,
+    String? thread,
     String? image,
   }) async {
     Log.debug(
-      'show($title, $body, $payload, $icon, $tag, $image)',
+      'show($title, $body, $payload, $icon, $tag, $thread, $image)',
       '$runtimeType',
     );
 
@@ -320,14 +321,14 @@ class NotificationService extends DisposableService {
             attachments: [
               if (imagePath != null) DarwinNotificationAttachment(imagePath),
             ],
-            threadIdentifier: tag,
+            threadIdentifier: thread,
           ),
           macOS: DarwinNotificationDetails(
             sound: 'notification.caf',
             attachments: [
               if (imagePath != null) DarwinNotificationAttachment(imagePath),
             ],
-            threadIdentifier: tag,
+            threadIdentifier: thread,
           ),
         ),
         payload: payload,
@@ -546,6 +547,7 @@ class NotificationService extends DisposableService {
               message.notification?.android?.imageUrl ??
               message.notification?.apple?.imageUrl ??
               message.notification?.web?.image,
+          thread: message.data['chatId'],
           tag:
               message.data['chatId'] != null &&
                   message.data['chatItemId'] != null

@@ -178,6 +178,7 @@ class ChatWorker extends DisposableService {
               body: 'label_you_were_added_to_group'.l10n,
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,
+              thread: '${c.chat.value.id}',
               tag: '${c.chat.value.id}',
             );
 
