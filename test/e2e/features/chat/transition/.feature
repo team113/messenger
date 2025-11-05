@@ -27,10 +27,13 @@ Feature: Chat transitions
     And Alice sends 100 messages to "Thoughts" group
     And Alice replies to "How are you?" message with "I am fine" text in "Thoughts" group
     And Alice reads all messages in "Thoughts" group
+    And I pause for 5 seconds
 
     When I sign in as Alice
     And I am in "Thoughts" group
     And I scroll `IntroductionScrollable` until `ProceedButton` is present
     And I tap `ProceedButton` button
+    And I pause for 5 seconds
     And I tap "How are you?" reply of "I am fine" message
+    And I pause for 5 seconds
     Then I see "How are you?" message

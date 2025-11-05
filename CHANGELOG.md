@@ -6,10 +6,85 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.8...v0.7.0) | [Milestone](/../../milestone/53)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to move caret in message field up and down. ([#1494], [#1493])
+
+[#1493]: /../../issues/1493
+[#1494]: /../../pull/1494
+
+
+
+
+## [0.6.8] · 2025-11-03
+[0.6.8]: /../../tree/v0.6.8
+
+[Diff](/../../compare/v0.6.7...v0.6.8) | [Milestone](/../../milestone/52)
+
+### Added
+
+- UI:
+    - Pages scrolling by pressing "PageUp" and "PageDown" keys. ([#1469], [#1228])
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned forward message modal. ([#1476], [#1408])
+
+[#1228]: /../../issues/1228
+[#1408]: /../../issues/1408
+[#1469]: /../../pull/1469
+[#1476]: /../../pull/1476
+
+
+
+
+## [0.6.7] · 2025-10-29
+[0.6.7]: /../../tree/v0.6.7
+
+[Diff](/../../compare/v0.6.6...v0.6.7) | [Milestone](/../../milestone/51)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Display "Deleted Account" title for deleted users. ([#1445], [#1419])
+    - Chats tab:
+        - Redesigned app bar and searching. ([#1438], [#1396])
+    - Chat page:
+        - "Ctrl+F"/"Cmd+F" toggling messages searching. ([#1438], [#1396])
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Updated overlay icons. ([#1466], [#1453])
+        - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
+
+[#1396]: /../../issues/1396
+[#1419]: /../../issues/1419
+[#1436]: /../../issues/1436
+[#1438]: /../../pull/1438
+[#1445]: /../../pull/1445
+[#1453]: /../../issues/1453
+[#1466]: /../../pull/1466
+[#1473]: /../../pull/1473
+
+
+
+
 ## [0.6.6] · 2025-10-13
 [0.6.6]: /../../tree/v0.6.6
 
-[Diff](/../../compare/v0.6.6...v0.7.0) | [Milestone](/../../milestone/50)
+[Diff](/../../compare/v0.6.5...v0.6.6) | [Milestone](/../../milestone/50)
 
 ### Added
 

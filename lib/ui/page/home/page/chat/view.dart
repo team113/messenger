@@ -38,12 +38,12 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
+import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -185,7 +185,7 @@ class ChatView extends StatelessWidget {
                               child: Transform.translate(
                                 offset: const Offset(0, 1),
                                 child: ReactiveTextField(
-                                  key: const Key('SearchField'),
+                                  key: const Key('SearchItemsField'),
                                   state: c.search,
                                   hint: 'label_search'.l10n,
                                   maxLines: 1,
@@ -467,7 +467,7 @@ class ChatView extends StatelessWidget {
                           child: ObscuredMenuInterceptor(child: Container()),
                         ),
                         Obx(() {
-                          final Widget child = FlutterListView(
+                          Widget child = FlutterListView(
                             key: const Key('MessagesList'),
                             controller: c.listController,
                             physics: c.isDraggingItem.value
@@ -493,6 +493,27 @@ class ChatView extends StatelessWidget {
                               initOffsetBasedOnBottom: true,
                               disableCacheItems: kDebugMode ? true : false,
                             ),
+                          );
+
+                          child = ScrollKeyboardHandler(
+                            scrollController: c.listController,
+                            reversed: true,
+
+                            // Only allow scrolling up when cursor is at the
+                            // beginning of the input field.
+                            scrollUpEnabled: () =>
+                                c.send.field.controller.selection.baseOffset ==
+                                    0 ||
+                                c.send.field.isFocused.isFalse,
+
+                            // Only allow scrolling up when cursor is at the end
+                            // of the input field.
+                            scrollDownEnabled: () =>
+                                c.send.field.controller.selection.baseOffset ==
+                                    c.send.field.controller.text.length ||
+                                c.send.field.isFocused.isFalse,
+
+                            child: child,
                           );
 
                           if (PlatformUtils.isMobile) {
@@ -617,18 +638,14 @@ class ChatView extends StatelessWidget {
                                   duration: const Duration(milliseconds: 300),
                                   beginScale: 1,
                                   endScale: 1.06,
-                                  child: ConditionalBackdropFilter(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(16),
-                                        color:
-                                            style.colors.onBackgroundOpacity27,
-                                      ),
-                                      child: const Padding(
-                                        padding: EdgeInsets.all(16),
-                                        child: SvgIcon(SvgIcons.addBigger),
-                                      ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      color: style.colors.onBackgroundOpacity27,
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(16),
+                                      child: SvgIcon(SvgIcons.addBigger),
                                     ),
                                   ),
                                 ),
@@ -809,6 +826,7 @@ class ChatView extends StatelessWidget {
                     c.selecting.toggle();
                     c.selected.add(element);
                   },
+                  onSearch: c.toggleSearch,
                   onUserPressed: (user) {
                     ChatId chatId = ChatId.local(user.id);
                     if (user.dialog.isLocalWith(c.me)) {
@@ -1331,11 +1349,11 @@ class ChatView extends StatelessWidget {
                   ? SizedBox(
                       key: Key('Expanded'),
                       child: Padding(
-                        padding: EdgeInsets.only(left: 1, right: 3),
+                        padding: EdgeInsets.symmetric(horizontal: 4),
                         child: SelectedDot(
-                          inverted: false,
+                          inverted: true,
                           selected: selected,
-                          darken: 0.1,
+                          size: SelectedDotSize.big,
                         ),
                       ),
                     )

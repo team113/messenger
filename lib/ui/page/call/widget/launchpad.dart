@@ -15,14 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/page/call/component/common.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 
 /// Decorated [Wrap] with the provided [children].
 class Launchpad extends StatelessWidget {
@@ -87,36 +84,32 @@ class Launchpad extends StatelessWidget {
                   ],
                 ),
                 margin: const EdgeInsets.all(2),
-                child: ConditionalBackdropFilter(
-                  borderRadius: BorderRadius.circular(30),
-                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 150),
-                    decoration: BoxDecoration(
-                      color: onWillAccept != null
-                          ? candidate.any(onWillAccept!)
-                                ? style.colors.primaryAuxiliaryOpacity95
-                                : style.colors.primaryAuxiliaryOpacity90
-                          : null,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 440),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(height: 35),
-                          Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.start,
-                            alignment: WrapAlignment.center,
-                            spacing: 4,
-                            runSpacing: 21,
-                            children: children,
-                          ),
-                          const SizedBox(height: 20),
-                        ],
-                      ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  decoration: BoxDecoration(
+                    color: onWillAccept != null
+                        ? candidate.any(onWillAccept!)
+                              ? style.colors.primaryAuxiliaryOpacity95
+                              : style.colors.primaryAuxiliaryOpacity90
+                        : null,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 440),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 35),
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.start,
+                          alignment: WrapAlignment.center,
+                          spacing: 4,
+                          runSpacing: 21,
+                          children: children,
+                        ),
+                        const SizedBox(height: 20),
+                      ],
                     ),
                   ),
                 ),

@@ -81,8 +81,9 @@ Future<void> _setCredentialTo(
   CustomUser user,
   TestCredential credential,
 ) async {
-  final provider = GraphQlProvider();
-  provider.token = user.token;
+  final GraphQlProvider provider = GraphQlProvider()
+    ..client.withWebSocket = false
+    ..token = user.token;
 
   switch (credential) {
     case TestCredential.login:

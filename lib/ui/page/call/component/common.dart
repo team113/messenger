@@ -22,7 +22,6 @@ import '../controller.dart';
 import '../widget/call_button.dart';
 import '../widget/call_title.dart';
 import '../widget/dock.dart';
-import '../widget/round_button.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -104,7 +103,6 @@ class VideoButton extends CallButton {
   @override
   Widget build({
     bool hinted = true,
-    bool blur = false,
     bool big = false,
     bool expanded = false,
     bool opaque = false,
@@ -119,7 +117,6 @@ class VideoButton extends CallButton {
         hinted: hinted,
         expanded: expanded,
         big: big,
-        withBlur: blur,
         constrained: c.isMobile,
         opaque: opaque,
         onPressed: c.toggleVideo,
@@ -150,7 +147,6 @@ class AudioButton extends CallButton {
   @override
   Widget build({
     bool hinted = true,
-    bool blur = false,
     bool big = false,
     bool expanded = false,
     bool opaque = false,
@@ -164,7 +160,6 @@ class AudioButton extends CallButton {
         asset: isAudio ? SvgIcons.callMicrophoneOn : SvgIcons.callMicrophoneOff,
         hinted: hinted,
         expanded: expanded,
-        withBlur: blur,
         big: big,
         constrained: c.isMobile,
         opaque: opaque,
@@ -378,7 +373,6 @@ class AcceptAudioButton extends CallButton {
       color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,
-      withBlur: expanded,
       big: big,
       constrained: c.isMobile,
       border: highlight
@@ -389,7 +383,7 @@ class AcceptAudioButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] accepting a call with video.
+/// [CallButton] accepting a call with video.
 class AcceptVideoButton extends CallButton {
   const AcceptVideoButton(super.c, {this.highlight = false});
 
@@ -409,7 +403,6 @@ class AcceptVideoButton extends CallButton {
       color: style.colors.accept,
       hinted: hinted,
       expanded: expanded,
-      withBlur: expanded,
       big: big,
       constrained: c.isMobile,
       border: highlight
@@ -420,7 +413,7 @@ class AcceptVideoButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] declining a call.
+/// [CallButton] declining a call.
 class DeclineButton extends CallButton {
   const DeclineButton(super.c);
 
@@ -437,7 +430,6 @@ class DeclineButton extends CallButton {
       color: style.colors.declineOpacity50,
       hinted: hinted,
       expanded: expanded,
-      withBlur: expanded,
       big: big,
       constrained: c.isMobile,
       onPressed: c.decline,
@@ -479,7 +471,7 @@ class EndCallButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] switching a speaker output.
+/// [CallButton] switching a speaker output.
 class SpeakerButton extends CallButton {
   const SpeakerButton(super.c);
 
@@ -491,7 +483,6 @@ class SpeakerButton extends CallButton {
   @override
   Widget build({
     bool hinted = true,
-    bool blur = false,
     bool big = false,
     bool expanded = false,
     bool opaque = false,
@@ -502,7 +493,6 @@ class SpeakerButton extends CallButton {
         asset: asset,
         hinted: hinted,
         expanded: expanded,
-        withBlur: blur,
         big: big,
         constrained: c.isMobile,
         opaque: opaque,
@@ -527,7 +517,7 @@ class SpeakerButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] switching a local video stream.
+/// [CallButton] switching a local video stream.
 class SwitchButton extends CallButton {
   const SwitchButton(super.c);
 
@@ -539,7 +529,6 @@ class SwitchButton extends CallButton {
   @override
   Widget build({
     bool hinted = true,
-    bool blur = false,
     bool big = false,
     bool expanded = false,
     bool opaque = false,
@@ -552,7 +541,6 @@ class SwitchButton extends CallButton {
             : SvgIcons.callCameraBack,
         hinted: hinted,
         expanded: expanded,
-        withBlur: blur,
         big: big,
         constrained: c.isMobile,
         opaque: opaque,

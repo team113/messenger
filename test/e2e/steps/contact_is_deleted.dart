@@ -32,14 +32,22 @@ final StepDefinitionGeneric contactIsIndeedDeleted =
     given1<String, CustomWorld>(
       '{string} contact is indeed deleted',
       (String name, context) async {
-        final provider = GraphQlProvider();
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false;
+
         final AuthService authService = Get.find();
         provider.token = authService.credentials.value!.access.secret;
 
         await context.world.appDriver.waitUntil(() async {
           // TODO: Wait for backend to support querying single [ChatContact].
           final response = await provider.chatContacts();
-          return response.edges.none((e) => e.node.name.val == name);
+          final isNone = response.edges.none((e) => e.node.name.val == name);
+
+          if (isNone) {
+            provider.disconnect();
+          }
+
+          return isNone;
         }, timeout: const Duration(seconds: 30));
       },
       configuration: StepDefinitionConfiguration()

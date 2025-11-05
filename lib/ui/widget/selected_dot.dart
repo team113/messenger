@@ -18,83 +18,115 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 import 'animated_switcher.dart';
+
+/// Size of a [SelectedDot].
+enum SelectedDotSize { normal, big }
 
 /// Animated [CircleAvatar] representing a selection circle.
 class SelectedDot extends StatelessWidget {
   const SelectedDot({
     super.key,
     this.selected = false,
-    this.size = 24,
-    this.darken = 0,
-    this.inverted = true,
-    this.outlined = false,
+    this.size = SelectedDotSize.normal,
+    this.inverted = false,
   });
 
   /// Indicator whether this [SelectedDot] is selected.
   final bool selected;
 
-  /// Diameter of this [SelectedDot].
-  final double size;
-
-  /// Amount of darkening to apply to the background of this [SelectedDot].
-  final double darken;
+  /// Size of this [SelectedDot].
+  final SelectedDotSize size;
 
   /// Indicator whether this [SelectedDot] should have inverted color relative
-  /// to its base one when [selected] is `true`.
+  /// to its base one.
   final bool inverted;
-
-  /// Indicator whether this [SelectedDot] should be outlined.
-  final bool outlined;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return SizedBox(
-      width: 30,
-      child: SafeAnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        child: selected
-            ? CircleAvatar(
-                key: const Key('Selected'),
-                backgroundColor: inverted
-                    ? style.colors.onPrimary
-                    : style.colors.primary,
-                radius: size / 2,
-                child: Icon(
-                  Icons.check,
-                  color: inverted
-                      ? style.colors.primary
-                      : style.colors.onPrimary,
-                  size: 14,
-                ),
-              )
-            : Container(
-                key: const Key('Unselected'),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: outlined
-                        ? style.colors.primary
-                        : style.colors.secondaryHighlightDark.darken(darken),
-                    width: 1.5,
-                  ),
-                ),
-                width: size,
-                height: size,
-                child: outlined
-                    ? Center(
-                        child: Icon(
-                          Icons.check,
-                          color: style.colors.primary,
-                          size: 14,
-                        ),
-                      )
-                    : null,
-              ),
+    final Widget dot;
+
+    if (selected) {
+      dot = _DotContainer(
+        key: const Key('Selected'),
+        size: size,
+        border: inverted ? style.colors.onPrimary : style.colors.primary,
+        background: inverted ? style.colors.primary : style.colors.onPrimary,
+        child: Center(
+          child: Icon(
+            Icons.check,
+            color: inverted ? style.colors.onPrimary : style.colors.primary,
+            size: switch (size) {
+              SelectedDotSize.normal => 10,
+              SelectedDotSize.big => 14,
+            },
+          ),
+        ),
+      );
+    } else {
+      dot = _DotContainer(
+        key: const Key('Unselected'),
+        size: size,
+        border: style.colors.secondaryHighlightDarkest,
+        background: inverted
+            ? style.colors.secondaryHighlight
+            : style.colors.onPrimary,
+      );
+    }
+
+    return SafeAnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: dot,
+    );
+  }
+}
+
+/// [Container] representing a selection circle.
+class _DotContainer extends StatelessWidget {
+  const _DotContainer({
+    super.key,
+    required this.size,
+    required this.background,
+    required this.border,
+    this.child,
+  });
+
+  /// Size of this [SelectedDot].
+  final SelectedDotSize size;
+
+  /// Background [Color] of this [SelectedDot].
+  final Color background;
+
+  /// Border [Color] of this [SelectedDot].
+  final Color border;
+
+  /// Widget to be placed in the center of this [SelectedDot].
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    final double dimension = switch (size) {
+      SelectedDotSize.normal => 20.0,
+      SelectedDotSize.big => 25.0,
+    };
+
+    return Container(
+      width: dimension,
+      height: dimension,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: border,
+          width: switch (size) {
+            SelectedDotSize.normal => 1.5,
+            SelectedDotSize.big => 0.5,
+          },
+        ),
+        color: background,
       ),
+      child: child,
     );
   }
 }
