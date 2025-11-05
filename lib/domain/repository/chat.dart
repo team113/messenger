@@ -314,6 +314,12 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether this [chat] has an [OngoingCall] active on this device.
   RxBool get inCall;
 
+  /// Store scroll position, used when leaving and re-entering chat.
+  ChatScrollPosition? get scrollPosition => null;
+
+  /// Store scroll position, used when leaving and re-entering it.
+  set scrollPosition(ChatScrollPosition position);
+
   /// Fetches the [Paginated] page around the [item], if specified, or
   /// [messages] around the [firstUnread] otherwise.
   ///
@@ -387,4 +393,15 @@ class RxChatMember implements Comparable<RxChatMember> {
 
     return result;
   }
+}
+
+/// Chat scroll position for save and restore.
+class ChatScrollPosition {
+  ChatScrollPosition({required this.itemId, required this.offset});
+
+  /// Saved top position id
+  final ChatItemId itemId;
+
+  /// Saved top position offset
+  final double offset;
 }

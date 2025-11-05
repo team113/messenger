@@ -124,6 +124,25 @@ class RxChatImpl extends RxChat {
   @override
   final RxInt unreadCount;
 
+  @override
+  set scrollPosition(ChatScrollPosition position) {
+    Log.debug(
+      'set scrollPosition($id, ${position.itemId}, ${position.offset})',
+      '$runtimeType',
+    );
+    _scrollPosition = position;
+  }
+
+  /// Restore scroll position, used when leaving and re-entering it.
+  @override
+  ChatScrollPosition? get scrollPosition {
+    Log.debug(
+      'get scrollPosition($id, ${_scrollPosition?.itemId}, ${_scrollPosition?.offset})',
+      '$runtimeType',
+    );
+    return _scrollPosition;
+  }
+
   /// [ChatVersion] of this [RxChatImpl].
   ChatVersion? ver;
 
@@ -137,6 +156,9 @@ class RxChatImpl extends RxChat {
 
   /// [MessagesPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> fragments = [];
+
+  /// Stored scroll position, used when leaving and re-entering chat.
+  ChatScrollPosition? _scrollPosition;
 
   /// [ChatRepository] used to cooperate with the other [RxChatImpl]s.
   final ChatRepository _chatRepository;

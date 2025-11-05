@@ -2434,24 +2434,24 @@ class ChatController extends GetxController {
             ' save scroll position to ChatItemId($itemId)',
         '$runtimeType',
       );
-      _chatService.saveScrollPosition(id, itemId, _topVisibleItem!.offset);
+      chat?.scrollPosition = ChatScrollPosition(
+        itemId: itemId,
+        offset: _topVisibleItem!.offset,
+      );
     }
   }
 
   /// Restore scroll position, used when leaving and re-entering it.
   Future<void> _restoreScrollPosition() async {
-    final ChatScrollPosition? savedPosition = _chatService.getScrollPosition(
-      id,
-    );
-    if (savedPosition != null) {
+    if (chat?.scrollPosition != null) {
       await animateTo(
-        savedPosition.itemId,
-        offset: savedPosition.offset,
+        chat!.scrollPosition!.itemId,
+        offset: chat!.scrollPosition!.offset,
         ignoreElements: true,
       );
       Log.debug(
         '_restoreScrollPosition() ->'
-            ' restore scroll position to ChatItemId(${savedPosition.itemId})',
+            ' restore scroll position to ChatItemId(${chat!.scrollPosition!.itemId})',
         '$runtimeType',
       );
     }
