@@ -2318,10 +2318,10 @@ class ChatRepository extends DisposableInterface
   /// Handles [RecentChatsEvent] from the [_recentChatsRemoteEvents]
   /// subscription.
   Future<void> _recentChatsRemoteEvent(RecentChatsEvent event) async {
-    Log.debug('_recentChatsRemoteEvent(${event.kind})', '$runtimeType');
-
     switch (event.kind) {
       case RecentChatsEventKind.initialized:
+        Log.debug('_recentChatsRemoteEvent(${event.kind})', '$runtimeType');
+
         // If more than 1 minute has passed, recreate [Pagination].
         if (_subscribedAt?.isBefore(
               DateTime.now().subtract(const Duration(minutes: 1)),
@@ -2332,7 +2332,13 @@ class ChatRepository extends DisposableInterface
         break;
 
       case RecentChatsEventKind.list:
-        var node = event as RecentChatsTop;
+        final node = event as RecentChatsTop;
+
+        Log.debug(
+          '_recentChatsRemoteEvent(${event.kind}) -> ${node.list.map((e) => '${e.chat}')}',
+          '$runtimeType',
+        );
+
         for (ChatData c in node.list) {
           if (chats[c.chat.value.id] == null) {
             _putEntry(c, updateVersion: false);
@@ -2342,6 +2348,12 @@ class ChatRepository extends DisposableInterface
 
       case RecentChatsEventKind.updated:
         event as EventRecentChatsUpdated;
+
+        Log.debug(
+          '_recentChatsRemoteEvent(${event.kind}) -> ${event.chat.chat}',
+          '$runtimeType',
+        );
+
         // Update the chat only if its state is not maintained by itself via
         // [chatEvents].
         if (chats[event.chat.chat.value.id]?.subscribed != true) {
@@ -2361,7 +2373,12 @@ class ChatRepository extends DisposableInterface
 
       case RecentChatsEventKind.deleted:
         event as EventRecentChatsDeleted;
-        // No-op.
+
+        Log.debug(
+          '_recentChatsRemoteEvent(${event.kind}) -> ${event.chatId}',
+          '$runtimeType',
+        );
+
         break;
     }
   }
