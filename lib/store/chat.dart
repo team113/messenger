@@ -83,7 +83,7 @@ import '/store/pagination/graphql.dart';
 import '/store/user.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
-import '/util/multipart_utils.dart';
+import '/util/multipart_file.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';

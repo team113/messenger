@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
@@ -39,7 +40,7 @@ extension _NativeFileExtension on NativeFile {
       );
     }
 
-    final byteData = bytes.value;
+    final Uint8List? byteData = bytes.value;
     if (byteData != null) {
       return MultipartFile.fromStream(
         () => _chunkedStream(byteData),
@@ -63,11 +64,11 @@ extension _NativeFileExtension on NativeFile {
 
   /// Returns a valid filename, using timestamp if the original name is empty.
   String _resolveFilename() {
-    var result = name.trim();
+    final String result = name.trim();
     if (result.isNotEmpty) return result;
 
-    final timestamp = DateTime.now().microsecondsSinceEpoch;
-    return mime != null ? '$timestamp.${mime!.subtype}' : '$timestamp';
+    final int timestamp = DateTime.now().microsecondsSinceEpoch;
+    return mime != null ? '$timestamp.${mime?.subtype}' : '$timestamp';
   }
 
   /// Creates a chunked stream from bytes to allow proper progress callbacks.
@@ -76,7 +77,7 @@ extension _NativeFileExtension on NativeFile {
     int chunkSize = 64 * 1024,
   }) async* {
     for (int offset = 0; offset < bytes.length; offset += chunkSize) {
-      final end = (offset + chunkSize > bytes.length)
+      final int end = (offset + chunkSize > bytes.length)
           ? bytes.length
           : offset + chunkSize;
       yield bytes.sublist(offset, end);
