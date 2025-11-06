@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import FirebaseMessaging
+import Foundation
 import SQLite
 import UserNotifications
 import os
@@ -430,10 +431,19 @@ class NotificationService: UNNotificationServiceExtension {
   }
 }
 
-// Extension adding simplest hash function for `String`s.
+// Extension adding the simplest possible hash to a `String`.
+//
+// Currently uses the FNV-1a hash function.
+//
+// See: https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
 extension String {
-  /// Returns the simplest possible hash from that `String`.
-  var asHash: Int {
-    return self.utf16.reduce(0) { $0 + Int($1) }
+  /// Returns a hash of this `String` in its simplest form.
+  var asHash: UInt32 {
+    var result: UInt32 = 0x811C_9DC5  // FNV offset basis.
+    for unit in self.utf16 {
+      result ^= UInt32(unit)
+      result = (result &* 0x0100_0193) & 0xFFFF_FFFF  // 32-bit overflow.
+    }
+    return result
   }
 }

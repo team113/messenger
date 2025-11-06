@@ -199,7 +199,7 @@ class ChatWorker extends DisposableService {
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
       onActive: () => _active,
-      onNotification: (body, tag, image) async {
+      onNotification: (body, tag, thread, image) async {
         // Displays a local notification via [NotificationService].
         Future<void> notify() async {
           if (PlatformUtils.isMobile &&
@@ -220,6 +220,7 @@ class ChatWorker extends DisposableService {
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,
               tag: tag,
+              thread: thread,
               image: image,
             );
 
@@ -264,7 +265,7 @@ class ChatWorker extends DisposableService {
 class _ChatWatchData {
   _ChatWatchData(
     Rx<Chat> c, {
-    void Function(String, String?, String?)? onNotification,
+    void Function(String, String?, String?, String?)? onNotification,
     bool Function()? onActive,
     UserId? Function()? me,
   }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
@@ -352,6 +353,7 @@ class _ChatWatchData {
             onNotification?.call(
               body.toString(),
               chat.lastItem != null ? '${chat.id}-${chat.lastItem?.id}' : null,
+              '${chat.id}',
               image,
             );
           }
