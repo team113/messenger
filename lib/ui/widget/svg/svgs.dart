@@ -108,6 +108,36 @@ class SvgIcons {
     height: 10,
   );
 
+  static const SvgData downloadFile = SvgData(
+    'assets/icons/download_file.svg',
+    width: 15,
+    height: 15,
+  );
+
+  static const SvgData downloadFileCancelProgress = SvgData(
+    'assets/icons/download_file_cancel_progress.svg',
+    width: 15,
+    height: 15,
+  );
+
+  static const SvgData downloadFileError = SvgData(
+    'assets/icons/download_file_error.svg',
+    width: 15,
+    height: 15,
+  );
+
+  static const SvgData downloadFileOpen = SvgData(
+    'assets/icons/download_file_open.svg',
+    width: 15,
+    height: 15,
+  );
+
+  static const SvgData downloadFileSuccess = SvgData(
+    'assets/icons/download_file_success.svg',
+    width: 15,
+    height: 15,
+  );
+
   static const SvgData home = SvgData(
     'assets/icons/home.svg',
     width: 21.43,

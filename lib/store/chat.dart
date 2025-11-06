@@ -1026,6 +1026,12 @@ class ChatRepository extends DisposableInterface
       });
     }
 
+    // Don't upload the [Attachment]s and don't proceed with `editChatMessage`
+    // if the message's status is [SendingStatus.error].
+    if (message.status.value == SendingStatus.error) {
+      return;
+    }
+
     final List<Future>? uploads = attachments?.changed
         .mapIndexed((i, e) {
           if (e is LocalAttachment) {
