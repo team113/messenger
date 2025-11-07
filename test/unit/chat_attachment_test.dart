@@ -169,6 +169,7 @@ void main() async {
       graphQlProvider.uploadAttachment(
         any,
         onSendProgress: anyNamed('onSendProgress'),
+        cancelToken: anyNamed('cancelToken'),
       ),
     ).thenAnswer(
       (_) => Future.value(
@@ -244,6 +245,7 @@ void main() async {
       graphQlProvider.uploadAttachment(
         any,
         onSendProgress: anyNamed('onSendProgress'),
+        cancelToken: anyNamed('cancelToken'),
       ),
     );
   });
@@ -284,6 +286,7 @@ void main() async {
       graphQlProvider.uploadAttachment(
         any,
         onSendProgress: anyNamed('onSendProgress'),
+        cancelToken: anyNamed('cancelToken'),
       ),
     ).thenThrow(
       const UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown),
@@ -348,6 +351,7 @@ void main() async {
       graphQlProvider.uploadAttachment(
         any,
         onSendProgress: anyNamed('onSendProgress'),
+        cancelToken: anyNamed('cancelToken'),
       ),
     );
   });
