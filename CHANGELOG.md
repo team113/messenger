@@ -16,8 +16,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Inability to move caret in message field up and down. ([#1494], [#1493])
+        - Redesigned file attachments. ([#1480], [#1412])
 
+[#1412]: /../../issues/1412
 [#1493]: /../../issues/1493
+[#1480]: /../../pull/1480
 [#1494]: /../../pull/1494
 
 

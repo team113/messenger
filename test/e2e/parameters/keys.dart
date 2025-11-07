@@ -97,6 +97,7 @@ enum WidgetKey {
   DeleteWelcomeMessage,
   Devices,
   DoneButton,
+  EditMessageButton,
   EditNameButton,
   EditProfileButton,
   Email,

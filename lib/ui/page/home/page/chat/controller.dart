@@ -785,7 +785,9 @@ class ChatController extends GetxController {
 
           _stopTyping();
 
-          if (edit.value!.field.text.trim().isNotEmpty ||
+          final bool hasText = edit.value!.field.text.trim().isNotEmpty;
+
+          if (hasText ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
             try {
@@ -805,6 +807,11 @@ class ChatController extends GetxController {
               closeEditing();
 
               send.field.focus.requestFocus();
+
+              // If the message is not sent yet, resend it.
+              if (item.status.value == SendingStatus.error) {
+                await resendItem(item);
+              }
             } on EditChatMessageException catch (e) {
               if (e.code == EditChatMessageErrorCode.blocked) {
                 _showBlockedPopup();
