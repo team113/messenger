@@ -292,8 +292,7 @@ class MyUserRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    final bool reset =
-        text?.val.isEmpty == true && attachments?.isEmpty == true;
+    bool reset = text?.val.isEmpty == true && attachments?.isEmpty == true;
 
     final WelcomeMessage? previous = myUser.value?.welcomeMessage;
 
@@ -321,6 +320,8 @@ class MyUserRepository extends DisposableInterface
                   } else {
                     attachments.removeAt(index);
                   }
+
+                  myUser.update((_) => {});
                 },
                 onError: (_) {
                   // No-op, as failed upload attempts are handled below.
@@ -339,6 +340,11 @@ class MyUserRepository extends DisposableInterface
             UpdateWelcomeMessageErrorCode.unknownAttachment,
           ),
         );
+      }
+
+      if ((text == null || text.val.isEmpty) &&
+          (attachments == null || attachments.isEmpty == true)) {
+        reset = true;
       }
 
       await Backoff.run(
