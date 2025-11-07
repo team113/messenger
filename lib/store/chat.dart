@@ -1040,10 +1040,10 @@ class ChatRepository extends DisposableInterface
 
                 if (a != null) {
                   attachments.changed[index] = a;
-                  (item?.value as ChatMessage).attachments[index] = a;
+                  item?.update((c) {});
                 } else {
                   attachments.changed.removeAt(index);
-                  (item?.value as ChatMessage).attachments.removeAt(index);
+                  item?.update((c) {});
                 }
               },
               onError: (_) {
@@ -1063,6 +1063,13 @@ class ChatRepository extends DisposableInterface
         throw const ConnectionException(
           EditChatMessageException(EditChatMessageErrorCode.unknownAttachment),
         );
+      }
+
+      if ((text == null || text.changed?.val == null) &&
+          (attachments == null || attachments.changed.isEmpty == true) &&
+          (repliesTo == null || repliesTo.changed.isEmpty == true)) {
+        await deleteChatMessage(message);
+        return;
       }
 
       await Backoff.run(
