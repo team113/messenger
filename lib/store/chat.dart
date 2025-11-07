@@ -1040,11 +1040,11 @@ class ChatRepository extends DisposableInterface
 
                 if (a != null) {
                   attachments.changed[index] = a;
-                  item?.update((c) {});
                 } else {
                   attachments.changed.removeAt(index);
-                  item?.update((c) {});
                 }
+
+                item?.update((c) {});
               },
               onError: (_) {
                 // No-op, as failed upload attempts are handled below.
