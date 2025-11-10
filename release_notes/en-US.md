@@ -1,2 +1,1 @@
-- Added pages scrolling by pressing Page Up and Page Down keys.
-- Redesigned forward message modal in chat.
+- Bug fixes and performance improvements.

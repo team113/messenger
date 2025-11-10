@@ -1,2 +1,1 @@
-- Se ha añadido la función de desplazamiento de páginas pulsando las teclas Re Pág y Av Pág.
-- Se ha rediseñado la ventana modal para reenviar mensajes en el chat.
+- Se corrigieron errores y se mejoraron el rendimiento.
