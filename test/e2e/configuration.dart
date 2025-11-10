@@ -59,6 +59,7 @@ import 'parameters/users.dart';
 import 'steps/accounts.dart';
 import 'steps/appcast.dart';
 import 'steps/attach_file.dart';
+import 'steps/cancel_uploading.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_hidden.dart';
@@ -173,6 +174,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         attachFile,
         blockedCountUsers,
         cancelFileDownload,
+        cancelFileUpload,
         changeChatAvatar,
         chatIsFavorite,
         chatIsIndeedHidden,

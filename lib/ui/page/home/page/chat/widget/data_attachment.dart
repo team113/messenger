@@ -84,6 +84,7 @@ class _DataAttachmentState extends State<DataAttachment> {
       } else if (e is LocalAttachment) {
         leading = switch (e.status.value) {
           SendingStatus.sending => InkWell(
+            key: const Key('CancelUploading'),
             onTap: () => e.cancelToken.cancel(),
             child: _Progress(
               key: const Key('Sending'),
