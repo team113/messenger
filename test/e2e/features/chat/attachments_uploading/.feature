@@ -34,3 +34,15 @@ Feature: Attachments uploading
     When I cancel "test.txt" file upload
     Then I wait until attachment "test.txt" is absent
     And I wait until status of "test2.txt" attachment is sent
+
+  Scenario: Canceling upload of all files after sending a new message
+    When I attach "test.txt" file
+    And I attach "test2.txt" file
+    And I tap `Send` button
+
+    Then I wait until status of "test.txt" attachment is sending
+    When I cancel "test.txt" file upload
+    Then I wait until attachment "test.txt" is absent
+    When I cancel "test2.txt" file upload
+    Then I see no messages in chat
+
