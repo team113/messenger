@@ -36,7 +36,7 @@ Feature: Chat items are forwarded correctly
     Then I wait until `ChatForwardView` is present
 
     And I fill `ForwardField` field with "Check this :)"
-    And I tap on chat with Charlie
+    And I tap on chat with Charlie within `ChatForwardView`
     And I tap `SendForward` button
     And I am in chat with Charlie
     Then I wait until text "Check this :)" is present
@@ -51,7 +51,7 @@ Feature: Chat items are forwarded correctly
     Then I wait until `ChatForwardView` is present
 
     When I fill `ForwardField` field with "Mhm... Monkey."
-    And I tap on chat with Charlie
+    And I tap on chat with Charlie within `ChatForwardView`
     And I attach "test.jpg" image
     And I tap `SendForward` button
     And I am in chat with Charlie
@@ -71,8 +71,8 @@ Feature: Chat items are forwarded correctly
     Then I wait until `ChatForwardView` is present
 
     When I fill `ForwardField` field with "!!"
-    And I tap on chat with Charlie
-    And I tap on chat with Dave
+    And I tap on chat with Charlie within `ChatForwardView`
+    And I tap on chat with Dave within `ChatForwardView`
     And I tap `SendForward` button
     And I am in chat with Charlie
     Then I wait until text "!!" is present

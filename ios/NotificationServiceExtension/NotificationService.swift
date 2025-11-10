@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import FirebaseMessaging
+import Foundation
 import SQLite
 import UserNotifications
 import os
@@ -37,6 +38,10 @@ class NotificationService: UNNotificationServiceExtension {
         }
       }
 
+      if let tag = userInfo["tag"] as? String {
+        cancelNotification(tag: String(tag.asHash))
+      }
+
       if request.content.title == "Canceled" && request.content.body.isEmpty {
         if let thread = userInfo["thread"] as? String {
           let center = UNUserNotificationCenter.current()
@@ -47,14 +52,11 @@ class NotificationService: UNNotificationServiceExtension {
             try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
           } else {
-
             cancelNotificationsContaining(thread: thread)
             try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
             return
           }
-        } else if let tag = userInfo["tag"] as? String {
-          cancelNotification(tag: tag)
         }
       } else {
         self.contentHandler = contentHandler
@@ -426,5 +428,22 @@ class NotificationService: UNNotificationServiceExtension {
 
       try? db.run(locksTable.filter(holderColumn == holder).delete())
     }
+  }
+}
+
+// Extension adding the simplest possible hash to a `String`.
+//
+// Currently uses the FNV-1a hash function.
+//
+// See: https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
+extension String {
+  /// Returns a hash of this `String` in its simplest form.
+  var asHash: UInt32 {
+    var result: UInt32 = 0x811C_9DC5  // FNV offset basis.
+    for unit in self.utf16 {
+      result ^= UInt32(unit)
+      result = (result &* 0x0100_0193) & 0xFFFF_FFFF  // 32-bit overflow.
+    }
+    return result
   }
 }
