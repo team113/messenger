@@ -43,8 +43,6 @@ waitUntilFileStatus = then2<String, DownloadStatus, CustomWorld>(
   'I wait until {string} file is {downloadStatus}',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-
       final ChatService chatService = Get.find<ChatService>();
       final RxChat? chat =
           chatService.chats[ChatId(router.route.split('/').last)];

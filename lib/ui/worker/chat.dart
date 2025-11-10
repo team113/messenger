@@ -178,7 +178,8 @@ class ChatWorker extends DisposableService {
               body: 'label_you_were_added_to_group'.l10n,
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,
-              tag: c.chat.value.id.val,
+              thread: '${c.chat.value.id}',
+              tag: '${c.chat.value.id}',
             );
 
             await _flashTaskbarIcon();
@@ -198,9 +199,20 @@ class ChatWorker extends DisposableService {
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
       onActive: () => _active,
-      onNotification: (body, tag, image) async {
+      onNotification: (body, tag, thread, image) async {
         // Displays a local notification via [NotificationService].
         Future<void> notify() async {
+          if (PlatformUtils.isMobile &&
+              !router.lifecycle.value.inForeground &&
+              _notificationService.pushNotifications) {
+            // Don't display the local notifications when app is in background
+            // on mobiles with push notifications enabled, as in this case a
+            // push should be displayed.
+            //
+            // Otherwise the local notification might duplicate the remote one.
+            return;
+          }
+
           if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
               c.title(),
@@ -208,6 +220,7 @@ class ChatWorker extends DisposableService {
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,
               tag: tag,
+              thread: thread,
               image: image,
             );
 
@@ -252,7 +265,7 @@ class ChatWorker extends DisposableService {
 class _ChatWatchData {
   _ChatWatchData(
     Rx<Chat> c, {
-    void Function(String, String?, String?)? onNotification,
+    void Function(String, String?, String?, String?)? onNotification,
     bool Function()? onActive,
     UserId? Function()? me,
   }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
@@ -339,7 +352,8 @@ class _ChatWatchData {
           if (body.isNotEmpty) {
             onNotification?.call(
               body.toString(),
-              chat.lastItem != null ? '${chat.id}_${chat.lastItem?.id}' : null,
+              chat.lastItem != null ? '${chat.id}-${chat.lastItem?.id}' : null,
+              '${chat.id}',
               image,
             );
           }
