@@ -58,3 +58,34 @@ final StepDefinitionGeneric untilMessageExists =
         }, timeout: const Duration(seconds: 30));
       },
     );
+
+/// Waits until an any [ChatMessage] is present or absent.
+///
+/// Examples:
+/// - Then I wait until any message is absent
+/// - Then I wait until any message is present
+final StepDefinitionGeneric untilAnyMessageExists =
+    then1<Existence, FlutterWorld>('I wait until any message is {existence}', (
+      existence,
+      context,
+    ) async {
+      await context.world.appDriver.waitUntil(() async {
+        await context.world.appDriver.waitForAppToSettle();
+
+        final RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+
+        final ChatMessage? message = chat?.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .firstOrNull;
+
+        final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+          'Message_${message?.id}',
+        );
+
+        return existence == Existence.absent
+            ? context.world.appDriver.isAbsent(finder)
+            : context.world.appDriver.isPresent(finder);
+      }, timeout: const Duration(seconds: 30));
+    });

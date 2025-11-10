@@ -324,6 +324,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilAttachmentFetched,
         untilChatExists,
         untilContactExists,
+        untilAnyMessageExists,
         untilMessageExists,
         untilTextExists,
         untilTextExistsWithin,

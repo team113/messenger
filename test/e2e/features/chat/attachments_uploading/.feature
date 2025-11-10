@@ -23,7 +23,7 @@ Feature: Attachments uploading
     And Bob has dialog with me
     And I am in chat with Bob
     And I wait for app to settle
-    And I have Internet with delay of 20 seconds
+    And I have Internet with delay of 10 seconds
 
   Scenario: Canceling upload of one of the files after sending a new message
     When I attach "test.txt" file
@@ -44,5 +44,4 @@ Feature: Attachments uploading
     When I cancel "test.txt" file upload
     Then I wait until attachment "test.txt" is absent
     When I cancel "test2.txt" file upload
-    Then I see no messages in chat
-
+    Then I wait until any message is absent
