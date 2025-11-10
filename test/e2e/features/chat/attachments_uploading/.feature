@@ -23,24 +23,62 @@ Feature: Attachments uploading
     And Bob has dialog with me
     And I am in chat with Bob
     And I wait for app to settle
-    And I have Internet with delay of 10 seconds
 
   Scenario: Canceling upload of one of the files after sending a new message
-    When I attach "test.txt" file
+    When I have Internet with delay of 10 seconds
+    And I attach "test.txt" file
     And I attach "test2.txt" file
     And I tap `Send` button
-
     Then I wait until status of "test.txt" attachment is sending
+
     When I cancel "test.txt" file upload
     Then I wait until attachment "test.txt" is absent
     And I wait until status of "test2.txt" attachment is sent
 
   Scenario: Canceling upload of all files after sending a new message
-    When I attach "test.txt" file
+    When I have Internet with delay of 10 seconds
+    And I attach "test.txt" file
     And I attach "test2.txt" file
     And I tap `Send` button
-
     Then I wait until status of "test.txt" attachment is sending
+
+    When I cancel "test.txt" file upload
+    Then I wait until attachment "test.txt" is absent
+    When I cancel "test2.txt" file upload
+    Then I wait until any message is absent
+
+  Scenario: Canceling upload of one of the files after editing a message
+    When I fill `MessageField` field with "Hello"
+    And I tap `Send` button
+    Then I wait until status of "Hello" message is sent
+
+    When I long press "Hello" message
+    And I tap `EditMessageButton` button
+    And I fill `MessageField` field with "Hi"
+    And I have Internet with delay of 10 seconds
+    And I attach "test.txt" file
+    And I attach "test2.txt" file
+    And I tap `Send` button
+    Then I wait until status of "test.txt" attachment is sending
+
+    When I cancel "test.txt" file upload
+    Then I wait until attachment "test.txt" is absent
+    And I wait until status of "test2.txt" attachment is sent
+
+  Scenario: Canceling upload of all files after editing a message
+    When I fill `MessageField` field with "Hello"
+    And I tap `Send` button
+    Then I wait until status of "Hello" message is sent
+
+    When I long press "Hello" message
+    And I tap `EditMessageButton` button
+    And I fill `MessageField` field with ""
+    And I have Internet with delay of 10 seconds
+    And I attach "test.txt" file
+    And I attach "test2.txt" file
+    And I tap `Send` button
+    Then I wait until status of "test.txt" attachment is sending
+
     When I cancel "test.txt" file upload
     Then I wait until attachment "test.txt" is absent
     When I cancel "test2.txt" file upload
