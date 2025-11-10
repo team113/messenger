@@ -25,8 +25,8 @@ Feature: Attachments uploading
     And I have Internet with delay of 20 seconds
 
   Scenario: Canceling upload of one of the files after sending a new message
-    When I attach "test.txt" file with delay of 20 seconds
-    And I attach "test2.txt" file with delay of 20 seconds
+    When I attach "test.txt" file
+    And I attach "test2.txt" file
     And I tap `Send` button
 
     When I cancel "test.txt" file upload
