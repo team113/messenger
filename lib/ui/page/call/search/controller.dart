@@ -21,7 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
-import '../../../../util/log.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
@@ -38,6 +37,7 @@ import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/text_field.dart';
+import '/util/log.dart';
 
 export 'view.dart';
 
