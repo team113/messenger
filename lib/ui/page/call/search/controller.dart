@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '../../../../util/log.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/my_user.dart';
@@ -363,6 +364,11 @@ class SearchController extends GetxController {
     _populateRecent();
     _populateContacts();
     _populateUsers();
+
+    Log.debug(
+      'populate() -> recent($recent), chats($chats), users($users), contacts($contacts)',
+      '$runtimeType',
+    );
   }
 
   /// Returns a [User] from the [UserService] by the provided [id].
@@ -616,7 +622,7 @@ class SearchController extends GetxController {
           .whereNot(isMember);
 
       if (categories.contains(SearchCategory.chat)) {
-        filtered = filtered.take(3);
+        filtered = filtered.take(5);
       }
 
       filtered = filtered.where(matchesQuery);
