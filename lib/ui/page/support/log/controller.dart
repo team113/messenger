@@ -17,6 +17,7 @@
 
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -51,6 +52,9 @@ class LogController extends GetxController {
   /// [PlatformUtilsImpl.userAgent] string.
   final RxnString userAgent = RxnString();
 
+  /// [NotificationSettings] the [FirebaseMessaging] has currently.
+  final Rx<NotificationSettings?> notificationSettings = Rx(null);
+
   /// [AuthService] used to retrieve the current [sessionId].
   final AuthService _authService;
 
@@ -82,6 +86,7 @@ class LogController extends GetxController {
   @override
   void onInit() {
     PlatformUtils.userAgent.then((e) => userAgent.value = e);
+    getNotificationSettings().then((e) => notificationSettings.value = e);
     super.onInit();
   }
 
@@ -93,6 +98,7 @@ class LogController extends GetxController {
     MyUser? myUser,
     DeviceToken? token,
     bool? pushNotifications,
+    NotificationSettings? notificationSettings,
   }) async {
     try {
       final encoder = Utf8Encoder();
@@ -113,6 +119,7 @@ class LogController extends GetxController {
             myUser: myUser,
             token: token,
             pushNotifications: pushNotifications,
+            notificationSettings: notificationSettings,
           ),
         ),
       );
@@ -133,6 +140,7 @@ class LogController extends GetxController {
     MyUser? myUser,
     DeviceToken? token,
     bool? pushNotifications,
+    NotificationSettings? notificationSettings,
   }) {
     final Session? session = sessions
         ?.firstWhereOrNull((e) => e.session.value.id == sessionId)
@@ -159,6 +167,9 @@ ${session?.toJson()}
 Push Notifications are considered active:
 $pushNotifications
 
+Push Notifications permissions are:
+${notificationSettings?.authorizationStatus.name}
+
 Token:
 $token
 
@@ -168,6 +179,27 @@ ${Log.logs.map((e) => '[${e.at.toUtc().toStamp}] [${e.level.name}] ${e.text}').j
 
 ========================================
 ''';
+  }
+
+  /// Tries to retrieve the [notificationSettings] by invoking
+  /// [FirebaseMessaging].
+  static Future<NotificationSettings?> getNotificationSettings() async {
+    if (!PlatformUtils.pushNotifications) {
+      // If push notifications aren't considered supported on this device, then
+      // there's no need to even try.
+      return null;
+    }
+
+    try {
+      return await FirebaseMessaging.instance.getNotificationSettings();
+    } catch (e) {
+      Log.debug(
+        'Unable to `getNotificationSettings()` due to: $e',
+        'LogController',
+      );
+    }
+
+    return null;
   }
 
   /// Refreshes the current [Session].
