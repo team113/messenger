@@ -50,6 +50,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  app_badge_plus:
+    dependency: "direct main"
+    description:
+      name: app_badge_plus
+      sha256: cbbb03cdac77c89c1494534fc2397e7f54deb84d2f968af9f8caaecbc54e86e7
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.3"
   app_links:
     dependency: "direct main"
     description:
@@ -688,30 +696,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.7+1"
-  flutter_native_badge:
-    dependency: "direct main"
-    description:
-      name: flutter_native_badge
-      sha256: "94691ec5265e40ae16a274357f336d910085c67815f8765fa7fd891625b76dc0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.5+dev"
-  flutter_native_badge_foundation:
-    dependency: transitive
-    description:
-      name: flutter_native_badge_foundation
-      sha256: c4c0891c7b494ccf0783bf6cb2b0fcab75d1dca1f0df729b0b22fe529fc74f45
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.4+dev"
-  flutter_native_badge_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_native_badge_platform_interface
-      sha256: "1aef80eaab5b7ba6dee3bcf0793b6aa0709c122de881c5fbee3af2aacdb649f0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.4"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:

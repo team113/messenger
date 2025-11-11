@@ -20,6 +20,7 @@ All user visible changes to this project will be documented in this file. This p
 - Push notifications duplicating on iOS and Android. ([#1495], [#1472])
 - iOS:
     - [VoIP] [CallKit] notification still ringing despite already joined call on another device. ([#1499])
+    - Unread chats badge not updating sometimes on app's icon. ([#1500])
 
 [#1412]: /../../issues/1412
 [#1472]: /../../issues/1472
@@ -28,6 +29,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1494]: /../../pull/1494
 [#1495]: /../../pull/1495
 [#1499]: /../../pull/1499
+[#1500]: /../../pull/1500
 
 
 

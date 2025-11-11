@@ -19,12 +19,12 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_custom_cursor/cursor_manager.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
-import 'package:flutter_native_badge/flutter_native_badge.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' hide Response;
@@ -910,12 +910,8 @@ class PlatformUtilsImpl {
     }
 
     try {
-      if (await FlutterNativeBadge.isSupported()) {
-        if (count == 0) {
-          await FlutterNativeBadge.clearBadgeCount();
-        } else {
-          await FlutterNativeBadge.setBadgeCount(count);
-        }
+      if (await AppBadgePlus.isSupported()) {
+        await AppBadgePlus.updateBadge(count);
       }
     } catch (_) {
       // No-op.
