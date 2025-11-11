@@ -741,32 +741,11 @@ class RxChatImpl extends RxChat {
 
                     if (a != null) {
                       attachments[index] = a;
-
-                      // Frequent writes of byte data freezes the Web page.
-                      if (!PlatformUtils.isWeb) {
-                        put(message);
-                      }
                     } else {
                       attachments.removeAt(index);
-
-                      _pending.remove(message.value);
-
-                      message = DtoChatMessage.sending(
-                        chatId: chat.value.id,
-                        me: me!,
-                        text: text,
-                        repliesTo: repliesTo
-                            .map((e) => ChatItemQuote.from(e))
-                            .toList(),
-                        attachments: attachments,
-                        existingId: existingId ?? message.value.id,
-                        existingDateTime: existingDateTime,
-                      );
-
-                      _pending.add(message.value);
-
-                      put(message);
                     }
+
+                    put(message);
                   },
                   onError: (_) {
                     // No-op, as failed upload attempts are handled below.
@@ -792,15 +771,15 @@ class RxChatImpl extends RxChat {
         await Future.wait(uploads);
       }
 
-      if (attachments?.isEmpty == true && text == null && repliesTo.isEmpty) {
-        isEmptyMessage = true;
-        return message.value;
-      }
-
       if (attachments?.whereType<LocalAttachment>().isNotEmpty == true) {
         throw const ConnectionException(
           PostChatMessageException(PostChatMessageErrorCode.unknownAttachment),
         );
+      }
+
+      if (attachments?.isEmpty == true && text == null && repliesTo.isEmpty) {
+        isEmptyMessage = true;
+        return message.value;
       }
 
       try {
