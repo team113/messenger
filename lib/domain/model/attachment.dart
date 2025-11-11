@@ -238,6 +238,9 @@ class LocalAttachment extends Attachment {
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
 
+  /// Cancels the uploading of this [LocalAttachment].
+  void cancelUpload() => cancelToken.cancel();
+
   /// Returns a [Map] representing this [LocalAttachment].
   @override
   Map<String, dynamic> toJson() =>

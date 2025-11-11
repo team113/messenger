@@ -460,7 +460,7 @@ void main() async {
       final future = chatService.uploadAttachment(attachment);
 
       Future.delayed(const Duration(milliseconds: 50), () {
-        attachment.cancelToken.cancel();
+        attachment.cancelUpload();
       });
 
       final result = await future;

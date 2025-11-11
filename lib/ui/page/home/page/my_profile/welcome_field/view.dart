@@ -450,7 +450,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                           key: const Key('RemovePickedFile'),
                           onPressed: () => c.attachments.removeWhere((a) {
                             if (e is LocalAttachment) {
-                              e.cancelToken.cancel();
+                              e.cancelUpload();
                             }
 
                             return a.value == e;

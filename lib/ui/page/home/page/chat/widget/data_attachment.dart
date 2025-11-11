@@ -85,7 +85,7 @@ class _DataAttachmentState extends State<DataAttachment> {
         leading = switch (e.status.value) {
           SendingStatus.sending => InkWell(
             key: const Key('CancelUploading'),
-            onTap: () => e.cancelToken.cancel(),
+            onTap: () => e.cancelUpload(),
             child: _Progress(
               key: const Key('Sending'),
               progress: e.progress.value,
