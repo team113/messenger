@@ -62,8 +62,9 @@ Feature: Attachments uploading
     Then I wait until status of "test.txt" attachment is sending
 
     When I cancel "test.txt" file upload
+    And I have Internet without delay
     Then I wait until attachment "test.txt" is absent
-    And I wait until status of "test2.txt" attachment is sent
+    And I wait until status of "Hi" message is sent
 
   Scenario: Canceling upload of all files after editing a message
     When I fill `MessageField` field with "Hello"
@@ -80,6 +81,5 @@ Feature: Attachments uploading
     Then I wait until status of "test.txt" attachment is sending
 
     When I cancel "test.txt" file upload
-    Then I wait until attachment "test.txt" is absent
-    When I cancel "test2.txt" file upload
+    And I cancel "test2.txt" file upload
     Then I wait until any message is absent

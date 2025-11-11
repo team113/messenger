@@ -55,7 +55,12 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
           final controller = Get.find<ChatController>(
             tag: router.route.split('/').last,
           );
-          controller.send.addPlatformAttachment(file);
+
+          if (controller.edit.value != null) {
+            controller.edit.value!.addPlatformAttachment(file);
+          } else {
+            controller.send.addPlatformAttachment(file);
+          }
         }
         break;
 
