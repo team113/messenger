@@ -205,9 +205,10 @@ class NotificationService extends DisposableService {
     String? tag,
     String? thread,
     String? image,
+    bool force = false,
   }) async {
     Log.debug(
-      'show($title, $body, $payload, $icon, $tag, $thread, $image) -> id is `${tag?.asHash}`',
+      'show($title, $body, $payload, $icon, $tag, $thread, $image, force: $force) -> id is `${tag?.asHash}`',
       '$runtimeType',
     );
 
@@ -519,7 +520,7 @@ class NotificationService extends DisposableService {
       // then try canceling the notifications with the provided thread, if any,
       // or otherwise a single one, if data contains a tag.
       if (message.notification == null ||
-          (message.notification?.title == 'Canceled' &&
+          (message.notification?.title?.isEmpty != false &&
               message.notification?.body == null)) {
         if (PlatformUtils.isWeb) {
           // TODO: Implement notifications canceling for Web.
@@ -553,6 +554,7 @@ class NotificationService extends DisposableService {
                   message.data['chatItemId'] != null
               ? '${message.data['chatId']}-${message.data['chatItemId']}'
               : null,
+          force: true,
         );
       }
     });

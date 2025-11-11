@@ -17,7 +17,9 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Inability to move caret in message field up and down. ([#1494], [#1493])
         - Redesigned file attachments. ([#1480], [#1412])
-- Push notifications duplicating on iOS and Android. ([#1495], [#1472])
+- Push notifications:
+    - Notifications duplicating on iOS and Android. ([#1500], [#1495], [#1472])
+    - Notifications not being canceled after reading on another device on iOS and Android. ([#1500])
 - iOS:
     - [VoIP] [CallKit] notification still ringing despite already joined call on another device. ([#1499])
     - Unread chats badge not updating sometimes on app's icon. ([#1500])

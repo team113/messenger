@@ -190,7 +190,7 @@ class RouterState extends ChangeNotifier {
 
   /// Reactive [AppLifecycleState].
   final Rx<AppLifecycleState> lifecycle = Rx<AppLifecycleState>(
-    AppLifecycleState.resumed,
+    AppLifecycleState.detached,
   );
 
   /// Reactive title prefix of the current browser tab.
