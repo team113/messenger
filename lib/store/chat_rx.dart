@@ -61,7 +61,6 @@ import '/util/awaitable_timer.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
-import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
 import 'chat.dart';
@@ -748,7 +747,7 @@ class RxChatImpl extends RxChat {
                     put(message);
                   },
                   onError: (_) {
-                    // No-op, as failed upload attempts are handled below.
+                    put(message);
                   },
                 );
               }
