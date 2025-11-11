@@ -339,6 +339,9 @@ class LogView extends StatelessWidget {
         Text(
           'Push Notifications are considered active: ${c.pushNotifications}',
         ),
+        Text(
+          'Push Notifications permissions are: ${c.notificationSettings.value?.authorizationStatus.name}',
+        ),
       ],
     );
   }
