@@ -205,10 +205,9 @@ class NotificationService extends DisposableService {
     String? tag,
     String? thread,
     String? image,
-    bool force = false,
   }) async {
     Log.debug(
-      'show($title, $body, $payload, $icon, $tag, $thread, $image, force: $force) -> id is `${tag?.asHash}`',
+      'show($title, $body, $payload, $icon, $tag, $thread, $image) -> id is `${tag?.asHash}`',
       '$runtimeType',
     );
 
@@ -554,7 +553,6 @@ class NotificationService extends DisposableService {
                   message.data['chatItemId'] != null
               ? '${message.data['chatId']}-${message.data['chatItemId']}'
               : null,
-          force: true,
         );
       }
     });
