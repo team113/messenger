@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.8...v0.7.0) | [Milestone](/../../milestone/53)
 
+### Added
+
+- UI:
+    - Chat page:
+        - Added file upload cancellation logic. ([#1496], [#1490])
+
 ### Fixed
 
 - UI:
@@ -24,9 +30,11 @@ All user visible changes to this project will be documented in this file. This p
 [#1412]: /../../issues/1412
 [#1472]: /../../issues/1472
 [#1480]: /../../pull/1480
+[#1490]: /../../issues/1490
 [#1493]: /../../issues/1493
 [#1494]: /../../pull/1494
 [#1495]: /../../pull/1495
+[#1496]: /../../pull/1496
 [#1499]: /../../pull/1499
 
 
