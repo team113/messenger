@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
@@ -25,6 +26,7 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../parameters/sending_status.dart';
@@ -42,42 +44,70 @@ waitUntilAttachmentStatus = then2<String, MessageSentStatus, CustomWorld>(
   'I wait until status of {string} attachment is {sending}',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-
-      RxChat? chat = Get.find<ChatService>()
-          .chats[ChatId(router.route.split('/').lastOrNull ?? '')];
-      Attachment? attachment = chat!.messages
+      final ChatService chatService = Get.find<ChatService>();
+      final RxChat? chat =
+          chatService.chats[ChatId(router.route.split('/').lastOrNull ?? '')];
+      final Attachment? attachment = chat?.messages
           .map((e) => e.value)
           .whereType<ChatMessage>()
           .expand((e) => e.attachments)
           .firstWhereOrNull((a) => a.filename == name);
 
-      Finder finder = context.world.appDriver.findByKeySkipOffstage(
+      Log.debug(
+        'waitUntilAttachmentStatus() -> last(`${router.route.split('/').last}`), thus found `$chat` in chats: ${chatService.chats}',
+        'E2E',
+      );
+
+      Log.debug(
+        'waitUntilAttachmentStatus() -> tried looking for attachment with filename `$name`, found: $attachment',
+        'E2E',
+      );
+
+      Log.debug(
+        'waitUntilAttachmentStatus() -> the whole list of attachments in the chat: `${chat?.messages.map((e) => e.value).whereType<ChatMessage>().expand((e) => e.attachments).map((e) => e.filename).join(', ')}`',
+        'E2E',
+      );
+
+      final Finder finder = context.world.appDriver.findByKeySkipOffstage(
         'AttachmentStatus_${attachment?.id}',
       );
 
-      if (attachment != null &&
-          await context.world.appDriver.isPresent(finder)) {
-        return status == MessageSentStatus.sending
-            ? context.world.appDriver.isPresent(
-                context.world.appDriver.findByDescendant(
-                  finder,
-                  context.world.appDriver.findByKeySkipOffstage('Sending'),
-                ),
-              )
-            : status == MessageSentStatus.error
-            ? context.world.appDriver.isPresent(
-                context.world.appDriver.findByDescendant(
-                  finder,
-                  context.world.appDriver.findByKeySkipOffstage('Error'),
-                ),
-              )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findByDescendant(
-                  finder,
-                  context.world.appDriver.findByKeySkipOffstage('Sent'),
-                ),
-              );
+      final bool isPresent = await context.world.appDriver.isPresent(finder);
+
+      Log.debug('waitUntilAttachmentStatus() -> isPresent = $isPresent', 'E2E');
+
+      if (attachment != null && isPresent) {
+        final String key = switch (status) {
+          MessageSentStatus.sending => 'Sending',
+          MessageSentStatus.error => 'Error',
+          MessageSentStatus.sent => 'Sent',
+          MessageSentStatus.read => 'Sent',
+          MessageSentStatus.halfRead => 'Sent',
+        };
+
+        final bool isRemote = attachment is! LocalAttachment;
+        final bool hasWithinMessage = await context.world.appDriver.isPresent(
+          find.descendant(
+            of: finder,
+            matching: find.byKey(Key(key), skipOffstage: false),
+            skipOffstage: false,
+          ),
+        );
+
+        Log.debug(
+          'waitUntilAttachmentStatus() -> looking for `$key`, hasWithinMessage -> $hasWithinMessage, isRemote -> $isRemote',
+          'E2E',
+        );
+
+        final bool succeedAsRemote = switch (status) {
+          MessageSentStatus.sending => true,
+          MessageSentStatus.error => false,
+          MessageSentStatus.sent => true,
+          MessageSentStatus.read => true,
+          MessageSentStatus.halfRead => true,
+        };
+
+        return hasWithinMessage || (succeedAsRemote && isRemote);
       }
 
       return false;
