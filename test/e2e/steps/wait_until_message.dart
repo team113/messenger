@@ -59,33 +59,27 @@ final StepDefinitionGeneric untilMessageExists =
       },
     );
 
-/// Waits until an any [ChatMessage] is present or absent.
+/// Waits until the chat has no messages.
 ///
 /// Examples:
-/// - Then I wait until any message is absent
-/// - Then I wait until any message is present
-final StepDefinitionGeneric untilAnyMessageExists =
-    then1<Existence, FlutterWorld>('I wait until any message is {existence}', (
-      existence,
-      context,
-    ) async {
-      await context.world.appDriver.waitUntil(() async {
-        await context.world.appDriver.waitForAppToSettle();
+/// - Then I wait until chat has no messages
+final StepDefinitionGeneric untilChatHasNoMessages = then<FlutterWorld>(
+  'I wait until chat has no messages',
+  (context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+      final chatId = ChatId(router.route.split('/').last);
+      final RxChat? chat = Get.find<ChatService>().chats[chatId];
 
-        final ChatMessage? message = chat?.messages
-            .map((e) => e.value)
-            .whereType<ChatMessage>()
-            .firstOrNull;
+      final messages = chat?.messages
+          .map((e) => e.value)
+          .whereType<ChatMessage>()
+          .toList();
 
-        final Finder finder = context.world.appDriver.findByKeySkipOffstage(
-          'Message_${message?.id}',
-        );
+      final hasMessages = messages?.isNotEmpty ?? false;
 
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(finder)
-            : context.world.appDriver.isPresent(finder);
-      }, timeout: const Duration(seconds: 30));
-    });
+      return !hasMessages;
+    }, timeout: const Duration(seconds: 30));
+  },
+);

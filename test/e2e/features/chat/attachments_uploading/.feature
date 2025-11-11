@@ -28,12 +28,14 @@ Feature: Attachments uploading
     When I have Internet with delay of 10 seconds
     And I attach "test.txt" file
     And I attach "test2.txt" file
+    And I fill `MessageField` field with "Hi"
     And I tap `Send` button
     Then I wait until status of "test.txt" attachment is sending
 
     When I cancel "test.txt" file upload
+    And I have Internet without delay
     Then I wait until attachment "test.txt" is absent
-    And I wait until status of "test2.txt" attachment is sent
+    And I wait until status of "Hi" message is sent
 
   Scenario: Canceling upload of all files after sending a new message
     When I have Internet with delay of 10 seconds
@@ -45,7 +47,7 @@ Feature: Attachments uploading
     When I cancel "test.txt" file upload
     Then I wait until attachment "test.txt" is absent
     When I cancel "test2.txt" file upload
-    Then I wait until any message is absent
+    Then I wait until chat has no messages
 
   Scenario: Canceling upload of one of the files after editing a message
     When I fill `MessageField` field with "Hello"
@@ -82,4 +84,4 @@ Feature: Attachments uploading
 
     When I cancel "test.txt" file upload
     And I cancel "test2.txt" file upload
-    Then I wait until any message is absent
+    Then I wait until chat has no messages
