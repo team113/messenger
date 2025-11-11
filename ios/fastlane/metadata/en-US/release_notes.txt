@@ -1,1 +1,1 @@
-- Redesigned forward message modal in chat.
+- Bug fixes and performance improvements.
