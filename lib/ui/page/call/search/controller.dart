@@ -572,7 +572,7 @@ class SearchController extends GetxController {
   /// Updates the [chats] according to the [query].
   void _populateChats() {
     if (categories.contains(SearchCategory.chat)) {
-      final Iterable<RxChat> allChats = _chatService.paginated.values;
+      final Iterable<RxChat> allChats = _chatService.chats.values;
 
       // Predicates to filter [allChats] by.
       bool hidden(RxChat c) => c.chat.value.isHidden;
@@ -599,7 +599,7 @@ class SearchController extends GetxController {
   /// Updates the [recent] according to the [query].
   void _populateRecent() {
     if (categories.contains(SearchCategory.recent)) {
-      final Iterable<RxChat> allChats = _chatService.paginated.values;
+      final Iterable<RxChat> allChats = _chatService.chats.values;
 
       // Predicates to filter [allChats] by.
       bool remoteDialog(RxChat c) => c.chat.value.isDialog && !c.id.isLocal;
@@ -635,7 +635,7 @@ class SearchController extends GetxController {
   void _populateContacts() {
     if (categories.contains(SearchCategory.contact) &&
         _chatService.hasNext.isFalse) {
-      final Iterable<RxChatContact> stored = _contactService.paginated.values;
+      final Iterable<RxChatContact> stored = _contactService.contacts.values;
       final Iterable<RxChatContact>? searched =
           contactsSearch.value?.items.values;
 
@@ -681,7 +681,7 @@ class SearchController extends GetxController {
   void _populateUsers() {
     if (categories.contains(SearchCategory.user) &&
         _chatService.hasNext.isFalse) {
-      final Iterable<RxChat> storedChats = _chatService.paginated.values;
+      final Iterable<RxChat> storedChats = _chatService.chats.values;
       final Iterable<RxUser> searched = usersSearch.value?.items.values ?? [];
 
       // Predicates to filter non-hidden [Chat]-dialogs.
