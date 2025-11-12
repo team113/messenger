@@ -86,10 +86,8 @@ class CropController extends GetxController {
         frame.image.width.toDouble(),
         frame.image.height.toDouble(),
       );
-    } catch (e) {
-      if (e.toString().contains('Invalid image data') ||
-          e.toString().contains('The source image cannot be decoded') ||
-          e.toString().contains('Failed to detect image file format')) {
+    } catch (rasterError, rasterStack) {
+      try {
         svg = await vg.loadPicture(
           SvgStringLoader(String.fromCharCodes(image)),
           null,
@@ -98,9 +96,43 @@ class CropController extends GetxController {
         if (svg != null) {
           dimensions.value = svg!.size;
         }
-      } else {
-        rethrow;
+      } catch (svgError, svgStack) {
+        throw CombinedImageDecodeException(
+          rasterError: rasterError,
+          rasterStack: rasterStack,
+          svgError: svgError,
+          svgStack: svgStack,
+        );
       }
     }
+  }
+}
+
+/// Exception thrown when both raster and SVG image decoding fails.
+class CombinedImageDecodeException implements Exception {
+  const CombinedImageDecodeException({
+    required this.rasterError,
+    required this.rasterStack,
+    required this.svgError,
+    required this.svgStack,
+  });
+
+  /// Raster image decoding error.
+  final Object rasterError;
+
+  /// Stack trace of the raster error.
+  final StackTrace rasterStack;
+
+  /// Svg decoding error.
+  final Object svgError;
+
+  /// Stack trace of the svg error.
+  final StackTrace svgStack;
+
+  @override
+  String toString() {
+    return 'CombinedImageDecodeException:\n'
+        '--- Raster error ---\n$rasterError\n$rasterStack\n'
+        '--- SVG error ---\n$svgError\n$svgStack';
   }
 }
