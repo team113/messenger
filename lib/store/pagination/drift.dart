@@ -375,6 +375,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
                 onAdded?.call(e);
               }
             } else if (watchUpdates(e, item)) {
+              _accounted.remove((OperationKind.removed, key));
               onAdded?.call(e);
             }
           }
@@ -388,6 +389,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
               if (item == null) {
                 if (!_accounted.contains((OperationKind.removed, key))) {
+                  _accounted.remove((OperationKind.added, key));
                   onRemoved?.call(e);
                 }
               }

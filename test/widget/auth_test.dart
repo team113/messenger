@@ -63,7 +63,7 @@ import '../mock/graphql_provider.dart';
 import '../mock/route_information_provider.dart';
 import 'auth_test.mocks.dart';
 
-@GenerateMocks([RouterState])
+@GenerateNiceMocks([MockSpec<RouterState>()])
 void main() async {
   AudioUtils = AudioUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -211,6 +211,14 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Future<void> Function(AuthorizationException)? authExceptionHandler;
 
   @override
+  InternalFinalCallback<void> get onStart =>
+      InternalFinalCallback(callback: () {});
+
+  @override
+  InternalFinalCallback<void> get onDelete =>
+      InternalFinalCallback(callback: () {});
+
+  @override
   Future<void> reconnect() async {}
 
   var userData = {
@@ -278,6 +286,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Stream<QueryResult> recentChatsTopEvents(
     int count, {
     bool noFavorite = false,
+    bool archived = false,
     bool? withOngoingCalls,
   }) {
     return Stream.value(

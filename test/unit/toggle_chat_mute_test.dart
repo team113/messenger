@@ -55,7 +55,7 @@ import 'package:mockito/mockito.dart';
 
 import 'toggle_chat_mute_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider])
+@GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   setUp(Get.reset);
 
@@ -63,6 +63,9 @@ void main() async {
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   final graphQlProvider = MockGraphQlProvider();
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));
@@ -94,6 +97,7 @@ void main() async {
     'members': {'nodes': [], 'totalCount': 0},
     'kind': 'GROUP',
     'isHidden': false,
+    'isArchived': false,
     'muted': null,
     'directLink': null,
     'createdAt': '2021-12-15T15:11:18.316846+00:00',
@@ -139,6 +143,9 @@ void main() async {
     graphQlProvider.recentChatsTopEvents(3),
   ).thenAnswer((_) => const Stream.empty());
   when(
+    graphQlProvider.recentChatsTopEvents(3, archived: true),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
     graphQlProvider.incomingCallsTopEvents(3),
   ).thenAnswer((_) => const Stream.empty());
   when(
@@ -162,6 +169,7 @@ void main() async {
       last: null,
       before: null,
       noFavorite: anyNamed('noFavorite'),
+      archived: anyNamed('archived'),
       withOngoingCalls: anyNamed('withOngoingCalls'),
     ),
   ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));

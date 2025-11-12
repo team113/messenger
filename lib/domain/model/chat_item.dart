@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
+import '/util/log.dart';
 import '/util/new_type.dart';
 import 'attachment.dart';
 import 'chat.dart';
@@ -141,7 +142,7 @@ class ChatMessage extends ChatItem {
   }
 
   @override
-  String toString() => '$runtimeType($id, $chatId, text: $text)';
+  String toString() => '$runtimeType($id, $chatId, text: ${text?.obscured})';
 
   /// Returns a [Map] representing this [ChatMessage].
   @override

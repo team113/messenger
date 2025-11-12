@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:ui';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,7 +24,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/auth/widget/cupertino_button.dart';
 import '/ui/page/call/widget/call_button.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/raised_hand.dart';
 import '/ui/page/call/widget/round_button.dart';
 import '/ui/page/home/widget/action.dart';
@@ -1328,8 +1325,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.fullscreenExit,
                         invert: true,
@@ -1340,8 +1336,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.fullscreenEnter,
                         invert: true,
@@ -1352,8 +1347,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.arrowLeft,
                         invert: true,
@@ -1365,8 +1359,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.arrowRight,
                         invert: true,
@@ -1378,8 +1371,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.arrowLeftDisabled,
                         invert: true,
@@ -1391,8 +1383,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.arrowRightDisabled,
                         invert: true,
@@ -1404,8 +1395,7 @@ class IconsView extends StatelessWidget {
                   SizedBox(
                     width: 60,
                     height: 60,
-                    child: RoundFloatingButton(
-                      color: style.colors.onSecondaryOpacity50,
+                    child: _RoundFloatingButton(
                       onPressed: () => c.icon.value = IconDetails.svg(
                         SvgIcons.close,
                         invert: true,
@@ -1518,71 +1508,64 @@ class IconsView extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: ConditionalBackdropFilter(
-                    condition: style.cardBlur > 0,
-                    borderRadius: style.cardRadius,
-                    filter: ImageFilter.blur(
-                      sigmaX: style.cardBlur,
-                      sigmaY: style.cardBlur,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: invert
+                          ? style.colors.primaryDark
+                          : style.cardColor,
+                      borderRadius: style.cardRadius,
                     ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: invert
-                            ? style.colors.primaryDark
-                            : style.cardColor,
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: data == null
-                                ? asset?.endsWith('.svg') == true
-                                      ? SvgImage.asset(
-                                          'assets/icons/$asset',
-                                          width: 24,
-                                          height: 24,
-                                        )
-                                      : Image.asset(
-                                          'assets/icons/$asset',
-                                          width: 24,
-                                          height: 24,
-                                        )
-                                : SvgIcon(data, height: 24),
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: data == null
+                              ? asset?.endsWith('.svg') == true
+                                    ? SvgImage.asset(
+                                        'assets/icons/$asset',
+                                        width: 24,
+                                        height: 24,
+                                      )
+                                    : Image.asset(
+                                        'assets/icons/$asset',
+                                        width: 24,
+                                        height: 24,
+                                      )
+                              : SvgIcon(data, height: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${data?.asset.replaceFirst('assets/icons/', '') ?? asset}',
+                                style: invert
+                                    ? style.fonts.normal.regular.onPrimary
+                                    : style.fonts.normal.regular.onBackground,
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${data?.asset.replaceFirst('assets/icons/', '') ?? asset}',
-                                  style: invert
-                                      ? style.fonts.normal.regular.onPrimary
-                                      : style.fonts.normal.regular.onBackground,
-                                ),
-                              ],
-                            ),
-                          ),
-                          SelectionContainer.disabled(
-                            child: StyledCupertinoButton(
-                              label: 'Download',
-                              onPressed: () async {
-                                final file = await PlatformUtils.saveTo(
-                                  '${Config.origin}/assets/$download',
-                                );
+                        ),
+                        SelectionContainer.disabled(
+                          child: StyledCupertinoButton(
+                            label: 'Download',
+                            onPressed: () async {
+                              final file = await PlatformUtils.saveTo(
+                                '${Config.origin}/assets/$download',
+                              );
 
-                                if (file != null) {
-                                  MessagePopup.success('$asset downloaded');
-                                }
-                              },
-                              style: style.fonts.small.regular.primary,
-                            ),
+                              if (file != null) {
+                                MessagePopup.success('$asset downloaded');
+                              }
+                            },
+                            style: style.fonts.small.regular.primary,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -1633,6 +1616,32 @@ class IconsView extends StatelessWidget {
         width: mini ? 32 : 64,
         height: mini ? 32 : 64,
       ),
+    );
+  }
+}
+
+/// [RoundFloatingButton] with specified [RoundFloatingButton.color].
+class _RoundFloatingButton extends StatelessWidget {
+  const _RoundFloatingButton({this.onPressed, required this.icon, this.offset});
+
+  /// Callback, called when the button is tapped or activated other way.
+  final void Function()? onPressed;
+
+  /// [SvgData] to display instead of [asset].
+  final SvgData icon;
+
+  /// [Offset] to apply to the [icon] or [asset].
+  final Offset? offset;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return RoundFloatingButton(
+      color: style.colors.onSecondaryOpacity50,
+      onPressed: onPressed,
+      icon: icon,
+      offset: offset,
     );
   }
 }

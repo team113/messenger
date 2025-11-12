@@ -66,18 +66,32 @@ class MessageTimestamp extends StatelessWidget {
   /// Optional font size of this [MessageTimestamp].
   final double? fontSize;
 
+  /// Indicates whether this [ChatItem] was sent by [User].
+  bool get _isSent => status == SendingStatus.sent;
+
+  /// Indicates whether the status of the sent [ChatItem] is an error.
+  bool get _isError => status == SendingStatus.error;
+
+  /// Indicates whether [ChatItem] is in the process of being sent.
+  bool get _isSending => status == SendingStatus.sending;
+
+  /// Indicates whether this [ChatItem] has been delivered to [User].
+  bool get _isDelivered => _isSent && delivered;
+
+  /// Indicates whether this [ChatItem] has been read by [User].
+  bool get _isRead => _isSent && read;
+
+  /// Indicates whether this [ChatItem] was only partially read.
+  bool get _isHalfRead => _isSent && halfRead;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final bool isSent = status == SendingStatus.sent;
-    final bool isDelivered = isSent && delivered;
-    final bool isRead = isSent && read;
-    final bool isHalfRead = isSent && halfRead;
-    final bool isError = status == SendingStatus.error;
-    final bool isSending = status == SendingStatus.sending;
+    final SvgData? icon = _icon();
 
     return Row(
+      key: _key(),
       mainAxisSize: MainAxisSize.min,
       children: [
         SelectionContainer.disabled(
@@ -94,48 +108,75 @@ class MessageTimestamp extends StatelessWidget {
                     ),
           ),
         ),
-        if (status != null &&
-            (isSent || isDelivered || isRead || isSending || isError)) ...[
-          const SizedBox(width: 3),
-          SizedBox(
-            key: Key(
-              isError
-                  ? 'Error'
-                  : isSending
-                  ? 'Sending'
-                  : isRead
-                  ? isHalfRead
-                        ? 'HalfRead'
-                        : 'Read'
-                  : 'Sent',
-            ),
-            width: 17,
-            child: SvgIcon(
-              isRead
-                  ? isHalfRead
-                        ? inverted
-                              ? SvgIcons.halfReadWhite
-                              : SvgIcons.halfRead
-                        : inverted
-                        ? SvgIcons.readWhite
-                        : SvgIcons.read
-                  : isDelivered
-                  ? inverted
-                        ? SvgIcons.deliveredWhite
-                        : SvgIcons.delivered
-                  : isError
-                  ? SvgIcons.error
-                  : isSending
-                  ? inverted
-                        ? SvgIcons.sendingWhite
-                        : SvgIcons.sending
-                  : inverted
-                  ? SvgIcons.sentWhite
-                  : SvgIcons.sent,
-            ),
-          ),
+        if (icon != null) ...[
+          const SizedBox(width: 6),
+          SizedBox(width: 17, child: SvgIcon(icon)),
         ],
       ],
     );
+  }
+
+  /// Returns a [Key] depending on the [status].
+  Key? _key() {
+    // Its probably not ours [ChatItem], thus shouldn't append any key.
+    if (status == null) {
+      return null;
+    }
+
+    if (_isError) {
+      return Key('Error');
+    }
+
+    if (_isSending) {
+      return Key('Sending');
+    }
+
+    if (_isRead) {
+      return Key(_isHalfRead ? 'HalfRead' : 'Read');
+    }
+
+    if (_isDelivered) {
+      return Key('Delivered');
+    }
+
+    if (_isSent) {
+      return Key('Sent');
+    }
+
+    return Key('NotSent');
+  }
+
+  /// Returns an [SvgData] for [SvgIcon] depending on the [status].
+  SvgData? _icon() {
+    // Its probably not ours [ChatItem], thus shouldn't display any icon.
+    if (status == null) {
+      return null;
+    }
+
+    if (_isRead) {
+      if (_isHalfRead) {
+        return inverted ? SvgIcons.halfReadWhite : SvgIcons.halfRead;
+      }
+
+      return inverted ? SvgIcons.readWhite : SvgIcons.read;
+    }
+
+    if (_isDelivered) {
+      return inverted ? SvgIcons.deliveredWhite : SvgIcons.delivered;
+    }
+
+    if (_isError) {
+      return SvgIcons.error;
+    }
+
+    if (_isSending) {
+      return inverted ? SvgIcons.sendingWhite : SvgIcons.sending;
+    }
+
+    if (_isSent) {
+      return inverted ? SvgIcons.sentWhite : SvgIcons.sent;
+    }
+
+    return null;
   }
 }

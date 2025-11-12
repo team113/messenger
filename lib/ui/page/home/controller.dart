@@ -88,6 +88,9 @@ class HomeController extends GetxController {
   /// [BuildContext] of the [HomeView].
   final BuildContext? context;
 
+  /// [GlobalKey] of a [AvatarWidget]s button in the navigation bar.
+  final GlobalKey avatarKey = GlobalKey();
+
   /// Balance of [MyUser] to display in [HomeTab.wallet].
   final RxDouble purse = RxDouble(0);
 

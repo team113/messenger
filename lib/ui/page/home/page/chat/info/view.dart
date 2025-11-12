@@ -40,6 +40,7 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
+import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/member_tile.dart';
 import '/ui/widget/obscured_selection_area.dart';
@@ -110,22 +111,25 @@ class ChatInfoView extends StatelessWidget {
 
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
-            body: Scrollbar(
-              controller: c.scrollController,
-              child: ObscuredSelectionArea(
-                contextMenuBuilder: (_, _) => const SizedBox(),
-                child: ScrollablePositionedList.builder(
-                  key: const Key('ChatInfoScrollable'),
-                  scrollController: c.scrollController,
-                  itemScrollController: c.itemScrollController,
-                  itemPositionsListener: c.positionsListener,
-                  itemCount: blocks.length,
-                  itemBuilder: (_, i) => Obx(() {
-                    return HighlightedContainer(
-                      highlight: c.highlighted.value == i,
-                      child: blocks[i],
-                    );
-                  }),
+            body: ScrollKeyboardHandler(
+              scrollController: c.scrollController,
+              child: Scrollbar(
+                controller: c.scrollController,
+                child: ObscuredSelectionArea(
+                  contextMenuBuilder: (_, _) => const SizedBox(),
+                  child: ScrollablePositionedList.builder(
+                    key: const Key('ChatInfoScrollable'),
+                    scrollController: c.scrollController,
+                    itemScrollController: c.itemScrollController,
+                    itemPositionsListener: c.positionsListener,
+                    itemCount: blocks.length,
+                    itemBuilder: (_, i) => Obx(() {
+                      return HighlightedContainer(
+                        highlight: c.highlighted.value == i,
+                        child: blocks[i],
+                      );
+                    }),
+                  ),
                 ),
               ),
             ),
@@ -164,7 +168,7 @@ class ChatInfoView extends StatelessWidget {
                 return AvatarWidget(
                   radius: AvatarRadius.largest,
                   shape: BoxShape.rectangle,
-                  title: c.chat?.title,
+                  title: c.chat?.title(withDeletedLabel: false),
                   color: c.chat?.chat.value.colorDiscriminant(c.me).sum(),
                   avatar: c.avatarDeleted.value || c.avatarImage.value == null
                       ? null
@@ -193,7 +197,7 @@ class ChatInfoView extends StatelessWidget {
             key: const Key('RenameChatField'),
             state: c.name,
             label: 'label_name'.l10n,
-            hint: c.chat?.title,
+            hint: c.chat?.title(),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             formatters: [LengthLimitingTextInputFormatter(100)],
           ),
@@ -520,7 +524,7 @@ class ChatInfoView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_reported1'.l10n),
         TextSpan(
-          text: c.chat?.title,
+          text: c.chat?.title(),
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_reported2'.l10n),

@@ -54,6 +54,7 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/line_divider.dart';
@@ -112,28 +113,31 @@ class MyProfileView extends StatelessWidget {
           onTap: FocusManager.instance.primaryFocus?.unfocus,
           child: Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
-            body: Builder(
-              builder: (context) {
-                final Widget child = ScrollablePositionedList.builder(
-                  key: const Key('MyProfileScrollable'),
-                  initialScrollIndex: c.listInitIndex,
-                  scrollController: c.scrollController,
-                  itemScrollController: c.itemScrollController,
-                  itemPositionsListener: c.positionsListener,
-                  itemCount: ProfileTab.values.length,
-                  physics: const ClampingScrollPhysics(),
-                  itemBuilder: (context, i) => _block(context, c, i),
-                );
-
-                if (PlatformUtils.isMobile) {
-                  return Scrollbar(
-                    controller: c.scrollController,
-                    child: child,
+            body: ScrollKeyboardHandler(
+              scrollController: c.scrollController,
+              child: Builder(
+                builder: (context) {
+                  final Widget child = ScrollablePositionedList.builder(
+                    key: const Key('MyProfileScrollable'),
+                    initialScrollIndex: c.listInitIndex,
+                    scrollController: c.scrollController,
+                    itemScrollController: c.itemScrollController,
+                    itemPositionsListener: c.positionsListener,
+                    itemCount: ProfileTab.values.length,
+                    physics: const ClampingScrollPhysics(),
+                    itemBuilder: (context, i) => _block(context, c, i),
                   );
-                }
 
-                return child;
-              },
+                  if (PlatformUtils.isMobile) {
+                    return Scrollbar(
+                      controller: c.scrollController,
+                      child: child,
+                    );
+                  }
+
+                  return child;
+                },
+              ),
             ),
             floatingActionButton: Obx(() {
               if (c.myUser.value != null) {

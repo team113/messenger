@@ -19,6 +19,7 @@ Feature: Chat items are forwarded correctly
 
   Background: User is in dialog with Bob
     Given I am Alice
+    And I pause for 5 seconds
     And users Bob and Charlie
     And Bob has dialog with me
     And Charlie has dialog with me
@@ -35,7 +36,7 @@ Feature: Chat items are forwarded correctly
     Then I wait until `ChatForwardView` is present
 
     And I fill `ForwardField` field with "Check this :)"
-    And I tap on chat with Charlie
+    And I tap on chat with Charlie within `ChatForwardView`
     And I tap `SendForward` button
     And I am in chat with Charlie
     Then I wait until text "Check this :)" is present
@@ -50,8 +51,8 @@ Feature: Chat items are forwarded correctly
     Then I wait until `ChatForwardView` is present
 
     When I fill `ForwardField` field with "Mhm... Monkey."
+    And I tap on chat with Charlie within `ChatForwardView`
     And I attach "test.jpg" image
-    And I tap on chat with Charlie
     And I tap `SendForward` button
     And I am in chat with Charlie
     Then I wait until attachment "test.jpg" is present
@@ -70,8 +71,8 @@ Feature: Chat items are forwarded correctly
     Then I wait until `ChatForwardView` is present
 
     When I fill `ForwardField` field with "!!"
-    And I tap on chat with Charlie
-    And I tap on chat with Dave
+    And I tap on chat with Charlie within `ChatForwardView`
+    And I tap on chat with Dave within `ChatForwardView`
     And I tap `SendForward` button
     And I am in chat with Charlie
     Then I wait until text "!!" is present

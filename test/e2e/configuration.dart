@@ -29,6 +29,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/log.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/performance.dart';
@@ -37,6 +38,7 @@ import 'mock/geo.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/appcast_version.dart';
+import 'parameters/archived_status.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
 import 'parameters/credentials.dart';
@@ -80,6 +82,7 @@ import 'steps/has_group.dart';
 import 'steps/in_chat.dart';
 import 'steps/in_monolog.dart';
 import 'steps/internet.dart';
+import 'steps/language.dart';
 import 'steps/long_press_chat.dart';
 import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
@@ -92,6 +95,7 @@ import 'steps/popup_windows.dart';
 import 'steps/posts_images.dart';
 import 'steps/reads_message.dart';
 import 'steps/remove_chat_member.dart';
+import 'steps/remove_message_attachment.dart';
 import 'steps/rename_contact.dart';
 import 'steps/reply_message.dart';
 import 'steps/restart_app.dart';
@@ -99,9 +103,10 @@ import 'steps/right_click_message.dart';
 import 'steps/right_click_widget.dart';
 import 'steps/scroll_chat.dart';
 import 'steps/scroll_until.dart';
+import 'steps/see_archived_chat.dart';
+import 'steps/see_avatar_title.dart';
 import 'steps/see_blocked_users.dart';
 import 'steps/see_chat_avatar.dart';
-import 'steps/see_chat_dismissed.dart';
 import 'steps/see_chat_members.dart';
 import 'steps/see_chat_messages.dart';
 import 'steps/see_chat_named.dart';
@@ -121,6 +126,7 @@ import 'steps/see_favorite_monolog.dart';
 import 'steps/see_field_having_error.dart';
 import 'steps/see_search_results.dart';
 import 'steps/see_sessions.dart';
+import 'steps/see_user_view.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
@@ -178,6 +184,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         contactIsIndeedDeleted,
         copyFromField,
         countUsers,
+        deleteUser,
         dismissChat,
         dismissContact,
         downloadFile,
@@ -197,9 +204,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         hasFavoriteContacts,
         hasFavoriteGroups,
         hasGroupNamed,
+        hasGroupNamedInArchive,
         hasGroupWithMembers,
         hasGroups,
         haveGroup1Named,
+        haveGroup2,
         haveGroup2Named,
         haveGroupNamed,
         haveInternetWithDelay,
@@ -211,6 +220,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAmInMonolog,
         iTapChatGroup,
         iTapChatWith,
+        iTapChatWithWithin,
         logout,
         longPressChat,
         longPressContact,
@@ -231,6 +241,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         readsMessage,
         removeAccountInAccounts,
         removeGroupMember,
+        removeMessageAttachment,
         renameContact,
         repliesToMessage,
         restartApp,
@@ -242,12 +253,12 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollToTop,
         scrollUntilPresent,
         seeAccountInAccounts,
+        seeAvatarTitleForChat,
+        seeAvatarTitleInUserView,
         seeBlockedUsers,
-        seeChatAsDismissed,
+        seeChatAsArchived,
         seeChatAsFavorite,
-        seeDialogAsFavorite,
         seeChatAsMuted,
-        seeDialogAsMuted,
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
@@ -261,9 +272,12 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeContactPosition,
         seeContactSelection,
         seeCountChats,
+        seeCountChatsOrMore,
         seeCountContacts,
         seeCountFavoriteChats,
         seeCountSessions,
+        seeDialogAsFavorite,
+        seeDialogAsMuted,
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeFavoriteDialogPosition,
@@ -272,13 +286,14 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeMonologAsFavorite,
         seeMonologInSearchResults,
         seeNamedChat,
-        seeNoChatsDismissed,
         seeNoContactsDismissed,
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
         seesNoDialogWithUser,
+        seeTitleInUserView,
         seeUserInSearchResults,
+        selectLanguage,
         selectMessageText,
         sendsAttachmentToMe,
         sendsCountMessages,
@@ -347,6 +362,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ..defaultTimeout = const Duration(seconds: 30)
       ..customStepParameterDefinitions = [
         AppcastVersionParameter(),
+        ArchivedStatusParameter(),
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
         CredentialsParameter(),
@@ -397,7 +413,9 @@ Future<CustomUser> createUser({
   CustomWorld? world,
   UserPassword? password,
 }) async {
-  final provider = GraphQlProvider();
+  final GraphQlProvider provider = GraphQlProvider()
+    ..client.withWebSocket = false;
+
   final result = await provider.signUp();
   final success = result as SignUp$Mutation$CreateUser$CreateSessionOk;
 
@@ -419,6 +437,11 @@ Future<CustomUser> createUser({
       world.sessions[user.name]?.credentials = result.toModel();
     }
   }
+
+  Log.info(
+    'createUser() -> Created user `${user?.name}` with password: `$password` -> $customUser',
+    'E2E',
+  );
 
   provider.disconnect();
 

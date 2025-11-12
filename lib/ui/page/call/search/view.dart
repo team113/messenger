@@ -19,36 +19,37 @@ import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/tab/chats/widget/recent_chat.dart';
+import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/page/home/widget/shadowed_rounded_button.dart';
+import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
-import '/ui/widget/modal_popup.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
+import '/ui/widget/svg/svgs.dart';
+import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
-import 'widget/search_field.dart';
 
 /// View of the [User]s search.
 class SearchView extends StatelessWidget {
   const SearchView({
     super.key,
     required this.categories,
-    required this.title,
     this.chat,
     this.selectable = true,
     this.enabled = true,
     this.submit,
     this.onPressed,
     this.onSubmit,
-    this.onBack,
     this.onSelected,
   });
 
@@ -65,9 +66,6 @@ class SearchView extends StatelessWidget {
   /// otherwise [onPressed] may be called.
   final bool enabled;
 
-  /// Title of this [SearchView].
-  final String title;
-
   /// Label of the submit button.
   ///
   /// Only meaningful if [onSubmit] is non-`null`.
@@ -82,11 +80,6 @@ class SearchView extends StatelessWidget {
   /// Callback, called on the selected items changes.
   final void Function(SearchViewResults? results)? onSelected;
 
-  /// Callback, called when the back button is pressed.
-  ///
-  /// If `null`, then no back button will be displayed.
-  final VoidCallback? onBack;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -94,6 +87,7 @@ class SearchView extends StatelessWidget {
     return GetBuilder(
       key: const Key('SearchView'),
       init: SearchController(
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -108,10 +102,9 @@ class SearchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              ModalPopupHeader(onBack: onBack, text: title),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: SearchField(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: _SearchField(
                   c.search,
                   onChanged: () => c.query.value = c.search.text,
                 ),
@@ -163,20 +156,11 @@ class SearchView extends StatelessWidget {
                         if (element is RxUser) {
                           child = Obx(() {
                             if (element.dialog.value != null) {
-                              return RecentChatTile(
+                              return _ChatTile(
                                 key: Key('SearchUser_${element.id}'),
                                 element.dialog.value!,
-                                me: c.me,
-                                getUser: c.getUser,
                                 onTap: () => c.select(user: element),
                                 selected: c.selectedUsers.contains(element),
-                                invertible: !selectable,
-                                trailing: [
-                                  SelectedDot(
-                                    selected: c.selectedUsers.contains(element),
-                                    size: 20,
-                                  ),
-                                ],
                               );
                             }
 
@@ -195,22 +179,11 @@ class SearchView extends StatelessWidget {
                         } else if (element is RxChatContact) {
                           child = Obx(() {
                             if (element.user.value?.dialog.value != null) {
-                              return RecentChatTile(
+                              return _ChatTile(
                                 key: Key('SearchContact_${element.id}'),
                                 element.user.value!.dialog.value!,
-                                me: c.me,
-                                getUser: c.getUser,
                                 onTap: () => c.select(contact: element),
                                 selected: c.selectedContacts.contains(element),
-                                invertible: !selectable,
-                                trailing: [
-                                  SelectedDot(
-                                    selected: c.selectedContacts.contains(
-                                      element,
-                                    ),
-                                    size: 20,
-                                  ),
-                                ],
                               );
                             }
 
@@ -228,20 +201,11 @@ class SearchView extends StatelessWidget {
                           });
                         } else if (element is RxChat) {
                           child = Obx(() {
-                            return RecentChatTile(
+                            return _ChatTile(
                               key: Key('SearchChat_${element.id}'),
                               element,
-                              me: c.me,
-                              getUser: c.getUser,
                               onTap: () => c.select(chat: element),
                               selected: c.selectedChats.contains(element),
-                              invertible: !selectable,
-                              trailing: [
-                                SelectedDot(
-                                  selected: c.selectedChats.contains(element),
-                                  size: 20,
-                                ),
-                              ],
                             );
                           });
                         } else {
@@ -250,7 +214,7 @@ class SearchView extends StatelessWidget {
 
                         if (i == 0) {
                           child = Padding(
-                            padding: const EdgeInsets.only(top: 10),
+                            padding: const EdgeInsets.only(top: 6),
                             child: child,
                           );
                         }
@@ -262,16 +226,16 @@ class SearchView extends StatelessWidget {
                             children: [
                               widget,
                               if (status.isLoadingMore || status.isLoading) ...[
-                                const SizedBox(height: 5),
+                                const SizedBox(height: 2),
                                 const CustomProgressIndicator(),
                               ],
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 6),
                             ],
                           );
                         }
 
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: child,
                         );
                       },
@@ -323,6 +287,90 @@ class SearchView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// [ReactiveTextField] styled as a search field.
+class _SearchField extends StatelessWidget {
+  const _SearchField(this.state, {this.onChanged});
+
+  /// State of the search [ReactiveTextField].
+  final TextFieldState state;
+
+  /// Callback, called when [_SearchField] changes.
+  final void Function()? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return ReactiveTextField(
+      key: const Key('SearchTextField'),
+      state: state,
+      hint: 'label_search'.l10n,
+      hintColor: style.colors.secondary,
+      maxLines: 1,
+      filled: true,
+      dense: false,
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      style: style.fonts.normal.regular.onBackground,
+      onChanged: onChanged,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      prefix: Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10),
+        child: Transform.translate(
+          offset: Offset(0, 2),
+          child: SvgIcon(SvgIcons.search, width: 18, height: 18),
+        ),
+      ),
+      trailing: Obx(() {
+        final Widget child;
+
+        if (state.isEmpty.value) {
+          child = const SizedBox();
+        } else {
+          child = AnimatedButton(
+            key: const Key('ClearButton'),
+            onPressed: () => state.text = '',
+            child: SvgIcon(SvgIcons.clearSearch),
+          );
+        }
+
+        return SafeAnimatedSwitcher(duration: 200.milliseconds, child: child);
+      }),
+    );
+  }
+}
+
+/// [ChatTile] representing the provided [RxChat] as a recent [Chat] for [SearchView].
+class _ChatTile extends StatelessWidget {
+  const _ChatTile(this.rxChat, {super.key, this.onTap, this.selected = false});
+
+  /// [RxChat] this [_ChatTile] is about.
+  final RxChat rxChat;
+
+  /// Indicator whether this [_ChatTile] is selected.
+  final bool selected;
+
+  /// Callback, called when this [_ChatTile] is tapped.
+  final void Function()? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ChatTile(
+      key: Key(rxChat.id.val),
+      chat: rxChat,
+      dimmed: false,
+      status: [
+        const SizedBox(width: 8),
+        SelectedDot(selected: selected),
+      ],
+      selected: selected,
+      enableContextMenu: false,
+      onTap: onTap,
+      onForbidden: rxChat.updateAvatar,
+      height: 55.5,
     );
   }
 }

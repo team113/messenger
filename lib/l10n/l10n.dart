@@ -155,6 +155,9 @@ extension L10nDateExtension on DateTime {
   /// Returns this [DateTime] formatted in `yMdHm` format.
   String get yMdHm => '$yMd${'space'.l10n}$hm';
 
+  /// Returns this [DateTime] formatted in `HmyMd` format.
+  String get hmyMd => '$hm${'space'.l10n}$yMd';
+
   /// Returns short text representing this [DateTime].
   ///
   /// Returns string in format `Hm`, if [DateTime] is within today. Returns a

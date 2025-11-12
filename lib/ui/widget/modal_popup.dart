@@ -136,7 +136,7 @@ abstract class ModalPopup {
               padding: desktopPadding,
               decoration: BoxDecoration(
                 color: background ?? style.colors.background,
-                borderRadius: style.cardRadius,
+                borderRadius: BorderRadius.circular(16),
               ),
               child: ConstrainedBox(
                 constraints: desktopConstraints,
@@ -180,10 +180,14 @@ class ModalPopupHeader extends StatelessWidget {
     this.onBack,
     this.close = true,
     this.dense = false,
+    this.subtitle,
   });
 
   /// Text to display as a title of this [ModalPopupHeader].
   final String? text;
+
+  /// Text to display as a subtitle of this [ModalPopupHeader].
+  final String? subtitle;
 
   /// Callback, called when a back button is pressed.
   ///
@@ -204,50 +208,82 @@ class ModalPopupHeader extends StatelessWidget {
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: dense ? 0 : 42),
       child: Center(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            if (onBack != null)
-              WidgetButton(
-                onPressed: onBack,
-                child: const Padding(
-                  padding: EdgeInsets.fromLTRB(12, 14, 14, 8),
-                  child: SvgIcon(SvgIcons.backSmall),
-                ),
-              )
-            else
-              const SizedBox(width: 40),
-            if (text != null)
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    10,
-                    context.isMobile ? 8 : 22,
-                    10,
-                    8,
-                  ),
-                  child: Center(
-                    child: Text(
-                      text!,
-                      style: style.fonts.big.regular.onBackground,
-                      textAlign: TextAlign.center,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (onBack != null)
+                  WidgetButton(
+                    onPressed: onBack,
+                    child: const Padding(
+                      padding: EdgeInsets.fromLTRB(12, 14, 14, 8),
+                      child: SvgIcon(SvgIcons.backSmall),
                     ),
-                  ),
+                  )
+                else
+                  const SizedBox(width: 40),
+
+                if (text != null)
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 19,
+                      ),
+                      child: Center(
+                        child: Text(
+                          text!,
+                          style: style.fonts.big.regular.onBackground,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  const Spacer(),
+
+                if (!context.isMobile && close)
+                  WidgetButton(
+                    key: const Key('CloseButton'),
+                    onPressed: Navigator.of(context).pop,
+                    child: Container(
+                      padding: EdgeInsets.fromLTRB(12, 16, 17, 16),
+                      child: const SvgIcon(
+                        SvgIcons.closeSmallPrimary,
+                        width: 9,
+                        height: 9,
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox(width: 40),
+              ],
+            ),
+
+            if (subtitle != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 18),
+                child: Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: style.colors.secondaryHighlightDarkest,
+                      ),
+                    ),
+                    Text(subtitle!, style: style.fonts.small.regular.secondary),
+                    Expanded(
+                      child: Container(
+                        height: 1,
+                        color: style.colors.secondaryHighlightDarkest,
+                      ),
+                    ),
+                  ],
                 ),
-              )
-            else
-              const Spacer(),
-            if (!context.isMobile && close)
-              WidgetButton(
-                key: const Key('CloseButton'),
-                onPressed: Navigator.of(context).pop,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(12, 14, 14, 8),
-                  child: const SvgIcon(SvgIcons.closeSmallPrimary),
-                ),
-              )
-            else
-              const SizedBox(width: 40),
+              ),
           ],
         ),
       ),

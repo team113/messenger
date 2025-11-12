@@ -25,6 +25,7 @@ import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:log_me/log_me.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
 import '/domain/model/attachment.dart';
@@ -40,6 +41,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -57,6 +59,7 @@ import '/provider/gql/exceptions.dart'
         HideChatException,
         JoinChatCallException,
         RemoveChatMemberException,
+        ToggleChatArchivationException,
         ToggleChatMuteException,
         UnfavoriteChatException;
 import '/routes.dart';
@@ -85,17 +88,23 @@ class ChatsTabController extends GetxController {
   /// Reactive list of sorted [Chat]s.
   final RxList<ChatEntry> chats = RxList();
 
+  /// Reactive list of sorted archived [Chat]s.
+  final RxList<ChatEntry> archived = RxList();
+
   /// [SearchController] for searching the [Chat]s, [User]s and [ChatContact]s.
   final Rx<SearchController?> search = Rx(null);
 
   /// [ListElement]s representing the [search] results visually.
   final RxList<ListElement> elements = RxList([]);
 
-  /// Indicator whether [search]ing is active.
-  final RxBool searching = RxBool(false);
+  /// Indicator whether chat archive viewing is active.
+  final RxBool archivedOnly = RxBool(false);
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+  /// [ScrollController] to pass to a [Scrollbar] of recent [RxChat]s.
+  final ScrollController chatsController = ScrollController();
+
+  /// [ScrollController] to pass to a [Scrollbar] of archived [RxChat]s.
+  final ScrollController archiveController = ScrollController();
 
   /// Indicator whether group creation is active.
   final RxBool groupCreating = RxBool(false);
@@ -126,9 +135,6 @@ class ChatsTabController extends GetxController {
   /// [GlobalKey] of the more button.
   final GlobalKey moreKey = GlobalKey();
 
-  /// [DismissedChat]s added in [dismiss].
-  final RxList<DismissedChat> dismissed = RxList();
-
   /// [Chat]s service used to update the [chats].
   final ChatService _chatService;
 
@@ -152,6 +158,9 @@ class ChatsTabController extends GetxController {
 
   /// Subscription for the [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
+
+  /// Subscription for the [ChatService.archived] changes.
+  late final StreamSubscription _archivedSubscription;
 
   /// Subscription for [SearchController.chats], [SearchController.users] and
   /// [SearchController.contacts] changes updating the [elements].
@@ -190,9 +199,18 @@ class ChatsTabController extends GetxController {
   /// [MyUser], if any.
   ChatId get monolog => _chatService.monolog;
 
+  /// Returns the [Paginated] of [RxChat] being in archive.
+  Paginated<ChatId, RxChat> get archive => _chatService.archived;
+
+  /// Indicator whether remote connection is still being configured.
+  bool get synchronizing =>
+      !connected.value ||
+      (fetching.value == null && status.value.isLoadingMore);
+
   @override
   void onInit() {
-    scrollController.addListener(_scrollListener);
+    chatsController.addListener(_chatsListener);
+    archiveController.addListener(_archiveListener);
 
     chats.value = RxList(
       _chatService.paginated.values
@@ -260,11 +278,49 @@ class ChatsTabController extends GetxController {
             _userSubscriptions.remove(userId)?.cancel();
           }
 
-          _scrollListener();
+          _chatsListener();
           break;
 
         case OperationKind.updated:
           chats.sort();
+          break;
+      }
+    });
+
+    archived.value = RxList(
+      archive.values.map((e) => ChatEntry(e, chats.sort)).toList(),
+    );
+    archived.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
+    archived.sort();
+
+    _archivedSubscription = _chatService.archived.items.changes.listen((event) {
+      Log.debug(
+        '_archivedSubscription -> ${event.op} -> ${event.value}',
+        '$runtimeType',
+      );
+
+      switch (event.op) {
+        case OperationKind.added:
+          final entry = ChatEntry(event.value!, chats.sort);
+          archived.add(entry);
+          archived.sort();
+          break;
+
+        case OperationKind.removed:
+          archived.removeWhere((e) {
+            if (e.chat.value.id == event.key) {
+              e.dispose();
+              return true;
+            }
+
+            return false;
+          });
+
+          _archiveListener();
+          break;
+
+        case OperationKind.updated:
+          archived.sort();
           break;
       }
     });
@@ -283,13 +339,17 @@ class ChatsTabController extends GetxController {
       });
     }
 
+    _initSearch();
+
     super.onInit();
   }
 
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_escapeListener);
-    scrollController.dispose();
+
+    chatsController.dispose();
+    archiveController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -299,18 +359,14 @@ class ChatsTabController extends GetxController {
       data.dispose();
     }
     _chatsSubscription.cancel();
+    _archivedSubscription.cancel();
     _statusSubscription?.cancel();
 
     _searchSubscription?.cancel();
-    search.value?.search.focus.removeListener(_disableSearchFocusListener);
     search.value?.onClose();
 
     for (StreamSubscription s in _userSubscriptions.values) {
       s.cancel();
-    }
-
-    for (var e in dismissed) {
-      e._timer.cancel();
     }
 
     fetching.value?.cancel();
@@ -396,6 +452,44 @@ class ChatsTabController extends GetxController {
     } catch (e) {
       MessagePopup.error(e);
       rethrow;
+    }
+  }
+
+  /// Archives or unarchives the specified [Chat] identified by the provided
+  /// [id].
+  Future<void> archiveChat(ChatId id, bool archive) async {
+    try {
+      await _chatService.archiveChat(id, archive);
+    } on ToggleChatArchivationException catch (e) {
+      MessagePopup.error(e);
+    } on UnfavoriteChatException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Archives or unarchives the [selectedChats].
+  Future<void> archiveChats(bool archive) async {
+    selecting.value = false;
+
+    router.navigation.value = !selecting.value;
+    router.navigator.value = null;
+
+    try {
+      await Future.wait(
+        selectedChats.map(
+          (chatId) => _chatService.archiveChat(chatId, archive),
+        ),
+      );
+    } on ToggleChatArchivationException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      selectedChats.clear();
     }
   }
 
@@ -584,30 +678,22 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Enables and initializes the [search]ing.
-  void startSearch() {
-    searching.value = true;
-    _toggleSearch();
-    search.value?.search.focus.requestFocus();
-  }
-
   /// Disables and disposes the [search]ing.
-  void closeSearch([bool disableSearch = false]) {
-    searching.value = false;
-    if (disableSearch) {
-      _toggleSearch(false);
-    } else {
-      search.value?.search.clear();
-      search.value?.query.value = '';
-    }
+  void clearSearch() {
+    search.value?.search.clear();
+    search.value?.query.value = '';
   }
 
   /// Enables and initializes the group creating.
   void startGroupCreating() {
     groupCreating.value = true;
-    _toggleSearch();
     search.value?.search.clear();
     search.value?.query.value = '';
+    search.value?.categories = [
+      SearchCategory.recent,
+      SearchCategory.contact,
+      SearchCategory.user,
+    ];
     router.navigation.value = false;
     router.navigator.value = (context) =>
         ChatsTabView.createGroupBuilder(context, this);
@@ -617,7 +703,14 @@ class ChatsTabController extends GetxController {
   /// Disables and disposes the group creating.
   void closeGroupCreating() {
     groupCreating.value = false;
-    closeSearch(true);
+    search.value?.search.clear();
+    search.value?.query.value = '';
+    search.value?.categories = [
+      SearchCategory.recent,
+      SearchCategory.chat,
+      SearchCategory.contact,
+      SearchCategory.user,
+    ];
     router.navigation.value = true;
     router.navigator.value = null;
   }
@@ -687,7 +780,7 @@ class ChatsTabController extends GetxController {
               e.chat.value.ongoingCall == null &&
               e.chat.value.favoritePosition != null &&
               !e.chat.value.isHidden &&
-              !e.hidden.value,
+              !e.chat.value.isArchived,
         )
         .toList();
 
@@ -717,42 +810,6 @@ class ChatsTabController extends GetxController {
     await favoriteChat(chatId, ChatFavoritePosition(position));
   }
 
-  /// Dismisses the [chat], adding it to the [dismissed].
-  void dismiss(RxChat chat) {
-    for (var e in List<DismissedChat>.from(dismissed, growable: false)) {
-      e._done(true);
-    }
-    dismissed.clear();
-
-    DismissedChat? entry;
-
-    entry = DismissedChat(
-      chat,
-      onDone: (d) {
-        if (d) {
-          hideChat(chat.id);
-        } else {
-          for (var e in chats) {
-            if (e.id == chat.id) {
-              e.hidden.value = false;
-            }
-          }
-        }
-
-        dismissed.remove(entry!);
-      },
-    );
-
-    router.removeWhere((e) => chat.chat.value.isRoute(e, me));
-    dismissed.add(entry);
-
-    for (var e in chats) {
-      if (e.id == chat.id) {
-        e.hidden.value = true;
-      }
-    }
-  }
-
   /// Reads all the [RxChat]s in the [chats] list.
   Future<void> readAll() async {
     final Future<void> future = _chatService.readAll(
@@ -773,88 +830,73 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Enables and initializes or disables and disposes the [search].
-  void _toggleSearch([bool enable = true]) {
-    if (search.value != null && enable) {
-      return;
-    }
-
-    search.value?.onClose();
-    search.value?.search.focus.removeListener(_disableSearchFocusListener);
-    _searchSubscription?.cancel();
-
-    if (enable) {
-      search.value = SearchController(
-        _chatService,
-        _userService,
-        _contactService,
-        _myUserService,
-        categories: [
-          SearchCategory.recent,
-          if (groupCreating.isFalse) SearchCategory.chat,
-          SearchCategory.contact,
-          SearchCategory.user,
-        ],
-      )..onInit();
-
-      _searchSubscription =
-          StreamGroup.merge([
-            search.value!.recent.stream,
-            search.value!.chats.stream,
-            search.value!.contacts.stream,
-            search.value!.users.stream,
-          ]).listen((_) {
-            elements.clear();
-
-            if (groupCreating.value) {
-              if (search.value?.query.isEmpty == true) {
-                elements.add(const MyUserElement());
-              }
-
-              search.value?.users.removeWhere((k, v) => me == k);
-
-              if (search.value?.recent.isNotEmpty == true) {
-                elements.add(const DividerElement(SearchCategory.chat));
-                for (RxUser c in search.value!.recent.values) {
-                  elements.add(RecentElement(c));
-                }
-              }
-            } else {
-              if (search.value?.chats.isNotEmpty == true) {
-                elements.add(const DividerElement(SearchCategory.chat));
-                for (RxChat c in search.value!.chats.values) {
-                  elements.add(ChatElement(c));
-                }
-              }
-            }
-
-            if (search.value?.contacts.isNotEmpty == true) {
-              elements.add(const DividerElement(SearchCategory.contact));
-              for (RxChatContact c in search.value!.contacts.values) {
-                elements.add(ContactElement(c));
-              }
-            }
-
-            if (search.value?.users.isNotEmpty == true) {
-              elements.add(const DividerElement(SearchCategory.user));
-              for (RxUser c in search.value!.users.values) {
-                elements.add(UserElement(c));
-              }
-            }
-          });
-
-      search.value!.search.focus.addListener(_disableSearchFocusListener);
-    } else {
-      search.value = null;
-    }
+  /// Toggles the [archivedOnly].
+  void toggleArchive() {
+    archivedOnly.value = !archivedOnly.value;
   }
 
-  /// Disables the [search], if its focus is lost or its query is empty.
-  void _disableSearchFocusListener() {
-    if (search.value?.search.focus.hasFocus == false &&
-        search.value?.search.text.isEmpty == true) {
-      closeSearch(!groupCreating.value);
-    }
+  /// Initializes the [search].
+  void _initSearch() {
+    search.value = SearchController(
+      _chatService,
+      _userService,
+      _contactService,
+      _myUserService,
+      _sessionService,
+      categories: [
+        SearchCategory.recent,
+        SearchCategory.chat,
+        SearchCategory.contact,
+        SearchCategory.user,
+      ],
+      prePopulate: false,
+    )..onInit();
+
+    _searchSubscription =
+        StreamGroup.merge([
+          search.value!.recent.stream,
+          search.value!.chats.stream,
+          search.value!.contacts.stream,
+          search.value!.users.stream,
+        ]).listen((_) {
+          elements.clear();
+
+          if (groupCreating.value) {
+            if (search.value?.query.isEmpty == true) {
+              elements.add(const MyUserElement());
+            }
+
+            search.value?.users.removeWhere((k, v) => me == k);
+
+            if (search.value?.recent.isNotEmpty == true) {
+              elements.add(const DividerElement(SearchCategory.chat));
+              for (RxUser c in search.value!.recent.values) {
+                elements.add(RecentElement(c));
+              }
+            }
+          } else {
+            if (search.value?.chats.isNotEmpty == true) {
+              elements.add(const DividerElement(SearchCategory.chat));
+              for (RxChat c in search.value!.chats.values) {
+                elements.add(ChatElement(c));
+              }
+            }
+          }
+
+          if (search.value?.contacts.isNotEmpty == true) {
+            elements.add(const DividerElement(SearchCategory.contact));
+            for (RxChatContact c in search.value!.contacts.values) {
+              elements.add(ContactElement(c));
+            }
+          }
+
+          if (search.value?.users.isNotEmpty == true) {
+            elements.add(const DividerElement(SearchCategory.user));
+            for (RxUser c in search.value!.users.values) {
+              elements.add(UserElement(c));
+            }
+          }
+        });
   }
 
   /// Closes the [searching] on the [LogicalKeyboardKey.escape] events.
@@ -862,11 +904,14 @@ class ChatsTabController extends GetxController {
   /// Intended to be used as a [HardwareKeyboard] listener.
   bool _escapeListener(KeyEvent e) {
     if (e is KeyDownEvent && e.logicalKey == LogicalKeyboardKey.escape) {
-      if (searching.value) {
-        closeSearch(!groupCreating.value);
+      if (search.value?.query.value.isNotEmpty == true) {
+        clearSearch();
         return true;
       } else if (groupCreating.value) {
         closeGroupCreating();
+        return true;
+      } else if (selecting.value) {
+        toggleSelecting();
         return true;
       }
     }
@@ -876,19 +921,53 @@ class ChatsTabController extends GetxController {
 
   /// Requests the next page of [Chat]s based on the [ScrollController.position]
   /// value.
-  void _scrollListener() {
+  void _chatsListener() {
     if (!_scrollIsInvoked) {
       _scrollIsInvoked = true;
 
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _scrollIsInvoked = false;
 
-        if (scrollController.hasClients &&
-            hasNext.isTrue &&
-            _chatService.nextLoading.isFalse &&
-            scrollController.position.pixels >
-                scrollController.position.maxScrollExtent - 500) {
-          _chatService.next();
+        if (chatsController.hasClients &&
+            chatsController.position.pixels >
+                chatsController.position.maxScrollExtent - 500 &&
+            !status.value.isLoading) {
+          if (archivedOnly.value) {
+            if (archive.hasNext.isTrue && archive.nextLoading.isFalse) {
+              archive.next();
+            }
+          } else {
+            if (hasNext.isTrue && _chatService.nextLoading.isFalse) {
+              _chatService.next();
+            }
+          }
+        }
+      });
+    }
+  }
+
+  /// Requests the next page of archived [Chat]s based on the
+  /// [ScrollController.position] value.
+  void _archiveListener() {
+    if (!_scrollIsInvoked) {
+      _scrollIsInvoked = true;
+
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _scrollIsInvoked = false;
+
+        if (chatsController.hasClients &&
+            chatsController.position.pixels >
+                chatsController.position.maxScrollExtent - 500 &&
+            !status.value.isLoading) {
+          if (archivedOnly.value) {
+            if (archive.hasNext.isTrue && archive.nextLoading.isFalse) {
+              archive.next();
+            }
+          } else {
+            if (hasNext.isTrue && _chatService.nextLoading.isFalse) {
+              _chatService.next();
+            }
+          }
         }
       });
     }
@@ -906,17 +985,25 @@ class ChatsTabController extends GetxController {
           return;
         }
 
-        if (!scrollController.hasClients) {
+        final ScrollController scroll = switch (archivedOnly.value) {
+          true => archiveController,
+          false => chatsController,
+        };
+
+        if (!scroll.hasClients) {
           return await _ensureScrollable();
         }
 
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
-        if (scrollController.position.maxScrollExtent < 50 &&
+        if (scroll.position.maxScrollExtent < 50 &&
             _chatService.nextLoading.isFalse) {
           final int amount = _chatService.paginated.length;
 
-          await _chatService.next();
+          await switch (archivedOnly.value) {
+            true => archive.next,
+            false => _chatService.next,
+          }();
 
           _chatsInitiallyFetched = _chatService.paginated.length;
 
@@ -929,18 +1016,21 @@ class ChatsTabController extends GetxController {
     }
   }
 
-  /// Invokes [closeSearch] if [searching], or [closeGroupCreating] if
+  /// Invokes [clearSearch] if [search]ing, or [closeGroupCreating] if
   /// [groupCreating].
   ///
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
   bool _onBack(bool _, RouteInfo _) {
-    if (searching.isTrue) {
-      closeSearch(!groupCreating.value);
+    if (search.value?.query.value.isNotEmpty == true) {
+      clearSearch();
       return true;
     } else if (groupCreating.isTrue) {
       closeGroupCreating();
+      return true;
+    } else if (selecting.value) {
+      toggleSelecting();
       return true;
     }
 
@@ -965,9 +1055,6 @@ class ChatEntry implements Comparable<ChatEntry> {
       }
     });
   }
-
-  /// Indicator whether this [ChatEntry] is hidden.
-  final RxBool hidden = RxBool(false);
 
   /// [RxChat] itself.
   final RxChat _chat;
@@ -1052,51 +1139,4 @@ class RecentElement extends ListElement {
 
   /// [RxUser] itself.
   final RxUser user;
-}
-
-/// [RxChat] being dismissed.
-///
-/// Invokes the irreversible action (e.g. hiding the [chat]) when the
-/// [remaining] milliseconds have passed.
-class DismissedChat {
-  DismissedChat(this.chat, {void Function(bool)? onDone}) : _onDone = onDone {
-    _timer = Timer.periodic(32.milliseconds, (t) {
-      final value = remaining.value - 32;
-
-      if (remaining.value <= 0) {
-        remaining.value = 0;
-        _done(true);
-      } else {
-        remaining.value = value;
-      }
-    });
-  }
-
-  /// [RxChat] itself.
-  final RxChat chat;
-
-  /// Time in milliseconds before the [chat] invokes the irreversible action.
-  final RxInt remaining = RxInt(5000);
-
-  /// Callback, called when [_timer] is done counting the [remaining]
-  /// milliseconds.
-  final void Function(bool)? _onDone;
-
-  /// [Timer] counting milliseconds until the [remaining].
-  late final Timer _timer;
-
-  /// Indicator whether the [_done] was already invoked.
-  bool _invoked = false;
-
-  /// Cancels the dismissal.
-  void cancel() => _done();
-
-  /// Invokes the [_onDone] and cancels the [_timer].
-  void _done([bool done = false]) {
-    if (!_invoked) {
-      _invoked = true;
-      _onDone?.call(done);
-      _timer.cancel();
-    }
-  }
 }

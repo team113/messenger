@@ -1,4 +1,1 @@
-- Descripción actualizada del chat de notas.
-- Iconos de audio remoto actualizados en las llamadas.
-- Introducción rediseñada para cuentas de invitado.
-- Corrección de errores y mejoras de rendimiento.
+- Se corrigieron errores y se mejoraron el rendimiento.

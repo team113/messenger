@@ -51,6 +51,8 @@ import '/l10n/l10n.dart';
 import '/provider/drift/callkit_calls.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
+import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -308,7 +310,7 @@ class CallWorker extends DisposableService {
               void notify() {
                 if (_myUser.value?.muted == null &&
                     chat?.chat.value.muted == null) {
-                  final String? title = chat?.title ?? c.caller?.title;
+                  final String? title = chat?.title() ?? c.caller?.title();
 
                   _notificationService.show(
                     title ?? 'label_incoming_call'.l10n,
@@ -395,9 +397,13 @@ class CallWorker extends DisposableService {
       });
 
       if (_isCallKit) {
+        _eventsSubscriptions.remove(c.chatId.value)?.cancel();
+        _resubscribeTo(c.chatId.value);
+
         final RxChat? chat = await _chatService.get(c.chatId.value);
         final String id = (c.call.value?.id.val ?? c.chatId.value.val)
             .base62ToUuid();
+
         bool report = true;
 
         final PreciseDateTime? accountedAt = await _callKitCalls.read(id);
@@ -409,7 +415,7 @@ class CallWorker extends DisposableService {
 
         if (report) {
           final CallKitParams params = CallKitParams(
-            nameCaller: chat?.title ?? 'Call',
+            nameCaller: chat?.title() ?? 'Call',
             id: id,
             handle: c.chatId.value.val,
             extra: {'chatId': c.chatId.value.val},
@@ -423,7 +429,6 @@ class CallWorker extends DisposableService {
               );
 
               await FlutterCallkitIncoming.showCallkitIncoming(params);
-              await _resubscribeTo(c.chatId.value);
               break;
 
             case OngoingCallState.local:
@@ -436,7 +441,6 @@ class CallWorker extends DisposableService {
 
               await FlutterCallkitIncoming.startCall(params);
               await FlutterCallkitIncoming.setCallConnected(id);
-              await _resubscribeTo(c.chatId.value);
               break;
 
             case OngoingCallState.ended:
@@ -467,7 +471,7 @@ class CallWorker extends DisposableService {
           _answeredCalls.remove(event.key);
           _audioWorkers.remove(event.key)?.dispose();
           _workers.remove(event.key)?.dispose();
-          _eventsSubscriptions[event.key]?.cancel();
+          _eventsSubscriptions.remove(event.key)?.cancel();
           if (_workers.isEmpty) {
             stop();
           }
@@ -541,7 +545,7 @@ class CallWorker extends DisposableService {
           case Event.actionCallDecline:
             final String? chatId = event.body['extra']?['chatId'];
             if (chatId != null) {
-              _eventsSubscriptions[ChatId(chatId)]?.cancel();
+              _eventsSubscriptions.remove(ChatId(chatId))?.cancel();
               await _callService.decline(ChatId(chatId));
             }
             break;
@@ -550,7 +554,7 @@ class CallWorker extends DisposableService {
           case Event.actionCallTimeout:
             final String? chatId = event.body['extra']?['chatId'];
             if (chatId != null) {
-              _eventsSubscriptions[ChatId(chatId)]?.cancel();
+              _eventsSubscriptions.remove(ChatId(chatId))?.cancel();
               _callService.remove(ChatId(chatId));
             }
             break;
@@ -833,11 +837,11 @@ class CallWorker extends DisposableService {
 
             if (call != null) {
               if (call.members.any((e) => e.user.id == credentials.userId)) {
-                _eventsSubscriptions[chatId]?.cancel();
+                _eventsSubscriptions.remove(chatId)?.cancel();
                 await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
               }
             } else {
-              _eventsSubscriptions[chatId]?.cancel();
+              _eventsSubscriptions.remove(chatId)?.cancel();
               await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
             }
           } else if (events.$$typename == 'ChatEventsVersioned') {
@@ -850,7 +854,7 @@ class CallWorker extends DisposableService {
                 final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
 
-                _eventsSubscriptions[chatId]?.cancel();
+                _eventsSubscriptions.remove(chatId)?.cancel();
                 await FlutterCallkitIncoming.endCall(
                   node.call.id.val.base62ToUuid(),
                 );
@@ -861,7 +865,7 @@ class CallWorker extends DisposableService {
 
                 if (node.user.id == credentials.userId &&
                     call?.value.connected != true) {
-                  _eventsSubscriptions[chatId]?.cancel();
+                  _eventsSubscriptions.remove(chatId)?.cancel();
                   await FlutterCallkitIncoming.endCall(
                     node.call.id.val.base62ToUuid(),
                   );
@@ -873,7 +877,7 @@ class CallWorker extends DisposableService {
 
                 if (node.user.id == credentials.userId &&
                     call?.value.connected != true) {
-                  _eventsSubscriptions[chatId]?.cancel();
+                  _eventsSubscriptions.remove(chatId)?.cancel();
                   await FlutterCallkitIncoming.endCall(
                     chatId.val.base62ToUuid(),
                   );
@@ -882,7 +886,7 @@ class CallWorker extends DisposableService {
                 final node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
                 if (node.user.id == credentials.userId) {
-                  _eventsSubscriptions[chatId]?.cancel();
+                  _eventsSubscriptions.remove(chatId)?.cancel();
                   await FlutterCallkitIncoming.endCall(
                     node.call.id.val.base62ToUuid(),
                   );
@@ -892,7 +896,7 @@ class CallWorker extends DisposableService {
                     e
                         as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
                 if (node.userId == credentials.userId) {
-                  _eventsSubscriptions[chatId]?.cancel();
+                  _eventsSubscriptions.remove(chatId)?.cancel();
                   await FlutterCallkitIncoming.endCall(
                     node.callId.val.base62ToUuid(),
                   );
@@ -914,7 +918,7 @@ class CallWorker extends DisposableService {
           '$runtimeType',
         );
 
-        _eventsSubscriptions[chatId]?.cancel();
+        _eventsSubscriptions.remove(chatId)?.cancel();
         await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
       }
     } else {
@@ -923,7 +927,7 @@ class CallWorker extends DisposableService {
         '$runtimeType',
       );
 
-      _eventsSubscriptions[chatId]?.cancel();
+      _eventsSubscriptions.remove(chatId)?.cancel();
       await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
     }
   }

@@ -108,7 +108,9 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
                 e,
                 pinned: contains,
                 onPressed: dismiss,
-                onPin: contains || widget.c.canPin.value
+                onPin:
+                    widget.c.canPin &&
+                        (contains || widget.c.hasSpaceForPins.value)
                     ? () {
                         if (widget.c.buttons.contains(e)) {
                           widget.c.buttons.remove(e);

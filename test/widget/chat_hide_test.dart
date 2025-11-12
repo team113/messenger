@@ -75,7 +75,10 @@ import 'package:mockito/mockito.dart';
 import '../mock/geo_provider.dart';
 import 'chat_hide_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
+@GenerateNiceMocks([
+  MockSpec<GraphQlProvider>(),
+  MockSpec<PlatformRouteInformationProvider>(),
+])
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -106,9 +109,15 @@ void main() async {
   final geoProvider = Get.put(GeoLocationDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
 
-  var graphQlProvider = Get.put(MockGraphQlProvider());
+  var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.connected).thenReturn(RxBool(true));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  when(
+    graphQlProvider.onDelete,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
   when(graphQlProvider.recentChatsTopEvents(3)).thenAnswer(
     (_) => Stream.value(
       QueryResult.internal(
@@ -123,6 +132,9 @@ void main() async {
       ),
     ),
   );
+  when(
+    graphQlProvider.recentChatsTopEvents(3, archived: true),
+  ).thenAnswer((_) => const Stream.empty());
   when(
     graphQlProvider.incomingCallsTopEvents(3),
   ).thenAnswer((_) => const Stream.empty());
@@ -146,6 +158,8 @@ void main() async {
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
+
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   AuthService authService = Get.put(
     AuthService(
@@ -246,6 +260,7 @@ void main() async {
         last: null,
         before: null,
         noFavorite: anyNamed('noFavorite'),
+        archived: anyNamed('archived'),
         withOngoingCalls: anyNamed('withOngoingCalls'),
       ),
     ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
@@ -433,6 +448,7 @@ final chatData = {
   'members': {'nodes': [], 'totalCount': 0},
   'kind': 'GROUP',
   'isHidden': false,
+  'isArchived': false,
   'muted': null,
   'directLink': null,
   'createdAt': '2021-12-15T15:11:18.316846+00:00',

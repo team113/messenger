@@ -17,7 +17,7 @@
 
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:async/async.dart' show StreamGroup, StreamQueue;
 import 'package:file_picker/file_picker.dart';
@@ -43,7 +43,7 @@ class NativeFile {
     Uint8List? bytes,
     Stream<List<int>>? stream,
     this.mime,
-    Size? dimensions,
+    ui.Size? dimensions,
   }) : bytes = Rx(bytes),
        dimensions = Rx(dimensions),
        _readStream = stream {
@@ -112,7 +112,7 @@ class NativeFile {
 
   /// [Size] of the image this [NativeFile] represents, if [isImage].
   @JsonKey(includeFromJson: false, includeToJson: false)
-  final Rx<Size?> dimensions;
+  final Rx<ui.Size?> dimensions;
 
   /// [Mutex] for synchronized access to the [readFile].
   final Mutex _readGuard = Mutex();
@@ -249,12 +249,15 @@ class NativeFile {
     if (dimensions.value == null && isImage && bytes.value != null) {
       // TODO: Validate SVGs and retrieve its width and height.
       if (!isSvg) {
-        final decoded = await instantiateImageCodec(bytes.value!);
-        final frame = await decoded.getNextFrame();
-        dimensions.value = Size(
+        final ui.Codec decoded = await ui.instantiateImageCodec(bytes.value!);
+        final ui.FrameInfo frame = await decoded.getNextFrame();
+        dimensions.value = ui.Size(
           frame.image.width.toDouble(),
           frame.image.height.toDouble(),
         );
+
+        // This object must be disposed by the recipient of the frame info.
+        frame.image.dispose();
       }
     }
   }
@@ -281,14 +284,14 @@ extension _MediaType on MediaType {
 /// Extension adding methods to construct the [Size] to/from primitive types.
 ///
 /// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
-extension _SizeExtension on Size {
+extension _SizeExtension on ui.Size {
   /// Returns a [Size] constructed from the provided [json].
-  static Size? fromJson(Map<String, dynamic>? json) {
+  static ui.Size? fromJson(Map<String, dynamic>? json) {
     if (json == null) {
       return null;
     }
 
-    return Size(json['width'] as double, json['height'] as double);
+    return ui.Size(json['width'] as double, json['height'] as double);
   }
 
   /// Returns a [String] representing this [Size].

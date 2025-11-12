@@ -153,7 +153,7 @@ jobs:
                        || contains(steps.commit.outputs.message, '[run ci]') }}"
              >> $GITHUB_OUTPUT
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-${{ (matrix.store == 'App Store' &&   'ipa')
                        || (matrix.store == 'Google Play' && 'appbundle')
@@ -243,7 +243,7 @@ jobs:
                     ||     '' }}
       - run: make appcast.xml
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
@@ -544,7 +544,7 @@ jobs:
               ||     'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: build-${{ matrix.platform }}-${{ github.run_number }}
           path: artifacts/
@@ -569,7 +569,7 @@ jobs:
       #     filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
       #     directory: debug
       #   if: ${{ contains('apk appbundle ipa macos web', matrix.platform) }}
-      # - uses: actions/upload-artifact@v4
+      # - uses: actions/upload-artifact@v5
       #   with:
       #     name: debug-${{ matrix.platform }}-${{ github.run_number }}
       #     path: debug-${{ matrix.platform }}.zip
@@ -701,7 +701,7 @@ jobs:
         run: ${{ 'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
@@ -724,7 +724,7 @@ jobs:
 
       - run: make docs.dart clean=yes
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: dartdoc-${{ github.run_number }}
           path: doc/api/
@@ -739,39 +739,39 @@ jobs:
       - uses: actions/checkout@v5
       - uses: docker/setup-buildx-action@v3
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-web-${{ github.run_number }}
       - run: mkdir -p build/web/
       - run: unzip *.zip -d build/web/
 
       - run: mkdir -p build/web/artifacts/
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-apk-${{ github.run_number }}
           path: build/web/artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship Android.
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-appbundle-${{ github.run_number }}
           path: build/web/artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship Android.
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-ipa-${{ github.run_number }}
           path: build/web/artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship iOS.
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-linux-${{ github.run_number }}
           path: build/web/artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship Linux.
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-macos-${{ github.run_number }}
           path: build/web/artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship macOS.
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
@@ -779,7 +779,7 @@ jobs:
 
       # TODO: Refactor when actions/download-artifact#176 is implemented:
       #       https://github.com/actions/download-artifact/issues/176
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
@@ -795,7 +795,7 @@ jobs:
 
       - run: make docker.tar to-file=.cache/image.tar
                   tags=build-${{ github.run_number }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: docker-${{ github.run_number }}
           path: .cache/image.tar
@@ -949,7 +949,7 @@ jobs:
       - uses: actions/checkout@v5
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: docker-${{ github.run_number }}
           path: .cache/
@@ -1162,7 +1162,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-${{ (matrix.store == 'App Store' &&   'ipa')
                        || (matrix.store == 'Google Play' && 'appbundle')
@@ -1226,7 +1226,7 @@ jobs:
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
 
       - run: rm -rf appcast/
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
@@ -1279,42 +1279,42 @@ jobs:
         run: echo "link=${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)"
              >> $GITHUB_OUTPUT
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-apk-${{ github.run_number }}
           path: artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship Android.
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-appbundle-${{ github.run_number }}
           path: artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship Android.
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-ipa-${{ github.run_number }}
           path: artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship iOS.
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship Linux.
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-macos-${{ github.run_number }}
           path: artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship macOS.
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-web-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: build-windows-${{ github.run_number }}
           path: artifacts/
         if: ${{ false }} # TODO: Re-enable once ready to ship Windows.
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: dartdoc-${{ github.run_number }}
           path: .cache/dartdoc/
@@ -1367,7 +1367,7 @@ jobs:
 
       - run: rm -rf ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v6
         with:
           name: dartdoc-${{ github.run_number }}
           path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
@@ -1391,19 +1391,19 @@ jobs:
   #   steps:
   #     - uses: actions/checkout@v5
 
-  #     - uses: actions/download-artifact@v5
+  #     - uses: actions/download-artifact@v6
   #       with:
   #         name: debug-apk-${{ github.run_number }}
   #         path: debug/
-  #     - uses: actions/download-artifact@v5
+  #     - uses: actions/download-artifact@v6
   #       with:
   #         name: debug-appbundle-${{ github.run_number }}
   #         path: debug/
-  #     - uses: actions/download-artifact@v5
+  #     - uses: actions/download-artifact@v6
   #       with:
   #         name: debug-ipa-${{ github.run_number }}
   #         path: debug/
-  #     - uses: actions/download-artifact@v5
+  #     - uses: actions/download-artifact@v6
   #       with:
   #         name: debug-macos-${{ github.run_number }}
   #         path: debug/
@@ -1413,7 +1413,7 @@ jobs:
   #         for f in debug/debug-*.zip
   #           do unzip "$f" -d "${f%.zip}/"
   #         done
-  #     - uses: actions/download-artifact@v5
+  #     - uses: actions/download-artifact@v6
   #       with:
   #         name: debug-web-${{ github.run_number }}
   #     # `sentry_dart_plugin` expects source maps to be in `build/web/` dir.

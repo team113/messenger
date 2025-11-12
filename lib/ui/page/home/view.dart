@@ -18,7 +18,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -28,7 +27,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -37,6 +35,7 @@ import '/ui/widget/upgrade_available_button.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
+import 'accounts_switcher/view.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
@@ -305,8 +304,6 @@ class _HomeViewState extends State<HomeView> {
 
   /// Builds a [CustomNavigationBar].
   Widget _navigation(BuildContext context, HomeController c) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
       final List<HomeTab> tabs = c.tabs;
 
@@ -346,12 +343,17 @@ class _HomeViewState extends State<HomeView> {
                   case HomeTab.menu:
                     return Obx(() {
                       return CustomNavigationBarItem.menu(
-                        acceptAuxiliary: style.colors.acceptAuxiliary,
-                        warning: style.colors.warning,
-                        onPresence: c.setPresence,
+                        avatarKey: c.avatarKey,
                         onAvatar: c.updateAvatar,
-                        selector: c.panelKey,
                         myUser: c.myUser.value,
+                        onSecondary: () async {
+                          PlatformUtils.haptic(kind: HapticKind.light);
+                          await AccountsSwitcherView.show(
+                            context,
+                            avatarKey: c.avatarKey,
+                            panelKey: c.panelKey,
+                          );
+                        },
                       );
                     });
                 }
@@ -411,18 +413,15 @@ class _HomeViewState extends State<HomeView> {
               if (!context.isNarrow) ...[
                 Row(
                   children: [
-                    ConditionalBackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                      child: Obx(() {
-                        double width = c.sideBarWidth.value;
-                        return ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: context.isNarrow ? 0 : width,
-                          ),
-                          child: const SizedBox.expand(),
-                        );
-                      }),
-                    ),
+                    Obx(() {
+                      double width = c.sideBarWidth.value;
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: context.isNarrow ? 0 : width,
+                        ),
+                        child: const SizedBox.expand(),
+                      );
+                    }),
                     Expanded(
                       child: ColoredBox(
                         color: style.colors.onBackgroundOpacity2,

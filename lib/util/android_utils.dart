@@ -52,6 +52,14 @@ class AndroidUtils {
     await platform.invokeMethod('cancelNotification', {'tag': tag});
   }
 
+  /// Removes the delivered notification with the provided [id].
+  static Future<void> cancelNotificationById(String tag, int id) async {
+    await platform.invokeMethod('cancelNotificationById', {
+      'id': id,
+      'tag': tag,
+    });
+  }
+
   /// Removes the delivered notifications containing the provided [thread].
   static Future<bool> cancelNotificationsContaining(String thread) async {
     return await platform.invokeMethod('cancelNotificationsContaining', {

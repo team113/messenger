@@ -15,9 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 
+import '../configuration.dart';
 import '../world/custom_world.dart';
 
 /// Taps a [Chat] with the provided name.
@@ -25,13 +25,20 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - When I tap "Dummy" chat
 final StepDefinitionGeneric tapChat = when1<String, CustomWorld>(
-  'I tap {string} chat',
+  'I tap {string} (?:chat|group|dialog)',
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
-    final finder = context.world.appDriver.findBy(
+
+    var finder = context.world.appDriver.findByKeySkipOffstage(
       'Chat_${context.world.groups[name]}',
-      FindType.key,
     );
+
+    // If chat is a dialog.
+    if (!finder.tryEvaluate()) {
+      finder = context.world.appDriver.findByKeySkipOffstage(
+        'Chat_${context.world.sessions[name]?.dialog}',
+      );
+    }
 
     await context.world.appDriver.nativeDriver.tap(finder);
     await context.world.appDriver.waitForAppToSettle();

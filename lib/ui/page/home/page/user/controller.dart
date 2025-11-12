@@ -47,8 +47,7 @@ import '/provider/gql/exceptions.dart'
         ToggleChatMuteException,
         UnblockUserException,
         UnfavoriteChatContactException,
-        UnfavoriteChatException,
-        UpdateChatContactNameException;
+        UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -102,7 +101,7 @@ class UserController extends GetxController {
     onFocus: (s) {
       s.error.value = null;
 
-      if (s.text.isNotEmpty) {
+      if (s.text.trim().isNotEmpty) {
         try {
           BlocklistReason(s.text);
         } on FormatException {
@@ -114,9 +113,6 @@ class UserController extends GetxController {
 
   /// [TextFieldState] for report reason.
   final TextFieldState reporting = TextFieldState();
-
-  /// [TextFieldState] for [ChatContact] name editing.
-  late final TextFieldState name;
 
   /// Indicator whether the editing mode is enabled.
   final RxBool nameEditing = RxBool(false);
@@ -191,22 +187,6 @@ class UserController extends GetxController {
 
   @override
   void onInit() {
-    name = TextFieldState(
-      onFocus: (s) {
-        if (s.text.isNotEmpty) {
-          try {
-            UserName(s.text);
-          } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
-          } catch (e) {
-            s.error.value = e.toString();
-          }
-        }
-      },
-    );
-
-    _updateWorker();
-
     _fetchUser().whenComplete(() {
       if (isClosed) {
         return;
@@ -217,8 +197,6 @@ class UserController extends GetxController {
           if (contact == null) {
             nameEditing.value = false;
           }
-
-          _updateWorker();
         });
       }
     });
@@ -493,48 +471,6 @@ class UserController extends GetxController {
     }
   }
 
-  /// Submits the [name] field.
-  Future<void> submitName() async {
-    name.focus.unfocus();
-
-    if (name.text == contact.value?.contact.value.name.val) {
-      name.unsubmit();
-      nameEditing.value = false;
-      return;
-    }
-
-    UserName? userName;
-    try {
-      userName = UserName(name.text);
-    } on FormatException catch (_) {
-      name.status.value = RxStatus.empty();
-      name.error.value = 'err_incorrect_input'.l10n;
-      name.unsubmit();
-      return;
-    }
-
-    if (name.error.value == null || name.resubmitOnError.isTrue) {
-      name.status.value = RxStatus.loading();
-      name.editable.value = false;
-
-      try {
-        await _contactService.changeContactName(contact.value!.id, userName);
-        name.error.value = null;
-        nameEditing.value = false;
-        name.unsubmit();
-      } on UpdateChatContactNameException catch (e) {
-        name.error.value = e.toString();
-      } catch (e) {
-        name.resubmitOnError.value = true;
-        name.error.value = 'err_data_transfer'.l10n;
-        rethrow;
-      } finally {
-        name.status.value = RxStatus.empty();
-        name.editable.value = true;
-      }
-    }
-  }
-
   /// Highlights the item with the provided [index].
   void highlight(int index) {
     highlighted.value = index;
@@ -551,8 +487,6 @@ class UserController extends GetxController {
       final FutureOr<RxUser?> fetched = _userService.get(id);
       user = fetched is RxUser? ? fetched : await fetched;
 
-      _updateWorker();
-
       _userSubscription = user?.updates.listen((_) {});
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
 
@@ -564,30 +498,6 @@ class UserController extends GetxController {
       await MessagePopup.error(e);
       router.pop();
       rethrow;
-    }
-  }
-
-  /// Listens to the [contact] or [user] changes updating the [name].
-  void _updateWorker() {
-    if (user != null && contact.value != null) {
-      name.unchecked = contact.value!.contact.value.name.val;
-
-      _worker?.dispose();
-      _worker = ever(contact.value!.contact, (contact) {
-        if (!name.isFocused.value && !name.changed.value) {
-          name.unchecked = contact.name.val;
-        }
-      });
-    } else if (user != null) {
-      name.unchecked =
-          user!.user.value.name?.val ?? user!.user.value.num.toString();
-
-      _worker?.dispose();
-      _worker = ever(user!.user, (user) {
-        if (!name.isFocused.value && !name.changed.value) {
-          name.unchecked = user.name?.val ?? user.num.toString();
-        }
-      });
     }
   }
 }
@@ -624,6 +534,18 @@ extension UserViewExt on User {
     }
   }
 
+  /// Returns the string representation of this [User] to display as a title.
+  ///
+  /// If [withDeletedLabel] is `true`, then returns the title with the deleted
+  /// label for deleted users.
+  String title({bool withDeletedLabel = true}) {
+    if (isDeleted && withDeletedLabel) {
+      return 'label_deleted_account'.l10n;
+    }
+
+    return contacts.firstOrNull?.name.val ?? name?.val ?? this.num.toString();
+  }
+
   /// Returns the string representation of this [User] to display as a subtitle.
   String? getSubtitle([PreciseDateTime? lastSeen]) {
     switch (presence) {
@@ -656,6 +578,17 @@ extension UserViewExt on User {
         return null;
     }
   }
+}
+
+/// Extension adding [RxUser] related wrappers and helpers.
+extension UserExt on RxUser {
+  /// Returns the string representation of this [RxUser] to display as a title.
+  ///
+  /// If [withDeletedLabel] is `true`, then returns the title with the deleted
+  /// label for deleted users.
+  String title({bool withDeletedLabel = true}) =>
+      contact.value?.contact.value.name.val ??
+      user.value.title(withDeletedLabel: withDeletedLabel);
 }
 
 /// Extension adding an ability to get text represented indication of how long

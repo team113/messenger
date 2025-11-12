@@ -16,45 +16,32 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/domain/model/chat.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [Chat] with the provided name is dismissed.
+/// Waits until the [UserView] being displayed has the provided title.
 ///
 /// Examples:
-/// - Then I see "Example" chat as dismissed
-final StepDefinitionGeneric seeChatAsDismissed = then1<String, CustomWorld>(
-  'I see {string} chat as dismissed',
-  (name, context) async {
+/// - Then I see title as "Bob" in user profile
+final StepDefinitionGeneric seeTitleInUserView = then1<String, CustomWorld>(
+  'I see title as {string} in user profile',
+  (String title, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
-      final ChatId chatId = context.world.groups[name]!;
-
-      return await context.world.appDriver.isPresent(
-        context.world.appDriver.findByKeySkipOffstage('Dismissed_$chatId'),
-      );
-    });
-  },
-);
-
-/// Indicates whether no [Chat]s are displayed as dismissed.
-///
-/// Examples:
-/// - Then I see no chats dismissed
-final StepDefinitionGeneric seeNoChatsDismissed = then<CustomWorld>(
-  'I see no chats dismissed',
-  (context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-
-      final isPresent = await context.world.appDriver.isPresent(
-        context.world.appDriver.findByKeySkipOffstage('NoDismissed'),
+      final finder = context.world.appDriver.findByKeySkipOffstage(
+        'UserViewTitleKey',
       );
 
-      return isPresent;
-    }, timeout: Duration(seconds: 30));
+      final String? text = await context.world.appDriver.getText(finder);
+      if (text == title) {
+        return true;
+      }
+
+      return false;
+    }, timeout: const Duration(seconds: 30));
   },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

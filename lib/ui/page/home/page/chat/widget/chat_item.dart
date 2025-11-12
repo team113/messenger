@@ -46,13 +46,13 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/page/player/controller.dart';
 import '/ui/page/player/view.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/checkbox_button.dart';
-import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
@@ -62,6 +62,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_gallery.dart';
+import 'context_buttons.dart';
 import 'data_attachment.dart';
 import 'media_attachment.dart';
 import 'message_info/view.dart';
@@ -76,7 +77,10 @@ class ChatItemWidget extends StatefulWidget {
     required this.chat,
     required this.me,
     this.user,
-    this.avatar = true,
+    this.withName = false,
+    this.withAvatar = true,
+    this.appendAvatarPadding = true,
+    this.selectable = true,
     this.reads = const [],
     this.getUser,
     this.getItem,
@@ -94,6 +98,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onDownloadAs,
     this.onSave,
     this.onSelect,
+    this.onSearch,
     this.onUserPressed = _defaultOnUserPressed,
     this.onDragging,
     this.onAnimateTo,
@@ -111,8 +116,27 @@ class ChatItemWidget extends StatefulWidget {
   /// [User] posted this [item].
   final RxUser? user;
 
+  /// Indicator whether this [ChatItemWidget] should display [UserExt.title].
+  ///
+  /// For example, [Chat]-groups should display messages with titles.
+  final bool withName;
+
   /// Indicator whether this [ChatItemWidget] should display an [AvatarWidget].
-  final bool avatar;
+  ///
+  /// For example, [Chat]-groups should display messages with avatars.
+  final bool withAvatar;
+
+  /// Indicator whether this [ChatItemWidget] should append a left padding in
+  /// place of [AvatarWidget] of [user].
+  ///
+  /// When an [withAvatar] is `true`, the padding is always applied
+  /// automatically. Otherwise setting this to `true` appends the padding as if
+  /// there's invisible [AvatarWidget] present.
+  final bool appendAvatarPadding;
+
+  /// Indicator whether this [ChatItemWidget] enables [selectable] in
+  /// [SelectionText.rich].
+  final bool selectable;
 
   /// [LastChatRead] to display under this [ChatItem].
   final Iterable<LastChatRead> reads;
@@ -171,6 +195,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a select action is triggered.
   final void Function()? onSelect;
+
+  /// Callback, called when a search action is triggered.
+  final void Function()? onSearch;
 
   /// Callback, called whenever some [User]'s name is being pressed.
   final void Function(User) onUserPressed;
@@ -484,7 +511,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         if (widget.chat.value?.isGroup == true) {
           content = userBuilder(message.author.id, (context, user) {
             if (user != null) {
-              final Map<String, dynamic> args = {'author': user.title};
+              final Map<String, dynamic> args = {'author': user.title()};
 
               return Text.rich(
                 TextSpan(
@@ -538,8 +565,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             final User user = rxUser?.user.value ?? action.user;
 
             final Map<String, dynamic> args = {
-              'author': widget.user?.title ?? message.author.title,
-              'user': rxUser?.title ?? action.user.title,
+              'author': widget.user?.title() ?? message.author.title(),
+              'user': rxUser?.title() ?? action.user.title(),
             };
 
             return Text.rich(
@@ -568,7 +595,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           final User user = widget.user?.user.value ?? action.user;
 
           final Map<String, dynamic> args = {
-            'author': widget.user?.title ?? action.user.title,
+            'author': widget.user?.title() ?? action.user.title(),
           };
 
           content = Text.rich(
@@ -599,8 +626,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             final User user = rxUser?.user.value ?? action.user;
 
             final Map<String, dynamic> args = {
-              'author': widget.user?.title ?? message.author.title,
-              'user': rxUser?.title ?? action.user.title,
+              'author': widget.user?.title() ?? message.author.title(),
+              'user': rxUser?.title() ?? action.user.title(),
             };
 
             return Text.rich(
@@ -629,7 +656,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           final User user = widget.user?.user.value ?? action.user;
 
           final Map<String, dynamic> args = {
-            'author': widget.user?.title ?? action.user.title,
+            'author': widget.user?.title() ?? action.user.title(),
           };
 
           content = Text.rich(
@@ -656,7 +683,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': widget.user?.title ?? user.title,
+          'author': widget.user?.title() ?? user.title(),
         };
 
         final String phrase1, phrase2;
@@ -688,7 +715,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
         final User user = widget.user?.user.value ?? message.author;
         final Map<String, dynamic> args = {
-          'author': widget.user?.title ?? user.title,
+          'author': widget.user?.title() ?? user.title(),
           if (action.name != null) 'name': action.name?.val,
         };
 
@@ -761,7 +788,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       final List<Widget> children = [
         if (!_fromMe &&
             widget.chat.value?.isGroup == true &&
-            widget.avatar) ...[
+            widget.withName) ...[
           const SizedBox(height: 6),
           Row(
             children: [
@@ -770,11 +797,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                   child: SelectionText.rich(
                     TextSpan(
-                      text: widget.user?.title ?? 'dot'.l10n * 3,
+                      text: widget.user?.title() ?? 'dot'.l10n * 3,
                       recognizer: TapGestureRecognizer()
                         ..onTap = () => widget.onUserPressed(_author),
                     ),
-                    selectable: PlatformUtils.isDesktop || menu,
+                    selectable:
+                        widget.selectable && (PlatformUtils.isDesktop || menu),
                     onChanged: (a) => _selection = a,
                     style: style.fonts.medium.regular.onBackground.copyWith(
                       color: color,
@@ -830,14 +858,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   msg.repliesTo.isNotEmpty ||
                       (!_fromMe &&
                           widget.chat.value?.isGroup == true &&
-                          widget.avatar)
+                          widget.withAvatar)
                   ? Radius.zero
                   : const Radius.circular(15),
               topRight:
                   msg.repliesTo.isNotEmpty ||
                       (!_fromMe &&
                           widget.chat.value?.isGroup == true &&
-                          widget.avatar)
+                          widget.withAvatar)
                   ? Radius.zero
                   : const Radius.circular(15),
               bottomLeft: _text != null
@@ -923,7 +951,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ),
                       key: Key('Text_${widget.item.value.id}'),
                       selectable:
-                          (PlatformUtils.isDesktop || menu) && _text != null,
+                          (PlatformUtils.isDesktop || menu) &&
+                          _text != null &&
+                          widget.selectable,
                       onChanged: (a) => _selection = a,
                       style: style.fonts.medium.regular.onBackground,
                     ),
@@ -1003,12 +1033,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 children: [
                   if (!_fromMe &&
                       widget.chat.value?.isGroup == true &&
-                      widget.avatar) ...[
+                      widget.withAvatar) ...[
                     Padding(
                       padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
                       child: SelectionText.rich(
                         TextSpan(
-                          text: widget.user?.title ?? 'dot'.l10n * 3,
+                          text: widget.user?.title() ?? ('dot'.l10n * 3),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () => widget.onUserPressed(_author),
                         ),
@@ -1230,7 +1260,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   children: [
                     Expanded(
                       child: Text(
-                        user?.title ?? 'dot'.l10n * 3,
+                        user?.title() ?? 'dot'.l10n * 3,
                         style: style.fonts.medium.regular.onBackground.copyWith(
                           color: color,
                         ),
@@ -1279,12 +1309,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
-    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
-      (e) =>
-          !e.at.val.isBefore(widget.item.value.at.val) &&
-          e.memberId != _author.id,
-    );
-
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
     const AvatarRadius avatarRadius = AvatarRadius.medium;
@@ -1307,7 +1331,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               futureOr: () => widget.getUser?.call(m.memberId),
               builder: (context, member) {
                 return Tooltip(
-                  message: member?.title ?? user?.title ?? ('dot'.l10n * 3),
+                  message: member?.title() ?? user?.title() ?? ('dot'.l10n * 3),
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(
@@ -1354,11 +1378,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Transform.translate(
               offset: const Offset(-12, 0),
               child: WidgetButton(
-                onPressed: () => MessageInfo.show(
-                  context,
-                  reads: reads ?? [],
-                  id: widget.item.value.id,
-                ),
+                onPressed: () =>
+                    MessageInfo.show(context, widget.item.value.id),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 2),
                   child: Row(
@@ -1381,30 +1402,62 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
-        if (!_fromMe && widget.chat.value!.isGroup)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: widget.avatar
-                ? InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: () => widget.onUserPressed(item.author),
-                    child: AvatarWidget.fromRxUser(
-                      widget.user,
-                      radius: avatarRadius,
-                    ),
-                  )
-                : const SizedBox(width: 34),
-          ),
+        AnimatedSwitcher(
+          duration: 150.milliseconds,
+          layoutBuilder: (currentChild, previousChildren) {
+            return Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: <Widget>[
+                ...previousChildren,
+                if (currentChild != null) currentChild,
+              ],
+            );
+          },
+          transitionBuilder: (child, animation) {
+            return SizeTransition(
+              sizeFactor: animation,
+              axis: Axis.horizontal,
+              axisAlignment: 0,
+              child: ScaleTransition(
+                scale: animation,
+                alignment: Alignment.center,
+                child: AnimatedSwitcher.defaultTransitionBuilder(
+                  child,
+                  animation,
+                ),
+              ),
+            );
+          },
+          child: !_fromMe && widget.chat.value?.isGroup == true
+              ? Padding(
+                  key: Key('${widget.withAvatar}${widget.appendAvatarPadding}'),
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                  child: widget.withAvatar
+                      ? InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => widget.onUserPressed(item.author),
+                          child: AvatarWidget.fromRxUser(
+                            widget.user,
+                            radius: avatarRadius,
+                          ),
+                        )
+                      : widget.appendAvatarPadding
+                      ? SizedBox(width: avatarRadius.toDouble() * 2)
+                      : const SizedBox(key: Key('1')),
+                )
+              : _fromMe
+              ? widget.appendAvatarPadding
+                    ? SizedBox(width: avatarRadius.toDouble() * 2)
+                    : const SizedBox(key: Key('3'))
+              : const SizedBox(key: Key('4')),
+        ),
         Flexible(
           child: LayoutBuilder(
             builder: (context, constraints) {
               final BoxConstraints itemConstraints = BoxConstraints(
-                maxWidth: min(
-                  550,
-                  constraints.maxWidth - avatarRadius.toDouble() * 2,
-                ),
+                maxWidth: 550,
               );
-
               return ConstrainedBox(
                 constraints: itemConstraints,
                 child: Material(
@@ -1417,51 +1470,23 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ? Alignment.bottomRight
                           : Alignment.bottomLeft,
                       actions: [
-                        ContextMenuButton(
-                          label: PlatformUtils.isMobile
-                              ? 'btn_info'.l10n
-                              : 'btn_message_info'.l10n,
-                          trailing: const SvgIcon(SvgIcons.info),
-                          inverted: const SvgIcon(SvgIcons.infoWhite),
-                          onPressed: () => MessageInfo.show(
-                            context,
-                            id: widget.item.value.id,
-                            reads: reads ?? [],
-                          ),
+                        InformationContextMenuButton(
+                          onPressed: () =>
+                              MessageInfo.show(context, widget.item.value.id),
                         ),
                         if (copyable != null)
-                          ContextMenuButton(
-                            key: const Key('CopyButton'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_copy'.l10n
-                                : 'btn_copy_text'.l10n,
-                            trailing: const SvgIcon(SvgIcons.copy19),
-                            inverted: const SvgIcon(SvgIcons.copy19White),
+                          CopyContextMenuButton(
                             onPressed: () => widget.onCopy?.call(
                               _selection?.plainText ?? copyable!,
                             ),
                           ),
                         if (item.status.value == SendingStatus.sent) ...[
-                          ContextMenuButton(
-                            key: const Key('ReplyButton'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_reply'.l10n
-                                : 'btn_reply_message'.l10n,
-                            trailing: const SvgIcon(SvgIcons.reply),
-                            inverted: const SvgIcon(SvgIcons.replyWhite),
+                          ReplyContextMenuButton(
                             onPressed: () =>
                                 widget.onReply?.call(widget.item.value),
                           ),
                           if (item is ChatMessage)
-                            ContextMenuButton(
-                              key: const Key('ForwardButton'),
-                              label: PlatformUtils.isMobile
-                                  ? 'btn_forward'.l10n
-                                  : 'btn_forward_message'.l10n,
-                              trailing: const SvgIcon(SvgIcons.forwardSmall),
-                              inverted: const SvgIcon(
-                                SvgIcons.forwardSmallWhite,
-                              ),
+                            ForwardContextMenuButton(
                               onPressed: () async {
                                 await ChatForwardView.show(
                                   context,
@@ -1479,63 +1504,26 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                     widget.item.value,
                                     widget.me,
                                   )))
-                            ContextMenuButton(
-                              key: const Key('EditButton'),
-                              label: 'btn_edit'.l10n,
-                              trailing: const SvgIcon(SvgIcons.edit),
-                              inverted: const SvgIcon(SvgIcons.editWhite),
-                              onPressed: widget.onEdit,
-                            ),
+                            EditContextMenuButton(onPressed: widget.onEdit),
                           if (media.isNotEmpty) ...[
                             if (PlatformUtils.isDesktop)
-                              ContextMenuButton(
-                                key: const Key('DownloadButton'),
-                                label: media.length == 1
-                                    ? 'btn_download'.l10n
-                                    : 'btn_download_all'.l10n,
-                                trailing: const SvgIcon(SvgIcons.download19),
-                                inverted: const SvgIcon(
-                                  SvgIcons.download19White,
-                                ),
+                              DownloadContextMenuButton(
+                                single: media.length == 1,
                                 onPressed: () => widget.onDownload?.call(media),
                               ),
                             if (PlatformUtils.isDesktop && !PlatformUtils.isWeb)
-                              ContextMenuButton(
-                                key: const Key('DownloadAsButton'),
-                                label: media.length == 1
-                                    ? 'btn_download_as'.l10n
-                                    : 'btn_download_all_as'.l10n,
-                                trailing: const SvgIcon(SvgIcons.download19),
-                                inverted: const SvgIcon(
-                                  SvgIcons.download19White,
-                                ),
+                              DownloadAsContextMenuButton(
+                                single: media.length == 1,
                                 onPressed: () =>
                                     widget.onDownloadAs?.call(media),
                               ),
                             if (PlatformUtils.isMobile && !PlatformUtils.isWeb)
-                              ContextMenuButton(
-                                key: const Key('SaveButton'),
-                                label: media.length == 1
-                                    ? PlatformUtils.isMobile
-                                          ? 'btn_save'.l10n
-                                          : 'btn_save_to_gallery'.l10n
-                                    : PlatformUtils.isMobile
-                                    ? 'btn_save_all'.l10n
-                                    : 'btn_save_to_gallery_all'.l10n,
-                                trailing: const SvgIcon(SvgIcons.download19),
-                                inverted: const SvgIcon(
-                                  SvgIcons.download19White,
-                                ),
+                              SaveContextMenuButton(
+                                single: media.length == 1,
                                 onPressed: () => widget.onSave?.call(media),
                               ),
                           ],
-                          ContextMenuButton(
-                            key: const Key('DeleteMessageButton'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_delete'.l10n
-                                : 'btn_delete_message'.l10n,
-                            trailing: const SvgIcon(SvgIcons.delete19),
-                            inverted: const SvgIcon(SvgIcons.delete19White),
+                          DeleteContextMenuButton(
                             onPressed: () async {
                               bool isMonolog = widget.chat.value!.isMonolog;
                               bool deletable =
@@ -1587,22 +1575,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                           ),
                         ],
                         if (item.status.value == SendingStatus.error) ...[
-                          ContextMenuButton(
-                            key: const Key('Resend'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_resend'.l10n
-                                : 'btn_resend_message'.l10n,
-                            trailing: const SvgIcon(SvgIcons.sendSmall),
-                            inverted: const SvgIcon(SvgIcons.sendSmallWhite),
-                            onPressed: widget.onResend,
-                          ),
-                          ContextMenuButton(
-                            key: const Key('DeleteMessageButton'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_delete'.l10n
-                                : 'btn_delete_message'.l10n,
-                            trailing: const SvgIcon(SvgIcons.delete19),
-                            inverted: const SvgIcon(SvgIcons.delete19White),
+                          EditContextMenuButton(onPressed: widget.onEdit),
+                          ResendContextMenuButton(onPressed: widget.onResend),
+                          DeleteContextMenuButton(
                             onPressed: () async {
                               final bool? pressed = await MessagePopup.alert(
                                 'label_delete_message'.l10n,
@@ -1615,13 +1590,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             },
                           ),
                         ],
-                        ContextMenuButton(
-                          key: const Key('Select'),
-                          label: 'btn_select_messages'.l10n,
-                          trailing: const SvgIcon(SvgIcons.select),
-                          inverted: const SvgIcon(SvgIcons.selectWhite),
-                          onPressed: widget.onSelect,
-                        ),
+                        SearchContextMenuButton(onPressed: widget.onSearch),
+                        SelectContextMenuButton(onPressed: widget.onSelect),
                       ],
                       builder: PlatformUtils.isMobile
                           ? (menu) => child(menu, itemConstraints)
@@ -1636,6 +1606,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             },
           ),
         ),
+        if (_fromMe ||
+            (widget.chat.value?.isGroup == false && !widget.selectable))
+          AnimatedSize(duration: 150.milliseconds, child: SizedBox(width: 0))
+        else
+          AnimatedSize(
+            duration: 150.milliseconds,
+            child: SizedBox(width: avatarRadius.toDouble() * 2),
+          ),
       ],
     );
 

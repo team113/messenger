@@ -71,7 +71,10 @@ import 'package:mockito/mockito.dart';
 import '../mock/platform_utils.dart';
 import 'chat_rename_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
+@GenerateNiceMocks([
+  MockSpec<GraphQlProvider>(),
+  MockSpec<PlatformRouteInformationProvider>(),
+])
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -108,10 +111,18 @@ void main() async {
   );
 
   var graphQlProvider = MockGraphQlProvider();
-  Get.put<GraphQlProvider>(graphQlProvider);
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  when(
+    graphQlProvider.onDelete,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(
     graphQlProvider.recentChatsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.recentChatsTopEvents(3, archived: true),
   ).thenAnswer((_) => const Stream.empty());
   when(
     graphQlProvider.incomingCallsTopEvents(3),
@@ -122,6 +133,7 @@ void main() async {
   when(
     graphQlProvider.favoriteChatsEvents(any),
   ).thenAnswer((_) => const Stream.empty());
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   when(
     graphQlProvider.getUser(any),
@@ -172,6 +184,9 @@ void main() async {
     when(
       graphQlProvider.recentChatsTopEvents(3),
     ).thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.recentChatsTopEvents(3, archived: true),
+    ).thenAnswer((_) => const Stream.empty());
 
     final StreamController<QueryResult> chatEvents = StreamController();
     when(
@@ -212,6 +227,7 @@ void main() async {
         last: null,
         before: null,
         noFavorite: anyNamed('noFavorite'),
+        archived: anyNamed('archived'),
         withOngoingCalls: anyNamed('withOngoingCalls'),
       ),
     ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
@@ -445,6 +461,7 @@ final chatData = {
   'members': {'nodes': [], 'totalCount': 0},
   'kind': 'GROUP',
   'isHidden': false,
+  'isArchived': false,
   'muted': null,
   'directLink': null,
   'createdAt': '2021-12-15T15:11:18.316846+00:00',

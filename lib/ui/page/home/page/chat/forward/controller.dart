@@ -93,6 +93,10 @@ class ChatForwardController extends GetxController {
   /// [MessageFieldController] controller sending the [ChatMessage].
   late final MessageFieldController send;
 
+  /// Subscription to the [selected] stream changing
+  /// [ReactiveFieldState.submittable] depending on the [SearchViewResults].
+  StreamSubscription<SearchViewResults?>? _selectedSubscription;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
@@ -104,137 +108,28 @@ class ChatForwardController extends GetxController {
       _settingsRepository,
       text: text,
       attachments: attachments,
-      onSubmit: () async {
-        if (selected.value?.isEmpty != false) {
-          send.field.unsubmit();
-          return;
-        }
-
-        send.field.status.value = RxStatus.loading();
-        send.field.editable.value = false;
-
-        try {
-          final List<Future> uploads = send.attachments
-              .map((e) => e.value)
-              .whereType<LocalAttachment>()
-              .map((e) => e.upload.value?.future)
-              .nonNulls
-              .toList();
-          if (uploads.isNotEmpty) {
-            await Future.wait(uploads);
-          }
-
-          if (send.attachments.whereType<LocalAttachment>().isNotEmpty) {
-            throw const ConnectionException(
-              ForwardChatItemsException(
-                ForwardChatItemsErrorCode.unknownAttachment,
-              ),
-            );
-          }
-
-          final List<AttachmentId>? attachments = send.attachments.isEmpty
-              ? null
-              : send.attachments.map((a) => a.value.id).toList();
-
-          final ChatMessageText? text = send.field.text.isEmpty
-              ? null
-              : ChatMessageText(send.field.text);
-
-          final List<ChatItemQuoteInput> quotes = this.quotes.reversed.toList();
-
-          // Displays a [MessagePopup.error] visually representing a blocked by
-          // the provided [user] error.
-          Future<void> showBlockedPopup(User? user) async {
-            if (user == null) {
-              await MessagePopup.error('err_blocked'.l10n);
-            } else {
-              await MessagePopup.error(
-                'err_blocked_by'.l10nfmt({'user': '${user.name ?? user.num}'}),
-              );
-            }
-          }
-
-          final List<Future<void>> futures = [
-            ...selected.value!.chats.map((e) {
-              return _chatService
-                  .forwardChatItems(
-                    from,
-                    e.chat.value.id,
-                    quotes,
-                    text: text,
-                    attachments: attachments,
-                  )
-                  .onError<ForwardChatItemsException>((_, _) async {
-                    await showBlockedPopup(
-                      e.members.values
-                          .firstWhereOrNull((u) => u.user.id != me)
-                          ?.user
-                          .user
-                          .value,
-                    );
-                  }, test: (e) => e.code == ForwardChatItemsErrorCode.blocked);
-            }),
-            ...selected.value!.users.map((u) {
-              final User user = u.user.value;
-              final ChatId dialog = user.dialog;
-
-              return _chatService
-                  .forwardChatItems(
-                    from,
-                    dialog,
-                    quotes,
-                    text: text,
-                    attachments: attachments,
-                  )
-                  .onError<ForwardChatItemsException>(
-                    (_, _) => showBlockedPopup(user),
-                    test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
-                  );
-            }),
-            ...selected.value!.contacts.map((c) {
-              final User user = c.user.value!.user.value;
-              final ChatId dialog = user.dialog;
-
-              return _chatService
-                  .forwardChatItems(
-                    from,
-                    dialog,
-                    quotes,
-                    text: text,
-                    attachments: attachments,
-                  )
-                  .onError<ForwardChatItemsException>(
-                    (_, _) => showBlockedPopup(user),
-                    test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
-                  );
-            }),
-          ];
-
-          await Future.wait(futures);
-          pop?.call(true);
-          onSent?.call();
-        } on ForwardChatItemsException catch (e) {
-          MessagePopup.error(e);
-        } catch (e) {
-          MessagePopup.error(e);
-          rethrow;
-        } finally {
-          send.field.unsubmit();
-        }
-      },
+      canPin: false,
+      onSubmit: _send,
     );
+
+    send.field.submittable.value = false;
+
+    _selectedSubscription = selected.listen((e) {
+      send.field.submittable.value = e != null && !e.isEmpty;
+    });
 
     super.onInit();
   }
 
   @override
   void onClose() {
+    _selectedSubscription?.cancel();
     send.onClose();
     scrollController.dispose();
     super.onClose();
   }
 
-  /// Returns an [User] from [UserService] by the provided [id].
+  /// Returns a [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
   /// Adds the specified [event] files to the [attachments].
@@ -244,6 +139,126 @@ class ChatForwardController extends GetxController {
       if (file != null) {
         send.addPlatformAttachment(file);
       }
+    }
+  }
+
+  /// Forms and sends the forwarded message.
+  Future<void> _send() async {
+    if (selected.value?.isEmpty != false) {
+      send.field.unsubmit();
+      return;
+    }
+
+    send.field.status.value = RxStatus.loading();
+    send.field.editable.value = false;
+
+    try {
+      final List<Future> uploads = send.attachments
+          .map((e) => e.value)
+          .whereType<LocalAttachment>()
+          .map((e) => e.upload.value?.future)
+          .nonNulls
+          .toList();
+      if (uploads.isNotEmpty) {
+        await Future.wait(uploads);
+      }
+
+      if (send.attachments.whereType<LocalAttachment>().isNotEmpty) {
+        throw const ConnectionException(
+          ForwardChatItemsException(
+            ForwardChatItemsErrorCode.unknownAttachment,
+          ),
+        );
+      }
+
+      final List<AttachmentId>? attachments = send.attachments.isEmpty
+          ? null
+          : send.attachments.map((a) => a.value.id).toList();
+
+      final ChatMessageText? text = send.field.text.isEmpty
+          ? null
+          : ChatMessageText(send.field.text);
+
+      final List<ChatItemQuoteInput> quotes = this.quotes.reversed.toList();
+
+      // Displays a [MessagePopup.error] visually representing a blocked by
+      // the provided [user] error.
+      Future<void> showBlockedPopup(User? user) async {
+        if (user == null) {
+          await MessagePopup.error('err_blocked'.l10n);
+        } else {
+          await MessagePopup.error(
+            'err_blocked_by'.l10nfmt({'user': '${user.name ?? user.num}'}),
+          );
+        }
+      }
+
+      final List<Future<void>> futures = [
+        ...selected.value!.chats.map((e) {
+          return _chatService
+              .forwardChatItems(
+                from,
+                e.chat.value.id,
+                quotes,
+                text: text,
+                attachments: attachments,
+              )
+              .onError<ForwardChatItemsException>((_, _) async {
+                await showBlockedPopup(
+                  e.members.values
+                      .firstWhereOrNull((u) => u.user.id != me)
+                      ?.user
+                      .user
+                      .value,
+                );
+              }, test: (e) => e.code == ForwardChatItemsErrorCode.blocked);
+        }),
+        ...selected.value!.users.map((u) {
+          final User user = u.user.value;
+          final ChatId dialog = user.dialog;
+
+          return _chatService
+              .forwardChatItems(
+                from,
+                dialog,
+                quotes,
+                text: text,
+                attachments: attachments,
+              )
+              .onError<ForwardChatItemsException>(
+                (_, _) => showBlockedPopup(user),
+                test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
+              );
+        }),
+        ...selected.value!.contacts.map((c) {
+          final User user = c.user.value!.user.value;
+          final ChatId dialog = user.dialog;
+
+          return _chatService
+              .forwardChatItems(
+                from,
+                dialog,
+                quotes,
+                text: text,
+                attachments: attachments,
+              )
+              .onError<ForwardChatItemsException>(
+                (_, _) => showBlockedPopup(user),
+                test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
+              );
+        }),
+      ];
+
+      await Future.wait(futures);
+      pop?.call(true);
+      onSent?.call();
+    } on ForwardChatItemsException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    } finally {
+      send.field.unsubmit();
     }
   }
 }

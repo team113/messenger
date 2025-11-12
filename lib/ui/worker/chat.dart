@@ -36,6 +36,8 @@ import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
@@ -172,11 +174,12 @@ class ChatWorker extends DisposableService {
         Future<void> notify() async {
           if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
-              c.title,
+              c.title(),
               body: 'label_you_were_added_to_group'.l10n,
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,
-              tag: c.chat.value.id.val,
+              thread: '${c.chat.value.id}',
+              tag: '${c.chat.value.id}',
             );
 
             await _flashTaskbarIcon();
@@ -196,16 +199,28 @@ class ChatWorker extends DisposableService {
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
       onActive: () => _active,
-      onNotification: (body, tag, image) async {
+      onNotification: (body, tag, thread, image) async {
         // Displays a local notification via [NotificationService].
         Future<void> notify() async {
+          if (PlatformUtils.isMobile &&
+              !router.lifecycle.value.inForeground &&
+              _notificationService.pushNotifications) {
+            // Don't display the local notifications when app is in background
+            // on mobiles with push notifications enabled, as in this case a
+            // push should be displayed.
+            //
+            // Otherwise the local notification might duplicate the remote one.
+            return;
+          }
+
           if (!_isMuted && c.chat.value.muted == null) {
             await _notificationService.show(
-              c.title,
+              c.title(),
               body: body,
               payload: '${Routes.chats}/${c.chat.value.id}',
               icon: c.avatar.value?.original,
               tag: tag,
+              thread: thread,
               image: image,
             );
 
@@ -250,7 +265,7 @@ class ChatWorker extends DisposableService {
 class _ChatWatchData {
   _ChatWatchData(
     Rx<Chat> c, {
-    void Function(String, String?, String?)? onNotification,
+    void Function(String, String?, String?, String?)? onNotification,
     bool Function()? onActive,
     UserId? Function()? me,
   }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
@@ -337,7 +352,8 @@ class _ChatWatchData {
           if (body.isNotEmpty) {
             onNotification?.call(
               body.toString(),
-              chat.lastItem != null ? '${chat.id}_${chat.lastItem?.id}' : null,
+              chat.lastItem != null ? '${chat.id}-${chat.lastItem?.id}' : null,
+              '${chat.id}',
               image,
             );
           }
@@ -373,7 +389,7 @@ class _ChatWatchData {
     ChatMessageText? text,
     List<Attachment> attachments = const [],
   }) {
-    final String name = author?.title ?? 'x';
+    final String name = author?.title() ?? 'x';
     final String num = author?.num.toString() ?? ('dot'.l10n * 3);
     final String type = isGroup ? 'group' : 'dialog';
     String attachmentsType = attachments.every((e) => e is ImageAttachment)
@@ -408,19 +424,19 @@ class _ChatWatchData {
 
         if (author?.id == action.user.id) {
           return 'fcm_user_joined_group_by_link'.l10nfmt({
-            'authorName': action.user.title,
+            'authorName': action.user.title(),
             'authorNum': action.user.num.toString(),
           });
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_added_you_to_group'.l10nfmt({
-            'authorName': author?.title ?? 'x',
+            'authorName': author?.title() ?? 'x',
             'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
           });
         } else {
           return 'fcm_user_added_user'.l10nfmt({
-            'authorName': author?.title ?? 'x',
+            'authorName': author?.title() ?? 'x',
             'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
-            'userName': action.user.title,
+            'userName': action.user.title(),
             'userNum': action.user.num.toString(),
           });
         }
@@ -430,19 +446,19 @@ class _ChatWatchData {
 
         if (author?.id == action.user.id) {
           return 'fcm_user_left_group'.l10nfmt({
-            'authorName': action.user.title,
+            'authorName': action.user.title(),
             'authorNum': action.user.num.toString(),
           });
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_removed_you'.l10nfmt({
-            'authorName': author?.title ?? 'x',
+            'authorName': author?.title() ?? 'x',
             'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
           });
         } else {
           return 'fcm_user_removed_user'.l10nfmt({
-            'authorName': author?.title ?? 'x',
+            'authorName': author?.title() ?? 'x',
             'authorNum': author?.num.toString() ?? ('dot'.l10n * 3),
-            'userName': action.user.title,
+            'userName': action.user.title(),
             'userNum': action.user.num.toString(),
           });
         }
@@ -451,7 +467,7 @@ class _ChatWatchData {
         final action = info as ChatInfoActionAvatarUpdated;
 
         return 'fcm_group_avatar_changed'.l10nfmt({
-          'userName': author?.title ?? 'x',
+          'userName': author?.title() ?? 'x',
           'userNum': author?.num.toString() ?? ('dot'.l10n * 3),
           'operation': action.avatar == null ? 'remove' : 'update',
         });
@@ -460,7 +476,7 @@ class _ChatWatchData {
         final action = info as ChatInfoActionNameUpdated;
 
         return 'fcm_group_name_changed'.l10nfmt({
-          'userName': author?.title ?? 'x',
+          'userName': author?.title() ?? 'x',
           'userNum': author?.num.toString() ?? ('dot'.l10n * 3),
           'operation': action.name == null ? 'remove' : 'update',
           'groupName': action.name?.val ?? '',

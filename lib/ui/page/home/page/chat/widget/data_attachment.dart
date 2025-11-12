@@ -42,11 +42,8 @@ class DataAttachment extends StatefulWidget {
   State<DataAttachment> createState() => _DataAttachmentState();
 }
 
-/// State of a [DataAttachment] maintaining the [_hovered] indicator.
+/// State of a [DataAttachment] for initializing the attachment.
 class _DataAttachmentState extends State<DataAttachment> {
-  /// Indicator whether this [DataAttachment] is hovered.
-  bool _hovered = false;
-
   @override
   void initState() {
     if (widget.attachment is FileAttachment) {
@@ -66,185 +63,114 @@ class _DataAttachmentState extends State<DataAttachment> {
       Widget leading = Container();
 
       if (e is FileAttachment) {
-        switch (e.downloadStatus) {
-          case DownloadStatus.inProgress:
-            leading = InkWell(
-              key: const Key('CancelDownloading'),
-              onTap: e.cancelDownload,
-              child: Container(
-                key: const Key('Downloading'),
-                width: 29,
-                height: 29,
-                decoration: BoxDecoration(
-                  border: Border.all(width: 2, color: style.colors.primary),
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      style.colors.primary,
-                      style.colors.primary,
-                      style.colors.backgroundAuxiliaryLighter,
-                    ],
-                    stops: [
-                      0,
-                      e.downloading?.progress.value ?? 0,
-                      e.downloading?.progress.value ?? 0,
-                    ],
-                  ),
-                ),
-                child: const Center(
-                  child: SvgImage.asset(
-                    'assets/icons/cancel.svg',
-                    width: 9,
-                    height: 9,
-                  ),
-                ),
-              ),
-            );
-            break;
-
-          case DownloadStatus.isFinished:
-            leading = Container(
-              key: const Key('Downloaded'),
-              height: 29,
-              width: 29,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: style.colors.primary,
-              ),
-              child: Center(
-                child: Transform.translate(
-                  offset: const Offset(0.3, -0.5),
-                  child: const SvgIcon(SvgIcons.fileSmallWhite),
-                ),
-              ),
-            );
-            break;
-
-          case DownloadStatus.notStarted:
-            leading = AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              key: const Key('Download'),
-              height: 29,
-              width: 29,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _hovered
-                    ? style.colors.backgroundAuxiliaryLighter
-                    : null,
-                border: Border.all(width: 2, color: style.colors.primary),
-              ),
-              child: const KeyedSubtree(
-                key: Key('Sent'),
-                child: Center(
-                  child: SvgImage.asset(
-                    'assets/icons/arrow_down.svg',
-                    width: 9.12,
-                    height: 10.39,
-                  ),
-                ),
-              ),
-            );
-            break;
-        }
+        leading = switch (e.downloadStatus) {
+          DownloadStatus.notStarted => SvgIcon(
+            key: const Key('Download'),
+            SvgIcons.downloadFile,
+          ),
+          DownloadStatus.inProgress => InkWell(
+            key: const Key('CancelDownloading'),
+            onTap: e.cancelDownload,
+            child: _Progress(
+              key: const Key('Downloading'),
+              progress: e.downloading?.progress.value ?? 0,
+            ),
+          ),
+          DownloadStatus.isFinished => SvgIcon(
+            key: const Key('Downloaded'),
+            SvgIcons.downloadFileOpen,
+          ),
+        };
       } else if (e is LocalAttachment) {
-        switch (e.status.value) {
-          case SendingStatus.sending:
-            leading = SizedBox.square(
-              key: const Key('Sending'),
-              dimension: 29,
-              child: CircularProgressIndicator(
-                value: e.progress.value,
-                backgroundColor: style.colors.onPrimary,
-                strokeWidth: 5,
-              ),
-            );
-            break;
+        leading = switch (e.status.value) {
+          SendingStatus.sending => _Progress(
+            key: const Key('Sending'),
+            progress: e.progress.value,
 
-          case SendingStatus.sent:
-            leading = Icon(
-              Icons.check_circle,
-              key: const Key('Sent'),
-              size: 29,
-              color: style.colors.acceptAuxiliary,
-            );
-            break;
-
-          case SendingStatus.error:
-            leading = Icon(
-              Icons.error_outline,
-              key: const Key('Error'),
-              size: 29,
-              color: style.colors.danger,
-            );
-            break;
-        }
+            // TODO: Remove when implement upload cancellation.
+            showCancelIcon: false,
+          ),
+          SendingStatus.sent => SvgIcon(
+            key: const Key('Sent'),
+            SvgIcons.downloadFileSuccess,
+          ),
+          SendingStatus.error => SvgIcon(
+            key: const Key('Error'),
+            SvgIcons.downloadFileError,
+          ),
+        };
       }
 
-      return MouseRegion(
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() => _hovered = false),
-        child: Padding(
-          key: Key('File_${e.id}'),
-          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-          child: WidgetButton(
-            onPressed: widget.onPressed,
-            child: Row(
-              children: [
-                const SizedBox(width: 6),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: SafeAnimatedSwitcher(
+      return Container(
+        key: Key('File_${e.id}'),
+        constraints: BoxConstraints(minWidth: 112),
+        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+        child: WidgetButton(
+          onPressed: widget.onPressed,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            spacing: 4,
+            children: [
+              Text(
+                p.basename(e.filename),
+                style: style.fonts.medium.regular.onBackground,
+              ),
+
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 6,
+                children: [
+                  Text(
+                    e.original.size.asBytes(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style.fonts.small.regular.secondary,
+                  ),
+
+                  SafeAnimatedSwitcher(
                     key: Key('AttachmentStatus_${e.id}'),
                     duration: 250.milliseconds,
-                    child: leading,
+                    child: Center(child: leading),
                   ),
-                ),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              p.basenameWithoutExtension(e.filename),
-                              style: style.fonts.medium.regular.onBackground,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          Text(
-                            p.extension(e.filename),
-                            style: style.fonts.medium.regular.onBackground,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 3),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            e.original.size.asBytes(),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: style.fonts.small.regular.secondary,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
         ),
       );
     });
+  }
+}
+
+/// [CircularProgressIndicator] with close icon in the center.
+class _Progress extends StatelessWidget {
+  const _Progress({
+    super.key,
+    required this.progress,
+    this.showCancelIcon = true,
+  });
+
+  /// Progress value.
+  final double progress;
+
+  // TODO: Remove when implement upload cancellation.
+  /// Whether to show a cancel icon.
+  final bool showCancelIcon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        if (showCancelIcon) SvgIcon(SvgIcons.downloadFileCancelProgress),
+
+        SizedBox(
+          width: 13,
+          height: 13,
+          child: CircularProgressIndicator(value: progress, strokeWidth: 2),
+        ),
+      ],
+    );
   }
 }

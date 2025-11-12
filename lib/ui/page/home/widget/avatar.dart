@@ -34,6 +34,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
 
@@ -178,7 +179,7 @@ class AvatarWidget extends StatelessWidget {
   }) => AvatarWidget(
     key: key,
     avatar: user?.avatar,
-    title: user?.title,
+    title: user?.title(withDeletedLabel: false),
     color: user?.num.val.sum(),
     radius: radius,
     opacity: opacity,
@@ -215,7 +216,7 @@ class AvatarWidget extends StatelessWidget {
         isOnline: badge && user.user.value.online == true,
         isAway: badge && user.user.value.presence == Presence.away,
         avatar: user.user.value.avatar,
-        title: user.title,
+        title: user.title(withDeletedLabel: false),
         color: user.user.value.num.val.sum(),
         radius: radius,
         opacity: opacity,
@@ -303,7 +304,7 @@ class AvatarWidget extends StatelessWidget {
             chat.chat.value.isDialog &&
             user?.user.value.presence == Presence.away,
         avatar: chat.avatar.value,
-        title: chat.title,
+        title: chat.title(withDeletedLabel: false),
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),
         radius: radius,
         opacity: opacity,
@@ -447,12 +448,12 @@ class AvatarWidget extends StatelessWidget {
             SelectionContainer.disabled(
               child: Text(
                 (title ?? '??').initials(),
+                key: Key('AvatarTitleKey'),
                 style: style.fonts.normal.bold.onPrimary.copyWith(
                   fontSize:
                       style.fonts.normal.bold.onPrimary.fontSize! *
                       (maxWidth / 40.0),
                 ),
-
                 // Disable the accessibility size settings for this [Text].
                 textScaler: const TextScaler.linear(1),
               ),

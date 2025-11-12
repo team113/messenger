@@ -36,22 +36,29 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric tapReply = then2<String, String, CustomWorld>(
   r'I tap {string} reply of {string} message',
   (reply, message, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    final ChatItemQuote quote = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .firstWhere((e) => e.text?.val == message)
-        .repliesTo
-        .firstWhere((e) => (e.original as ChatMessage).text?.val == reply);
+        final RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+        final ChatItemQuote quote = chat!.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .firstWhere((e) => e.text?.val == message)
+            .repliesTo
+            .firstWhere((e) => (e.original as ChatMessage).text?.val == reply);
 
-    final Finder finder = context.world.appDriver.findByKeySkipOffstage(
-      'Reply_${quote.original!.id}',
+        final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+          'Reply_${quote.original!.id}',
+        );
+
+        await context.world.appDriver.nativeDriver.tap(finder);
+
+        return true;
+      },
+      timeout: Duration(seconds: 30),
+      pollInterval: Duration(seconds: 5),
     );
-
-    await context.world.appDriver.nativeDriver.tap(finder);
-    await context.world.appDriver.waitForAppToSettle();
   },
 );

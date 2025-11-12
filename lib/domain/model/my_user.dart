@@ -141,6 +141,10 @@ class MyUser {
   /// [WelcomeMessage] of this [MyUser].
   WelcomeMessage? welcomeMessage;
 
+  // TODO: Replace with extension like [RxChatExt] or [UserExt].
+  /// Returns text representing the title of this [MyUser].
+  String get title => name?.val ?? num.toString();
+
   @override
   String toString() => '$runtimeType($id)';
 
@@ -162,7 +166,6 @@ class MyUser {
     presenceIndex: presenceIndex,
     online: online,
     muted: muted,
-
     lastSeenAt: lastSeenAt,
     welcomeMessage: welcomeMessage,
   );

@@ -71,7 +71,10 @@ import 'package:mockito/mockito.dart';
 import '../mock/geo_provider.dart';
 import 'user_profile_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
+@GenerateNiceMocks([
+  MockSpec<GraphQlProvider>(),
+  MockSpec<PlatformRouteInformationProvider>(),
+])
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -87,6 +90,12 @@ void main() async {
 
   final graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.connected).thenReturn(RxBool(true));
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  when(
+    graphQlProvider.onDelete,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(
     graphQlProvider.favoriteChatsEvents(any),
@@ -162,6 +171,9 @@ void main() async {
         graphQlProvider.recentChatsTopEvents(3),
       ).thenAnswer((_) => const Stream.empty());
       when(
+        graphQlProvider.recentChatsTopEvents(3, archived: true),
+      ).thenAnswer((_) => const Stream.empty());
+      when(
         graphQlProvider.keepOnline(),
       ).thenAnswer((_) => const Stream.empty());
       when(
@@ -181,6 +193,7 @@ void main() async {
           last: null,
           before: null,
           noFavorite: anyNamed('noFavorite'),
+          archived: anyNamed('archived'),
           withOngoingCalls: anyNamed('withOngoingCalls'),
         ),
       ).thenAnswer(

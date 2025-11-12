@@ -23,6 +23,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/svg/svg.dart';
@@ -62,7 +63,7 @@ class CallCoverWidget extends StatelessWidget {
         if (user != null || chat != null)
           LayoutBuilder(
             builder: (context, constraints) {
-              final String? title = chat?.title.initials() ?? user?.title;
+              final String? title = chat?.title().initials() ?? user?.title();
               final int? color =
                   chat?.chat.value.colorDiscriminant(chat?.me).sum() ??
                   user?.user.value.num.val.sum();

@@ -172,23 +172,6 @@ class ButtonsSection {
               selected: true,
             ),
           ),
-          (
-            headline: 'RectangleButton.radio',
-            widget: RectangleButton(
-              onPressed: () {},
-              label: 'Label',
-              radio: true,
-            ),
-          ),
-          (
-            headline: 'RectangleButton.radio(selected: true)',
-            widget: RectangleButton(
-              onPressed: () {},
-              label: 'Label',
-              selected: true,
-              radio: true,
-            ),
-          ),
         ],
       ),
       Headline(
@@ -224,7 +207,6 @@ class ButtonsSection {
             CallButtonWidget(
               color: style.colors.onSecondaryOpacity50,
               onPressed: () {},
-              withBlur: true,
               big: true,
               asset: SvgIcons.fullscreenEnter,
             ),

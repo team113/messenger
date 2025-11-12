@@ -31,7 +31,8 @@ final StepDefinitionGeneric favoriteGroup =
     when2<TestUser, String, CustomWorld>(
       RegExp(r'{user} favorites {string} group$'),
       (TestUser user, String name, context) async {
-        final provider = GraphQlProvider();
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false;
 
         final CustomUser customUser = context.world.sessions[user.name]!.first;
         provider.token = (await customUser.credentials).access.secret;
@@ -50,6 +51,7 @@ final StepDefinitionGeneric favoriteGroup =
             DateTime.now().millisecondsSinceEpoch.toDouble(),
           ),
         );
+
         provider.disconnect();
       },
       configuration: StepDefinitionConfiguration()

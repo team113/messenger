@@ -73,6 +73,9 @@ class MainActivity : FlutterActivity() {
             } else if (call.method == "cancelNotification") {
                 val args = call.arguments as java.util.HashMap<String, String>
                 result.success(cancelNotification(args))
+            } else if (call.method == "cancelNotificationById") {
+                val args = call.arguments as java.util.HashMap<String, String>
+                result.success(cancelNotificationById(args))
             } else if (call.method == "cancelNotificationsContaining") {
                 val args = call.arguments as java.util.HashMap<String, String>
                 result.success(cancelNotificationsContaining(args))
@@ -146,6 +149,16 @@ class MainActivity : FlutterActivity() {
             completed = false
         }
         return completed
+    }
+
+    /**
+     * Cancels an active notification with the provided ID.
+     */
+    private fun cancelNotificationById(arguments: HashMap<String, String>): Boolean {
+        val notificationManager =
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager;
+        notificationManager.cancel(arguments["tag"] as String, arguments["id"] as Int);
+        return true;
     }
 
     /**

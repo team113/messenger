@@ -43,6 +43,7 @@ import 'domain/model/session.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
+import 'domain/service/notification.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/drift/account.dart';
@@ -70,9 +71,9 @@ import 'ui/worker/call.dart';
 import 'ui/worker/log.dart';
 import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
+import 'util/android_utils.dart';
 import 'util/backoff.dart';
 import 'util/get.dart';
-import 'util/ios_utils.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -351,16 +352,26 @@ Future<void> _runApp() async {
 Future<void> handlePushNotification(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // The code here should only be executed for Android devices, since other iOS
+  // push notifications related code is handled either in `AppDelegate.swift` or
+  // `NotificationService.swift` files due to iOS not giving guarantees about
+  // calling this method.
+  if (!PlatformUtils.isAndroid) {
+    return;
+  }
+
   Log.debug('handlePushNotification($message)', 'main');
 
-  final String? tag = message.notification?.android?.tag;
+  final String? tag = message.data['tag'] ?? message.notification?.android?.tag;
+  final String? thread = message.data['thread'];
+
   final bool isCall =
       tag?.endsWith('_call') == true || tag?.endsWith('-call') == true;
 
   // Since tags are only working under Android, thus this code is related to
   // Android platform only - iOS doesn't execute that.
-  if (isCall && message.data['chatId'] != null) {
-    final ChatId chatId = message.data['chatId'];
+  if (isCall) {
+    final ChatId chatId = ChatId(message.data['chatId']);
 
     SharedPreferences? prefs;
     CredentialsDriftProvider? credentialsProvider;
@@ -549,74 +560,69 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       subscription?.cancel();
       await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
     }
-  } else {
-    // If message contains no notification (it's a background notification),
-    // then try canceling the notifications with the provided thread, if any, or
-    // otherwise a single one, if data contains a tag.
-    if (message.notification == null ||
-        (message.notification?.title == 'Canceled' &&
-            message.notification?.body == null)) {
-      final String? tag = message.data['tag'];
-      final String? thread = message.data['thread'];
 
-      if (PlatformUtils.isAndroid) {
-        final FlutterLocalNotificationsPlugin plugin =
-            FlutterLocalNotificationsPlugin();
+    return;
+  }
 
-        Future.delayed(const Duration(milliseconds: 16), () async {
-          final notifications = await plugin.getActiveNotifications();
-
-          for (var e in notifications) {
-            if (e.tag?.contains(thread ?? tag ?? '.....') == true) {
-              plugin.cancel(e.id ?? 0, tag: e.tag);
-            }
-          }
-        });
-      } else if (PlatformUtils.isIOS) {
-        if (thread != null) {
-          await IosUtils.cancelNotificationsContaining(thread);
-        } else if (tag != null) {
-          await IosUtils.cancelNotification(tag);
-        }
-      }
+  if (tag != null) {
+    // There may be already an local notification, thus just cancel it before
+    // displaying this new one.
+    final plugin = FlutterLocalNotificationsPlugin();
+    try {
+      await plugin.cancel(tag.asHash, tag: tag);
+    } catch (_) {
+      // It's ok to fail.
     }
+  }
 
-    // If payload contains a `ChatId` in it, then try sending a single
-    // [GraphQlProvider.chatItems] query to mark the chat as delivered.
-    //
-    // Note, that on iOS this behaviour is done via separate Notification
-    // Service Extension, as this code isn't guaranteed to be invoked at all,
-    // especially for visual notifications.
-    if (PlatformUtils.isAndroid) {
-      final String? chatId = message.data['thread'] ?? message.data['chatId'];
+  // If message contains no notification (it's a background notification),
+  // then try canceling the notifications with the provided thread, if any, or
+  // otherwise a single one, if data contains a tag.
+  if (message.notification == null ||
+      (message.notification?.title == 'Canceled' &&
+          message.notification?.body == null)) {
+    await Future.delayed(Duration(milliseconds: 100), () async {
+      if (thread != null) {
+        await AndroidUtils.cancelNotificationsContaining(thread);
+      } else if (tag != null) {
+        await AndroidUtils.cancelNotificationsContaining(tag);
+      }
+    });
+  }
 
-      if (chatId != null) {
-        await Config.init();
+  // If payload contains a `ChatId` in it, then try sending a single
+  // [GraphQlProvider.chatItems] query to mark the chat as delivered.
+  {
+    final String? chatId = thread ?? message.data['chatId'];
 
-        final common = CommonDriftProvider.from(CommonDatabase());
-        final credentialsProvider = CredentialsDriftProvider(common);
-        final accountProvider = AccountDriftProvider(common);
+    if (chatId != null) {
+      await Config.init();
 
-        await credentialsProvider.init();
-        await accountProvider.init();
+      final common = CommonDriftProvider.from(CommonDatabase());
+      final credentialsProvider = CredentialsDriftProvider(common);
+      final accountProvider = AccountDriftProvider(common);
 
-        final UserId? userId = accountProvider.userId;
-        final Credentials? credentials = userId != null
-            ? await credentialsProvider.read(userId)
-            : null;
+      await credentialsProvider.init();
+      await accountProvider.init();
 
-        if (credentials != null) {
-          final provider = GraphQlProvider();
-          provider.token = credentials.access.secret;
+      final UserId? userId = accountProvider.userId;
+      final Credentials? credentials = userId != null
+          ? await credentialsProvider.read(userId)
+          : null;
 
-          try {
-            await provider.chatItems(ChatId(chatId), first: 1);
-          } catch (e) {
-            // No-op.
-          }
+      if (credentials != null) {
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false;
 
-          provider.disconnect();
+        provider.token = credentials.access.secret;
+
+        try {
+          await provider.chatItems(ChatId(chatId), first: 1);
+        } catch (e) {
+          // No-op.
         }
+
+        provider.disconnect();
       }
     }
   }

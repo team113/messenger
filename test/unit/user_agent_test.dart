@@ -133,5 +133,17 @@ void main() async {
       ).localized,
       'Windows 10 Pro',
     );
+
+    expect(
+      const UserAgent(
+        'AppName (Windows 10 Pro; 21H2; build 19041.1.amd64fre.vb_release.191206-1406; x64; {487C0C09-4B5F-407F-9C26-313F31B79F06})',
+      ).localized,
+      'Windows 10 Pro',
+    );
+
+    expect(
+      const UserAgent('AppName/0.1.0-alpha.8').localized,
+      'AppName/0.1.0-alpha.8',
+    );
   });
 }

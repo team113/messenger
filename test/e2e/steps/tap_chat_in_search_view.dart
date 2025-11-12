@@ -15,9 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
+import '../parameters/keys.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
@@ -25,27 +29,126 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - When I tap on chat with Bob
-final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
-  'I tap on chat with {user}',
-  (TestUser user, context) async {
+final StepDefinitionGeneric
+iTapChatWith = when1<TestUser, CustomWorld>(r'I tap on chat with {user}$', (
+  TestUser user,
+  context,
+) async {
+  await context.world.appDriver.waitUntil(() async {
+    await context.world.appDriver.waitForAppToSettle();
+
+    final finder = context.world.appDriver.findByKeySkipOffstage(
+      'Chat_${context.world.sessions[user.name]?.dialog}',
+    );
+
+    Log.debug(
+      'finder for `Chat_${context.world.sessions[user.name]?.dialog}` is: $finder',
+      'iTapChatWith',
+    );
+
+    if (!finder.tryEvaluate()) {
+      return false;
+    }
+
+    final last = finder.last;
+
+    if (await context.world.appDriver.isPresent(last)) {
+      Log.debug(
+        'finder for `Chat_${context.world.sessions[user.name]?.dialog}` -> present',
+        'iTapChatWith',
+      );
+
+      await context.world.appDriver.scrollIntoView(last);
+      await context.world.appDriver.waitForAppToSettle();
+      await context.world.appDriver.tap(
+        last,
+        timeout: context.configuration.timeout,
+      );
+
+      await context.world.appDriver.waitForAppToSettle();
+
+      return true;
+    } else {
+      Log.debug(
+        'finder for `Chat_${context.world.sessions[user.name]?.dialog}` -> not present',
+        'iTapChatWith',
+      );
+    }
+
+    return false;
+  });
+});
+
+/// Taps on a [Chat]-dialog with the provided [User] within the provided
+/// [WidgetKey].
+///
+/// Examples:
+/// - When I tap on chat with Bob within `ChatForwardView`
+final StepDefinitionGeneric
+iTapChatWithWithin = when2<TestUser, WidgetKey, CustomWorld>(
+  r'I tap on chat with {user} within {key}$',
+  (TestUser user, WidgetKey key, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
-      final finder = context.world.appDriver
-          .findByKeySkipOffstage(
-            'Chat_${context.world.sessions[user.name]!.dialog!.val}',
-          )
-          .last;
+      final lister = context.world.appDriver.findByKeySkipOffstage(key.name);
+      Log.debug('finder for `${key.name}` is: $lister', 'iTapChatWithWithin');
 
-      if (await context.world.appDriver.isPresent(finder)) {
-        await context.world.appDriver.scrollIntoView(finder);
+      var finder = find.descendant(
+        of: lister,
+        matching: context.world.appDriver.findByKeySkipOffstage(
+          'Chat_${context.world.sessions[user.name]?.dialog}',
+        ),
+        skipOffstage: false,
+      );
+
+      Log.debug(
+        'finder for `Chat_${context.world.sessions[user.name]?.dialog}` within `${key.name}` is: $finder',
+        'iTapChatWithWithin',
+      );
+
+      if (!finder.tryEvaluate()) {
+        var finder = find.descendant(
+          of: lister,
+          matching: context.world.appDriver.findByKeySkipOffstage(
+            'Chat_${ChatId.local(context.world.sessions[user.name]!.userId)}',
+          ),
+          skipOffstage: false,
+        );
+
+        Log.debug(
+          'finder for dialog-`Chat_${ChatId.local(context.world.sessions[user.name]!.userId)}` within `${key.name}` is: $finder',
+          'iTapChatWithWithin',
+        );
+
+        if (!finder.tryEvaluate()) {
+          return false;
+        }
+      }
+
+      final last = finder.last;
+
+      if (await context.world.appDriver.isPresent(last)) {
+        Log.debug(
+          'finder for `Chat_${context.world.sessions[user.name]?.dialog}` within `${key.name}` -> present',
+          'iTapChatWithWithin',
+        );
+
+        await context.world.appDriver.scrollIntoView(last);
         await context.world.appDriver.waitForAppToSettle();
         await context.world.appDriver.tap(
-          finder,
+          last,
           timeout: context.configuration.timeout,
         );
+
         await context.world.appDriver.waitForAppToSettle();
+
         return true;
+      } else {
+        Log.debug(
+          'finder for `Chat_${context.world.sessions[user.name]?.dialog}` within `${key.name}` -> not present',
+          'iTapChatWithWithin',
+        );
       }
 
       return false;

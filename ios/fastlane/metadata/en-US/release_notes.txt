@@ -1,4 +1,1 @@
-- Updated description for notes chat.
-- Updated remote audio icons in calls.
-- Redesigned introduction for guest accounts.
 - Bug fixes and performance improvements.
