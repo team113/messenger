@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.9...v0.7.0) | [Milestone](/../../milestone/54)
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Inability to crop SVG avatar images on web. ([#1501], [#1489])
+
+[#1489]: /../../issues/1489
+[#1501]: /../../pull/1501
+
+
+
+
 ## [0.6.9] · 2025-11-11
 [0.6.9]: /../../tree/v0.6.9
 

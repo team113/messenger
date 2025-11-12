@@ -88,14 +88,12 @@ class CropController extends GetxController {
       );
     } catch (rasterError, rasterStack) {
       try {
-        svg = await vg.loadPicture(
+        final PictureInfo picture = await vg.loadPicture(
           SvgStringLoader(String.fromCharCodes(image)),
           null,
         );
-
-        if (svg != null) {
-          dimensions.value = svg!.size;
-        }
+        dimensions.value = picture.size;
+        svg = picture;
       } catch (svgError, svgStack) {
         throw CombinedImageDecodeException(
           rasterError: rasterError,
