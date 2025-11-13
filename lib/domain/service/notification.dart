@@ -519,7 +519,7 @@ class NotificationService extends DisposableService {
       // then try canceling the notifications with the provided thread, if any,
       // or otherwise a single one, if data contains a tag.
       if (message.notification == null ||
-          (message.notification?.title == 'Canceled' &&
+          (message.notification?.title?.isEmpty != false &&
               message.notification?.body == null)) {
         if (PlatformUtils.isWeb) {
           // TODO: Implement notifications canceling for Web.

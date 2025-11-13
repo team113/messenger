@@ -1,4 +1,6 @@
 PODS:
+  - app_badge_plus (1.2.3):
+    - FlutterMacOS
   - app_links (6.4.1):
     - FlutterMacOS
   - audio_session (0.0.1):
@@ -50,8 +52,6 @@ PODS:
   - flutter_custom_cursor (0.0.1):
     - FlutterMacOS
   - flutter_local_notifications (0.0.1):
-    - FlutterMacOS
-  - flutter_native_badge_foundation (1.0.4-dev):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - GoogleDataTransport (10.1.0):
@@ -169,6 +169,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - app_badge_plus (from `Flutter/ephemeral/.symlinks/plugins/app_badge_plus/macos`)
   - app_links (from `Flutter/ephemeral/.symlinks/plugins/app_links/macos`)
   - audio_session (from `Flutter/ephemeral/.symlinks/plugins/audio_session/macos`)
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
@@ -180,7 +181,6 @@ DEPENDENCIES:
   - firebase_messaging (from `Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos`)
   - flutter_custom_cursor (from `Flutter/ephemeral/.symlinks/plugins/flutter_custom_cursor/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
-  - flutter_native_badge_foundation (from `Flutter/ephemeral/.symlinks/plugins/flutter_native_badge_foundation/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - hotkey_manager_macos (from `Flutter/ephemeral/.symlinks/plugins/hotkey_manager_macos/macos`)
   - irondash_engine_context (from `Flutter/ephemeral/.symlinks/plugins/irondash_engine_context/macos`)
@@ -223,6 +223,8 @@ SPEC REPOS:
     - sqlite3
 
 EXTERNAL SOURCES:
+  app_badge_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/app_badge_plus/macos
   app_links:
     :path: Flutter/ephemeral/.symlinks/plugins/app_links/macos
   audio_session:
@@ -245,8 +247,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_custom_cursor/macos
   flutter_local_notifications:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos
-  flutter_native_badge_foundation:
-    :path: Flutter/ephemeral/.symlinks/plugins/flutter_native_badge_foundation/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   hotkey_manager_macos:
@@ -299,6 +299,7 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
+  app_badge_plus: 60ebdbfa6c11558e89f1ac58d3364cd014a41cd2
   app_links: 05a6ec2341985eb05e9f97dc63f5837c39895c3f
   audio_session: eaca2512cf2b39212d724f35d11f46180ad3a33e
   connectivity_plus: 4adf20a405e25b42b9c9f87feff8f4b6fde18a4e
@@ -315,7 +316,6 @@ SPEC CHECKSUMS:
   FirebaseMessaging: af49f8d7c0a3d2a017d9302c80946f45a7777dde
   flutter_custom_cursor: 37e588711a2746f5cf48adb58b582cacff11c0c6
   flutter_local_notifications: 4bf37a31afde695b56091b4ae3e4d9c7a7e6cda0
-  flutter_native_badge_foundation: c799df79b0f6dd65d086f80d63d5e28dc1315ad3
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
