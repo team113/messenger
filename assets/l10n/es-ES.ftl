@@ -371,7 +371,7 @@ fcm_message =
                         }
                 *[attachments] { $attachmentsCount ->
                             [1] Archivo
-                            *[other] {$attachmentsCount} adjunto
+                            *[other] {$attachmentsCount} archivos
                                 }
         }]
     }{ $textLength ->
