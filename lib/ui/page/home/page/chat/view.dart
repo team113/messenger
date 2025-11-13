@@ -22,7 +22,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide NavigationMode;
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
@@ -833,7 +833,7 @@ class ChatView extends StatelessWidget {
                       chatId = c.monolog;
                     }
 
-                    router.chat(chatId, push: true);
+                    router.chat(chatId, navigationMode: NavigationMode.push);
                   },
                   onDragging: (e) => c.isDraggingItem.value = e,
                 ),
@@ -979,7 +979,7 @@ class ChatView extends StatelessWidget {
                         router.chat(
                           item.quote.original!.chatId,
                           itemId: item.quote.original!.id,
-                          push: true,
+                          navigationMode: NavigationMode.push,
                         );
                       }
                     }

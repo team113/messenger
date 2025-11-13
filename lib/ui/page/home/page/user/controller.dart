@@ -18,7 +18,7 @@
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide NavigationMode;
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -248,9 +248,12 @@ class UserController extends GetxController {
   /// Opens a [Chat]-dialog with this [user].
   void openChat() {
     if (user?.id == me) {
-      router.chat(_chatService.monolog, push: true);
+      router.chat(_chatService.monolog, navigationMode: NavigationMode.push);
     } else {
-      router.chat(ChatId.local(user!.user.value.id), push: true);
+      router.chat(
+        ChatId.local(user!.user.value.id),
+        navigationMode: NavigationMode.push,
+      );
     }
   }
 

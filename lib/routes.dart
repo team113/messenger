@@ -152,6 +152,18 @@ enum ProfileTab {
   logout,
 }
 
+/// Navigation mode.
+enum NavigationMode {
+  /// Pushes to the [routes] stack.
+  push,
+
+  /// Pop last route and push to the [routes] stack.
+  replace,
+
+  /// Clear all routes and push to the [routes] stack.
+  replaceAll,
+}
+
 /// Application's router state.
 ///
 /// Any change requires [notifyListeners] to be invoked in order for the router
@@ -1227,11 +1239,17 @@ extension RouteLinks on RouterState {
   /// If [push] is `true`, then location is pushed to the router location stack.
   void chat(
     ChatId id, {
-    bool push = false,
+    NavigationMode navigationMode = NavigationMode.replaceAll,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
   }) {
-    (push ? this.push : go)('${Routes.chats}/$id');
+    if (navigationMode == NavigationMode.replace) {
+      routes.removeLast();
+    }
+
+    (navigationMode != NavigationMode.replaceAll ? push : go)(
+      '${Routes.chats}/$id',
+    );
 
     arguments = {'itemId': itemId, 'link': link};
   }
@@ -1243,7 +1261,7 @@ extension RouteLinks on RouterState {
   void dialog(
     Chat chat,
     UserId? me, {
-    bool push = false,
+    NavigationMode navigationMode = NavigationMode.replaceAll,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
   }) {
@@ -1260,7 +1278,12 @@ extension RouteLinks on RouterState {
       }
     }
 
-    router.chat(chatId, push: push, itemId: itemId, link: link);
+    router.chat(
+      chatId,
+      itemId: itemId,
+      link: link,
+      navigationMode: navigationMode,
+    );
   }
 
   /// Changes router location to the [Routes.chatInfo] page.

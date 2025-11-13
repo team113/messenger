@@ -21,7 +21,7 @@ import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart' hide SearchController;
+import 'package:flutter/material.dart' hide SearchController, NavigationMode;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -392,7 +392,10 @@ class ChatsTabController extends GetxController {
 
       if (user != null) {
         if (user.id == me) {
-          router.chat(_chatService.monolog, push: true);
+          router.chat(
+            _chatService.monolog,
+            navigationMode: NavigationMode.push,
+          );
         } else {
           router.chat(ChatId.local(user.user.value.id));
         }
