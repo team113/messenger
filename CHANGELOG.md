@@ -13,9 +13,8 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- UI:
-    - Profile page:
-        - Inability to crop SVG avatar images on web. ([#1501], [#1489])
+- Web:
+    - Inability to crop SVG avatar images on Web. ([#1501], [#1489])
 
 [#1489]: /../../issues/1489
 [#1501]: /../../pull/1501

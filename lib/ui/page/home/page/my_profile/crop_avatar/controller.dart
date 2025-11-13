@@ -94,12 +94,12 @@ class CropController extends GetxController {
         );
         dimensions.value = picture.size;
         svg = picture;
-      } catch (svgError, svgStack) {
+      } catch (vectorError, vectorStack) {
         throw CombinedImageDecodeException(
           rasterError: rasterError,
           rasterStack: rasterStack,
-          svgError: svgError,
-          svgStack: svgStack,
+          vectorError: vectorError,
+          vectorStack: vectorStack,
         );
       }
     }
@@ -111,26 +111,26 @@ class CombinedImageDecodeException implements Exception {
   const CombinedImageDecodeException({
     required this.rasterError,
     required this.rasterStack,
-    required this.svgError,
-    required this.svgStack,
+    required this.vectorError,
+    required this.vectorStack,
   });
 
-  /// Raster image decoding error.
+  /// [Exception] of the [instantiateImageCodec] error happened.
   final Object rasterError;
 
-  /// Stack trace of the raster error.
+  /// [StackTrace] of the [instantiateImageCodec] error happened.
   final StackTrace rasterStack;
 
-  /// Svg decoding error.
-  final Object svgError;
+  /// [Exception] of the [VectorGraphicUtilities.loadPicture] error happened.
+  final Object vectorError;
 
-  /// Stack trace of the svg error.
-  final StackTrace svgStack;
+  /// [StackTrace] of the [VectorGraphicUtilities.loadPicture] error happened.
+  final StackTrace vectorStack;
 
   @override
   String toString() {
     return 'CombinedImageDecodeException:\n'
-        '--- Raster error ---\n$rasterError\n$rasterStack\n'
-        '--- SVG error ---\n$svgError\n$svgStack';
+        '--- Raster error ---\n$rasterError\n'
+        '--- Vector error ---\n$vectorError';
   }
 }
