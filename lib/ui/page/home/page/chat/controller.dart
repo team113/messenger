@@ -791,13 +791,16 @@ class ChatController extends GetxController {
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
             try {
-              final finishText = ChatMessageTextInput(
+              final ChatMessageTextInput text = ChatMessageTextInput(
                 ChatMessageText(edit.value!.field.text),
               );
-              final finishAttachments = ChatMessageAttachmentsInput(
-                edit.value!.attachments.map((e) => e.value).toList(),
-              );
-              final finishRepliesTo = ChatMessageRepliesInput(
+
+              final ChatMessageAttachmentsInput attachments =
+                  ChatMessageAttachmentsInput(
+                    edit.value!.attachments.map((e) => e.value).toList(),
+                  );
+
+              final ChatMessageRepliesInput repliesTo = ChatMessageRepliesInput(
                 edit.value!.replied.map((e) => e.value.id).toList(),
               );
 
@@ -807,9 +810,9 @@ class ChatController extends GetxController {
 
               await _chatService.editChatMessage(
                 item,
-                text: finishText,
-                attachments: finishAttachments,
-                repliesTo: finishRepliesTo,
+                text: text,
+                attachments: attachments,
+                repliesTo: repliesTo,
               );
 
               // If the message is not sent yet, resend it.

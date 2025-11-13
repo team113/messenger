@@ -56,11 +56,9 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
             tag: router.route.split('/').last,
           );
 
-          if (controller.edit.value != null) {
-            controller.edit.value!.addPlatformAttachment(file);
-          } else {
-            controller.send.addPlatformAttachment(file);
-          }
+          (controller.edit.value ?? controller.send).addPlatformAttachment(
+            file,
+          );
         }
         break;
 

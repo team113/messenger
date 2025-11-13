@@ -58,28 +58,3 @@ final StepDefinitionGeneric untilMessageExists =
         }, timeout: const Duration(seconds: 30));
       },
     );
-
-/// Waits until the chat has no messages.
-///
-/// Examples:
-/// - Then I wait until chat has no messages
-final StepDefinitionGeneric untilChatHasNoMessages = then<FlutterWorld>(
-  'I wait until chat has no messages',
-  (context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-
-      final chatId = ChatId(router.route.split('/').last);
-      final RxChat? chat = Get.find<ChatService>().chats[chatId];
-
-      final messages = chat?.messages
-          .map((e) => e.value)
-          .whereType<ChatMessage>()
-          .toList();
-
-      final hasMessages = messages?.isNotEmpty ?? false;
-
-      return !hasMessages;
-    }, timeout: const Duration(seconds: 30));
-  },
-);

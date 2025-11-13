@@ -6,16 +6,35 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.9...v0.7.0) | [Milestone](/../../milestone/54)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - File uploads can be canceled. ([#1496], [#1490])
+
+### Fixed
+
+- Push notifications:
+    - Notifications not being canceled after reading on another device on iOS and Android. ([#1500])
+- iOS:
+    - Unread chats badge not updating sometimes on app's icon. ([#1500])
+
+[#1490]: /../../issues/1490
+[#1496]: /../../pull/1496
+[#1500]: /../../pull/1500
+
+
+
+
 ## [0.6.9] · 2025-11-11
 [0.6.9]: /../../tree/v0.6.9
 
 [Diff](/../../compare/v0.6.8...v0.6.9) | [Milestone](/../../milestone/53)
-
-### Added
-
-- UI:
-    - Chat page:
-        - Added file upload cancellation logic. ([#1496], [#1490])
 
 ### Fixed
 
@@ -24,22 +43,17 @@ All user visible changes to this project will be documented in this file. This p
         - Inability to move caret in message field up and down. ([#1494], [#1493])
         - Redesigned file attachments. ([#1480], [#1412])
 - Push notifications:
-    - Notifications duplicating on iOS and Android. ([#1500], [#1495], [#1472])
-    - Notifications not being canceled after reading on another device on iOS and Android. ([#1500])
+    - Notifications duplicating on iOS and Android. ([#1495], [#1472])
 - iOS:
     - [VoIP] [CallKit] notification still ringing despite already joined call on another device. ([#1499])
-    - Unread chats badge not updating sometimes on app's icon. ([#1500])
 
 [#1412]: /../../issues/1412
 [#1472]: /../../issues/1472
 [#1480]: /../../pull/1480
-[#1490]: /../../issues/1490
 [#1493]: /../../issues/1493
 [#1494]: /../../pull/1494
 [#1495]: /../../pull/1495
-[#1496]: /../../pull/1496
 [#1499]: /../../pull/1499
-[#1500]: /../../pull/1500
 
 
 

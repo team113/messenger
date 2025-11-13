@@ -1065,11 +1065,11 @@ class ChatRepository extends DisposableInterface
         );
       }
 
+      // If after editing the message contains no content, then delete it.
       if ((text == null || text.changed?.val == null) &&
           (attachments == null || attachments.changed.isEmpty == true) &&
           (repliesTo == null || repliesTo.changed.isEmpty == true)) {
-        await deleteChatMessage(message);
-        return;
+        return await deleteChatMessage(message);
       }
 
       await Backoff.run(
@@ -1360,7 +1360,7 @@ class ChatRepository extends DisposableInterface
       attachment.progress.value = 1;
       return model;
     } on dio.DioException {
-      if (attachment.cancelToken.isCancelled) {
+      if (attachment.isCanceled) {
         attachment.upload.value?.complete(null);
         return null;
       }

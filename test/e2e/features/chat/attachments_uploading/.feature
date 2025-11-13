@@ -47,7 +47,7 @@ Feature: Attachments uploading
     When I cancel "test.txt" file upload
     Then I wait until attachment "test.txt" is absent
     When I cancel "test2.txt" file upload
-    Then I wait until chat has no messages
+    Then I see no messages in chat
 
   Scenario: Canceling upload of one of the files after editing a message
     When I fill `MessageField` field with "Hello"
@@ -84,4 +84,4 @@ Feature: Attachments uploading
 
     When I cancel "test.txt" file upload
     And I cancel "test2.txt" file upload
-    Then I wait until chat has no messages
+    Then I see no messages in chat

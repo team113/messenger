@@ -727,7 +727,7 @@ class RxChatImpl extends RxChat {
 
     _pending.add(message.value);
 
-    bool isEmptyMessage = false;
+    bool isEmpty = false;
 
     try {
       if (attachments != null) {
@@ -777,7 +777,7 @@ class RxChatImpl extends RxChat {
       }
 
       if (attachments?.isEmpty == true && text == null && repliesTo.isEmpty) {
-        isEmptyMessage = true;
+        isEmpty = true;
         return message.value;
       }
 
@@ -822,7 +822,7 @@ class RxChatImpl extends RxChat {
       _pending.remove(message.value);
       rethrow;
     } finally {
-      if (isEmptyMessage) {
+      if (isEmpty) {
         remove(message.value.id);
         _pending.remove(message.value);
       } else {

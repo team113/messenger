@@ -238,6 +238,9 @@ class LocalAttachment extends Attachment {
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
 
+  /// Indicator whether the [upload] was canceled.
+  bool get isCanceled => cancelToken.isCancelled;
+
   /// Cancels the uploading of this [LocalAttachment].
   void cancelUpload() => cancelToken.cancel();
 

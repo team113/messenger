@@ -83,9 +83,9 @@ class _DataAttachmentState extends State<DataAttachment> {
         };
       } else if (e is LocalAttachment) {
         leading = switch (e.status.value) {
-          SendingStatus.sending => InkWell(
+          SendingStatus.sending => WidgetButton(
             key: const Key('CancelUploading'),
-            onTap: () => e.cancelUpload(),
+            onPressed: e.cancelUpload,
             child: _Progress(
               key: const Key('Sending'),
               progress: e.progress.value,
@@ -157,7 +157,6 @@ class _Progress extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         SvgIcon(SvgIcons.downloadFileCancelProgress),
-
         SizedBox(
           width: 13,
           height: 13,

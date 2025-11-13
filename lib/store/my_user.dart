@@ -321,7 +321,7 @@ class MyUserRepository extends DisposableInterface
                     attachments.removeAt(index);
                   }
 
-                  myUser.update((_) => {});
+                  myUser.update((_) {});
                 },
                 onError: (_) {
                   // No-op, as failed upload attempts are handled below.
@@ -342,6 +342,7 @@ class MyUserRepository extends DisposableInterface
         );
       }
 
+      // If the contents of [WelcomeMessage] are empty, then reset it.
       if ((text == null || text.val.isEmpty) &&
           (attachments == null || attachments.isEmpty == true)) {
         reset = true;
