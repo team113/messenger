@@ -372,9 +372,9 @@ fcm_message =
                          *[other] {$attachmentsCount} файлов
                      }
               *[attachments] { $attachmentsCount ->
-                                 [one] {$attachmentsCount} вложение
-                                 [few] {$attachmentsCount} вложения
-                                 *[other] {$attachmentsCount} вложений
+                                 [one] {$attachmentsCount} файл
+                                 [few] {$attachmentsCount} файла
+                                 *[other] {$attachmentsCount} файлов
                              }
         }]
     }{ $textLength ->

@@ -1,5 +1,5 @@
 name: messenger
-version: 0.6.9
+version: 0.6.10
 publish_to: none
 
 environment:
@@ -10,6 +10,7 @@ dependencies:
   all_sensors:
     git: https://github.com/SleepySquash/all_sensors
   animated_size_and_fade: ^5.1.1
+  app_badge_plus: ^1.2.3
   app_links: ^6.1.1
   apple_product_name: ^3.0.0
   async: ^2.10.0
@@ -41,7 +42,6 @@ dependencies:
     git: https://github.com/krida2000/flutter_list_view.git
   flutter_local_notifications: ^19.4.0
   flutter_markdown: ^0.7.1
-  flutter_native_badge: ^1.0.5+dev
   flutter_slidable: ^4.0.0
   flutter_spinkit: ^5.2.1
   flutter_staggered_animations: ^1.1.1

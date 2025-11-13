@@ -1,6 +1,8 @@
 PODS:
   - all_sensors (0.0.1):
     - Flutter
+  - app_badge_plus (1.2.3):
+    - Flutter
   - app_links (6.4.1):
     - Flutter
   - audio_session (0.0.1):
@@ -84,8 +86,6 @@ PODS:
     - CryptoSwift
     - Flutter
   - flutter_local_notifications (0.0.1):
-    - Flutter
-  - flutter_native_badge_foundation (1.0.4-dev):
     - Flutter
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
@@ -212,6 +212,7 @@ PODS:
 
 DEPENDENCIES:
   - all_sensors (from `.symlinks/plugins/all_sensors/ios`)
+  - app_badge_plus (from `.symlinks/plugins/app_badge_plus/ios`)
   - app_links (from `.symlinks/plugins/app_links/ios`)
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
@@ -224,7 +225,6 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_callkit_incoming (from `.symlinks/plugins/flutter_callkit_incoming/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
-  - flutter_native_badge_foundation (from `.symlinks/plugins/flutter_native_badge_foundation/ios`)
   - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
@@ -276,6 +276,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   all_sensors:
     :path: ".symlinks/plugins/all_sensors/ios"
+  app_badge_plus:
+    :path: ".symlinks/plugins/app_badge_plus/ios"
   app_links:
     :path: ".symlinks/plugins/app_links/ios"
   audio_session:
@@ -298,8 +300,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_callkit_incoming/ios"
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
-  flutter_native_badge_foundation:
-    :path: ".symlinks/plugins/flutter_native_badge_foundation/ios"
   image_gallery_saver:
     :path: ".symlinks/plugins/image_gallery_saver/ios"
   image_picker_ios:
@@ -353,6 +353,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   all_sensors: 8b8131f5d3d1b833d8c7b689b2df5e8b2c688615
+  app_badge_plus: 0e3470f993dd08094e16463f57a7e0db04c6b587
   app_links: 3dbc685f76b1693c66a6d9dd1e9ab6f73d97dc0a
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
@@ -372,7 +373,6 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_callkit_incoming: cb8138af67cda6dd981f7101a5d709003af21502
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
-  flutter_native_badge_foundation: b7bd1e1063454a6bfaf9256292d706c82a2266d5
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
