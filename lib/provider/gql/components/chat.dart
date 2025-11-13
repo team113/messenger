@@ -967,7 +967,11 @@ mixin ChatGraphQlMixin {
         );
       }
 
-      Log.error('Failed to upload attachment: ${e.response}', '$runtimeType');
+      if (cancelToken?.isCancelled ?? false) {
+        Log.debug('Cancelled to upload attachment: ${attachment?.filename}');
+      } else {
+        Log.error('Failed to upload attachment: ${e.response}', '$runtimeType');
+      }
 
       rethrow;
     }

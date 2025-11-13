@@ -1044,7 +1044,7 @@ class ChatRepository extends DisposableInterface
                   attachments.changed.removeAt(index);
                 }
 
-                item?.update((c) {});
+                item?.update((_) {});
               },
               onError: (_) {
                 // No-op, as failed upload attempts are handled below.
