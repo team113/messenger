@@ -769,6 +769,7 @@ mixin ChatGraphQlMixin {
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      priority: -10,
       ver: onVer,
     );
   }

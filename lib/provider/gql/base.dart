@@ -280,13 +280,17 @@ class GraphQlClient {
   }
 
   /// Subscribes to a GraphQL subscription according to the [options] specified.
+  ///
+  /// The higher the [priority], the earlier this subscription will be
+  /// subscribed to in a rate limiter queue.
   Stream<QueryResult> subscribe(
     SubscriptionOptions options, {
     FutureOr<Version?> Function()? ver,
     bool resubscribe = true,
+    int priority = 1,
   }) {
     return SubscriptionHandle(
-      _subscribe,
+      (options) async => await _subscribe(options, priority: priority),
       (e) {
         _subscriptions.remove(e);
         e?.dispose();
@@ -381,9 +385,13 @@ class GraphQlClient {
   /// and returns a [Stream] which either emits received data or an error.
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
-  Future<SubscriptionConnection> _subscribe(SubscriptionOptions options) async {
+  Future<SubscriptionConnection> _subscribe(
+    SubscriptionOptions options, {
+    int priority = 1,
+  }) async {
     final stream = await _subscriptionLimiter.execute<Stream<QueryResult>>(
       () async => (await client).subscribe(options),
+      priority: priority,
     );
 
     // Store the reference to the current [WebSocketLink].
