@@ -86,21 +86,51 @@ class CropController extends GetxController {
         frame.image.width.toDouble(),
         frame.image.height.toDouble(),
       );
-    } catch (e) {
-      if (e.toString().contains('Invalid image data') ||
-          e.toString().contains('The source image cannot be decoded') ||
-          e.toString().contains('Failed to detect image file format')) {
-        svg = await vg.loadPicture(
+    } catch (rasterError, rasterStack) {
+      try {
+        final PictureInfo picture = await vg.loadPicture(
           SvgStringLoader(String.fromCharCodes(image)),
           null,
         );
-
-        if (svg != null) {
-          dimensions.value = svg!.size;
-        }
-      } else {
-        rethrow;
+        dimensions.value = picture.size;
+        svg = picture;
+      } catch (vectorError, vectorStack) {
+        throw CombinedImageDecodeException(
+          rasterError: rasterError,
+          rasterStack: rasterStack,
+          vectorError: vectorError,
+          vectorStack: vectorStack,
+        );
       }
     }
+  }
+}
+
+/// Exception thrown when both raster and SVG image decoding fails.
+class CombinedImageDecodeException implements Exception {
+  const CombinedImageDecodeException({
+    required this.rasterError,
+    required this.rasterStack,
+    required this.vectorError,
+    required this.vectorStack,
+  });
+
+  /// [Exception] of the [instantiateImageCodec] error happened.
+  final Object rasterError;
+
+  /// [StackTrace] of the [instantiateImageCodec] error happened.
+  final StackTrace rasterStack;
+
+  /// [Exception] of the [VectorGraphicUtilities.loadPicture] error happened.
+  final Object vectorError;
+
+  /// [StackTrace] of the [VectorGraphicUtilities.loadPicture] error happened.
+  final StackTrace vectorStack;
+
+  @override
+  String toString() {
+    return 'CombinedImageDecodeException:\n'
+        '--- Raster error ---\n$rasterError\n'
+        '--- Vector error ---\n$vectorError';
   }
 }
