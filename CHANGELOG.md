@@ -9,7 +9,28 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.7.0] · 2025-??-??
 [0.7.0]: /../../tree/v0.7.0
 
-[Diff](/../../compare/v0.6.8...v0.7.0) | [Milestone](/../../milestone/53)
+[Diff](/../../compare/v0.6.9...v0.7.0) | [Milestone](/../../milestone/54)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Upload progress indicator not updating during file upload. ([#1492], [#1491])
+- Web:
+    - Inability to crop SVG avatar images on Web. ([#1501], [#1489])
+
+[#1489]: /../../issues/1489
+[#1491]: /../../issues/1491
+[#1492]: /../../pull/1492
+[#1501]: /../../pull/1501
+
+
+
+
+## [0.6.9] · 2025-11-11
+[0.6.9]: /../../tree/v0.6.9
+
+[Diff](/../../compare/v0.6.8...v0.6.9) | [Milestone](/../../milestone/53)
 
 ### Fixed
 
@@ -17,15 +38,21 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Inability to move caret in message field up and down. ([#1494], [#1493])
         - Redesigned file attachments. ([#1480], [#1412])
-        - Upload progress indicator not updating during file upload. ([#1492], [#1491])
-
+- Push notifications:
+    - Notifications duplicating on iOS and Android. ([#1500], [#1495], [#1472])
+    - Notifications not being canceled after reading on another device on iOS and Android. ([#1500])
+- iOS:
+    - [VoIP] [CallKit] notification still ringing despite already joined call on another device. ([#1499])
+    - Unread chats badge not updating sometimes on app's icon. ([#1500])
 
 [#1412]: /../../issues/1412
-[#1491]: /../../issues/1491
-[#1492]: /../../pull/1492
-[#1493]: /../../issues/1493
+[#1472]: /../../issues/1472
 [#1480]: /../../pull/1480
+[#1493]: /../../issues/1493
 [#1494]: /../../pull/1494
+[#1495]: /../../pull/1495
+[#1499]: /../../pull/1499
+[#1500]: /../../pull/1500
 
 
 
