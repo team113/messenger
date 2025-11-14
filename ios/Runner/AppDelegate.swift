@@ -30,15 +30,23 @@ import os
 import sqlite3
 
 @main
-@objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate, PKPushRegistryDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
+    application.registerForRemoteNotifications()
+    UIApplication.shared.registerForRemoteNotifications()
+
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     let utilsChannel = FlutterMethodChannel(
       name: "team113.flutter.dev/ios_utils",
-      binaryMessenger: controller.binaryMessenger)
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
+    )
+
     utilsChannel.setMethodCallHandler({
       [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
       if call.method == "getArchitecture" {
@@ -70,17 +78,13 @@ import sqlite3
       UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
     }
 
-    GeneratedPluginRegistrant.register(with: self)
-    application.registerForRemoteNotifications()
-    UIApplication.shared.registerForRemoteNotifications()
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
 
     // Setup VOIP.
     let mainQueue = DispatchQueue.main
     let voipRegistry: PKPushRegistry = PKPushRegistry(queue: mainQueue)
     voipRegistry.delegate = self
     voipRegistry.desiredPushTypes = [PKPushType.voIP]
-
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   // This method handles background  data-only push notifications on iOS.
