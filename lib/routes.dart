@@ -1117,7 +1117,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       return [
         MaterialPage(
           key: ValueKey('ChatDirectLinkPage$slug'),
-          name: Routes.chatDirectLink,
+          name: '${Routes.chatDirectLink}$slug',
           child: ChatDirectLinkView(slug),
         ),
       ];
