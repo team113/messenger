@@ -2178,7 +2178,7 @@ class OngoingCall {
 
       // TODO: Just for testing, remove that.
       if (_joinRoomAttempts == 1) {
-        await _room?.join('$link?token=ggg$creds');
+        await _room?.join('$link?token=${creds}ggg');
       } else {
         await _room?.join('$link?token=$creds');
       }
