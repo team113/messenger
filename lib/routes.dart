@@ -1247,7 +1247,7 @@ extension RouteLinks on RouterState {
       routes.removeLast();
     }
 
-    (navigationMode != NavigationMode.replaceAll ? push : go)(
+    (navigationMode == NavigationMode.replaceAll ? go : push)(
       '${Routes.chats}/$id',
     );
 

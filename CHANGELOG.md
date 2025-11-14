@@ -13,11 +13,15 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
+- Links
+    - A chat opened via a link now supports navigating back. ([#1504], [#1460])
 - Web:
     - Inability to crop SVG avatar images on Web. ([#1501], [#1489])
 
+[#1460]: /../../issues/1460
 [#1489]: /../../issues/1489
 [#1501]: /../../pull/1501
+[#1504]: /../../pull/1504
 
 
 
