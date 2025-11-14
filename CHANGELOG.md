@@ -19,14 +19,13 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
-- Push notifications:
-    - Notifications not being canceled after reading on another device on iOS and Android. ([#1500])
-- iOS:
-    - Unread chats badge not updating sometimes on app's icon. ([#1500])
+- Web:
+    - Inability to crop SVG avatar images on Web. ([#1501], [#1489])
 
+[#1489]: /../../issues/1489
 [#1490]: /../../issues/1490
-[#1496]: /../../pull/1496
 [#1500]: /../../pull/1500
+[#1501]: /../../pull/1501
 
 
 
@@ -43,9 +42,11 @@ All user visible changes to this project will be documented in this file. This p
         - Inability to move caret in message field up and down. ([#1494], [#1493])
         - Redesigned file attachments. ([#1480], [#1412])
 - Push notifications:
-    - Notifications duplicating on iOS and Android. ([#1495], [#1472])
+    - Notifications duplicating on iOS and Android. ([#1500], [#1495], [#1472])
+    - Notifications not being canceled after reading on another device on iOS and Android. ([#1500])
 - iOS:
     - [VoIP] [CallKit] notification still ringing despite already joined call on another device. ([#1499])
+    - Unread chats badge not updating sometimes on app's icon. ([#1500])
 
 [#1412]: /../../issues/1412
 [#1472]: /../../issues/1472
@@ -54,6 +55,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1494]: /../../pull/1494
 [#1495]: /../../pull/1495
 [#1499]: /../../pull/1499
+[#1500]: /../../pull/1500
 
 
 
