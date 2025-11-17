@@ -10,6 +10,10 @@ All user visible changes to this project will be documented in this file. This p
 [0.7.0]: /../../tree/v0.7.0
 
 [Diff](/../../compare/v0.6.8...v0.7.0) | [Milestone](/../../milestone/53)
+### Added
+
+- UI:
+    - Keep chat scroll position when exiting and re-entering it while the app is running. ([#1484], [#471])
 
 ### Fixed
 
@@ -17,7 +21,9 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Inability to move caret in message field up and down. ([#1494], [#1493])
 
+[#1484]: /../../issues/1484
 [#1493]: /../../issues/1493
+[#471]: /../../pull/471
 [#1494]: /../../pull/1494
 
 

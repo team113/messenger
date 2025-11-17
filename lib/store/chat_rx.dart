@@ -133,7 +133,6 @@ class RxChatImpl extends RxChat {
     _scrollPosition = position;
   }
 
-  /// Restore scroll position, used when leaving and re-entering it.
   @override
   ChatScrollPosition? get scrollPosition {
     Log.debug(
