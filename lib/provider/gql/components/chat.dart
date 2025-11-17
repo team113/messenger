@@ -690,7 +690,6 @@ mixin ChatGraphQlMixin {
         archived: archived,
       ),
     );
-
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'RecentChatsTopEvents',
