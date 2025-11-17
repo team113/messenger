@@ -314,7 +314,7 @@ abstract class RxChat implements Comparable<RxChat> {
   /// Indicates whether this [chat] has an [OngoingCall] active on this device.
   RxBool get inCall;
 
-  /// Store scroll position, used when leaving and re-entering chat.
+  /// Return stored scroll position, used when leaving and re-entering chat.
   ChatScrollPosition? get scrollPosition => null;
 
   /// Store scroll position, used when leaving and re-entering it.
@@ -397,10 +397,10 @@ class RxChatMember implements Comparable<RxChatMember> {
 
 /// Chat scroll position for save and restore.
 class ChatScrollPosition {
-  ChatScrollPosition({required this.itemId, required this.offset});
+  ChatScrollPosition({required this.index, required this.offset});
 
-  /// Saved top position id
-  final ChatItemId itemId;
+  /// Saved top position index
+  final int index;
 
   /// Saved top position offset
   final double offset;

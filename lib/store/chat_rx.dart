@@ -127,7 +127,7 @@ class RxChatImpl extends RxChat {
   @override
   set scrollPosition(ChatScrollPosition position) {
     Log.debug(
-      'set scrollPosition($id, ${position.itemId}, ${position.offset})',
+      'set scrollPosition($id, ${position.index}, ${position.offset})',
       '$runtimeType',
     );
     _scrollPosition = position;
@@ -137,7 +137,7 @@ class RxChatImpl extends RxChat {
   @override
   ChatScrollPosition? get scrollPosition {
     Log.debug(
-      'get scrollPosition($id, ${_scrollPosition?.itemId}, ${_scrollPosition?.offset})',
+      'get scrollPosition($id, ${_scrollPosition?.index}, ${_scrollPosition?.offset})',
       '$runtimeType',
     );
     return _scrollPosition;

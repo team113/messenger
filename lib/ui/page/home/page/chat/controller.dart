@@ -591,13 +591,12 @@ class ChatController extends GetxController {
     if (!PlatformUtils.isMobile) {
       send.field.focus.requestFocus();
     }
-    _restoreScrollPosition();
     super.onReady();
   }
 
   @override
   void onClose() {
-    _saveCurrentScrollPosition();
+    _saveScrollPosition();
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _selectingWorker?.dispose();
@@ -1098,6 +1097,8 @@ class ChatController extends GetxController {
       _ready.finish(status: const SpanStatus.internalError());
       rethrow;
     }
+
+    _restoreScrollPosition();
   }
 
   /// Returns a reactive [User] from [UserService] by the provided [id].
@@ -2420,44 +2421,56 @@ class ChatController extends GetxController {
   }
 
   /// Save scroll position, used when leaving and re-entering it.
-  void _saveCurrentScrollPosition() {
-    if (_topVisibleItem == null || elements.isEmpty) return;
-
-    final element = elements.values.elementAt(_topVisibleItem!.index);
-    final itemId = switch (element) {
-      ChatMessageElement e => e.item.value.id,
-      ChatCallElement e => e.item.value.id,
-      ChatInfoElement e => e.item.value.id,
-      ChatForwardElement e => e.forwards.firstOrNull?.value.id,
-      _ => null,
-    };
-
-    if (itemId != null && _topVisibleItem?.offset != null) {
-      Log.debug(
-        '_saveCurrentScrollPosition() ->'
-            ' save scroll position to ChatItemId($itemId)',
-        '$runtimeType',
-      );
-      chat?.scrollPosition = ChatScrollPosition(
-        itemId: itemId,
-        offset: _topVisibleItem!.offset,
-      );
+  void _saveScrollPosition() {
+    if (_topVisibleItem == null ||
+        elements.isEmpty ||
+        _topVisibleItem?.offset == null) {
+      return;
     }
+
+    Log.debug(
+      '_saveScrollPosition() ->'
+          ' save scroll position to index ${_topVisibleItem!.index}'
+          ' with offset= ${_topVisibleItem?.offset}',
+      '$runtimeType',
+    );
+    chat?.scrollPosition = ChatScrollPosition(
+      index: _topVisibleItem!.index,
+      offset: _topVisibleItem!.offset,
+    );
   }
 
   /// Restore scroll position, used when leaving and re-entering it.
   Future<void> _restoreScrollPosition() async {
-    if (chat?.scrollPosition != null) {
-      await animateTo(
-        chat!.scrollPosition!.itemId,
-        offset: chat!.scrollPosition!.offset,
-        ignoreElements: true,
-      );
-      Log.debug(
-        '_restoreScrollPosition() ->'
-            ' restore scroll position to ChatItemId(${chat!.scrollPosition!.itemId})',
-        '$runtimeType',
-      );
+    if (chat?.scrollPosition == null ||
+        chat!.scrollPosition!.offset == _topVisibleItem?.offset) {
+      return;
+    }
+    Log.debug(
+      '_restoreScrollPosition() ->'
+          ' restore scroll position to index(${chat!.scrollPosition!.index})',
+      '$runtimeType',
+    );
+    try {
+      _ignorePositionChanges = true;
+
+      if (listController.hasClients) {
+        await listController.sliverController.animateToIndex(
+          chat!.scrollPosition!.index,
+          offsetBasedOnBottom: true,
+          offset: chat!.scrollPosition!.offset,
+          duration: 200.milliseconds,
+          curve: Curves.ease,
+        );
+      } else {
+        initIndex = chat!.scrollPosition!.index;
+        initOffset = chat!.scrollPosition!.offset;
+      }
+      _itemToReturnTo = _topVisibleItem;
+      canGoBack.value = true;
+    } finally {
+      _ignorePositionChanges = false;
+      _listControllerListener();
     }
   }
 
