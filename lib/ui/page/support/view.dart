@@ -137,6 +137,8 @@ class SupportView extends StatelessWidget {
                         myUser: c.myUser?.value,
                         token: c.token,
                         pushNotifications: c.pushNotifications,
+                        notificationSettings:
+                            await LogController.getNotificationSettings(),
                       );
                     },
                     text: 'btn_download_logs'.l10n,

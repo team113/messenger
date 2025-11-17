@@ -203,10 +203,11 @@ class NotificationService extends DisposableService {
     String? payload,
     ImageFile? icon,
     String? tag,
+    String? thread,
     String? image,
   }) async {
     Log.debug(
-      'show($title, $body, $payload, $icon, $tag, $image)',
+      'show($title, $body, $payload, $icon, $tag, $thread, $image) -> id is `${tag?.asHash}`',
       '$runtimeType',
     );
 
@@ -294,10 +295,7 @@ class NotificationService extends DisposableService {
       // TODO: `flutter_local_notifications` should support Windows:
       //       https://github.com/MaikuB/flutter_local_notifications/issues/746
       await _plugin?.show(
-        // On Android notifications are replaced when ID and tag are the same,
-        // and FCM notifications always have ID of zero, so in order for push
-        // notifications to replace local, we set its ID as zero as well.
-        PlatformUtils.isAndroid ? 0 : Random().nextInt(1 << 31),
+        tag?.asHash ?? Random().nextInt(1 << 31),
         title,
         body,
         NotificationDetails(
@@ -309,6 +307,7 @@ class NotificationService extends DisposableService {
                 ? null
                 : BigPictureStyleInformation(FilePathAndroidBitmap(imagePath)),
             tag: tag,
+            groupKey: thread,
           ),
           linux: LinuxNotificationDetails(
             sound: AssetsLinuxSound('audio/notification.mp3'),
@@ -318,12 +317,14 @@ class NotificationService extends DisposableService {
             attachments: [
               if (imagePath != null) DarwinNotificationAttachment(imagePath),
             ],
+            threadIdentifier: thread,
           ),
           macOS: DarwinNotificationDetails(
             sound: 'notification.caf',
             attachments: [
               if (imagePath != null) DarwinNotificationAttachment(imagePath),
             ],
+            threadIdentifier: thread,
           ),
         ),
         payload: payload,
@@ -507,15 +508,19 @@ class NotificationService extends DisposableService {
     ) async {
       Log.debug('_foregroundSubscription(${message.toMap()})', '$runtimeType');
 
+      final String? tag = message.data['tag'];
+      final String? thread = message.data['thread'];
+
+      if (tag != null) {
+        await AndroidUtils.cancelNotificationById(tag, tag.asHash);
+      }
+
       // If message contains no notification (it's a background notification),
       // then try canceling the notifications with the provided thread, if any,
       // or otherwise a single one, if data contains a tag.
       if (message.notification == null ||
-          (message.notification?.title == 'Canceled' &&
+          (message.notification?.title?.isEmpty != false &&
               message.notification?.body == null)) {
-        final String? tag = message.data['tag'];
-        final String? thread = message.data['thread'];
-
         if (PlatformUtils.isWeb) {
           // TODO: Implement notifications canceling for Web.
         } else if (PlatformUtils.isAndroid) {
@@ -542,10 +547,11 @@ class NotificationService extends DisposableService {
               message.notification?.android?.imageUrl ??
               message.notification?.apple?.imageUrl ??
               message.notification?.web?.image,
+          thread: message.data['chatId'],
           tag:
               message.data['chatId'] != null &&
                   message.data['chatItemId'] != null
-              ? '${message.data['chatId']}_${message.data['chatItemId']}'
+              ? '${message.data['chatId']}-${message.data['chatItemId']}'
               : null,
         );
       }
@@ -583,7 +589,7 @@ class NotificationService extends DisposableService {
         final String? chatItemId = message['data']?['chatItemId'];
 
         final String? tag = (chatId != null && chatItemId != null)
-            ? '${chatId}_$chatItemId'
+            ? '$chatId-$chatItemId'
             : null;
 
         // Keep track of the shown notifications' [tag]s to prevent duplication.
@@ -716,5 +722,25 @@ class NotificationService extends DisposableService {
     } finally {
       _pushNotifications = false;
     }
+  }
+}
+
+/// Extension adding simplest possible hash to a [String].
+extension TagToHash on String {
+  /// Returns a hash of this [String] in its simplest form.
+  ///
+  /// Currently uses [FNV-1a] hash function.
+  ///
+  /// [FNV-1a]: https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
+  int get asHash {
+    int result = 0x811c9dc5;
+
+    for (var e in codeUnits) {
+      result ^= e;
+      result *= 0x01000193;
+      result &= 0xFFFFFFFF;
+    }
+
+    return result;
   }
 }

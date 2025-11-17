@@ -575,6 +575,8 @@ class WebUtils {
   /// Opens a new popup window at the [Routes.gallery] page with the provided
   /// [chatId].
   static bool openPopupGallery(ChatId chatId, {String? id, int? index}) {
+    Log.debug('openPopupGallery($chatId, id: $id, index: $index)', 'WebUtils');
+
     final int screenW = web.window.screen.width;
     final int screenH = web.window.screen.height;
 
@@ -611,8 +613,11 @@ class WebUtils {
     );
 
     try {
-      return window?.closed == false;
-    } catch (_) {
+      final bool opened = window?.closed == false;
+      Log.debug('openPopupGallery($chatId) -> $opened, $window', 'WebUtils');
+      return opened;
+    } catch (e) {
+      Log.debug('openPopupGallery($chatId) -> failed due to $e', 'WebUtils');
       return false;
     }
   }
@@ -625,6 +630,11 @@ class WebUtils {
     bool withVideo = false,
     bool withScreen = false,
   }) {
+    Log.debug(
+      'openPopupCall($chatId, withAudio: $withAudio, withVideo: $withVideo, withScreen: $withScreen)',
+      'WebUtils',
+    );
+
     final int screenW = web.window.screen.width;
     final int screenH = web.window.screen.height;
 
@@ -662,8 +672,11 @@ class WebUtils {
     );
 
     try {
-      return window?.closed == false;
-    } catch (_) {
+      final bool opened = window?.closed == false;
+      Log.debug('openPopupCall($chatId) -> $opened, $window', 'WebUtils');
+      return opened;
+    } catch (e) {
+      Log.debug('openPopupCall($chatId) -> failed due to $e', 'WebUtils');
       return false;
     }
   }

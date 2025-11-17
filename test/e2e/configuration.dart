@@ -95,6 +95,7 @@ import 'steps/popup_windows.dart';
 import 'steps/posts_images.dart';
 import 'steps/reads_message.dart';
 import 'steps/remove_chat_member.dart';
+import 'steps/remove_message_attachment.dart';
 import 'steps/rename_contact.dart';
 import 'steps/reply_message.dart';
 import 'steps/restart_app.dart';
@@ -218,6 +219,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         iAmInMonolog,
         iTapChatGroup,
         iTapChatWith,
+        iTapChatWithWithin,
         logout,
         longPressChat,
         longPressContact,
@@ -238,6 +240,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         readsMessage,
         removeAccountInAccounts,
         removeGroupMember,
+        removeMessageAttachment,
         renameContact,
         repliesToMessage,
         restartApp,

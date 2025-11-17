@@ -19,17 +19,18 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_custom_cursor/cursor_manager.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
-import 'package:flutter_native_badge/flutter_native_badge.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
@@ -909,15 +910,36 @@ class PlatformUtilsImpl {
     }
 
     try {
-      if (await FlutterNativeBadge.isSupported()) {
-        if (count == 0) {
-          await FlutterNativeBadge.clearBadgeCount();
-        } else {
-          await FlutterNativeBadge.setBadgeCount(count);
-        }
+      if (await AppBadgePlus.isSupported()) {
+        await AppBadgePlus.updateBadge(count);
       }
     } catch (_) {
       // No-op.
+    }
+  }
+
+  /// Opens a directory containing the provided [File].
+  ///
+  /// If directory cannot be opened (for example, on Android or iOS), then opens
+  /// the [File] itself.
+  Future<void> openDirectoryOrFile(File file) async {
+    if (PlatformUtils.isWeb) {
+      // Web doesn't allow that.
+      return;
+    }
+
+    if (PlatformUtils.isWindows) {
+      // `explorer` is always included on Windows.
+      await Process.start('explorer', ['/select,', p.normalize(file.path)]);
+    } else if (PlatformUtils.isMacOS) {
+      // `open` is always included on macOS.
+      await Process.start('open', ['-R', p.normalize(file.path)]);
+    } else if (PlatformUtils.isLinux) {
+      // `xdg-open` seems to be installed by default in a large amount of
+      // distros, thus we may rely on it installed on the user's machine.
+      await Process.start('xdg-open', [p.normalize(file.parent.path)]);
+    } else {
+      await OpenFile.open(file.path);
     }
   }
 }

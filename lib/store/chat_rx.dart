@@ -1118,6 +1118,10 @@ class RxChatImpl extends RxChat {
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
+  @override
+  String toString() =>
+      'RxChatImpl($chat, ${messages.length} messages, ${members.length} members, $unreadCount unread)';
+
   /// Puts the provided [member] to the [members].
   Future<void> _putMember(DtoChatMember member, {bool ignoreBounds = false}) =>
       members.put(member, ignoreBounds: ignoreBounds);
