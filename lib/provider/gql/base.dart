@@ -283,14 +283,14 @@ class GraphQlClient {
   ///
   /// The higher the [priority], the earlier this subscription will be
   /// subscribed to in a rate limiter queue.
-  Stream<QueryResult> subscribe(
+  SubscriptionHandle subscribe(
     SubscriptionOptions options, {
     FutureOr<Version?> Function()? ver,
     bool resubscribe = true,
     int priority = 1,
   }) {
     return SubscriptionHandle(
-      (options) async => await _subscribe(options, priority: priority),
+      _subscribe,
       (e) {
         _subscriptions.remove(e);
         e?.dispose();
@@ -298,7 +298,7 @@ class GraphQlClient {
       options,
       ver: ver,
       resubscribe: resubscribe,
-    ).stream;
+    );
   }
 
   /// Makes an HTTP POST request with an exposed [onSendProgress].
@@ -386,9 +386,9 @@ class GraphQlClient {
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
   Future<SubscriptionConnection> _subscribe(
-    SubscriptionOptions options, {
-    int priority = 1,
-  }) async {
+    SubscriptionOptions options,
+    int priority,
+  ) async {
     final stream = await _subscriptionLimiter.execute<Stream<QueryResult>>(
       () async => (await client).subscribe(options),
       priority: priority,
@@ -765,8 +765,14 @@ class SubscriptionHandle {
   /// [ResubscriptionRequiredException] or not.
   final bool resubscribe;
 
+  /// Priority of [_listen] subscription in [RateLimiter]'s queue.
+  ///
+  /// The bigger, the more earlier this subscription will be resubscribed.
+  int priority = 0;
+
   /// Callback, called to get the [Stream] of [QueryResult]s itself.
-  final FutureOr<SubscriptionConnection> Function(SubscriptionOptions) _listen;
+  final FutureOr<SubscriptionConnection> Function(SubscriptionOptions, int)
+  _listen;
 
   /// Callback, called to cancel the provided [SubscriptionConnection].
   final void Function(SubscriptionConnection?) _cancel;
@@ -819,7 +825,7 @@ class SubscriptionHandle {
           return;
         }
 
-        _connection = await _listen(_options);
+        _connection = await _listen(_options, priority);
 
         if (!_controller.hasListener) {
           return cancel();

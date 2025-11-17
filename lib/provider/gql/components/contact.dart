@@ -264,14 +264,16 @@ mixin ContactGraphQlMixin {
     Log.debug('contactsEvents(ChatContactsListVersion)', '$runtimeType');
 
     final variables = ContactsEventsArguments(ver: ver());
-    return client.subscribe(
-      SubscriptionOptions(
-        operationName: 'ContactsEvents',
-        document: ContactsEventsSubscription(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      ver: ver,
-    );
+    return client
+        .subscribe(
+          SubscriptionOptions(
+            operationName: 'ContactsEvents',
+            document: ContactsEventsSubscription(variables: variables).document,
+            variables: variables.toJson(),
+          ),
+          ver: ver,
+        )
+        .stream;
   }
 
   /// Updates the `name` of the specified [ChatContact] in the authenticated

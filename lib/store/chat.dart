@@ -52,6 +52,7 @@ import '/provider/drift/chat_member.dart';
 import '/provider/drift/draft.dart';
 import '/provider/drift/monolog.dart';
 import '/provider/drift/version.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart'
     show
         AddChatMemberException,
@@ -1737,18 +1738,23 @@ class ChatRepository extends DisposableInterface
     _callRepo.remove(chatId);
   }
 
-  /// Subscribes to [ChatEvent]s of the specified [Chat].
-  Stream<ChatEvents> chatEvents(
+  /// Returns a [SubscriptionHandle] of the [ChatEvent]s to the specified
+  /// [Chat].
+  SubscriptionHandle chatEventsAsHandle(
     ChatId chatId,
     ChatVersion? ver,
     FutureOr<ChatVersion?> Function() onVer,
   ) {
-    Log.debug('chatEvents($chatId, $ver, onVer)', '$runtimeType');
+    Log.debug('chatEventsAsHandle($chatId, $ver, onVer)', '$runtimeType');
+    return _graphQlProvider.chatEvents(chatId, ver, onVer);
+  }
 
-    return _graphQlProvider.chatEvents(chatId, ver, onVer).asyncExpand((
-      event,
-    ) async* {
-      Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
+  /// Subscribes to [ChatEvent]s of the specified [Chat].
+  Stream<ChatEvents> chatEventsAsStream(ChatId id, SubscriptionHandle handle) {
+    Log.debug('chatEventsAsStream($id, $handle)', '$runtimeType');
+
+    return handle.stream.asyncExpand((event) async* {
+      Log.trace('chatEvents($id): ${event.data}', '$runtimeType');
 
       var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
       if (events.$$typename == 'SubscriptionInitialized') {

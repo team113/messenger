@@ -48,6 +48,7 @@ import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
 import '/provider/drift/chat.dart';
 import '/provider/drift/draft.dart';
+import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
@@ -175,6 +176,9 @@ class RxChatImpl extends RxChat {
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<ChatEvents>? _remoteSubscription;
+
+  /// [SubscriptionHandle] holding the [_remoteSubscription].
+  SubscriptionHandle? _remoteSubscriptionHandle;
 
   /// [ChatDriftProvider.watch] subscription.
   StreamSubscription? _localSubscription;
@@ -1944,8 +1948,18 @@ class RxChatImpl extends RxChat {
           });
         }
 
+        _remoteSubscriptionHandle = _chatRepository.chatEventsAsHandle(
+          id,
+          ver,
+          () => ver,
+        );
+
+        _remoteSubscriptionHandle?.priority = chat.value.ongoingCall == null
+            ? 10
+            : -10;
+
         _remoteSubscription = StreamQueue(
-          _chatRepository.chatEvents(id, ver, () => ver),
+          _chatRepository.chatEventsAsStream(id, _remoteSubscriptionHandle!),
         );
 
         await _remoteSubscription!.execute(
@@ -2132,6 +2146,8 @@ class RxChatImpl extends RxChat {
             case ChatEventKind.callStarted:
               event as EventChatCallStarted;
 
+              _remoteSubscriptionHandle?.priority = 10;
+
               if (!chat.value.isDialog) {
                 event.call.conversationStartedAt ??= PreciseDateTime.now();
               }
@@ -2164,6 +2180,8 @@ class RxChatImpl extends RxChat {
 
             case ChatEventKind.callFinished:
               event as EventChatCallFinished;
+
+              _remoteSubscriptionHandle?.priority = -10;
 
               if (dto.value.ongoingCall?.id == event.call.id) {
                 write((chat) => chat.value.ongoingCall = null);
@@ -2460,6 +2478,8 @@ class RxChatImpl extends RxChat {
 
             case ChatEventKind.callConversationStarted:
               event as EventChatCallConversationStarted;
+
+              _remoteSubscriptionHandle?.priority = 10;
 
               // Call is already finished, no reason to try adding it.
               if (event.call.finishReason == null) {

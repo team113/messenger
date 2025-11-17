@@ -690,15 +690,18 @@ mixin ChatGraphQlMixin {
         archived: archived,
       ),
     );
-    return client.subscribe(
-      SubscriptionOptions(
-        operationName: 'RecentChatsTopEvents',
-        document: RecentChatsTopEventsSubscription(
-          variables: variables,
-        ).document,
-        variables: variables.toJson(),
-      ),
-    );
+
+    return client
+        .subscribe(
+          SubscriptionOptions(
+            operationName: 'RecentChatsTopEvents',
+            document: RecentChatsTopEventsSubscription(
+              variables: variables,
+            ).document,
+            variables: variables.toJson(),
+          ),
+        )
+        .stream;
   }
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
@@ -755,7 +758,7 @@ mixin ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  Stream<QueryResult> chatEvents(
+  SubscriptionHandle chatEvents(
     ChatId id,
     ChatVersion? ver,
     FutureOr<ChatVersion?> Function() onVer,
@@ -1133,14 +1136,16 @@ mixin ChatGraphQlMixin {
     Log.debug('keepTyping($id)', '$runtimeType');
 
     final variables = KeepTypingArguments(chatId: id);
-    return client.subscribe(
-      SubscriptionOptions(
-        operationName: 'KeepTyping',
-        document: KeepTypingSubscription(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      resubscribe: false,
-    );
+    return client
+        .subscribe(
+          SubscriptionOptions(
+            operationName: 'KeepTyping',
+            document: KeepTypingSubscription(variables: variables).document,
+            variables: variables.toJson(),
+          ),
+          resubscribe: false,
+        )
+        .stream;
   }
 
   /// Edits a [ChatMessage] by the authenticated [MyUser] with the provided
@@ -1554,16 +1559,18 @@ mixin ChatGraphQlMixin {
     Log.debug('favoriteChatsEvents(ver)', '$runtimeType');
 
     final variables = FavoriteChatsEventsArguments(ver: ver());
-    return client.subscribe(
-      SubscriptionOptions(
-        operationName: 'FavoriteChatsEvents',
-        document: FavoriteChatsEventsSubscription(
-          variables: variables,
-        ).document,
-        variables: variables.toJson(),
-      ),
-      ver: ver,
-    );
+    return client
+        .subscribe(
+          SubscriptionOptions(
+            operationName: 'FavoriteChatsEvents',
+            document: FavoriteChatsEventsSubscription(
+              variables: variables,
+            ).document,
+            variables: variables.toJson(),
+          ),
+          ver: ver,
+        )
+        .stream;
   }
 
   /// Clears an existing [Chat] (hides all its [ChatItem]s) for the
