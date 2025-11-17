@@ -6,17 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.7.0] · 2025-??-??
-[0.7.0]: /../../tree/v0.7.0
+## [0.6.10] · 2025-11-17
+[0.6.10]: /../../tree/v0.6.10
 
-[Diff](/../../compare/v0.6.9...v0.7.0) | [Milestone](/../../milestone/54)
+[Diff](/../../compare/v0.6.9...v0.6.10) | [Milestone](/../../milestone/54)
 
 ### Fixed
 
+- UI:
+    - Chat page:
+        - Upload progress indicator not updating during file upload. ([#1492], [#1491])
 - Web:
     - Inability to crop SVG avatar images on Web. ([#1501], [#1489])
 
 [#1489]: /../../issues/1489
+[#1491]: /../../issues/1491
+[#1492]: /../../pull/1492
 [#1501]: /../../pull/1501
 
 
