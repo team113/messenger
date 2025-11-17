@@ -52,7 +52,6 @@ import '/provider/drift/chat_member.dart';
 import '/provider/drift/draft.dart';
 import '/provider/drift/monolog.dart';
 import '/provider/drift/version.dart';
-import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart'
     show
         AddChatMemberException,
@@ -1684,40 +1683,41 @@ class ChatRepository extends DisposableInterface
     _callRepo.remove(chatId);
   }
 
-  /// Returns a [SubscriptionHandle] of the [ChatEvent]s to the specified
-  /// [Chat].
-  SubscriptionHandle chatEventsAsHandle(
+  /// Subscribes to [ChatEvent]s of the specified [Chat].
+  Stream<ChatEvents> chatEvents(
     ChatId chatId,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
-    Log.debug('chatEventsAsHandle($chatId, $ver, onVer)', '$runtimeType');
-    return _graphQlProvider.chatEvents(chatId, ver, onVer);
-  }
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = -10,
+  }) {
+    Log.debug('chatEvents($chatId)', '$runtimeType');
 
-  /// Subscribes to [ChatEvent]s of the specified [Chat].
-  Stream<ChatEvents> chatEventsAsStream(ChatId id, SubscriptionHandle handle) {
-    Log.debug('chatEventsAsStream($id, $handle)', '$runtimeType');
+    return _graphQlProvider
+        .chatEvents(chatId, ver, onVer, priority: priority)
+        .asyncExpand((event) async* {
+          Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
 
-    return handle.stream.asyncExpand((event) async* {
-      Log.trace('chatEvents($id): ${event.data}', '$runtimeType');
-
-      var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
-        yield const ChatEventsInitialized();
-      } else if (events.$$typename == 'Chat') {
-        final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
-        final data = _chat(chat);
-        yield ChatEventsChat(data.chat);
-      } else if (events.$$typename == 'ChatEventsVersioned') {
-        var mixin =
-            events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
-        yield ChatEventsEvent(
-          ChatEventsVersioned(mixin.events.map(chatEvent).toList(), mixin.ver),
-        );
-      }
-    });
+          var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+          if (events.$$typename == 'SubscriptionInitialized') {
+            events
+                as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
+            yield const ChatEventsInitialized();
+          } else if (events.$$typename == 'Chat') {
+            final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
+            final data = _chat(chat);
+            yield ChatEventsChat(data.chat);
+          } else if (events.$$typename == 'ChatEventsVersioned') {
+            var mixin =
+                events
+                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+            yield ChatEventsEvent(
+              ChatEventsVersioned(
+                mixin.events.map(chatEvent).toList(),
+                mixin.ver,
+              ),
+            );
+          }
+        });
   }
 
   @override

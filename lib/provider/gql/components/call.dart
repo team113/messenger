@@ -140,16 +140,14 @@ mixin CallGraphQlMixin {
     Log.debug('callEvents($id, $deviceId)', '$runtimeType');
 
     final variables = CallEventsArguments(id: id, deviceId: deviceId);
-    return client
-        .subscribe(
-          SubscriptionOptions(
-            operationName: 'CallEvents',
-            document: CallEventsSubscription(variables: variables).document,
-            variables: variables.toJson(),
-          ),
-          priority: 100,
-        )
-        .stream;
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'CallEvents',
+        document: CallEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      priority: 100,
+    );
   }
 
   /// Subscribes to updates of top [count] items of [incomingCalls] list.
@@ -195,18 +193,16 @@ mixin CallGraphQlMixin {
     Log.debug('incomingCallsTopEvents($count)', '$runtimeType');
 
     final variables = IncomingCallsTopEventsArguments(count: count);
-    return client
-        .subscribe(
-          SubscriptionOptions(
-            operationName: 'IncomingCallsTopEvents',
-            document: IncomingCallsTopEventsSubscription(
-              variables: variables,
-            ).document,
-            variables: variables.toJson(),
-          ),
-          priority: 50,
-        )
-        .stream;
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'IncomingCallsTopEvents',
+        document: IncomingCallsTopEventsSubscription(
+          variables: variables,
+        ).document,
+        variables: variables.toJson(),
+      ),
+      priority: 50,
+    );
   }
 
   /// Starts a new [ChatCall] in the specified [Chat] by the authenticated

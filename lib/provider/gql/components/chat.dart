@@ -691,17 +691,15 @@ mixin ChatGraphQlMixin {
       ),
     );
 
-    return client
-        .subscribe(
-          SubscriptionOptions(
-            operationName: 'RecentChatsTopEvents',
-            document: RecentChatsTopEventsSubscription(
-              variables: variables,
-            ).document,
-            variables: variables.toJson(),
-          ),
-        )
-        .stream;
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'RecentChatsTopEvents',
+        document: RecentChatsTopEventsSubscription(
+          variables: variables,
+        ).document,
+        variables: variables.toJson(),
+      ),
+    );
   }
 
   /// Subscribes to [ChatEvent]s of the specified [Chat].
@@ -758,11 +756,12 @@ mixin ChatGraphQlMixin {
   /// - An error occurs on the server (error is emitted).
   /// - The server is shutting down or becoming unreachable (unexpectedly
   /// completes after initialization).
-  SubscriptionHandle chatEvents(
+  Stream<QueryResult> chatEvents(
     ChatId id,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = -10,
+  }) {
     Log.debug('chatEvents($id, $ver, onVer)', '$runtimeType');
 
     final variables = ChatEventsArguments(id: id, ver: ver);
@@ -772,7 +771,7 @@ mixin ChatGraphQlMixin {
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
-      priority: -10,
+      priority: priority,
       ver: onVer,
     );
   }
@@ -1136,16 +1135,14 @@ mixin ChatGraphQlMixin {
     Log.debug('keepTyping($id)', '$runtimeType');
 
     final variables = KeepTypingArguments(chatId: id);
-    return client
-        .subscribe(
-          SubscriptionOptions(
-            operationName: 'KeepTyping',
-            document: KeepTypingSubscription(variables: variables).document,
-            variables: variables.toJson(),
-          ),
-          resubscribe: false,
-        )
-        .stream;
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'KeepTyping',
+        document: KeepTypingSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      resubscribe: false,
+    );
   }
 
   /// Edits a [ChatMessage] by the authenticated [MyUser] with the provided
@@ -1559,18 +1556,16 @@ mixin ChatGraphQlMixin {
     Log.debug('favoriteChatsEvents(ver)', '$runtimeType');
 
     final variables = FavoriteChatsEventsArguments(ver: ver());
-    return client
-        .subscribe(
-          SubscriptionOptions(
-            operationName: 'FavoriteChatsEvents',
-            document: FavoriteChatsEventsSubscription(
-              variables: variables,
-            ).document,
-            variables: variables.toJson(),
-          ),
-          ver: ver,
-        )
-        .stream;
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'FavoriteChatsEvents',
+        document: FavoriteChatsEventsSubscription(
+          variables: variables,
+        ).document,
+        variables: variables.toJson(),
+      ),
+      ver: ver,
+    );
   }
 
   /// Clears an existing [Chat] (hides all its [ChatItem]s) for the

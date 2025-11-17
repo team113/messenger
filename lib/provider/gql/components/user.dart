@@ -471,16 +471,14 @@ mixin UserGraphQlMixin {
     Log.debug('myUserEvents(ver)', '$runtimeType');
 
     final variables = MyUserEventsArguments(ver: await ver());
-    return client
-        .subscribe(
-          SubscriptionOptions(
-            operationName: 'MyUserEvents',
-            document: MyUserEventsSubscription(variables: variables).document,
-            variables: variables.toJson(),
-          ),
-          ver: ver,
-        )
-        .stream;
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'MyUserEvents',
+        document: MyUserEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      ver: ver,
+    );
   }
 
   /// Subscribes to [BlocklistEvent]s of the authenticated [MyUser].
@@ -535,18 +533,14 @@ mixin UserGraphQlMixin {
     Log.debug('blocklistEvents(ver)', '$runtimeType');
 
     final variables = BlocklistEventsArguments(ver: ver());
-    return client
-        .subscribe(
-          SubscriptionOptions(
-            operationName: 'BlocklistEvents',
-            document: BlocklistEventsSubscription(
-              variables: variables,
-            ).document,
-            variables: variables.toJson(),
-          ),
-          ver: ver,
-        )
-        .stream;
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'BlocklistEvents',
+        document: BlocklistEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      ver: ver,
+    );
   }
 
   /// Subscribes to [UserEvent]s of the specified [User].
@@ -610,17 +604,15 @@ mixin UserGraphQlMixin {
     Log.debug('userEvents($id, ver)', '$runtimeType');
 
     final variables = UserEventsArguments(id: id, ver: await ver());
-    return client
-        .subscribe(
-          SubscriptionOptions(
-            operationName: 'UserEvents',
-            document: UserEventsSubscription(variables: variables).document,
-            variables: variables.toJson(),
-          ),
-          priority: -10,
-          ver: ver,
-        )
-        .stream;
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'UserEvents',
+        document: UserEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      priority: -10,
+      ver: ver,
+    );
   }
 
   /// Deletes the given [email] from [MyUser.emails] of the authenticated
@@ -1176,14 +1168,12 @@ mixin UserGraphQlMixin {
   Stream<QueryResult> keepOnline() {
     Log.debug('keepOnline()', '$runtimeType');
 
-    return client
-        .subscribe(
-          SubscriptionOptions(
-            operationName: 'KeepOnline',
-            document: KeepOnlineSubscription().document,
-          ),
-        )
-        .stream;
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'KeepOnline',
+        document: KeepOnlineSubscription().document,
+      ),
+    );
   }
 
   /// Blocks the specified [User] for the authenticated [MyUser].
@@ -1466,16 +1456,14 @@ mixin UserGraphQlMixin {
     Log.debug('sessionsEvents(ver)', '$runtimeType');
 
     final variables = SessionsEventsArguments(ver: ver());
-    return client
-        .subscribe(
-          SubscriptionOptions(
-            operationName: 'SessionsEvents',
-            document: SessionsEventsSubscription(variables: variables).document,
-            variables: variables.toJson(),
-          ),
-          ver: ver,
-        )
-        .stream;
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'SessionsEvents',
+        document: SessionsEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      ver: ver,
+    );
   }
 
   /// Updates the [WelcomeMessage] of the authenticated [MyUser].

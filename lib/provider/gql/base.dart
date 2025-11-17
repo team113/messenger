@@ -283,11 +283,11 @@ class GraphQlClient {
   ///
   /// The higher the [priority], the earlier this subscription will be
   /// subscribed to in a rate limiter queue.
-  SubscriptionHandle subscribe(
+  Stream<QueryResult> subscribe(
     SubscriptionOptions options, {
     FutureOr<Version?> Function()? ver,
     bool resubscribe = true,
-    int priority = 1,
+    int priority = 0,
   }) {
     return SubscriptionHandle(
       _subscribe,
@@ -298,7 +298,8 @@ class GraphQlClient {
       options,
       ver: ver,
       resubscribe: resubscribe,
-    );
+      priority: priority,
+    ).stream;
   }
 
   /// Makes an HTTP POST request with an exposed [onSendProgress].
@@ -755,6 +756,7 @@ class SubscriptionHandle {
     this._options, {
     this.ver,
     this.resubscribe = true,
+    this.priority = 0,
   });
 
   /// Callback, called when a [Version] to pass the [SubscriptionOptions] is
@@ -768,7 +770,7 @@ class SubscriptionHandle {
   /// Priority of [_listen] subscription in [RateLimiter]'s queue.
   ///
   /// The bigger, the more earlier this subscription will be resubscribed.
-  int priority = 0;
+  int priority;
 
   /// Callback, called to get the [Stream] of [QueryResult]s itself.
   final FutureOr<SubscriptionConnection> Function(SubscriptionOptions, int)

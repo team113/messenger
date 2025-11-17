@@ -1948,18 +1948,13 @@ class RxChatImpl extends RxChat {
           });
         }
 
-        _remoteSubscriptionHandle = _chatRepository.chatEventsAsHandle(
-          id,
-          ver,
-          () => ver,
-        );
-
-        _remoteSubscriptionHandle?.priority = chat.value.ongoingCall == null
-            ? 10
-            : -10;
-
         _remoteSubscription = StreamQueue(
-          _chatRepository.chatEventsAsStream(id, _remoteSubscriptionHandle!),
+          _chatRepository.chatEvents(
+            id,
+            ver,
+            () => ver,
+            priority: chat.value.ongoingCall == null ? -10 : 10,
+          ),
         );
 
         await _remoteSubscription!.execute(
