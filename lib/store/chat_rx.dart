@@ -1966,7 +1966,12 @@ class RxChatImpl extends RxChat {
         }
 
         _remoteSubscription = StreamQueue(
-          _chatRepository.chatEvents(id, ver, () => ver),
+          _chatRepository.chatEvents(
+            id,
+            ver,
+            () => ver,
+            priority: chat.value.ongoingCall == null ? -10 : 10,
+          ),
         );
 
         await _remoteSubscription!.execute(
