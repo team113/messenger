@@ -339,8 +339,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Stream<QueryResult> chatEvents(
     ChatId id,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = 0,
+  }) {
     Future.delayed(
       Duration.zero,
       () => chatEventsStream.add(
