@@ -2084,8 +2084,19 @@ extension LinkParsingExtension on String {
 
                 for (var e in origins) {
                   if (url.startsWith(e)) {
-                    router.push(url.replaceFirst(e, ''));
-                    return;
+                    if (e.endsWith(Routes.chatDirectLink)) {
+                      return router.push(
+                        url.replaceFirst(
+                          e.substring(
+                            0,
+                            e.length - Routes.chatDirectLink.length,
+                          ),
+                          '',
+                        ),
+                      );
+                    }
+
+                    return router.push(url.replaceFirst(e, ''));
                   }
                 }
               }
