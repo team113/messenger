@@ -253,6 +253,8 @@ class RouterState extends ChangeNotifier {
   ///
   /// Clears the whole [routes] stack.
   void go(String to) {
+    Log.debug('go($to)', '$runtimeType');
+
     arguments = null;
 
     for (var e in routes) {
@@ -267,6 +269,8 @@ class RouterState extends ChangeNotifier {
 
   /// Pushes [to] to the [routes] stack.
   void push(String to) {
+    Log.debug('push($to)', '$runtimeType');
+
     arguments = null;
     int pageIndex = routes.indexWhere((e) => e == to);
     if (pageIndex != -1) {
@@ -285,6 +289,8 @@ class RouterState extends ChangeNotifier {
   /// If [routes] contain only one record, then removes segments of that record
   /// by `/` if any, otherwise replaces it with [Routes.home].
   void pop([String? page]) {
+    Log.debug('pop($page)', '$runtimeType');
+
     if (_accounted.remove(page ?? routes.lastOrNull)) {
       return;
     }
@@ -339,6 +345,8 @@ class RouterState extends ChangeNotifier {
 
   /// Replaces the provided [from] with the specified [to] in the [routes].
   void replace(String from, String to) {
+    Log.debug('replace($from, $to)', '$runtimeType');
+
     routes.value = routes.map((e) => e.replaceAll(from, to)).toList();
   }
 
