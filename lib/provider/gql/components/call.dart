@@ -146,6 +146,7 @@ mixin CallGraphQlMixin {
         document: CallEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      priority: 100,
     );
   }
 
@@ -200,6 +201,7 @@ mixin CallGraphQlMixin {
         ).document,
         variables: variables.toJson(),
       ),
+      priority: 50,
     );
   }
 
