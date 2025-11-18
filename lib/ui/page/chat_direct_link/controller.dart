@@ -99,7 +99,7 @@ class ChatDirectLinkController extends GetxController {
         chat,
         _auth.userId,
         link: slug.value,
-        navigationMode: NavigationMode.replace,
+        mode: RouteAs.insteadOfLast,
       );
     } on UseChatDirectLinkException catch (e) {
       span.throwable = e;

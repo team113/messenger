@@ -153,15 +153,15 @@ enum ProfileTab {
 }
 
 /// Navigation mode.
-enum NavigationMode {
-  /// Pushes to the [routes] stack.
+enum RouteAs {
+  /// Pushes to the [router]'s routes stack.
   push,
 
-  /// Pop last route and push to the [routes] stack.
+  /// Clears all routes and pushes to the [router]'s routes stack.
   replace,
 
-  /// Clear all routes and push to the [routes] stack.
-  replaceAll,
+  /// Pops last route and pushes to the [router]'s routes stack.
+  insteadOfLast,
 }
 
 /// Application's router state.
@@ -1239,17 +1239,24 @@ extension RouteLinks on RouterState {
   /// If [push] is `true`, then location is pushed to the router location stack.
   void chat(
     ChatId id, {
-    NavigationMode navigationMode = NavigationMode.replaceAll,
+    RouteAs mode = RouteAs.replace,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
   }) {
-    if (navigationMode == NavigationMode.replace) {
-      routes.removeLast();
-    }
+    switch (mode) {
+      case RouteAs.insteadOfLast:
+        routes.removeLast();
+        go('${Routes.chats}/$id');
+        break;
 
-    (navigationMode == NavigationMode.replaceAll ? go : push)(
-      '${Routes.chats}/$id',
-    );
+      case RouteAs.replace:
+        go('${Routes.chats}/$id');
+        break;
+
+      case RouteAs.push:
+        push('${Routes.chats}/$id');
+        break;
+    }
 
     arguments = {'itemId': itemId, 'link': link};
   }
@@ -1261,7 +1268,7 @@ extension RouteLinks on RouterState {
   void dialog(
     Chat chat,
     UserId? me, {
-    NavigationMode navigationMode = NavigationMode.replaceAll,
+    RouteAs mode = RouteAs.replace,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
   }) {
@@ -1278,12 +1285,7 @@ extension RouteLinks on RouterState {
       }
     }
 
-    router.chat(
-      chatId,
-      itemId: itemId,
-      link: link,
-      navigationMode: navigationMode,
-    );
+    router.chat(chatId, itemId: itemId, link: link, mode: mode);
   }
 
   /// Changes router location to the [Routes.chatInfo] page.

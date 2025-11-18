@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/material.dart' hide NavigationMode;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -321,7 +321,7 @@ class ChatInfoView extends StatelessWidget {
                           inCall: hasCall ? inCall : null,
                           onTap: () => router.chat(
                             ChatId.local(member.user.value.id),
-                            navigationMode: NavigationMode.push,
+                            mode: RouteAs.push,
                           ),
                           onCall: inCall
                               ? () => c.removeChatCallMember(member.id)

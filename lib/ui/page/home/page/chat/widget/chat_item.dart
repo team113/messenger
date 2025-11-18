@@ -20,7 +20,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart' hide NavigationMode;
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -348,7 +348,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Opens the [User.dialog] chat.
   static void _defaultOnUserPressed(User user) =>
-      router.chat(ChatId.local(user.id), navigationMode: NavigationMode.push);
+      router.chat(ChatId.local(user.id), mode: RouteAs.push);
 }
 
 /// State of a [ChatItemWidget] maintaining the [GlobalKey]s for gallery and
