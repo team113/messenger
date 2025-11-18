@@ -1246,7 +1246,7 @@ extension RouteLinks on RouterState {
     switch (mode) {
       case RouteAs.insteadOfLast:
         routes.removeLast();
-        go('${Routes.chats}/$id');
+        push('${Routes.chats}/$id');
         break;
 
       case RouteAs.replace:
