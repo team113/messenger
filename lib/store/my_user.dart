@@ -315,10 +315,11 @@ class MyUserRepository extends DisposableInterface
                 (a) {
                   final index = attachments.indexOf(e);
 
-                  if (a != null) {
-                    attachments[index] = a;
-                  } else {
+                  // If `Attachment` returned is `null`, then it was canceled.
+                  if (a == null) {
                     attachments.removeAt(index);
+                  } else {
+                    attachments[index] = a;
                   }
 
                   myUser.update((_) {});

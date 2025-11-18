@@ -20,7 +20,13 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart'
     as dio
-    show MultipartFile, Options, FormData, DioException, CancelToken;
+    show
+        MultipartFile,
+        Options,
+        FormData,
+        DioException,
+        CancelToken,
+        DioExceptionType;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -967,10 +973,16 @@ mixin ChatGraphQlMixin {
         );
       }
 
-      if (cancelToken?.isCancelled ?? false) {
-        Log.debug('Cancelled to upload attachment: ${attachment?.filename}');
-      } else {
-        Log.error('Failed to upload attachment: ${e.response}', '$runtimeType');
+      switch (e.type) {
+        case dio.DioExceptionType.cancel:
+          // No-op.
+          break;
+
+        default:
+          Log.error(
+            'Failed to upload attachment: ${e.response}',
+            '$runtimeType',
+          );
       }
 
       rethrow;

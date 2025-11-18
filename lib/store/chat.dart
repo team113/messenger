@@ -1038,10 +1038,11 @@ class ChatRepository extends DisposableInterface
               (a) {
                 final index = attachments.changed.indexOf(e);
 
-                if (a != null) {
-                  attachments.changed[index] = a;
-                } else {
+                // If `Attachment` returned is `null`, then it was canceled.
+                if (a == null) {
                   attachments.changed.removeAt(index);
+                } else {
+                  attachments.changed[index] = a;
                 }
 
                 item?.update((_) {});

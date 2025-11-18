@@ -580,10 +580,11 @@ class MessageFieldController extends GetxController {
 
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {
-          if (uploaded != null) {
-            attachments[index] = MapEntry(attachments[index].key, uploaded);
-          } else {
+          // If `Attachment` returned is `null`, then it was canceled.
+          if (uploaded == null) {
             attachments.removeAt(index);
+          } else {
+            attachments[index] = MapEntry(attachments[index].key, uploaded);
           }
           onChanged?.call();
         }

@@ -708,6 +708,8 @@ class RxChatImpl extends RxChat {
       existingDateTime: existingDateTime,
     );
 
+    bool putFinally = true;
+
     // Storing the already stored [ChatMessage] is meaningless as it creates
     // lag spikes, so update it's reactive value directly.
     if (existingId != null) {
@@ -727,8 +729,6 @@ class RxChatImpl extends RxChat {
 
     _pending.add(message.value);
 
-    bool isEmpty = false;
-
     try {
       if (attachments != null) {
         final List<Future> uploads = attachments
@@ -738,10 +738,11 @@ class RxChatImpl extends RxChat {
                   (a) {
                     final index = attachments.indexOf(e);
 
-                    if (a != null) {
-                      attachments[index] = a;
-                    } else {
+                    // If returned `Attachment` is `null`, then it was canceled.
+                    if (a == null) {
                       attachments.removeAt(index);
+                    } else {
+                      attachments[index] = a;
                     }
 
                     put(message);
@@ -777,7 +778,7 @@ class RxChatImpl extends RxChat {
       }
 
       if (attachments?.isEmpty == true && text == null && repliesTo.isEmpty) {
-        isEmpty = true;
+        putFinally = false;
         return message.value;
       }
 
@@ -822,11 +823,11 @@ class RxChatImpl extends RxChat {
       _pending.remove(message.value);
       rethrow;
     } finally {
-      if (isEmpty) {
+      if (putFinally) {
+        put(message);
+      } else {
         remove(message.value.id);
         _pending.remove(message.value);
-      } else {
-        put(message);
       }
     }
 

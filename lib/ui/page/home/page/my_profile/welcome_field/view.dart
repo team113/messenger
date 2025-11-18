@@ -452,6 +452,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                             if (e is LocalAttachment) {
                               e.cancelUpload();
                             }
+
                             c.attachments.removeWhere((a) => a.value == e);
                           },
                         ),
