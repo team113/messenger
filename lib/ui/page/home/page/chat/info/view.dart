@@ -321,7 +321,7 @@ class ChatInfoView extends StatelessWidget {
                           inCall: hasCall ? inCall : null,
                           onTap: () => router.chat(
                             ChatId.local(member.user.value.id),
-                            push: true,
+                            mode: RouteAs.push,
                           ),
                           onCall: inCall
                               ? () => c.removeChatCallMember(member.id)

@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.10...v0.7.0) | [Milestone](/../../milestone/55)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
+
+[#1460]: /../../issues/1460
+[#1504]: /../../pull/1504
+
+
+
+
 ## [0.6.10] · 2025-11-17
 [0.6.10]: /../../tree/v0.6.10
 
