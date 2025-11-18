@@ -1310,43 +1310,12 @@ class ChatRepository extends DisposableInterface
     await attachment.file.ensureCorrectMediaType();
 
     try {
-      dio.MultipartFile upload;
-
       await attachment.file.readFile();
       attachment.read.value?.complete(null);
       attachment.status.refresh();
 
-      String filename = attachment.file.name;
-
-      if (filename.replaceAll(' ', '').isEmpty) {
-        final mime = attachment.file.mime;
-        if (mime != null) {
-          filename = '${DateTime.now().microsecondsSinceEpoch}.${mime.subtype}';
-        } else {
-          filename = '${DateTime.now().microsecondsSinceEpoch}';
-        }
-      }
-
-      if (attachment.file.bytes.value != null) {
-        upload = dio.MultipartFile.fromBytes(
-          attachment.file.bytes.value!,
-          filename: filename,
-          contentType: attachment.file.mime,
-        );
-      } else if (attachment.file.path != null) {
-        upload = await dio.MultipartFile.fromFile(
-          attachment.file.path!,
-          filename: filename,
-          contentType: attachment.file.mime,
-        );
-      } else {
-        throw ArgumentError(
-          'At least stream, bytes or path should be specified.',
-        );
-      }
-
       var response = await _graphQlProvider.uploadAttachment(
-        upload,
+        await attachment.file.toMultipartFile(),
         onSendProgress: (now, max) => attachment.progress.value = now / max,
         cancelToken: attachment.cancelToken,
       );
@@ -1531,30 +1500,7 @@ class ChatRepository extends DisposableInterface
     if (file != null) {
       await file.ensureCorrectMediaType();
 
-      if (file.stream != null) {
-        upload = dio.MultipartFile.fromStream(
-          () => file.stream!,
-          file.size,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else if (file.bytes.value != null) {
-        upload = dio.MultipartFile.fromBytes(
-          file.bytes.value!,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else if (file.path != null) {
-        upload = await dio.MultipartFile.fromFile(
-          file.path!,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else {
-        throw ArgumentError(
-          'At least stream, bytes or path should be specified.',
-        );
-      }
+      upload = await file.toMultipartFile();
     }
 
     final RxChatImpl? chat = chats[id];
