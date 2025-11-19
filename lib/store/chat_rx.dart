@@ -124,24 +124,6 @@ class RxChatImpl extends RxChat {
   @override
   final RxInt unreadCount;
 
-  @override
-  set scrollPosition(ChatScrollPosition position) {
-    Log.debug(
-      'set scrollPosition($id, ${position.index}, ${position.offset})',
-      '$runtimeType',
-    );
-    _scrollPosition = position;
-  }
-
-  @override
-  ChatScrollPosition? get scrollPosition {
-    Log.debug(
-      'get scrollPosition($id, ${_scrollPosition?.index}, ${_scrollPosition?.offset})',
-      '$runtimeType',
-    );
-    return _scrollPosition;
-  }
-
   /// [ChatVersion] of this [RxChatImpl].
   ChatVersion? ver;
 
@@ -356,6 +338,25 @@ class RxChatImpl extends RxChat {
 
   /// Indicates whether this [RxChat] is listening to the remote updates.
   bool get subscribed => _remoteSubscription != null;
+
+  @override
+  set scrollPosition(ChatScrollPosition position) {
+    Log.debug(
+      'set scrollPosition($id, ${position.itemId}, ${position.offset})',
+      '$runtimeType',
+    );
+    _scrollPosition = position;
+  }
+
+  @override
+  ChatScrollPosition? get scrollPosition {
+    Log.debug(
+      'get scrollPosition($id, ${_scrollPosition?.itemId},'
+          ' ${_scrollPosition?.offset})',
+      '$runtimeType',
+    );
+    return _scrollPosition;
+  }
 
   /// Initializes this [RxChatImpl].
   Future<void> init() async {

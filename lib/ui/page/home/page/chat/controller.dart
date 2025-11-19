@@ -591,6 +591,7 @@ class ChatController extends GetxController {
     if (!PlatformUtils.isMobile) {
       send.field.focus.requestFocus();
     }
+
     super.onReady();
   }
 
@@ -2427,57 +2428,105 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Save scroll position, used when leaving and re-entering it.
+  /// Saves the scroll position of the [_lastVisibleItem]
+  /// to [RxChat.scrollPosition].
   void _saveScrollPosition() {
-    if (_topVisibleItem == null ||
+    if (_lastVisibleItem == null ||
         elements.isEmpty ||
-        _topVisibleItem?.offset == null) {
+        _lastVisibleItem?.offset == null) {
       return;
     }
 
-    Log.debug(
-      '_saveScrollPosition() ->'
-          ' save scroll position to index ${_topVisibleItem!.index}'
-          ' with offset= ${_topVisibleItem?.offset}',
-      '$runtimeType',
+    ListElement? element = elements.values.elementAtOrNull(
+      _lastVisibleItem!.index,
     );
-    chat?.scrollPosition = ChatScrollPosition(
-      index: _topVisibleItem!.index,
-      offset: _topVisibleItem!.offset,
-    );
+    ChatItemId? itemId = switch (element) {
+      ChatMessageElement e => e.item.value.id,
+      ChatCallElement e => e.item.value.id,
+      ChatInfoElement e => e.item.value.id,
+      ChatForwardElement e => e.forwards.firstOrNull?.value.id,
+      _ => null,
+    };
+
+    if (_lastVisibleItem?.index != null &&
+        _lastVisibleItem?.offset != null &&
+        itemId != null) {
+      Log.debug(
+        '_saveScrollPosition() ->'
+            ' save scroll position to ChatItemId(${_lastVisibleItem?.index})',
+        '$runtimeType',
+      );
+      chat?.scrollPosition = ChatScrollPosition(
+        itemId: itemId,
+        offset: _lastVisibleItem!.offset,
+      );
+    }
   }
 
-  /// Restore scroll position, used when leaving and re-entering it.
+  /// Restores the [listController] scroll position
+  /// from [RxChat.scrollPosition].
   Future<void> _restoreScrollPosition() async {
     if (chat?.scrollPosition == null ||
-        chat!.scrollPosition!.offset == _topVisibleItem?.offset) {
+        chat!.scrollPosition!.offset == _lastVisibleItem?.offset) {
       return;
     }
     Log.debug(
-      '_restoreScrollPosition() ->'
-          ' restore scroll position to index(${chat!.scrollPosition!.index})',
+      '_restoreScrollPosition() -> '
+          'restore scroll position to itemId(${chat!.scrollPosition!.itemId})',
       '$runtimeType',
     );
-    try {
-      _ignorePositionChanges = true;
 
-      if (listController.hasClients) {
-        await listController.sliverController.animateToIndex(
-          chat!.scrollPosition!.index,
-          offsetBasedOnBottom: true,
-          offset: chat!.scrollPosition!.offset,
-          duration: 200.milliseconds,
-          curve: Curves.ease,
-        );
-      } else {
-        initIndex = chat!.scrollPosition!.index;
-        initOffset = chat!.scrollPosition!.offset;
-      }
-      _itemToReturnTo = _topVisibleItem;
-      canGoBack.value = true;
+    // Try to fetch the items.
+    try {
+      final itemId = chat!.scrollPosition!.itemId;
+      await _fetchItemsAround(itemId);
+
+      final int index = elements.values.toList().indexWhere((e) {
+        return e.id.id == itemId ||
+            (e is ChatForwardElement &&
+                (e.forwards.any((e1) => e1.value.id == itemId) ||
+                    e.note.value?.value.id == itemId));
+      });
+
+      initIndex = index;
+      initOffset = chat!.scrollPosition!.offset;
     } finally {
-      _ignorePositionChanges = false;
-      _listControllerListener();
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        // Stop the animation, if any.
+        listController.jumpTo(listController.offset);
+
+        // Ensure [FlutterListView] has correct index and offset.
+        listController.sliverController.jumpToIndex(
+          initIndex,
+          offset: initOffset,
+          offsetBasedOnBottom: true,
+        );
+
+        _ignorePositionChanges = false;
+
+        elements.remove(_topLoader?.id);
+        elements.remove(_bottomLoader?.id);
+        _topLoader = null;
+        _bottomLoader = null;
+        if (initIndex != 0) {
+          // Add last ChatItem to history.
+          ListElement? lastElement = elements.values.firstWhereOrNull(
+            (e) =>
+                (e is ChatMessageElement ||
+                e is ChatInfoElement ||
+                e is ChatCallElement ||
+                e is ChatForwardElement),
+          );
+          ChatItem? lastItem = switch (lastElement) {
+            ChatMessageElement e => e.item.value,
+            ChatCallElement e => e.item.value,
+            ChatInfoElement e => e.item.value,
+            ChatForwardElement e => e.forwards.firstOrNull?.value,
+            _ => null,
+          };
+          if (lastItem != null) addToHistory(lastItem);
+        }
+      });
     }
   }
 

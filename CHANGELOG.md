@@ -64,7 +64,6 @@ All user visible changes to this project will be documented in this file. This p
 [#1472]: /../../issues/1472
 [#1480]: /../../pull/1480
 [#1493]: /../../issues/1493
-[#471]: /../../pull/471
 [#1494]: /../../pull/1494
 [#1495]: /../../pull/1495
 [#1499]: /../../pull/1499
