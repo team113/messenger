@@ -43,12 +43,11 @@ class UnreadCounter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-
     return Container(
-      width: 23,
       height: 23,
+      padding: EdgeInsetsGeometry.symmetric(horizontal: count > 99 ? 6 : 8),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(40),
         color: dimmed
             ? inverted
                   ? style.colors.onPrimary
@@ -57,7 +56,11 @@ class UnreadCounter extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Text(
-        count > 99 ? '99${'plus'.l10n}' : '$count',
+        count > 999
+            ? 'label_amount_k'.l10nfmt({
+                'amount': (count / 1000).floor().clamp(1, 999),
+              })
+            : '$count',
         style: dimmed && inverted
             ? style.fonts.smaller.bold.secondary
             : style.fonts.smaller.bold.onPrimary,

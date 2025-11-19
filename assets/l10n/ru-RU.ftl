@@ -996,3 +996,4 @@ space = {" "}
 space_or_space = {" "} или {" "}
 space_plus_space = {" "} + {" "}
 space_vertical_space = {" "} | {" "}
+label_amount_k = {$amount}k

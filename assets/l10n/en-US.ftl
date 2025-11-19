@@ -980,3 +980,4 @@ space = {" "}
 space_or_space = {" "} or {" "}
 space_plus_space = {" "} + {" "}
 space_vertical_space = {" "} | {" "}
+label_amount_k = {$amount}k
