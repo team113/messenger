@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chats list:
-        - Redesigned chats appearing animation. ([#1513])
+        - Redesigned chats appearing animation. ([#1514])
 
 ### Fixed
 
@@ -25,7 +25,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1460]: /../../issues/1460
 [#1504]: /../../pull/1504
-[#1504]: /../../pull/1513
+[#1514]: /../../pull/1514
 
 
 
