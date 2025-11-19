@@ -2448,9 +2448,7 @@ class ChatController extends GetxController {
       _ => null,
     };
 
-    if (_lastVisibleItem?.index != null &&
-        _lastVisibleItem?.offset != null &&
-        itemId != null) {
+    if (itemId != null) {
       Log.debug(
         '_saveScrollPosition() ->'
             ' save scroll position to ChatItemId(${_lastVisibleItem?.index})',
