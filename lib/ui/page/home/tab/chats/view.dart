@@ -1060,7 +1060,6 @@ class ChatsTabView extends StatelessWidget {
           SliverPadding(
             padding: const EdgeInsets.only(left: 10, right: 10),
             sliver: SliverReorderableList(
-              onReorderStart: (_) => c.reordering.value = true,
               proxyDecorator: (child, _, animation) {
                 return AnimatedBuilder(
                   animation: animation,
@@ -1135,10 +1134,7 @@ class ChatsTabView extends StatelessWidget {
                 );
               },
               itemCount: favorites.length,
-              onReorder: (a, b) {
-                c.reorderChat(a, b);
-                c.reordering.value = false;
-              },
+              onReorder: c.reorderChat,
             ),
           ),
           SliverPadding(

@@ -122,11 +122,6 @@ class ChatsTabController extends GetxController {
   /// Reactive list of [ChatId]s of the selected [Chat]s.
   final RxList<ChatId> selectedChats = RxList();
 
-  /// Indicator whether an ongoing reordering is happening or not.
-  ///
-  /// Used to discard a broken [FadeInAnimation].
-  final RxBool reordering = RxBool(false);
-
   /// [Timer] displaying the [chats] being fetched when it becomes `null`.
   late final Rx<Timer?> fetching = Rx(
     Timer(2.seconds, () => fetching.value = null),
