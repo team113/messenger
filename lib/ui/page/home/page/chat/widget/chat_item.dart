@@ -348,7 +348,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Opens the [User.dialog] chat.
   static void _defaultOnUserPressed(User user) =>
-      router.chat(ChatId.local(user.id), push: true);
+      router.chat(ChatId.local(user.id), mode: RouteAs.push);
 }
 
 /// State of a [ChatItemWidget] maintaining the [GlobalKey]s for gallery and
@@ -2084,8 +2084,19 @@ extension LinkParsingExtension on String {
 
                 for (var e in origins) {
                   if (url.startsWith(e)) {
-                    router.push(url.replaceFirst(e, ''));
-                    return;
+                    if (e.endsWith(Routes.chatDirectLink)) {
+                      return router.push(
+                        url.replaceFirst(
+                          e.substring(
+                            0,
+                            e.length - Routes.chatDirectLink.length,
+                          ),
+                          '',
+                        ),
+                      );
+                    }
+
+                    return router.push(url.replaceFirst(e, ''));
                   }
                 }
               }

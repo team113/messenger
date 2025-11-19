@@ -95,7 +95,12 @@ class ChatDirectLinkController extends GetxController {
 
     try {
       final Chat chat = await _auth.useChatDirectLink(slug.value!);
-      router.dialog(chat, _auth.userId, link: slug.value);
+      router.dialog(
+        chat,
+        _auth.userId,
+        link: slug.value,
+        mode: RouteAs.insteadOfLast,
+      );
     } on UseChatDirectLinkException catch (e) {
       span.throwable = e;
       span.status = const SpanStatus.internalError();

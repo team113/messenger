@@ -10,13 +10,22 @@ All user visible changes to this project will be documented in this file. This p
 [0.7.0]: /../../tree/v0.7.0
 
 [Diff](/../../compare/v0.6.10...v0.7.0) | [Milestone](/../../milestone/55)
+
 ### Added
 
 - UI:
     - Keep chat scroll position when exiting and re-entering it while the app is running. ([#1484], [#471])
 
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
+
+[#1460]: /../../issues/1460
 [#1484]: /../../issues/1484
 [#471]: /../../pull/471
+[#1504]: /../../pull/1504
 
 
 
