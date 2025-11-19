@@ -583,6 +583,12 @@ class NotificationService extends DisposableService {
       settings = await FirebaseMessaging.instance.requestPermission();
     }
 
+    if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+      Log.warning(
+        'Unable to proceed with `_initPushNotifications()` due to `authorizationStatus` being `${settings.authorizationStatus.name}`',
+      );
+    }
+
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       _onBroadcastMessage = WebUtils.onBroadcastMessage().listen((message) {
         final String? chatId = message['data']?['chatId'];

@@ -1710,31 +1710,37 @@ class ChatRepository extends DisposableInterface
   Stream<ChatEvents> chatEvents(
     ChatId chatId,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
-    Log.debug('chatEvents($chatId, $ver, onVer)', '$runtimeType');
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = -10,
+  }) {
+    Log.debug('chatEvents($chatId)', '$runtimeType');
 
-    return _graphQlProvider.chatEvents(chatId, ver, onVer).asyncExpand((
-      event,
-    ) async* {
-      Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
+    return _graphQlProvider
+        .chatEvents(chatId, ver, onVer, priority: priority)
+        .asyncExpand((event) async* {
+          Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
 
-      var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
-        yield const ChatEventsInitialized();
-      } else if (events.$$typename == 'Chat') {
-        final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
-        final data = _chat(chat);
-        yield ChatEventsChat(data.chat);
-      } else if (events.$$typename == 'ChatEventsVersioned') {
-        var mixin =
-            events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
-        yield ChatEventsEvent(
-          ChatEventsVersioned(mixin.events.map(chatEvent).toList(), mixin.ver),
-        );
-      }
-    });
+          var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+          if (events.$$typename == 'SubscriptionInitialized') {
+            events
+                as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
+            yield const ChatEventsInitialized();
+          } else if (events.$$typename == 'Chat') {
+            final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
+            final data = _chat(chat);
+            yield ChatEventsChat(data.chat);
+          } else if (events.$$typename == 'ChatEventsVersioned') {
+            var mixin =
+                events
+                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+            yield ChatEventsEvent(
+              ChatEventsVersioned(
+                mixin.events.map(chatEvent).toList(),
+                mixin.ver,
+              ),
+            );
+          }
+        });
   }
 
   @override

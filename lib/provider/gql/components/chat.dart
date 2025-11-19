@@ -764,8 +764,9 @@ mixin ChatGraphQlMixin {
   Stream<QueryResult> chatEvents(
     ChatId id,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = -10,
+  }) {
     Log.debug('chatEvents($id, $ver, onVer)', '$runtimeType');
 
     final variables = ChatEventsArguments(id: id, ver: ver);
@@ -775,6 +776,7 @@ mixin ChatGraphQlMixin {
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      priority: priority,
       ver: onVer,
     );
   }

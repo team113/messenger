@@ -35,9 +35,9 @@ class RateLimiter {
 
   /// [Queue] of [Mutex]es locking the functions invoked.
   @visibleForTesting
-  final Queue<Mutex> queue = Queue();
+  final List<MutexWithPriority> queue = [];
 
-  /// [Timer] unlocking the [queue] periodically.
+  /// [Timer] unlocking the [_queue] periodically.
   Timer? _timer;
 
   /// Iteration of this [RateLimiter], used to ignore queued functions, when
@@ -45,7 +45,10 @@ class RateLimiter {
   int _iteration = 0;
 
   /// Executes the [function] limited to the [requests] per [per].
-  Future<T> execute<T>(FutureOr<T> Function() function) async {
+  Future<T> execute<T>(
+    FutureOr<T> Function() function, {
+    int priority = 1,
+  }) async {
     // Current [_iteration] to ignore the invoke, if mismatched.
     int iteration = _iteration;
 
@@ -60,13 +63,15 @@ class RateLimiter {
         return;
       }
 
+      _sort();
+
       final taken = queue.take(requests);
       for (var m in taken) {
         m.release();
       }
     });
 
-    final Mutex mutex = Mutex();
+    final MutexWithPriority mutex = MutexWithPriority(priority);
     queue.add(mutex);
 
     if (queue.length > requests) {
@@ -106,4 +111,40 @@ class RateLimiter {
 
     queue.clear();
   }
+
+  /// Sorts the [queue].
+  void _sort() {
+    queue.sort((a, b) {
+      final int byPriority = b.priority.compareTo(a.priority);
+      if (byPriority != 0) {
+        return byPriority;
+      }
+
+      return a.at.compareTo(b.at);
+    });
+  }
+}
+
+/// [Mutex] with an [int] identifying a priority.
+@visibleForTesting
+class MutexWithPriority {
+  MutexWithPriority(this.priority) : at = DateTime.now();
+
+  /// Priority of the [Mutex].
+  final int priority;
+
+  /// [DateTime] this [Mutex] was created at.
+  final DateTime at;
+
+  /// [Mutex] itself.
+  final Mutex _mutex = Mutex();
+
+  /// Indicates if a lock has been acquired and not released.
+  bool get isLocked => _mutex.isLocked;
+
+  /// Returns a future that will be completed when the lock has been acquired.
+  Future<void> acquire() => _mutex.acquire();
+
+  /// Releases a lock that has been acquired.
+  void release() => _mutex.release();
 }
