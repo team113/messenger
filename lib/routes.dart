@@ -152,6 +152,18 @@ enum ProfileTab {
   logout,
 }
 
+/// Navigation mode.
+enum RouteAs {
+  /// Pushes to the [router]'s routes stack.
+  push,
+
+  /// Clears all routes and pushes to the [router]'s routes stack.
+  replace,
+
+  /// Pops last route and pushes to the [router]'s routes stack.
+  insteadOfLast,
+}
+
 /// Application's router state.
 ///
 /// Any change requires [notifyListeners] to be invoked in order for the router
@@ -241,6 +253,8 @@ class RouterState extends ChangeNotifier {
   ///
   /// Clears the whole [routes] stack.
   void go(String to) {
+    Log.debug('go($to)', '$runtimeType');
+
     arguments = null;
 
     for (var e in routes) {
@@ -255,6 +269,8 @@ class RouterState extends ChangeNotifier {
 
   /// Pushes [to] to the [routes] stack.
   void push(String to) {
+    Log.debug('push($to)', '$runtimeType');
+
     arguments = null;
     int pageIndex = routes.indexWhere((e) => e == to);
     if (pageIndex != -1) {
@@ -273,6 +289,8 @@ class RouterState extends ChangeNotifier {
   /// If [routes] contain only one record, then removes segments of that record
   /// by `/` if any, otherwise replaces it with [Routes.home].
   void pop([String? page]) {
+    Log.debug('pop($page)', '$runtimeType');
+
     if (_accounted.remove(page ?? routes.lastOrNull)) {
       return;
     }
@@ -327,6 +345,8 @@ class RouterState extends ChangeNotifier {
 
   /// Replaces the provided [from] with the specified [to] in the [routes].
   void replace(String from, String to) {
+    Log.debug('replace($from, $to)', '$runtimeType');
+
     routes.value = routes.map((e) => e.replaceAll(from, to)).toList();
   }
 
@@ -1105,7 +1125,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
       return [
         MaterialPage(
           key: ValueKey('ChatDirectLinkPage$slug'),
-          name: Routes.chatDirectLink,
+          name: '${Routes.chatDirectLink}$slug',
           child: ChatDirectLinkView(slug),
         ),
       ];
@@ -1227,11 +1247,24 @@ extension RouteLinks on RouterState {
   /// If [push] is `true`, then location is pushed to the router location stack.
   void chat(
     ChatId id, {
-    bool push = false,
+    RouteAs mode = RouteAs.replace,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
   }) {
-    (push ? this.push : go)('${Routes.chats}/$id');
+    switch (mode) {
+      case RouteAs.insteadOfLast:
+        routes.removeLast();
+        push('${Routes.chats}/$id');
+        break;
+
+      case RouteAs.replace:
+        go('${Routes.chats}/$id');
+        break;
+
+      case RouteAs.push:
+        push('${Routes.chats}/$id');
+        break;
+    }
 
     arguments = {'itemId': itemId, 'link': link};
   }
@@ -1243,7 +1276,7 @@ extension RouteLinks on RouterState {
   void dialog(
     Chat chat,
     UserId? me, {
-    bool push = false,
+    RouteAs mode = RouteAs.replace,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
   }) {
@@ -1260,7 +1293,7 @@ extension RouteLinks on RouterState {
       }
     }
 
-    router.chat(chatId, push: push, itemId: itemId, link: link);
+    router.chat(chatId, itemId: itemId, link: link, mode: mode);
   }
 
   /// Changes router location to the [Routes.chatInfo] page.

@@ -833,7 +833,7 @@ class ChatView extends StatelessWidget {
                       chatId = c.monolog;
                     }
 
-                    router.chat(chatId, push: true);
+                    router.chat(chatId, mode: RouteAs.push);
                   },
                   onDragging: (e) => c.isDraggingItem.value = e,
                 ),
@@ -979,7 +979,7 @@ class ChatView extends StatelessWidget {
                         router.chat(
                           item.quote.original!.chatId,
                           itemId: item.quote.original!.id,
-                          push: true,
+                          mode: RouteAs.push,
                         );
                       }
                     }
