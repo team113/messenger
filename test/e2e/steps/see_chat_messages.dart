@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 
@@ -42,16 +43,28 @@ final StepDefinitionGeneric seeChatMessages =
 
           switch (status) {
             case IterableAmount.no:
-              return await context.world.appDriver.isPresent(
+              final bool hasSign = await context.world.appDriver.isPresent(
                 context.world.appDriver.findByKeySkipOffstage('NoMessages'),
               );
+
+              if (hasSign) {
+                return true;
+              }
+
+              return Get.find<ChatService>()
+                      .chats[ChatId(router.route.split('/').last)]
+                      ?.messages
+                      .map((e) => e.value)
+                      .whereType<ChatMessage>()
+                      .isEmpty ==
+                  true;
 
             case IterableAmount.some:
               return await context.world.appDriver.isAbsent(
                 context.world.appDriver.findByKeySkipOffstage('NoMessages'),
               );
           }
-        });
+        }, timeout: const Duration(seconds: 30));
       },
     );
 

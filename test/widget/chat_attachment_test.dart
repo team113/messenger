@@ -278,6 +278,7 @@ void main() async {
     graphQlProvider.uploadAttachment(
       any,
       onSendProgress: anyNamed('onSendProgress'),
+      cancelToken: anyNamed('cancelToken'),
     ),
   ).thenAnswer(
     (_) => Future.value(

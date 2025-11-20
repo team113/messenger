@@ -1032,12 +1032,20 @@ class ChatRepository extends DisposableInterface
     }
 
     final List<Future>? uploads = attachments?.changed
-        .mapIndexed((i, e) {
+        .map((e) {
           if (e is LocalAttachment) {
             return e.upload.value?.future.then(
               (a) {
-                attachments.changed[i] = a;
-                (item?.value as ChatMessage).attachments[i] = a;
+                final index = attachments.changed.indexOf(e);
+
+                // If `Attachment` returned is `null`, then it was canceled.
+                if (a == null) {
+                  attachments.changed.removeAt(index);
+                } else {
+                  attachments.changed[index] = a;
+                }
+
+                item?.update((_) {});
               },
               onError: (_) {
                 // No-op, as failed upload attempts are handled below.
@@ -1056,6 +1064,13 @@ class ChatRepository extends DisposableInterface
         throw const ConnectionException(
           EditChatMessageException(EditChatMessageErrorCode.unknownAttachment),
         );
+      }
+
+      // If after editing the message contains no content, then delete it.
+      if ((text == null || text.changed?.val == null) &&
+          (attachments == null || attachments.changed.isEmpty == true) &&
+          (repliesTo == null || repliesTo.changed.isEmpty == true)) {
+        return await deleteChatMessage(message);
       }
 
       await Backoff.run(
@@ -1281,7 +1296,7 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
+  Future<Attachment?> uploadAttachment(LocalAttachment attachment) async {
     Log.debug('uploadAttachment($attachment)', '$runtimeType');
 
     if (attachment.upload.value?.isCompleted != false) {
@@ -1303,6 +1318,7 @@ class ChatRepository extends DisposableInterface
       var response = await _graphQlProvider.uploadAttachment(
         await attachment.file.toMultipartFile(),
         onSendProgress: (now, max) => attachment.progress.value = now / max,
+        cancelToken: attachment.cancelToken,
       );
 
       var model = response.attachment.toModel();
@@ -1313,6 +1329,13 @@ class ChatRepository extends DisposableInterface
       attachment.status.value = SendingStatus.sent;
       attachment.progress.value = 1;
       return model;
+    } on dio.DioException {
+      if (attachment.isCanceled) {
+        attachment.upload.value?.complete(null);
+        return null;
+      }
+
+      rethrow;
     } catch (e) {
       if (attachment.read.value?.isCompleted == false) {
         attachment.read.value?.complete(null);

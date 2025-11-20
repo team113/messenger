@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.10...v0.7.0) | [Milestone](/../../milestone/55)
 
+### Changed
+
+- UI:
+    - Chat page:
+        - File uploads can be canceled. ([#1496], [#1490])
+
 ### Fixed
 
 - UI:
@@ -18,6 +24,8 @@ All user visible changes to this project will be documented in this file. This p
         - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
 
 [#1460]: /../../issues/1460
+[#1490]: /../../issues/1490
+[#1496]: /../../pull/1496
 [#1504]: /../../pull/1504
 
 

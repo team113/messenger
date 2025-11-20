@@ -244,6 +244,7 @@ class MockGraphQlClient extends GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
     RawClientOptions? raw,
+    dio.CancelToken? cancelToken,
   }) async {
     if (delay != null) {
       await Future.delayed(delay!);
@@ -260,6 +261,7 @@ class MockGraphQlClient extends GraphQlClient {
       onException: onException,
       onSendProgress: onSendProgress,
       raw: raw,
+      cancelToken: cancelToken,
     );
   }
 }
