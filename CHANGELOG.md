@@ -16,9 +16,13 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
+    - Chats tab:
+        - Incorrect messages counter when accepting the call. ([#1516, #1508])
 
 [#1460]: /../../issues/1460
 [#1504]: /../../pull/1504
+[#1508]: /../../issues/1508
+[#1516]: /../../pull/1516
 
 
 
