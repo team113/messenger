@@ -597,7 +597,6 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
-    _saveScrollPosition();
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _selectingWorker?.dispose();
@@ -633,6 +632,8 @@ class ChatController extends GetxController {
     for (final s in _fragmentSubscriptions) {
       s.cancel();
     }
+
+    _saveScrollPosition();
 
     super.onClose();
   }
@@ -1092,6 +1093,8 @@ class ChatController extends GetxController {
         _ensureScrollable();
       });
 
+      _restoreScrollPosition();
+
       _ignorePositionChanges = false;
 
       span.finish();
@@ -1105,8 +1108,6 @@ class ChatController extends GetxController {
       _ready.finish(status: const SpanStatus.internalError());
       rethrow;
     }
-
-    _restoreScrollPosition();
   }
 
   /// Returns a reactive [User] from [UserService] by the provided [id].
@@ -2428,8 +2429,8 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Saves the scroll position of the [_lastVisibleItem]
-  /// to [RxChat.scrollPosition].
+  /// Saves the scroll position of the [_lastVisibleItem] to
+  /// [RxChat.scrollPosition].
   void _saveScrollPosition() {
     if (_lastVisibleItem == null ||
         elements.isEmpty ||
@@ -2437,10 +2438,11 @@ class ChatController extends GetxController {
       return;
     }
 
-    ListElement? element = elements.values.elementAtOrNull(
+    final ListElement? element = elements.values.elementAtOrNull(
       _lastVisibleItem!.index,
     );
-    ChatItemId? itemId = switch (element) {
+
+    final ChatItemId? itemId = switch (element) {
       ChatMessageElement e => e.item.value.id,
       ChatCallElement e => e.item.value.id,
       ChatInfoElement e => e.item.value.id,
@@ -2461,13 +2463,14 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Restores the [listController] scroll position
-  /// from [RxChat.scrollPosition].
+  /// Restores the [listController] scroll position from
+  /// [RxChat.scrollPosition].
   Future<void> _restoreScrollPosition() async {
     if (chat?.scrollPosition == null ||
         chat!.scrollPosition!.offset == _lastVisibleItem?.offset) {
       return;
     }
+
     Log.debug(
       '_restoreScrollPosition() -> '
           'restore scroll position to itemId(${chat!.scrollPosition!.itemId})',
@@ -2476,7 +2479,7 @@ class ChatController extends GetxController {
 
     // Try to fetch the items.
     try {
-      final itemId = chat!.scrollPosition!.itemId;
+      final ChatItemId itemId = chat!.scrollPosition!.itemId;
       await _fetchItemsAround(itemId);
 
       final int index = elements.values.toList().indexWhere((e) {
@@ -2506,23 +2509,28 @@ class ChatController extends GetxController {
         elements.remove(_bottomLoader?.id);
         _topLoader = null;
         _bottomLoader = null;
+
         if (initIndex != 0) {
-          // Add last ChatItem to history.
-          ListElement? lastElement = elements.values.firstWhereOrNull(
+          // Add last [ChatItem] to history.
+          final ListElement? lastElement = elements.values.firstWhereOrNull(
             (e) =>
                 (e is ChatMessageElement ||
                 e is ChatInfoElement ||
                 e is ChatCallElement ||
                 e is ChatForwardElement),
           );
-          ChatItem? lastItem = switch (lastElement) {
+
+          final ChatItem? lastItem = switch (lastElement) {
             ChatMessageElement e => e.item.value,
             ChatCallElement e => e.item.value,
             ChatInfoElement e => e.item.value,
             ChatForwardElement e => e.forwards.firstOrNull?.value,
             _ => null,
           };
-          if (lastItem != null) addToHistory(lastItem);
+
+          if (lastItem != null) {
+            addToHistory(lastItem);
+          }
         }
       });
     }
