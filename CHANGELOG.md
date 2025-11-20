@@ -17,7 +17,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
     - Chats tab:
-        - Redesign UnreadCounter to display numbers up to 999.999 ([#1507])
+        - Redesign counter of unread messages to display numbers up to 999.999 ([#1507])
+
 [#1460]: /../../issues/1460
 [#1504]: /../../pull/1504
 

@@ -510,6 +510,7 @@ label_all_chats_and_groups = Все чаты и группы
 label_all_session_except_current_terminated = Все сессии, кроме текущей, будут завершены
 label_also_delete_for_everyone = Также удалить для всех
 label_always_muted = Всегда беззвучные
+label_amount_k = {$amount}k
 label_application = Приложение
 label_audio_call = Аудиозвонок{$by ->
         [x]{""}
@@ -996,4 +997,3 @@ space = {" "}
 space_or_space = {" "} или {" "}
 space_plus_space = {" "} + {" "}
 space_vertical_space = {" "} | {" "}
-label_amount_k = {$amount}k

@@ -498,6 +498,7 @@ label_all_chats_and_groups = All chats and groups
 label_all_session_except_current_terminated = All sessions except this one will be terminated
 label_also_delete_for_everyone = Also delete for everyone
 label_always_muted = Always muted
+label_amount_k = {$amount}k
 label_application = Application
 label_audio_call = Audio call{$by ->
         [x]{""}
@@ -980,4 +981,3 @@ space = {" "}
 space_or_space = {" "} or {" "}
 space_plus_space = {" "} + {" "}
 space_vertical_space = {" "} | {" "}
-label_amount_k = {$amount}k
