@@ -398,9 +398,9 @@ class RxChatMember implements Comparable<RxChatMember> {
   }
 }
 
-/// A scroll position anchored to a specific chat item and its offset.
+/// Scroll position anchored to a specific chat item and its offset.
 class ChatScrollPosition {
-  ChatScrollPosition({required this.itemId, required this.offset});
+  const ChatScrollPosition({required this.itemId, required this.offset});
 
   /// ID of the chat item that defines this scroll position.
   final ChatItemId itemId;
