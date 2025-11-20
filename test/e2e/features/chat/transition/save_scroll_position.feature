@@ -31,43 +31,17 @@ Feature: Chat save_scroll_position
 
     When I sign in as Alice
     And I wait for app to settle
-    # Add this 2 lines to fix error what described below:
-    When I tap on "Ideas" chat
-    And I wait for app to settle
     And I tap on "Thoughts" chat
     Then I scroll and see "10" message text in chat
-    And I wait for app to settle
-    When I tap on "Ideas" chat
-    Then I scroll and see "20" message text in chat
-    And I wait for app to settle
+    When I wait for app to settle
     And I tap `BackButton` button
-    When I tap on "Thoughts" chat
+    And I tap on "Ideas" chat
+    Then I scroll and see "20" message text in chat
+    When I wait for app to settle
+    And I tap `BackButton` button
+    And I tap on "Thoughts" chat
     And I wait for app to settle
-    Then I see some messages in chat
-    And I see "10" message.
+    Then I see "10" message.
     When I tap on "Ideas" chat
     And I wait for app to settle
     Then I see "20" message.
-
-# #the error scenario:
-# When I sign in as Alice
-# And I wait for app to settle
-# When I tap on "Thoughts" chat
-# Then I scroll and see "10" message text in chat
-# And I wait for app to settle
-# And I tap `BackButton` button
-# # position is not saved, not call Cancel on controller of `Thoughts` chat?
-# # in app all work, its only in e2e
-# When I tap on "Ideas" chat
-# Then I scroll and see "20" message text in chat
-# And I wait for app to settle
-# And I tap `BackButton` button
-# # position saved, this non-identical behavior under the same conditions is confusing
-# When I tap on "Thoughts" chat
-# And I wait for app to settle
-# Then I see some messages in chat
-# # error in next line, see above
-# # And I see "10" message.
-# When I tap on "Ideas" chat
-# And I wait for app to settle
-# Then I see "20" message.
