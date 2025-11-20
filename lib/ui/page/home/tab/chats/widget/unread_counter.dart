@@ -43,6 +43,7 @@ class UnreadCounter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
     return Container(
       height: 23,
       padding: EdgeInsetsGeometry.symmetric(horizontal: count > 99 ? 6 : 8),
