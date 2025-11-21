@@ -14,19 +14,20 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
-    - Chats list:
+    - Chats tab:
         - Redesigned chats appearing animation. ([#1514])
+        - Redesigned unread messages counter. ([#1512], [#1507])
 
 ### Fixed
 
 - UI:
     - Chat page:
         - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
-    - Chats tab:
-        - Redesign counter of unread messages to display numbers up to 999.999 ([#1507])
 
 [#1460]: /../../issues/1460
 [#1504]: /../../pull/1504
+[#1507]: /../../issues/1507
+[#1512]: /../../pull/1512
 [#1514]: /../../pull/1514
 
 
