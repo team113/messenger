@@ -20,10 +20,6 @@ alert_account_will_be_deleted2 = {" "}будет удалён
 alert_by_proceeding_you_accept_terms1 = Продолжая, Вы соглашаетесь с{" "}
 alert_by_proceeding_you_accept_terms2 = Условиями использования и Политикой конфиденциальности
 alert_by_proceeding_you_accept_terms3 = .
-alert_chat_will_be_cleared1 = Чат{" "}
-alert_chat_will_be_cleared2 = {" "}будет очищен
-alert_chat_will_be_deleted1 = Чат{" "}
-alert_chat_will_be_deleted2 = {" "}будет удалён
 alert_chat_will_be_reported1 = На группу{" "}
 alert_chat_will_be_reported2 = {" "}будет отправлена жалоба
 alert_email_will_be_deleted1 = E-mail{" "}
@@ -127,6 +123,7 @@ btn_call_video_off_desc =
 btn_call_video_on = Включить камеру
 btn_camera = Камера
 btn_cancel = Отменить
+btn_cancel_selection = Отменить выбор
 btn_call_video_on_desc =
     Включить
     камеру
@@ -135,8 +132,11 @@ btn_change_account_desc =
     Сменить
     аккаунт
 btn_change_password = Изменить пароль
+btn_change_status = Изменить статус
 btn_check_for_updates = Проверить наличие обновлений
+btn_clear = Очистить
 btn_clear_cache = Очистить кэш
+btn_clear_chat = Очистить чат
 btn_clear_history = Очистить историю
 btn_close = Закрыть
 btn_confirm = Подтвердить
@@ -160,6 +160,7 @@ btn_download = Скачать
 btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
 btn_download_as = Скачать как
+btn_download_logs = Скачать логи
 btn_download_version = Скачать {$version}
 btn_edit = Редактировать
 btn_email = E-mail
@@ -173,6 +174,8 @@ btn_gallery = Галерея
 btn_guest = Гость
 btn_help = Помощь
 btn_hide = Скрыть
+btn_hidden_chats = Скрытые чаты
+btn_hide_chat = Скрыть чат
 btn_hide_interface = Скрыть интерфейс
 btn_info = Информация
 btn_install_android = .apk файл для Android
@@ -213,12 +216,14 @@ btn_save_to_gallery = Сохранить в галерею
 btn_save_to_gallery_all = Сохранить всё в галерею
 btn_save_my_credentials_for_one_click = Сохранить мои данные для входа в один клик
 btn_schedule_an_interview = Записаться на собеседование
+btn_search_chat = Поиск в чате
 btn_select = Выбрать
 btn_select_messages = Выбрать сообщения
 btn_send_application = Отправить заявку
 btn_send_one_time_code = Отправить одноразовый код
 btn_set_password = Установить пароль
 btn_share = Поделиться
+btn_show_chat = Показать чат
 btn_sign_in = Войти
 btn_sign_up = Создать аккаунт
 btn_skip = Пропустить
@@ -230,6 +235,7 @@ btn_terminate_all_other_sessions = Завершить все остальные 
 btn_terminate_this_session = Завершить данную сессию
 btn_terms_and_conditions = Условия использования и Политика конфиденциальности
 btn_unblock = Разблокировать
+btn_unhide = Показать
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
 btn_unmute_chats = Включить звук
@@ -369,9 +375,9 @@ fcm_message =
                          *[other] {$attachmentsCount} файлов
                      }
               *[attachments] { $attachmentsCount ->
-                                 [one] {$attachmentsCount} вложение
-                                 [few] {$attachmentsCount} вложения
-                                 *[other] {$attachmentsCount} вложений
+                                 [one] {$attachmentsCount} файл
+                                 [few] {$attachmentsCount} файла
+                                 *[other] {$attachmentsCount} файлов
                              }
         }]
     }{ $textLength ->
@@ -434,6 +440,7 @@ fcm_user_removed_you =
        *[other] {$userName}
     } исключил Вас из группы
 fcm_webpush_link = /chats/{$chatId}
+hyphen = -
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about_you = О Вас
@@ -511,6 +518,7 @@ label_all_chats_and_groups = Все чаты и группы
 label_all_session_except_current_terminated = Все сессии, кроме текущей, будут завершены
 label_also_delete_for_everyone = Также удалить для всех
 label_always_muted = Всегда беззвучные
+label_amount_k = {$amount}k
 label_application = Приложение
 label_audio_call = Аудиозвонок{$by ->
         [x]{""}
@@ -550,7 +558,6 @@ label_call_title =
     }
 label_call_window = Окно звонка
 label_camera = Камера
-label_chat = Чат
 label_change_password = Изменить пароль
 label_chat_call_declined = Отклонённый звонок
 label_chat_call_ended = Завершённый звонок
@@ -604,6 +611,7 @@ label_count_seconds = {$count} { $count ->
 label_critical_update_is_available = Текущая версия не поддерживается
 label_create_group = Создание группы
 label_create_link = Создать ссылку
+label_current_account = Текущий аккаунт
 label_current_password = Текущий пароль
 label_days_short = {$days} д
 label_delete_account = Удалить аккаунт
@@ -611,6 +619,7 @@ label_delete_chat = Удалить чат(ы)
 label_delete_chats = Удалить чат(ы)
 label_delete_email = Удалить E-mail
 label_delete_message = Удалить сообщение?
+label_deleted_account = Удалённый Aккаунт
 label_delete_messages = Удалить сообщения?
 label_desktop_apps = Приложения для компьютера
 label_device_by_default = По умолчанию - {$device}
@@ -649,6 +658,7 @@ label_for_learning_use_our_flutter_incubator2 = Песочницей.
 label_for_learning_use_our_rust_incubator1 = В том случае, если у Вас есть желание изучить/подтянуть свои знания в технологии Rust, Вы можете воспользоваться нашей{" "}
 label_for_learning_use_our_rust_incubator2 = Песочницей.
 label_forward_message = Переслать сообщение
+label_forward_subtitle = выберите чат
 label_forwarded_message = Пересланное сообщение
 label_forwarded_messages = {$count ->
     [1] Пересланное сообщение
@@ -662,6 +672,9 @@ label_guest_account_created = Гостевой аккаунт создан
 label_hello = Привет!
 label_hello_reply = Оу, привет :)
 label_hidden = Был(а) в сети недавно
+label_hidden_chats = Скрытые чаты
+label_hide_chats = Скрыть чат(ы)
+label_hide_chats_modal_description = Чат будет перенесён в список "скрытые чаты"
 label_high_pass_filter = Фильтр высоких частот
 label_hotkey = Горячие клавиши
 label_id = ID
@@ -674,9 +687,6 @@ label_information = Информация
 label_installation_error = Ошибка установки
 label_installation_error_description = Веб приложение уже установлено или недоступно в Вашем браузере
 label_interface = Интерфейс
-label_introduction_description1 = Вы можете изменить свой аватар, имя, текстовый статус, пароль, логин и e-mail в{" "}
-label_introduction_description2 = настройках профиля
-label_introduction_description3 = .
 label_introduction_description =
     Доступ к аккаунту сохраняется в течение одного года или пока:
 
@@ -685,6 +695,7 @@ label_introduction_description =
 
     Для сохранения доступа к Вашему аккаунту, установите пароль и/или e-mail.
 label_introduction_description_email = E-mail не добавлен. Если вы забудете пароль, доступ к аккаунту будет утерян.
+label_introduction_for_one_time = Чтобы не потерять доступ к аккаунту, задайте пароль, логин или e-mail в настройках Вашего профиля.
 label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
 label_b = {$amount} Б
 label_kb = {$amount} КБ
@@ -710,7 +721,10 @@ label_media_no_device_available = Нет доступных устройств
 label_media_output = Спикер
 label_media_section_hint = Микрофон, спикер, камера
 label_media_semicolon_amount = Медиа: {$amount}
-label_message = Сообщение
+label_message_status_delivered = Доставлено
+label_message_status_not_sent = Не отправлено
+label_message_status_read = Прочитано
+label_message_status_sent = Отправлено
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас
 label_messages_will_deleted_for_you = Сообщения будут удалены только для Вас
 label_messenger_full = Мессенджер от Gapopa
@@ -731,6 +745,7 @@ label_muted_chats = Беззвучные чаты
 label_muted_until_i_turn_on = Беззвучный до: пока не включу
 label_muted_until_period = Беззвучный до: {$period}
 label_name = Имя
+label_name_hint = Ваше публичное имя
 label_name_updated = {$author} обновил(а) название группы
 label_name_updated1 = {$author}
 label_name_updated2 = {" "}обновил(а) название группы
@@ -787,11 +802,9 @@ label_presence_away = Отошёл
 label_presence_present = Онлайн
 label_profile = Профиль
 label_public_section_hint = Аватар, имя, о Вас, ...
-label_read_by = Прочитано
 label_reason = Причина
 label_reason_described = Причина: {$reason}
 label_reason_hint = Укажите причину
-label_recent = Недавние
 label_reconnecting_ellipsis = Переподключение...
 label_recover_account = Восстановление доступа
 label_recover_account_description = Укажите Ваш Gapopa ID, логин или E-mail.
@@ -810,7 +823,7 @@ label_regulations_freelance =
     4. В ответном сообщении Вы получите подтверждение, что задача закреплена за Вами (задача переводится в статус `In progress`)
     5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа
     6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
-label_remove_member = Удалить участника
+label_remove_member = Удалить из группы
 label_repeat_password = Подтвердить пароль
 label_replace_this_text_with_concern = Опишите проблему.
 label_replace_this_text_with_feedback = Обратная связь.
@@ -852,12 +865,18 @@ label_review_freelance =
 label_saved_files = Скачанные файлы
 label_screen_sharing = Демонстрация экрана
 label_search = Поиск
+label_search_category_chats = Чаты
+label_search_category_contacts = Контакты
+label_search_category_users = Пользователи
 label_selected = Выбрано: {$count}
 label_send_message_hint = Сообщение...
+label_sent = Отправлено
 label_sessions_terminated = Сессия(и) завершена(ы)
 label_set_cache_limits = Установить лимиты кэша
 label_set_password = Установить пароль
 label_show_call_window = Показывать окно звонка
+label_show_chats = Показать чат(ы)
+label_show_chats_modal_description = Чаты будут перенесены из списка "скрытые чаты".
 label_sign_in = Вход
 label_sign_in_input = Gapopa ID, логин или e-mail
 label_sign_in_required = Требуется вход
@@ -912,8 +931,8 @@ label_terminate_sessions = Завершить сессию(-ии)
 label_terms_and_privacy_policy = Условия и Политика конфиденциальности
 label_text_status = Текстовый статус
 label_text_status_description = Максимум 25 символов
+label_text_status_hint = Текстовый статус. Макс. 25 символов.
 label_this_device = Это устройство
-label_to_restore_chat_use_search = Чтобы восстановить чат, воспользуйтесь поиском.
 label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
 label_typing = Печатает
 label_unknown = Неизвестно
@@ -926,7 +945,6 @@ label_unread_messages = {$quantity ->
 }
 label_unmuted = Звук включен
 label_update_available = Доступно обновление
-label_user = Пользователь
 label_user_added_user = {$author} добавил(а) {$user}
 label_user_added_user1 = {$author}{" "}
 label_user_added_user2 = добавил(а)

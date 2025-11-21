@@ -54,7 +54,7 @@ class MessagePopup {
     String title, {
     List<TextSpan> description = const [],
     List<Widget> additional = const [],
-    Widget Function(BuildContext) button = _defaultButton,
+    Widget Function(BuildContext) button = defaultButton,
   }) {
     final style = Theme.of(router.context!).style;
 
@@ -123,6 +123,40 @@ class MessagePopup {
     at: at,
   );
 
+  /// Returns the primary styled [OutlinedRoundedButton].
+  static Widget primaryButton(
+    BuildContext context, {
+    String? label,
+    SvgData? icon,
+    Key? key,
+  }) {
+    final style = Theme.of(context).style;
+
+    return Stack(
+      children: [
+        OutlinedRoundedButton(
+          key: key ?? const Key('Proceed'),
+          maxWidth: double.infinity,
+          onPressed: () => Navigator.of(context).pop(true),
+          color: style.colors.primary,
+          child: Text(
+            label ?? 'btn_proceed'.l10n,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: style.fonts.normal.regular.onPrimary,
+          ),
+        ),
+        if (icon != null)
+          Positioned(
+            top: 0,
+            bottom: 0,
+            left: 16,
+            child: IgnorePointer(child: SvgIcon(icon)),
+          ),
+      ],
+    );
+  }
+
   /// Returns the delete styled [OutlinedRoundedButton].
   static Widget deleteButton(
     BuildContext context, {
@@ -157,11 +191,32 @@ class MessagePopup {
   }
 
   /// Returns the proceed button, which invokes [NavigatorState.pop].
-  static Widget _defaultButton(BuildContext context) {
-    return PrimaryButton(
-      key: const Key('Proceed'),
+  static Widget defaultButton(
+    BuildContext context, {
+    String? label,
+    SvgData? icon,
+    Key? key,
+  }) {
+    final button = PrimaryButton(
+      key: key ?? const Key('Proceed'),
       onPressed: () => Navigator.of(context).pop(true),
-      title: 'btn_proceed'.l10n,
+      title: label ?? 'btn_proceed'.l10n,
     );
+
+    if (icon != null) {
+      return Stack(
+        children: [
+          button,
+          Positioned(
+            top: 0,
+            bottom: 0,
+            left: 16,
+            child: IgnorePointer(child: SvgIcon(icon)),
+          ),
+        ],
+      );
+    }
+
+    return button;
   }
 }

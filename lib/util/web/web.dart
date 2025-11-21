@@ -27,7 +27,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show NotificationResponse, NotificationResponseType;
+    show NotificationResponse;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:http/http.dart' show Client;
@@ -304,11 +304,12 @@ class WebUtils {
     return controller.stream;
   }
 
-  /// Returns a stream broadcasting the browser's broadcast channel changes.
-  static Stream<dynamic> get onBroadcastMessage {
+  /// Returns a stream broadcasting the browser's `fcm` broadcast channel
+  /// changes.
+  static Stream<dynamic> onBroadcastMessage({String name = 'fcm'}) {
     StreamController<dynamic>? controller;
 
-    final channel = web.BroadcastChannel('fcm');
+    final web.BroadcastChannel channel = web.BroadcastChannel(name);
 
     controller = StreamController(
       onListen: () {
@@ -487,6 +488,8 @@ class WebUtils {
     String? lang,
     String? tag,
     String? icon,
+    Map<String, dynamic> data = const {},
+    List<WebNotificationAction> actions = const [],
   }) async {
     final options = web.NotificationOptions();
 
@@ -505,21 +508,56 @@ class WebUtils {
     if (icon != null) {
       options.icon = icon;
     }
-
-    final notification = web.Notification(title, options);
-
-    void fn(web.Event _) {
-      onSelectNotification?.call(
-        NotificationResponse(
-          notificationResponseType:
-              NotificationResponseType.selectedNotification,
-          payload: notification.lang,
-        ),
-      );
-      notification.close();
+    if (data.isNotEmpty) {
+      options.data = data.jsify();
     }
 
-    notification.onclick = fn.toJS;
+    if (actions.isNotEmpty) {
+      options.actions = actions
+          .map(
+            (e) => web.NotificationAction(
+              action: e.id,
+              title: e.title,
+              icon: e.icon ?? '',
+            ),
+          )
+          .toList()
+          .toJS;
+    }
+
+    // TODO: `onSelectNotification` was used in `onclick` event in
+    //       `Notification` body, however since now notifications are created
+    //       by `ServiceWorker`, we have no control over it, so should implement
+    //       a way to handle the click in `ServiceWorker`.
+    final web.ServiceWorkerRegistration registration =
+        await web.window.navigator.serviceWorker.ready.toDart;
+
+    await registration.showNotification(title, options).toDart;
+  }
+
+  /// Clears notifications identified by the provided [ChatId] via registered
+  /// `ServiceWorker`s.
+  static Future<void> clearNotifications(ChatId chatId) async {
+    // Try to `postMessage` to active registrations, if any.
+    try {
+      final List<web.ServiceWorkerRegistration> registrations = await web
+          .window
+          .navigator
+          .serviceWorker
+          .getRegistrations()
+          .toDart
+          .then((js) => js.toDart);
+
+      for (var registration in registrations) {
+        registration.active?.postMessage('closeAll:$chatId'.toJS);
+      }
+    } catch (e) {
+      // Ignore errors; SW might not be available yet.
+      Log.debug(
+        '`clearNotifications($chatId)` has failed due to: $e',
+        'WebUtils',
+      );
+    }
   }
 
   /// Clears the browser's `IndexedDB`.
@@ -537,6 +575,8 @@ class WebUtils {
   /// Opens a new popup window at the [Routes.gallery] page with the provided
   /// [chatId].
   static bool openPopupGallery(ChatId chatId, {String? id, int? index}) {
+    Log.debug('openPopupGallery($chatId, id: $id, index: $index)', 'WebUtils');
+
     final int screenW = web.window.screen.width;
     final int screenH = web.window.screen.height;
 
@@ -573,8 +613,11 @@ class WebUtils {
     );
 
     try {
-      return window?.closed == false;
-    } catch (_) {
+      final bool opened = window?.closed == false;
+      Log.debug('openPopupGallery($chatId) -> $opened, $window', 'WebUtils');
+      return opened;
+    } catch (e) {
+      Log.debug('openPopupGallery($chatId) -> failed due to $e', 'WebUtils');
       return false;
     }
   }
@@ -587,6 +630,11 @@ class WebUtils {
     bool withVideo = false,
     bool withScreen = false,
   }) {
+    Log.debug(
+      'openPopupCall($chatId, withAudio: $withAudio, withVideo: $withVideo, withScreen: $withScreen)',
+      'WebUtils',
+    );
+
     final int screenW = web.window.screen.width;
     final int screenH = web.window.screen.height;
 
@@ -624,8 +672,11 @@ class WebUtils {
     );
 
     try {
-      return window?.closed == false;
-    } catch (_) {
+      final bool opened = window?.closed == false;
+      Log.debug('openPopupCall($chatId) -> $opened, $window', 'WebUtils');
+      return opened;
+    } catch (e) {
+      Log.debug('openPopupCall($chatId) -> failed due to $e', 'WebUtils');
       return false;
     }
   }

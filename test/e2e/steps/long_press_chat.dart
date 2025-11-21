@@ -26,9 +26,9 @@ import '../world/custom_world.dart';
 /// Long presses a [Chat] with the provided name.
 ///
 /// Examples:
-/// - When I long press "Name" chat.
+/// - When I long press "Name" chat
 final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
-  'I long press {string} chat',
+  'I long press {string} (?:chat|group)',
   (name, context) async {
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();

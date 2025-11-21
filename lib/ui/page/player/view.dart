@@ -29,6 +29,7 @@ import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
@@ -43,6 +44,7 @@ import '/ui/page/home/page/chat/widget/video/widget/position.dart';
 import '/ui/page/home/page/chat/widget/video/widget/video_progress_bar.dart';
 import '/ui/page/home/page/chat/widget/video/widget/video_volume_bar.dart'
     show ProgressBarColors, VideoVolumeBar;
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -171,8 +173,19 @@ class PlayerView extends StatelessWidget {
               return Stack(
                 fit: StackFit.expand,
                 children: [
-                  _content(context, c),
+                  _content(context, c, constraints),
                   _interface(context, c, constraints),
+
+                  // Mouse activity detector for desktop platforms.
+                  if (!PlatformUtils.isMobile)
+                    Listener(
+                      behavior: HitTestBehavior.translucent,
+                      onPointerHover: (_) => c.keepActive(),
+                      onPointerMove: (_) => c.keepActive(),
+                      onPointerDown: (_) => c.keepActive(),
+                      onPointerUp: (_) => c.keepActive(),
+                      onPointerSignal: (_) => c.keepActive(),
+                    ),
                 ],
               );
             },
@@ -183,7 +196,11 @@ class PlayerView extends StatelessWidget {
   }
 
   /// Builds the visual representation of the [Post]s list.
-  Widget _content(BuildContext context, PlayerController c) {
+  Widget _content(
+    BuildContext context,
+    PlayerController c,
+    BoxConstraints constraints,
+  ) {
     return Obx(() {
       return PageView.builder(
         physics: c.viewportIsTransformed.value
@@ -195,7 +212,7 @@ class PlayerView extends StatelessWidget {
         itemBuilder: (context, i) {
           return FractionallySizedBox(
             heightFactor: 1 / c.vertical.viewportFraction,
-            child: _post(context, c, c.posts.elementAt(i)),
+            child: _post(context, c, constraints, c.posts.elementAt(i)),
           );
         },
         // children: [...c.posts.map((e) => _post(context, c, e))],
@@ -204,14 +221,23 @@ class PlayerView extends StatelessWidget {
   }
 
   /// Builds the visual representation of the [Post.items] list.
-  Widget _post(BuildContext context, PlayerController c, Post post) {
+  Widget _post(
+    BuildContext context,
+    PlayerController c,
+    BoxConstraints constraints,
+    Post post,
+  ) {
     return Obx(() {
       return PageView(
         physics: c.viewportIsTransformed.value
             ? NeverScrollableScrollPhysics()
             : null,
         controller: post.horizontal.value,
-        children: [...post.items.map((e) => _attachment(context, c, post, e))],
+        children: [
+          ...post.items.map(
+            (e) => _attachment(context, c, constraints, post, e),
+          ),
+        ],
       );
     });
   }
@@ -220,6 +246,7 @@ class PlayerView extends StatelessWidget {
   Widget _attachment(
     BuildContext context,
     PlayerController c,
+    BoxConstraints constraints,
     Post post,
     PostItem item,
   ) {
@@ -229,47 +256,113 @@ class PlayerView extends StatelessWidget {
     bool isVideo = false;
 
     if (attachment is ImageAttachment) {
-      child = Center(
-        child: RetryImage(
-          attachment.original.url,
-          width: double.infinity,
-          height: double.infinity,
-          checksum: attachment.original.checksum,
-          fit: BoxFit.contain,
-          onForbidden: () async => await c.reload(post),
-        ),
+      double aspect = 1;
+
+      final StorageFile file = attachment.original;
+      if (file is ImageFile) {
+        aspect = (file.width ?? 1) / (file.height ?? 1);
+
+        if (aspect < 1) {
+          if (constraints.biggest.aspectRatio < aspect) {
+            aspect = (file.height ?? 1) / (file.width ?? 1);
+          }
+        } else {
+          if (constraints.biggest.aspectRatio > aspect) {
+            aspect = (file.height ?? 1) / (file.width ?? 1);
+          }
+        }
+      }
+
+      child = RetryImage(
+        attachment.original.url,
+        width: aspect >= 1 ? double.infinity : null,
+        height: aspect >= 1 ? null : double.infinity,
+        checksum: attachment.original.checksum,
+        fit: BoxFit.contain,
+        onForbidden: () async => await c.reload(post),
       );
     } else if (attachment is FileAttachment) {
       if (attachment.isVideo) {
         isVideo = true;
 
-        child = Center(
-          child: VideoPlayback(
-            attachment.original.url,
-            checksum: attachment.original.checksum,
-            volume: c.settings.value?.videoVolume,
-            onVolumeChanged: c.setVideoVolume,
-            onError: () async => await c.reload(post),
-            loop: true,
-            autoplay: false,
-            onController: (e) {
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                item.video.value?.dispose();
+        child = VideoPlayback(
+          attachment.original.url,
+          checksum: attachment.original.checksum,
+          volume: c.settings.value?.videoVolume,
+          onVolumeChanged: c.setVideoVolume,
+          onError: () async => await c.reload(post),
+          loop: true,
+          autoplay: false,
+          onController: (e) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              item.video.value?.dispose();
 
-                if (e == null) {
-                  item.video.value = null;
-                } else {
-                  item.video.value = ReactivePlayerController(e);
+              if (e == null) {
+                item.video.value = null;
+              } else {
+                item.video.value = ReactivePlayerController(e);
 
-                  if (c.index.value == c.posts.indexOf(post)) {
-                    item.video.value?.play();
-                  }
+                if (c.index.value == c.posts.indexOf(post)) {
+                  item.video.value?.play();
                 }
-              });
-            },
-          ),
+              }
+            });
+          },
         );
       }
+    }
+
+    if (child != null) {
+      child = Stack(
+        alignment: Alignment.center,
+        children: [
+          MouseRegion(
+            hitTestBehavior: HitTestBehavior.translucent,
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                if (WebUtils.isPopup) {
+                  WebUtils.closeWindow();
+                } else {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ),
+          MouseRegion(
+            hitTestBehavior: HitTestBehavior.translucent,
+            cursor: isVideo
+                ? SystemMouseCursors.click
+                : SystemMouseCursors.basic,
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: c.playPause,
+              onDoubleTap: c.toggleFullscreen,
+              onLongPress: c.interface.toggle,
+              child: child,
+            ),
+          ),
+          Obx(() {
+            final ReactivePlayerController? video = c.item?.video.value;
+
+            if (video != null) {
+              if (video.isBuffering.value) {
+                return const SizedBox();
+              }
+
+              return CenteredPlayPause(
+                show: c.interface.value && !video.isPlaying.value,
+                isCompleted: video.isCompleted.value,
+                isPlaying: video.isPlaying.value,
+                onPressed: c.playPause,
+              );
+            }
+
+            return const SizedBox();
+          }),
+        ],
+      );
     }
 
     if (child != null) {
@@ -278,23 +371,31 @@ class PlayerView extends StatelessWidget {
           if (!isVideo)
             ContextMenuButton(
               label: 'btn_copy'.l10n,
+              trailing: const SvgIcon(SvgIcons.copy19),
+              inverted: const SvgIcon(SvgIcons.copy19White),
               onPressed: () async => await c.copy(post, item),
             ),
 
           if (!PlatformUtils.isWeb && PlatformUtils.isMobile) ...[
             ContextMenuButton(
               label: 'btn_save_to_gallery'.l10n,
+              trailing: const SvgIcon(SvgIcons.download19),
+              inverted: const SvgIcon(SvgIcons.download19White),
               onPressed: () async => await c.saveToGallery(item),
             ),
           ] else ...[
             ContextMenuButton(
               label: 'btn_download'.l10n,
+              trailing: const SvgIcon(SvgIcons.download19),
+              inverted: const SvgIcon(SvgIcons.download19White),
               onPressed: () async => await c.download(item),
             ),
 
             if (!PlatformUtils.isWeb && PlatformUtils.isDesktop)
               ContextMenuButton(
                 label: 'btn_download_as'.l10n,
+                trailing: const SvgIcon(SvgIcons.download19),
+                inverted: const SvgIcon(SvgIcons.download19White),
                 onPressed: () async => await c.downloadAs(item),
               ),
           ],
@@ -331,22 +432,22 @@ class PlayerView extends StatelessWidget {
         Align(
           alignment: Alignment.bottomCenter,
           child: Obx(() {
-            if (!c.interface.value) {
-              return SizedBox();
-            }
-
-            return _bottom(context, c, constraints);
+            return AnimatedOpacity(
+              duration: Duration(milliseconds: 250),
+              opacity: c.interface.value ? 1 : 0,
+              child: _bottom(context, c, constraints),
+            );
           }),
         ),
 
         Align(
           alignment: Alignment.topCenter,
           child: Obx(() {
-            if (!c.interface.value) {
-              return SizedBox();
-            }
-
-            return _top(context, c, constraints);
+            return AnimatedOpacity(
+              duration: Duration(milliseconds: 250),
+              opacity: c.interface.value ? 1 : 0,
+              child: _top(context, c, constraints),
+            );
           }),
         ),
 
@@ -424,6 +525,7 @@ class PlayerView extends StatelessWidget {
                 position: post.index.value.toDouble(),
                 animate: true,
                 mainAxisSize: MainAxisSize.min,
+                onTap: (i) => post.horizontal.value.jumpToPage(i),
                 decorator: DotsDecorator(
                   spacing: EdgeInsets.fromLTRB(2, 1, 2, 1),
                   color: style.colors.secondary,
@@ -437,7 +539,7 @@ class PlayerView extends StatelessWidget {
     });
   }
 
-  /// Builds an overlay to display over the current [PostItem].
+  /// Builds an overlay to display over the current [Post].
   Widget _overlay(
     BuildContext context,
     PlayerController c,
@@ -452,40 +554,7 @@ class PlayerView extends StatelessWidget {
 
       return Stack(
         children: [
-          // Closes the video on a tap outside [AspectRatio].
-          GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: c.playPause,
-            onDoubleTap: c.toggleFullscreen,
-            onLongPress: c.interface.toggle,
-
-            // Required for the [GestureDetector]s to take the full
-            // width and height.
-            child: const SizedBox(
-              width: double.infinity,
-              height: double.infinity,
-            ),
-          ),
-
           if (video != null) ...[
-            // Play/pause button.
-            MouseRegion(
-              hitTestBehavior: HitTestBehavior.translucent,
-              cursor: SystemMouseCursors.click,
-              child: Obx(() {
-                if (video.isBuffering.value) {
-                  return const SizedBox();
-                }
-
-                return CenteredPlayPause(
-                  show: c.interface.value && !video.isPlaying.value,
-                  isCompleted: video.isCompleted.value,
-                  isPlaying: video.isPlaying.value,
-                  onPressed: c.playPause,
-                );
-              }),
-            ),
-
             if (isMobile) ...[
               Align(
                 alignment: Alignment.centerLeft,
@@ -652,44 +721,54 @@ class PlayerView extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          ContextMenuRegion(
-            actions: [
-              if (onScrollTo != null)
+          Obx(() {
+            return ContextMenuRegion(
+              actions: [
+                if (onScrollTo != null)
+                  ContextMenuButton(
+                    label: 'btn_find_in_chat'.l10n,
+                    trailing: const SvgIcon(SvgIcons.chat19),
+                    inverted: const SvgIcon(SvgIcons.chat19White),
+                    onPressed: () {
+                      final Post? post = c.post;
+                      if (post != null) {
+                        onScrollTo?.call(post);
+                        Navigator.of(context).pop();
+                      }
+                    },
+                  ),
+
                 ContextMenuButton(
-                  label: 'btn_find_in_chat'.l10n,
-                  onPressed: () {
-                    final Post? post = c.post;
-                    if (post != null) {
-                      onScrollTo?.call(post);
-                      Navigator.of(context).pop();
+                  label: 'btn_save'.l10n,
+                  trailing: const SvgIcon(SvgIcons.copy19),
+                  inverted: const SvgIcon(SvgIcons.copy19White),
+                  onPressed: () async {
+                    final PostItem? item = c.item;
+
+                    if (item != null) {
+                      if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+                        await c.saveToGallery(item);
+                      } else {
+                        await c.download(item);
+                      }
                     }
                   },
                 ),
-              ContextMenuButton(
-                label: 'btn_save'.l10n,
-                onPressed: () async {
-                  final PostItem? item = c.item;
-
-                  if (item != null) {
-                    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-                      await c.saveToGallery(item);
-                    } else {
-                      await c.download(item);
-                    }
-                  }
-                },
+                if (c.interface.value)
+                  ContextMenuButton(
+                    label: 'btn_hide_interface'.l10n,
+                    trailing: const SvgIcon(SvgIcons.hideControls),
+                    inverted: const SvgIcon(SvgIcons.hideControlsWhite),
+                    onPressed: c.interface.toggle,
+                  ),
+              ],
+              enablePrimaryTap: true,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 21, 24, 21),
+                child: SvgIcon(SvgIcons.moreWhite),
               ),
-              ContextMenuButton(
-                label: 'btn_hide_interface'.l10n,
-                onPressed: c.interface.toggle,
-              ),
-            ],
-            enablePrimaryTap: true,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 21, 24, 21),
-              child: SvgIcon(SvgIcons.moreWhite),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );
@@ -815,7 +894,7 @@ class PlayerView extends StatelessWidget {
                           SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              user.title,
+                              user.title(),
                               style: style.fonts.medium.bold.onPrimary,
                             ),
                           ),

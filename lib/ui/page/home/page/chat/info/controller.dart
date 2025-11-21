@@ -94,14 +94,6 @@ class ChatInfoController extends GetxController {
   /// [ScrollController] to pass to a members [ListView].
   final ScrollController membersScrollController = ScrollController();
 
-  /// Indicator whether the [Chat.avatar] and [Chat.name] editing mode is
-  /// enabled.
-  final RxBool nameEditing = RxBool(false);
-
-  /// Indicator whether the [Chat.avatar] and [Chat.name] editing mode is
-  /// enabled.
-  final RxBool profileEditing = RxBool(false);
-
   /// [Chat.name] field state.
   late final TextFieldState name;
 
@@ -185,6 +177,9 @@ class ChatInfoController extends GetxController {
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat?.chat.value.isMonolog ?? false;
 
+  /// Indicates whether the group's [chat] is a favorite.
+  bool get isFavorite => chat?.chat.value.favoritePosition != null;
+
   /// Indicates whether the [Chat.members] have a next page.
   RxBool get haveNext => chat?.members.hasNext ?? RxBool(false);
 
@@ -200,17 +195,7 @@ class ChatInfoController extends GetxController {
 
     name = TextFieldState(
       text: chat?.chat.value.name?.val,
-      onFocus: (s) async {
-        if (s.text.isNotEmpty) {
-          try {
-            ChatName(s.text);
-          } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
-          } catch (e) {
-            s.error.value = e.toString();
-          }
-        }
-      },
+      onFocus: (_) async => await _updateChatName(),
     );
 
     _fetched?.finish();
@@ -489,48 +474,6 @@ class ChatInfoController extends GetxController {
     await _chatService.deleteChatDirectLink(chatId);
   }
 
-  /// Submits the [name] field.
-  Future<void> submitName() async {
-    name.focus.unfocus();
-
-    if (name.text == chat?.chat.value.name?.val) {
-      name.unsubmit();
-      nameEditing.value = false;
-      return;
-    }
-
-    ChatName? chatName;
-    try {
-      chatName = name.text.isEmpty ? null : ChatName(name.text);
-    } on FormatException catch (_) {
-      name.status.value = RxStatus.empty();
-      name.error.value = 'err_incorrect_input'.l10n;
-      name.unsubmit();
-      return;
-    }
-
-    if (name.error.value == null || name.resubmitOnError.isTrue) {
-      name.status.value = RxStatus.loading();
-      name.editable.value = false;
-
-      try {
-        await _chatService.renameChat(chat!.chat.value.id, chatName);
-        name.error.value = null;
-        nameEditing.value = false;
-        name.unsubmit();
-      } on RenameChatException catch (e) {
-        name.error.value = e.toString();
-      } catch (e) {
-        name.resubmitOnError.value = true;
-        name.error.value = 'err_data_transfer'.l10n;
-        rethrow;
-      } finally {
-        name.status.value = RxStatus.empty();
-        name.editable.value = true;
-      }
-    }
-  }
-
   /// Uploads the current edits ([avatarCrop], [avatarImage] and
   /// [avatarDeleted]).
   Future<void> submitAvatar() async {
@@ -580,15 +523,6 @@ class ChatInfoController extends GetxController {
     avatarImage.value = null;
     avatarCrop.value = null;
     avatarDeleted.value = false;
-  }
-
-  /// Exits the [profileEditing].
-  void closeEditing() {
-    profileEditing.value = false;
-    avatarCrop.value = null;
-    avatarImage.value = null;
-    avatarDeleted.value = false;
-    name.clear();
   }
 
   /// Highlights the item with the provided [index].
@@ -717,6 +651,46 @@ class ChatInfoController extends GetxController {
           await chat?.members.next();
         }
       });
+    }
+  }
+
+  /// Renames the [chat] to a [ChatName] specified in the [name] field.
+  Future<void> _updateChatName() async {
+    name.focus.unfocus();
+
+    if (name.text == chat?.chat.value.name?.val) {
+      name.unsubmit();
+      return;
+    }
+
+    ChatName? chatName;
+    try {
+      chatName = name.text.isEmpty ? null : ChatName(name.text);
+    } on FormatException catch (_) {
+      name.status.value = RxStatus.empty();
+      name.error.value = 'err_incorrect_input'.l10n;
+      name.unsubmit();
+      return;
+    }
+
+    if (name.error.value == null || name.resubmitOnError.isTrue) {
+      name.status.value = RxStatus.loading();
+      name.editable.value = false;
+
+      try {
+        await _chatService.renameChat(chat!.chat.value.id, chatName);
+        name.error.value = null;
+        name.unsubmit();
+      } on RenameChatException catch (e) {
+        name.error.value = e.toString();
+      } catch (e) {
+        name.resubmitOnError.value = true;
+        name.error.value = 'err_data_transfer'.l10n;
+        rethrow;
+      } finally {
+        name.status.value = RxStatus.empty();
+        name.editable.value = true;
+      }
     }
   }
 }

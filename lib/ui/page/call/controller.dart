@@ -46,6 +46,8 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show RemoveChatCallMemberException, RemoveChatMemberException;
 import '/routes.dart';
+import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/call/participant/controller.dart';
 import '/util/audio_utils.dart';
 import '/util/fixed_timer.dart';
@@ -457,7 +459,7 @@ class CallController extends GetxController {
   UserCallCover? get callCover => _currentCall.value.caller?.callCover;
 
   /// Returns a name of the current [OngoingCall]'s caller.
-  String? get callerName => _currentCall.value.caller?.title;
+  String? get callerName => _currentCall.value.caller?.title();
 
   /// Indicates whether the connection to the [OngoingCall] updates was lost and
   /// an ongoing reconnection is happening.
@@ -511,7 +513,7 @@ class CallController extends GetxController {
   /// title of this [OngoingCall].
   Map<String, String> get titleArguments {
     final Map<String, String> args = {
-      'title': chat.value?.title ?? ('dot'.l10n * 3),
+      'title': chat.value?.title() ?? ('dot'.l10n * 3),
       'state': state.value.name,
     };
 

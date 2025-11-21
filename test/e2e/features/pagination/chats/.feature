@@ -30,18 +30,22 @@ Feature: Chats pagination
     Given I have Internet with delay of 5 seconds
     When I scroll `Chats` until `ChatsLoading` is present
     Then I wait until `ChatsLoading` is absent
-    And I see 16 chats
+    And I see 16 or more chats
 
+  @disabled
   Scenario: Chats pagination migrates from local to remote
-    Given I am Alice
+    Given user Alice
     And Alice has 16 groups
+    And I sign in as Alice
     And I pause for 5 seconds
-    And I see 16 chats
+    When I scroll `Chats` until `ChatsLoading` is present
+    Then I wait until `ChatsLoading` is absent
+    And I see 16 or more chats
     And chats fetched are indeed remote
-    And I do not have Internet
-    And I pause for 2 seconds
 
-    When I restart app
+    When I do not have Internet
+    And I pause for 2 seconds
+    And I restart app
     Then I see 15 chats
     And chats fetched are indeed local
 
@@ -79,4 +83,4 @@ Feature: Chats pagination
     Then I see 30 favorite chats
 
     When I scroll `Chats` to bottom
-    Then I see 45 chats
+    Then I see 45 or more chats

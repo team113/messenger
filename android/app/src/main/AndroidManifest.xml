@@ -18,6 +18,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" tools:node="remove" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" tools:node="remove" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" tools:node="remove" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" tools:node="remove" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" tools:node="remove" />
 
     <application
@@ -28,7 +29,7 @@
             android:exported="true"
             android:fitsSystemWindows="true"
             android:hardwareAccelerated="true"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:name=".MainActivity"
             android:showWhenLocked="true"
             android:theme="@style/LaunchTheme"

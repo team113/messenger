@@ -64,6 +64,7 @@ class MessageFieldController extends GetxController {
     List<ChatItemQuoteInput> quotes = const [],
     List<Attachment> attachments = const [],
     this.onKeyUp,
+    this.canPin = true,
   }) : quotes = RxList(quotes),
        attachments = RxList(
          attachments.map((e) => MapEntry(GlobalKey(), e)).toList(),
@@ -157,20 +158,20 @@ class MessageFieldController extends GetxController {
       if (PlatformUtils.isAndroid) TakeVideoButton(pickVideoFromCamera),
       GalleryButton(pickMedia),
       FileButton(pickFile),
-    ] else
+    ] else ...[
+      if (PlatformUtils.isMobile) GalleryButton(pickPhotoOrVideo),
       AttachmentButton(pickFile),
-    if (_settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
-        onCall != null) ...[
-      AudioCallButton(() => onCall?.call(false)),
-      VideoCallButton(() => onCall?.call(true)),
     ],
   ]);
 
   /// [ChatButton]s displayed (pinned) in the text field.
   late final RxList<ChatButton> buttons;
 
+  /// Indicator whether there is space for more [ChatButton]s to be pinned.
+  final RxBool hasSpaceForPins = RxBool(true);
+
   /// Indicator whether any more [ChatButton] can be added to the [buttons].
-  final RxBool canPin = RxBool(true);
+  final bool canPin;
 
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
@@ -197,9 +198,6 @@ class MessageFieldController extends GetxController {
   /// [ApplicationSettings.pinnedActions] value.
   Worker? _buttonsWorker;
 
-  /// [Worker] capturing [inCall] changes to update the [panel] value.
-  Worker? _inCallWorker;
-
   /// [Worker] reacting on the [RouterState.routes] changes hiding the
   /// [_moreEntry].
   Worker? _routesWorker;
@@ -214,26 +212,14 @@ class MessageFieldController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
 
-  /// Returns the current [ApplicationSettings] value.
-  Rx<ApplicationSettings?>? get _settings =>
-      _settingsRepository?.applicationSettings;
-
-  /// Sets the reactive [inCall] indicator, determining whether
-  /// [AudioCallButton] and [VideoCallButton] buttons should be enabled or not.
-  set inCall(RxBool inCall) {
-    if (_settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
-        onCall != null) {
-      _updateButtons(inCall.value);
-      _inCallWorker?.dispose();
-      _inCallWorker = ever(inCall, _updateButtons);
-    }
-  }
-
   /// Handles the new lines for the provided [KeyEvent] in the [field].
   static KeyEventResult handleNewLines(KeyEvent e, TextFieldState field) {
-    if ((e.logicalKey == LogicalKeyboardKey.enter ||
-            e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
-        e is KeyDownEvent) {
+    if (e is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+
+    if (e.logicalKey == LogicalKeyboardKey.enter ||
+        e.logicalKey == LogicalKeyboardKey.numpadEnter) {
       final Set<PhysicalKeyboardKey> pressed =
           HardwareKeyboard.instance.physicalKeysPressed;
 
@@ -337,7 +323,6 @@ class MessageFieldController extends GetxController {
     _editedWorker?.dispose();
     _buttonsWorker?.dispose();
     _routesWorker?.dispose();
-    _inCallWorker?.dispose();
     scrollController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -433,6 +418,13 @@ class MessageFieldController extends GetxController {
   Future<void> pickFile() {
     field.focus.unfocus();
     return _pickAttachment(FileType.any);
+  }
+
+  /// Opens a file choose popup and adds the [FileType.media] files to the
+  /// [attachments].
+  Future<void> pickPhotoOrVideo() {
+    field.focus.unfocus();
+    return _pickAttachment(FileType.media);
   }
 
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
@@ -611,27 +603,6 @@ class MessageFieldController extends GetxController {
     }
 
     return false;
-  }
-
-  /// Updates the [panel] and the [buttons] from that [panel], disabling or
-  /// enabling the [AudioCallButton] and [VideoCallButton] according to the
-  /// provided [inCall] value.
-  void _updateButtons(bool inCall) {
-    panel.value = panel.map((button) {
-      if (button is AudioCallButton) {
-        return AudioCallButton(inCall ? null : () => onCall?.call(false));
-      }
-
-      if (button is VideoCallButton) {
-        return VideoCallButton(inCall ? null : () => onCall?.call(true));
-      }
-
-      return button;
-    }).toList();
-
-    buttons.value = _toButtons(
-      _settingsRepository?.applicationSettings.value?.pinnedActions,
-    );
   }
 
   /// Constructs a list of [ChatButton]s from the provided [list] of [String]s.

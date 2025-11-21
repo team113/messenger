@@ -127,7 +127,6 @@ class AuthService extends DisposableService {
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
-  // TODO: Remove, [AbstractMyUserRepository.profiles] should be used instead.
   /// Returns the reactive list of known [MyUser]s.
   RxList<MyUser> get profiles => _authRepository.profiles;
 
@@ -155,17 +154,8 @@ class AuthService extends DisposableService {
     Log.debug('init()', '$runtimeType');
 
     _authRepository.authExceptionHandler = (e) async {
-      // Try to refresh session, otherwise just force logout.
-      if (credentials.value?.refresh.expireAt.isAfter(
-            PreciseDateTime.now().toUtc(),
-          ) ==
-          true) {
-        await refreshSession(proceedIfRefreshBefore: DateTime.now());
-      } else {
-        _unauthorized();
-        router.auth();
-        throw e;
-      }
+      // Always try to refresh session, as we cannot rely on the expiry dates.
+      await refreshSession(proceedIfRefreshBefore: DateTime.now());
     };
 
     // Listen to the [Credentials] changes to stay synchronized with another
@@ -263,7 +253,7 @@ class AuthService extends DisposableService {
       } else if (refresh.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
         await _authorized(creds);
 
-        if (_shouldRefresh(creds)) {
+        if (_areExpired(creds)) {
           refreshSession();
         }
         status.value = RxStatus.success();
@@ -300,7 +290,7 @@ class AuthService extends DisposableService {
     );
 
     await _authRepository.createConfirmationCode(
-      login: login,
+      login: num == null ? login : null,
       num: num,
       email: email,
       phone: phone,
@@ -442,7 +432,7 @@ class AuthService extends DisposableService {
         final Credentials creds = await _authRepository.signIn(
           password: password,
           code: code,
-          login: login,
+          login: num == null ? login : null,
           num: num,
           email: email,
           phone: phone,
@@ -591,7 +581,7 @@ class AuthService extends DisposableService {
     status.value = RxStatus.loading();
 
     try {
-      if (_shouldRefresh(creds)) {
+      if (_areExpired(creds)) {
         await refreshSession(userId: creds.userId);
       }
 
@@ -755,7 +745,7 @@ class AuthService extends DisposableService {
         // authorize with those.
         if (oldCreds != null &&
             oldCreds.access.secret != credentials.value?.access.secret &&
-            !_shouldRefresh(oldCreds)) {
+            !_areExpired(oldCreds)) {
           Log.debug(
             'refreshSession($userId |-> $attempt): false alarm, applying the retrieved fresh credentials',
             '$runtimeType',
@@ -774,17 +764,17 @@ class AuthService extends DisposableService {
 
         if (isLocked) {
           Log.debug(
-            'refreshSession($userId |-> $attempt): acquired the lock, while it was locked -> should refresh: ${_shouldRefresh(oldCreds)}',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was locked -> should refresh: ${_areExpired(oldCreds)} (comparing oldCreds(${oldCreds?.access.expireAt.toUtc()}).subtract($_accessTokenMinTtl) = ${oldCreds?.access.expireAt.toUtc().subtract(_accessTokenMinTtl)} vs now(${PreciseDateTime.now().toUtc()}))',
             '$runtimeType',
           );
         } else {
           Log.debug(
-            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked -> should refresh: ${_shouldRefresh(oldCreds)}',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked -> should refresh: ${_areExpired(oldCreds)} (comparing oldCreds(${oldCreds?.access.expireAt.toUtc()}).subtract($_accessTokenMinTtl) = ${oldCreds?.access.expireAt.toUtc().subtract(_accessTokenMinTtl)} vs now(${PreciseDateTime.now().toUtc()}))',
             '$runtimeType',
           );
         }
 
-        if (!_shouldRefresh(oldCreds)) {
+        if (!_areExpired(oldCreds)) {
           if (oldCreds != null) {
             if (credentials.value?.access.secret != oldCreds.access.secret ||
                 credentials.value?.refresh.secret != oldCreds.refresh.secret) {
@@ -806,6 +796,12 @@ class AuthService extends DisposableService {
               // token still being used in WebSocket connection.
               creds.session.lastActivatedAt.val.add(Duration(seconds: 10)),
             );
+
+            if (!shouldProceed) {
+              // Shouldn't rely on the time, thus only check whether the session
+              // refreshment was locked or not.
+              shouldProceed = !isLocked;
+            }
           }
 
           if (!shouldProceed) {
@@ -814,7 +810,7 @@ class AuthService extends DisposableService {
           }
 
           Log.debug(
-            'refreshSession($userId |-> $attempt): should refresh is `false`, yet proceeding as ${creds?.session.lastActivatedAt.val.toUtc()} (+10 seconds) is before ${proceedIfRefreshBefore?.toUtc()}',
+            'refreshSession($userId |-> $attempt): should refresh is `false`, yet proceeding as !isLocked(${!isLocked}) or ${creds?.session.lastActivatedAt.val.toUtc()} (+10 seconds) is before ${proceedIfRefreshBefore?.toUtc()}',
             '$runtimeType',
           );
         }
@@ -1014,7 +1010,7 @@ class AuthService extends DisposableService {
           return;
         }
 
-        if (_shouldRefresh(creds)) {
+        if (_areExpired(creds)) {
           await refreshSession(userId: id);
         }
       });
@@ -1070,14 +1066,15 @@ class AuthService extends DisposableService {
     return Routes.auth;
   }
 
-  /// Indicates whether the [credentials] require a refresh.
+  /// Indicates whether the [credentials] are considered expired by [DateTime].
   ///
   /// If [credentials] aren't provided, then ones of the current session are
   /// checked.
-  bool _shouldRefresh([Credentials? credentials]) {
+  bool _areExpired([Credentials? credentials]) {
     final Credentials? creds = credentials ?? this.credentials.value;
 
     return creds?.access.expireAt
+            .toUtc()
             .subtract(_accessTokenMinTtl)
             .isBefore(PreciseDateTime.now().toUtc()) ??
         false;

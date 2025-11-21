@@ -64,17 +64,24 @@ class AddChatMemberView extends StatelessWidget {
             return const Center(child: CustomProgressIndicator());
           }
 
-          return SearchView(
-            categories: const [
-              SearchCategory.recent,
-              SearchCategory.contact,
-              SearchCategory.user,
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ModalPopupHeader(text: 'label_add_participants'.l10n),
+              Flexible(
+                child: SearchView(
+                  categories: const [
+                    SearchCategory.recent,
+                    SearchCategory.contact,
+                    SearchCategory.user,
+                  ],
+                  submit: 'btn_add'.l10n,
+                  onSubmit: c.addMembers,
+                  enabled: c.status.value.isEmpty,
+                  chat: c.chat.value,
+                ),
+              ),
             ],
-            title: 'label_add_participants'.l10n,
-            submit: 'btn_add'.l10n,
-            onSubmit: c.addMembers,
-            enabled: c.status.value.isEmpty,
-            chat: c.chat.value,
           );
         });
       },

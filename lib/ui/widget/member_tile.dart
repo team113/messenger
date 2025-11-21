@@ -21,6 +21,7 @@ import '/domain/model/my_user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/contact_tile.dart';
 import '/util/message_popup.dart';
 import 'animated_button.dart';
@@ -63,6 +64,11 @@ class MemberTile extends StatelessWidget {
   /// Indicates whether this [MemberTile] represents a [MyUser], meaning
   /// displaying appropriate labels.
   bool get _me => myUser != null;
+
+  /// Returns text representing the status of this [myUser] or [user].
+  String get _status => _me
+      ? 'label_online'.l10n
+      : user?.user.value.getStatus(user?.user.value.lastSeenAt) ?? '';
 
   @override
   Widget build(BuildContext context) {
@@ -117,11 +123,18 @@ class MemberTile extends StatelessWidget {
                         description: [
                           TextSpan(text: 'alert_user_will_be_removed1'.l10n),
                           TextSpan(
-                            text: user?.title,
+                            text: user?.title(),
                             style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(text: 'alert_user_will_be_removed2'.l10n),
                         ],
+                        button: (context) {
+                          return MessagePopup.deleteButton(
+                            context,
+                            label: 'btn_delete'.l10n,
+                            icon: SvgIcons.removeMemberWhite,
+                          );
+                        },
                       );
 
                       if (result == true) {
@@ -129,18 +142,19 @@ class MemberTile extends StatelessWidget {
                       }
                     },
               child: _me
-                  ? Text(
-                      'label_you'.l10n,
-                      style: style.fonts.normal.regular.secondary,
-                    )
+                  ? const SizedBox()
                   : const SvgIcon(
-                      SvgIcons.delete,
+                      SvgIcons.removeMember,
                       key: Key('DeleteMemberButton'),
                     ),
             ),
           ),
         ),
         const SizedBox(width: 6),
+      ],
+      subtitle: [
+        if (_status.isNotEmpty)
+          Text(_status.capitalized, style: style.fonts.small.regular.secondary),
       ],
     );
   }

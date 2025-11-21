@@ -1,2 +1,1 @@
-- Redesigned session deletion modals.
 - Bug fixes and performance improvements.

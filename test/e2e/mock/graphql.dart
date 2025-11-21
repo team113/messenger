@@ -180,8 +180,15 @@ class MockGraphQlClient extends GraphQlClient {
   /// Sets the indicator whether requests should throw [ConnectionException]s or
   /// not.
   set throwException(bool value) {
-    connected.value = !value;
     _throwException = value;
+
+    if (value) {
+      disconnect();
+    } else {
+      reconnect();
+    }
+
+    connected.value = !value;
   }
 
   /// Returns the [Duration] to add to all requests simulating a delay.
@@ -236,6 +243,7 @@ class MockGraphQlClient extends GraphQlClient {
     String? operationName,
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
+    RawClientOptions? raw,
   }) async {
     if (delay != null) {
       await Future.delayed(delay!);
@@ -251,6 +259,7 @@ class MockGraphQlClient extends GraphQlClient {
       options: options,
       onException: onException,
       onSendProgress: onSendProgress,
+      raw: raw,
     );
   }
 }

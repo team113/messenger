@@ -31,6 +31,7 @@ import '/domain/model/native_file.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/paginated.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/log.dart';
@@ -53,6 +54,9 @@ class ChatService extends DisposableService {
 
   /// Returns the reactive map of the currently paginated [RxChat]s.
   RxObsMap<ChatId, RxChat> get paginated => _chatRepository.paginated;
+
+  /// Returns the [Paginated] of archived [RxChat]s.
+  Paginated<ChatId, RxChat> get archived => _chatRepository.archived;
 
   /// Returns the current reactive map of all [RxChat]s available.
   RxObsMap<ChatId, RxChat> get chats => _chatRepository.chats;
@@ -100,6 +104,12 @@ class ChatService extends DisposableService {
   FutureOr<RxChat?> get(ChatId id) {
     Log.debug('get($id)', '$runtimeType');
     return _chatRepository.get(id);
+  }
+
+  /// Returns a [ChatItem] by the provided [id].
+  FutureOr<ChatItem?> getItem(ChatItemId id) {
+    Log.debug('getItem($id)', '$runtimeType');
+    return _chatRepository.getItem(id);
   }
 
   /// Fetches the next [paginated] page.
@@ -186,6 +196,13 @@ class ChatService extends DisposableService {
     }
 
     return _chatRepository.hideChat(id);
+  }
+
+  /// Archives or unarchives the specified [Chat] for the authenticated
+  /// [MyUser].
+  Future<void> archiveChat(ChatId id, bool archive) {
+    Log.debug('archiveChat($id, $archive)', '$runtimeType');
+    return _chatRepository.archiveChat(id, archive);
   }
 
   /// Adds an [User] to a [Chat]-group by the authority of the authenticated

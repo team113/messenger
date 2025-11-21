@@ -1,3 +1,1 @@
-- Redesigned session deletion modals.
-- Redesigned route switching animation.
 - Bug fixes and performance improvements.

@@ -46,6 +46,7 @@ extension ChatConversion on ChatMixin {
         .toList(),
     kindIndex: kind.index,
     isHidden: isHidden,
+    isArchived: isArchived,
     muted: muted != null
         ? muted!.$$typename == 'MuteForeverDuration'
               ? MuteDuration.forever()

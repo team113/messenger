@@ -58,7 +58,7 @@ class HomeController extends GetxController {
   static const double sideBarMaxWidthPercentage = 0.5;
 
   /// Minimal width of the side bar.
-  static const double sideBarMinWidth = 250;
+  static const double sideBarMinWidth = 320;
 
   /// Current width of the side bar.
   late final RxDouble sideBarWidth;
@@ -85,6 +85,9 @@ class HomeController extends GetxController {
 
   /// [BuildContext] of the [HomeView].
   final BuildContext? context;
+
+  /// [GlobalKey] of a [AvatarWidget]s button in the navigation bar.
+  final GlobalKey avatarKey = GlobalKey();
 
   /// Authentication service to determine auth status.
   final AuthService _auth;

@@ -119,6 +119,13 @@
 # Default:
 #   amount = 4096
 
+# Indicator whether [Log]s should obfuscate any private information (messages,
+# tokens, etc).
+#
+# Default:
+#   obfuscated = true (if `kDebugMode`  is `true`)
+#   obfuscated = false" (if `kProfileMode` or `kReleaseMode` is `true`)
+
 [link]
 # Prefix of the direct chat link URL.
 #

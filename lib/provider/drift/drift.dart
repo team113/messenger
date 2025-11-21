@@ -34,6 +34,7 @@ import 'blocklist.dart';
 import 'cache.dart';
 import 'call_credentials.dart';
 import 'call_rect.dart';
+import 'callkit_calls.dart';
 import 'chat.dart';
 import 'chat_credentials.dart';
 import 'chat_item.dart';
@@ -63,6 +64,7 @@ part 'drift.g.dart';
     Background,
     Cache,
     CacheSummary,
+    CallKitCalls,
     Downloads,
     GeoLocations,
     Locks,
@@ -97,39 +99,48 @@ class CommonDatabase extends _$CommonDatabase {
         if (from != to) {
           bool migrated = false;
 
-          if (to >= 7 && from <= 6) {
-            await m.addColumn(settings, settings.videoVolume);
-            migrated = true;
-          }
+          try {
+            if (to >= 7 && from <= 6) {
+              await m.addColumn(settings, settings.videoVolume);
+              migrated = true;
+            }
 
-          if (to >= 6 && from <= 5) {
-            await m.addColumn(settings, settings.noiseSuppression);
-            await m.addColumn(settings, settings.noiseSuppressionLevel);
-            await m.addColumn(settings, settings.echoCancellation);
-            await m.addColumn(settings, settings.autoGainControl);
-            await m.addColumn(settings, settings.highPassFilter);
-            migrated = true;
-          }
+            if (to >= 6 && from <= 5) {
+              await m.addColumn(settings, settings.noiseSuppression);
+              await m.addColumn(settings, settings.noiseSuppressionLevel);
+              await m.addColumn(settings, settings.echoCancellation);
+              await m.addColumn(settings, settings.autoGainControl);
+              await m.addColumn(settings, settings.highPassFilter);
+              migrated = true;
+            }
 
-          if (to >= 5 && from <= 4) {
-            await m.addColumn(settings, settings.muteKeys);
-            migrated = true;
-          }
+            if (to >= 5 && from <= 4) {
+              await m.addColumn(settings, settings.muteKeys);
+              migrated = true;
+            }
 
-          if (to >= 4 && from <= 3) {
-            await m.addColumn(versions, versions.blocklistVersion);
-            await m.addColumn(versions, versions.blocklistCount);
-            migrated = true;
-          }
+            if (to >= 4 && from <= 3) {
+              await m.addColumn(versions, versions.blocklistVersion);
+              await m.addColumn(versions, versions.blocklistCount);
+              migrated = true;
+            }
 
-          if (to >= 3 && from <= 2) {
-            await m.addColumn(myUsers, myUsers.welcomeMessage);
-            migrated = true;
-          }
+            if (to >= 3 && from <= 2) {
+              await m.addColumn(myUsers, myUsers.welcomeMessage);
+              migrated = true;
+            }
 
-          if (to >= 2 && from <= 1) {
-            await m.addColumn(versions, versions.sessionsListVersion);
-            migrated = true;
+            if (to >= 2 && from <= 1) {
+              await m.addColumn(versions, versions.sessionsListVersion);
+              migrated = true;
+            }
+          } catch (e) {
+            // Should log the error, but proceed with initialization, as
+            // otherwise `drift` won't allow application to run at all.
+            Log.error(
+              'Unable to perform migrations due to: $e',
+              '$runtimeType',
+            );
           }
 
           if (!migrated) {
@@ -282,17 +293,49 @@ class ScopedDatabase extends _$ScopedDatabase {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
-      onUpgrade: (m, b, a) async {
-        Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
+      onUpgrade: (m, from, to) async {
+        Log.info('MigrationStrategy.onUpgrade($from, $to)', '$runtimeType');
 
         if (_closed) {
           return;
         }
 
-        // TODO: Implement proper migrations.
-        if (a != b) {
-          if (a >= 2 && b <= 1) {
-            await m.addColumn(users, users.welcomeMessage);
+        if (from != to) {
+          bool migrated = false;
+
+          try {
+            if (to >= 3 && from <= 2) {
+              await m.addColumn(chats, chats.isArchived);
+              migrated = true;
+            }
+
+            if (to >= 2 && from <= 1) {
+              await m.addColumn(users, users.welcomeMessage);
+              migrated = true;
+            }
+          } catch (e) {
+            // Should log the error, but proceed with initialization, as
+            // otherwise `drift` won't allow application to run at all.
+            Log.error(
+              'Unable to perform migrations due to: $e',
+              '$runtimeType',
+            );
+          }
+
+          if (!migrated) {
+            Log.info(
+              'MigrationStrategy.onUpgrade($from, $to) -> migration did not succeed, thus deleting the tables',
+              '$runtimeType',
+            );
+
+            for (var e in m.database.allTables) {
+              await m.deleteTable(e.actualTableName);
+            }
+          } else {
+            Log.info(
+              'MigrationStrategy.onUpgrade($from, $to) -> migration did succeed',
+              '$runtimeType',
+            );
           }
         }
 

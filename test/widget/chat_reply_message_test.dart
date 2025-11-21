@@ -36,6 +36,7 @@ import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
@@ -77,7 +78,10 @@ import '../mock/platform_utils.dart';
 import 'chat_reply_message_test.mocks.dart';
 import 'extension/rich_text.dart';
 
-@GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
+@GenerateNiceMocks([
+  MockSpec<GraphQlProvider>(),
+  MockSpec<PlatformRouteInformationProvider>(),
+])
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -89,12 +93,17 @@ void main() async {
   Config.disableDragArea = true;
 
   var graphQlProvider = MockGraphQlProvider();
-  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-
   when(
     graphQlProvider.getUser(const UserId('me')),
   ).thenAnswer((_) => Future.value(GetUser$Query.fromJson(userData)));
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  when(
+    graphQlProvider.onDelete,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   when(graphQlProvider.recentChatsTopEvents(3)).thenAnswer(
     (_) => Stream.value(
@@ -110,6 +119,9 @@ void main() async {
       ),
     ),
   );
+  when(
+    graphQlProvider.recentChatsTopEvents(3, archived: true),
+  ).thenAnswer((_) => const Stream.empty());
 
   final StreamController<QueryResult> contactEvents = StreamController();
   when(
@@ -213,6 +225,7 @@ void main() async {
       last: null,
       before: null,
       noFavorite: anyNamed('noFavorite'),
+      archived: anyNamed('archived'),
       withOngoingCalls: anyNamed('withOngoingCalls'),
     ),
   ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
@@ -490,6 +503,7 @@ void main() async {
       ),
     );
     Get.put(ContactService(contactRepository));
+    Get.put(NotificationService(graphQlProvider));
 
     final MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
@@ -555,6 +569,7 @@ void main() async {
     expect(find.richText('reply message', skipOffstage: false), findsOneWidget);
 
     await Future.wait([common.close(), scoped.close()]);
+
     await Get.deleteAll(force: true);
   });
 }
@@ -580,6 +595,7 @@ final chatData = {
   'members': {'nodes': [], 'totalCount': 0},
   'kind': 'GROUP',
   'isHidden': false,
+  'isArchived': false,
   'muted': null,
   'directLink': null,
   'createdAt': '2021-12-15T15:11:18.316846+00:00',

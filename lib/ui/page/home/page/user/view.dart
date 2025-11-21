@@ -34,6 +34,7 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
+import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/line_divider.dart';
 import '/ui/widget/obscured_selection_area.dart';
@@ -93,23 +94,26 @@ class UserView extends StatelessWidget {
 
           return Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
-            body: Scrollbar(
-              controller: c.scrollController,
-              child: ObscuredSelectionArea(
-                contextMenuBuilder: (_, _) => const SizedBox(),
-                child: ScrollablePositionedList.builder(
-                  key: const Key('UserScrollable'),
-                  itemCount: blocks.length,
-                  itemBuilder: (_, i) => Obx(() {
-                    return HighlightedContainer(
-                      highlight: c.highlighted.value == i,
-                      child: blocks[i],
-                    );
-                  }),
-                  scrollController: c.scrollController,
-                  itemScrollController: c.itemScrollController,
-                  itemPositionsListener: c.positionsListener,
-                  addAutomaticKeepAlives: false,
+            body: ScrollKeyboardHandler(
+              scrollController: c.scrollController,
+              child: Scrollbar(
+                controller: c.scrollController,
+                child: ObscuredSelectionArea(
+                  contextMenuBuilder: (_, _) => const SizedBox(),
+                  child: ScrollablePositionedList.builder(
+                    key: const Key('UserScrollable'),
+                    itemCount: blocks.length,
+                    itemBuilder: (_, i) => Obx(() {
+                      return HighlightedContainer(
+                        highlight: c.highlighted.value == i,
+                        child: blocks[i],
+                      );
+                    }),
+                    scrollController: c.scrollController,
+                    itemScrollController: c.itemScrollController,
+                    itemPositionsListener: c.positionsListener,
+                    addAutomaticKeepAlives: false,
+                  ),
                 ),
               ),
             ),
@@ -126,6 +130,7 @@ class UserView extends StatelessWidget {
     final UserBio? bio = c.user?.user.value.bio;
 
     return Block(
+      folded: c.isFavorite,
       padding: EdgeInsets.fromLTRB(32, 8, 32, 16),
       children: [
         Obx(() {
@@ -134,7 +139,8 @@ class UserView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: Text(
-                c.contact.value?.contact.value.name.val ?? c.name.text,
+                key: Key('UserViewTitleKey'),
+                '${c.user?.title()}',
                 style: style.fonts.larger.regular.onBackground,
                 textAlign: TextAlign.center,
               ),
@@ -404,7 +410,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
         TextSpan(
-          text: c.user?.title,
+          text: c.user?.title(),
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
@@ -456,7 +462,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_user_will_be_reported1'.l10n),
         TextSpan(
-          text: c.user?.title,
+          text: c.user?.title(),
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_user_will_be_reported2'.l10n),
@@ -472,17 +478,15 @@ class UserView extends StatelessWidget {
       ],
       button: (context) {
         return Obx(() {
-          return Obx(() {
-            final bool enabled = !c.reporting.isEmpty.value;
+          final bool enabled = !c.reporting.isEmpty.value;
 
-            return PrimaryButton(
-              title: 'btn_report'.l10n,
-              onPressed: enabled ? () => Navigator.of(context).pop(true) : null,
-              leading: SvgIcon(
-                enabled ? SvgIcons.reportWhite : SvgIcons.reportGrey,
-              ),
-            );
-          });
+          return PrimaryButton(
+            title: 'btn_report'.l10n,
+            onPressed: enabled ? () => Navigator.of(context).pop(true) : null,
+            leading: SvgIcon(
+              enabled ? SvgIcons.reportWhite : SvgIcons.reportGrey,
+            ),
+          );
         });
       },
     );
@@ -494,18 +498,13 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup clearing this [Chat].
   Future<void> _clearChat(UserController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
     final bool? result = await MessagePopup.alert(
       'label_clear_history'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(
-          text: c.user?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
-      ],
+      button: (context) => MessagePopup.defaultButton(
+        context,
+        icon: SvgIcons.cleanHistoryWhite,
+        label: 'btn_clear'.l10n,
+      ),
     );
 
     if (result == true) {
@@ -515,18 +514,14 @@ class UserView extends StatelessWidget {
 
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(UserController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
     final bool? result = await MessagePopup.alert(
       'label_delete_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
-        TextSpan(
-          text: c.user?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
-      ],
+      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
+      button: (context) => MessagePopup.deleteButton(
+        context,
+        icon: SvgIcons.delete19White,
+        label: 'btn_delete'.l10n,
+      ),
     );
 
     if (result == true) {

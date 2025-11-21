@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -90,7 +91,7 @@ class ChatTile extends StatelessWidget {
   /// [AvatarWidget].
   final Widget Function(Widget child) avatarBuilder;
 
-  /// Builder for building the [RxChat.title].
+  /// Builder for building the chat title.
   ///
   /// Intended to be used to allow custom modifications over the title.
   final Widget Function(Widget child) titleBuilder;
@@ -147,7 +148,10 @@ class ChatTile extends StatelessWidget {
                   avatarBuilder(
                     AvatarWidget.fromRxChat(
                       chat,
-                      radius: AvatarRadius.large,
+                      radius: switch (height) {
+                        >= 65 => AvatarRadius.large,
+                        (_) => AvatarRadius.big,
+                      },
                       onForbidden: onForbidden,
                     ),
                   ),
@@ -167,7 +171,7 @@ class ChatTile extends StatelessWidget {
                                     child: titleBuilder(
                                       Obx(() {
                                         return Text(
-                                          chat?.title ?? ('dot'.l10n * 3),
+                                          chat?.title() ?? ('dot'.l10n * 3),
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
                                           style: selected

@@ -23,6 +23,18 @@ Feature: Chat muting and unmuting
     And I have "Alice and Bob" group with Bob
     And I wait until text "Alice and Bob" is present
 
+  Scenario: User mutes and unmutes chat on `ChatInfo` page
+    Given I am in "Alice and Bob" group
+    And I open chat's info
+    And I wait until `ChatInfoScrollable` is present
+    And I scroll `ChatInfoScrollable` until `MuteButton` is present
+
+    When I tap `MuteButton` button
+    Then I see "Alice and Bob" chat as muted
+
+    When I tap `UnmuteButton` button
+    Then I see "Alice and Bob" chat as unmuted
+
   Scenario: User mutes and unmutes chat
     When I long press "Alice and Bob" chat
     And I tap `MuteButton` button

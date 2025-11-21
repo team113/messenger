@@ -18,8 +18,9 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:dio/dio.dart' as dio show DioException, Options, Response;
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart'
+    as dio
+    show DioException, Options, Response, DioExceptionType;
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -27,6 +28,7 @@ import 'package:http/http.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
+import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '/config.dart';
@@ -43,7 +45,7 @@ import 'websocket/interface.dart'
     as websocket;
 
 /// Base GraphQl provider.
-class GraphQlProviderBase {
+class GraphQlProviderBase extends DisposableInterface {
   /// [GraphQlClient] of this provider.
   final GraphQlClient _client = GraphQlClient();
 
@@ -66,6 +68,14 @@ class GraphQlProviderBase {
   /// Indicates whether this [GraphQlClient] is successfully connected to the
   /// endpoint.
   RxBool get connected => _client.connected;
+
+  @override
+  void onClose() {
+    Log.info('onClose()', '$runtimeType');
+
+    disconnect();
+    super.onClose();
+  }
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
   Future<void> reconnect() => _client.reconnect();
@@ -93,11 +103,25 @@ class GraphQlProviderBase {
 
 /// Wrapper around [GraphQLClient] used to implement middleware capabilities.
 class GraphQlClient {
+  GraphQlClient() {
+    Log.debug('GraphQlClient()', '$runtimeType($_id)');
+  }
+
   /// Starting period of exponential backoff reconnection.
   static const int minReconnectPeriodMillis = 1000;
 
   /// Maximum possible period of exponential backoff reconnection.
   static const int maxReconnectPeriodMillis = 30000;
+
+  /// Indicator whether this [GraphQlClient] should allow [WebSocketLink]
+  /// connections.
+  ///
+  /// If `false`, then [subscribe] won't emit any data.
+  ///
+  /// Intended to be used for tests only, because tests may construct
+  /// [GraphQlClient]s on-the-flight just to do some queries or mutations, which
+  /// don't need WebSocket connections at all.
+  bool withWebSocket = true;
 
   /// Authorization bearer token.
   AccessTokenSecret? token;
@@ -120,6 +144,10 @@ class GraphQlClient {
 
   /// [WebSocketLink] used by the [_client].
   WebSocketLink? _wsLink;
+
+  /// [GraphQLWebSocketChannel] of [_wsLink] to cancel it during
+  /// [_disposeWebSocket].
+  GraphQLWebSocketChannel? _wsChannel;
 
   /// Current authorization bearer token of the [_client].
   ///
@@ -171,6 +199,9 @@ class GraphQlClient {
   /// Handlers listening for [Exception]s happening with this client.
   final List<void Function(Exception?)> _handlers = [];
 
+  /// Unique ID of this [GraphQlClient] to differentiate it from others.
+  final String _id = const Uuid().v4();
+
   /// Returns [GraphQLClient] with or without [token] header authorization.
   Future<GraphQLClient> get client async {
     if (_client != null && _currentToken == token) {
@@ -195,25 +226,25 @@ class GraphQlClient {
     RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
-    if (raw != null) {
-      return await _transaction(options.operationName, () async {
-        final QueryResult result = await (await _newClient(
-          raw,
-        )).query(options).timeout(timeout);
-        GraphQlProviderExceptions.fire(result, onException);
-        return result;
-      });
-    } else {
-      return await _middleware(() async {
-        return _transaction(options.operationName, () async {
-          final QueryResult result = await _queryLimiter.execute(
-            () async => await (await client).query(options).timeout(timeout),
-          );
-          GraphQlProviderExceptions.fire(result, onException);
-          return result;
-        });
-      });
+    final dio.Response posted = await post(
+      const RequestSerializer().serializeRequest(options.asRequest),
+      operationName: options.operationName,
+      onException: onException,
+      raw: raw,
+    );
+
+    if (posted.data['data'] == null) {
+      throw GraphQlException([GraphQLError(message: posted.data.toString())]);
     }
+
+    final QueryResult query = QueryResult(
+      options: options,
+      source: QueryResultSource.network,
+      data: posted.data['data'],
+    );
+
+    GraphQlProviderExceptions.fire(query, onException);
+    return query;
   }
 
   /// Resolves a single mutation according to the [MutationOptions] specified
@@ -227,32 +258,36 @@ class GraphQlClient {
     RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
-    if (raw != null) {
-      return await _transaction(options.operationName, () async {
-        final QueryResult result = await (await _newClient(
-          raw,
-        )).mutate(options).timeout(timeout);
-        GraphQlProviderExceptions.fire(result, onException);
-        return result;
-      });
-    } else {
-      return await _middleware(() async {
-        return await _transaction(options.operationName, () async {
-          final QueryResult result = await (await client)
-              .mutate(options)
-              .timeout(timeout);
-          GraphQlProviderExceptions.fire(result, onException);
-          return result;
-        });
-      });
+    final dio.Response posted = await post(
+      const RequestSerializer().serializeRequest(options.asRequest),
+      operationName: options.operationName,
+      onException: onException,
+      raw: raw,
+    );
+
+    if (posted.data['data'] == null) {
+      throw GraphQlException([GraphQLError(message: posted.data.toString())]);
     }
+
+    final QueryResult query = QueryResult(
+      options: options,
+      source: QueryResultSource.network,
+      data: posted.data['data'],
+    );
+
+    GraphQlProviderExceptions.fire(query, onException);
+    return query;
   }
 
   /// Subscribes to a GraphQL subscription according to the [options] specified.
+  ///
+  /// The higher the [priority], the earlier this subscription will be
+  /// subscribed to in a rate limiter queue.
   Stream<QueryResult> subscribe(
     SubscriptionOptions options, {
     FutureOr<Version?> Function()? ver,
     bool resubscribe = true,
+    int priority = 0,
   }) {
     return SubscriptionHandle(
       _subscribe,
@@ -263,6 +298,7 @@ class GraphQlClient {
       options,
       ver: ver,
       resubscribe: resubscribe,
+      priority: priority,
     ).stream;
   }
 
@@ -273,12 +309,17 @@ class GraphQlClient {
     String? operationName,
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
+    RawClientOptions? raw,
   }) {
     return _middleware(() async {
       return await _transaction(operationName, () async {
         final dio.Options authorized = options ?? dio.Options();
         authorized.headers = (authorized.headers ?? {});
-        authorized.headers!['Authorization'] = 'Bearer $token';
+
+        if (raw == null || raw.token != null) {
+          authorized.headers!['Authorization'] =
+              'Bearer ${raw?.token ?? token}';
+        }
 
         try {
           return await (await PlatformUtils.dio).post<T>(
@@ -304,7 +345,7 @@ class GraphQlClient {
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
   Future<void> reconnect() async {
-    Log.debug('reconnect()', '$runtimeType');
+    Log.debug('reconnect()', '$runtimeType($_id)');
 
     if (_client == null || _currentToken != token) {
       _client = await _newClient();
@@ -314,7 +355,7 @@ class GraphQlClient {
 
   /// Disconnects the [client] and disposes the connection.
   void disconnect() {
-    Log.debug('disconnect()', '$runtimeType');
+    Log.debug('disconnect()', '$runtimeType($_id)');
 
     _disposeWebSocket();
     _queryLimiter.clear();
@@ -345,10 +386,17 @@ class GraphQlClient {
   /// and returns a [Stream] which either emits received data or an error.
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
-  Future<SubscriptionConnection> _subscribe(SubscriptionOptions options) async {
+  Future<SubscriptionConnection> _subscribe(
+    SubscriptionOptions options,
+    int priority,
+  ) async {
     final stream = await _subscriptionLimiter.execute<Stream<QueryResult>>(
       () async => (await client).subscribe(options),
+      priority: priority,
     );
+
+    // Store the reference to the current [WebSocketLink].
+    final WebSocketLink? wsLink = _wsLink;
 
     SubscriptionConnection? connection;
     connection = SubscriptionConnection(
@@ -357,7 +405,12 @@ class GraphQlClient {
 
         if (e != null) {
           if (e is AuthorizationException) {
-            authExceptionHandler?.call(e);
+            // If we're still using the same [WebSocketLink], then
+            // [_newWebSocket] didn't happen just yet, so proceed with error.
+            if (wsLink == _wsLink && _subscriptions.contains(connection)) {
+              authExceptionHandler?.call(e);
+            }
+
             return [];
           } else {
             throw e;
@@ -376,6 +429,9 @@ class GraphQlClient {
   /// Middleware that wraps the provided [fn] execution and attempts to handle
   /// [AuthorizationException] if any.
   Future<T> _middleware<T>(Future<T> Function() fn) async {
+    // Store the reference to the current [WebSocketLink].
+    final GraphQLClient? client = _client;
+
     try {
       final T result = await fn();
 
@@ -386,6 +442,10 @@ class GraphQlClient {
 
       return result;
     } on AuthorizationException catch (e) {
+      if (client != _client) {
+        rethrow;
+      }
+
       await authExceptionHandler?.call(e);
       return await fn();
     } on Exception catch (e) {
@@ -441,7 +501,12 @@ class GraphQlClient {
 
   /// Populates the [_wsLink] with a new [WebSocketLink].
   Future<void> _newWebSocket() async {
-    Log.debug('_newWebSocket()', '$runtimeType');
+    if (!withWebSocket) {
+      return;
+    }
+
+    _disposeWebSocket();
+    Log.debug('_newWebSocket()', '$runtimeType($_id)');
 
     _wsLink = WebSocketLink(
       Config.ws,
@@ -454,9 +519,10 @@ class GraphQlClient {
         delayBetweenReconnectionAttempts: null,
         inactivityTimeout: const Duration(seconds: 15),
         connectFn: (Uri uri, Iterable<String>? protocols) async {
-          Log.debug('connectFn($uri, $protocols)', '$runtimeType');
+          Log.debug('connectFn($uri, $protocols)', '$runtimeType($_id)');
 
-          final GraphQLWebSocketChannel socket = websocket
+          _wsChannel?.sink.close();
+          _wsChannel = websocket
               .connect(
                 uri,
                 protocols: protocols,
@@ -466,9 +532,8 @@ class GraphQlClient {
               )
               .forGraphQL();
 
-          socket.stream = socket.stream.handleError((_, _) => false);
-
-          _channelSubscription = socket.stream.listen((_) {
+          _wsChannel?.stream = _wsChannel!.stream.handleError((_, _) => false);
+          _channelSubscription = _wsChannel?.stream.listen((e) {
             if (!_wsConnected) {
               Log.info('Connected', 'WebSocket');
               _checkConnectionTimer?.cancel();
@@ -480,9 +545,13 @@ class GraphQlClient {
                 _errored = false;
               }
             }
+
+            if (!connected.value) {
+              _reportException(null);
+            }
           }, onDone: _reconnect);
 
-          return socket;
+          return _wsChannel!;
         },
       ),
     );
@@ -501,17 +570,21 @@ class GraphQlClient {
 
   /// Disposes the [_wsLink] and related resources.
   void _disposeWebSocket() {
-    Log.debug('_disposeWebSocket()', '$runtimeType');
+    if (_wsLink != null) {
+      Log.debug('_disposeWebSocket()', '$runtimeType($_id)');
+    }
+
     _checkConnectionTimer?.cancel();
     _backoffTimer?.cancel();
     _channelSubscription?.cancel();
+    _wsChannel?.sink.close();
     _wsLink?.dispose();
     _wsLink = null;
   }
 
   /// Creates a new [GraphQLClient].
   Future<GraphQLClient> _newClient([RawClientOptions? raw]) async {
-    Log.debug('_newClient($raw)', '$runtimeType');
+    Log.debug('_newClient($raw)', '$runtimeType($_id)');
 
     final httpLink = HttpLink(
       '${Config.url}:${Config.port}${Config.graphql}',
@@ -535,11 +608,14 @@ class GraphQlClient {
       // WebSocket connection is meaningful only if the token is provided.
       if (token != null) {
         await _newWebSocket();
-        link = Link.split(
-          (request) => request.isSubscription,
-          _wsLink!,
-          httpAuthLink,
-        );
+
+        if (_wsLink != null) {
+          link = Link.split(
+            (request) => request.isSubscription,
+            _wsLink!,
+            httpAuthLink,
+          );
+        }
       }
     }
 
@@ -603,12 +679,12 @@ class GraphQlClient {
           exception is TimeoutException ||
           exception is FormatException) {
         connected.value = false;
-      } else if (exception is DioException) {
+      } else if (exception is dio.DioException) {
         switch (exception.type) {
-          case DioExceptionType.connectionTimeout:
-          case DioExceptionType.sendTimeout:
-          case DioExceptionType.receiveTimeout:
-          case DioExceptionType.connectionError:
+          case dio.DioExceptionType.connectionTimeout:
+          case dio.DioExceptionType.sendTimeout:
+          case dio.DioExceptionType.receiveTimeout:
+          case dio.DioExceptionType.connectionError:
             connected.value = false;
             break;
 
@@ -680,6 +756,7 @@ class SubscriptionHandle {
     this._options, {
     this.ver,
     this.resubscribe = true,
+    this.priority = 0,
   });
 
   /// Callback, called when a [Version] to pass the [SubscriptionOptions] is
@@ -690,8 +767,14 @@ class SubscriptionHandle {
   /// [ResubscriptionRequiredException] or not.
   final bool resubscribe;
 
+  /// Priority of [_listen] subscription in [RateLimiter]'s queue.
+  ///
+  /// The bigger, the more earlier this subscription will be resubscribed.
+  int priority;
+
   /// Callback, called to get the [Stream] of [QueryResult]s itself.
-  final FutureOr<SubscriptionConnection> Function(SubscriptionOptions) _listen;
+  final FutureOr<SubscriptionConnection> Function(SubscriptionOptions, int)
+  _listen;
 
   /// Callback, called to cancel the provided [SubscriptionConnection].
   final void Function(SubscriptionConnection?) _cancel;
@@ -744,7 +827,7 @@ class SubscriptionHandle {
           return;
         }
 
-        _connection = await _listen(_options);
+        _connection = await _listen(_options, priority);
 
         if (!_controller.hasListener) {
           return cancel();

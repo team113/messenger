@@ -71,7 +71,10 @@ import 'package:mockito/mockito.dart';
 import '../mock/platform_utils.dart';
 import 'chat_rename_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
+@GenerateNiceMocks([
+  MockSpec<GraphQlProvider>(),
+  MockSpec<PlatformRouteInformationProvider>(),
+])
 void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -108,10 +111,18 @@ void main() async {
   );
 
   var graphQlProvider = MockGraphQlProvider();
-  Get.put<GraphQlProvider>(graphQlProvider);
+  when(
+    graphQlProvider.onStart,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
+  when(
+    graphQlProvider.onDelete,
+  ).thenReturn(InternalFinalCallback(callback: () {}));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(
     graphQlProvider.recentChatsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.recentChatsTopEvents(3, archived: true),
   ).thenAnswer((_) => const Stream.empty());
   when(
     graphQlProvider.incomingCallsTopEvents(3),
@@ -122,6 +133,7 @@ void main() async {
   when(
     graphQlProvider.favoriteChatsEvents(any),
   ).thenAnswer((_) => const Stream.empty());
+  Get.put<GraphQlProvider>(graphQlProvider);
 
   when(
     graphQlProvider.getUser(any),
@@ -172,6 +184,9 @@ void main() async {
     when(
       graphQlProvider.recentChatsTopEvents(3),
     ).thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.recentChatsTopEvents(3, archived: true),
+    ).thenAnswer((_) => const Stream.empty());
 
     final StreamController<QueryResult> chatEvents = StreamController();
     when(
@@ -212,6 +227,7 @@ void main() async {
         last: null,
         before: null,
         noFavorite: anyNamed('noFavorite'),
+        archived: anyNamed('archived'),
         withOngoingCalls: anyNamed('withOngoingCalls'),
       ),
     ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
@@ -407,11 +423,6 @@ void main() async {
     }
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.tap(
-      find.byKey(const Key('EditProfileButton'), skipOffstage: false),
-    );
-    await tester.pumpAndSettle();
-
     var field = find.byKey(const Key('RenameChatField'));
     expect(field, findsOneWidget);
 
@@ -421,16 +432,10 @@ void main() async {
     await tester.enterText(field, 'newname');
     await tester.pumpAndSettle();
 
-    await tester.tap(
-      find.byKey(const Key('SaveEditingButton'), skipOffstage: false),
-    );
-    await tester.pumpAndSettle();
+    expect(find.text('newname'), findsNWidgets(1));
 
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
-
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.byIcon(Icons.check), findsNothing);
 
     verify(
       graphQlProvider.renameChat(
@@ -439,7 +444,7 @@ void main() async {
       ),
     );
 
-    expect(find.text('newname'), findsNWidgets(1));
+    expect(find.text('newname'), findsNWidgets(2));
 
     await Future.wait([common.close(), scoped.close()]);
     await Get.deleteAll(force: true);
@@ -456,6 +461,7 @@ final chatData = {
   'members': {'nodes': [], 'totalCount': 0},
   'kind': 'GROUP',
   'isHidden': false,
+  'isArchived': false,
   'muted': null,
   'directLink': null,
   'createdAt': '2021-12-15T15:11:18.316846+00:00',

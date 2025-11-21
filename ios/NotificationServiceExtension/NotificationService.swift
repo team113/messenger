@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import FirebaseMessaging
+import Foundation
 import SQLite
 import UserNotifications
 import os
@@ -37,35 +38,18 @@ class NotificationService: UNNotificationServiceExtension {
         }
       }
 
-      if request.content.title == "Canceled" && request.content.body.isEmpty {
-        if let thread = userInfo["thread"] as? String {
-          let center = UNUserNotificationCenter.current()
-          let notifications = await center.deliveredNotifications()
+      if let tag = userInfo["tag"] as? String {
+        cancelNotification(tag: String(tag.asHash))
+      }
 
-          if !notifications.filter { $0.request.content.threadIdentifier.contains(thread) }.isEmpty
-          {
-            try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
-            cancelNotificationsContaining(thread: thread)
-          } else {
+      self.contentHandler = contentHandler
+      bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
-            cancelNotificationsContaining(thread: thread)
-            try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
-            cancelNotificationsContaining(thread: thread)
-            return
-          }
-        } else if let tag = userInfo["tag"] as? String {
-          cancelNotification(tag: tag)
-        }
-      } else {
-        self.contentHandler = contentHandler
-        bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
-
-        if let bestAttemptContent = bestAttemptContent {
-          Messaging.serviceExtension().populateNotificationContent(
-            bestAttemptContent,
-            withContentHandler: contentHandler
-          )
-        }
+      if let bestAttemptContent = bestAttemptContent {
+        Messaging.serviceExtension().populateNotificationContent(
+          bestAttemptContent,
+          withContentHandler: contentHandler
+        )
       }
     }
   }
@@ -187,6 +171,10 @@ class NotificationService: UNNotificationServiceExtension {
       var request = URLRequest(url: url)
       request.httpMethod = "POST"
       request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+      if let agent = defaults!.value(forKey: "agent") as? String {
+        request.setValue(agent, forHTTPHeaderField: "User-Agent")
+      }
 
       let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "network")
 
@@ -331,20 +319,6 @@ class NotificationService: UNNotificationServiceExtension {
     }
   }
 
-  /// Remove the delivered notifications containing the provided thread.
-  private func cancelNotificationsContaining(thread: String) {
-    if #available(iOS 10.0, *) {
-      let center = UNUserNotificationCenter.current()
-      center.getDeliveredNotifications { (notifications) in
-        for notification in notifications {
-          if notification.request.content.threadIdentifier.contains(thread) == true {
-            center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier])
-          }
-        }
-      }
-    }
-  }
-
   class LockProvider {
     let db: Connection
 
@@ -422,5 +396,22 @@ class NotificationService: UNNotificationServiceExtension {
 
       try? db.run(locksTable.filter(holderColumn == holder).delete())
     }
+  }
+}
+
+// Extension adding the simplest possible hash to a `String`.
+//
+// Currently uses the FNV-1a hash function.
+//
+// See: https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
+extension String {
+  /// Returns a hash of this `String` in its simplest form.
+  var asHash: UInt32 {
+    var result: UInt32 = 0x811C_9DC5  // FNV offset basis.
+    for unit in self.utf16 {
+      result ^= UInt32(unit)
+      result = (result &* 0x0100_0193) & 0xFFFF_FFFF  // 32-bit overflow.
+    }
+    return result
   }
 }

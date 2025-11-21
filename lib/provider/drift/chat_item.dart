@@ -145,13 +145,13 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the [DtoChatItem] stored in the database by the provided [id], if
   /// any.
-  Future<DtoChatItem?> read(ChatItemId id) async {
+  FutureOr<DtoChatItem?> read(ChatItemId id) {
     final DtoChatItem? existing = _cache[id];
     if (existing != null) {
       return existing;
     }
 
-    return await safe<DtoChatItem?>(
+    return safe<DtoChatItem?>(
       (db) async {
         final stmt = db.select(db.chatItems)..where((u) => u.id.equals(id.val));
         final ChatItemRow? row = await stmt.getSingleOrNull();
@@ -169,8 +169,8 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the [DtoChatItem] stored in the database by the provided [at], if
   /// any.
-  Future<DtoChatItem?> readAt(PreciseDateTime at) async {
-    return await safe<DtoChatItem?>(
+  Future<DtoChatItem?> readAt(PreciseDateTime at) {
+    return safe<DtoChatItem?>(
       (db) async {
         final stmt = db.select(db.chatItems)
           ..where(

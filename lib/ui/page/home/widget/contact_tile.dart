@@ -25,6 +25,7 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/tab/chats/widget/hovered_ink.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -140,14 +141,19 @@ class ContactTile extends StatelessWidget {
           hoveredBorder: selected
               ? style.cardSelectedBorder
               : style.cardHoveredBorder,
-          border: selected ? style.cardSelectedBorder : style.cardBorder,
+          border: selected
+              ? style.cardSelectedBorder
+              : Border.all(
+                  color: style.colors.secondaryHighlightDarkest,
+                  width: 0.5,
+                ),
           borderRadius: style.cardRadius,
           onTap: onTap,
           unselectedHoverColor: style.cardHoveredColor,
           selectedHoverColor: style.colors.primary,
           folded: contact?.contact.value.favoritePosition != null,
           child: SizedBox(
-            height: dense ? 56 : height,
+            height: dense ? 62 : height,
             child: Padding(
               key: contact?.contact.value.favoritePosition != null
                   ? Key('FavoriteIndicator_${contact?.contact.value.id}')
@@ -210,15 +216,15 @@ class ContactTile extends StatelessWidget {
 
     return Text(
       contact?.name.val ??
-          user?.title ??
+          user?.title() ??
           myUser?.name?.val ??
           myUser?.num.toString() ??
           'dot'.l10n,
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
       style: selected
-          ? style.fonts.big.regular.onPrimary
-          : style.fonts.big.regular.onBackground,
+          ? style.fonts.medium.regular.onPrimary
+          : style.fonts.medium.regular.onBackground,
     );
   }
 

@@ -15,19 +15,61 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+importScripts('./firebase-credentials.js');
+
+const routeChannel = new BroadcastChannel("route");
+
+// Registers `notificationclick` handler for closing notification and navigating
+// to the chat specified in the payload.
+self.addEventListener('notificationclick', function (event) {
+  async function handle() {
+    // This is our payload from the showed notification.
+    const payload = event.notification?.data;
+    console.log('`notificationclick` triggered from ServiceWorker:', payload);
+
+    const link = payload.webpush.link;
+
+    event.notification.close();
+
+    await self.clients.claim();
+    let clientList = await self.clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true
+    });
+
+    for (const client of clientList) {
+      // Ignore separate windows of calls and galleries.
+      if (!client.url.includes('/call') && !client.url.includes('/gallery')) {
+        client.focus();
+
+        if (link) {
+          routeChannel.postMessage(link);
+        }
+
+        return;
+      }
+    }
+
+    if (link) {
+      await self.clients.openWindow(link);
+    } else {
+      await self.clients.openWindow('/');
+    }
+  }
+
+  event.waitUntil(handle());
+});
+
+// Any `notificationclick` event listeners must must be registered before
+// importing Firebase scripts.
+//
+// For more information see:
+// https://firebase.google.com/docs/cloud-messaging/js/receive#setting_notification_options_in_the_service_worker
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js");
 
-firebase.initializeApp({
-  apiKey: "AIzaSyBbttYFbYjucn8BY-p5tlWomcd5V9h8zWc",
-  authDomain: "messenger-3872c.firebaseapp.com",
-  databaseURL: 'https://messenger-3872c.firebaseio.com',
-  projectId: "messenger-3872c",
-  storageBucket: "messenger-3872c.appspot.com",
-  messagingSenderId: "985927661367",
-  appId: "1:985927661367:web:c604073ecefcacd15c0cb2",
-  measurementId: "G-HVQ9H888X8"
-});
+// Separate `credentials` variable is used for ability to change it easily.
+firebase.initializeApp(credentials);
 
 const messaging = firebase.messaging();
 const broadcastChannel = new BroadcastChannel("fcm");
@@ -64,7 +106,7 @@ messaging.onMessage(async (payload) => {
   else {
     // Try to set a badge, if available.
     if (navigator.setAppBadge) {
-      let unreadCount = 1;
+      let unreadCount = payload.data.badge ?? 1;
 
       if (unreadCount && unreadCount > 0) {
         navigator.setAppBadge(unreadCount);
@@ -119,5 +161,33 @@ messaging.onBackgroundMessage(async (payload) => {
         navigator.clearAppBadge();
       }
     }
+  }
+});
+
+// Listens for messages from the main thread.
+//
+// This runs inside a background service worker, where the browser manages
+// notifications independently of the page context. In other words,
+// notifications shown here cannot be dismissed directly from the web page code.
+self.addEventListener("message", async (event) => {
+  try {
+    const data = event?.data;
+
+    // If we receive a command not starting with a `closeAll:` (this worker
+    // doesn't support other commands), then return from execution.
+    if (typeof data !== "string" || !data.startsWith("closeAll:")) return;
+
+    // Parse `ChatId` part.
+    const chatId = data.split("closeAll:")[1];
+
+    const notifications = await self.registration.getNotifications();
+    for (const notification of notifications) {
+      if (notification?.data?.FCM_MSG?.data?.chatId === chatId || notification?.lang?.includes(chatId)) {
+        console.log("Closing notification by `closeAll:` message from the ServiceWorker", data, JSON.stringify((notification.data)));
+        notification.close();
+      }
+    }
+  } catch (e) {
+    console.error("Unable to perform `closeAll:` in ServiceWorker due to:", e);
   }
 });

@@ -110,3 +110,21 @@ extension WebStoredOngoingCallConversion on OngoingCall {
     );
   }
 }
+
+/// Collection of [String]s to pass as an action to a notification in Web.
+class WebNotificationAction {
+  const WebNotificationAction({
+    required this.id,
+    required this.title,
+    this.icon,
+  });
+
+  /// ID of this [WebNotificationAction].
+  final String id;
+
+  /// Title to display to a user in this [WebNotificationAction].
+  final String title;
+
+  /// Optional URL to a icon to display.
+  final String? icon;
+}
