@@ -371,11 +371,7 @@ fcm_message =
                            [1] Video
                            *[other] {$attachmentsCount} videos
                        }
-               [file] { $attachmentsCount ->
-                          [1] File
-                          *[other] {$attachmentsCount} files
-                      }
-              *[attachments] {$attachmentsCount ->
+              *[file] { $attachmentsCount ->
                           [1] File
                           *[other] {$attachmentsCount} files
                        }
