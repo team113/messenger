@@ -24,7 +24,6 @@ import 'package:video_player/video_player.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/widget/svg/svg.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -131,6 +130,11 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// happened during initialization.
   bool _triedOnError = false;
 
+  /// Indicator whether the video playback was manually stopped.
+  /// If true, the video will not autoplay on mouse hover.
+  /// Otherwise, it will autoplay on mouse hover.
+  bool hasManuallyStopped = false;
+
   @override
   void initState() {
     _initVideo();
@@ -213,45 +217,71 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       return child;
     }
 
-    return Stack(
-      children: [
-        child,
+    return MouseRegion(
+      onEnter: (_) async {
+        if (_controller!.value.isInitialized && !hasManuallyStopped) {
+          _controller?.play();
+        }
+      },
+      onExit: (_) async {
+        if (_controller!.value.isInitialized && !hasManuallyStopped) {
+          await _controller?.pause();
+          await _controller?.seekTo(Duration.zero);
+        }
+      },
+      child: Stack(
+        children: [
+          child,
 
-        if (widget.interface)
-          Positioned(
-            top: 6,
-            left: 6,
-            child: IgnorePointer(
+          if (widget.interface)
+            Positioned(
+              bottom: 6,
+              left: 6,
               child: Container(
                 padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   color: style.colors.onBackgroundOpacity40,
                 ),
-                child: Text(
-                  '${_controller?.value.duration.hhMmSs()}',
-                  style: style.fonts.smaller.regular.onPrimary,
+                child: ValueListenableBuilder(
+                  builder: (_, value, _) {
+                    return Row(
+                      spacing: 4,
+                      children: [
+                        GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: () {
+                            if (value.isPlaying) {
+                              _controller?.pause();
+                              hasManuallyStopped = true;
+                            } else {
+                              _controller?.play();
+                              hasManuallyStopped = false;
+                            }
+                          },
+                          child: Icon(
+                            hasManuallyStopped
+                                ? Icons.play_arrow
+                                : (value.isPlaying
+                                      ? Icons.pause
+                                      : Icons.play_arrow),
+                            size: 18,
+                            color: style.colors.onPrimary,
+                          ),
+                        ),
+                        Text(
+                          (value.duration - value.position).hhMmSs(),
+                          style: style.fonts.smaller.regular.onPrimary,
+                        ),
+                      ],
+                    );
+                  },
+                  valueListenable: _controller!,
                 ),
               ),
             ),
-          ),
-
-        if (widget.autoplay)
-          Positioned(
-            top: 6,
-            right: 6,
-            child: IgnorePointer(
-              child: Container(
-                padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: style.colors.onBackgroundOpacity40,
-                ),
-                child: SvgIcon(SvgIcons.volumeMutedSmall),
-              ),
-            ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -328,8 +358,6 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
           if (widget.autoplay) {
             await _controller?.setVolume(0);
-            await _controller?.setLooping(true);
-            await _controller?.play();
           }
         } catch (e) {
           if (!_triedOnError) {
