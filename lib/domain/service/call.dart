@@ -161,6 +161,9 @@ class CallService extends DisposableService {
       Rx<OngoingCall>? call;
 
       try {
+        if (chat?.unreadCount.value == 1) {
+          await _chatService.readAll([chatId]);
+        }
         call = await _callRepository.join(
           chatId,
           chatCall,
