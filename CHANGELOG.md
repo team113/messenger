@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.10...v0.7.0) | [Milestone](/../../milestone/55)
 
+### Changed
+
+- UI:
+    - Chats list:
+        - Redesigned chats appearing animation. ([#1514])
+
 ### Fixed
 
 - UI:
@@ -19,6 +25,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1460]: /../../issues/1460
 [#1504]: /../../pull/1504
+[#1514]: /../../pull/1514
 
 
 
