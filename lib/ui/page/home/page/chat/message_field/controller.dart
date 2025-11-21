@@ -572,7 +572,28 @@ class MessageFieldController extends GetxController {
     if (file.size < maxAttachmentSize && _chatService != null) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments.add(MapEntry(GlobalKey(), attachment));
+
+        // If attachment is video or image insert it to end of img/video list and before documents, overwise simply add to end of attachments
+        if (file.isImage || file.isVideo) {
+          int lastIndex = attachments.indexWhere((a) {
+            final Attachment e = a.value;
+            final bool isImage =
+                (e is ImageAttachment ||
+                (e is LocalAttachment && e.file.isImage));
+            final bool isVideo =
+                (e is FileAttachment && e.isVideo) ||
+                (e is LocalAttachment && e.file.isVideo);
+            return !isImage && !isVideo;
+          });
+
+          if (lastIndex == -1) {
+            attachments.add(MapEntry(GlobalKey(), attachment));
+          } else {
+            attachments.insert(lastIndex, MapEntry(GlobalKey(), attachment));
+          }
+        } else {
+          attachments.add(MapEntry(GlobalKey(), attachment));
+        }
 
         Attachment uploaded = await _chatService.uploadAttachment(attachment);
 
@@ -661,5 +682,15 @@ class MessageFieldController extends GetxController {
         );
       }
     }
+  }
+
+  /// Change [attachments] list order from [imgVideosAttachments] and [filesAttachments]
+  void reorderAttachments(
+    List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
+    imgVideosAttachments,
+    List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
+    filesAttachments,
+  ) {
+    attachments.value = imgVideosAttachments + filesAttachments;
   }
 }

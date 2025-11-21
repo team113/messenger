@@ -189,16 +189,24 @@ class MessageFieldView extends StatelessWidget {
   /// quotes and edited message.
   Widget _buildHeader(MessageFieldController c, BuildContext context) {
     final style = Theme.of(context).style;
+    final double attachmentSize = 125;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         return Obx(() {
           final bool grab = c.attachments.isNotEmpty
-              ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
+              ? (attachmentSize + 2) * c.attachments.length >
+                    constraints.maxWidth - 16
               : false;
 
           Widget? previews;
-
+          List<MapEntry<GlobalKey, Attachment>> imgVideosAttachments = c
+              .attachments
+              .where(_isImageOrVideo)
+              .toList();
+          List<MapEntry<GlobalKey, Attachment>> filesAttachments = c.attachments
+              .where(_isNotImageOrVideo)
+              .toList();
           if (c.quotes.isNotEmpty) {
             previews = ReorderableListView(
               scrollController: c.scrollController,
@@ -422,12 +430,101 @@ class MessageFieldView extends StatelessWidget {
                                   ? null
                                   : const NeverScrollableScrollPhysics(),
                               scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: c.attachments
-                                    .map((e) => _buildAttachment(context, e, c))
-                                    .toList(),
+                              child: SizedBox(
+                                height: attachmentSize,
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width:
+                                          (attachmentSize + 4) *
+                                          imgVideosAttachments.length,
+                                      child: ReorderableList(
+                                        scrollDirection: Axis.horizontal,
+                                        itemBuilder: (context, index) =>
+                                            ReorderableDelayedDragStartListener(
+                                              key: Key(
+                                                'imgVideosHandle_${imgVideosAttachments[index].value.id}',
+                                              ),
+                                              index: index,
+                                              child: _buildAttachment(
+                                                context,
+                                                imgVideosAttachments[index],
+                                                c,
+                                                attachmentSize,
+                                              ),
+                                            ),
+                                        itemCount: imgVideosAttachments.length,
+                                        onReorder:
+                                            (int oldIndex, int newIndex) {
+                                              if (newIndex ==
+                                                  imgVideosAttachments.length) {
+                                                imgVideosAttachments.add(
+                                                  imgVideosAttachments.removeAt(
+                                                    oldIndex,
+                                                  ),
+                                                );
+                                              } else {
+                                                imgVideosAttachments.insert(
+                                                  newIndex,
+                                                  imgVideosAttachments.removeAt(
+                                                    oldIndex,
+                                                  ),
+                                                );
+                                              }
+                                              c.reorderAttachments(
+                                                imgVideosAttachments,
+                                                filesAttachments,
+                                              );
+                                            },
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width:
+                                          (attachmentSize + 4) *
+                                          filesAttachments.length,
+                                      child: ReorderableList(
+                                        scrollDirection: Axis.horizontal,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        itemCount: filesAttachments.length,
+                                        itemBuilder: (context, index) =>
+                                            ReorderableDelayedDragStartListener(
+                                              key: Key(
+                                                'fileHandle_${filesAttachments[index].value.id}',
+                                              ),
+                                              index: index,
+                                              child: _buildAttachment(
+                                                context,
+                                                filesAttachments[index],
+                                                c,
+                                                attachmentSize,
+                                              ),
+                                            ),
+                                        onReorder:
+                                            (int oldIndex, int newIndex) {
+                                              if (newIndex ==
+                                                  filesAttachments.length) {
+                                                filesAttachments.add(
+                                                  filesAttachments.removeAt(
+                                                    oldIndex,
+                                                  ),
+                                                );
+                                              } else {
+                                                filesAttachments.insert(
+                                                  newIndex,
+                                                  filesAttachments.removeAt(
+                                                    oldIndex,
+                                                  ),
+                                                );
+                                              }
+                                              c.reorderAttachments(
+                                                imgVideosAttachments,
+                                                filesAttachments,
+                                              );
+                                            },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -560,6 +657,7 @@ class MessageFieldView extends StatelessWidget {
     BuildContext context,
     MapEntry<GlobalKey, Attachment> entry,
     MessageFieldController c,
+    double size,
   ) {
     final Attachment e = entry.value;
     final GlobalKey key = entry.key;
@@ -569,8 +667,6 @@ class MessageFieldView extends StatelessWidget {
     final bool isVideo =
         (e is FileAttachment && e.isVideo) ||
         (e is LocalAttachment && e.file.isVideo);
-
-    const double size = 125;
 
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
@@ -1019,6 +1115,26 @@ class MessageFieldView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Check that [entry] attachment is image or video
+  bool _isImageOrVideo(
+    MapEntry<GlobalKey<State<StatefulWidget>>, Attachment> entry,
+  ) {
+    var e = entry.value;
+    final bool isImage =
+        (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
+    final bool isVideo =
+        (e is FileAttachment && e.isVideo) ||
+        (e is LocalAttachment && e.file.isVideo);
+    return isImage || isVideo;
+  }
+
+  /// Check that [entry] attachment is file
+  bool _isNotImageOrVideo(
+    MapEntry<GlobalKey<State<StatefulWidget>>, Attachment> entry,
+  ) {
+    return !_isImageOrVideo(entry);
   }
 }
 
