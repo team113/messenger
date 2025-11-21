@@ -17,6 +17,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Redesigned chats appearing animation. ([#1514])
         - Redesigned unread messages counter. ([#1512], [#1507])
+    - Chat page:
+        - Made video auto-playback only when hovered. ([#1518], [#1446])
 
 ### Fixed
 
@@ -29,6 +31,8 @@ All user visible changes to this project will be documented in this file. This p
 [#1507]: /../../issues/1507
 [#1512]: /../../pull/1512
 [#1514]: /../../pull/1514
+[#1518]: /../../pull/1518
+[#1446]: /../../issues/1446
 
 
 

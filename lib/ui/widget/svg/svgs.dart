@@ -1920,12 +1920,6 @@ class SvgIcons {
     height: 20,
   );
 
-  static const SvgData volumeMutedSmall = SvgData(
-    'assets/icons/volume_muted_small.svg',
-    width: 14,
-    height: 11,
-  );
-
   static const SvgData videoPrevious = SvgData(
     'assets/icons/video_previous.svg',
     width: 18,
