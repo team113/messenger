@@ -488,6 +488,9 @@ class ChatView extends StatelessWidget {
                               onItemSticky: (i) =>
                                   c.elements.values.elementAt(i)
                                       is DateTimeElement,
+                              forceToExecuteInitIndex: c.initIndex == 0
+                                  ? 0
+                                  : null,
                               initIndex: c.initIndex,
                               initOffset: c.initOffset,
                               initOffsetBasedOnBottom: true,

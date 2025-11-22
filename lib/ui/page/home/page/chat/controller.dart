@@ -2492,49 +2492,28 @@ class ChatController extends GetxController {
       initIndex = index;
       initOffset = chat!.scrollPosition!.offset;
     } finally {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        // Stop the animation, if any.
-        listController.jumpTo(listController.offset);
-
-        // Ensure [FlutterListView] has correct index and offset.
-        listController.sliverController.animateToIndex(
-          initIndex,
-          offset: initOffset,
-          offsetBasedOnBottom: true,
-          duration: Duration(milliseconds: 200),
-          curve: Curves.decelerate,
+      if (initIndex != 0) {
+        // Add last [ChatItem] to history.
+        final ListElement? lastElement = elements.values.firstWhereOrNull(
+          (e) =>
+              e is ChatMessageElement ||
+              e is ChatInfoElement ||
+              e is ChatCallElement ||
+              e is ChatForwardElement,
         );
 
-        _ignorePositionChanges = false;
+        final ChatItem? lastItem = switch (lastElement) {
+          final ChatMessageElement e => e.item.value,
+          final ChatCallElement e => e.item.value,
+          final ChatInfoElement e => e.item.value,
+          final ChatForwardElement e => e.forwards.firstOrNull?.value,
+          _ => null,
+        };
 
-        elements.remove(_topLoader?.id);
-        elements.remove(_bottomLoader?.id);
-        _topLoader = null;
-        _bottomLoader = null;
-
-        if (initIndex != 0) {
-          // Add last [ChatItem] to history.
-          final ListElement? lastElement = elements.values.firstWhereOrNull(
-            (e) =>
-                (e is ChatMessageElement ||
-                e is ChatInfoElement ||
-                e is ChatCallElement ||
-                e is ChatForwardElement),
-          );
-
-          final ChatItem? lastItem = switch (lastElement) {
-            ChatMessageElement e => e.item.value,
-            ChatCallElement e => e.item.value,
-            ChatInfoElement e => e.item.value,
-            ChatForwardElement e => e.forwards.firstOrNull?.value,
-            _ => null,
-          };
-
-          if (lastItem != null) {
-            addToHistory(lastItem);
-          }
+        if (lastItem != null) {
+          addToHistory(lastItem);
         }
-      });
+      }
     }
   }
 
