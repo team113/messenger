@@ -16,6 +16,13 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Keep chat scroll position when exiting and re-entering it while the app is running. ([#1484], [#471])
 
+### Changed
+
+- UI:
+    - Chats tab:
+        - Redesigned chats appearing animation. ([#1514])
+        - Redesigned unread messages counter. ([#1512], [#1507])
+
 ### Fixed
 
 - UI:
@@ -24,8 +31,11 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1460]: /../../issues/1460
 [#1484]: /../../issues/1484
+[#1507]: /../../issues/1507
 [#471]: /../../pull/471
 [#1504]: /../../pull/1504
+[#1512]: /../../pull/1512
+[#1514]: /../../pull/1514
 
 
 
