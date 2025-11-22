@@ -2497,10 +2497,12 @@ class ChatController extends GetxController {
         listController.jumpTo(listController.offset);
 
         // Ensure [FlutterListView] has correct index and offset.
-        listController.sliverController.jumpToIndex(
+        listController.sliverController.animateToIndex(
           initIndex,
           offset: initOffset,
           offsetBasedOnBottom: true,
+          duration: Duration(milliseconds: 200),
+          curve: Curves.decelerate,
         );
 
         _ignorePositionChanges = false;
