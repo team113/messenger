@@ -22,6 +22,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../../../util/get.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -349,6 +350,16 @@ class _HomeViewState extends State<HomeView> {
               onTap: (i) {
                 if (i == 0) {
                   return LinkView.show(context);
+                }
+
+                /// Scroll to top if the chat tab is reselected.
+                if (router.tab == tabs[i] && router.tab == HomeTab.chats) {
+                  Get.findOrNull<ChatsTabController>()?.chatsController
+                      .animateTo(
+                        0,
+                        duration: Duration(milliseconds: 250),
+                        curve: Curves.easeIn,
+                      );
                 }
 
                 c.pages.jumpToPage(tabs[i].index);

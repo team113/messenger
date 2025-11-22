@@ -50,77 +50,11 @@ import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
 
 /// View of the [HomeTab.chats] tab.
-class ChatsTabView extends StatelessWidget {
+class ChatsTabView extends StatefulWidget {
   const ChatsTabView({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return GetBuilder(
-      key: const Key('ChatsTab'),
-      init: ChatsTabController(
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-      ),
-      builder: (ChatsTabController c) {
-        return Stack(
-          children: [
-            Obx(() {
-              return AnimatedContainer(
-                duration: 200.milliseconds,
-                color: c.search.value != null
-                    ? style.colors.secondaryHighlight
-                    : style.colors.secondaryHighlight.withValues(alpha: 0),
-              );
-            }),
-            Scaffold(
-              resizeToAvoidBottomInset: false,
-              body: NestedScrollView(
-                headerSliverBuilder: (context, value) {
-                  return [
-                    SliverOverlapAbsorber(
-                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                        context,
-                      ),
-                      sliver: SliverSafeArea(
-                        top: false,
-                        left: false,
-                        right: false,
-                        sliver: _appBar(context, c),
-                      ),
-                    ),
-                  ];
-                },
-                floatHeaderSlivers: false,
-                body: _body(context, c),
-              ),
-            ),
-            Obx(() {
-              if (c.creatingStatus.value.isLoading) {
-                return SafeAnimatedSwitcher(
-                  duration: 200.milliseconds,
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: style.colors.onBackgroundOpacity20,
-                    child: const Center(child: CustomProgressIndicator()),
-                  ),
-                );
-              }
-
-              return const SizedBox();
-            }),
-          ],
-        );
-      },
-    );
-  }
+  State<ChatsTabView> createState() => _ChatsTabViewState();
 
   /// Builds a [BottomPaddedRow] for selecting the [Chat]s.
   static Widget selectingBuilder(BuildContext context, ChatsTabController c) {
@@ -228,6 +162,130 @@ class ChatsTabView extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// Opens a popup window to confirm archiving or unarchiving the selected
+  /// chats.
+  static Future<void> _archiveChats(
+    BuildContext context,
+    ChatsTabController c,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      c.archivedOnly.value ? 'label_show_chats'.l10n : 'label_hide_chats'.l10n,
+      description: [
+        TextSpan(
+          text: c.archivedOnly.value
+              ? 'label_show_chats_modal_description'.l10n
+              : 'label_hide_chats_modal_description'.l10n,
+        ),
+      ],
+      button: (context) => MessagePopup.primaryButton(
+        context,
+        label: c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
+        icon: c.archivedOnly.value
+            ? SvgIcons.visibleOffWhite
+            : SvgIcons.visibleOnWhite,
+      ),
+    );
+
+    if (result == true) {
+      await c.archiveChats(!c.archivedOnly.value);
+    }
+  }
+
+  /// Opens a confirmation popup hiding the selected chats.
+  static Future<void> _hideChats(
+    BuildContext context,
+    ChatsTabController c,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chats'.l10n,
+      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
+      button: MessagePopup.deleteButton,
+    );
+
+    if (result == true) {
+      await c.hideChats();
+    }
+  }
+}
+
+class _ChatsTabViewState extends State<ChatsTabView> {
+  @override
+  void initState() {
+    Get.replace<ChatsTabController>(
+      ChatsTabController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
+    );
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return GetBuilder(
+      key: const Key('ChatsTab'),
+      init: Get.find<ChatsTabController>(),
+      builder: (ChatsTabController c) {
+        return Stack(
+          children: [
+            Obx(() {
+              return AnimatedContainer(
+                duration: 200.milliseconds,
+                color: c.search.value != null
+                    ? style.colors.secondaryHighlight
+                    : style.colors.secondaryHighlight.withValues(alpha: 0),
+              );
+            }),
+            Scaffold(
+              resizeToAvoidBottomInset: false,
+              body: NestedScrollView(
+                headerSliverBuilder: (context, value) {
+                  return [
+                    SliverOverlapAbsorber(
+                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                        context,
+                      ),
+                      sliver: SliverSafeArea(
+                        top: false,
+                        left: false,
+                        right: false,
+                        sliver: _appBar(context, c),
+                      ),
+                    ),
+                  ];
+                },
+                floatHeaderSlivers: false,
+                body: _body(context, c),
+              ),
+            ),
+            Obx(() {
+              if (c.creatingStatus.value.isLoading) {
+                return SafeAnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: style.colors.onBackgroundOpacity20,
+                    child: const Center(child: CustomProgressIndicator()),
+                  ),
+                );
+              }
+
+              return const SizedBox();
+            }),
+          ],
+        );
+      },
     );
   }
 
@@ -1182,50 +1240,5 @@ class ChatsTabView extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  /// Opens a popup window to confirm archiving or unarchiving the selected
-  /// chats.
-  static Future<void> _archiveChats(
-    BuildContext context,
-    ChatsTabController c,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      c.archivedOnly.value ? 'label_show_chats'.l10n : 'label_hide_chats'.l10n,
-      description: [
-        TextSpan(
-          text: c.archivedOnly.value
-              ? 'label_show_chats_modal_description'.l10n
-              : 'label_hide_chats_modal_description'.l10n,
-        ),
-      ],
-      button: (context) => MessagePopup.primaryButton(
-        context,
-        label: c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
-        icon: c.archivedOnly.value
-            ? SvgIcons.visibleOffWhite
-            : SvgIcons.visibleOnWhite,
-      ),
-    );
-
-    if (result == true) {
-      await c.archiveChats(!c.archivedOnly.value);
-    }
-  }
-
-  /// Opens a confirmation popup hiding the selected chats.
-  static Future<void> _hideChats(
-    BuildContext context,
-    ChatsTabController c,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      'label_delete_chats'.l10n,
-      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
-      button: MessagePopup.deleteButton,
-    );
-
-    if (result == true) {
-      await c.hideChats();
-    }
   }
 }
