@@ -2443,10 +2443,10 @@ class ChatController extends GetxController {
     );
 
     final ChatItemId? itemId = switch (element) {
-      ChatMessageElement e => e.item.value.id,
-      ChatCallElement e => e.item.value.id,
-      ChatInfoElement e => e.item.value.id,
-      ChatForwardElement e => e.forwards.firstOrNull?.value.id,
+      final ChatMessageElement e => e.item.value.id,
+      final ChatCallElement e => e.item.value.id,
+      final ChatInfoElement e => e.item.value.id,
+      final ChatForwardElement e => e.forwards.firstOrNull?.value.id,
       _ => null,
     };
 
