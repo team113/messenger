@@ -382,7 +382,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 'MessageStatus_${widget.note.value?.value.id ?? widget.forwards.firstOrNull?.value.id}',
                               ),
                               at: _at,
-                              status: SendingStatus.sent,
+                              status: _fromMe ? SendingStatus.sent : null,
                               read: _isRead,
                               halfRead: _isHalfRead,
                               delivered:
