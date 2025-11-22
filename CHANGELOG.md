@@ -23,12 +23,15 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
+        - Chat forwards incorrectly showing the recipient’s read status instead of the original sender’s. ([#1521], [#1452])
 
 [#1460]: /../../issues/1460
 [#1504]: /../../pull/1504
 [#1507]: /../../issues/1507
 [#1512]: /../../pull/1512
 [#1514]: /../../pull/1514
+[#1521]: /../../pull/1521
+[#1452]: /../../issues/1452
 
 
 
