@@ -2126,7 +2126,8 @@ class ChatController extends GetxController {
       if (context != null) {
         isHighEnough =
             listController.position.pixels >
-            MediaQuery.of(context).size.height * 2 + 200;
+                MediaQuery.of(context).size.height * 2 + 200 ||
+            (_lastVisibleItem?.index ?? 0) > 10;
       }
 
       if (_history.isNotEmpty || isHighEnough) {
@@ -2480,6 +2481,7 @@ class ChatController extends GetxController {
     // Try to fetch the items.
     try {
       final ChatItemId itemId = chat!.scrollPosition!.itemId;
+
       await _fetchItemsAround(itemId);
 
       final int index = elements.values.toList().indexWhere((e) {
@@ -2492,28 +2494,7 @@ class ChatController extends GetxController {
       initIndex = index;
       initOffset = chat!.scrollPosition!.offset;
     } finally {
-      if (initIndex != 0) {
-        // Add last [ChatItem] to history.
-        final ListElement? lastElement = elements.values.firstWhereOrNull(
-          (e) =>
-              e is ChatMessageElement ||
-              e is ChatInfoElement ||
-              e is ChatCallElement ||
-              e is ChatForwardElement,
-        );
-
-        final ChatItem? lastItem = switch (lastElement) {
-          final ChatMessageElement e => e.item.value,
-          final ChatCallElement e => e.item.value,
-          final ChatInfoElement e => e.item.value,
-          final ChatForwardElement e => e.forwards.firstOrNull?.value,
-          _ => null,
-        };
-
-        if (lastItem != null) {
-          addToHistory(lastItem);
-        }
-      }
+      _updateFabStates();
     }
   }
 
