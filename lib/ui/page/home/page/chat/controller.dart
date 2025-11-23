@@ -1349,7 +1349,7 @@ class ChatController extends GetxController {
         await listController.sliverController.animateToIndex(
           0,
           offset: 0,
-          offsetBasedOnBottom: false,
+          offsetBasedOnBottom: true,
           duration: 300.milliseconds,
           curve: Curves.ease,
         );
