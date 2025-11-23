@@ -1197,6 +1197,7 @@ class ChatController extends GetxController {
           duration: 200.milliseconds,
           curve: Curves.ease,
         );
+        listController.sliverController.jumpToIndex(index);
       } else {
         initIndex = index;
       }
@@ -1353,6 +1354,7 @@ class ChatController extends GetxController {
           duration: 300.milliseconds,
           curve: Curves.ease,
         );
+        listController.sliverController.jumpToIndex(0);
         canGoBack.value = _itemToReturnTo != null;
       } finally {
         _ignorePositionChanges = false;
