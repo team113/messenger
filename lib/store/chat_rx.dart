@@ -138,7 +138,7 @@ class RxChatImpl extends RxChat {
   /// [MessagesPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> fragments = [];
 
-  /// Stored scroll position, used when leaving and re-entering chat.
+  /// [ChatScrollPosition]s local storage.
   ChatScrollPosition? _scrollPosition;
 
   /// [ChatRepository] used to cooperate with the other [RxChatImpl]s.
