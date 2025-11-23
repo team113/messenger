@@ -138,6 +138,9 @@ class RxChatImpl extends RxChat {
   /// [MessagesPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> fragments = [];
 
+  /// [ChatScrollPosition]s local storage.
+  ChatScrollPosition? _scrollPosition;
+
   /// [ChatRepository] used to cooperate with the other [RxChatImpl]s.
   final ChatRepository _chatRepository;
 
@@ -335,6 +338,25 @@ class RxChatImpl extends RxChat {
 
   /// Indicates whether this [RxChat] is listening to the remote updates.
   bool get subscribed => _remoteSubscription != null;
+
+  @override
+  set scrollPosition(ChatScrollPosition position) {
+    Log.debug(
+      'set scrollPosition($id, ${position.itemId}, ${position.offset})',
+      '$runtimeType',
+    );
+    _scrollPosition = position;
+  }
+
+  @override
+  ChatScrollPosition? get scrollPosition {
+    Log.debug(
+      'get scrollPosition($id, ${_scrollPosition?.itemId},'
+          ' ${_scrollPosition?.offset})',
+      '$runtimeType',
+    );
+    return _scrollPosition;
+  }
 
   /// Initializes this [RxChatImpl].
   Future<void> init() async {
