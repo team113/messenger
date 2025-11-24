@@ -161,9 +161,6 @@ class CallService extends DisposableService {
       Rx<OngoingCall>? call;
 
       try {
-        if (chat?.unreadCount.value == 1) {
-          await _chatService.readAll([chatId]);
-        }
         call = await _callRepository.join(
           chatId,
           chatCall,
@@ -171,6 +168,9 @@ class CallService extends DisposableService {
           withVideo: withVideo,
           withScreen: withScreen,
         );
+        if (chat?.unreadCount.value == 1) {
+          _chatService.readAll([chatId]).ignore();
+        }
       } on CallAlreadyJoinedException catch (e) {
         await _callRepository.leave(chatId, e.deviceId);
         call = await _callRepository.join(
@@ -241,13 +241,26 @@ class CallService extends DisposableService {
       // required to await the decline.
       if (WebUtils.isPopup) {
         await _callRepository.decline(chatId);
-        call.value.state.value = OngoingCallState.ended;
         call.value.dispose();
       } else {
         call.value.state.value = OngoingCallState.ended;
         call.value.dispose();
         await _callRepository.decline(chatId);
       }
+    }
+
+    /// Mark chat as read if there was one unread message of call notification.
+    final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId);
+    final RxChat? chat = chatOrFuture is RxChat?
+        ? chatOrFuture
+        : await chatOrFuture;
+    if (chat?.unreadCount.value == 1) {
+      await _chatService.readAll([chatId]);
+    }
+
+    /// Doing ended state of popup here because setting ended state will close popup and stop execution after that.
+    if (WebUtils.isPopup && call != null) {
+      call.value.state.value = OngoingCallState.ended;
     }
   }
 
