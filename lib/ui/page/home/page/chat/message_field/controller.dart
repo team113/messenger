@@ -207,9 +207,7 @@ class MessageFieldController extends GetxController {
 
   /// Indicator whether [_keyUpHandler] and [_pasteEventListener] are
   /// registered.
-  bool _handlersRegistered = false;
-
-  final ScrollController attachmentsScrollController = ScrollController();
+  bool _handlersRegistered = false;  
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
@@ -325,8 +323,7 @@ class MessageFieldController extends GetxController {
     _editedWorker?.dispose();
     _buttonsWorker?.dispose();
     _routesWorker?.dispose();
-    scrollController.dispose();
-    attachmentsScrollController.dispose();
+    scrollController.dispose();    
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);

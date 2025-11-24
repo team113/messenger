@@ -429,11 +429,10 @@ class MessageFieldView extends StatelessWidget {
                           child: ScrollConfiguration(
                             behavior: CustomScrollBehavior(),
                             child: SingleChildScrollView(
-                              controller: c.attachmentsScrollController,
                               clipBehavior: Clip.none,
-                              /*physics: grab
+                              physics: grab
                                   ? null
-                                  : const NeverScrollableScrollPhysics(),*/
+                                  : const NeverScrollableScrollPhysics(),
                               scrollDirection: Axis.horizontal,
                               child: SizedBox(
                                 height: _attachmentSize,
@@ -444,8 +443,6 @@ class MessageFieldView extends StatelessWidget {
                                           (_attachmentSize + 4) *
                                           mediaAttachments.length,
                                       child: ReorderableList(
-                                        controller:
-                                            c.attachmentsScrollController,
                                         scrollDirection: Axis.horizontal,
                                         onReorderStart: (index) =>
                                             PlatformUtils.haptic(),
