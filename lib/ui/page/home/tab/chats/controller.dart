@@ -82,8 +82,9 @@ class ChatsTabController extends GetxController {
     this._userService,
     this._contactService,
     this._myUserService,
-    this._sessionService,
-  );
+    this._sessionService, {
+    required this.chatsController,
+  });
 
   /// Reactive list of sorted [Chat]s.
   final RxList<ChatEntry> chats = RxList();
@@ -101,7 +102,7 @@ class ChatsTabController extends GetxController {
   final RxBool archivedOnly = RxBool(false);
 
   /// [ScrollController] to pass to a [Scrollbar] of recent [RxChat]s.
-  final ScrollController chatsController = ScrollController();
+  final ScrollController chatsController;
 
   /// [ScrollController] to pass to a [Scrollbar] of archived [RxChat]s.
   final ScrollController archiveController = ScrollController();

@@ -22,7 +22,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import '../../../util/get.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -89,6 +88,9 @@ class _HomeViewState extends State<HomeView> {
     'ui',
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
+
+  /// We need a [ScrollController] to pass to the chats tab, so that we can scroll to top when reselecting the tab.
+  final ScrollController _chatsScrollController = ScrollController();
 
   @override
   void initState() {
@@ -209,9 +211,13 @@ class _HomeViewState extends State<HomeView> {
                         }
                       },
                       // [KeepAlivePage] used to keep the tabs' states.
-                      children: const [
+                      children: [
                         SizedBox(),
-                        KeepAlivePage(child: ChatsTabView()),
+                        KeepAlivePage(
+                          child: ChatsTabView(
+                            chatsController: _chatsScrollController,
+                          ),
+                        ),
                         KeepAlivePage(child: MenuTabView()),
                       ],
                     ),
@@ -354,12 +360,11 @@ class _HomeViewState extends State<HomeView> {
 
                 /// Scroll to top if the chat tab is reselected.
                 if (router.tab == tabs[i] && router.tab == HomeTab.chats) {
-                  Get.findOrNull<ChatsTabController>()?.chatsController
-                      .animateTo(
-                        0,
-                        duration: Duration(milliseconds: 250),
-                        curve: Curves.easeIn,
-                      );
+                  _chatsScrollController.animateTo(
+                    0,
+                    duration: Duration(milliseconds: 250),
+                    curve: Curves.easeIn,
+                  );
                 }
 
                 c.pages.jumpToPage(tabs[i].index);

@@ -50,183 +50,11 @@ import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
 
 /// View of the [HomeTab.chats] tab.
-class ChatsTabView extends StatefulWidget {
-  const ChatsTabView({super.key});
+class ChatsTabView extends StatelessWidget {
+  const ChatsTabView({super.key, required this.chatsController});
 
-  @override
-  State<ChatsTabView> createState() => _ChatsTabViewState();
-
-  /// Builds a [BottomPaddedRow] for selecting the [Chat]s.
-  static Widget selectingBuilder(BuildContext context, ChatsTabController c) {
-    final style = Theme.of(context).style;
-
-    return BottomPaddedRow(
-      spacer: (_) {
-        return Container(
-          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
-          width: 1,
-          height: 24,
-        );
-      },
-      children: [
-        WidgetButton(
-          onPressed: c.readAll,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_read_all'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-        WidgetButton(
-          onPressed: c.selectedChats.isEmpty
-              ? null
-              : () => _archiveChats(context, c),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-        WidgetButton(
-          key: const Key('DeleteChatsButton'),
-          onPressed: c.selectedChats.isEmpty
-              ? null
-              : () => _hideChats(context, c),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_delete'.l10n,
-                style: style.fonts.normal.regular.danger,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Builds a [BottomPaddedRow] for creating a [Chat]-group.
-  static Widget createGroupBuilder(BuildContext context, ChatsTabController c) {
-    final style = Theme.of(context).style;
-
-    return BottomPaddedRow(
-      spacer: (_) {
-        return Container(
-          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
-          width: 1,
-          height: 24,
-        );
-      },
-      children: [
-        WidgetButton(
-          onPressed: c.closeGroupCreating,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_cancel'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-        WidgetButton(
-          onPressed: c.creatingStatus.value.isEmpty ? c.createGroup : null,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_create'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Opens a popup window to confirm archiving or unarchiving the selected
-  /// chats.
-  static Future<void> _archiveChats(
-    BuildContext context,
-    ChatsTabController c,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      c.archivedOnly.value ? 'label_show_chats'.l10n : 'label_hide_chats'.l10n,
-      description: [
-        TextSpan(
-          text: c.archivedOnly.value
-              ? 'label_show_chats_modal_description'.l10n
-              : 'label_hide_chats_modal_description'.l10n,
-        ),
-      ],
-      button: (context) => MessagePopup.primaryButton(
-        context,
-        label: c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
-        icon: c.archivedOnly.value
-            ? SvgIcons.visibleOffWhite
-            : SvgIcons.visibleOnWhite,
-      ),
-    );
-
-    if (result == true) {
-      await c.archiveChats(!c.archivedOnly.value);
-    }
-  }
-
-  /// Opens a confirmation popup hiding the selected chats.
-  static Future<void> _hideChats(
-    BuildContext context,
-    ChatsTabController c,
-  ) async {
-    final bool? result = await MessagePopup.alert(
-      'label_delete_chats'.l10n,
-      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
-      button: MessagePopup.deleteButton,
-    );
-
-    if (result == true) {
-      await c.hideChats();
-    }
-  }
-}
-
-class _ChatsTabViewState extends State<ChatsTabView> {
-  @override
-  void initState() {
-    Get.replace<ChatsTabController>(
-      ChatsTabController(
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-      ),
-    );
-    super.initState();
-  }
+  /// [ScrollController] for the chats list
+  final ScrollController chatsController;
 
   @override
   Widget build(BuildContext context) {
@@ -234,7 +62,16 @@ class _ChatsTabViewState extends State<ChatsTabView> {
 
     return GetBuilder(
       key: const Key('ChatsTab'),
-      init: Get.find<ChatsTabController>(),
+      init: ChatsTabController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        chatsController: chatsController,
+      ),
       builder: (ChatsTabController c) {
         return Stack(
           children: [
@@ -1240,5 +1077,159 @@ class _ChatsTabViewState extends State<ChatsTabView> {
         ),
       ),
     );
+  }
+
+  /// Builds a [BottomPaddedRow] for selecting the [Chat]s.
+  static Widget selectingBuilder(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    return BottomPaddedRow(
+      spacer: (_) {
+        return Container(
+          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
+          width: 1,
+          height: 24,
+        );
+      },
+      children: [
+        WidgetButton(
+          onPressed: c.readAll,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_read_all'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          onPressed: c.selectedChats.isEmpty
+              ? null
+              : () => _archiveChats(context, c),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          key: const Key('DeleteChatsButton'),
+          onPressed: c.selectedChats.isEmpty
+              ? null
+              : () => _hideChats(context, c),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_delete'.l10n,
+                style: style.fonts.normal.regular.danger,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds a [BottomPaddedRow] for creating a [Chat]-group.
+  static Widget createGroupBuilder(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    return BottomPaddedRow(
+      spacer: (_) {
+        return Container(
+          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
+          width: 1,
+          height: 24,
+        );
+      },
+      children: [
+        WidgetButton(
+          onPressed: c.closeGroupCreating,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_cancel'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          onPressed: c.creatingStatus.value.isEmpty ? c.createGroup : null,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_create'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Opens a popup window to confirm archiving or unarchiving the selected
+  /// chats.
+  static Future<void> _archiveChats(
+    BuildContext context,
+    ChatsTabController c,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      c.archivedOnly.value ? 'label_show_chats'.l10n : 'label_hide_chats'.l10n,
+      description: [
+        TextSpan(
+          text: c.archivedOnly.value
+              ? 'label_show_chats_modal_description'.l10n
+              : 'label_hide_chats_modal_description'.l10n,
+        ),
+      ],
+      button: (context) => MessagePopup.primaryButton(
+        context,
+        label: c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
+        icon: c.archivedOnly.value
+            ? SvgIcons.visibleOffWhite
+            : SvgIcons.visibleOnWhite,
+      ),
+    );
+
+    if (result == true) {
+      await c.archiveChats(!c.archivedOnly.value);
+    }
+  }
+
+  /// Opens a confirmation popup hiding the selected chats.
+  static Future<void> _hideChats(
+    BuildContext context,
+    ChatsTabController c,
+  ) async {
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chats'.l10n,
+      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
+      button: MessagePopup.deleteButton,
+    );
+
+    if (result == true) {
+      await c.hideChats();
+    }
   }
 }
