@@ -340,9 +340,9 @@ fcm_incoming_call =
         [group] {$userName ->
             [x] {$userNum}
             *[other] {$userName}
-        } inició
+        } inició{" "}
         *[dialog] {""}
-    } { $isVideo ->
+    }{ $isVideo ->
         [yes] videollamada
         *[other] llamada de audio
     }
@@ -389,7 +389,7 @@ fcm_message_subtitle =
         [x] {""}
         *[other] [G{$donation}]
     }
-fcm_missed_cal =
+fcm_missed_call =
     { $isVideo ->
         [yes] Videollamada perdida
         *[other] Llamada de audio perdida
