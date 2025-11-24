@@ -14,6 +14,8 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
+    - Chat page:
+        - File uploads can be canceled. ([#1496], [#1490])
     - Chats tab:
         - Redesigned chats appearing animation. ([#1514])
         - Redesigned unread messages counter. ([#1512], [#1507])
@@ -26,6 +28,8 @@ All user visible changes to this project will be documented in this file. This p
         - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
 
 [#1460]: /../../issues/1460
+[#1490]: /../../issues/1490
+[#1496]: /../../pull/1496
 [#1504]: /../../pull/1504
 [#1507]: /../../issues/1507
 [#1512]: /../../pull/1512
