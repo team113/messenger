@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
+import '/api/backend/extension/attachment.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
@@ -109,6 +110,9 @@ class MessageFieldView extends StatelessWidget {
   /// Border radius value when [rounded] is `true`.
   static const Radius _borderRadius = Radius.circular(15);
 
+  /// Size of `attachment` widget
+  static const double _attachmentSize = 125;
+
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
     final style = Theme.of(context).style;
@@ -189,23 +193,23 @@ class MessageFieldView extends StatelessWidget {
   /// quotes and edited message.
   Widget _buildHeader(MessageFieldController c, BuildContext context) {
     final style = Theme.of(context).style;
-    final double attachmentSize = 125;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         return Obx(() {
           final bool grab = c.attachments.isNotEmpty
-              ? (attachmentSize + 2) * c.attachments.length >
+              ? (_attachmentSize + 2) * c.attachments.length >
                     constraints.maxWidth - 16
               : false;
 
           Widget? previews;
-          List<MapEntry<GlobalKey, Attachment>> imgVideosAttachments = c
+          final List<MapEntry<GlobalKey, Attachment>> mediaAttachments = c
               .attachments
-              .where(_isImageOrVideo)
+              .where((e) => e.value.isMedia)
               .toList();
-          List<MapEntry<GlobalKey, Attachment>> filesAttachments = c.attachments
-              .where(_isNotImageOrVideo)
+          final List<MapEntry<GlobalKey, Attachment>> filesAttachments = c
+              .attachments
+              .where((e) => e.value.isFile)
               .toList();
           if (c.quotes.isNotEmpty) {
             previews = ReorderableListView(
@@ -425,54 +429,69 @@ class MessageFieldView extends StatelessWidget {
                           child: ScrollConfiguration(
                             behavior: CustomScrollBehavior(),
                             child: SingleChildScrollView(
+                              controller: c.attachmentsScrollController,
                               clipBehavior: Clip.none,
-                              physics: grab
+                              /*physics: grab
                                   ? null
-                                  : const NeverScrollableScrollPhysics(),
+                                  : const NeverScrollableScrollPhysics(),*/
                               scrollDirection: Axis.horizontal,
                               child: SizedBox(
-                                height: attachmentSize,
+                                height: _attachmentSize,
                                 child: Row(
                                   children: [
                                     SizedBox(
                                       width:
-                                          (attachmentSize + 4) *
-                                          imgVideosAttachments.length,
+                                          (_attachmentSize + 4) *
+                                          mediaAttachments.length,
                                       child: ReorderableList(
+                                        controller:
+                                            c.attachmentsScrollController,
                                         scrollDirection: Axis.horizontal,
+                                        onReorderStart: (index) =>
+                                            PlatformUtils.haptic(),
+                                        onReorderEnd: (index) =>
+                                            PlatformUtils.haptic(),
+                                        itemCount: mediaAttachments.length,
+                                        proxyDecorator:
+                                            (child, index, animation) =>
+                                                _attachmentProxyDecorator(
+                                                  context,
+                                                  child,
+                                                  index,
+                                                  animation,
+                                                ),
                                         itemBuilder: (context, index) =>
                                             ReorderableDelayedDragStartListener(
                                               key: Key(
-                                                'imgVideosHandle_${imgVideosAttachments[index].value.id}',
+                                                'imgVideosHandle_${mediaAttachments[index].value.id}',
                                               ),
                                               index: index,
                                               child: _buildAttachment(
                                                 context,
-                                                imgVideosAttachments[index],
+                                                mediaAttachments[index],
                                                 c,
-                                                attachmentSize,
                                               ),
                                             ),
-                                        itemCount: imgVideosAttachments.length,
+
                                         onReorder:
                                             (int oldIndex, int newIndex) {
                                               if (newIndex ==
-                                                  imgVideosAttachments.length) {
-                                                imgVideosAttachments.add(
-                                                  imgVideosAttachments.removeAt(
+                                                  mediaAttachments.length) {
+                                                mediaAttachments.add(
+                                                  mediaAttachments.removeAt(
                                                     oldIndex,
                                                   ),
                                                 );
                                               } else {
-                                                imgVideosAttachments.insert(
+                                                mediaAttachments.insert(
                                                   newIndex,
-                                                  imgVideosAttachments.removeAt(
+                                                  mediaAttachments.removeAt(
                                                     oldIndex,
                                                   ),
                                                 );
                                               }
                                               c.reorderAttachments(
-                                                imgVideosAttachments,
+                                                mediaAttachments,
                                                 filesAttachments,
                                               );
                                             },
@@ -480,12 +499,24 @@ class MessageFieldView extends StatelessWidget {
                                     ),
                                     SizedBox(
                                       width:
-                                          (attachmentSize + 4) *
+                                          (_attachmentSize + 4) *
                                           filesAttachments.length,
                                       child: ReorderableList(
                                         scrollDirection: Axis.horizontal,
                                         physics: NeverScrollableScrollPhysics(),
+                                        onReorderStart: (index) =>
+                                            PlatformUtils.haptic(),
+                                        onReorderEnd: (index) =>
+                                            PlatformUtils.haptic(),
                                         itemCount: filesAttachments.length,
+                                        proxyDecorator:
+                                            (child, index, animation) =>
+                                                _attachmentProxyDecorator(
+                                                  context,
+                                                  child,
+                                                  index,
+                                                  animation,
+                                                ),
                                         itemBuilder: (context, index) =>
                                             ReorderableDelayedDragStartListener(
                                               key: Key(
@@ -496,7 +527,6 @@ class MessageFieldView extends StatelessWidget {
                                                 context,
                                                 filesAttachments[index],
                                                 c,
-                                                attachmentSize,
                                               ),
                                             ),
                                         onReorder:
@@ -517,7 +547,7 @@ class MessageFieldView extends StatelessWidget {
                                                 );
                                               }
                                               c.reorderAttachments(
-                                                imgVideosAttachments,
+                                                mediaAttachments,
                                                 filesAttachments,
                                               );
                                             },
@@ -657,37 +687,25 @@ class MessageFieldView extends StatelessWidget {
     BuildContext context,
     MapEntry<GlobalKey, Attachment> entry,
     MessageFieldController c,
-    double size,
   ) {
     final Attachment e = entry.value;
     final GlobalKey key = entry.key;
-
-    final bool isImage =
-        (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
-    final bool isVideo =
-        (e is FileAttachment && e.isVideo) ||
-        (e is LocalAttachment && e.file.isVideo);
 
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
       final style = Theme.of(context).style;
 
-      if (isImage || isVideo) {
+      if (e.isMedia) {
         // TODO: Backend should support single attachment updating.
         final Widget child = MediaAttachment(
           attachment: e,
-          width: size,
-          height: size,
+          width: _attachmentSize,
+          height: _attachmentSize,
           fit: BoxFit.cover,
         );
 
         final List<Attachment> attachments = c.attachments
-            .where((e) {
-              final Attachment a = e.value;
-              return a is ImageAttachment ||
-                  (a is FileAttachment && a.isVideo) ||
-                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
-            })
+            .where((e) => e.value.isMedia)
             .map((e) => e.value)
             .toList();
 
@@ -710,7 +728,7 @@ class MessageFieldView extends StatelessWidget {
                     );
                   }
                 },
-          child: isVideo
+          child: e.isVideo
               ? IgnorePointer(
                   child: Stack(
                     alignment: Alignment.center,
@@ -737,8 +755,8 @@ class MessageFieldView extends StatelessWidget {
       }
 
       return Container(
-        width: size,
-        height: size,
+        width: _attachmentSize,
+        height: _attachmentSize,
         padding: const EdgeInsets.all(10),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -790,8 +808,8 @@ class MessageFieldView extends StatelessWidget {
         onEnter: (_) => c.hoveredAttachment.value = e,
         onExit: (_) => c.hoveredAttachment.value = null,
         child: Container(
-          width: size,
-          height: size,
+          width: _attachmentSize,
+          height: _attachmentSize,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: style.colors.secondaryHighlight,
@@ -1117,24 +1135,35 @@ class MessageFieldView extends StatelessWidget {
     );
   }
 
-  /// Check that [entry] attachment is image or video
-  bool _isImageOrVideo(
-    MapEntry<GlobalKey<State<StatefulWidget>>, Attachment> entry,
+  /// Returns a visual representation of the provided [child]
+  /// with dragged decoration.
+  Widget _attachmentProxyDecorator(
+    BuildContext context,
+    Widget child,
+    int index,
+    Animation<double> animation,
   ) {
-    var e = entry.value;
-    final bool isImage =
-        (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
-    final bool isVideo =
-        (e is FileAttachment && e.isVideo) ||
-        (e is LocalAttachment && e.file.isVideo);
-    return isImage || isVideo;
-  }
+    final style = Theme.of(context).style;
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (_, child) {
+        final double t = Curves.easeInOut.transform(animation.value);
+        final double elevation = lerpDouble(0, 6, t)!;
+        final Color color = Color.lerp(
+          style.colors.transparent,
+          style.colors.onBackgroundOpacity20,
+          t,
+        )!;
 
-  /// Check that [entry] attachment is file
-  bool _isNotImageOrVideo(
-    MapEntry<GlobalKey<State<StatefulWidget>>, Attachment> entry,
-  ) {
-    return !_isImageOrVideo(entry);
+        return Container(
+          decoration: BoxDecoration(
+            boxShadow: [CustomBoxShadow(color: color, blurRadius: elevation)],
+          ),
+          child: child,
+        );
+      },
+      child: child,
+    );
   }
 }
 
@@ -1157,7 +1186,7 @@ class _FieldContainer extends StatelessWidget {
   /// Border radius of the container.
   final Radius borderRadius;
 
-  /// Text field content
+  /// Text field content.
   final Widget child;
 
   @override

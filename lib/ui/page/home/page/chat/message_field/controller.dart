@@ -209,6 +209,8 @@ class MessageFieldController extends GetxController {
   /// registered.
   bool _handlersRegistered = false;
 
+  final ScrollController attachmentsScrollController = ScrollController();
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
 
@@ -324,6 +326,7 @@ class MessageFieldController extends GetxController {
     _buttonsWorker?.dispose();
     _routesWorker?.dispose();
     scrollController.dispose();
+    attachmentsScrollController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -573,7 +576,8 @@ class MessageFieldController extends GetxController {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
 
-        // If attachment is video or image insert it to end of img/video list and before documents, overwise simply add to end of attachments
+        // If attachment is video or image insert it to end of img/video list
+        // and before documents, overwise simply add to end of attachments.
         if (file.isImage || file.isVideo) {
           int lastIndex = attachments.indexWhere((a) {
             final Attachment e = a.value;
@@ -684,13 +688,14 @@ class MessageFieldController extends GetxController {
     }
   }
 
-  /// Change [attachments] list order from [imgVideosAttachments] and [filesAttachments]
+  /// Change [attachments] list order from [mediaAttachments] and
+  /// [filesAttachments].
   void reorderAttachments(
     List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
-    imgVideosAttachments,
+    mediaAttachments,
     List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
     filesAttachments,
   ) {
-    attachments.value = imgVideosAttachments + filesAttachments;
+    attachments.value = mediaAttachments + filesAttachments;
   }
 }
