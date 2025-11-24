@@ -11,6 +11,13 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.10...v0.7.0) | [Milestone](/../../milestone/55)
 
+### Changed
+
+- UI:
+    - Chats tab:
+        - Redesigned chats appearing animation. ([#1514])
+        - Redesigned unread messages counter. ([#1512], [#1507])
+
 ### Fixed
 
 - UI:
@@ -19,6 +26,9 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1460]: /../../issues/1460
 [#1504]: /../../pull/1504
+[#1507]: /../../issues/1507
+[#1512]: /../../pull/1512
+[#1514]: /../../pull/1514
 
 
 
