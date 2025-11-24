@@ -1,1 +1,3 @@
+- Redesigned recent chats appearing animation.
+- Redesigned unread messages counter on chats tab.
 - Bug fixes and performance improvements.

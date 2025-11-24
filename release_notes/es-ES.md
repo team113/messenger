@@ -1,1 +1,3 @@
+- Se rediseñó la animación de aparición de chats recientes.
+- Se rediseñó el contador de mensajes no leídos en la pestaña de chats.
 - Se corrigieron errores y se mejoraron el rendimiento.
