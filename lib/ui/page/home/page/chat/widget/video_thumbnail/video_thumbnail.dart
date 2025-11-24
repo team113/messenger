@@ -133,7 +133,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// Indicator whether the video playback was manually stopped.
   /// If true, the video will not autoplay on mouse hover.
   /// Otherwise, it will autoplay on mouse hover.
-  bool hasManuallyStopped = false;
+  bool _hasManuallyStopped = false;
 
   @override
   void initState() {
@@ -219,12 +219,12 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
     return MouseRegion(
       onEnter: (_) async {
-        if (_controller!.value.isInitialized && !hasManuallyStopped) {
+        if (_controller!.value.isInitialized && !_hasManuallyStopped) {
           _controller?.play();
         }
       },
       onExit: (_) async {
-        if (_controller!.value.isInitialized && !hasManuallyStopped) {
+        if (_controller!.value.isInitialized && !_hasManuallyStopped) {
           await _controller?.pause();
           await _controller?.seekTo(Duration.zero);
         }
@@ -253,18 +253,14 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                           onTap: () {
                             if (value.isPlaying) {
                               _controller?.pause();
-                              hasManuallyStopped = true;
+                              _hasManuallyStopped = true;
                             } else {
                               _controller?.play();
-                              hasManuallyStopped = false;
+                              _hasManuallyStopped = false;
                             }
                           },
                           child: Icon(
-                            hasManuallyStopped
-                                ? Icons.play_arrow
-                                : (value.isPlaying
-                                      ? Icons.pause
-                                      : Icons.play_arrow),
+                            value.isPlaying ? Icons.pause : Icons.play_arrow,
                             size: 18,
                             color: style.colors.onPrimary,
                           ),
