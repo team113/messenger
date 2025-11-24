@@ -791,22 +791,29 @@ class ChatController extends GetxController {
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
             try {
-              await _chatService.editChatMessage(
-                item,
-                text: ChatMessageTextInput(
-                  ChatMessageText(edit.value!.field.text),
-                ),
-                attachments: ChatMessageAttachmentsInput(
-                  edit.value!.attachments.map((e) => e.value).toList(),
-                ),
-                repliesTo: ChatMessageRepliesInput(
-                  edit.value!.replied.map((e) => e.value.id).toList(),
-                ),
+              final ChatMessageTextInput text = ChatMessageTextInput(
+                ChatMessageText(edit.value!.field.text),
+              );
+
+              final ChatMessageAttachmentsInput attachments =
+                  ChatMessageAttachmentsInput(
+                    edit.value!.attachments.map((e) => e.value).toList(),
+                  );
+
+              final ChatMessageRepliesInput repliesTo = ChatMessageRepliesInput(
+                edit.value!.replied.map((e) => e.value.id).toList(),
               );
 
               closeEditing();
 
               send.field.focus.requestFocus();
+
+              await _chatService.editChatMessage(
+                item,
+                text: text,
+                attachments: attachments,
+                repliesTo: repliesTo,
+              );
 
               // If the message is not sent yet, resend it.
               if (item.status.value == SendingStatus.error) {

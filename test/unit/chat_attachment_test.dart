@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart';
@@ -169,6 +170,7 @@ void main() async {
       graphQlProvider.uploadAttachment(
         any,
         onSendProgress: anyNamed('onSendProgress'),
+        cancelToken: anyNamed('cancelToken'),
       ),
     ).thenAnswer(
       (_) => Future.value(
@@ -244,6 +246,7 @@ void main() async {
       graphQlProvider.uploadAttachment(
         any,
         onSendProgress: anyNamed('onSendProgress'),
+        cancelToken: anyNamed('cancelToken'),
       ),
     );
   });
@@ -284,6 +287,7 @@ void main() async {
       graphQlProvider.uploadAttachment(
         any,
         onSendProgress: anyNamed('onSendProgress'),
+        cancelToken: anyNamed('cancelToken'),
       ),
     ).thenThrow(
       const UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown),
@@ -348,9 +352,130 @@ void main() async {
       graphQlProvider.uploadAttachment(
         any,
         onSendProgress: anyNamed('onSendProgress'),
+        cancelToken: anyNamed('cancelToken'),
       ),
     );
   });
+
+  test(
+    'ChatService returns null when upload is cancelled via CancelToken',
+    () async {
+      when(
+        graphQlProvider.recentChats(
+          first: anyNamed('first'),
+          after: null,
+          last: null,
+          before: null,
+          noFavorite: anyNamed('noFavorite'),
+          archived: anyNamed('archived'),
+          withOngoingCalls: anyNamed('withOngoingCalls'),
+        ),
+      ).thenAnswer(
+        (_) => Future.value(RecentChats$Query.fromJson(recentChats)),
+      );
+
+      when(
+        graphQlProvider.favoriteChats(
+          first: anyNamed('first'),
+          after: null,
+          last: null,
+          before: null,
+        ),
+      ).thenAnswer(
+        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+      );
+
+      when(
+        graphQlProvider.getChat(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+      ).thenAnswer(
+        (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
+      );
+
+      when(
+        graphQlProvider.uploadAttachment(
+          any,
+          onSendProgress: anyNamed('onSendProgress'),
+          cancelToken: anyNamed('cancelToken'),
+        ),
+      ).thenAnswer((invocation) async {
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        throw DioException.requestCancelled(
+          requestOptions: RequestOptions(path: '/upload'),
+          reason: 'cancelled',
+        );
+      });
+
+      Get.put<GraphQlProvider>(graphQlProvider);
+
+      final AbstractSettingsRepository settingsRepository = Get.put(
+        SettingsRepository(
+          const UserId('me'),
+          settingsProvider,
+          backgroundProvider,
+          callRectProvider,
+        ),
+      );
+
+      final UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider),
+      );
+      final CallRepository callRepository = Get.put(
+        CallRepository(
+          graphQlProvider,
+          userRepository,
+          callCredentialsProvider,
+          chatCredentialsProvider,
+          settingsRepository,
+          me: const UserId('me'),
+        ),
+      );
+
+      final AbstractChatRepository chatRepository =
+          Get.put<AbstractChatRepository>(
+            ChatRepository(
+              graphQlProvider,
+              chatProvider,
+              chatItemProvider,
+              chatMemberProvider,
+              callRepository,
+              draftProvider,
+              userRepository,
+              sessionProvider,
+              monologProvider,
+              me: const UserId('me'),
+            ),
+          );
+
+      final ChatService chatService = Get.put(
+        ChatService(chatRepository, authService),
+      );
+
+      final attachment = LocalAttachment(
+        NativeFile(bytes: Uint8List.fromList([1, 1]), size: 2, name: 'test'),
+      );
+
+      final future = chatService.uploadAttachment(attachment);
+
+      Future.delayed(const Duration(milliseconds: 50), () {
+        attachment.cancelUpload();
+      });
+
+      final result = await future;
+
+      expect(result, isNull);
+
+      verify(
+        graphQlProvider.uploadAttachment(
+          any,
+          onSendProgress: anyNamed('onSendProgress'),
+          cancelToken: anyNamed('cancelToken'),
+        ),
+      ).called(1);
+    },
+  );
 
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
