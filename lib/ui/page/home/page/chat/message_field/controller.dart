@@ -685,8 +685,8 @@ class MessageFieldController extends GetxController {
     }
   }
 
-  /// Change [attachments] list order from [mediaAttachments] and
-  /// [filesAttachments].
+  /// Updates the [attachments] list by reordering items from [mediaAttachments]
+  /// and [filesAttachments].
   void reorderAttachments(
     List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
     mediaAttachments,

@@ -19,19 +19,19 @@ import '/domain/model/attachment.dart';
 
 /// Extension adding media or file checks on [Attachment].
 extension AttachmentExtension on Attachment {
-  /// Indicates whether the [Attachment] is image
+  /// Indicates whether the [Attachment] is image.
   bool get isImage =>
       (this is ImageAttachment ||
       (this is LocalAttachment && (this as LocalAttachment).file.isImage));
 
-  /// Indicates whether the [Attachment] is video
+  /// Indicates whether the [Attachment] is video.
   bool get isVideo =>
       (this is FileAttachment && (this as FileAttachment).isVideo) ||
       (this is LocalAttachment && (this as LocalAttachment).file.isVideo);
 
-  /// Indicates whether the [Attachment] is media
+  /// Indicates whether the [Attachment] is media.
   bool get isMedia => isImage || isVideo;
 
-  /// Indicates whether the [Attachment] is file
+  /// Indicates whether the [Attachment] is file.
   bool get isFile => !isMedia;
 }

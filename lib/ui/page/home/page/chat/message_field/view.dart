@@ -25,8 +25,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
-import '/api/backend/extension/attachment.dart';
 import '/api/backend/schema.dart' show ChatCallFinishReason;
+import '/domain/extension/attachment.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
