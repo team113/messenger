@@ -11,12 +11,20 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.11...v0.7.0) | [Milestone](/../../milestone/56)
 
+### Changed
+
+- UI:
+    - Chat page:
+        - Auto-play video thumbnails only when hovered. ([#1518], [#1446])
+
 ### Fixed
 
 - UI:
     - Chat page:
         - Page sometimes not being popped when navigating back. ([#1526])
 
+[#1446]: /../../issues/1446
+[#1518]: /../../pull/1518
 [#1526]: /../../pull/1526
 
 
@@ -35,8 +43,6 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Redesigned chats appearing animation. ([#1514])
         - Redesigned unread messages counter. ([#1512], [#1507])
-    - Chat page:
-        - Made video auto-playback only when hovered. ([#1518], [#1446])
 
 ### Fixed
 
@@ -44,7 +50,6 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
 
-[#1446]: /../../issues/1446
 [#1460]: /../../issues/1460
 [#1490]: /../../issues/1490
 [#1496]: /../../pull/1496
@@ -52,7 +57,6 @@ All user visible changes to this project will be documented in this file. This p
 [#1507]: /../../issues/1507
 [#1512]: /../../pull/1512
 [#1514]: /../../pull/1514
-[#1518]: /../../pull/1518
 
 
 
