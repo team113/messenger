@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.11...v0.7.0) | [Milestone](/../../milestone/56)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Page sometimes not being popped when navigating back. ([#1526])
+
+[#1526]: /../../pull/1526
+
+
+
+
 ## [0.6.11] · 2025-11-24
 [0.6.11]: /../../tree/v0.6.11
 
