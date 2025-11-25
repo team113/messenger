@@ -131,6 +131,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   bool _triedOnError = false;
 
   /// Indicator whether the video playback was manually stopped.
+  ///
   /// If true, the video will not autoplay on mouse hover.
   /// Otherwise, it will autoplay on mouse hover.
   bool _hasManuallyStopped = false;
