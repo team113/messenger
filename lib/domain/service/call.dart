@@ -393,13 +393,15 @@ class CallService extends DisposableService {
     return _chatService.get(id);
   }
 
-  /// Mark chat as read if there was one unread message of call notification.
+  /// Marks chat as read if there was one unread message of call notification.
   Future<void> _readInteractedCall(ChatId chatId, {RxChat? chat}) async {
     try {
-      final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId);
-      chat ??= chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
+      if (chat == null) {
+        final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId);
+        chat = chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
+      }
 
-      /// We have unread count 1 means there was only call notification message unread, otherwise user would have read the chat.
+      // We have unread count 1 means there was only call notification message unread, otherwise user would have read the chat.
       if (chat?.unreadCount.value == 1) {
         await _chatService.readAll([chatId]);
       }
