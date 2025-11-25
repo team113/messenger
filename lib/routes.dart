@@ -254,12 +254,6 @@ class RouterState extends ChangeNotifier {
 
     arguments = null;
 
-    // for (var e in routes) {
-    //   if (e != '/' && e != to) {
-    //     _accounted.add(e);
-    //   }
-    // }
-
     routes.value = [_guarded(to)];
     notifyListeners();
   }
