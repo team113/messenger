@@ -265,9 +265,11 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                             color: style.colors.onPrimary,
                           ),
                         ),
-                        Text(
-                          (value.duration - value.position).hhMmSs(),
-                          style: style.fonts.smaller.regular.onPrimary,
+                        IgnorePointer(
+                          child: Text(
+                            (value.duration - value.position).hhMmSs(),
+                            style: style.fonts.smaller.regular.onPrimary,
+                          ),
                         ),
                       ],
                     );
@@ -352,9 +354,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
             setState(() {});
           }
 
-          if (widget.autoplay) {
-            await _controller?.setVolume(0);
-          }
+          await _controller?.setVolume(0);
         } catch (e) {
           if (!_triedOnError) {
             _triedOnError = true;
