@@ -521,7 +521,7 @@ class NotificationService extends DisposableService {
       // then try canceling the notifications with the provided thread, if any,
       // or otherwise a single one, if data contains a tag.
       if (message.notification == null ||
-          (message.notification?.title == 'Canceled' &&
+          (message.notification?.title?.isEmpty != false &&
               message.notification?.body == null)) {
         if (PlatformUtils.isWeb) {
           // TODO: Implement notifications canceling for Web.
@@ -583,6 +583,12 @@ class NotificationService extends DisposableService {
         (PlatformUtils.isAndroid &&
             settings.authorizationStatus != AuthorizationStatus.authorized)) {
       settings = await FirebaseMessaging.instance.requestPermission();
+    }
+
+    if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+      Log.warning(
+        'Unable to proceed with `_initPushNotifications()` due to `authorizationStatus` being `${settings.authorizationStatus.name}`',
+      );
     }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {

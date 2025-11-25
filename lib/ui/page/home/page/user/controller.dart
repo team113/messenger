@@ -246,9 +246,9 @@ class UserController extends GetxController {
   /// Opens a [Chat]-dialog with this [user].
   void openChat() {
     if (user?.id == me) {
-      router.chat(_chatService.monolog, push: true);
+      router.chat(_chatService.monolog, mode: RouteAs.push);
     } else {
-      router.chat(ChatId.local(user!.user.value.id), push: true);
+      router.chat(ChatId.local(user!.user.value.id), mode: RouteAs.push);
     }
   }
 

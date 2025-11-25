@@ -20,7 +20,13 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart'
     as dio
-    show MultipartFile, Options, FormData, DioException;
+    show
+        MultipartFile,
+        Options,
+        FormData,
+        DioException,
+        CancelToken,
+        DioExceptionType;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -758,8 +764,9 @@ mixin ChatGraphQlMixin {
   Stream<QueryResult> chatEvents(
     ChatId id,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = -10,
+  }) {
     Log.debug('chatEvents($id, $ver, onVer)', '$runtimeType');
 
     final variables = ChatEventsArguments(id: id, ver: ver);
@@ -769,6 +776,7 @@ mixin ChatGraphQlMixin {
         document: ChatEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      priority: priority,
       ver: onVer,
     );
   }
@@ -917,6 +925,7 @@ mixin ChatGraphQlMixin {
   uploadAttachment(
     dio.MultipartFile? attachment, {
     void Function(int count, int total)? onSendProgress,
+    dio.CancelToken? cancelToken,
   }) async {
     Log.debug('uploadAttachment($attachment, onSendProgress)', '$runtimeType');
 
@@ -946,6 +955,7 @@ mixin ChatGraphQlMixin {
                   as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentError)
               .code,
         ),
+        cancelToken: cancelToken,
       );
 
       if (response.data['data'] == null) {
@@ -965,7 +975,17 @@ mixin ChatGraphQlMixin {
         );
       }
 
-      Log.error('Failed to upload attachment: ${e.response}', '$runtimeType');
+      switch (e.type) {
+        case dio.DioExceptionType.cancel:
+          // No-op.
+          break;
+
+        default:
+          Log.error(
+            'Failed to upload attachment: ${e.response}',
+            '$runtimeType',
+          );
+      }
 
       rethrow;
     }

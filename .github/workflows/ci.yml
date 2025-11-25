@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.35"
+  FLUTTER_VER: "3.38"
 
 jobs:
 
@@ -50,14 +50,14 @@ jobs:
   copyright:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - run: make copyright check=yes
 
   dartanalyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
@@ -75,7 +75,7 @@ jobs:
   dartfmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -95,7 +95,7 @@ jobs:
         chart: ["tapopa-messenger"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: azure/setup-helm@v4
 
       - run: make helm.lint chart=${{ matrix.chart }}
@@ -103,7 +103,7 @@ jobs:
   pubspec:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -127,7 +127,7 @@ jobs:
     runs-on: ${{ matrix.store == 'App Store' && 'macos'
               ||                                'ubuntu' }}-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2 # For commit message retrieving.
       - name: Retrieve last commit messages
@@ -212,7 +212,7 @@ jobs:
   appcast:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
 
@@ -265,7 +265,7 @@ jobs:
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
@@ -614,7 +614,7 @@ jobs:
           apt-get update
           apt-get install -y git
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
@@ -711,7 +711,7 @@ jobs:
   dartdoc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
@@ -736,7 +736,7 @@ jobs:
     needs: ["appcast", "build", "build-linux"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v3
 
       - uses: actions/download-artifact@v6
@@ -813,7 +813,7 @@ jobs:
     name: test (E2E)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
       - name: Retrieve commit messages
@@ -898,7 +898,7 @@ jobs:
     #       https://github.com/actions/runner-images/issues/11279
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
@@ -946,7 +946,7 @@ jobs:
                     && secrets.DOCKERHUB_BOT_USER == ''))
              ) }}" >> $GITHUB_OUTPUT
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - uses: actions/download-artifact@v6
@@ -1051,7 +1051,7 @@ jobs:
                             format('refs/tags/helm/{0}/', matrix.chart))
              }}" >> $GITHUB_OUTPUT
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: ${{ steps.skip.outputs.no == 'true' }}
       - uses: azure/setup-helm@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
@@ -1160,7 +1160,7 @@ jobs:
     runs-on: ${{ matrix.store == 'App Store' && 'macos'
               ||                                'ubuntu' }}-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: actions/download-artifact@v6
         with:
@@ -1214,7 +1214,7 @@ jobs:
       - release-github
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: gh-pages
 
@@ -1257,7 +1257,7 @@ jobs:
       - test-unit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -1361,7 +1361,7 @@ jobs:
     needs: ["dartdoc"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: gh-pages
 
@@ -1389,7 +1389,7 @@ jobs:
   #   needs: ["release-github"]
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v5
+  #     - uses: actions/checkout@v6
 
   #     - uses: actions/download-artifact@v6
   #       with:
@@ -1448,7 +1448,7 @@ jobs:
     needs: ["docker-push", "helm-lint"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: azure/setup-kubectl@v4
       - name: Login to Kubernetes cluster

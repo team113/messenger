@@ -104,7 +104,7 @@ class SearchView extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: _SearchField(
+                child: SearchField(
                   c.search,
                   onChanged: () => c.query.value = c.search.text,
                 ),
@@ -292,13 +292,13 @@ class SearchView extends StatelessWidget {
 }
 
 /// [ReactiveTextField] styled as a search field.
-class _SearchField extends StatelessWidget {
-  const _SearchField(this.state, {this.onChanged});
+class SearchField extends StatelessWidget {
+  const SearchField(this.state, {this.onChanged});
 
   /// State of the search [ReactiveTextField].
   final TextFieldState state;
 
-  /// Callback, called when [_SearchField] changes.
+  /// Callback, called when [SearchField] changes.
   final void Function()? onChanged;
 
   @override

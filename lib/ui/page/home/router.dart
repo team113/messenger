@@ -136,7 +136,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         pages.add(
           CustomPage(
             key: ValueKey('ChatDirectLinkPage$slug'),
-            name: Routes.chatDirectLink,
+            name: '${Routes.chatDirectLink}$slug',
             child: ChatDirectLinkView(slug),
           ),
         );

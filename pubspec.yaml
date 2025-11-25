@@ -1,15 +1,16 @@
 name: messenger
-version: 0.6.9
+version: 0.6.11
 publish_to: none
 
 environment:
-  flutter: ">=3.35.0"
-  sdk: ">=3.9.0 <4.0.0"
+  flutter: ">=3.38.0"
+  sdk: ">=3.10.0 <4.0.0"
 
 dependencies:
   all_sensors:
     git: https://github.com/SleepySquash/all_sensors
   animated_size_and_fade: ^5.1.1
+  app_badge_plus: ^1.2.3
   app_links: ^6.1.1
   apple_product_name: ^3.0.0
   async: ^2.10.0
@@ -18,12 +19,15 @@ dependencies:
   collection: ^1.18.0
   connectivity_plus: ^6.1.0
   crypto: ^3.0.3
-  cupertino_http: ^2.1.1
+  cupertino_http:
+    git:
+      url: https://github.com/dart-lang/http.git
+      path: pkgs/cupertino_http
   device_info_plus: ^11.4.0
   dio: ^5.1.2
   dots_indicator: ^4.0.1
   dough: ^2.0.0
-  drift: ^2.26.1
+  drift: ^2.29.0
   email_validator: ^3.0.0
   expandable_text: ^2.3.0
   ffi: ^2.0.2
@@ -41,10 +45,8 @@ dependencies:
     git: https://github.com/krida2000/flutter_list_view.git
   flutter_local_notifications: ^19.4.0
   flutter_markdown: ^0.7.1
-  flutter_native_badge: ^1.0.5+dev
   flutter_slidable: ^4.0.0
   flutter_spinkit: ^5.2.1
-  flutter_staggered_animations: ^1.1.1
   flutter_svg: ^2.0.10+1
   flutter_thumbhash: ^0.1.0+1
   flutter_web_plugins:
@@ -91,8 +93,8 @@ dependencies:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
   screen_brightness: any
-  sentry_flutter: ^9.6.0
-  share_plus: ^11.0.0
+  sentry_flutter: ^9.8.0
+  share_plus: ^12.0.1
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
   sound_fonts:
@@ -102,7 +104,7 @@ dependencies:
   stdlibc: ^0.1.4
   super_clipboard: ^0.9.1
   super_drag_and_drop: ^0.9.1
-  toml: ^0.16.0
+  toml: ^0.17.0
   universal_io: ^2.2.2
   url_launcher: ^6.1.12
   uuid: ^4.3.3
@@ -123,8 +125,8 @@ dependencies:
   xml: ^6.5.0
   yaml: ^3.1.2
 
-  build: any
 dev_dependencies:
+  build: any
   artemis:
     git: https://github.com/SleepySquash/artemis
   build_runner: ^2.4.11
@@ -165,6 +167,8 @@ dependency_overrides:
       path: packages/image_picker/image_picker_ios
   # TODO: Remove when `media_kit` updates.
   js: ^0.7.1
+  # TODO: Remove when `sentry_flutter` upgrades to use `objective_c` 8.1.0+.
+  objective_c: ^8.1.0
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit:
     git:

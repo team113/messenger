@@ -85,12 +85,30 @@ import sqlite3
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
+  // This method handles background  data-only push notifications on iOS.
+  //
+  // If notification contains any visible content, then this method won't be
+  // executed, since it's only for data-only notifications.
   override func application(
     _ application: UIApplication,
     didReceiveRemoteNotification userInfo: [AnyHashable: Any],
     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
   ) {
-    super.application(
+    if #available(iOS 10.0, *) {
+      if let thread = userInfo["thread"] as? String {
+        let center = UNUserNotificationCenter.current()
+        center.getDeliveredNotifications { (notifications) in
+          for notification in notifications {
+            if notification.request.content.threadIdentifier.contains(thread) == true {
+              center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier]
+              )
+            }
+          }
+        }
+      }
+    }
+
+    return super.application(
       application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler
     )
   }

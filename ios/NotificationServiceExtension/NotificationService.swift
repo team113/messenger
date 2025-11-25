@@ -44,32 +44,14 @@ class NotificationService: UNNotificationServiceExtension {
         cancelNotification(tag: String(tag.asHash))
       }
 
-      if request.content.title == "Canceled" && request.content.body.isEmpty {
-        if let thread = userInfo["thread"] as? String {
-          let center = UNUserNotificationCenter.current()
-          let notifications = await center.deliveredNotifications()
+      self.contentHandler = contentHandler
+      bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
-          if !notifications.filter { $0.request.content.threadIdentifier.contains(thread) }.isEmpty
-          {
-            try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
-            cancelNotificationsContaining(thread: thread)
-          } else {
-            cancelNotificationsContaining(thread: thread)
-            try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
-            cancelNotificationsContaining(thread: thread)
-            return
-          }
-        }
-      } else {
-        self.contentHandler = contentHandler
-        bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
-
-        if let bestAttemptContent = bestAttemptContent {
-          Messaging.serviceExtension().populateNotificationContent(
-            bestAttemptContent,
-            withContentHandler: contentHandler
-          )
-        }
+      if let bestAttemptContent = bestAttemptContent {
+        Messaging.serviceExtension().populateNotificationContent(
+          bestAttemptContent,
+          withContentHandler: contentHandler
+        )
       }
     }
   }
@@ -336,20 +318,6 @@ class NotificationService: UNNotificationServiceExtension {
     if #available(iOS 10.0, *) {
       let center = UNUserNotificationCenter.current()
       center.removeDeliveredNotifications(withIdentifiers: [tag])
-    }
-  }
-
-  /// Remove the delivered notifications containing the provided thread.
-  private func cancelNotificationsContaining(thread: String) {
-    if #available(iOS 10.0, *) {
-      let center = UNUserNotificationCenter.current()
-      center.getDeliveredNotifications { (notifications) in
-        for notification in notifications {
-          if notification.request.content.threadIdentifier.contains(thread) == true {
-            center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier])
-          }
-        }
-      }
     }
   }
 

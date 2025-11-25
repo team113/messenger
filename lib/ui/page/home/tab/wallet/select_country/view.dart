@@ -20,7 +20,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/country.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/call/search/widget/search_field.dart';
+import '/ui/page/call/search/view.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/modal_popup.dart';

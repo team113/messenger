@@ -610,6 +610,7 @@ mixin UserGraphQlMixin {
         document: UserEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      priority: -10,
       ver: ver,
     );
   }

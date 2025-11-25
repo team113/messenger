@@ -61,7 +61,6 @@ import '/util/awaitable_timer.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
-import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
 import 'chat.dart';
@@ -709,6 +708,8 @@ class RxChatImpl extends RxChat {
       existingDateTime: existingDateTime,
     );
 
+    bool putFinally = true;
+
     // Storing the already stored [ChatMessage] is meaningless as it creates
     // lag spikes, so update it's reactive value directly.
     if (existingId != null) {
@@ -731,19 +732,23 @@ class RxChatImpl extends RxChat {
     try {
       if (attachments != null) {
         final List<Future> uploads = attachments
-            .mapIndexed((i, e) {
+            .map((e) {
               if (e is LocalAttachment) {
                 return e.upload.value?.future.then(
                   (a) {
-                    attachments[i] = a;
+                    final index = attachments.indexOf(e);
 
-                    // Frequent writes of byte data freezes the Web page.
-                    if (!PlatformUtils.isWeb) {
-                      put(message);
+                    // If returned `Attachment` is `null`, then it was canceled.
+                    if (a == null) {
+                      attachments.removeAt(index);
+                    } else {
+                      attachments[index] = a;
                     }
+
+                    put(message);
                   },
                   onError: (_) {
-                    // No-op, as failed upload attempts are handled below.
+                    put(message);
                   },
                 );
               }
@@ -770,6 +775,11 @@ class RxChatImpl extends RxChat {
         throw const ConnectionException(
           PostChatMessageException(PostChatMessageErrorCode.unknownAttachment),
         );
+      }
+
+      if (attachments?.isEmpty == true && text == null && repliesTo.isEmpty) {
+        putFinally = false;
+        return message.value;
       }
 
       try {
@@ -813,7 +823,12 @@ class RxChatImpl extends RxChat {
       _pending.remove(message.value);
       rethrow;
     } finally {
-      put(message);
+      if (putFinally) {
+        put(message);
+      } else {
+        remove(message.value.id);
+        _pending.remove(message.value);
+      }
     }
 
     return message.value;
@@ -1945,7 +1960,12 @@ class RxChatImpl extends RxChat {
         }
 
         _remoteSubscription = StreamQueue(
-          _chatRepository.chatEvents(id, ver, () => ver),
+          _chatRepository.chatEvents(
+            id,
+            ver,
+            () => ver,
+            priority: chat.value.ongoingCall == null ? -10 : 10,
+          ),
         );
 
         await _remoteSubscription!.execute(

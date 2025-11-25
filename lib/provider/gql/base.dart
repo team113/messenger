@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart'
     as dio
-    show DioException, Options, Response, DioExceptionType;
+    show DioException, Options, Response, DioExceptionType, CancelToken;
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -280,10 +280,14 @@ class GraphQlClient {
   }
 
   /// Subscribes to a GraphQL subscription according to the [options] specified.
+  ///
+  /// The higher the [priority], the earlier this subscription will be
+  /// subscribed to in a rate limiter queue.
   Stream<QueryResult> subscribe(
     SubscriptionOptions options, {
     FutureOr<Version?> Function()? ver,
     bool resubscribe = true,
+    int priority = 0,
   }) {
     return SubscriptionHandle(
       _subscribe,
@@ -294,6 +298,7 @@ class GraphQlClient {
       options,
       ver: ver,
       resubscribe: resubscribe,
+      priority: priority,
     ).stream;
   }
 
@@ -305,6 +310,7 @@ class GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
     RawClientOptions? raw,
+    dio.CancelToken? cancelToken,
   }) {
     return _middleware(() async {
       return await _transaction(operationName, () async {
@@ -322,6 +328,7 @@ class GraphQlClient {
             data: data,
             options: authorized,
             onSendProgress: onSendProgress,
+            cancelToken: cancelToken,
           );
         } on dio.DioException catch (e) {
           if (e.response != null) {
@@ -381,9 +388,13 @@ class GraphQlClient {
   /// and returns a [Stream] which either emits received data or an error.
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
-  Future<SubscriptionConnection> _subscribe(SubscriptionOptions options) async {
+  Future<SubscriptionConnection> _subscribe(
+    SubscriptionOptions options,
+    int priority,
+  ) async {
     final stream = await _subscriptionLimiter.execute<Stream<QueryResult>>(
       () async => (await client).subscribe(options),
+      priority: priority,
     );
 
     // Store the reference to the current [WebSocketLink].
@@ -747,6 +758,7 @@ class SubscriptionHandle {
     this._options, {
     this.ver,
     this.resubscribe = true,
+    this.priority = 0,
   });
 
   /// Callback, called when a [Version] to pass the [SubscriptionOptions] is
@@ -757,8 +769,14 @@ class SubscriptionHandle {
   /// [ResubscriptionRequiredException] or not.
   final bool resubscribe;
 
+  /// Priority of [_listen] subscription in [RateLimiter]'s queue.
+  ///
+  /// The bigger, the more earlier this subscription will be resubscribed.
+  int priority;
+
   /// Callback, called to get the [Stream] of [QueryResult]s itself.
-  final FutureOr<SubscriptionConnection> Function(SubscriptionOptions) _listen;
+  final FutureOr<SubscriptionConnection> Function(SubscriptionOptions, int)
+  _listen;
 
   /// Callback, called to cancel the provided [SubscriptionConnection].
   final void Function(SubscriptionConnection?) _cancel;
@@ -811,7 +829,7 @@ class SubscriptionHandle {
           return;
         }
 
-        _connection = await _listen(_options);
+        _connection = await _listen(_options, priority);
 
         if (!_controller.hasListener) {
           return cancel();

@@ -71,7 +71,6 @@ import 'ui/worker/call.dart';
 import 'ui/worker/log.dart';
 import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
-import 'util/android_utils.dart';
 import 'util/backoff.dart';
 import 'util/get.dart';
 import 'util/log.dart';
@@ -579,13 +578,23 @@ Future<void> handlePushNotification(RemoteMessage message) async {
   // then try canceling the notifications with the provided thread, if any, or
   // otherwise a single one, if data contains a tag.
   if (message.notification == null ||
-      (message.notification?.title == 'Canceled' &&
+      (message.notification?.title?.isEmpty != false &&
           message.notification?.body == null)) {
     await Future.delayed(Duration(milliseconds: 100), () async {
+      final plugin = FlutterLocalNotificationsPlugin();
+
       if (thread != null) {
-        await AndroidUtils.cancelNotificationsContaining(thread);
+        for (var e in await plugin.getActiveNotifications()) {
+          if (e.id != null && e.tag?.contains(thread) == true) {
+            await plugin.cancel(e.id!, tag: e.tag);
+          }
+        }
       } else if (tag != null) {
-        await AndroidUtils.cancelNotificationsContaining(tag);
+        for (var e in await plugin.getActiveNotifications()) {
+          if (e.id != null && e.tag == tag) {
+            await plugin.cancel(e.id!, tag: e.tag);
+          }
+        }
       }
     });
   }

@@ -30,7 +30,7 @@ def hasProperties = propertiesFile.exists()
 android {
     namespace 'com.tapopa.messenger'
 
-    ndkVersion "27.0.12077973"
+    ndkVersion = "28.2.13676358"
     compileSdkVersion 36
 
     compileOptions {

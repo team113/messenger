@@ -625,9 +625,9 @@ fcm_message =
                          *[other] {$attachmentsCount} файлов
                      }
               *[attachments] { $attachmentsCount ->
-                                 [one] {$attachmentsCount} вложение
-                                 [few] {$attachmentsCount} вложения
-                                 *[other] {$attachmentsCount} вложений
+                                 [one] {$attachmentsCount} файл
+                                 [few] {$attachmentsCount} файла
+                                 *[other] {$attachmentsCount} файлов
                              }
         }]
     }{ $textLength ->
@@ -763,6 +763,7 @@ label_all_chats_and_groups = Все чаты и группы
 label_all_session_except_current_terminated = Все сессии, кроме текущей, будут завершены
 label_also_delete_for_everyone = Также удалить для всех
 label_always_muted = Всегда беззвучные
+label_amount_k = {$amount}k
 label_application = Приложение
 label_audio_call = Аудиозвонок{$by ->
         [x]{""}
