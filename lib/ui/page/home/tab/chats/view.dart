@@ -71,14 +71,7 @@ class ChatsTabView extends StatelessWidget {
       builder: (ChatsTabController c) {
         return Stack(
           children: [
-            Obx(() {
-              return AnimatedContainer(
-                duration: 200.milliseconds,
-                color: c.search.value != null
-                    ? style.colors.secondaryHighlight
-                    : style.colors.secondaryHighlight.withValues(alpha: 0),
-              );
-            }),
+            AnimatedContainer(duration: 200.milliseconds),
             Scaffold(
               resizeToAvoidBottomInset: false,
               body: NestedScrollView(

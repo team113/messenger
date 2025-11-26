@@ -185,7 +185,7 @@ class _HomeViewState extends State<HomeView> {
                     maxWidth: context.isNarrow ? context.width : width,
                   ),
                   child: Scaffold(
-                    backgroundColor: style.sidebarColor,
+                    backgroundColor: style.colors.secondaryHighlight,
                     body: PageView(
                       physics: const NeverScrollableScrollPhysics(),
                       controller: c.pages,
