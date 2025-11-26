@@ -56,3 +56,6 @@ app.*.symbols
 /test/e2e/reports/
 /test_driver/build/
 /test_driver/report.json
+
+# FVM Version Cache
+.fvm/
