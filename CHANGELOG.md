@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.11...v0.7.0) | [Milestone](/../../milestone/56)
 
+### Changed
+
+- UI:
+    - Menu tab:
+       - Redesigned background color. [[#1529], [#1524]]
+
 ### Fixed
 
 - UI:
@@ -18,6 +24,8 @@ All user visible changes to this project will be documented in this file. This p
         - Page sometimes not being popped when navigating back. ([#1526])
 
 [#1526]: /../../pull/1526
+[#1524]: /../../issues/1524
+[#1529]: /../../pull/1529
 
 
 
@@ -35,8 +43,6 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Redesigned chats appearing animation. ([#1514])
         - Redesigned unread messages counter. ([#1512], [#1507])
-    - Menu tab:
-        - Redesigned background color. [[#1529], [#1524]]
 
 ### Fixed
 
@@ -51,8 +57,6 @@ All user visible changes to this project will be documented in this file. This p
 [#1507]: /../../issues/1507
 [#1512]: /../../pull/1512
 [#1514]: /../../pull/1514
-[#1524]: /../../issues/1524
-[#1529]: /../../pull/1529
 
 
 

@@ -71,7 +71,6 @@ class ChatsTabView extends StatelessWidget {
       builder: (ChatsTabController c) {
         return Stack(
           children: [
-            AnimatedContainer(duration: 200.milliseconds),
             Scaffold(
               resizeToAvoidBottomInset: false,
               body: NestedScrollView(
