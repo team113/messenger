@@ -14,6 +14,8 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
+    - Menu tab:
+       - Redesigned sidebar color. [[#1529], [#1524]]
     - Chat page:
         - Auto-play video thumbnails only when hovered. ([#1518], [#1446])
 
@@ -25,7 +27,9 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1446]: /../../issues/1446
 [#1518]: /../../pull/1518
+[#1524]: /../../issues/1524
 [#1526]: /../../pull/1526
+[#1529]: /../../pull/1529
 
 
 
