@@ -2027,4 +2027,16 @@ class SvgIcons {
     width: 20,
     height: 18,
   );
+
+  static const SvgData previewPlay = SvgData(
+    'assets/icons/preview_play.svg',
+    width: 7,
+    height: 8.4,
+  );
+
+  static const SvgData previewPause = SvgData(
+    'assets/icons/preview_pause.svg',
+    width: 6.76,
+    height: 7.88,
+  );
 }

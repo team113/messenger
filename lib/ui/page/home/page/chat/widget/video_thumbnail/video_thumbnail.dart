@@ -24,6 +24,7 @@ import 'package:video_player/video_player.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -132,8 +133,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
   /// Indicator whether the video playback was manually stopped.
   ///
-  /// If true, the video will not autoplay on mouse hover.
-  /// Otherwise, it will autoplay on mouse hover.
+  /// If `true`, the video will not autoplay on mouse hover. Otherwise, it will
+  /// autoplay on mouse hover.
   bool _hasManuallyStopped = false;
 
   @override
@@ -218,37 +219,25 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       return child;
     }
 
-    return MouseRegion(
-      onEnter: (_) async {
-        if (_controller!.value.isInitialized && !_hasManuallyStopped) {
-          _controller?.play();
-        }
-      },
-      onExit: (_) async {
-        if (_controller!.value.isInitialized && !_hasManuallyStopped) {
-          await _controller?.pause();
-          await _controller?.seekTo(Duration.zero);
-        }
-      },
-      child: Stack(
-        children: [
-          child,
+    final Widget interface = Stack(
+      children: [
+        child,
 
-          if (widget.interface)
-            Positioned(
-              bottom: 6,
-              left: 6,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: style.colors.onBackgroundOpacity40,
-                ),
-                child: ValueListenableBuilder(
-                  builder: (_, value, _) {
-                    return Row(
-                      spacing: 4,
-                      children: [
+        if (widget.interface)
+          Positioned(
+            bottom: 6,
+            left: 6,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(7, 3, 7, 3),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: style.colors.onBackgroundOpacity40,
+              ),
+              child: ValueListenableBuilder(
+                builder: (_, value, _) {
+                  return Row(
+                    children: [
+                      if (widget.autoplay)
                         GestureDetector(
                           behavior: HitTestBehavior.translucent,
                           onTap: () {
@@ -260,27 +249,48 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                               _hasManuallyStopped = false;
                             }
                           },
-                          child: Icon(
-                            value.isPlaying ? Icons.pause : Icons.play_arrow,
-                            size: 18,
-                            color: style.colors.onPrimary,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                            child: SvgIcon(
+                              value.isPlaying
+                                  ? SvgIcons.previewPause
+                                  : SvgIcons.previewPlay,
+                            ),
                           ),
                         ),
-                        IgnorePointer(
-                          child: Text(
-                            (value.duration - value.position).hhMmSs(),
-                            style: style.fonts.smaller.regular.onPrimary,
-                          ),
+                      IgnorePointer(
+                        child: Text(
+                          (value.duration - value.position).hhMmSs(),
+                          style: style.fonts.smaller.regular.onPrimary,
                         ),
-                      ],
-                    );
-                  },
-                  valueListenable: _controller!,
-                ),
+                      ),
+                    ],
+                  );
+                },
+                valueListenable: _controller!,
               ),
             ),
-        ],
-      ),
+          ),
+      ],
+    );
+
+    if (!widget.autoplay) {
+      return interface;
+    }
+
+    return MouseRegion(
+      onEnter: (_) async {
+        if (_controller!.value.isInitialized && !_hasManuallyStopped) {
+          await _controller?.play();
+        }
+      },
+      onExit: (_) async {
+        if (_controller!.value.isInitialized && !_hasManuallyStopped) {
+          await _controller?.pause();
+          await _controller?.seekTo(Duration.zero);
+        }
+      },
+      child: interface,
     );
   }
 
