@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.11...v0.7.0) | [Milestone](/../../milestone/56)
 
+### Changed
+
+- UI:
+    - Home Page:
+        - Redesigned navigation items position when expanded. ([#1532], [#1528])
+
 ### Fixed
 
 - UI:
@@ -18,6 +24,8 @@ All user visible changes to this project will be documented in this file. This p
         - Page sometimes not being popped when navigating back. ([#1526])
 
 [#1526]: /../../pull/1526
+[#1528]: /../../issues/1528
+[#1532]: /../../pull/1532
 
 
 
