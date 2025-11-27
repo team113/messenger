@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Menu tab:
-       - Redesigned background color. [[#1529], [#1524]]
+       - Redesigned sidebar color. [[#1529], [#1524]]
 
 ### Fixed
 
