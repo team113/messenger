@@ -856,8 +856,13 @@ class MessageFieldView extends StatelessWidget {
                             : 0,
                         child: CloseButton(
                           key: const Key('RemovePickedFile'),
-                          onPressed: () =>
-                              c.attachments.removeWhere((a) => a.value == e),
+                          onPressed: () {
+                            if (e is LocalAttachment) {
+                              e.cancelUpload();
+                            }
+
+                            c.attachments.removeWhere((a) => a.value == e);
+                          },
                         ),
                       );
                     }),
@@ -1194,7 +1199,7 @@ class _FieldContainer extends StatelessWidget {
       duration: const Duration(milliseconds: 400),
       constraints: const BoxConstraints(minHeight: 56),
       decoration: BoxDecoration(
-        color: style.cardColor,
+        color: style.colors.onPrimary,
         borderRadius: BorderRadius.vertical(
           bottom: borderRadius,
           top: previewOpen ? Radius.zero : borderRadius,

@@ -1,1 +1,4 @@
+- Added ability to cancel file uploading to server.
+- Redesigned recent chats appearing animation.
+- Redesigned unread messages counter on chats tab.
 - Bug fixes and performance improvements.
