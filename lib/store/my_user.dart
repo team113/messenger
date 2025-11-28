@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
@@ -293,8 +292,7 @@ class MyUserRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    final bool reset =
-        text?.val.isEmpty == true && attachments?.isEmpty == true;
+    bool reset = text?.val.isEmpty == true && attachments?.isEmpty == true;
 
     final WelcomeMessage? previous = myUser.value?.welcomeMessage;
 
@@ -311,11 +309,20 @@ class MyUserRepository extends DisposableInterface
 
     try {
       final List<Future>? uploads = attachments
-          ?.mapIndexed((i, e) {
+          ?.map((e) {
             if (e is LocalAttachment) {
               return e.upload.value?.future.then(
                 (a) {
-                  attachments[i] = a;
+                  final index = attachments.indexOf(e);
+
+                  // If `Attachment` returned is `null`, then it was canceled.
+                  if (a == null) {
+                    attachments.removeAt(index);
+                  } else {
+                    attachments[index] = a;
+                  }
+
+                  myUser.update((_) {});
                 },
                 onError: (_) {
                   // No-op, as failed upload attempts are handled below.
@@ -334,6 +341,12 @@ class MyUserRepository extends DisposableInterface
             UpdateWelcomeMessageErrorCode.unknownAttachment,
           ),
         );
+      }
+
+      // If the contents of [WelcomeMessage] are empty, then reset it.
+      if ((text == null || text.val.isEmpty) &&
+          (attachments == null || attachments.isEmpty == true)) {
+        reset = true;
       }
 
       await Backoff.run(
