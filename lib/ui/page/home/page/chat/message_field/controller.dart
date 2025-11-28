@@ -207,7 +207,7 @@ class MessageFieldController extends GetxController {
 
   /// Indicator whether [_keyUpHandler] and [_pasteEventListener] are
   /// registered.
-  bool _handlersRegistered = false;
+  bool _handlersRegistered = false;  
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
@@ -323,7 +323,7 @@ class MessageFieldController extends GetxController {
     _editedWorker?.dispose();
     _buttonsWorker?.dispose();
     _routesWorker?.dispose();
-    scrollController.dispose();
+    scrollController.dispose();    
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -572,7 +572,29 @@ class MessageFieldController extends GetxController {
     if (file.size < maxAttachmentSize && _chatService != null) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments.add(MapEntry(GlobalKey(), attachment));
+
+        // If attachment is video or image insert it to end of img/video list
+        // and before documents, overwise simply add to end of attachments.
+        if (file.isImage || file.isVideo) {
+          int lastIndex = attachments.indexWhere((a) {
+            final Attachment e = a.value;
+            final bool isImage =
+                (e is ImageAttachment ||
+                (e is LocalAttachment && e.file.isImage));
+            final bool isVideo =
+                (e is FileAttachment && e.isVideo) ||
+                (e is LocalAttachment && e.file.isVideo);
+            return !isImage && !isVideo;
+          });
+
+          if (lastIndex == -1) {
+            attachments.add(MapEntry(GlobalKey(), attachment));
+          } else {
+            attachments.insert(lastIndex, MapEntry(GlobalKey(), attachment));
+          }
+        } else {
+          attachments.add(MapEntry(GlobalKey(), attachment));
+        }
 
         final Attachment? uploaded = await _chatService.uploadAttachment(
           attachment,
@@ -668,5 +690,16 @@ class MessageFieldController extends GetxController {
         );
       }
     }
+  }
+
+  /// Updates the [attachments] list by reordering items from [mediaAttachments]
+  /// and [filesAttachments].
+  void reorderAttachments(
+    List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
+    mediaAttachments,
+    List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
+    filesAttachments,
+  ) {
+    attachments.value = mediaAttachments + filesAttachments;
   }
 }
