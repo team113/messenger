@@ -24,12 +24,16 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Page sometimes not being popped when navigating back. ([#1526])
+    - Home Page:
+        - Navigation bar expanding inappropriately when side bar is wide enough. ([#1532], [#1528])
 
 [#1446]: /../../issues/1446
 [#1518]: /../../pull/1518
 [#1524]: /../../issues/1524
 [#1526]: /../../pull/1526
+[#1528]: /../../issues/1528
 [#1529]: /../../pull/1529
+[#1532]: /../../pull/1532
 
 
 
