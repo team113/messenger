@@ -2487,22 +2487,18 @@ class ChatController extends GetxController {
       '$runtimeType',
     );
 
-    // Try to fetch the items.
-    try {
-      final ChatItemId itemId = chat!.scrollPosition!.itemId;
+    final ChatItemId itemId = chat!.scrollPosition!.itemId;
 
-      final int index = elements.values.toList().indexWhere((e) {
-        return e.id.id == itemId ||
-            (e is ChatForwardElement &&
-                (e.forwards.any((e1) => e1.value.id == itemId) ||
-                    e.note.value?.value.id == itemId));
-      });
+    final int index = elements.values.toList().indexWhere((e) {
+      return e.id.id == itemId ||
+          (e is ChatForwardElement &&
+              (e.forwards.any((e1) => e1.value.id == itemId) ||
+                  e.note.value?.value.id == itemId));
+    });
 
-      initIndex = index;
-      initOffset = chat!.scrollPosition!.offset;
-    } finally {
-      _updateFabStates();
-    }
+    initIndex = index;
+    initOffset = chat!.scrollPosition!.offset;
+    _updateFabStates();
   }
 
   /// Enables or disables search based on the [event].
