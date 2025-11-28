@@ -2491,8 +2491,6 @@ class ChatController extends GetxController {
     try {
       final ChatItemId itemId = chat!.scrollPosition!.itemId;
 
-      await _fetchItemsAround(itemId);
-
       final int index = elements.values.toList().indexWhere((e) {
         return e.id.id == itemId ||
             (e is ChatForwardElement &&
