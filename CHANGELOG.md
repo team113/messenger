@@ -57,14 +57,18 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
+    - Chats tab:
+        - Unread messages count increments when accepting or declining a call. ([#1516, #1508])
 
 [#1460]: /../../issues/1460
 [#1490]: /../../issues/1490
 [#1496]: /../../pull/1496
 [#1504]: /../../pull/1504
 [#1507]: /../../issues/1507
+[#1508]: /../../issues/1508
 [#1512]: /../../pull/1512
 [#1514]: /../../pull/1514
+[#1516]: /../../pull/1516
 
 
 
