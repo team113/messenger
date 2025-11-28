@@ -89,6 +89,9 @@ class _HomeViewState extends State<HomeView> {
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
+  /// We need a [ScrollController] to pass to the chats tab, so that we can scroll to top when reselecting the tab.
+  final ScrollController _chatsScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -208,9 +211,13 @@ class _HomeViewState extends State<HomeView> {
                         }
                       },
                       // [KeepAlivePage] used to keep the tabs' states.
-                      children: const [
+                      children: [
                         SizedBox(),
-                        KeepAlivePage(child: ChatsTabView()),
+                        KeepAlivePage(
+                          child: ChatsTabView(
+                            chatsController: _chatsScrollController,
+                          ),
+                        ),
                         KeepAlivePage(child: MenuTabView()),
                       ],
                     ),
@@ -349,6 +356,15 @@ class _HomeViewState extends State<HomeView> {
               onTap: (i) {
                 if (i == 0) {
                   return LinkView.show(context);
+                }
+
+                /// Scroll to top if the chat tab is reselected.
+                if (router.tab == tabs[i] && router.tab == HomeTab.chats) {
+                  _chatsScrollController.animateTo(
+                    0,
+                    duration: Duration(milliseconds: 250),
+                    curve: Curves.easeIn,
+                  );
                 }
 
                 c.pages.jumpToPage(tabs[i].index);
