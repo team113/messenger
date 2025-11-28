@@ -1057,7 +1057,7 @@ class _FieldContainer extends StatelessWidget {
       duration: const Duration(milliseconds: 400),
       constraints: const BoxConstraints(minHeight: 56),
       decoration: BoxDecoration(
-        color: style.cardColor,
+        color: style.colors.onPrimary,
         borderRadius: BorderRadius.vertical(
           bottom: borderRadius,
           top: previewOpen ? Radius.zero : borderRadius,
