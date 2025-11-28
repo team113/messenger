@@ -24,11 +24,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Page sometimes not being popped when navigating back. ([#1526])
+        - Forwarded messages displaying invalid sent/read status. ([#1521], [#1452])
     - Home Page:
         - Navigation bar expanding inappropriately when side bar is wide enough. ([#1532], [#1528])
 
 [#1446]: /../../issues/1446
+[#1452]: /../../issues/1452
 [#1518]: /../../pull/1518
+[#1521]: /../../pull/1521
 [#1524]: /../../issues/1524
 [#1526]: /../../pull/1526
 [#1528]: /../../issues/1528
@@ -57,7 +60,6 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
-        - Chat forwards incorrectly showing the recipient’s read status instead of the original sender’s. ([#1521], [#1452])
 
 [#1460]: /../../issues/1460
 [#1490]: /../../issues/1490
@@ -66,8 +68,6 @@ All user visible changes to this project will be documented in this file. This p
 [#1507]: /../../issues/1507
 [#1512]: /../../pull/1512
 [#1514]: /../../pull/1514
-[#1521]: /../../pull/1521
-[#1452]: /../../issues/1452
 
 
 
