@@ -488,6 +488,8 @@ class ChatView extends StatelessWidget {
                               onItemSticky: (i) =>
                                   c.elements.values.elementAt(i)
                                       is DateTimeElement,
+                              // Force initIndex=0 to apply when offset != 0, because FlutterListView
+                              // ignores initIndex/initOffset for index 0 in reverse mode by default.
                               forceToExecuteInitIndex:
                                   c.initIndex == 0 && c.initOffset != 0
                                   ? 0
