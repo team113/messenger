@@ -87,6 +87,9 @@ class UserView extends StatelessWidget {
               ),
             _name(c, context, index: c.isBlocked != null ? 2 : 1),
             SelectionContainer.disabled(
+              child: Block(children: [_galleriesBlock(c, context)]),
+            ),
+            SelectionContainer.disabled(
               child: Block(children: [_actions(c, context)]),
             ),
             const SizedBox(height: 8),
@@ -527,5 +530,27 @@ class UserView extends StatelessWidget {
     if (result == true) {
       await c.hideChat();
     }
+  }
+
+  /// Returns galleries butttons block for this [User].
+  Widget _galleriesBlock(UserController c, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        ActionButton(
+          key: const Key('MediaButton'),
+          text: 'btn_show_media'.l10n,
+          onPressed: c.showMedia,
+          trailing: SvgIcon(SvgIcons.gallerySmall),
+        ),
+        ActionButton(
+          key: const Key('FilesButton'),
+          text: 'btn_show_files'.l10n,
+          onPressed: c.showFiles,
+          trailing: SvgIcon(SvgIcons.fileOutlinedSmall),
+        ),
+      ],
+    );
   }
 }

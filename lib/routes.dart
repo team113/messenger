@@ -77,6 +77,7 @@ import 'themes.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/erase/view.dart';
+import 'ui/page/home/page/chat/gallery/controller.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/popup_gallery/view.dart';
@@ -108,9 +109,11 @@ class Routes {
   static const chats = '/chats';
   static const contacts = '/contacts';
   static const erase = '/erase';
+  static const files = '/files';
   static const gallery = '/gallery';
   static const home = '/';
   static const me = '/me';
+  static const media = '/media';
   static const menu = '/menu';
   static const support = '/support';
   static const user = '/user';
@@ -1241,6 +1244,18 @@ extension RouteLinks on RouterState {
   /// If [push] is `true`, then location is pushed to the router location stack.
   void user(UserId id, {bool push = false}) =>
       (push ? this.push : go)('${Routes.user}/$id');
+
+  /// Changes router location to [Routers.chats] [Routes.files|Routes.media]
+  /// page.
+  ///
+  /// If [push] is `true`, then location is pushed to the router location stack.
+  void gallery(
+    ChatId id,
+    GalleryViewMode viewMode, {
+    bool push = false,
+  }) => (push ? this.push : go)(
+    '${Routes.chats}/$id${viewMode == GalleryViewMode.files ? Routes.files : Routes.media}',
+  );
 
   /// Changes router location to the [Routes.chats] page.
   ///

@@ -29,7 +29,7 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat//controller.dart';
+import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/notes_block.dart';
@@ -97,6 +97,11 @@ class ChatInfoView extends StatelessWidget {
               )
             else
               _profile(c, context),
+
+            if (!c.isMonolog)
+              SelectionContainer.disabled(
+                child: Block(children: [_galleriesBlock(c, context)]),
+              ),
 
             if (!c.isMonolog) ...[
               SelectionContainer.disabled(child: _members(c, context)),
@@ -558,5 +563,27 @@ class ChatInfoView extends StatelessWidget {
     if (result == true) {
       await c.reportChat();
     }
+  }
+
+  /// Returns galleries butttons block for this [Chat].
+  Widget _galleriesBlock(ChatInfoController c, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+        ActionButton(
+          key: const Key('MediaButton'),
+          text: 'btn_show_media'.l10n,
+          onPressed: c.showMedia,
+          trailing: SvgIcon(SvgIcons.gallerySmall),
+        ),
+        ActionButton(
+          key: const Key('FilesButton'),
+          text: 'btn_show_files'.l10n,
+          onPressed: c.showFiles,
+          trailing: SvgIcon(SvgIcons.fileOutlinedSmall),
+        ),
+      ],
+    );
   }
 }

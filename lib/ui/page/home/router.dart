@@ -17,12 +17,14 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
+
 import '/routes.dart';
 import '/ui/page/chat_direct_link/view.dart';
 import '/ui/page/erase/view.dart';
@@ -30,6 +32,7 @@ import '/ui/page/support/view.dart';
 import '/ui/page/work/page/vacancy/view.dart';
 import '/ui/widget/custom_page.dart';
 import 'page/chat/info/view.dart';
+import 'page/chat/gallery/view.dart';
 import 'page/chat/view.dart';
 import 'page/contact/view.dart';
 import 'page/my_profile/view.dart';
@@ -79,6 +82,36 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             key: ValueKey('ChatInfoPage$id'),
             name: '${Routes.chats}/$id${Routes.chatInfo}',
             child: ChatInfoView(ChatId(id)),
+          ),
+        );
+      } else if (route.startsWith('${Routes.chats}/') &&
+          route.endsWith(Routes.files)) {
+        String id = route
+            .replaceFirst('${Routes.chats}/', '')
+            .replaceAll(Routes.files, '');
+        pages.add(
+          CustomPage(
+            key: ValueKey('ChatGalleryFilesPage$id'),
+            name: '${Routes.chats}/$id${Routes.files}',
+            child: GalleryView.files(
+              chatId: ChatId(id),
+              chatService: Get.find(),
+            ),
+          ),
+        );
+      } else if (route.startsWith('${Routes.chats}/') &&
+          route.endsWith(Routes.media)) {
+        String id = route
+            .replaceFirst('${Routes.chats}/', '')
+            .replaceAll(Routes.media, '');
+        pages.add(
+          CustomPage(
+            key: ValueKey('ChatGalleryMediaPage$id'),
+            name: '${Routes.chats}/$id${Routes.media}',
+            child: GalleryView.media(
+              chatId: ChatId(id),
+              chatService: Get.find(),
+            ),
           ),
         );
       } else if (route.startsWith('${Routes.chats}/')) {

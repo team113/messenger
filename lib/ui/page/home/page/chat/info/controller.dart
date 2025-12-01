@@ -44,6 +44,7 @@ import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/ui/page/home/page/chat/gallery/controller.dart';
 import '/ui/page/home/page/my_profile/crop_avatar/view.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
@@ -692,5 +693,15 @@ class ChatInfoController extends GetxController {
         name.editable.value = true;
       }
     }
+  }
+
+  /// Shows [Gallery] page with media [Attachment]s from current [Chat].
+  void showMedia() {
+    router.gallery(chatId, GalleryViewMode.media, push: true);
+  }
+
+  /// Shows [Gallery] page with files [Attachment]s from current [Chat].
+  void showFiles() {
+    router.gallery(chatId, GalleryViewMode.files, push: true);
   }
 }

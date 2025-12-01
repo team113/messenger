@@ -1236,6 +1236,18 @@ class SvgIcons {
     height: 42,
   );
 
+  static const SvgData galleryNoMedia = SvgData(
+    'assets/icons/gallery_no_media.svg',
+    width: 125,
+    height: 125,
+  );
+
+  static const SvgData galleryNoFiles = SvgData(
+    'assets/icons/gallery_no_files.svg',
+    width: 125,
+    height: 125,
+  );
+
   static const SvgData timer = SvgData(
     'assets/icons/timer.svg',
     width: 17,
