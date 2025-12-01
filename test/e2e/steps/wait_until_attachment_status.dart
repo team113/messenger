@@ -63,10 +63,23 @@ waitUntilAttachmentStatus = then2<String, MessageSentStatus, CustomWorld>(
         'E2E',
       );
 
+      final Iterable<String>? allAttachments = chat?.messages
+          .map((e) => e.value)
+          .whereType<ChatMessage>()
+          .expand((e) => e.attachments)
+          .map((e) => e.filename);
+
       Log.debug(
-        'waitUntilAttachmentStatus() -> the whole list of attachments in the chat: `${chat?.messages.map((e) => e.value).whereType<ChatMessage>().expand((e) => e.attachments).map((e) => e.filename).join(', ')}`',
+        'waitUntilAttachmentStatus() -> the whole list of attachments in the chat: `${allAttachments?.join(', ')}`',
         'E2E',
       );
+
+      if (allAttachments == null || allAttachments.isEmpty) {
+        Log.debug(
+          'waitUntilAttachmentStatus() -> no attachments in the chat? Then the messages: `${chat?.messages.map((e) => e.value)}`',
+          'E2E',
+        );
+      }
 
       final Finder finder = context.world.appDriver.findByKeySkipOffstage(
         'AttachmentStatus_${attachment?.id}',
