@@ -165,8 +165,7 @@ class ReactiveTextField extends StatelessWidget {
   /// [TextInputType.multiline], or [TextInputAction.done] otherwise.
   final TextInputAction? textInputAction;
 
-  /// Configures how the platform keyboard will select an uppercase or
-  /// lowercase keyboard.
+  /// [TextCapitalization] of this [ReactiveTextField].
   ///
   /// Defaults to [TextCapitalization.sentences].
   final TextCapitalization textCapitalization;
