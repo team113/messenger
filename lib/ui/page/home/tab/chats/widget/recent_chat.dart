@@ -813,13 +813,21 @@ class RecentChatTile extends StatelessWidget {
                 e.file.bytes.value!,
                 key: key,
                 height: 300,
+                interface: false,
+                autoplay: true,
               ),
             );
           }
         } else {
           content = FittedBox(
             fit: BoxFit.cover,
-            child: VideoThumbnail.file(e.file.path!, key: key, height: 300),
+            child: VideoThumbnail.file(
+              e.file.path!,
+              key: key,
+              height: 300,
+              interface: false,
+              autoplay: true,
+            ),
           );
         }
       } else {
@@ -857,6 +865,8 @@ class RecentChatTile extends StatelessWidget {
             key: key,
             height: 300,
             onError: onError,
+            interface: false,
+            autoplay: true,
           ),
         );
       } else {

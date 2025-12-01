@@ -699,6 +699,7 @@ class MessageFieldView extends StatelessWidget {
           width: _attachmentSize,
           height: _attachmentSize,
           fit: BoxFit.cover,
+          autoplay: true,
         );
 
         final List<Attachment> attachments = c.attachments
@@ -726,12 +727,12 @@ class MessageFieldView extends StatelessWidget {
                   }
                 },
           child: e.isVideo
-              ? IgnorePointer(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      child,
-                      Container(
+              ? Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    child,
+                    IgnorePointer(
+                      child: Container(
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
@@ -744,8 +745,8 @@ class MessageFieldView extends StatelessWidget {
                           size: 48,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 )
               : child,
         );
