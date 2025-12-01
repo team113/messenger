@@ -321,12 +321,12 @@ class GalleryController extends GetxController {
       final List<Attachment> itemAttachments = [];
       for (var i = 0; i < fetchedAttachment.length; ++i) {
         final Attachment a = fetchedAttachment[i];
-        final bool shouldBeAdded =
-            (viewMode == GalleryViewMode.files &&
-                a is FileAttachment &&
-                !a.filename.isVideoFileName) ||
-            (viewMode == GalleryViewMode.media &&
-                (a is ImageAttachment || a.filename.isVideoFileName));
+        final bool shouldBeAdded = switch (viewMode) {
+          GalleryViewMode.files =>
+            a is FileAttachment && !a.filename.isVideoFileName,
+          GalleryViewMode.media =>
+            a is ImageAttachment || a.filename.isVideoFileName,
+        };
 
         if (shouldBeAdded) {
           itemAttachments.add(a);

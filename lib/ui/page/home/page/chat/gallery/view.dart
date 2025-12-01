@@ -170,12 +170,10 @@ class GalleryView extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text(
-                  c.viewMode == GalleryViewMode.files
-                      ? 'label_files'.l10n
-                      : 'label_media'.l10n,
-                  style: style.fonts.small.regular.secondary,
-                ),
+                Text(switch (c.viewMode) {
+                  GalleryViewMode.files => 'label_files'.l10n,
+                  GalleryViewMode.media => 'label_media'.l10n,
+                }, style: style.fonts.small.regular.secondary),
               ],
             ),
           ),
@@ -239,9 +237,10 @@ class GalleryView extends StatelessWidget {
 
   /// Builds [body] for this page.
   Widget _body(BuildContext context, GalleryController c) {
-    return c.viewMode == GalleryViewMode.files
-        ? _filesBody(context, c)
-        : _mediaBody(context, c);
+    return switch (c.viewMode) {
+      GalleryViewMode.files => _filesBody(context, c),
+      GalleryViewMode.media => _mediaBody(context, c),
+    };
   }
 
   /// Builds empty [body] for this page.
@@ -254,17 +253,16 @@ class GalleryView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (PlatformUtils.isMobile) SizedBox(height: 30),
-        SvgIcon(
-          c.viewMode == GalleryViewMode.files
-              ? SvgIcons.galleryNoFiles
-              : SvgIcons.galleryNoMedia,
-        ),
+        SvgIcon(switch (c.viewMode) {
+          GalleryViewMode.files => SvgIcons.galleryNoFiles,
+          GalleryViewMode.media => SvgIcons.galleryNoMedia,
+        }),
         SizedBox(height: 20),
         Text(
-          (c.viewMode == GalleryViewMode.files
-                  ? 'label_no_files'
-                  : 'label_no_media')
-              .l10n,
+          switch (c.viewMode) {
+            GalleryViewMode.files => 'label_no_files'.l10n,
+            GalleryViewMode.media => 'label_no_media'.l10n,
+          },
           textAlign: TextAlign.center,
           style: style.fonts.medium.regular.secondary,
         ),

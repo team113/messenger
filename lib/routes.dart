@@ -1233,13 +1233,13 @@ extension RouteLinks on RouterState {
   /// page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
-  void gallery(
-    ChatId id,
-    GalleryViewMode viewMode, {
-    bool push = false,
-  }) => (push ? this.push : go)(
-    '${Routes.chats}/$id${viewMode == GalleryViewMode.files ? Routes.files : Routes.media}',
-  );
+  void gallery(ChatId id, GalleryViewMode viewMode, {bool push = false}) {
+    final String route = switch (viewMode) {
+      GalleryViewMode.files => Routes.files,
+      GalleryViewMode.media => Routes.media,
+    };
+    (push ? this.push : go)('${Routes.chats}/$id$route');
+  }
 
   /// Changes router location to the [Routes.chats] page.
   ///
