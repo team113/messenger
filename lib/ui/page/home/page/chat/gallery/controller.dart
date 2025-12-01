@@ -42,10 +42,10 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
-/// Possible [Routes.chat][Routes.files|Routes.media] page screens.
+/// Possible [Routes.chats][Routes.files|Routes.media] page screens.
 enum GalleryViewMode { files, media }
 
-/// Controller of the [Routes.chat] [Routes.files] or [Routes.media] page.
+/// Controller of the [Routes.chats] [Routes.files] or [Routes.media] page.
 class GalleryController extends GetxController {
   GalleryController({
     required this.chatService,
@@ -62,26 +62,26 @@ class GalleryController extends GetxController {
   /// [ChatService] maintaining the [chat].
   final ChatService chatService;
 
-  /// Current [Gallery] view.
+  /// Current [GalleryView] view.
   ///
   /// May be:
-  /// - `viewMode.files`, meaning [Gallery] must shown only files attachments.
-  /// - `viewMode.media`, meaning [Gallery] must shown only media attachments.
+  /// - `viewMode.files`, meaning [GalleryView] must shown only files attachments.
+  /// - `viewMode.media`, meaning [GalleryView] must shown only media attachments.
   final GalleryViewMode viewMode;
 
   /// [Gallary] [items] fetched from chat.
   final RxList<Attachment> items = RxList([]);
 
-  /// Status of the [Chat] [Gallery] fetching.
+  /// Status of the [Chat] [GalleryView] fetching.
   ///
   /// May be:
-  /// - `chatStatus.isLoading`, meaning [gallery] is being fetched from the service.
-  /// - `chatStatus.isEmpty`, meaning [gallery] with specified [chatId] was empty.
-  /// - `chatStatus.isSuccess`, meaning [gallery] is successfully fetched.
+  /// - `chatStatus.isLoading`, meaning [GalleryView] is being fetched from the service.
+  /// - `chatStatus.isEmpty`, meaning [GalleryView] with specified [chatId] was empty.
+  /// - `chatStatus.isSuccess`, meaning [GalleryView] is successfully fetched.
   /// - `chatStatus.isLoadingMore`, meaning a request is being made.
   final Rx<RxStatus> chatStatus = Rx<RxStatus>(RxStatus.loading());
 
-  /// Status of the [Gallery] [items] fetching.
+  /// Status of the [GalleryView] [items] fetching.
   ///
   /// May be:
   /// - `itemsStatus.isLoading`, meaning [items] is being fetched from the service.

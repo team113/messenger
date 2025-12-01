@@ -530,7 +530,7 @@ class UserController extends GetxController {
     }
   }
 
-  /// Shows [Gallery] page with media [Attachment]s from current [Chat].
+  /// Shows [GalleryView] page with media [Attachment]s from current [Chat].
   void showMedia() {
     final ChatId? chatId = user?.user.value.dialog;
     if (chatId != null) {
@@ -538,7 +538,7 @@ class UserController extends GetxController {
     }
   }
 
-  /// Shows [Gallery] page with files [Attachment]s from current [Chat].
+  /// Shows [GalleryView] page with files [Attachment]s from current [Chat].
   void showFiles() {
     final ChatId? chatId = user?.user.value.dialog;
     if (chatId != null) {

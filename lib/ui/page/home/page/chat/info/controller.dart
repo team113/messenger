@@ -695,12 +695,12 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Shows [Gallery] page with media [Attachment]s from current [Chat].
+  /// Shows [GalleryView] page with media [Attachment]s from current [Chat].
   void showMedia() {
     router.gallery(chatId, GalleryViewMode.media, push: true);
   }
 
-  /// Shows [Gallery] page with files [Attachment]s from current [Chat].
+  /// Shows [GalleryView] page with files [Attachment]s from current [Chat].
   void showFiles() {
     router.gallery(chatId, GalleryViewMode.files, push: true);
   }

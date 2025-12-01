@@ -43,7 +43,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View of the [Routes.chat] [Routes.files] or [Routes.media] page.
+/// View of the [Routes.chats] [Routes.files] or [Routes.media] page.
 class GalleryView extends StatelessWidget {
   const GalleryView({
     super.key,
@@ -52,14 +52,14 @@ class GalleryView extends StatelessWidget {
     required this.chatService,
   });
 
-  /// View of the [Routes.chat][gallery] page in media mode.
+  /// View of the [Routes.chats][Routes.media] page in media mode.
   const GalleryView.media({
     super.key,
     required this.chatId,
     required this.chatService,
   }) : viewMode = GalleryViewMode.media;
 
-  /// View of the [Routes.chat][gallery] page in files mode.
+  /// View of the [Routes.chats][Routes.files] page in files mode.
   const GalleryView.files({
     super.key,
     required this.chatId,
@@ -69,7 +69,7 @@ class GalleryView extends StatelessWidget {
   /// ID of this [сhat].
   final ChatId chatId;
 
-  /// Current [Gallery] view.
+  /// Current [GalleryView] mode.
   final GalleryViewMode viewMode;
 
   /// [ChatService] maintaining the [chat].
