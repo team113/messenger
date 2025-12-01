@@ -91,6 +91,7 @@ class AccountsView extends StatelessWidget {
                 ReactiveTextField(
                   key: const ValueKey('PasswordField'),
                   state: c.password,
+                  textCapitalization: TextCapitalization.none,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
                   onSuffixPressed: c.obscurePassword.toggle,

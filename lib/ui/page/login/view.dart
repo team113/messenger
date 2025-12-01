@@ -157,6 +157,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('PasswordField'),
                   state: c.newPassword,
+                  textCapitalization: TextCapitalization.none,
                   label: 'label_new_password'.l10n,
                   obscure: c.obscureNewPassword.value,
                   onSuffixPressed: c.obscureNewPassword.toggle,
@@ -171,6 +172,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('RepeatPasswordField'),
                   state: c.repeatPassword,
+                  textCapitalization: TextCapitalization.none,
                   label: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
@@ -215,6 +217,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const ValueKey('PasswordField'),
                   state: c.password,
+                  textCapitalization: TextCapitalization.none,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
                   onSuffixPressed: c.obscurePassword.toggle,
@@ -231,6 +234,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const ValueKey('RepeatPasswordField'),
                   state: c.repeatPassword,
+                  textCapitalization: TextCapitalization.none,
                   label: 'label_password'.l10n,
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
@@ -407,6 +411,7 @@ class LoginView extends StatelessWidget {
                   key: const ValueKey('PasswordField'),
                   state: c.password,
                   label: 'label_password'.l10n,
+                  textCapitalization: TextCapitalization.none,
                   obscure: c.obscurePassword.value,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,

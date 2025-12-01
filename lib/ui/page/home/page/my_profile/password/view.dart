@@ -98,6 +98,7 @@ class ChangePasswordView extends StatelessWidget {
                           obscure: c.obscurePassword.value,
                           onSuffixPressed: () => c.obscurePassword.toggle(),
                           treatErrorAsStatus: false,
+                          textCapitalization: TextCapitalization.none,
                           trailing: Center(
                             child: SvgIcon(
                               c.obscurePassword.value
@@ -109,6 +110,7 @@ class ChangePasswordView extends StatelessWidget {
                       ),
                     ReactiveTextField(
                       key: const Key('NewPasswordField'),
+                      textCapitalization: TextCapitalization.none,
                       state: c.newPassword,
                       label: 'label_new_password'.l10n,
                       floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -127,6 +129,7 @@ class ChangePasswordView extends StatelessWidget {
                     const SizedBox(height: 16),
                     ReactiveTextField(
                       key: const Key('RepeatPasswordField'),
+                      textCapitalization: TextCapitalization.none,
                       state: c.repeatPassword,
                       label: 'label_repeat_password'.l10n,
                       floatingLabelBehavior: FloatingLabelBehavior.always,

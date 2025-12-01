@@ -71,6 +71,7 @@ class ReactiveTextField extends StatelessWidget {
     this.clearable = true,
     this.selectable,
     this.floatingAccent = false,
+    this.textCapitalization = TextCapitalization.sentences,
   });
 
   /// [ReactiveTextField] with trailing copy button.
@@ -163,6 +164,12 @@ class ReactiveTextField extends StatelessWidget {
   /// Defaults to [TextInputAction.newline] if [type] is
   /// [TextInputType.multiline], or [TextInputAction.done] otherwise.
   final TextInputAction? textInputAction;
+
+  /// Configures how the platform keyboard will select an uppercase or
+  /// lowercase keyboard.
+  ///
+  /// Defaults to [TextCapitalization.sentences].
+  final TextCapitalization textCapitalization;
 
   /// Callback, called when user presses the [suffix].
   ///
@@ -423,7 +430,7 @@ class ReactiveTextField extends StatelessWidget {
               minLines: minLines,
               maxLines: maxLines,
               textInputAction: textInputAction,
-              textCapitalization: TextCapitalization.sentences,
+              textCapitalization: textCapitalization,
               maxLength: maxLength,
               contextMenuBuilder: (_, field) {
                 final double dx = field.contextMenuAnchors.primaryAnchor.dx;

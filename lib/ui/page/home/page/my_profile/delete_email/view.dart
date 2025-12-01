@@ -82,6 +82,7 @@ class DeleteEmailView extends StatelessWidget {
                     state: c.passwordOrCode,
                     obscure: c.obscurePasswordOrCode.value,
                     onSuffixPressed: c.obscurePasswordOrCode.toggle,
+                    textCapitalization: TextCapitalization.none,
                     treatErrorAsStatus: false,
                     trailing: SvgIcon(
                       c.obscurePasswordOrCode.value

@@ -62,6 +62,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('PasswordField'),
                   state: c.password,
+                  textCapitalization: TextCapitalization.none,
                   label: 'label_password'.l10n,
                   obscure: c.obscurePassword.value,
                   style: style.fonts.normal.regular.onBackground,

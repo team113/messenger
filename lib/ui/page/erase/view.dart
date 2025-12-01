@@ -131,6 +131,7 @@ class EraseView extends StatelessWidget {
             label: 'label_password'.l10n,
             obscure: c.obscurePassword.value,
             onSuffixPressed: c.obscurePassword.toggle,
+            textCapitalization: TextCapitalization.none,
             treatErrorAsStatus: false,
             trailing: Center(
               child: SvgIcon(

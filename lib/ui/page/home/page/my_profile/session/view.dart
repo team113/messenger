@@ -138,6 +138,7 @@ class DeleteSessionView extends StatelessWidget {
                           return ReactiveTextField(
                             key: const Key('PasswordField'),
                             state: c.password,
+                            textCapitalization: TextCapitalization.none,
                             label: hasEmail && hasPassword
                                 ? 'label_password_or_one_time_code'.l10n
                                 : hasEmail
