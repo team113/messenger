@@ -1,4 +1,3 @@
-- Added ability to cancel file uploading to server.
-- Redesigned recent chats appearing animation.
-- Redesigned unread messages counter on chats tab.
+- Updated side bar color on menu tab when custom background is set.
+- Removed auto-play of video thumbnails in chat.
 - Bug fixes and performance improvements.

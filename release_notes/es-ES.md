@@ -1,4 +1,3 @@
-- Se agregó la capacidad de cancelar la carga de archivos al servidor.
-- Se rediseñó la animación de aparición de chats recientes.
-- Se rediseñó el contador de mensajes no leídos en la pestaña de chats.
+- Se modificó la reproducción automática de las miniaturas de video al pasar el cursor sobre ellas.
+- Se actualizó el color de la barra lateral en la pestaña del menú al configurar un fondo personalizado.
 - Se corrigieron errores y se mejoraron el rendimiento.
