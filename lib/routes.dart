@@ -1229,7 +1229,7 @@ extension RouteLinks on RouterState {
   void user(UserId id, {bool push = false}) =>
       (push ? this.push : go)('${Routes.user}/$id');
 
-  /// Changes router location to [Routers.chats] [Routes.files|Routes.media]
+  /// Changes router location to [Routers.chats][Routes.files] or [Routes.media]
   /// page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.

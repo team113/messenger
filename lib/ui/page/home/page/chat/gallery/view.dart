@@ -66,7 +66,7 @@ class GalleryView extends StatelessWidget {
     required this.chatService,
   }) : viewMode = GalleryViewMode.files;
 
-  /// ID of this [сhat].
+  /// ID of this [Chat].
   final ChatId chatId;
 
   /// Current [GalleryView] mode.

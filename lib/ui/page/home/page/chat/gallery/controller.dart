@@ -42,7 +42,7 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
-/// Possible [Routes.chats][Routes.files|Routes.media] page screens.
+/// Possible [Routes.chats][Routes.files] or [Routes.media] page screens.
 enum GalleryViewMode { files, media }
 
 /// Controller of the [Routes.chats] [Routes.files] or [Routes.media] page.
@@ -69,7 +69,7 @@ class GalleryController extends GetxController {
   /// - `viewMode.media`, meaning [GalleryView] must shown only media attachments.
   final GalleryViewMode viewMode;
 
-  /// [Gallary] [items] fetched from chat.
+  /// [GalleryView] [items] fetched from chat.
   final RxList<Attachment> items = RxList([]);
 
   /// Status of the [Chat] [GalleryView] fetching.
@@ -93,7 +93,7 @@ class GalleryController extends GetxController {
   /// [TextFieldState] for report reason.
   final TextFieldState reporting = TextFieldState();
 
-  /// [Map] of [GlobalKey]s used to prevent [MediaThumbnail]s from rebuilding.
+  /// [Map] of [GlobalKey]s used to prevent [MediaItem]s from rebuilding.
   final Map<String, GlobalKey> thumbnails = {};
 
   /// [ScrollController] to pass to a [GridView] or [SingleChildScrollView].
