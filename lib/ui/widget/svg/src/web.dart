@@ -153,8 +153,8 @@ class _AssetSvgLoader implements _SvgLoader {
     }
 
     return Future(() async {
-      String image = await PlatformUtils.loadString(asset);
-      Uint8List bytes = Uint8List.fromList(utf8.encode(image));
+      final String image = await PlatformUtils.loadString(asset);
+      final Uint8List bytes = Uint8List.fromList(utf8.encode(image));
 
       _cache[asset] = bytes;
       if (_cache.length > _cacheSize) {
@@ -276,28 +276,31 @@ class _BrowserSvgState extends State<_BrowserSvg> {
     }
   }
 
-  Future<void> _loadImage() async {
-    _loadIndex++;
-    var idx = _loadIndex;
+  void _loadImage() {
+    final int idx = _loadIndex++;
 
     try {
       FutureOr<Uint8List> future = widget.loader.load();
       if (future is Uint8List) {
-        _imageBytes = future;
+        _applyBytes(idx, future);
       } else {
-        _imageBytes = await future;
-      }
-
-      if (idx == _loadIndex) {
-        var b64 = base64.encode(_imageBytes!.toList());
-        _image = 'data:image/svg+xml;base64,$b64';
-
-        if (mounted == true) {
-          setState(() {});
-        }
+        future.then((bytes) => _applyBytes(idx, bytes));
       }
     } catch (e, stack) {
       Log.error('Error loading SVG: $e\n$stack', '$runtimeType');
+    }
+  }
+
+  /// Applies the [_image] to have the provided [bytes], if [idx] provided is
+  /// still the [_loadIndex].
+  void _applyBytes(int idx, Uint8List bytes) {
+    if (idx == _loadIndex) {
+      var b64 = base64.encode(_imageBytes!.toList());
+      _image = 'data:image/svg+xml;base64,$b64';
+
+      if (mounted == true) {
+        setState(() {});
+      }
     }
   }
 
