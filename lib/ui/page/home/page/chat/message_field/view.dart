@@ -583,6 +583,7 @@ class MessageFieldView extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.cover,
+          autoplay: true,
         );
 
         final List<Attachment> attachments = c.attachments
@@ -615,12 +616,12 @@ class MessageFieldView extends StatelessWidget {
                   }
                 },
           child: isVideo
-              ? IgnorePointer(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      child,
-                      Container(
+              ? Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    child,
+                    IgnorePointer(
+                      child: Container(
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
@@ -633,8 +634,8 @@ class MessageFieldView extends StatelessWidget {
                           size: 48,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 )
               : child,
         );
@@ -1057,7 +1058,7 @@ class _FieldContainer extends StatelessWidget {
       duration: const Duration(milliseconds: 400),
       constraints: const BoxConstraints(minHeight: 56),
       decoration: BoxDecoration(
-        color: style.cardColor,
+        color: style.colors.onPrimary,
         borderRadius: BorderRadius.vertical(
           bottom: borderRadius,
           top: previewOpen ? Radius.zero : borderRadius,

@@ -237,7 +237,7 @@ class Themes {
           ),
           readMessageColor: colors.primaryLight,
           secondaryBorder: Border.all(color: colors.acceptLight, width: 0.5),
-          sidebarColor: colors.onPrimaryOpacity50,
+          sidebarColor: colors.secondaryHighlight,
           systemMessageBorder: Border.all(
             color: colors.secondaryHighlightDark,
             width: 0.5,

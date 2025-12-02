@@ -116,13 +116,15 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
       child: Container(
         decoration: BoxDecoration(color: style.cardColor),
         height: CustomNavigationBar.height,
+        width: double.infinity,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(
+              Container(
                 height: 56 - 18,
+                constraints: BoxConstraints.tightFor(width: 350),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: widget.items.mapIndexed((i, b) {

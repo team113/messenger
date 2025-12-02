@@ -642,7 +642,7 @@ fcm_missed_cal =
         [yes] видеозвонок
         *[other] аудиозвонок
     }{ $type ->
-        [group] {" from "}{$userName ->
+        [group] {" от "}{$userName ->
             [x] {$userNum}
             *[other] {$userName}
         }

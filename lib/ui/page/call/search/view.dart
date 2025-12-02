@@ -293,7 +293,7 @@ class SearchView extends StatelessWidget {
 
 /// [ReactiveTextField] styled as a search field.
 class SearchField extends StatelessWidget {
-  const SearchField(this.state, {this.onChanged});
+  const SearchField(this.state, {super.key, this.onChanged});
 
   /// State of the search [ReactiveTextField].
   final TextFieldState state;
