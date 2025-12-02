@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.12...v0.7.0) | [Milestone](/../../milestone/56)
+
+### Fixed
+
+- UI:
+    - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
+
+[#1533]: /../../issues/1533
+[#1537]: /../../pull/1537
+
+
+
+
 ## [0.6.12] · 2025-12-01
 [0.6.12]: /../../tree/v0.6.12
 
