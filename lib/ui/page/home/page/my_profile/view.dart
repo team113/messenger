@@ -440,14 +440,12 @@ Widget _profile(BuildContext context, MyProfileController c) {
       }),
       const SizedBox(height: 21),
       Obx(() {
-        final presence = c.myUser.value?.presence ?? Presence.present;
+        final Presence presence = c.myUser.value?.presence ?? Presence.present;
 
         return FieldButton(
           key: Key('StatusButton'),
           headline: Text('label_your_status'.l10n),
-          onPressed: () async {
-            await PresenceSwitchView.show(context);
-          },
+          onPressed: () async => await PresenceSwitchView.show(context),
           child: Row(
             children: [
               Container(
