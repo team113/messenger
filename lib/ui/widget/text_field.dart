@@ -74,6 +74,31 @@ class ReactiveTextField extends StatelessWidget {
     this.textCapitalization = TextCapitalization.sentences,
   });
 
+  /// [ReactiveTextField] tuned best for password-type fields.
+  factory ReactiveTextField.password({
+    Key? key,
+    required TextFieldState state,
+    String? label,
+    String? hint,
+    Widget? trailing,
+    bool obscure = true,
+    void Function()? onSuffixPressed,
+    bool treatErrorAsStatus = true,
+    TextStyle? style,
+  }) => ReactiveTextField(
+    key: key,
+    state: state,
+    label: label,
+    hint: hint,
+    floatingLabelBehavior: FloatingLabelBehavior.always,
+    trailing: trailing,
+    obscure: obscure,
+    onSuffixPressed: onSuffixPressed,
+    treatErrorAsStatus: treatErrorAsStatus,
+    textCapitalization: TextCapitalization.none,
+    style: style,
+  );
+
   /// [ReactiveTextField] with trailing copy button.
   factory ReactiveTextField.copyable({
     Key? key,

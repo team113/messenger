@@ -122,16 +122,18 @@ class EraseView extends StatelessWidget {
           ReactiveTextField(
             key: const Key('UsernameField'),
             state: c.login,
-            label: 'label_sign_in_input'.l10n,
+            label: 'label_identifier'.l10n,
+            hint: 'label_sign_in_input'.l10n,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
           ),
           const SizedBox(height: 16),
-          ReactiveTextField(
-            key: const ValueKey('PasswordField'),
+          ReactiveTextField.password(
+            key: const Key('PasswordField'),
             state: c.password,
             label: 'label_password'.l10n,
+            hint: 'label_your_password'.l10n,
             obscure: c.obscurePassword.value,
             onSuffixPressed: c.obscurePassword.toggle,
-            textCapitalization: TextCapitalization.none,
             treatErrorAsStatus: false,
             trailing: Center(
               child: SvgIcon(

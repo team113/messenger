@@ -100,7 +100,9 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('RecoveryField'),
                   state: c.recovery,
-                  label: 'label_sign_in_input'.l10n,
+                  label: 'label_identifier'.l10n,
+                  hint: 'label_sign_in_input'.l10n,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(
@@ -154,11 +156,11 @@ class LoginView extends StatelessWidget {
                   style: style.fonts.normal.regular.secondary,
                 ),
                 const SizedBox(height: 25),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const Key('PasswordField'),
                   state: c.newPassword,
-                  textCapitalization: TextCapitalization.none,
                   label: 'label_new_password'.l10n,
+                  hint: 'label_enter_password'.l10n,
                   obscure: c.obscureNewPassword.value,
                   onSuffixPressed: c.obscureNewPassword.toggle,
                   treatErrorAsStatus: false,
@@ -169,11 +171,11 @@ class LoginView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const Key('RepeatPasswordField'),
                   state: c.repeatPassword,
-                  textCapitalization: TextCapitalization.none,
-                  label: 'label_repeat_password'.l10n,
+                  label: 'label_confirm_password'.l10n,
+                  hint: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
                   treatErrorAsStatus: false,
@@ -214,11 +216,11 @@ class LoginView extends StatelessWidget {
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                 ),
                 const SizedBox(height: 16),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const ValueKey('PasswordField'),
                   state: c.password,
-                  textCapitalization: TextCapitalization.none,
                   label: 'label_password'.l10n,
+                  hint: 'label_enter_password'.l10n,
                   obscure: c.obscurePassword.value,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
@@ -227,15 +229,13 @@ class LoginView extends StatelessWidget {
                         ? SvgIcons.visibleOff
                         : SvgIcons.visibleOn,
                   ),
-                  hint: '***',
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
                 ),
                 const SizedBox(height: 16),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const ValueKey('RepeatPasswordField'),
                   state: c.repeatPassword,
-                  textCapitalization: TextCapitalization.none,
-                  label: 'label_password'.l10n,
+                  label: 'label_confirm_password'.l10n,
+                  hint: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeatPassword.value,
                   onSuffixPressed: c.obscureRepeatPassword.toggle,
                   treatErrorAsStatus: false,
@@ -244,8 +244,6 @@ class LoginView extends StatelessWidget {
                         ? SvgIcons.visibleOff
                         : SvgIcons.visibleOn,
                   ),
-                  hint: '***',
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
@@ -404,14 +402,16 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('UsernameField'),
                   state: c.login,
-                  label: 'label_sign_in_input'.l10n,
+                  label: 'label_identifier'.l10n,
+                  hint: 'label_sign_in_input'.l10n,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
                 ),
                 const SizedBox(height: 16),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const ValueKey('PasswordField'),
                   state: c.password,
                   label: 'label_password'.l10n,
-                  textCapitalization: TextCapitalization.none,
+                  hint: 'label_your_password'.l10n,
                   obscure: c.obscurePassword.value,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,

@@ -59,11 +59,11 @@ class ConfirmLogoutView extends StatelessWidget {
               );
 
               children = [
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const Key('PasswordField'),
                   state: c.password,
-                  textCapitalization: TextCapitalization.none,
                   label: 'label_password'.l10n,
+                  hint: 'label_enter_password'.l10n,
                   obscure: c.obscurePassword.value,
                   style: style.fonts.normal.regular.onBackground,
                   onSuffixPressed: c.obscurePassword.toggle,
@@ -77,10 +77,11 @@ class ConfirmLogoutView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const Key('RepeatPasswordField'),
                   state: c.repeat,
-                  label: 'label_repeat_password'.l10n,
+                  label: 'label_confirm_password'.l10n,
+                  hint: 'label_repeat_password'.l10n,
                   obscure: c.obscureRepeat.value,
                   style: style.fonts.normal.regular.onBackground,
                   onSuffixPressed: c.obscureRepeat.toggle,

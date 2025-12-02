@@ -79,9 +79,8 @@ class ConfirmDeleteView extends StatelessWidget {
               ),
 
               const SizedBox(height: 24),
-              ReactiveTextField(
+              ReactiveTextField.password(
                 state: c.code,
-                textCapitalization: TextCapitalization.none,
                 label: hasPassword
                     ? 'label_password_or_one_time_code'.l10n
                     : 'label_one_time_password'.l10n,
@@ -97,7 +96,6 @@ class ConfirmDeleteView extends StatelessWidget {
                   ),
                 ),
                 onSuffixPressed: c.obscurePassword.toggle,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
               ),
               const SizedBox(height: 25),
               Obx(() {
@@ -136,14 +134,12 @@ class ConfirmDeleteView extends StatelessWidget {
             children.addAll([
               const SizedBox(height: 18),
               Obx(() {
-                return ReactiveTextField(
+                return ReactiveTextField.password(
                   key: const Key('PasswordField'),
                   state: c.password,
                   treatErrorAsStatus: false,
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
                   obscure: c.obscurePassword.value,
                   onSuffixPressed: c.obscurePassword.toggle,
-                  textCapitalization: TextCapitalization.none,
                   trailing: Center(
                     child: SvgIcon(
                       c.obscurePassword.value

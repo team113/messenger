@@ -90,15 +90,13 @@ class ChangePasswordView extends StatelessWidget {
                     if (c.hasPassword)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
-                        child: ReactiveTextField(
+                        child: ReactiveTextField.password(
                           state: c.oldPassword,
                           label: 'label_current_password'.l10n,
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
                           hint: 'label_your_password'.l10n,
                           obscure: c.obscurePassword.value,
                           onSuffixPressed: () => c.obscurePassword.toggle(),
                           treatErrorAsStatus: false,
-                          textCapitalization: TextCapitalization.none,
                           trailing: Center(
                             child: SvgIcon(
                               c.obscurePassword.value
@@ -108,13 +106,11 @@ class ChangePasswordView extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ReactiveTextField(
+                    ReactiveTextField.password(
                       key: const Key('NewPasswordField'),
-                      textCapitalization: TextCapitalization.none,
                       state: c.newPassword,
                       label: 'label_new_password'.l10n,
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      hint: 'label_your_password'.l10n,
+                      hint: 'label_enter_password'.l10n,
                       obscure: c.obscureNewPassword.value,
                       onSuffixPressed: () => c.obscureNewPassword.toggle(),
                       treatErrorAsStatus: false,
@@ -127,13 +123,11 @@ class ChangePasswordView extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ReactiveTextField(
+                    ReactiveTextField.password(
                       key: const Key('RepeatPasswordField'),
-                      textCapitalization: TextCapitalization.none,
                       state: c.repeatPassword,
-                      label: 'label_repeat_password'.l10n,
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      hint: 'label_your_password'.l10n,
+                      label: 'label_confirm_password'.l10n,
+                      hint: 'label_repeat_password'.l10n,
                       obscure: c.obscureRepeatPassword.value,
                       onSuffixPressed: () => c.obscureRepeatPassword.toggle(),
                       treatErrorAsStatus: false,

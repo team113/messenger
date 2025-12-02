@@ -77,12 +77,11 @@ class DeleteEmailView extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Obx(() {
-                  return ReactiveTextField(
+                  return ReactiveTextField.password(
                     key: const Key('PasswordField'),
                     state: c.passwordOrCode,
                     obscure: c.obscurePasswordOrCode.value,
                     onSuffixPressed: c.obscurePasswordOrCode.toggle,
-                    textCapitalization: TextCapitalization.none,
                     treatErrorAsStatus: false,
                     trailing: SvgIcon(
                       c.obscurePasswordOrCode.value
@@ -92,7 +91,6 @@ class DeleteEmailView extends StatelessWidget {
                     label: hasPassword
                         ? 'label_password_or_one_time_code'.l10n
                         : 'label_one_time_password'.l10n,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
                     hint: hasPassword
                         ? 'label_enter_password_or_code'.l10n
                         : 'label_enter_code'.l10n,

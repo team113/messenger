@@ -135,10 +135,9 @@ class DeleteSessionView extends StatelessWidget {
                       if (hasEmail || hasPassword) ...[
                         const SizedBox(height: 7),
                         Obx(() {
-                          return ReactiveTextField(
+                          return ReactiveTextField.password(
                             key: const Key('PasswordField'),
                             state: c.password,
-                            textCapitalization: TextCapitalization.none,
                             label: hasEmail && hasPassword
                                 ? 'label_password_or_one_time_code'.l10n
                                 : hasEmail
@@ -150,7 +149,6 @@ class DeleteSessionView extends StatelessWidget {
                                 ? 'label_enter_code'.l10n
                                 : 'label_enter_password'.l10n,
                             obscure: c.obscurePassword.value,
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
                             onSuffixPressed: c.obscurePassword.toggle,
                             treatErrorAsStatus: false,
                             trailing: Center(
