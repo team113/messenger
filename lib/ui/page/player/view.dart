@@ -791,18 +791,19 @@ class PlayerView extends StatelessWidget {
         children: [
           _bar(context, c, constraints),
 
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                0,
-                0,
-                16 + padding.right,
-                57 + 16 + padding.bottom,
+          if (context.isNarrow)
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  0,
+                  0,
+                  16 + padding.right,
+                  57 + 16 + padding.bottom,
+                ),
+                child: _position(context, c),
               ),
-              child: _position(context, c),
             ),
-          ),
 
           Align(
             alignment: Alignment.bottomCenter,
@@ -812,7 +813,7 @@ class PlayerView extends StatelessWidget {
                 _dots(context, c),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 57 + 12),
-                  child: _description(context, c),
+                  child: _description(context, c, constraints),
                 ),
               ],
             ),
@@ -844,7 +845,8 @@ class PlayerView extends StatelessWidget {
   /// Builds an expandable [Post.description] with its meta data.
   Widget _description(
     BuildContext context,
-    PlayerController c, {
+    PlayerController c,
+    BoxConstraints constraints, {
     bool bottom = true,
   }) {
     final style = Theme.of(context).style;
@@ -866,7 +868,7 @@ class PlayerView extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(
           padding.left,
           0,
-          padding.right,
+          90,
           bottom ? padding.bottom : 0,
         ),
         child: WidgetButton(
@@ -884,7 +886,7 @@ class PlayerView extends StatelessWidget {
                         children: [
                           AvatarWidget.fromUser(
                             user,
-                            radius: AvatarRadius.small,
+                            radius: AvatarRadius.big,
                             isOnline:
                                 user.online &&
                                 user.presence == Presence.present,
@@ -898,7 +900,6 @@ class PlayerView extends StatelessWidget {
                               style: style.fonts.medium.bold.onPrimary,
                             ),
                           ),
-                          Opacity(opacity: 0, child: _position(context, c)),
                         ],
                       ),
                     ),
@@ -925,35 +926,40 @@ class PlayerView extends StatelessWidget {
                                     if (text != null)
                                       Text(
                                         text,
-                                        style: style
-                                            .fonts
-                                            .normal
-                                            .regular
-                                            .onPrimary,
+                                        textAlign: TextAlign.start,
+                                        style: context.isNarrow
+                                            ? style
+                                                  .fonts
+                                                  .small
+                                                  .regular
+                                                  .onPrimary
+                                            : style
+                                                  .fonts
+                                                  .normal
+                                                  .regular
+                                                  .onPrimary,
                                         maxLines: null,
                                       ),
                                     SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          message.at.val.toRelative(),
-                                          style: style
-                                              .fonts
-                                              .normal
-                                              .regular
-                                              .onPrimary
+                                    Text(
+                                      message.at.val.toRelative(),
+                                      textAlign: TextAlign.start,
+                                      style:
+                                          (context.isNarrow
+                                                  ? style
+                                                        .fonts
+                                                        .small
+                                                        .regular
+                                                        .onPrimary
+                                                  : style
+                                                        .fonts
+                                                        .normal
+                                                        .regular
+                                                        .onPrimary)
                                               .copyWith(
-                                                color: style
-                                                    .colors
-                                                    .onPrimaryOpacity50,
+                                                color: style.colors.onPrimary
+                                                    .withValues(alpha: 0.9),
                                               ),
-                                        ),
-                                        Spacer(),
-                                        Opacity(
-                                          opacity: 0,
-                                          child: _position(context, c),
-                                        ),
-                                      ],
                                     ),
                                   ],
                                 )
@@ -964,8 +970,10 @@ class PlayerView extends StatelessWidget {
                                   child: Text(
                                     key: Key('Short'),
                                     text,
-                                    style: style.fonts.normal.regular.onPrimary,
-                                    maxLines: 1,
+                                    style: context.isNarrow
+                                        ? style.fonts.small.regular.onPrimary
+                                        : style.fonts.normal.regular.onPrimary,
+                                    maxLines: context.isNarrow ? 2 : 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -975,7 +983,6 @@ class PlayerView extends StatelessWidget {
                   ],
                 ),
               ),
-              Opacity(opacity: 0, child: _position(context, c)),
             ],
           ),
         ),
@@ -996,7 +1003,9 @@ class PlayerView extends StatelessWidget {
 
       return Text(
         '${video.position.value.hhMmSs()} / ${video.duration.value.hhMmSs()}',
-        style: style.fonts.normal.regular.onPrimary,
+        style: PlatformUtils.isMobile
+            ? style.fonts.small.regular.onPrimary
+            : style.fonts.normal.regular.onPrimary,
       );
     });
   }
@@ -1046,7 +1055,7 @@ class PlayerView extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(0, 16 + 12 + 16, 0, 0),
               child: Opacity(
                 opacity: 0,
-                child: _description(context, c, bottom: false),
+                child: _description(context, c, constraints, bottom: false),
               ),
             ),
           ),
