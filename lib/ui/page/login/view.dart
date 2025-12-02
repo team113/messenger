@@ -161,14 +161,8 @@ class LoginView extends StatelessWidget {
                   state: c.newPassword,
                   label: 'label_new_password'.l10n,
                   hint: 'label_enter_password'.l10n,
-                  obscure: c.obscureNewPassword.value,
-                  onSuffixPressed: c.obscureNewPassword.toggle,
+                  obscured: c.obscureNewPassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscureNewPassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField.password(
@@ -176,14 +170,8 @@ class LoginView extends StatelessWidget {
                   state: c.repeatPassword,
                   label: 'label_confirm_password'.l10n,
                   hint: 'label_repeat_password'.l10n,
-                  obscure: c.obscureRepeatPassword.value,
-                  onSuffixPressed: c.obscureRepeatPassword.toggle,
+                  obscured: c.obscureRepeatPassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscureRepeatPassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
@@ -221,14 +209,8 @@ class LoginView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   hint: 'label_enter_password'.l10n,
-                  obscure: c.obscurePassword.value,
-                  onSuffixPressed: c.obscurePassword.toggle,
+                  obscured: c.obscurePassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscurePassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField.password(
@@ -236,14 +218,8 @@ class LoginView extends StatelessWidget {
                   state: c.repeatPassword,
                   label: 'label_confirm_password'.l10n,
                   hint: 'label_repeat_password'.l10n,
-                  obscure: c.obscureRepeatPassword.value,
-                  onSuffixPressed: c.obscureRepeatPassword.toggle,
+                  obscured: c.obscureRepeatPassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscureRepeatPassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
@@ -412,14 +388,8 @@ class LoginView extends StatelessWidget {
                   state: c.password,
                   label: 'label_password'.l10n,
                   hint: 'label_your_password'.l10n,
-                  obscure: c.obscurePassword.value,
-                  onSuffixPressed: c.obscurePassword.toggle,
+                  obscured: c.obscurePassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscurePassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(21, 8, 8, 8),

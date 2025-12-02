@@ -22,7 +22,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
@@ -87,15 +86,7 @@ class ConfirmDeleteView extends StatelessWidget {
                 hint: hasPassword
                     ? 'label_enter_password_or_code'.l10n
                     : 'label_enter_code'.l10n,
-                obscure: c.obscurePassword.value,
-                trailing: Center(
-                  child: SvgIcon(
-                    c.obscurePassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
-                ),
-                onSuffixPressed: c.obscurePassword.toggle,
+                obscured: c.obscurePassword,
               ),
               const SizedBox(height: 25),
               Obx(() {
@@ -138,15 +129,7 @@ class ConfirmDeleteView extends StatelessWidget {
                   key: const Key('PasswordField'),
                   state: c.password,
                   treatErrorAsStatus: false,
-                  obscure: c.obscurePassword.value,
-                  onSuffixPressed: c.obscurePassword.toggle,
-                  trailing: Center(
-                    child: SvgIcon(
-                      c.obscurePassword.value
-                          ? SvgIcons.visibleOff
-                          : SvgIcons.visibleOn,
-                    ),
-                  ),
+                  obscured: c.obscurePassword,
                   hint: 'label_enter_password'.l10n,
                   label: 'label_password'.l10n,
                 );

@@ -26,7 +26,6 @@ import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/session_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -148,16 +147,8 @@ class DeleteSessionView extends StatelessWidget {
                                 : hasEmail
                                 ? 'label_enter_code'.l10n
                                 : 'label_enter_password'.l10n,
-                            obscure: c.obscurePassword.value,
-                            onSuffixPressed: c.obscurePassword.toggle,
+                            obscured: c.obscurePassword,
                             treatErrorAsStatus: false,
-                            trailing: Center(
-                              child: SvgIcon(
-                                c.obscurePassword.value
-                                    ? SvgIcons.visibleOff
-                                    : SvgIcons.visibleOn,
-                              ),
-                            ),
                           );
                         }),
                         const SizedBox(height: 21),
