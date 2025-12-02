@@ -124,16 +124,14 @@ class ConfirmDeleteView extends StatelessWidget {
           } else if (hasPassword) {
             children.addAll([
               const SizedBox(height: 18),
-              Obx(() {
-                return ReactiveTextField.password(
-                  key: const Key('PasswordField'),
-                  state: c.password,
-                  treatErrorAsStatus: false,
-                  obscured: c.obscurePassword,
-                  hint: 'label_enter_password'.l10n,
-                  label: 'label_password'.l10n,
-                );
-              }),
+              ReactiveTextField.password(
+                key: const Key('PasswordField'),
+                state: c.password,
+                treatErrorAsStatus: false,
+                obscured: c.obscurePassword,
+                hint: 'label_enter_password'.l10n,
+                label: 'label_password'.l10n,
+              ),
               const SizedBox(height: 25),
               Obx(() {
                 final bool enabled =
