@@ -33,7 +33,6 @@ import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
@@ -382,7 +381,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 'MessageStatus_${widget.note.value?.value.id ?? widget.forwards.firstOrNull?.value.id}',
                               ),
                               at: _at,
-                              status: SendingStatus.sent,
+                              status: _fromMe
+                                  ? widget.forwards.first.value.status.value
+                                  : null,
                               read: _isRead,
                               halfRead: _isHalfRead,
                               delivered:

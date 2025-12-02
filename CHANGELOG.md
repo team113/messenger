@@ -6,10 +6,10 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.7.0] · 2025-??-??
-[0.7.0]: /../../tree/v0.7.0
+## [0.6.12] · 2025-12-01
+[0.6.12]: /../../tree/v0.6.12
 
-[Diff](/../../compare/v0.6.11...v0.7.0) | [Milestone](/../../milestone/56)
+[Diff](/../../compare/v0.6.11...v0.6.12) | [Milestone](/../../milestone/56)
 
 ### Changed
 
@@ -24,11 +24,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Page sometimes not being popped when navigating back. ([#1526])
+        - Forwarded messages displaying invalid sent/read status. ([#1521], [#1452])
     - Home Page:
         - Navigation bar expanding inappropriately when side bar is wide enough. ([#1532], [#1528])
 
 [#1446]: /../../issues/1446
+[#1452]: /../../issues/1452
 [#1518]: /../../pull/1518
+[#1521]: /../../pull/1521
 [#1524]: /../../issues/1524
 [#1526]: /../../pull/1526
 [#1528]: /../../issues/1528
