@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.12...v0.7.0) | [Milestone](/../../milestone/57)
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Presence status sometimes not being updated. ([#1540], [#1539])
+
+[#1539]: /../../issues/1539
+[#1540]: /../../pull/1540
+
+
+
+
 ## [0.6.12] · 2025-12-01
 [0.6.12]: /../../tree/v0.6.12
 
