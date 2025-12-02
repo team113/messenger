@@ -16,7 +16,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Profile page:
         - Presence status sometimes not being updated. ([#1540], [#1539])
+    - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
 
+
+[#1533]: /../../issues/1533
+[#1537]: /../../pull/1537
 [#1539]: /../../issues/1539
 [#1540]: /../../pull/1540
 
