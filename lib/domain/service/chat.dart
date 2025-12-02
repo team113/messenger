@@ -363,7 +363,7 @@ class ChatService extends DisposableService {
   /// Creates a new [Attachment] from the provided [LocalAttachment] linked to
   /// the authenticated [MyUser] for a later use in the [sendChatMessage]
   /// method.
-  Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
+  Future<Attachment?> uploadAttachment(LocalAttachment attachment) async {
     Log.debug('uploadAttachment($attachment)', '$runtimeType');
     return await _chatRepository.uploadAttachment(attachment);
   }

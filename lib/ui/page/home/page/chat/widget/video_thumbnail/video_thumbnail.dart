@@ -131,6 +131,12 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
   /// happened during initialization.
   bool _triedOnError = false;
 
+  /// Indicator whether the video playback was manually stopped.
+  ///
+  /// If `true`, the video will not autoplay on mouse hover. Otherwise, it will
+  /// autoplay on mouse hover.
+  bool _hasManuallyStopped = false;
+
   @override
   void initState() {
     _initVideo();
@@ -213,45 +219,78 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       return child;
     }
 
-    return Stack(
+    final Widget interface = Stack(
       children: [
         child,
 
         if (widget.interface)
           Positioned(
-            top: 6,
+            bottom: 6,
             left: 6,
-            child: IgnorePointer(
-              child: Container(
-                padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: style.colors.onBackgroundOpacity40,
-                ),
-                child: Text(
-                  '${_controller?.value.duration.hhMmSs()}',
-                  style: style.fonts.smaller.regular.onPrimary,
-                ),
+            child: Container(
+              padding: EdgeInsets.fromLTRB(7, 3, 7, 3),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: style.colors.onBackgroundOpacity40,
               ),
-            ),
-          ),
-
-        if (widget.autoplay)
-          Positioned(
-            top: 6,
-            right: 6,
-            child: IgnorePointer(
-              child: Container(
-                padding: EdgeInsets.fromLTRB(5, 3, 5, 3),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: style.colors.onBackgroundOpacity40,
-                ),
-                child: SvgIcon(SvgIcons.volumeMutedSmall),
+              child: ValueListenableBuilder(
+                builder: (_, value, _) {
+                  return Row(
+                    children: [
+                      if (widget.autoplay)
+                        GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: () {
+                            if (value.isPlaying) {
+                              _controller?.pause();
+                              _hasManuallyStopped = true;
+                            } else {
+                              _controller?.play();
+                              _hasManuallyStopped = false;
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                            child: SvgIcon(
+                              value.isPlaying
+                                  ? SvgIcons.previewPause
+                                  : SvgIcons.previewPlay,
+                            ),
+                          ),
+                        ),
+                      IgnorePointer(
+                        child: Text(
+                          (value.duration - value.position).hhMmSs(),
+                          style: style.fonts.smaller.regular.onPrimary,
+                        ),
+                      ),
+                    ],
+                  );
+                },
+                valueListenable: _controller!,
               ),
             ),
           ),
       ],
+    );
+
+    if (!widget.autoplay) {
+      return interface;
+    }
+
+    return MouseRegion(
+      onEnter: (_) async {
+        if (_controller!.value.isInitialized && !_hasManuallyStopped) {
+          await _controller?.play();
+        }
+      },
+      onExit: (_) async {
+        if (_controller!.value.isInitialized && !_hasManuallyStopped) {
+          await _controller?.pause();
+          await _controller?.seekTo(Duration.zero);
+        }
+      },
+      child: interface,
     );
   }
 
@@ -326,11 +365,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
             setState(() {});
           }
 
-          if (widget.autoplay) {
-            await _controller?.setVolume(0);
-            await _controller?.setLooping(true);
-            await _controller?.play();
-          }
+          await _controller?.setVolume(0);
         } catch (e) {
           if (!_triedOnError) {
             _triedOnError = true;

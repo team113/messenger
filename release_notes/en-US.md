@@ -1,1 +1,3 @@
+- Changed auto-play of video thumbnails to happen when hovered.
+- Updated side bar color on menu tab when custom background is set.
 - Bug fixes and performance improvements.

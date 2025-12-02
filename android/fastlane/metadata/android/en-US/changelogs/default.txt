@@ -1,1 +1,3 @@
+- Updated side bar color on menu tab when custom background is set.
+- Removed auto-play of video thumbnails in chat.
 - Bug fixes and performance improvements.

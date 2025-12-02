@@ -397,7 +397,7 @@ fcm_missed_call =
         [yes] видеозвонок
         *[other] аудиозвонок
     }{ $type ->
-        [group] {" from "}{$userName ->
+        [group] {" от "}{$userName ->
             [x] {$userNum}
             *[other] {$userName}
         }

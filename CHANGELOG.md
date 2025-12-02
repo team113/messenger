@@ -6,14 +6,51 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.7.0] · 2025-??-??
-[0.7.0]: /../../tree/v0.7.0
+## [0.6.12] · 2025-12-01
+[0.6.12]: /../../tree/v0.6.12
 
-[Diff](/../../compare/v0.6.10...v0.7.0) | [Milestone](/../../milestone/55)
+[Diff](/../../compare/v0.6.11...v0.6.12) | [Milestone](/../../milestone/56)
 
 ### Changed
 
 - UI:
+    - Menu tab:
+       - Redesigned sidebar color. [[#1529], [#1524]]
+    - Chat page:
+        - Auto-play video thumbnails only when hovered. ([#1518], [#1446])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Page sometimes not being popped when navigating back. ([#1526])
+        - Forwarded messages displaying invalid sent/read status. ([#1521], [#1452])
+    - Home Page:
+        - Navigation bar expanding inappropriately when side bar is wide enough. ([#1532], [#1528])
+
+[#1446]: /../../issues/1446
+[#1452]: /../../issues/1452
+[#1518]: /../../pull/1518
+[#1521]: /../../pull/1521
+[#1524]: /../../issues/1524
+[#1526]: /../../pull/1526
+[#1528]: /../../issues/1528
+[#1529]: /../../pull/1529
+[#1532]: /../../pull/1532
+
+
+
+
+## [0.6.11] · 2025-11-24
+[0.6.11]: /../../tree/v0.6.11
+
+[Diff](/../../compare/v0.6.10...v0.6.11) | [Milestone](/../../milestone/55)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - File uploads can be canceled. ([#1496], [#1490])
     - Chats tab:
         - Redesigned chats appearing animation. ([#1514])
         - Redesigned unread messages counter. ([#1512], [#1507])
@@ -25,6 +62,8 @@ All user visible changes to this project will be documented in this file. This p
         - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
 
 [#1460]: /../../issues/1460
+[#1490]: /../../issues/1490
+[#1496]: /../../pull/1496
 [#1504]: /../../pull/1504
 [#1507]: /../../issues/1507
 [#1512]: /../../pull/1512
