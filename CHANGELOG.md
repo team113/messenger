@@ -9,15 +9,20 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.7.0] · 2025-??-??
 [0.7.0]: /../../tree/v0.7.0
 
-[Diff](/../../compare/v0.6.12...v0.7.0) | [Milestone](/../../milestone/56)
+[Diff](/../../compare/v0.6.12...v0.7.0) | [Milestone](/../../milestone/57)
 
 ### Fixed
 
 - UI:
+    - Profile page:
+        - Presence status sometimes not being updated. ([#1540], [#1539])
     - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
+
 
 [#1533]: /../../issues/1533
 [#1537]: /../../pull/1537
+[#1539]: /../../issues/1539
+[#1540]: /../../pull/1540
 
 
 
