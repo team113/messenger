@@ -110,12 +110,12 @@ class MessageFieldView extends StatelessWidget {
   /// Border radius value when [rounded] is `true`.
   static const Radius _borderRadius = Radius.circular(15);
 
-  /// Size of `attachment` widget
+  /// Size of [MediaAttachment] widget.
   static const double _attachmentSize = 125;
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {
-    final style = Theme.of(context).style;
+    final Style style = Theme.of(context).style;
 
     final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(25),
@@ -149,7 +149,7 @@ class MessageFieldView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final Style style = Theme.of(context).style;
 
     return GetBuilder(
       init:
@@ -192,7 +192,7 @@ class MessageFieldView extends StatelessWidget {
   /// Returns a visual representation of the message attachments, replies,
   /// quotes and edited message.
   Widget _buildHeader(MessageFieldController c, BuildContext context) {
-    final style = Theme.of(context).style;
+    final Style style = Theme.of(context).style;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -571,7 +571,7 @@ class MessageFieldView extends StatelessWidget {
   /// Builds a visual representation of the send field itself along with its
   /// buttons.
   Widget _buildField(MessageFieldController c, BuildContext context) {
-    final style = Theme.of(context).style;
+    final Style style = Theme.of(context).style;
 
     return LayoutBuilder(
       builder: (context, constraints) => Obx(() {
@@ -638,7 +638,10 @@ class MessageFieldView extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Obx(() {
-                int take = max(((constraints.maxWidth - 160) / 50).round(), 0);
+                final int take = max(
+                  ((constraints.maxWidth - 160) / 50).round(),
+                  0,
+                );
 
                 SchedulerBinding.instance.addPostFrameCallback((_) {
                   c.hasSpaceForPins.value = c.buttons.length < take;
@@ -690,7 +693,7 @@ class MessageFieldView extends StatelessWidget {
 
     // Builds the visual representation of the provided [Attachment] itself.
     Widget content() {
-      final style = Theme.of(context).style;
+      final Style style = Theme.of(context).style;
 
       if (e.isMedia) {
         // TODO: Backend should support single attachment updating.
@@ -798,7 +801,7 @@ class MessageFieldView extends StatelessWidget {
 
     // Builds the [content] along with manipulation buttons and statuses.
     Widget attachment() {
-      final style = Theme.of(context).style;
+      final Style style = Theme.of(context).style;
 
       return MouseRegion(
         key: Key('Attachment_${e.id}'),
@@ -897,7 +900,7 @@ class MessageFieldView extends StatelessWidget {
     void Function()? onClose,
     bool edited = false,
   }) {
-    final style = Theme.of(context).style;
+    final Style style = Theme.of(context).style;
 
     final bool fromMe = item.author.id == c.me;
 
@@ -1146,7 +1149,7 @@ class MessageFieldView extends StatelessWidget {
     int index,
     Animation<double> animation,
   ) {
-    final style = Theme.of(context).style;
+    final Style style = Theme.of(context).style;
     return AnimatedBuilder(
       animation: animation,
       builder: (_, child) {
@@ -1194,7 +1197,7 @@ class _FieldContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final Style style = Theme.of(context).style;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 400),

@@ -207,7 +207,7 @@ class MessageFieldController extends GetxController {
 
   /// Indicator whether [_keyUpHandler] and [_pasteEventListener] are
   /// registered.
-  bool _handlersRegistered = false;  
+  bool _handlersRegistered = false;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
@@ -323,7 +323,7 @@ class MessageFieldController extends GetxController {
     _editedWorker?.dispose();
     _buttonsWorker?.dispose();
     _routesWorker?.dispose();
-    scrollController.dispose();    
+    scrollController.dispose();
 
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
@@ -430,13 +430,13 @@ class MessageFieldController extends GetxController {
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
   Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
+    final NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
     await _addAttachment(nativeFile);
   }
 
   /// Reads the [SystemClipboard] and pastes any content contained in it.
   Future<void> handlePaste() async {
-    final clipboard = SystemClipboard.instance;
+    final SystemClipboard? clipboard = SystemClipboard.instance;
     if (clipboard == null) {
       return;
     }
@@ -510,7 +510,7 @@ class MessageFieldController extends GetxController {
             .firstOrNull;
 
         if (text != null) {
-          final text = await reader.readValue(Formats.plainText);
+          final String? text = await reader.readValue(Formats.plainText);
 
           if (field.focus.hasFocus) {
             int cursor;
@@ -543,7 +543,7 @@ class MessageFieldController extends GetxController {
   /// Opens a file choose popup of the specified [type] and adds the selected
   /// files to the [attachments].
   Future<void> _pickAttachment(FileType type) async {
-    FilePickerResult? result = await PlatformUtils.pickFiles(
+    final FilePickerResult? result = await PlatformUtils.pickFiles(
       type: type,
       allowMultiple: true,
       withReadStream: true,
@@ -560,7 +560,10 @@ class MessageFieldController extends GetxController {
   /// Constructs a [NativeFile] from the specified [XFile] and adds it to the
   /// [attachments].
   Future<void> _addXFileAttachment(XFile xFile) async {
-    NativeFile nativeFile = NativeFile.fromXFile(xFile, await xFile.length());
+    final NativeFile nativeFile = NativeFile.fromXFile(
+      xFile,
+      await xFile.length(),
+    );
     await _addAttachment(nativeFile);
   }
 
@@ -571,12 +574,15 @@ class MessageFieldController extends GetxController {
   Future<void> _addAttachment(NativeFile file) async {
     if (file.size < maxAttachmentSize && _chatService != null) {
       try {
-        var attachment = LocalAttachment(file, status: SendingStatus.sending);
+        final LocalAttachment attachment = LocalAttachment(
+          file,
+          status: SendingStatus.sending,
+        );
 
         // If attachment is video or image insert it to end of img/video list
         // and before documents, overwise simply add to end of attachments.
         if (file.isImage || file.isVideo) {
-          int lastIndex = attachments.indexWhere((a) {
+          final int lastIndex = attachments.indexWhere((a) {
             final Attachment e = a.value;
             final bool isImage =
                 (e is ImageAttachment ||
@@ -600,7 +606,9 @@ class MessageFieldController extends GetxController {
           attachment,
         );
 
-        int index = attachments.indexWhere((e) => e.value.id == attachment.id);
+        final int index = attachments.indexWhere(
+          (e) => e.value.id == attachment.id,
+        );
         if (index != -1) {
           // If `Attachment` returned is `null`, then it was canceled.
           if (uploaded == null) {
