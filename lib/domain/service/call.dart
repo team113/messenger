@@ -168,8 +168,6 @@ class CallService extends DisposableService {
           withVideo: withVideo,
           withScreen: withScreen,
         );
-
-        await _maybeMarkAsRead(chatId, chat: chat);
       } on CallAlreadyJoinedException catch (e) {
         await _callRepository.leave(chatId, e.deviceId);
         call = await _callRepository.join(
@@ -185,6 +183,7 @@ class CallService extends DisposableService {
         call?.value.dispose();
       } else {
         call?.value.connect(this);
+        await _maybeMarkAsRead(chatId, chat: chat);
       }
     } on JoinChatCallException catch (e) {
       switch (e.code) {
@@ -228,6 +227,10 @@ class CallService extends DisposableService {
 
     _callRepository.remove(chatId);
     WebUtils.removeCall(chatId);
+
+    // Try to mark the `Chat` this call is taking place it as read, in case that
+    // thus `leave()` method is called from a separate window.
+    await _maybeMarkAsRead(chatId);
   }
 
   /// Declines an [OngoingCall] identified by the given [chatId].
@@ -240,20 +243,23 @@ class CallService extends DisposableService {
       // required to await the decline.
       if (WebUtils.isPopup) {
         await _callRepository.decline(chatId);
+
+        // First, try to mark the `Chat` this call is taking place it as read.
+        await _maybeMarkAsRead(chatId);
+
+        // Setting `OngoingCallState` to `ended` will make `PopupCallController`
+        // to close itself, thus this should be done only after every mutation
+        // occurs.
+        call.value.state.value = OngoingCallState.ended;
         call.value.dispose();
       } else {
         call.value.state.value = OngoingCallState.ended;
         call.value.dispose();
         await _callRepository.decline(chatId);
+
+        // Try to mark the `Chat` this call is taking place it as read.
+        await _maybeMarkAsRead(chatId);
       }
-    }
-
-    await _maybeMarkAsRead(chatId);
-
-    // Setting `OngoingCallState` to `ended` will make `PopupCallController` to
-    // close itself, thus this should be done only after every mutation occurs.
-    if (WebUtils.isPopup) {
-      call?.value.state.value = OngoingCallState.ended;
     }
   }
 
@@ -394,18 +400,32 @@ class CallService extends DisposableService {
     return _chatService.get(id);
   }
 
-  /// Marks chat as read if there was one unread message of call notification.
+  /// Marks a [Chat] with the provided [id] as read, if there's one unread
+  /// message of [ChatCall] notification.
   Future<void> _maybeMarkAsRead(ChatId id, {RxChat? chat}) async {
+    Log.debug('_maybeMarkAsRead($id)', '$runtimeType');
+
     try {
       if (chat == null) {
         final FutureOr<RxChat?> chatOrFuture = _chatService.get(id);
         chat = chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
       }
 
+      Log.debug(
+        '_maybeMarkAsRead($id) -> chat?.unreadCount.value = ${chat?.unreadCount.value}',
+        '$runtimeType',
+      );
+
       // If the only unread message is the `ChatCall` happened just now, then
       // the `Chat` should get read.
       if (chat?.unreadCount.value == 1) {
-        await _chatService.readAll([id]);
+        final ChatItem? last = chat?.lastItem;
+
+        Log.debug('_maybeMarkAsRead($id) -> last = $last', '$runtimeType');
+
+        if (last is ChatCall) {
+          await _chatService.readAll([id]);
+        }
       }
     } catch (e) {
       Log.warning('_maybeMarkAsRead($id) -> failed due to: $e', '$runtimeType');

@@ -18,7 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Presence status sometimes not being updated. ([#1540], [#1539])
     - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
     - Chats tab:
-        - Answered or declined call being displayed as unread notification in chat. ([#1516], [#1508])
+        - Answered or declined call displayed as unread notification in chat. ([#1516], [#1508])
 
 
 [#1508]: /../../issues/1508
