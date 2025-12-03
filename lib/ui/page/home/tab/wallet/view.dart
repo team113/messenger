@@ -18,17 +18,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../domain/model/deposit.dart';
-import '../../../../../routes.dart';
-import '../../../../../util/platform_utils.dart';
-import '../../../../widget/line_divider.dart';
-import '../../../../widget/menu_button.dart';
-import '../../../../widget/svg/svg.dart';
-import '../../../../widget/widget_button.dart';
-import '../chats/widget/unread_counter.dart';
+import '/domain/model/deposit.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/tab/chats/widget/unread_counter.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/widget/line_divider.dart';
+import '/ui/widget/menu_button.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/deposit_expandable.dart';
 

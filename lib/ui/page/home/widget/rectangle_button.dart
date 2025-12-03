@@ -20,7 +20,6 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/ui/page/home/widget/avatar.dart';
 
 /// Rectangular filled selectable button.
 class RectangleButton extends StatelessWidget {
@@ -56,9 +55,7 @@ class RectangleButton extends StatelessWidget {
 
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color: selected
-          ? style.colors.primary
-          : style.colors.onPrimary.darken(0.05),
+      color: selected ? style.colors.primary : style.colors.onPrimary,
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: selected ? null : onPressed,
@@ -74,6 +71,7 @@ class RectangleButton extends StatelessWidget {
               if (leading != null) ...[leading!, const SizedBox(width: 8)],
               Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     DefaultTextStyle(
                       maxLines: 2,

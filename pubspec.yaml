@@ -220,6 +220,7 @@ flutter:
     - assets/icons/notification/
     - assets/icons/user_agent/
     - assets/images/
+    - assets/images/blocks/
     - assets/images/country/
     - assets/images/logo/
     - assets/l10n/

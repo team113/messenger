@@ -22,8 +22,8 @@ import '/domain/model/country.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/call/search/view.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 
 /// View for choosing an [IsoCode].
@@ -107,14 +107,22 @@ class SelectCountryView extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
                           child: RectangleButton(
-                            label: 'country_${e.name}'.l10n,
-                            leading: SvgImage.asset(
-                              'packages/circle_flags/assets/svg/${e.name.toLowerCase()}.svg',
-                              width: 26,
-                              height: 26,
+                            label: 'country_${e.name.toLowerCase()}'.l10n,
+                            leading: ClipOval(
+                              child: SizedBox(
+                                width: 26,
+                                height: 26,
+                                child: SvgImage.asset(
+                                  'assets/images/country/${e.name.toLowerCase()}.svg',
+                                  width: 26,
+                                  height: 26,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                             subtitle: notAllowed
-                                ? 'label_not_available'.l10n
+                                ? 'label_paypal_is_not_available_in_this_country'
+                                      .l10n
                                 : null,
                             onPressed: notAllowed
                                 ? null

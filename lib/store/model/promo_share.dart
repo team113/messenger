@@ -15,10 +15,26 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
+import '/domain/model/promo_share.dart';
+import 'version.dart';
 
-/// Controller of the [Routes.promotion] page.
-class PromotionController extends GetxController {
-  /// Indicator whether the [PromoShare] percentage is being edited or not.
-  final RxBool percentEditing = RxBool(false);
+/// Persisted in storage [PromoShare]'s [value].
+class DtoPromoShare implements Comparable<DtoPromoShare> {
+  DtoPromoShare(this.value, this.version);
+
+  /// Persisted [PromoShare] model.
+  final PromoShare value;
+
+  /// Version of the [value].
+  final PromoShareVersion version;
+
+  @override
+  int compareTo(DtoPromoShare other) {
+    return value.addedAt.compareTo(other.value.addedAt);
+  }
+}
+
+/// Version of [PromoShare]'s state.
+class PromoShareVersion extends Version {
+  PromoShareVersion(super.val);
 }

@@ -430,8 +430,7 @@ class MessageFieldController extends GetxController {
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
   Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
-    await _addAttachment(nativeFile);
+    await _addAttachment(NativeFile.fromPlatformFile(platformFile));
   }
 
   /// Reads the [SystemClipboard] and pastes any content contained in it.
@@ -569,6 +568,8 @@ class MessageFieldController extends GetxController {
   ///
   /// May be used to test a [file] upload since [FilePicker] can't be mocked.
   Future<void> _addAttachment(NativeFile file) async {
+    Log.debug('_addAttachment($file)', '$runtimeType');
+
     if (file.size < maxAttachmentSize && _chatService != null) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);

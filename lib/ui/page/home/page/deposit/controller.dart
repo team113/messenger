@@ -15,6 +15,50 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class DepositController extends GetxController {}
+import '/domain/model/country.dart';
+import '/domain/model/deposit.dart';
+import '/domain/model/session.dart';
+import '/domain/service/session.dart';
+import '/ui/page/home/tab/wallet/widget/deposit_expandable.dart';
+
+/// Controller of a [DepositView] page.
+class DepositController extends GetxController {
+  DepositController(this._sessionService);
+
+  /// [ScrollController] to pass to a [Scrollbar].
+  final ScrollController scrollController = ScrollController();
+
+  /// Balance [MyUser] has in its wallet to display.
+  final RxDouble balance = RxDouble(0);
+
+  /// [DepositKind]s being expanded currently.
+  final RxSet<DepositKind> expanded = RxSet();
+
+  /// [DepositFields] to pass to a [DepositExpandable].
+  final Rx<DepositFields> fields = Rx(DepositFields());
+
+  /// [SessionService] used for [IpGeoLocation] retrieving.
+  final SessionService _sessionService;
+
+  @override
+  void onInit() {
+    _fetchIp();
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    scrollController.dispose();
+    super.onClose();
+  }
+
+  /// Fetches the current [IpGeoLocation] to update [IsoCode].
+  Future<void> _fetchIp() async {
+    final IpGeoLocation ip = await _sessionService.fetch();
+    fields.value.applyCountry(IsoCode.fromJson(ip.countryCode));
+    fields.refresh();
+  }
+}

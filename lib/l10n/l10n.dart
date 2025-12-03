@@ -137,6 +137,9 @@ extension L10nDateExtension on DateTime {
   /// Returns this [DateTime] formatted in `Hm` format.
   String get hm => DateFormat.Hm().format(this);
 
+  /// Returns this [DateTime] formatted in `Hms` format.
+  String get hms => DateFormat.Hms().format(this);
+
   /// Returns this [DateTime] formatted in `yMd` format.
   String get yMd => DateFormat.yMd().format(this);
 

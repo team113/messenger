@@ -17,11 +17,19 @@
 
 import 'package:collection/collection.dart';
 
+import '/util/new_type.dart';
 import 'deposit.dart';
 
 // ignore_for_file: constant_identifier_names
 
-/// Country code in [ISO 3166-1 alpha-2] format.
+/// Country code in ISO 3166-1 alpha-2 format.
+///
+/// [ISO 3166-1 alpha-2]: https://www.iso.org/iso-3166-country-codes.html
+class CountryCode extends NewType<String> {
+  const CountryCode(super.val);
+}
+
+/// All known country codes in [ISO 3166-1 alpha-2] format.
 ///
 /// [ISO 3166-1 alpha-2]: https://www.iso.org/iso-3166-country-codes.html
 enum IsoCode {

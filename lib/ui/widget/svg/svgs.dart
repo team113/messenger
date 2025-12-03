@@ -2006,12 +2006,6 @@ class SvgIcons {
     height: 19,
   );
 
-  static const SvgData logs = SvgData(
-    'assets/icons/logs.svg',
-    width: 19,
-    height: 19,
-  );
-
   static const SvgData deleteAction = SvgData(
     'assets/icons/delete_action.svg',
     width: 16,
@@ -2094,6 +2088,42 @@ class SvgIcons {
     'assets/icons/price_sticker.svg',
     width: 54,
     height: 29,
+  );
+
+  static const SvgData viewFull = SvgData(
+    'assets/icons/view_full.svg',
+    width: 20.8,
+    height: 20.92,
+  );
+
+  static const SvgData viewShort = SvgData(
+    'assets/icons/view_short.svg',
+    width: 20.8,
+    height: 15.92,
+  );
+
+  static const SvgData operationCanceled = SvgData(
+    'assets/icons/operation_canceled.svg',
+    width: 13,
+    height: 13,
+  );
+
+  static const SvgData operationDone = SvgData(
+    'assets/icons/operation_done.svg',
+    width: 13,
+    height: 9,
+  );
+
+  static const SvgData operationSending = SvgData(
+    'assets/icons/operation_sending.svg',
+    width: 13,
+    height: 13,
+  );
+
+  static const SvgData copySmallThick = SvgData(
+    'assets/icons/copy_small_thick.svg',
+    width: 13,
+    height: 16,
   );
 
   static const SvgData previewPlay = SvgData(

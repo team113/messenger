@@ -739,7 +739,10 @@ class ChatController extends GetxController {
 
   /// Starts the editing of the specified [item], if allowed.
   void editMessage(ChatItem item) {
+    Log.debug('editMessage($item)', '$runtimeType');
+
     if (!item.isEditable(chat!.chat.value, me!)) {
+      Log.warning('editMessage($item) -> not editable', '$runtimeType');
       MessagePopup.error('err_uneditable_message'.l10n);
       return;
     }

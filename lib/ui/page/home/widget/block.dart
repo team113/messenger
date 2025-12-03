@@ -1,5 +1,7 @@
 // Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -42,6 +44,7 @@ class Block extends StatelessWidget {
     this.maxWidth = 400,
     this.clipHeight = false,
     this.folded = false,
+    this.foldedColor,
   });
 
   /// Optional header of this [Block].
@@ -92,6 +95,9 @@ class Block extends StatelessWidget {
 
   /// Indicator whether this [Block] should have its corner folded.
   final bool folded;
+
+  /// [Color] of the folded corner, if [folded] is `true`.
+  final Color? foldedColor;
 
   /// Default [Block.padding] of its contents.
   static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
@@ -155,7 +161,7 @@ class Block extends StatelessWidget {
               ? null
               : BoxConstraints(maxWidth: maxWidth),
           child: ClipPath(
-            clipper: folded ? _Clipper(14) : null,
+            clipper: folded ? _Clipper(24) : null,
             child: Stack(
               children: [
                 InputDecorator(
@@ -192,12 +198,14 @@ class Block extends StatelessWidget {
                 if (folded)
                   Container(
                     padding: margin,
-                    width: 14,
-                    height: 14,
+                    width: 24,
+                    height: 24,
                     decoration: BoxDecoration(
-                      color: style.colors.primaryHighlightShiniest.darken(0.1),
+                      color:
+                          foldedColor ??
+                          style.colors.primaryHighlightShiniest.darken(0.1),
                       borderRadius: const BorderRadius.only(
-                        bottomRight: Radius.circular(4),
+                        bottomRight: Radius.circular(6),
                       ),
                       boxShadow: [
                         CustomBoxShadow(

@@ -17,8 +17,22 @@
 
 import 'package:get/get.dart';
 
-/// Controller of the [Routes.promotion] page.
-class PromotionController extends GetxController {
-  /// Indicator whether the [PromoShare] percentage is being edited or not.
-  final RxBool percentEditing = RxBool(false);
+import '/domain/model/operation.dart';
+import '/domain/repository/paginated.dart';
+import '/domain/repository/wallet.dart';
+import 'disposable_service.dart';
+
+/// Service responsible for [MyUser] wallet functionality.
+class WalletService extends DisposableService {
+  WalletService(this._walletRepository);
+
+  /// [AbstractWalletRepository] managing the wallet data.
+  final AbstractWalletRepository _walletRepository;
+
+  /// Returns the balance [MyUser] has in their wallet.
+  RxDouble get balance => _walletRepository.balance;
+
+  /// Returns the [Operation]s happening in [MyUser]'s wallet.
+  Paginated<OperationId, Operation> get operations =>
+      _walletRepository.operations;
 }

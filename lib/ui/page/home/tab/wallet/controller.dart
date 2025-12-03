@@ -18,10 +18,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../domain/model/country.dart';
-import '../../../../../domain/model/session.dart';
-import '../../../../../domain/service/session.dart';
+import '/domain/model/country.dart';
 import '/domain/model/deposit.dart';
+import '/domain/model/session.dart';
+import '/domain/service/session.dart';
 import 'widget/deposit_expandable.dart';
 
 /// Controller of the `HomeTab.wallet` tab.
@@ -34,10 +34,13 @@ class WalletTabController extends GetxController {
   /// Balance [MyUser] has in its wallet to display.
   final RxDouble balance = RxDouble(0);
 
+  /// [DepositKind]s being expanded currently.
   final RxSet<DepositKind> expanded = RxSet();
 
+  /// [DepositFields] to pass to a [DepositExpandable].
   final Rx<DepositFields> fields = Rx(DepositFields());
 
+  /// [SessionService] used for [IpGeoLocation] retrieving.
   final SessionService _sessionService;
 
   @override
@@ -52,6 +55,7 @@ class WalletTabController extends GetxController {
     super.onClose();
   }
 
+  /// Fetches the current [IpGeoLocation] to update [IsoCode].
   Future<void> _fetchIp() async {
     final IpGeoLocation ip = await _sessionService.fetch();
     fields.value.applyCountry(IsoCode.fromJson(ip.countryCode));

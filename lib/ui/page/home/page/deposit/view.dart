@@ -18,7 +18,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/deposit.dart';
+import '/l10n/l10n.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/tab/wallet/widget/deposit_expandable.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import 'controller.dart';
 
@@ -28,13 +31,37 @@ class DepositView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: DepositController(),
+      init: DepositController(Get.find()),
       builder: (DepositController c) {
         return Scaffold(
           appBar: CustomAppBar(
             leading: const [SizedBox(width: 4), StyledBackButton()],
+            title: Text('btn_add_funds'.l10n),
           ),
-          body: Center(child: Text('$runtimeType')),
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+            children: [
+              ...DepositKind.values.map((e) {
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: Obx(() {
+                      final bool expanded = c.expanded.contains(e);
+
+                      return DepositExpandable(
+                        expanded: expanded,
+                        onPressed: expanded
+                            ? () => c.expanded.remove(e)
+                            : () => c.expanded.add(e),
+                        provider: e,
+                        fields: c.fields.value,
+                      );
+                    }),
+                  ),
+                );
+              }),
+            ],
+          ),
         );
       },
     );

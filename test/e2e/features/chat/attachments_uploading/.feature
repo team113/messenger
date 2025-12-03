@@ -23,6 +23,7 @@ Feature: Attachments uploading
     And Bob has dialog with me
     And I am in chat with Bob
     And I wait for app to settle
+    And I pause for 5 seconds
 
   Scenario: Canceling upload of one of the files after sending a new message
     When I have Internet with delay of 10 seconds

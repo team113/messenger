@@ -37,6 +37,7 @@ import 'domain/repository/my_user.dart';
 import 'domain/repository/session.dart';
 import 'domain/repository/settings.dart';
 import 'domain/repository/user.dart';
+import 'domain/repository/wallet.dart';
 import 'domain/service/auth.dart';
 import 'domain/service/blocklist.dart';
 import 'domain/service/call.dart';
@@ -46,6 +47,7 @@ import 'domain/service/my_user.dart';
 import 'domain/service/notification.dart';
 import 'domain/service/session.dart';
 import 'domain/service/user.dart';
+import 'domain/service/wallet.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
@@ -75,6 +77,7 @@ import 'store/my_user.dart';
 import 'store/session.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
+import 'store/wallet.dart';
 import 'themes.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
@@ -1068,6 +1071,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               deps.put(BlocklistService(blocklistRepository));
 
+              final AbstractWalletRepository walletRepository = deps
+                  .put<AbstractWalletRepository>(WalletRepository(Get.find()));
+              deps.put(WalletService(walletRepository));
+
               deps.put(
                 CallWorker(
                   callService,
@@ -1305,7 +1312,7 @@ extension RouteLinks on RouterState {
   void affiliate({bool push = false}) =>
       (push ? this.push : go)(Routes.affiliate);
 
-  /// Changes router location to the [Routes.erase] page.
+  /// Changes router location to the [Routes.promotion] page.
   void promotion({bool push = false}) =>
       (push ? this.push : go)(Routes.promotion);
 
