@@ -169,7 +169,7 @@ class CallService extends DisposableService {
           withScreen: withScreen,
         );
 
-        await _readInteractedCall(chatId, chat: chat);
+        await _maybeMarkAsRead(chatId, chat: chat);
       } on CallAlreadyJoinedException catch (e) {
         await _callRepository.leave(chatId, e.deviceId);
         call = await _callRepository.join(
@@ -248,11 +248,12 @@ class CallService extends DisposableService {
       }
     }
 
-    await _readInteractedCall(chatId);
+    await _maybeMarkAsRead(chatId);
 
-    /// Doing ended state of popup here because setting ended state will close popup and stop execution after that.
-    if (WebUtils.isPopup && call != null) {
-      call.value.state.value = OngoingCallState.ended;
+    // Setting `OngoingCallState` to `ended` will make `PopupCallController` to
+    // close itself, thus this should be done only after every mutation occurs.
+    if (WebUtils.isPopup) {
+      call?.value.state.value = OngoingCallState.ended;
     }
   }
 
@@ -394,22 +395,20 @@ class CallService extends DisposableService {
   }
 
   /// Marks chat as read if there was one unread message of call notification.
-  Future<void> _readInteractedCall(ChatId chatId, {RxChat? chat}) async {
+  Future<void> _maybeMarkAsRead(ChatId id, {RxChat? chat}) async {
     try {
       if (chat == null) {
-        final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId);
+        final FutureOr<RxChat?> chatOrFuture = _chatService.get(id);
         chat = chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
       }
 
-      // We have unread count 1 means there was only call notification message unread, otherwise user would have read the chat.
+      // If the only unread message is the `ChatCall` happened just now, then
+      // the `Chat` should get read.
       if (chat?.unreadCount.value == 1) {
-        await _chatService.readAll([chatId]);
+        await _chatService.readAll([id]);
       }
     } catch (e) {
-      Log.error(
-        'Failed to read unread message of call notification: ${e.toString()}',
-        '$runtimeType',
-      );
+      Log.warning('_maybeMarkAsRead($id) -> failed due to: $e', '$runtimeType');
     }
   }
 }
