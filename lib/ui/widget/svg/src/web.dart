@@ -21,8 +21,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:js_interop' as js;
-import 'dart:js_interop_unsafe';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -252,15 +250,8 @@ class _BrowserSvgState extends State<_BrowserSvg> {
   /// Index of a loading used to show previous SVG while loading the next one.
   int _loadIndex = 0;
 
-  /// Decoded SVG image.
-  String? _image;
-
   /// Raw bytes of an SVG image.
-  Uint8List? _imageBytes;
-
-  /// Indicates whether the current renderer is `CanvasKit`.
-  bool get rendererCanvasKit =>
-      kIsWasm || js.globalContext.getProperty('flutterCanvasKit'.toJS) != null;
+  Uint8List? _bytes;
 
   @override
   void initState() {
@@ -271,13 +262,15 @@ class _BrowserSvgState extends State<_BrowserSvg> {
   @override
   void didUpdateWidget(_BrowserSvg oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     if (oldWidget.loader != widget.loader) {
       _loadImage();
     }
   }
 
+  /// Loads the [Uint8List] bytes of the image via the provided [SvgLoader].
   void _loadImage() {
-    final int idx = _loadIndex++;
+    final int idx = ++_loadIndex;
 
     try {
       FutureOr<Uint8List> future = widget.loader.load();
@@ -291,50 +284,54 @@ class _BrowserSvgState extends State<_BrowserSvg> {
     }
   }
 
-  /// Applies the [_image] to have the provided [bytes], if [idx] provided is
+  /// Applies the [_bytes] to be the provided [bytes], if [idx] provided is
   /// still the [_loadIndex].
   void _applyBytes(int idx, Uint8List bytes) {
     if (idx == _loadIndex) {
-      var b64 = base64.encode(_imageBytes!.toList());
-      _image = 'data:image/svg+xml;base64,$b64';
+      _bytes = bytes;
 
-      if (mounted == true) {
+      if (mounted) {
         setState(() {});
       }
     }
   }
 
   /// Builds a placeholder displayed while loading a SVG picture.
-  Widget _buildPlaceholder(BuildContext context) =>
-      widget.placeholderBuilder == null
-      ? const SizedBox()
-      : Builder(builder: widget.placeholderBuilder!);
+  Widget _buildPlaceholder(BuildContext context) {
+    final Widget Function(BuildContext)? builder = widget.placeholderBuilder;
+
+    if (builder == null) {
+      return SizedBox(width: widget.width, height: widget.height);
+    }
+
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: Builder(builder: builder),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (_image == null) {
-      return _buildPlaceholder(context);
-    }
+    final Widget child;
 
-    if (rendererCanvasKit) {
-      return SvgPicture.memory(
-        _imageBytes!,
+    if (_bytes == null) {
+      child = KeyedSubtree(
+        key: Key('Placeholder'),
+        child: _buildPlaceholder(context),
+      );
+    } else {
+      child = SvgPicture.memory(
+        _bytes!,
         height: widget.height,
         fit: widget.fit,
         width: widget.width,
       );
     }
 
-    return Container(
-      height: widget.height,
-      width: widget.width,
-      alignment: Alignment.center,
-      child: Image.network(
-        _image!,
-        height: widget.height,
-        fit: widget.fit,
-        width: widget.width,
-      ),
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 100),
+      child: child,
     );
   }
 }

@@ -410,7 +410,7 @@ extension String {
     var result: UInt32 = 0x811C_9DC5  // FNV offset basis.
     for unit in self.utf16 {
       result ^= UInt32(unit)
-      result = (result &* 0x0100_0193) & 0xFFFF_FFFF  // 32-bit overflow.
+      result = (result &* 0x0100_0193) & 0x7FFF_FFFF  // 32-bit overflow.
     }
     return result
   }

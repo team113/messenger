@@ -17,8 +17,12 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Presence status sometimes not being updated. ([#1540], [#1539])
     - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
+    - Chats tab:
+        - Answered or declined call displayed as unread notification in chat. ([#1516], [#1508])
 
 
+[#1508]: /../../issues/1508
+[#1516]: /../../pull/1516
 [#1533]: /../../issues/1533
 [#1537]: /../../pull/1537
 [#1539]: /../../issues/1539

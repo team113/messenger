@@ -142,7 +142,8 @@ class ChatMessage extends ChatItem {
   }
 
   @override
-  String toString() => '$runtimeType($id, $chatId, text: ${text?.obscured})';
+  String toString() =>
+      '$runtimeType($id, $chatId, text: ${text?.obscured}, attachments: $attachments)';
 
   /// Returns a [Map] representing this [ChatMessage].
   @override
