@@ -403,27 +403,19 @@ class CallService extends DisposableService {
   /// Marks a [Chat] with the provided [id] as read, if there's one unread
   /// message of [ChatCall] notification.
   Future<void> _maybeMarkAsRead(ChatId id, {RxChat? chat}) async {
-    Log.debug('_maybeMarkAsRead($id)', '$runtimeType');
-
     try {
       if (chat == null) {
         final FutureOr<RxChat?> chatOrFuture = _chatService.get(id);
         chat = chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
       }
 
-      Log.debug(
-        '_maybeMarkAsRead($id) -> chat?.unreadCount.value = ${chat?.unreadCount.value}',
-        '$runtimeType',
-      );
-
       // If the only unread message is the `ChatCall` happened just now, then
       // the `Chat` should get read.
       if (chat?.unreadCount.value == 1) {
         final ChatItem? last = chat?.lastItem;
 
-        Log.debug('_maybeMarkAsRead($id) -> last = $last', '$runtimeType');
-
         if (last is ChatCall) {
+          Log.debug('_maybeMarkAsRead($id)', '$runtimeType');
           await _chatService.readAll([id]);
         }
       }
