@@ -244,7 +244,7 @@ class ChatItemWidget extends StatefulWidget {
         width: (cover && isVideo) || filled ? double.infinity : null,
         height: filled ? double.infinity : null,
         onError: () async => await onError?.call(null),
-        autoplay: !filled,
+        autoplay: true,
       ),
     );
 

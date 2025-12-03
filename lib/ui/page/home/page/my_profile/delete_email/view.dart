@@ -24,7 +24,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -76,27 +75,18 @@ class DeleteEmailView extends StatelessWidget {
                   style: style.fonts.small.regular.secondary,
                 ),
                 const SizedBox(height: 24),
-                Obx(() {
-                  return ReactiveTextField(
-                    key: const Key('PasswordField'),
-                    state: c.passwordOrCode,
-                    obscure: c.obscurePasswordOrCode.value,
-                    onSuffixPressed: c.obscurePasswordOrCode.toggle,
-                    treatErrorAsStatus: false,
-                    trailing: SvgIcon(
-                      c.obscurePasswordOrCode.value
-                          ? SvgIcons.visibleOff
-                          : SvgIcons.visibleOn,
-                    ),
-                    label: hasPassword
-                        ? 'label_password_or_one_time_code'.l10n
-                        : 'label_one_time_password'.l10n,
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                    hint: hasPassword
-                        ? 'label_enter_password_or_code'.l10n
-                        : 'label_enter_code'.l10n,
-                  );
-                }),
+                ReactiveTextField.password(
+                  key: const Key('PasswordField'),
+                  state: c.passwordOrCode,
+                  obscured: c.obscurePasswordOrCode,
+                  treatErrorAsStatus: false,
+                  label: hasPassword
+                      ? 'label_password_or_one_time_code'.l10n
+                      : 'label_one_time_password'.l10n,
+                  hint: hasPassword
+                      ? 'label_enter_password_or_code'.l10n
+                      : 'label_enter_code'.l10n,
+                ),
                 const SizedBox(height: 25),
                 Obx(() {
                   final bool enabled =
