@@ -700,10 +700,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_rust_bridge
-      sha256: a43a6649385b853bc836ef2bc1b056c264d476c35e131d2d69c38219b5e799f1
+      sha256: "37ef40bc6f863652e865f0b2563ea07f0d3c58d8efad803cc01933a4b2ee067e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.0"
+    version: "2.11.1"
   flutter_shaders:
     dependency: transitive
     description:
@@ -1168,6 +1168,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.7"
+  js_interop_utils:
+    dependency: transitive
+    description:
+      name: js_interop_utils
+      sha256: f1e05602f23b0f770e45b663a0873f704b5443c064c3fff4ed8acce317b0bd10
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.9"
   json_annotation:
     dependency: "direct main"
     description:
@@ -1315,19 +1323,17 @@ packages:
   medea_flutter_webrtc:
     dependency: "direct main"
     description:
-      name: medea_flutter_webrtc
-      sha256: a15dd20e4a45250e1f966094ad6fbcb9283c861a3b4acdbde0f721ae51184b12
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.11.2"
+      path: "../medea-flutter-webrtc"
+      relative: true
+    source: path
+    version: "0.15.1"
   medea_jason:
     dependency: "direct main"
     description:
-      name: medea_jason
-      sha256: "123d6424ccd11628eaf63212bea1d02a5a013cc9ce82eb0b1d6085b4c8de82fd"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.0"
+      path: "../medea-jason/flutter"
+      relative: true
+    source: path
+    version: "0.11.0"
   media_kit:
     dependency: "direct overridden"
     description:
@@ -1795,10 +1801,10 @@ packages:
     dependency: transitive
     description:
       name: retry
-      sha256: "822e118d5b3aafed083109c72d5f484c6dc66707885e07c0fbcb8b986bba7efc"
+      sha256: "45dfeebaf095b606fdb9dbfb4c114cc204449bc274783b452658365e03afdbab"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.2"
+    version: "3.1.0"
   rxdart:
     dependency: transitive
     description:

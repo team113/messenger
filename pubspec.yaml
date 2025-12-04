@@ -210,6 +210,10 @@ dependency_overrides:
       ref: 95fdef6470cd488de2544ed3f882641eb52ba9dd
   # TODO: Remove when `medea_jason` updates.
   uuid: ^4.3.3
+  medea_jason:
+    path: ../medea-jason/flutter
+  medea_flutter_webrtc:
+    path: ../medea-flutter-webrtc
 
 flutter:
   uses-material-design: true

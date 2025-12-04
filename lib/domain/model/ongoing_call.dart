@@ -2914,26 +2914,26 @@ class MicrophonePermissionDeniedNotification extends CallNotification {
       CallNotificationKind.microphonePermissionDenied;
 }
 
-extension on LocalMediaTrack {
-  bool isAudioProcessingAvailable() => false;
+// extension on LocalMediaTrack {
+//   bool isAudioProcessingAvailable() => false;
 
-  Future<void> setNoiseSuppressionEnabled(bool value) async {
-    // No-op.
-  }
+//   Future<void> setNoiseSuppressionEnabled(bool value) async {
+//     // No-op.
+//   }
 
-  Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level) async {
-    // No-op.
-  }
+//   Future<void> setNoiseSuppressionLevel(NoiseSuppressionLevel level) async {
+//     // No-op.
+//   }
 
-  Future<void> setEchoCancellationEnabled(bool value) async {
-    // No-op.
-  }
+//   Future<void> setEchoCancellationEnabled(bool value) async {
+//     // No-op.
+//   }
 
-  Future<void> setAutoGainControlEnabled(bool value) async {
-    // No-op.
-  }
+//   Future<void> setAutoGainControlEnabled(bool value) async {
+//     // No-op.
+//   }
 
-  Future<void> setHighPassFilterEnabled(bool value) async {
-    // No-op.
-  }
-}
+//   Future<void> setHighPassFilterEnabled(bool value) async {
+//     // No-op.
+//   }
+// }
