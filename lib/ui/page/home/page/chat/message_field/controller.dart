@@ -65,10 +65,10 @@ class MessageFieldController extends GetxController {
     List<Attachment> attachments = const [],
     this.onKeyUp,
     this.canPin = true,
-  }) : quotes = RxList(quotes),
-       attachments = RxList(
-         attachments.map((e) => MapEntry(GlobalKey(), e)).toList(),
-       ) {
+  })  : quotes = RxList(quotes),
+        attachments = RxList(
+          attachments.map((e) => MapEntry(GlobalKey(), e)).toList(),
+        ) {
     field = TextFieldState(
       text: text,
       onFocus: (s) {
@@ -89,9 +89,8 @@ class MessageFieldController extends GetxController {
     _editedWorker ??= ever(edited, (item) {
       if (item != null) {
         field.text = item.text?.val ?? '';
-        this.attachments.value = item.attachments
-            .map((e) => MapEntry(GlobalKey(), e))
-            .toList();
+        this.attachments.value =
+            item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
         replied.value = item.repliesTo
             .map((e) => e.original)
             .nonNulls
@@ -462,9 +461,8 @@ class MessageFieldController extends GetxController {
 
       // Tries reading the [ClipboardDataReader] as a file.
       Future<bool> handleAsFile([bool force = false]) async {
-        final SimpleFileFormat? file = formats
-            .whereType<SimpleFileFormat>()
-            .lastOrNull;
+        final SimpleFileFormat? file =
+            formats.whereType<SimpleFileFormat>().lastOrNull;
 
         if (file != null) {
           String? name = await e.getSuggestedName();
@@ -472,9 +470,8 @@ class MessageFieldController extends GetxController {
           Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
 
           if (name == null && force) {
-            final String? mime = file.mimeTypes?.firstOrNull
-                ?.split('/')
-                .lastOrNull;
+            final String? mime =
+                file.mimeTypes?.firstOrNull?.split('/').lastOrNull;
 
             if (mime != null) {
               name ??= '${DateTime.now().millisecondsSinceEpoch}.$mime';
@@ -505,9 +502,8 @@ class MessageFieldController extends GetxController {
       await handleAsFile();
 
       if (!handled) {
-        final SimpleValueFormat<String>? text = formats
-            .whereType<SimpleValueFormat<String>>()
-            .firstOrNull;
+        final SimpleValueFormat<String>? text =
+            formats.whereType<SimpleValueFormat<String>>().firstOrNull;
 
         if (text != null) {
           final text = await reader.readValue(Formats.plainText);
@@ -603,7 +599,7 @@ class MessageFieldController extends GetxController {
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
-  bool _onBack(bool _, RouteInfo _) {
+  bool _onBack(bool _, RouteInfo __) {
     if (moreOpened.isTrue) {
       toggleMore();
       return true;

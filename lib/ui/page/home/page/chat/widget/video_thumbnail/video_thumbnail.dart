@@ -43,8 +43,8 @@ class VideoThumbnail extends StatefulWidget {
     this.fit = BoxFit.contain,
     this.autoplay = false,
     this.interface = true,
-  }) : bytes = null,
-       path = null;
+  })  : bytes = null,
+        path = null;
 
   /// Constructs a [VideoThumbnail] from the provided [bytes].
   const VideoThumbnail.bytes(
@@ -56,9 +56,9 @@ class VideoThumbnail extends StatefulWidget {
     this.fit = BoxFit.contain,
     this.autoplay = false,
     this.interface = true,
-  }) : url = null,
-       checksum = null,
-       path = null;
+  })  : url = null,
+        checksum = null,
+        path = null;
 
   /// Constructs a [VideoThumbnail] from the provided file [path].
   const VideoThumbnail.file(
@@ -70,9 +70,9 @@ class VideoThumbnail extends StatefulWidget {
     this.fit = BoxFit.contain,
     this.autoplay = false,
     this.interface = true,
-  }) : url = null,
-       checksum = null,
-       bytes = null;
+  })  : url = null,
+        checksum = null,
+        bytes = null;
 
   /// URL of the video to display.
   final String? url;
@@ -222,7 +222,6 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     final Widget interface = Stack(
       children: [
         child,
-
         if (widget.interface)
           Positioned(
             bottom: 6,
@@ -234,7 +233,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
                 color: style.colors.onBackgroundOpacity40,
               ),
               child: ValueListenableBuilder(
-                builder: (_, value, _) {
+                builder: (_, value, __) {
                   return Row(
                     children: [
                       if (widget.autoplay)

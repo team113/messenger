@@ -68,12 +68,12 @@ class AccountsSwitcherView extends StatelessWidget {
     final route = RawDialogRoute<T>(
       barrierColor: style.barrierColor.withValues(alpha: .1),
       barrierDismissible: true,
-      pageBuilder: (_, _, _) =>
+      pageBuilder: (_, __, ___) =>
           AccountsSwitcherView(avatarKey: avatarKey, panelKey: panelKey),
-      fullscreenDialog: true,
+      // fullscreenDialog: true,
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       transitionDuration: const Duration(milliseconds: 300),
-      transitionBuilder: (_, Animation<double> animation, _, Widget child) {
+      transitionBuilder: (_, Animation<double> animation, __, Widget child) {
         return AnimatedBuilder(
           animation: animation,
           builder: (context, child) {
@@ -200,8 +200,7 @@ class AccountsSwitcherView extends StatelessWidget {
                 ? null
                 : () async {
                     if (expired) {
-                      final hasPasswordOrEmail =
-                          myUser.hasPassword ||
+                      final hasPasswordOrEmail = myUser.hasPassword ||
                           myUser.emails.confirmed.isNotEmpty ||
                           myUser.phones.confirmed.isNotEmpty;
 
@@ -349,7 +348,6 @@ class AccountsSwitcherView extends StatelessWidget {
                               style: style.fonts.normal.regular.onBackground,
                             );
                           }),
-
                           Obx(() {
                             final presence = c.myUser.value?.presence;
 
@@ -394,21 +392,20 @@ class AccountsSwitcherView extends StatelessWidget {
                   SizedBox(height: 8),
                   Theme(
                     data: Theme.of(context).copyWith(
-                      inputDecorationTheme: Theme.of(context)
-                          .inputDecorationTheme
-                          .copyWith(
-                            border: border,
-                            errorBorder: border,
-                            enabledBorder: border,
-                            focusedBorder: border,
-                            disabledBorder: border,
-                            focusedErrorBorder: border,
-                            focusColor: style.colors.onPrimary,
-                            fillColor: style.colors.onPrimary,
-                            hoverColor: style.colors.transparent,
-                            filled: true,
-                            isDense: true,
-                          ),
+                      inputDecorationTheme:
+                          Theme.of(context).inputDecorationTheme.copyWith(
+                                border: border,
+                                errorBorder: border,
+                                enabledBorder: border,
+                                focusedBorder: border,
+                                disabledBorder: border,
+                                focusedErrorBorder: border,
+                                focusColor: style.colors.onPrimary,
+                                fillColor: style.colors.onPrimary,
+                                hoverColor: style.colors.transparent,
+                                filled: true,
+                                isDense: true,
+                              ),
                     ),
                     child: ReactiveTextField(
                       key: Key('TextStatusField'),
@@ -416,13 +413,13 @@ class AccountsSwitcherView extends StatelessWidget {
                       padding: PlatformUtils.isAndroid
                           ? EdgeInsets.fromLTRB(0, 8, 0, 0) // Android.
                           : PlatformUtils.isIOS
-                          ? EdgeInsets.fromLTRB(0, 8, 0, 0) // iOS.
-                          : EdgeInsets.fromLTRB(
-                              0,
-                              8,
-                              0,
-                              4,
-                            ), // macOS, Linux, Windows.
+                              ? EdgeInsets.fromLTRB(0, 8, 0, 0) // iOS.
+                              : EdgeInsets.fromLTRB(
+                                  0,
+                                  8,
+                                  0,
+                                  4,
+                                ), // macOS, Linux, Windows.
                       hint: 'label_text_status_hint'.l10n,
                       dense: true,
                       style: style.fonts.small.regular.onBackground,

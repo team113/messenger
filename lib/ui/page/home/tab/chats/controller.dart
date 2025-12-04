@@ -666,8 +666,8 @@ class ChatsTabController extends GetxController {
 
     if (attachments.isNotEmpty) {
       attachments.whereType<LocalAttachment>().forEach(
-        _chatService.uploadAttachment,
-      );
+            _chatService.uploadAttachment,
+          );
 
       await _chatService.sendChatMessage(id, attachments: attachments);
     }
@@ -690,8 +690,8 @@ class ChatsTabController extends GetxController {
       SearchCategory.user,
     ];
     router.navigation.value = false;
-    router.navigator.value = (context) =>
-        ChatsTabView.createGroupBuilder(context, this);
+    router.navigator.value =
+        (context) => ChatsTabView.createGroupBuilder(context, this);
     search.value?.populate();
   }
 
@@ -748,8 +748,8 @@ class ChatsTabController extends GetxController {
     router.navigation.value = !selecting.value;
 
     if (selecting.value) {
-      router.navigator.value = (context) =>
-          ChatsTabView.selectingBuilder(context, this);
+      router.navigator.value =
+          (context) => ChatsTabView.selectingBuilder(context, this);
     } else {
       router.navigator.value = null;
     }
@@ -786,8 +786,7 @@ class ChatsTabController extends GetxController {
     } else if (to >= favorites.length) {
       position = favorites.last.chat.value.favoritePosition!.val / 2;
     } else {
-      position =
-          (favorites[to].chat.value.favoritePosition!.val +
+      position = (favorites[to].chat.value.favoritePosition!.val +
               favorites[to - 1].chat.value.favoritePosition!.val) /
           2;
     }
@@ -810,8 +809,8 @@ class ChatsTabController extends GetxController {
     final Future<void> future = _chatService.readAll(
       selecting.value
           ? selectedChats.isEmpty
-                ? null
-                : selectedChats
+              ? null
+              : selectedChats
           : null,
     );
 
@@ -847,51 +846,50 @@ class ChatsTabController extends GetxController {
       prePopulate: false,
     )..onInit();
 
-    _searchSubscription =
-        StreamGroup.merge([
-          search.value!.recent.stream,
-          search.value!.chats.stream,
-          search.value!.contacts.stream,
-          search.value!.users.stream,
-        ]).listen((_) {
-          elements.clear();
+    _searchSubscription = StreamGroup.merge([
+      search.value!.recent.stream,
+      search.value!.chats.stream,
+      search.value!.contacts.stream,
+      search.value!.users.stream,
+    ]).listen((_) {
+      elements.clear();
 
-          if (groupCreating.value) {
-            if (search.value?.query.isEmpty == true) {
-              elements.add(const MyUserElement());
-            }
+      if (groupCreating.value) {
+        if (search.value?.query.isEmpty == true) {
+          elements.add(const MyUserElement());
+        }
 
-            search.value?.users.removeWhere((k, v) => me == k);
+        search.value?.users.removeWhere((k, v) => me == k);
 
-            if (search.value?.recent.isNotEmpty == true) {
-              elements.add(const DividerElement(SearchCategory.chat));
-              for (RxUser c in search.value!.recent.values) {
-                elements.add(RecentElement(c));
-              }
-            }
-          } else {
-            if (search.value?.chats.isNotEmpty == true) {
-              elements.add(const DividerElement(SearchCategory.chat));
-              for (RxChat c in search.value!.chats.values) {
-                elements.add(ChatElement(c));
-              }
-            }
+        if (search.value?.recent.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.chat));
+          for (RxUser c in search.value!.recent.values) {
+            elements.add(RecentElement(c));
           }
-
-          if (search.value?.contacts.isNotEmpty == true) {
-            elements.add(const DividerElement(SearchCategory.contact));
-            for (RxChatContact c in search.value!.contacts.values) {
-              elements.add(ContactElement(c));
-            }
+        }
+      } else {
+        if (search.value?.chats.isNotEmpty == true) {
+          elements.add(const DividerElement(SearchCategory.chat));
+          for (RxChat c in search.value!.chats.values) {
+            elements.add(ChatElement(c));
           }
+        }
+      }
 
-          if (search.value?.users.isNotEmpty == true) {
-            elements.add(const DividerElement(SearchCategory.user));
-            for (RxUser c in search.value!.users.values) {
-              elements.add(UserElement(c));
-            }
-          }
-        });
+      if (search.value?.contacts.isNotEmpty == true) {
+        elements.add(const DividerElement(SearchCategory.contact));
+        for (RxChatContact c in search.value!.contacts.values) {
+          elements.add(ContactElement(c));
+        }
+      }
+
+      if (search.value?.users.isNotEmpty == true) {
+        elements.add(const DividerElement(SearchCategory.user));
+        for (RxUser c in search.value!.users.values) {
+          elements.add(UserElement(c));
+        }
+      }
+    });
   }
 
   /// Closes the [searching] on the [LogicalKeyboardKey.escape] events.
@@ -1017,7 +1015,7 @@ class ChatsTabController extends GetxController {
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
-  bool _onBack(bool _, RouteInfo _) {
+  bool _onBack(bool _, RouteInfo __) {
     if (search.value?.query.value.isNotEmpty == true) {
       clearSearch();
       return true;

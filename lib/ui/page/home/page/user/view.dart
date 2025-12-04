@@ -99,7 +99,7 @@ class UserView extends StatelessWidget {
               child: Scrollbar(
                 controller: c.scrollController,
                 child: ObscuredSelectionArea(
-                  contextMenuBuilder: (_, _) => const SizedBox(),
+                  contextMenuBuilder: (_, __) => const SizedBox(),
                   child: ScrollablePositionedList.builder(
                     key: const Key('UserScrollable'),
                     itemCount: blocks.length,

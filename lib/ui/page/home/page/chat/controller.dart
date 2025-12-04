@@ -492,7 +492,7 @@ class ChatController extends GetxController {
                 ),
               )
               .onError<PostChatMessageException>(
-                (_, _) => _showBlockedPopup(),
+                (_, __) => _showBlockedPopup(),
                 test: (e) => e.code == PostChatMessageErrorCode.blocked,
               )
               .onError<UploadAttachmentException>(
@@ -545,8 +545,8 @@ class ChatController extends GetxController {
         _fragment = null;
         elements.clear();
 
-        final Paginated<ChatItemId, Rx<ChatItem>>? fragment = await chat!
-            .around(withText: ChatMessageText(query));
+        final Paginated<ChatItemId, Rx<ChatItem>>? fragment =
+            await chat!.around(withText: ChatMessageText(query));
 
         _searchSubscription?.cancel();
         _searchSubscription = fragment!.updates.listen(
@@ -729,11 +729,11 @@ class ChatController extends GetxController {
             (_) => AudioUtils.once(AudioSource.asset('audio/message_sent.mp3')),
           )
           .onError<PostChatMessageException>(
-            (_, _) => _showBlockedPopup(),
+            (_, __) => _showBlockedPopup(),
             test: (e) => e.code == PostChatMessageErrorCode.blocked,
           )
           .onError<UploadAttachmentException>((e, _) => MessagePopup.error(e))
-          .onError<ConnectionException>((_, _) {});
+          .onError<ConnectionException>((_, __) {});
     }
   }
 
@@ -752,8 +752,7 @@ class ChatController extends GetxController {
         text: item.text?.val,
         onKeyUp: (key) {
           if (key == LogicalKeyboardKey.escape) {
-            final bool hasChanges =
-                edit.value!.field.text != item.text?.val ||
+            final bool hasChanges = edit.value!.field.text != item.text?.val ||
                 !const ListEquality().equals(
                   edit.value!.attachments.map((e) => e.value).toList(),
                   item.attachments,
@@ -797,8 +796,8 @@ class ChatController extends GetxController {
 
               final ChatMessageAttachmentsInput attachments =
                   ChatMessageAttachmentsInput(
-                    edit.value!.attachments.map((e) => e.value).toList(),
-                  );
+                edit.value!.attachments.map((e) => e.value).toList(),
+              );
 
               final ChatMessageRepliesInput repliesTo = ChatMessageRepliesInput(
                 edit.value!.replied.map((e) => e.value.id).toList(),
@@ -894,9 +893,8 @@ class ChatController extends GetxController {
       if (id.isLocal) {
         final UserId userId = id.userId;
         final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
-        final RxUser? user = userOrFuture is RxUser?
-            ? userOrFuture
-            : await userOrFuture;
+        final RxUser? user =
+            userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
 
         id = user?.user.value.dialog ?? id;
         if (user != null && user.id == me) {
@@ -934,9 +932,8 @@ class ChatController extends GetxController {
           send.attachments.add(MapEntry(GlobalKey(), e));
         }
 
-        listController
-            .sliverController
-            .onPaintItemPositionsCallback = (height, positions) {
+        listController.sliverController.onPaintItemPositionsCallback =
+            (height, positions) {
           if (positions.isNotEmpty) {
             _topVisibleItem = positions.last;
 
@@ -1626,8 +1623,8 @@ class ChatController extends GetxController {
         attachments.length > 1
             ? 'label_files_downloaded'.l10n
             : attachments.first is ImageAttachment
-            ? 'label_image_downloaded'.l10n
-            : 'label_video_downloaded'.l10n,
+                ? 'label_image_downloaded'.l10n
+                : 'label_video_downloaded'.l10n,
       );
     } catch (e) {
       MessagePopup.error('err_could_not_download'.l10n);
@@ -1669,8 +1666,8 @@ class ChatController extends GetxController {
         attachments.length > 1
             ? 'label_files_saved_to_gallery'.l10n
             : attachments.first is ImageAttachment
-            ? 'label_image_saved_to_gallery'.l10n
-            : 'label_video_saved_to_gallery'.l10n,
+                ? 'label_image_saved_to_gallery'.l10n
+                : 'label_video_saved_to_gallery'.l10n,
       );
     }
 
@@ -1741,34 +1738,31 @@ class ChatController extends GetxController {
 
         final StackTrace invoked = StackTrace.current;
 
-        _typingSubscription ??= _chatService
-            .keepTyping(id)
-            .timeout(
-              Duration(minutes: 1),
-              onTimeout: (_) async {
-                Log.warning(
-                  'Timeout of `keepTyping()` occurred with trace: $invoked',
-                  '$runtimeType',
-                );
-
-                await Log.report(
-                  TimeoutException('Timeout of `keepTyping()` occurred'),
-                  trace: invoked,
-                );
-              },
-            )
-            .listen(
-              (_) {},
-              onError: (e) {
-                if (e is ResubscriptionRequiredException) {
-                  _stopTyping();
-                  _keepTyping();
-                } else {
-                  throw e;
-                }
-              },
-              cancelOnError: true,
+        _typingSubscription ??= _chatService.keepTyping(id).timeout(
+          Duration(minutes: 1),
+          onTimeout: (_) async {
+            Log.warning(
+              'Timeout of `keepTyping()` occurred with trace: $invoked',
+              '$runtimeType',
             );
+
+            await Log.report(
+              TimeoutException('Timeout of `keepTyping()` occurred'),
+              trace: invoked,
+            );
+          },
+        ).listen(
+          (_) {},
+          onError: (e) {
+            if (e is ResubscriptionRequiredException) {
+              _stopTyping();
+              _keepTyping();
+            } else {
+              throw e;
+            }
+          },
+          cancelOnError: true,
+        );
       }
 
       _typingTimer?.cancel();
@@ -1832,8 +1826,8 @@ class ChatController extends GetxController {
       // If no fragments from the [_fragments] already contain the [itemId],
       // then fetch and use a new one from the [RxChat.around].
       if (_fragment == null) {
-        final Paginated<ChatItemId, Rx<ChatItem>>? fragment = await chat!
-            .around(item: item, reply: reply, forward: forward);
+        final Paginated<ChatItemId, Rx<ChatItem>>? fragment =
+            await chat!.around(item: item, reply: reply, forward: forward);
 
         StreamSubscription? subscription;
         subscription = fragment!.updates.listen(
@@ -2127,8 +2121,7 @@ class ChatController extends GetxController {
 
       final BuildContext? context = onContext?.call() ?? router.context;
       if (context != null) {
-        isHighEnough =
-            listController.position.pixels >
+        isHighEnough = listController.position.pixels >
             MediaQuery.of(context).size.height * 2 + 200;
       }
 
@@ -2163,8 +2156,7 @@ class ChatController extends GetxController {
         if (offset == null || offset == 0) {
           showSticky.value = false;
         } else {
-          showSticky.value =
-              (listController.offset +
+          showSticky.value = (listController.offset +
                       MediaQuery.of(
                         onContext?.call() ?? router.context!,
                       ).size.height) -
@@ -2320,8 +2312,7 @@ class ChatController extends GetxController {
           index = i;
 
           try {
-            offset =
-                (MediaQuery.of(
+            offset = (MediaQuery.of(
                   onContext?.call() ?? router.context!,
                 ).size.height) /
                 3;
@@ -2388,7 +2379,7 @@ class ChatController extends GetxController {
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
-  bool _onBack(bool _, RouteInfo _) {
+  bool _onBack(bool _, RouteInfo __) {
     if (edit.value != null) {
       closeEditing();
       return true;
@@ -2522,7 +2513,7 @@ abstract class ListElement {
 /// [ListElement] representing a [ChatMessage].
 class ChatMessageElement extends ListElement {
   ChatMessageElement(this.item)
-    : super(ListElementId(item.value.at, item.value.id));
+      : super(ListElementId(item.value.at, item.value.id));
 
   /// [ChatItem] of this [ChatMessageElement].
   final Rx<ChatItem> item;
@@ -2531,7 +2522,7 @@ class ChatMessageElement extends ListElement {
 /// [ListElement] representing a [ChatCall].
 class ChatCallElement extends ListElement {
   ChatCallElement(this.item)
-    : super(ListElementId(item.value.at, item.value.id));
+      : super(ListElementId(item.value.at, item.value.id));
 
   /// [ChatItem] of this [ChatCallElement].
   final Rx<ChatItem> item;
@@ -2540,7 +2531,7 @@ class ChatCallElement extends ListElement {
 /// [ListElement] representing a [ChatInfo].
 class ChatInfoElement extends ListElement {
   ChatInfoElement(this.item)
-    : super(ListElementId(item.value.at, item.value.id));
+      : super(ListElementId(item.value.at, item.value.id));
 
   /// [ChatItem] of this [ChatInfoElement].
   final Rx<ChatItem> item;
@@ -2552,10 +2543,10 @@ class ChatForwardElement extends ListElement {
     PreciseDateTime at, {
     List<Rx<ChatItem>> forwards = const [],
     Rx<ChatItem>? note,
-  }) : forwards = RxList(forwards),
-       note = Rx(note),
-       authorId = forwards.first.value.author.id,
-       super(ListElementId(at, forwards.first.value.id));
+  })  : forwards = RxList(forwards),
+        note = Rx(note),
+        authorId = forwards.first.value.author.id,
+        super(ListElementId(at, forwards.first.value.id));
 
   /// Forwarded [ChatItem]s.
   final RxList<Rx<ChatItem>> forwards;
@@ -2570,32 +2561,32 @@ class ChatForwardElement extends ListElement {
 /// [ListElement] representing a [DateTime] label.
 class DateTimeElement extends ListElement {
   DateTimeElement(PreciseDateTime at)
-    : super(ListElementId(at, const ChatItemId('0')));
+      : super(ListElementId(at, const ChatItemId('0')));
 }
 
 /// [ListElement] indicating unread [ChatItem]s below.
 class UnreadMessagesElement extends ListElement {
   UnreadMessagesElement(PreciseDateTime at)
-    : super(ListElementId(at, const ChatItemId('1')));
+      : super(ListElementId(at, const ChatItemId('1')));
 }
 
 /// [ListElement] representing a [CustomProgressIndicator].
 class LoaderElement extends ListElement {
   LoaderElement.bottom([PreciseDateTime? at])
-    : super(
-        ListElementId(
-          at ?? PreciseDateTime.now().add(1.days),
-          const ChatItemId('0'),
-        ),
-      );
+      : super(
+          ListElementId(
+            at ?? PreciseDateTime.now().add(1.days),
+            const ChatItemId('0'),
+          ),
+        );
 
   LoaderElement.top()
-    : super(
-        ListElementId(
-          PreciseDateTime.fromMicrosecondsSinceEpoch(0),
-          const ChatItemId('0'),
-        ),
-      );
+      : super(
+          ListElementId(
+            PreciseDateTime.fromMicrosecondsSinceEpoch(0),
+            const ChatItemId('0'),
+          ),
+        );
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
@@ -2649,8 +2640,7 @@ extension ChatRxExt on RxChat {
         break;
 
       case ChatKind.dialog:
-        final String? name =
-            members.values
+        final String? name = members.values
                 .firstWhereOrNull((u) => u.user.id != me)
                 ?.user
                 .title(withDeletedLabel: withDeletedLabel) ??
@@ -2668,10 +2658,8 @@ extension ChatRxExt on RxChat {
         } else {
           final Iterable<String> names;
 
-          final List<RxUser> users = members.values
-              .take(3)
-              .map((e) => e.user)
-              .toList();
+          final List<RxUser> users =
+              members.values.take(3).map((e) => e.user).toList();
 
           if (users.length < chat.value.membersCount && users.length < 3) {
             names = chat.value.members

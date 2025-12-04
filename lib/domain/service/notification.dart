@@ -112,10 +112,10 @@ class NotificationService extends DisposableService {
 
   /// Returns the [DeviceToken] that is used for push notifications.
   DeviceToken get token => DeviceToken(
-    apns: _apns == null ? null : ApnsDeviceToken(_apns ?? ''),
-    voip: _voip == null ? null : ApnsVoipDeviceToken(_voip ?? ''),
-    fcm: _token == null ? null : FcmRegistrationToken(_token ?? ''),
-  );
+        apns: _apns == null ? null : ApnsDeviceToken(_apns ?? ''),
+        voip: _voip == null ? null : ApnsVoipDeviceToken(_voip ?? ''),
+        fcm: _token == null ? null : FcmRegistrationToken(_token ?? ''),
+      );
 
   /// Indicator whether this device's [Locale] contains a China country code.
   bool get _isChina => Platform.localeName.contains('CN');
@@ -245,7 +245,7 @@ class NotificationService extends DisposableService {
         },
         icon: icon?.url ?? image,
         tag: tag,
-      ).onError((_, _) => false);
+      ).onError((_, __) => false);
     } else if (PlatformUtils.isWindows) {
       File? file;
       if (icon != null) {
@@ -253,12 +253,12 @@ class NotificationService extends DisposableService {
           url: icon.url,
           checksum: icon.checksum,
           responseType: CacheResponseType.file,
-        )).file;
+        ))
+            .file;
       }
 
       await WinToast.instance().showCustomToast(
-        xml:
-            '<?xml version="1.0" encoding="UTF-8"?>'
+        xml: '<?xml version="1.0" encoding="UTF-8"?>'
             '<toast activationType="Foreground" launch="${payload ?? ''}">'
             '  <visual addImageQuery="true">'
             '      <binding template="ToastGeneric">'
@@ -377,8 +377,8 @@ class NotificationService extends DisposableService {
       return;
     }
 
-    final List<ActiveNotification> notifications = await plugin
-        .getActiveNotifications();
+    final List<ActiveNotification> notifications =
+        await plugin.getActiveNotifications();
 
     for (final notification in notifications) {
       if (notification.payload?.contains(chatId.val) == true ||
@@ -451,8 +451,8 @@ class NotificationService extends DisposableService {
           );
 
           if (!PlatformUtils.isWindows) {
-            final NotificationAppLaunchDetails? details = await _plugin!
-                .getNotificationAppLaunchDetails();
+            final NotificationAppLaunchDetails? details =
+                await _plugin!.getNotificationAppLaunchDetails();
 
             if (details?.notificationResponse != null) {
               onResponse?.call(details!.notificationResponse!);
@@ -494,8 +494,8 @@ class NotificationService extends DisposableService {
       FirebaseMessaging.onBackgroundMessage(onBackground);
     }
 
-    final RemoteMessage? initial = await FirebaseMessaging.instance
-        .getInitialMessage();
+    final RemoteMessage? initial =
+        await FirebaseMessaging.instance.getInitialMessage();
 
     if (initial != null) {
       onResponse?.call(initial);
@@ -543,13 +543,11 @@ class NotificationService extends DisposableService {
           payload: message.data['chatId'] != null
               ? '${Routes.chats}/${message.data['chatId']}'
               : null,
-          image:
-              message.notification?.android?.imageUrl ??
+          image: message.notification?.android?.imageUrl ??
               message.notification?.apple?.imageUrl ??
               message.notification?.web?.image,
           thread: message.data['chatId'],
-          tag:
-              message.data['chatId'] != null &&
+          tag: message.data['chatId'] != null &&
                   message.data['chatItemId'] != null
               ? '${message.data['chatId']}-${message.data['chatItemId']}'
               : null,
@@ -571,8 +569,8 @@ class NotificationService extends DisposableService {
       }
     }
 
-    NotificationSettings settings = await FirebaseMessaging.instance
-        .requestPermission();
+    NotificationSettings settings =
+        await FirebaseMessaging.instance.requestPermission();
 
     // On Android first attempt is always [AuthorizationStatus.denied] due to
     // notifications request popping while invoking a

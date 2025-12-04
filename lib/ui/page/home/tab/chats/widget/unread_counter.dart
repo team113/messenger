@@ -46,13 +46,13 @@ class UnreadCounter extends StatelessWidget {
 
     return Container(
       height: 23,
-      padding: EdgeInsetsGeometry.symmetric(horizontal: count > 99 ? 6 : 8),
+      padding: EdgeInsets.symmetric(horizontal: count > 99 ? 6 : 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
         color: dimmed
             ? inverted
-                  ? style.colors.onPrimary
-                  : style.colors.secondaryHighlightDarkest
+                ? style.colors.onPrimary
+                : style.colors.secondaryHighlightDarkest
             : style.colors.danger,
       ),
       alignment: Alignment.center,

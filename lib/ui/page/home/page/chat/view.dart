@@ -240,10 +240,7 @@ class ChatView extends StatelessWidget {
                                             child: Obx(() {
                                               return Text(
                                                 c.chat!.title(),
-                                                style: style
-                                                    .fonts
-                                                    .big
-                                                    .regular
+                                                style: style.fonts.big.regular
                                                     .onBackground,
                                                 overflow: TextOverflow.ellipsis,
                                                 maxLines: 1,
@@ -412,7 +409,6 @@ class ChatView extends StatelessWidget {
                                         SvgIcons.searchWhite,
                                       ),
                                     ),
-
                                     if (!c.selecting.value)
                                       ContextMenuButton(
                                         label: 'btn_select_messages'.l10n,
@@ -485,9 +481,8 @@ class ChatView extends StatelessWidget {
                                   : 1,
                               onItemKey: (i) =>
                                   c.elements.values.elementAt(i).id.toString(),
-                              onItemSticky: (i) =>
-                                  c.elements.values.elementAt(i)
-                                      is DateTimeElement,
+                              onItemSticky: (i) => c.elements.values
+                                  .elementAt(i) is DateTimeElement,
                               initIndex: c.initIndex,
                               initOffset: c.initOffset,
                               initOffsetBasedOnBottom: true,
@@ -530,7 +525,7 @@ class ChatView extends StatelessWidget {
                           return ObscuredSelectionArea(
                             key: Key('${c.selecting.value}'),
                             onSelectionChanged: (a) => c.selection.value = a,
-                            contextMenuBuilder: (_, _) => const SizedBox(),
+                            contextMenuBuilder: (_, __) => const SizedBox(),
                             selectionControls: EmptyTextSelectionControls(),
                             child: ObscuredMenuInterceptor(child: child),
                           );
@@ -617,11 +612,11 @@ class ChatView extends StatelessWidget {
                                   child: const Icon(Icons.arrow_upward),
                                 )
                               : c.canGoDown.isTrue
-                              ? FloatingActionButton.small(
-                                  onPressed: c.animateToBottom,
-                                  child: const Icon(Icons.arrow_downward),
-                                )
-                              : const SizedBox(),
+                                  ? FloatingActionButton.small(
+                                      onPressed: c.animateToBottom,
+                                      child: const Icon(Icons.arrow_downward),
+                                    )
+                                  : const SizedBox(),
                         ),
                       );
                     }),
@@ -700,8 +695,7 @@ class ChatView extends StatelessWidget {
           throw Exception('Unreachable');
         }
 
-        previousSame =
-            (previous is ChatMessageElement &&
+        previousSame = (previous is ChatMessageElement &&
                 previous.item.value.author.id == author &&
                 element.id.at.val
                         .difference(previous.item.value.at.val)
@@ -745,8 +739,7 @@ class ChatView extends StatelessWidget {
           futureOr: () => c.getUser(e.value.author.id),
           builder: (_, user) => Obx(() {
             return HighlightedContainer(
-              highlight:
-                  c.highlighted.value == element.id ||
+              highlight: c.highlighted.value == element.id ||
                   c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: _selectable(
@@ -853,8 +846,7 @@ class ChatView extends StatelessWidget {
           futureOr: () => c.getUser(element.authorId),
           builder: (_, user) => Obx(() {
             return HighlightedContainer(
-              highlight:
-                  c.highlighted.value == element.id ||
+              highlight: c.highlighted.value == element.id ||
                   c.selected.contains(element),
               padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
               child: _selectable(
@@ -1051,8 +1043,8 @@ class ChatView extends StatelessWidget {
             key: const ValueKey(2),
             height: c.listController.position.pixels == 0
                 ? isLast
-                      ? ChatController.lastItemBottomOffset
-                      : null
+                    ? ChatController.lastItemBottomOffset
+                    : null
                 : ChatController.loaderHeight,
           );
         }
@@ -1075,8 +1067,7 @@ class ChatView extends StatelessWidget {
 
     return Obx(() {
       if (c.selecting.value) {
-        final bool canForward =
-            c.selected.isNotEmpty &&
+        final bool canForward = c.selected.isNotEmpty &&
             !c.selected.any(
               (e) => e is ChatCallElement || e is ChatInfoElement,
             );
@@ -1182,9 +1173,9 @@ class ChatView extends StatelessWidget {
                                       TextSpan(
                                         text: c.selected.length > 1
                                             ? 'label_message_will_deleted_for_you'
-                                                  .l10n
+                                                .l10n
                                             : 'label_messages_will_deleted_for_you'
-                                                  .l10n,
+                                                .l10n,
                                       ),
                                   ],
                                   additional: [
@@ -1261,9 +1252,8 @@ class ChatView extends StatelessWidget {
         return MessageFieldView(
           key: const Key('EditField'),
           controller: c.edit.value,
-          onChanged: c.chat?.chat.value.isMonolog == true
-              ? null
-              : c.updateTyping,
+          onChanged:
+              c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
           onItemPressed: (item) =>
               c.animateTo(item.id, item: item, addToHistory: false),
           onAttachmentError: c.chat?.updateAttachments,
@@ -1311,10 +1301,10 @@ class ChatView extends StatelessWidget {
                 c.status.value = RxStatus.success();
               }
             : c.selecting.value
-            ? selected
-                  ? () => c.selected.remove(item)
-                  : () => c.selected.add(item)
-            : null,
+                ? selected
+                    ? () => c.selected.remove(item)
+                    : () => c.selected.add(item)
+                : null,
         child: Row(
           children: [
             AnimatedSwitcher(
@@ -1334,7 +1324,6 @@ class ChatView extends StatelessWidget {
                   sizeFactor: animation,
                   axis: Axis.horizontal,
                   axisAlignment: 0,
-
                   child: ScaleTransition(
                     scale: animation,
                     alignment: Alignment.centerLeft,

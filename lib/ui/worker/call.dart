@@ -187,7 +187,7 @@ class CallWorker extends DisposableService {
   /// Indicates whether [FlutterCallkitIncoming] should be considered active.
   bool get _isCallKit =>
       !PlatformUtils.isWeb &&
-      ((PlatformUtils.isIOS && !_isChina) /*|| PlatformUtils.isAndroid*/ );
+      ((PlatformUtils.isIOS && !_isChina) /*|| PlatformUtils.isAndroid*/);
 
   @override
   void onInit() {
@@ -196,11 +196,8 @@ class CallWorker extends DisposableService {
     AudioUtils.ensureInitialized();
     _initWebUtils();
 
-    List<String>? lastKeys = _settingsRepository
-        .applicationSettings
-        .value
-        ?.muteKeys
-        ?.toList();
+    List<String>? lastKeys =
+        _settingsRepository.applicationSettings.value?.muteKeys?.toList();
 
     _settingsWorker = ever(_settingsRepository.applicationSettings, (
       ApplicationSettings? settings,
@@ -223,7 +220,7 @@ class CallWorker extends DisposableService {
 
     bool wakelock = _callService.calls.isNotEmpty;
     if (wakelock && !PlatformUtils.isLinux) {
-      WakelockPlus.enable().onError((_, _) => false);
+      WakelockPlus.enable().onError((_, __) => false);
     }
 
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
@@ -258,8 +255,7 @@ class CallWorker extends DisposableService {
       if (c.state.value == OngoingCallState.pending ||
           c.state.value == OngoingCallState.local) {
         // Indicator whether it is us who are calling.
-        final bool outgoing =
-            (_callService.me == c.caller?.id ||
+        final bool outgoing = (_callService.me == c.caller?.id ||
                 c.state.value == OngoingCallState.local) &&
             c.conversationStartedAt == null;
 
@@ -278,28 +274,26 @@ class CallWorker extends DisposableService {
           play(_outgoing);
         } else if (!PlatformUtils.isMobile || isInForeground) {
           play(_incoming, fade: true);
-          Vibration.hasVibrator()
-              .then((bool? v) {
-                _vibrationTimer?.cancel();
+          Vibration.hasVibrator().then((bool? v) {
+            _vibrationTimer?.cancel();
 
-                if (v == true) {
+            if (v == true) {
+              Vibration.vibrate(
+                pattern: [500, 1000],
+              ).onError((_, __) => false);
+              _vibrationTimer = Timer.periodic(
+                const Duration(milliseconds: 1500),
+                (timer) {
                   Vibration.vibrate(
                     pattern: [500, 1000],
-                  ).onError((_, _) => false);
-                  _vibrationTimer = Timer.periodic(
-                    const Duration(milliseconds: 1500),
-                    (timer) {
-                      Vibration.vibrate(
-                        pattern: [500, 1000],
-                        repeat: 0,
-                      ).onError((_, _) => false);
-                    },
-                  );
-                }
-              })
-              .catchError((_, _) {
-                // No-op.
-              });
+                    repeat: 0,
+                  ).onError((_, __) => false);
+                },
+              );
+            }
+          }).catchError((_, __) {
+            // No-op.
+          });
 
           // Show a notification of an incoming call.
           if (!outgoing && !PlatformUtils.isMobile && !_focused) {
@@ -401,15 +395,14 @@ class CallWorker extends DisposableService {
         _resubscribeTo(c.chatId.value);
 
         final RxChat? chat = await _chatService.get(c.chatId.value);
-        final String id = (c.call.value?.id.val ?? c.chatId.value.val)
-            .base62ToUuid();
+        final String id =
+            (c.call.value?.id.val ?? c.chatId.value.val).base62ToUuid();
 
         bool report = true;
 
         final PreciseDateTime? accountedAt = await _callKitCalls.read(id);
         if (accountedAt != null) {
-          report =
-              accountedAt.val.difference(DateTime.now()).abs() >=
+          report = accountedAt.val.difference(DateTime.now()).abs() >=
               _accountedTimeout;
         }
 
@@ -454,10 +447,10 @@ class CallWorker extends DisposableService {
     _subscription = _callService.calls.changes.listen((event) async {
       if (!wakelock && _callService.calls.isNotEmpty) {
         wakelock = true;
-        WakelockPlus.enable().onError((_, _) => false);
+        WakelockPlus.enable().onError((_, __) => false);
       } else if (wakelock && _callService.calls.isEmpty) {
         wakelock = false;
-        WakelockPlus.disable().onError((_, _) => false);
+        WakelockPlus.disable().onError((_, __) => false);
       }
 
       switch (event.op) {
@@ -481,7 +474,7 @@ class CallWorker extends DisposableService {
           if (call != null) {
             final bool isActiveOrEnded =
                 call.state.value == OngoingCallState.active ||
-                call.state.value == OngoingCallState.ended;
+                    call.state.value == OngoingCallState.ended;
             final bool withMe = call.members.containsKey(call.me.id);
 
             if (withMe && isActiveOrEnded && call.participated) {
@@ -621,8 +614,7 @@ class CallWorker extends DisposableService {
       });
     }
 
-    _hotKey =
-        _settingsRepository.applicationSettings.value?.muteHotKey ??
+    _hotKey = _settingsRepository.applicationSettings.value?.muteHotKey ??
         MuteHotKeyExtension.defaultHotKey;
 
     _callKitCalls.clear();
@@ -717,10 +709,10 @@ class CallWorker extends DisposableService {
 
             final bool isActiveOrEnded =
                 call.state == OngoingCallState.active ||
-                call.state == OngoingCallState.ended;
+                    call.state == OngoingCallState.ended;
             final bool withMe =
                 call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
-                false;
+                    false;
 
             if (isActiveOrEnded && withMe) {
               play(_endCall);
@@ -824,87 +816,84 @@ class CallWorker extends DisposableService {
     }
 
     _eventsSubscriptions[chatId]?.cancel();
-    _eventsSubscriptions[chatId] = _graphQlProvider
-        .chatEvents(chatId, null, () => null)
-        .listen((e) async {
-          Log.debug('_eventsSubscriptions[$chatId] -> $e', '$runtimeType');
+    _eventsSubscriptions[chatId] =
+        _graphQlProvider.chatEvents(chatId, null, () => null).listen((e) async {
+      Log.debug('_eventsSubscriptions[$chatId] -> $e', '$runtimeType');
 
-          final events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
+      final events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
 
-          if (events.$$typename == 'Chat') {
-            final mixin = events as ChatEvents$Subscription$ChatEvents$Chat;
-            final call = mixin.ongoingCall;
+      if (events.$$typename == 'Chat') {
+        final mixin = events as ChatEvents$Subscription$ChatEvents$Chat;
+        final call = mixin.ongoingCall;
 
-            if (call != null) {
-              if (call.members.any((e) => e.user.id == credentials.userId)) {
-                _eventsSubscriptions.remove(chatId)?.cancel();
-                await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
-              }
-            } else {
+        if (call != null) {
+          if (call.members.any((e) => e.user.id == credentials.userId)) {
+            _eventsSubscriptions.remove(chatId)?.cancel();
+            await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+          }
+        } else {
+          _eventsSubscriptions.remove(chatId)?.cancel();
+          await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+        }
+      } else if (events.$$typename == 'ChatEventsVersioned') {
+        var mixin =
+            events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+
+        for (var e in mixin.events) {
+          if (e.$$typename == 'EventChatCallFinished') {
+            final node =
+                e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
+
+            _eventsSubscriptions.remove(chatId)?.cancel();
+            await FlutterCallkitIncoming.endCall(
+              node.call.id.val.base62ToUuid(),
+            );
+          } else if (e.$$typename == 'EventChatCallMemberJoined') {
+            final node =
+                e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+            final call = _callService.calls[chatId];
+
+            if (node.user.id == credentials.userId &&
+                call?.value.connected != true) {
               _eventsSubscriptions.remove(chatId)?.cancel();
-              await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+              await FlutterCallkitIncoming.endCall(
+                node.call.id.val.base62ToUuid(),
+              );
             }
-          } else if (events.$$typename == 'ChatEventsVersioned') {
-            var mixin =
-                events
-                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+          } else if (e.$$typename == 'EventChatCallMemberLeft') {
+            var node =
+                e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
+            final call = _callService.calls[chatId];
 
-            for (var e in mixin.events) {
-              if (e.$$typename == 'EventChatCallFinished') {
-                final node =
-                    e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
-
-                _eventsSubscriptions.remove(chatId)?.cancel();
-                await FlutterCallkitIncoming.endCall(
-                  node.call.id.val.base62ToUuid(),
-                );
-              } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                final node =
-                    e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-                final call = _callService.calls[chatId];
-
-                if (node.user.id == credentials.userId &&
-                    call?.value.connected != true) {
-                  _eventsSubscriptions.remove(chatId)?.cancel();
-                  await FlutterCallkitIncoming.endCall(
-                    node.call.id.val.base62ToUuid(),
-                  );
-                }
-              } else if (e.$$typename == 'EventChatCallMemberLeft') {
-                var node =
-                    e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
-                final call = _callService.calls[chatId];
-
-                if (node.user.id == credentials.userId &&
-                    call?.value.connected != true) {
-                  _eventsSubscriptions.remove(chatId)?.cancel();
-                  await FlutterCallkitIncoming.endCall(
-                    chatId.val.base62ToUuid(),
-                  );
-                }
-              } else if (e.$$typename == 'EventChatCallDeclined') {
-                final node =
-                    e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
-                if (node.user.id == credentials.userId) {
-                  _eventsSubscriptions.remove(chatId)?.cancel();
-                  await FlutterCallkitIncoming.endCall(
-                    node.call.id.val.base62ToUuid(),
-                  );
-                }
-              } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
-                final node =
-                    e
-                        as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
-                if (node.userId == credentials.userId) {
-                  _eventsSubscriptions.remove(chatId)?.cancel();
-                  await FlutterCallkitIncoming.endCall(
-                    node.callId.val.base62ToUuid(),
-                  );
-                }
-              }
+            if (node.user.id == credentials.userId &&
+                call?.value.connected != true) {
+              _eventsSubscriptions.remove(chatId)?.cancel();
+              await FlutterCallkitIncoming.endCall(
+                chatId.val.base62ToUuid(),
+              );
+            }
+          } else if (e.$$typename == 'EventChatCallDeclined') {
+            final node =
+                e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+            if (node.user.id == credentials.userId) {
+              _eventsSubscriptions.remove(chatId)?.cancel();
+              await FlutterCallkitIncoming.endCall(
+                node.call.id.val.base62ToUuid(),
+              );
+            }
+          } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+            final node = e
+                as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+            if (node.userId == credentials.userId) {
+              _eventsSubscriptions.remove(chatId)?.cancel();
+              await FlutterCallkitIncoming.endCall(
+                node.callId.val.base62ToUuid(),
+              );
             }
           }
-        });
+        }
+      }
+    });
 
     // Ensure that we haven't already joined the call.
     final query = await _graphQlProvider.getChat(chatId);
@@ -978,10 +967,10 @@ extension Base62ToUuid on String {
 extension MuteHotKeyExtension on ApplicationSettings {
   /// Returns the [HotKey] intended to be used as a default mute/unmute one.
   static HotKey get defaultHotKey => HotKey(
-    key: PhysicalKeyboardKey.keyM,
-    modifiers: [HotKeyModifier.alt],
-    scope: HotKeyScope.system,
-  );
+        key: PhysicalKeyboardKey.keyM,
+        modifiers: [HotKeyModifier.alt],
+        scope: HotKeyScope.system,
+      );
 
   /// Constructs a [HotKey] for mute/unmute from these [ApplicationSettings].
   HotKey get muteHotKey {
@@ -1024,88 +1013,88 @@ extension KeyboardKeyToStringExtension on PhysicalKeyboardKey {
   /// representation.
   static final Map<PhysicalKeyboardKey, String> labels =
       <PhysicalKeyboardKey, String>{
-        PhysicalKeyboardKey.keyA: 'A',
-        PhysicalKeyboardKey.keyB: 'B',
-        PhysicalKeyboardKey.keyC: 'C',
-        PhysicalKeyboardKey.keyD: 'D',
-        PhysicalKeyboardKey.keyE: 'E',
-        PhysicalKeyboardKey.keyF: 'F',
-        PhysicalKeyboardKey.keyG: 'G',
-        PhysicalKeyboardKey.keyH: 'H',
-        PhysicalKeyboardKey.keyI: 'I',
-        PhysicalKeyboardKey.keyJ: 'J',
-        PhysicalKeyboardKey.keyK: 'K',
-        PhysicalKeyboardKey.keyL: 'L',
-        PhysicalKeyboardKey.keyM: 'M',
-        PhysicalKeyboardKey.keyN: 'N',
-        PhysicalKeyboardKey.keyO: 'O',
-        PhysicalKeyboardKey.keyP: 'P',
-        PhysicalKeyboardKey.keyQ: 'Q',
-        PhysicalKeyboardKey.keyR: 'R',
-        PhysicalKeyboardKey.keyS: 'S',
-        PhysicalKeyboardKey.keyT: 'T',
-        PhysicalKeyboardKey.keyU: 'U',
-        PhysicalKeyboardKey.keyV: 'V',
-        PhysicalKeyboardKey.keyW: 'W',
-        PhysicalKeyboardKey.keyX: 'X',
-        PhysicalKeyboardKey.keyY: 'Y',
-        PhysicalKeyboardKey.keyZ: 'Z',
-        PhysicalKeyboardKey.digit1: '1',
-        PhysicalKeyboardKey.digit2: '2',
-        PhysicalKeyboardKey.digit3: '3',
-        PhysicalKeyboardKey.digit4: '4',
-        PhysicalKeyboardKey.digit5: '5',
-        PhysicalKeyboardKey.digit6: '6',
-        PhysicalKeyboardKey.digit7: '7',
-        PhysicalKeyboardKey.digit8: '8',
-        PhysicalKeyboardKey.digit9: '9',
-        PhysicalKeyboardKey.digit0: '0',
-        PhysicalKeyboardKey.enter: '↩︎',
-        PhysicalKeyboardKey.escape: '⎋',
-        PhysicalKeyboardKey.backspace: '←',
-        PhysicalKeyboardKey.tab: '⇥',
-        PhysicalKeyboardKey.space: '␣',
-        PhysicalKeyboardKey.minus: '-',
-        PhysicalKeyboardKey.equal: '=',
-        PhysicalKeyboardKey.bracketLeft: '[',
-        PhysicalKeyboardKey.bracketRight: ']',
-        PhysicalKeyboardKey.backslash: '\\',
-        PhysicalKeyboardKey.semicolon: ';',
-        PhysicalKeyboardKey.quote: '"',
-        PhysicalKeyboardKey.backquote: '`',
-        PhysicalKeyboardKey.comma: ',',
-        PhysicalKeyboardKey.period: '.',
-        PhysicalKeyboardKey.slash: '/',
-        PhysicalKeyboardKey.capsLock: '⇪',
-        PhysicalKeyboardKey.f1: 'F1',
-        PhysicalKeyboardKey.f2: 'F2',
-        PhysicalKeyboardKey.f3: 'F3',
-        PhysicalKeyboardKey.f4: 'F4',
-        PhysicalKeyboardKey.f5: 'F5',
-        PhysicalKeyboardKey.f6: 'F6',
-        PhysicalKeyboardKey.f7: 'F7',
-        PhysicalKeyboardKey.f8: 'F8',
-        PhysicalKeyboardKey.f9: 'F9',
-        PhysicalKeyboardKey.f10: 'F10',
-        PhysicalKeyboardKey.f11: 'F11',
-        PhysicalKeyboardKey.f12: 'F12',
-        PhysicalKeyboardKey.home: '↖',
-        PhysicalKeyboardKey.pageUp: '⇞',
-        PhysicalKeyboardKey.delete: '⌫',
-        PhysicalKeyboardKey.end: '↘',
-        PhysicalKeyboardKey.pageDown: '⇟',
-        PhysicalKeyboardKey.arrowRight: '→',
-        PhysicalKeyboardKey.arrowLeft: '←',
-        PhysicalKeyboardKey.arrowDown: '↓',
-        PhysicalKeyboardKey.arrowUp: '↑',
-        PhysicalKeyboardKey.controlLeft: '⌃',
-        PhysicalKeyboardKey.shiftLeft: '⇧',
-        PhysicalKeyboardKey.altLeft: PlatformUtils.isMacOS ? '⌥' : 'Alt',
-        PhysicalKeyboardKey.metaLeft: PlatformUtils.isMacOS ? '⌘' : '⊞',
-        PhysicalKeyboardKey.controlRight: '⌃',
-        PhysicalKeyboardKey.shiftRight: '⇧',
-        PhysicalKeyboardKey.altRight: PlatformUtils.isMacOS ? '⌥' : 'Alt',
-        PhysicalKeyboardKey.metaRight: PlatformUtils.isMacOS ? '⌘' : '⊞',
-        PhysicalKeyboardKey.fn: 'fn',
-      };
+    PhysicalKeyboardKey.keyA: 'A',
+    PhysicalKeyboardKey.keyB: 'B',
+    PhysicalKeyboardKey.keyC: 'C',
+    PhysicalKeyboardKey.keyD: 'D',
+    PhysicalKeyboardKey.keyE: 'E',
+    PhysicalKeyboardKey.keyF: 'F',
+    PhysicalKeyboardKey.keyG: 'G',
+    PhysicalKeyboardKey.keyH: 'H',
+    PhysicalKeyboardKey.keyI: 'I',
+    PhysicalKeyboardKey.keyJ: 'J',
+    PhysicalKeyboardKey.keyK: 'K',
+    PhysicalKeyboardKey.keyL: 'L',
+    PhysicalKeyboardKey.keyM: 'M',
+    PhysicalKeyboardKey.keyN: 'N',
+    PhysicalKeyboardKey.keyO: 'O',
+    PhysicalKeyboardKey.keyP: 'P',
+    PhysicalKeyboardKey.keyQ: 'Q',
+    PhysicalKeyboardKey.keyR: 'R',
+    PhysicalKeyboardKey.keyS: 'S',
+    PhysicalKeyboardKey.keyT: 'T',
+    PhysicalKeyboardKey.keyU: 'U',
+    PhysicalKeyboardKey.keyV: 'V',
+    PhysicalKeyboardKey.keyW: 'W',
+    PhysicalKeyboardKey.keyX: 'X',
+    PhysicalKeyboardKey.keyY: 'Y',
+    PhysicalKeyboardKey.keyZ: 'Z',
+    PhysicalKeyboardKey.digit1: '1',
+    PhysicalKeyboardKey.digit2: '2',
+    PhysicalKeyboardKey.digit3: '3',
+    PhysicalKeyboardKey.digit4: '4',
+    PhysicalKeyboardKey.digit5: '5',
+    PhysicalKeyboardKey.digit6: '6',
+    PhysicalKeyboardKey.digit7: '7',
+    PhysicalKeyboardKey.digit8: '8',
+    PhysicalKeyboardKey.digit9: '9',
+    PhysicalKeyboardKey.digit0: '0',
+    PhysicalKeyboardKey.enter: '↩︎',
+    PhysicalKeyboardKey.escape: '⎋',
+    PhysicalKeyboardKey.backspace: '←',
+    PhysicalKeyboardKey.tab: '⇥',
+    PhysicalKeyboardKey.space: '␣',
+    PhysicalKeyboardKey.minus: '-',
+    PhysicalKeyboardKey.equal: '=',
+    PhysicalKeyboardKey.bracketLeft: '[',
+    PhysicalKeyboardKey.bracketRight: ']',
+    PhysicalKeyboardKey.backslash: '\\',
+    PhysicalKeyboardKey.semicolon: ';',
+    PhysicalKeyboardKey.quote: '"',
+    PhysicalKeyboardKey.backquote: '`',
+    PhysicalKeyboardKey.comma: ',',
+    PhysicalKeyboardKey.period: '.',
+    PhysicalKeyboardKey.slash: '/',
+    PhysicalKeyboardKey.capsLock: '⇪',
+    PhysicalKeyboardKey.f1: 'F1',
+    PhysicalKeyboardKey.f2: 'F2',
+    PhysicalKeyboardKey.f3: 'F3',
+    PhysicalKeyboardKey.f4: 'F4',
+    PhysicalKeyboardKey.f5: 'F5',
+    PhysicalKeyboardKey.f6: 'F6',
+    PhysicalKeyboardKey.f7: 'F7',
+    PhysicalKeyboardKey.f8: 'F8',
+    PhysicalKeyboardKey.f9: 'F9',
+    PhysicalKeyboardKey.f10: 'F10',
+    PhysicalKeyboardKey.f11: 'F11',
+    PhysicalKeyboardKey.f12: 'F12',
+    PhysicalKeyboardKey.home: '↖',
+    PhysicalKeyboardKey.pageUp: '⇞',
+    PhysicalKeyboardKey.delete: '⌫',
+    PhysicalKeyboardKey.end: '↘',
+    PhysicalKeyboardKey.pageDown: '⇟',
+    PhysicalKeyboardKey.arrowRight: '→',
+    PhysicalKeyboardKey.arrowLeft: '←',
+    PhysicalKeyboardKey.arrowDown: '↓',
+    PhysicalKeyboardKey.arrowUp: '↑',
+    PhysicalKeyboardKey.controlLeft: '⌃',
+    PhysicalKeyboardKey.shiftLeft: '⇧',
+    PhysicalKeyboardKey.altLeft: PlatformUtils.isMacOS ? '⌥' : 'Alt',
+    PhysicalKeyboardKey.metaLeft: PlatformUtils.isMacOS ? '⌘' : '⊞',
+    PhysicalKeyboardKey.controlRight: '⌃',
+    PhysicalKeyboardKey.shiftRight: '⇧',
+    PhysicalKeyboardKey.altRight: PlatformUtils.isMacOS ? '⌥' : 'Alt',
+    PhysicalKeyboardKey.metaRight: PlatformUtils.isMacOS ? '⌘' : '⊞',
+    PhysicalKeyboardKey.fn: 'fn',
+  };
 }

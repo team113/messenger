@@ -127,7 +127,7 @@ abstract class ModalPopup {
       final route = RawDialogRoute<T>(
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
-        pageBuilder: (_, _, _) {
+        pageBuilder: (_, __, ___) {
           final Widget body = Center(
             child: Container(
               constraints: modalConstraints,
@@ -153,7 +153,7 @@ abstract class ModalPopup {
           context,
         ).modalBarrierDismissLabel,
         transitionDuration: const Duration(milliseconds: 300),
-        transitionBuilder: (_, Animation<double> animation, _, Widget child) {
+        transitionBuilder: (_, Animation<double> animation, __, Widget child) {
           return FadeTransition(
             opacity: CurvedAnimation(parent: animation, curve: Curves.linear),
             child: child,
@@ -224,7 +224,6 @@ class ModalPopupHeader extends StatelessWidget {
                   )
                 else
                   const SizedBox(width: 40),
-
                 if (text != null)
                   Expanded(
                     child: Padding(
@@ -243,7 +242,6 @@ class ModalPopupHeader extends StatelessWidget {
                   )
                 else
                   const Spacer(),
-
                 if (!context.isMobile && close)
                   WidgetButton(
                     key: const Key('CloseButton'),
@@ -261,7 +259,6 @@ class ModalPopupHeader extends StatelessWidget {
                   const SizedBox(width: 40),
               ],
             ),
-
             if (subtitle != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 18),

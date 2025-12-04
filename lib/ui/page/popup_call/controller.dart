@@ -117,15 +117,14 @@ class PopupCallController extends GetxController {
     });
 
     _tryToConnect();
-    WakelockPlus.enable().onError((_, _) => false);
+    WakelockPlus.enable().onError((_, __) => false);
 
     _pingTimer = Timer.periodic(
       const Duration(milliseconds: 500),
       (_) => WebUtils.pingCall(chatId),
     );
 
-    _hotKey =
-        _settingsRepository.applicationSettings.value?.muteHotKey ??
+    _hotKey = _settingsRepository.applicationSettings.value?.muteHotKey ??
         MuteHotKeyExtension.defaultHotKey;
 
     super.onInit();
@@ -139,7 +138,7 @@ class PopupCallController extends GetxController {
 
   @override
   void onClose() {
-    WakelockPlus.disable().onError((_, _) => false);
+    WakelockPlus.disable().onError((_, __) => false);
     _storageSubscription?.cancel();
     _pingTimer?.cancel();
     _stateWorker.dispose();

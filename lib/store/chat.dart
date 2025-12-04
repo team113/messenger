@@ -97,8 +97,8 @@ import 'pagination.dart';
 import 'pagination/drift.dart';
 import 'pagination/drift_graphql.dart';
 
-typedef ArchivedPaginated =
-    RxPaginatedImpl<ChatId, RxChatImpl, DtoChat, RecentChatsCursor>;
+typedef ArchivedPaginated
+    = RxPaginatedImpl<ChatId, RxChatImpl, DtoChat, RecentChatsCursor>;
 
 /// Implementation of an [AbstractChatRepository].
 class ChatRepository extends DisposableInterface
@@ -174,8 +174,8 @@ class ChatRepository extends DisposableInterface
           },
           delete: (e) async => await _chatLocal.delete(e),
           reset: () async => await _chatLocal.clear(),
-          isLast: (_, _) => false,
-          isFirst: (_, _) => false,
+          isLast: (_, __) => false,
+          isFirst: (_, __) => false,
           fulfilledWhenNone: true,
           compare: (a, b) => a.value.compareTo(b.value),
         ),
@@ -660,8 +660,8 @@ class ChatRepository extends DisposableInterface
         if (e.status.value == SendingStatus.error &&
             (e.upload.value == null || e.upload.value?.isCompleted == true)) {
           uploadAttachment(e)
-              .onError<UploadAttachmentException>((_, _) => e)
-              .onError<ConnectionException>((_, _) => e);
+              .onError<UploadAttachmentException>((_, __) => e)
+              .onError<ConnectionException>((_, __) => e);
         }
       }
 
@@ -729,9 +729,8 @@ class ChatRepository extends DisposableInterface
 
     final RxChatImpl? chat = chats[chatId];
     final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
-    final RxUser? user = userOrFuture is RxUser?
-        ? userOrFuture
-        : await userOrFuture;
+    final RxUser? user =
+        userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
 
     if (user != null) {
       final member = DtoChatMember(
@@ -999,8 +998,8 @@ class ChatRepository extends DisposableInterface
     Log.debug('editChatMessage($message, $text)', '$runtimeType');
 
     final Rx<ChatItem>? item = chats[message.chatId]?.messages.firstWhereOrNull(
-      (e) => e.value.id == message.id,
-    );
+          (e) => e.value.id == message.id,
+        );
 
     ChatMessageText? previousText;
     List<Attachment>? previousAttachments;
@@ -1013,8 +1012,7 @@ class ChatRepository extends DisposableInterface
       item?.update((c) {
         (c as ChatMessage).text = text != null ? text.changed : previousText;
         c.attachments = attachments?.changed ?? previousAttachments!;
-        c.repliesTo =
-            repliesTo?.changed
+        c.repliesTo = repliesTo?.changed
                 .map(
                   (e) =>
                       c.repliesTo.firstWhereOrNull((a) => a.original?.id == e),
@@ -1718,29 +1716,27 @@ class ChatRepository extends DisposableInterface
     return _graphQlProvider
         .chatEvents(chatId, ver, onVer, priority: priority)
         .asyncExpand((event) async* {
-          Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
+      Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
 
-          var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
-          if (events.$$typename == 'SubscriptionInitialized') {
-            events
-                as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
-            yield const ChatEventsInitialized();
-          } else if (events.$$typename == 'Chat') {
-            final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
-            final data = _chat(chat);
-            yield ChatEventsChat(data.chat);
-          } else if (events.$$typename == 'ChatEventsVersioned') {
-            var mixin =
-                events
-                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
-            yield ChatEventsEvent(
-              ChatEventsVersioned(
-                mixin.events.map(chatEvent).toList(),
-                mixin.ver,
-              ),
-            );
-          }
-        });
+      var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+      if (events.$$typename == 'SubscriptionInitialized') {
+        events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
+        yield const ChatEventsInitialized();
+      } else if (events.$$typename == 'Chat') {
+        final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
+        final data = _chat(chat);
+        yield ChatEventsChat(data.chat);
+      } else if (events.$$typename == 'ChatEventsVersioned') {
+        var mixin =
+            events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+        yield ChatEventsEvent(
+          ChatEventsVersioned(
+            mixin.events.map(chatEvent).toList(),
+            mixin.ver,
+          ),
+        );
+      }
+    });
   }
 
   @override
@@ -1911,9 +1907,8 @@ class ChatRepository extends DisposableInterface
         items = chat.messages.toList().getRange(0, index + 1);
         chat.messages.removeRange(0, index + 1);
 
-        final ChatItem? last = chat.messages.isNotEmpty
-            ? chat.messages.last.value
-            : null;
+        final ChatItem? last =
+            chat.messages.isNotEmpty ? chat.messages.last.value : null;
         chat.chat.update((c) => c?.lastItem = last);
       }
     }
@@ -2001,8 +1996,8 @@ class ChatRepository extends DisposableInterface
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
       return EventChatCallStarted(e.chatId, node.call.toModel());
     } else if (e.$$typename == 'EventChatDirectLinkUsageCountUpdated') {
-      var node =
-          e as ChatEventsVersionedMixin$Events$EventChatDirectLinkUsageCountUpdated;
+      var node = e
+          as ChatEventsVersionedMixin$Events$EventChatDirectLinkUsageCountUpdated;
       return EventChatDirectLinkUsageCountUpdated(e.chatId, node.usageCount);
     } else if (e.$$typename == 'EventChatCallFinished') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
@@ -2417,53 +2412,53 @@ class ChatRepository extends DisposableInterface
 
     final Pagination<DtoChat, FavoriteChatsCursor, ChatId> favoritePagination =
         Pagination(
-          onKey: (e) => e.value.id,
-          perPage: 15,
-          provider: DriftPageProvider(
-            fetch: ({required after, required before, ChatId? around}) async {
-              return await _chatLocal.favorite(limit: after + before + 1);
-            },
-            onKey: (e) => e.value.id,
-            onCursor: (e) => e?.favoriteCursor,
-            add: (e, {bool toView = true}) async {
-              if (toView) {
-                await _chatLocal.upsertBulk(e);
-              }
-            },
-            delete: (e) async => await _chatLocal.delete(e),
-            reset: () async => await _chatLocal.clear(),
-            isLast: (_, _) => true,
-            isFirst: (_, _) => true,
-            fulfilledWhenNone: true,
-            compare: (a, b) => a.value.compareTo(b.value),
-          ),
-          compare: (a, b) => a.value.compareTo(b.value),
-        );
+      onKey: (e) => e.value.id,
+      perPage: 15,
+      provider: DriftPageProvider(
+        fetch: ({required after, required before, ChatId? around}) async {
+          return await _chatLocal.favorite(limit: after + before + 1);
+        },
+        onKey: (e) => e.value.id,
+        onCursor: (e) => e?.favoriteCursor,
+        add: (e, {bool toView = true}) async {
+          if (toView) {
+            await _chatLocal.upsertBulk(e);
+          }
+        },
+        delete: (e) async => await _chatLocal.delete(e),
+        reset: () async => await _chatLocal.clear(),
+        isLast: (_, __) => true,
+        isFirst: (_, __) => true,
+        fulfilledWhenNone: true,
+        compare: (a, b) => a.value.compareTo(b.value),
+      ),
+      compare: (a, b) => a.value.compareTo(b.value),
+    );
 
     final Pagination<DtoChat, RecentChatsCursor, ChatId> recentPagination =
         Pagination(
-          onKey: (e) => e.value.id,
-          perPage: 15,
-          provider: DriftPageProvider(
-            fetch: ({required after, required before, ChatId? around}) async {
-              return await _chatLocal.recent(limit: after + before + 1);
-            },
-            onKey: (e) => e.value.id,
-            onCursor: (e) => e?.recentCursor,
-            add: (e, {bool toView = true}) async {
-              if (toView) {
-                await _chatLocal.upsertBulk(e);
-              }
-            },
-            delete: (e) async => await _chatLocal.delete(e),
-            reset: () async => await _chatLocal.clear(),
-            isLast: (_, _) => false,
-            isFirst: (_, _) => true,
-            fulfilledWhenNone: true,
-            compare: (a, b) => a.value.compareTo(b.value),
-          ),
-          compare: (a, b) => a.value.compareTo(b.value),
-        );
+      onKey: (e) => e.value.id,
+      perPage: 15,
+      provider: DriftPageProvider(
+        fetch: ({required after, required before, ChatId? around}) async {
+          return await _chatLocal.recent(limit: after + before + 1);
+        },
+        onKey: (e) => e.value.id,
+        onCursor: (e) => e?.recentCursor,
+        add: (e, {bool toView = true}) async {
+          if (toView) {
+            await _chatLocal.upsertBulk(e);
+          }
+        },
+        delete: (e) async => await _chatLocal.delete(e),
+        reset: () async => await _chatLocal.clear(),
+        isLast: (_, __) => false,
+        isFirst: (_, __) => true,
+        fulfilledWhenNone: true,
+        compare: (a, b) => a.value.compareTo(b.value),
+      ),
+      compare: (a, b) => a.value.compareTo(b.value),
+    );
 
     _localPagination = CombinedPagination([
       CombinedPaginationEntry(
@@ -2550,9 +2545,9 @@ class ChatRepository extends DisposableInterface
           },
           delete: (e) async => await _chatLocal.delete(e),
           reset: () async => await _chatLocal.clear(),
-          isLast: (_, _) =>
+          isLast: (_, __) =>
               _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
-          isFirst: (_, _) =>
+          isFirst: (_, __) =>
               _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
           compare: (a, b) => a.value.compareTo(b.value),
         ),
@@ -2560,11 +2555,11 @@ class ChatRepository extends DisposableInterface
           fetch: ({after, before, first, last}) async {
             final Page<DtoChat, FavoriteChatsCursor> page =
                 await _favoriteChats(
-                  after: after,
-                  first: first,
-                  before: before,
-                  last: last,
-                );
+              after: after,
+              first: first,
+              before: before,
+              last: last,
+            );
 
             if (!page.info.hasNext) {
               _sessionLocal.upsert(
@@ -2628,8 +2623,8 @@ class ChatRepository extends DisposableInterface
           },
           delete: (e) async => await _chatLocal.delete(e),
           reset: () async => await _chatLocal.clear(),
-          isLast: (_, _) => false,
-          isFirst: (_, _) => false,
+          isLast: (_, __) => false,
+          isFirst: (_, __) => false,
           fulfilledWhenNone: true,
           compare: (a, b) => a.value.compareTo(b.value),
         ),
@@ -2728,24 +2723,21 @@ class ChatRepository extends DisposableInterface
       if (events.$$typename == 'SubscriptionInitialized') {
         yield const RecentChatsTopInitialized();
       } else if (events.$$typename == 'RecentChatsTop') {
-        var list =
-            (events
-                    as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
-                .list;
+        var list = (events
+                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTop)
+            .list;
         yield RecentChatsTop(
           list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
         );
       } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
-        var mixin =
-            events
-                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
+        var mixin = events
+            as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
         yield EventRecentChatsUpdated(
           _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
         );
       } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
-        var mixin =
-            events
-                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
+        var mixin = events
+            as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
         yield EventRecentChatsDeleted(mixin.chatId);
       }
     });
@@ -2817,7 +2809,8 @@ class ChatRepository extends DisposableInterface
       withOngoingCalls: withOngoingCalls,
       noFavorite: noFavorite,
       archived: archived,
-    )).recentChats;
+    ))
+        .recentChats;
 
     return Page(
       RxList(
@@ -2841,11 +2834,12 @@ class ChatRepository extends DisposableInterface
 
     FavoriteChats$Query$FavoriteChats query =
         (await _graphQlProvider.favoriteChats(
-          first: first,
-          after: after,
-          last: last,
-          before: before,
-        )).favoriteChats;
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+    ))
+            .favoriteChats;
 
     _sessionLocal.upsert(me, favoriteChatsListVersion: NewType(query.ver));
 
@@ -3094,9 +3088,8 @@ class ChatRepository extends DisposableInterface
       } else if (events.$$typename == 'FavoriteChatsList') {
         // No-op, as favorite chats are fetched through [Pagination].
       } else if (events.$$typename == 'FavoriteChatsEventsVersioned') {
-        var mixin =
-            events
-                as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
+        var mixin = events
+            as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$FavoriteChatsEventsVersioned;
         yield FavoriteChatsEventsEvent(
           FavoriteChatsEventsVersioned(
             mixin.events.map((e) => _favoriteChatsVersionedEvent(e)).toList(),

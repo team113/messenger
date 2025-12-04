@@ -227,7 +227,7 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
           onAcceptWithDetails: (o) => onAdded?.call(o.data, 0),
           onWillAcceptWithDetails: (b) => onWillAccept?.call(b.data) ?? true,
           onLeave: onLeave,
-          builder: ((_, _, _) {
+          builder: ((_, __, ___) {
             return SizedBox(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
@@ -607,8 +607,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     useLongPress: widget.useLongPress,
                     cellKey: item.cellKey,
                     sharedKey: item.sharedKey,
-                    enabled:
-                        _items.map((e) => e.entry).nonNulls.isEmpty &&
+                    enabled: _items.map((e) => e.entry).nonNulls.isEmpty &&
                         (widget.allowDraggingLast || _items.length != 1),
                     onDragEnd: (d) {
                       widget.onDragEnd?.call(item.item);
@@ -896,10 +895,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
             ),
 
           // Pseudo-[Overlay].
-          ..._items
-              .map((e) => e.entry)
-              .nonNulls
-              .map(
+          ..._items.map((e) => e.entry).nonNulls.map(
                 (e) => IgnorePointer(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
@@ -961,8 +957,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   void _animateReturn(_ReorderableItem<T> to, Offset d) {
     if (to.dragStartedRect == null) return;
 
-    Rect beginRect =
-        to.itemKey.globalPaintBounds ??
+    Rect beginRect = to.itemKey.globalPaintBounds ??
         to.dragStartedRect ??
         to.cellKey.globalPaintBounds!;
     Rect endRect = to.cellKey.globalPaintBounds!;
@@ -1100,17 +1095,16 @@ class _ReorderableDraggableState<T extends Object>
               PlatformUtils.haptic(kind: HapticKind.light);
               _isDragged = true;
             },
-            dragAnchorStrategy:
-                (
-                  Draggable<Object> draggable,
-                  BuildContext context,
-                  Offset position,
-                ) {
-                  _position.value = position;
-                  final RenderBox renderObject =
-                      context.findRenderObject()! as RenderBox;
-                  return renderObject.globalToLocal(position);
-                },
+            dragAnchorStrategy: (
+              Draggable<Object> draggable,
+              BuildContext context,
+              Offset position,
+            ) {
+              _position.value = position;
+              final RenderBox renderObject =
+                  context.findRenderObject()! as RenderBox;
+              return renderObject.globalToLocal(position);
+            },
             onDragCompleted: () {
               widget.onDragCompleted?.call();
               SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -1127,14 +1121,13 @@ class _ReorderableDraggableState<T extends Object>
               if (widget.enabled && _isDragged) {
                 widget.onDoughBreak?.call();
 
-                final BoxConstraints? itemConstraints = widget.itemConstraints
-                    ?.call(widget.item);
+                final BoxConstraints? itemConstraints =
+                    widget.itemConstraints?.call(widget.item);
 
                 if (itemConstraints != null &&
                     itemConstraints.biggest.longestSide <
                         constraints.biggest.longestSide) {
-                  final double coefficient =
-                      constraints.biggest.longestSide /
+                  final double coefficient = constraints.biggest.longestSide /
                       itemConstraints.biggest.longestSide;
 
                   _constraints.value = BoxConstraints(

@@ -228,10 +228,10 @@ class _HomeViewState extends State<HomeView> {
                 MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
-                    onDragStart: (_) => c.sideBarWidth.value = c
-                        .applySideBarWidth(context, c.sideBarWidth.value),
-                    onDragUpdate: (dx, _) => c.sideBarWidth.value = c
-                        .applySideBarWidth(context, c.sideBarWidth.value + dx),
+                    onDragStart: (_) => c.sideBarWidth.value =
+                        c.applySideBarWidth(context, c.sideBarWidth.value),
+                    onDragUpdate: (dx, _) => c.sideBarWidth.value =
+                        c.applySideBarWidth(context, c.sideBarWidth.value + dx),
                     onDragEnd: (_) => c.setSideBarWidth(),
                     width: 7,
                     height: context.height,
@@ -355,7 +355,8 @@ class _HomeViewState extends State<HomeView> {
               },
             ),
           ),
-          ?router.navigator.value?.call(context),
+          if (router.navigator.value != null)
+            router.navigator.value!.call(context),
         ],
       );
     });

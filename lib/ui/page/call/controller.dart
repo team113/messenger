@@ -894,12 +894,13 @@ class CallController extends GetxController {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
-  }) => _currentCall.value.join(
-    _calls,
-    withAudio: withAudio,
-    withVideo: withVideo,
-    withScreen: withScreen,
-  );
+  }) =>
+      _currentCall.value.join(
+        _calls,
+        withAudio: withAudio,
+        withVideo: withVideo,
+        withScreen: withScreen,
+      );
 
   /// Toggles local screen-sharing stream on and off.
   Future<void> toggleScreenShare(BuildContext context) async {
@@ -956,9 +957,8 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    final List<DeviceDetails> cameras = _currentCall.value.devices
-        .video()
-        .toList();
+    final List<DeviceDetails> cameras =
+        _currentCall.value.devices.video().toList();
     if (cameras.length > 1) {
       final DeviceDetails? videoDevice = _currentCall.value.videoDevice.value;
       int selected = videoDevice == null
@@ -1329,8 +1329,7 @@ class CallController extends GetxController {
       );
 
       if (intersect.width > 0 && intersect.height > 0) {
-        secondaryBottomShifted ??=
-            secondaryBottom.value ??
+        secondaryBottomShifted ??= secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
 
         // Intersection is non-zero, so move the secondary panel up.
@@ -1345,8 +1344,7 @@ class CallController extends GetxController {
           secondaryBottomShifted != null) {
         // Intersection is less than zero and the secondary panel is higher than
         // it was before, so move it to its original position.
-        double bottom =
-            secondaryBottom.value ??
+        double bottom = secondaryBottom.value ??
             size.height - secondaryTop.value! - secondaryHeight.value;
 
         if (bottom > secondaryBottomShifted!) {
@@ -1458,8 +1456,8 @@ class CallController extends GetxController {
   void calculateSecondaryPanning(Offset offset) {
     Offset position =
         (secondaryKey.currentContext?.findRenderObject() as RenderBox?)
-            ?.localToGlobal(Offset.zero) ??
-        Offset.zero;
+                ?.localToGlobal(Offset.zero) ??
+            Offset.zero;
 
     if (secondaryAlignment.value == Alignment.centerRight ||
         secondaryAlignment.value == Alignment.centerLeft ||
@@ -1482,20 +1480,17 @@ class CallController extends GetxController {
   void updateSecondaryOffset(Offset offset) {
     if (fullscreen.isTrue) {
       secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
-      secondaryTop.value =
-          offset.dy -
+      secondaryTop.value = offset.dy -
           ((WebUtils.isPopup || router.context!.isMobile) ? 0 : titleHeight) -
           secondaryPanningOffset!.dy;
     } else if (WebUtils.isPopup) {
       secondaryLeft.value = offset.dx - secondaryPanningOffset!.dx;
       secondaryTop.value = offset.dy - secondaryPanningOffset!.dy;
     } else {
-      secondaryLeft.value =
-          offset.dx -
+      secondaryLeft.value = offset.dx -
           (router.context!.isMobile ? 0 : left.value) -
           secondaryPanningOffset!.dx;
-      secondaryTop.value =
-          offset.dy -
+      secondaryTop.value = offset.dy -
           (router.context!.isMobile ? 0 : top.value + titleHeight) -
           secondaryPanningOffset!.dy;
     }
@@ -1636,12 +1631,10 @@ class CallController extends GetxController {
     double? dy,
   }) {
     if (x != null && dx != null) {
-      final RxnDouble xPrimaryOffset = x == ScaleModeX.left
-          ? secondaryLeft
-          : secondaryRight;
-      final RxnDouble xSecondaryOffset = x == ScaleModeX.left
-          ? secondaryRight
-          : secondaryLeft;
+      final RxnDouble xPrimaryOffset =
+          x == ScaleModeX.left ? secondaryLeft : secondaryRight;
+      final RxnDouble xSecondaryOffset =
+          x == ScaleModeX.left ? secondaryRight : secondaryLeft;
 
       _updateSecondaryAxisOffset(
         primary: xPrimaryOffset,
@@ -1658,12 +1651,10 @@ class CallController extends GetxController {
     }
 
     if (y != null && dy != null) {
-      final RxnDouble yPrimaryOffset = y == ScaleModeY.top
-          ? secondaryTop
-          : secondaryBottom;
-      final RxnDouble ySecondaryOffset = y == ScaleModeY.top
-          ? secondaryBottom
-          : secondaryTop;
+      final RxnDouble yPrimaryOffset =
+          y == ScaleModeY.top ? secondaryTop : secondaryBottom;
+      final RxnDouble ySecondaryOffset =
+          y == ScaleModeY.top ? secondaryBottom : secondaryTop;
 
       _updateSecondaryAxisOffset(
         primary: yPrimaryOffset,
@@ -1690,8 +1681,7 @@ class CallController extends GetxController {
     }
 
     if (_lastConstraints != null) {
-      final dif =
-          (constraints.maxWidth + constraints.maxHeight) -
+      final dif = (constraints.maxWidth + constraints.maxHeight) -
           (_lastConstraints!.maxWidth + _lastConstraints!.maxHeight);
 
       secondaryWidth.value = _applySWidth(secondaryWidth.value + dif * 0.07);
@@ -1873,7 +1863,7 @@ class CallController extends GetxController {
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
-  bool _onBack(bool _, RouteInfo _) {
+  bool _onBack(bool _, RouteInfo __) {
     if (minimized.isFalse) {
       minimize();
       return true;
@@ -1926,9 +1916,8 @@ class CallController extends GetxController {
     focused.refresh();
 
     primary.value = focused.isNotEmpty ? focused : [...locals, ...remotes];
-    secondary.value = focused.isNotEmpty
-        ? [...locals, ...paneled, ...remotes]
-        : paneled;
+    secondary.value =
+        focused.isNotEmpty ? [...locals, ...paneled, ...remotes] : paneled;
 
     applySecondaryConstraints();
   }
@@ -2273,8 +2262,7 @@ class CallController extends GetxController {
       width.value = prefs?.width ?? size.width;
       height.value = prefs?.height ?? size.height;
     } else {
-      width.value =
-          prefs?.width ??
+      width.value = prefs?.width ??
           min(
             max(min(500, size.shortestSide * _maxWidth), _minWidth),
             size.height * _maxHeight,
@@ -2300,9 +2288,9 @@ enum ScaleModeY { top, bottom }
 /// Separate call entity participating in a call.
 class Participant {
   Participant(this.member, {Track? video, Track? audio, RxUser? user})
-    : user = Rx(user),
-      video = Rx(video),
-      audio = Rx(audio);
+      : user = Rx(user),
+        video = Rx(video),
+        audio = Rx(audio);
 
   /// [CallMember] this [Participant] represents.
   CallMember member;

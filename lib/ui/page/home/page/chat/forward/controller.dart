@@ -175,9 +175,8 @@ class ChatForwardController extends GetxController {
           ? null
           : send.attachments.map((a) => a.value.id).toList();
 
-      final ChatMessageText? text = send.field.text.isEmpty
-          ? null
-          : ChatMessageText(send.field.text);
+      final ChatMessageText? text =
+          send.field.text.isEmpty ? null : ChatMessageText(send.field.text);
 
       final List<ChatItemQuoteInput> quotes = this.quotes.reversed.toList();
 
@@ -197,21 +196,21 @@ class ChatForwardController extends GetxController {
         ...selected.value!.chats.map((e) {
           return _chatService
               .forwardChatItems(
-                from,
-                e.chat.value.id,
-                quotes,
-                text: text,
-                attachments: attachments,
-              )
-              .onError<ForwardChatItemsException>((_, _) async {
-                await showBlockedPopup(
-                  e.members.values
-                      .firstWhereOrNull((u) => u.user.id != me)
-                      ?.user
-                      .user
-                      .value,
-                );
-              }, test: (e) => e.code == ForwardChatItemsErrorCode.blocked);
+            from,
+            e.chat.value.id,
+            quotes,
+            text: text,
+            attachments: attachments,
+          )
+              .onError<ForwardChatItemsException>((_, __) async {
+            await showBlockedPopup(
+              e.members.values
+                  .firstWhereOrNull((u) => u.user.id != me)
+                  ?.user
+                  .user
+                  .value,
+            );
+          }, test: (e) => e.code == ForwardChatItemsErrorCode.blocked);
         }),
         ...selected.value!.users.map((u) {
           final User user = u.user.value;
@@ -226,7 +225,7 @@ class ChatForwardController extends GetxController {
                 attachments: attachments,
               )
               .onError<ForwardChatItemsException>(
-                (_, _) => showBlockedPopup(user),
+                (_, __) => showBlockedPopup(user),
                 test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
               );
         }),
@@ -243,7 +242,7 @@ class ChatForwardController extends GetxController {
                 attachments: attachments,
               )
               .onError<ForwardChatItemsException>(
-                (_, _) => showBlockedPopup(user),
+                (_, __) => showBlockedPopup(user),
                 test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
               );
         }),

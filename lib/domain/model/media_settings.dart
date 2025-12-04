@@ -19,6 +19,8 @@ import 'package:medea_jason/medea_jason.dart' show NoiseSuppressionLevel;
 
 import '/domain/model/ongoing_call.dart';
 
+enum NoiseSuppressionLevel { low, moderate, high, veryHigh }
+
 /// Media settings used in an [OngoingCall] containing the IDs of the devices to
 /// use by default.
 class MediaSettings {

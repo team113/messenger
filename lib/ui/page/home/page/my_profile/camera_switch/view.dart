@@ -121,7 +121,7 @@ class CameraSwitchView extends StatelessWidget {
                       return ListView.separated(
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
-                        separatorBuilder: (_, _) => const SizedBox(height: 8),
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
                         itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
@@ -129,7 +129,7 @@ class CameraSwitchView extends StatelessWidget {
 
                             final bool selected =
                                 (c.camera.value == null && i == 0) ||
-                                c.camera.value == e.deviceId();
+                                    c.camera.value == e.deviceId();
 
                             return RectangleButton(
                               selected: selected,

@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 
+import '../domain/model/media_settings.dart';
 import '/l10n/l10n.dart';
 import 'log.dart';
 import 'platform_utils.dart';
@@ -166,10 +167,10 @@ class MediaUtilsImpl {
     final List<LocalMediaTrack> tracks = [];
 
     if (audio != null || video != null || screen != null) {
-      final List<LocalMediaTrack>? local = await (await _mediaManager)
-          ?.initLocalTracks(
-            _mediaStreamSettings(audio: audio, video: video, screen: screen),
-          );
+      final List<LocalMediaTrack>? local =
+          await (await _mediaManager)?.initLocalTracks(
+        _mediaStreamSettings(audio: audio, video: video, screen: screen),
+      );
 
       if (local != null) {
         tracks.addAll(local);
@@ -311,16 +312,16 @@ class MediaUtilsImpl {
       if (audio.device != null) constraints.deviceId(audio.device!);
 
       if (audio.noiseSuppression != null) {
-        constraints.idealNoiseSuppression(audio.noiseSuppression!);
+        // constraints.idealNoiseSuppression(audio.noiseSuppression!);
       }
 
       if ((audio.noiseSuppression ?? true) &&
           audio.noiseSuppressionLevel != null) {
-        constraints.noiseSuppressionLevel(audio.noiseSuppressionLevel!);
+        // constraints.noiseSuppressionLevel(audio.noiseSuppressionLevel!);
       }
 
       if (audio.echoCancellation != null) {
-        constraints.idealEchoCancellation(audio.echoCancellation!);
+        // constraints.idealEchoCancellation(audio.echoCancellation!);
       }
 
       if (audio.autoGainControl != null) {
@@ -328,7 +329,7 @@ class MediaUtilsImpl {
       }
 
       if (audio.highPassFilter != null) {
-        constraints.idealHighPassFilter(audio.highPassFilter!);
+        // constraints.idealHighPassFilter(audio.highPassFilter!);
       }
 
       settings.audio(constraints);
@@ -415,10 +416,10 @@ extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
   /// Only meaningful, if these [MediaDeviceDetails] are of
   /// [MediaDeviceKind.audioOutput].
   AudioSpeakerKind get speaker => switch (deviceId()) {
-    'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
-    'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
-    (_) => AudioSpeakerKind.headphones,
-  };
+        'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
+        'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
+        (_) => AudioSpeakerKind.headphones,
+      };
 }
 
 /// Possible kind of an audio output device.
@@ -535,11 +536,13 @@ extension NoiseSuppressionLevelToOff on NoiseSuppressionLevel {
     return switch (enabled) {
       false => NoiseSuppressionLevelWithOff.off,
       true => switch (this) {
-        NoiseSuppressionLevel.low => NoiseSuppressionLevelWithOff.low,
-        NoiseSuppressionLevel.moderate => NoiseSuppressionLevelWithOff.moderate,
-        NoiseSuppressionLevel.high => NoiseSuppressionLevelWithOff.high,
-        NoiseSuppressionLevel.veryHigh => NoiseSuppressionLevelWithOff.veryHigh,
-      },
+          NoiseSuppressionLevel.low => NoiseSuppressionLevelWithOff.low,
+          NoiseSuppressionLevel.moderate =>
+            NoiseSuppressionLevelWithOff.moderate,
+          NoiseSuppressionLevel.high => NoiseSuppressionLevelWithOff.high,
+          NoiseSuppressionLevel.veryHigh =>
+            NoiseSuppressionLevelWithOff.veryHigh,
+        },
     };
   }
 }

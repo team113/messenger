@@ -25,7 +25,7 @@ import 'map.dart';
 /// removing of the items can behave in an unexpected way.
 class SortedObsMap<K, V> extends MapMixin<K, V> {
   SortedObsMap([Comparator<V>? compare])
-    : _compare = compare ?? _defaultCompare<V>();
+      : _compare = compare ?? _defaultCompare<V>();
 
   /// Callback, comparing the provided [V] items.
   final Comparator<V> _compare;
@@ -93,6 +93,6 @@ class SortedObsMap<K, V> extends MapMixin<K, V> {
       return compare;
     }
 
-    return (_, _) => -1;
+    return (_, __) => -1;
   }
 }

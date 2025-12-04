@@ -222,8 +222,8 @@ class PlayerController extends GetxController {
   /// Returns an index of the [key] within the [source].
   int get _index {
     final int index = source.values.toList().indexWhere(
-      (e) => e.id == key.value,
-    );
+          (e) => e.id == key.value,
+        );
 
     if (index == -1) {
       return 0;
@@ -503,10 +503,8 @@ class PlayerController extends GetxController {
   Future<void> copy(Post post, PostItem item) async {
     Log.debug('copy($item)', '$runtimeType');
 
-    final String extension = item.attachment.original.name
-        .split('.')
-        .last
-        .toLowerCase();
+    final String extension =
+        item.attachment.original.name.split('.').last.toLowerCase();
 
     final SimpleFileFormat? format = switch (extension) {
       'jpg' || 'jpeg' => Formats.jpeg,
@@ -644,15 +642,13 @@ class PlayerController extends GetxController {
         final ChatItem message = node.value;
 
         if (message is ChatMessage) {
-          post.items.value = message.attachments
-              .map((e) => PostItem(e))
-              .toList();
+          post.items.value =
+              message.attachments.map((e) => PostItem(e)).toList();
         } else if (message is ChatForward) {
           final quote = message.quote;
           if (quote is ChatMessageQuote) {
-            post.items.value = quote.attachments
-                .map((e) => PostItem(e))
-                .toList();
+            post.items.value =
+                quote.attachments.map((e) => PostItem(e)).toList();
           }
         }
       }
@@ -783,7 +779,7 @@ class PlayerController extends GetxController {
   /// Invokes [shouldClose] and returns `true`.
   ///
   /// Intended to be used as a [BackButtonInterceptor] handler.
-  bool _backHandler(bool _, RouteInfo _) {
+  bool _backHandler(bool _, RouteInfo __) {
     shouldClose?.call();
     return true;
   }
@@ -848,7 +844,8 @@ class PlayerController extends GetxController {
 
         for (var i = 0; i < posts.length; ++i) {
           if (i == index.value) {
-            posts[i].items
+            posts[i]
+                .items
                 .where((e) => e.video.value != null)
                 .firstOrNull
                 ?.video
@@ -875,8 +872,7 @@ class PlayerController extends GetxController {
         // If it's the scroll up.
         if (previous > index.value) {
           if (firstOrNull != null) {
-            final bool firstAndPartial =
-                firstOrNull.index == index.value &&
+            final bool firstAndPartial = firstOrNull.index == index.value &&
                 firstOrNull.itemLeadingEdge < 0;
 
             if (firstAndPartial || index.value < firstOrNull.index) {
@@ -890,8 +886,7 @@ class PlayerController extends GetxController {
         // If it's the scroll down.
         else if (previous < index.value) {
           if (lastOrNull != null) {
-            final bool lastAndPartial =
-                lastOrNull.index == index.value &&
+            final bool lastAndPartial = lastOrNull.index == index.value &&
                 lastOrNull.itemTrailingEdge > 0;
 
             if (lastAndPartial || index.value > lastOrNull.index) {
@@ -947,9 +942,9 @@ class Post implements Comparable<Post> {
     this.author,
     this.description,
     this.postedAt,
-  }) : items = RxList(items),
-       horizontal = Rx(PageController(initialPage: initial, keepPage: false)),
-       index = RxInt(initial);
+  })  : items = RxList(items),
+        horizontal = Rx(PageController(initialPage: initial, keepPage: false)),
+        index = RxInt(initial);
 
   /// Constructs a [Post] from the provided [MediaItem].
   factory Post.fromMediaItem(MediaItem item, {int initial = 0}) {
@@ -1159,9 +1154,8 @@ class ReactivePlayerController {
   /// Updates the parameters according to the state of [controller].
   void _listener() {
     buffered.value = controller.value.buffered;
-    isBuffering.value = controller.value.isInitialized
-        ? controller.value.isBuffering
-        : true;
+    isBuffering.value =
+        controller.value.isInitialized ? controller.value.isBuffering : true;
     isLooping.value = controller.value.isLooping;
     isPlaying.value = controller.value.isPlaying;
     isCompleted.value = controller.value.isCompleted;

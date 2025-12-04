@@ -97,12 +97,10 @@ class ChatInfoView extends StatelessWidget {
               )
             else
               _profile(c, context),
-
             if (!c.isMonolog) ...[
               SelectionContainer.disabled(child: _members(c, context)),
               SelectionContainer.disabled(child: _link(c, context)),
             ],
-
             SelectionContainer.disabled(
               child: Block(children: [_actions(c, context)]),
             ),
@@ -116,7 +114,7 @@ class ChatInfoView extends StatelessWidget {
               child: Scrollbar(
                 controller: c.scrollController,
                 child: ObscuredSelectionArea(
-                  contextMenuBuilder: (_, _) => const SizedBox(),
+                  contextMenuBuilder: (_, __) => const SizedBox(),
                   child: ScrollablePositionedList.builder(
                     key: const Key('ChatInfoScrollable'),
                     scrollController: c.scrollController,
@@ -312,9 +310,9 @@ class ChatInfoView extends StatelessWidget {
 
                         final bool inCall =
                             c.chat?.chat.value.ongoingCall?.members.any(
-                              (u) => u.user.id == member.id,
-                            ) ==
-                            true;
+                                  (u) => u.user.id == member.id,
+                                ) ==
+                                true;
 
                         child = MemberTile(
                           user: member,
@@ -341,9 +339,8 @@ class ChatInfoView extends StatelessWidget {
                             child,
                             CustomProgressIndicator(
                               key: const Key('MembersLoading'),
-                              value: Config.disableInfiniteAnimations
-                                  ? 0
-                                  : null,
+                              value:
+                                  Config.disableInfiniteAnimations ? 0 : null,
                             ),
                           ],
                         );
@@ -385,18 +382,17 @@ class ChatInfoView extends StatelessWidget {
             favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
           ),
         ),
-
         if (!isLocal) ...[
           ActionButton(
             key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
             onPressed: muted ? c.unmuteChat : c.muteChat,
             text: muted
                 ? PlatformUtils.isMobile
-                      ? 'btn_unmute'.l10n
-                      : 'btn_unmute_chat'.l10n
+                    ? 'btn_unmute'.l10n
+                    : 'btn_unmute_chat'.l10n
                 : PlatformUtils.isMobile
-                ? 'btn_mute'.l10n
-                : 'btn_mute_chat'.l10n,
+                    ? 'btn_mute'.l10n
+                    : 'btn_mute_chat'.l10n,
             trailing: SvgIcon(
               muted ? SvgIcons.muteSmall : SvgIcons.unmuteSmall,
             ),
