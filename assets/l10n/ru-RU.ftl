@@ -563,11 +563,6 @@ label_chat_monolog_description3 =
     – доступен только Вам;
     – неограниченное количество сообщений;
     – любой контент (текст, видео, изображения).
-label_chat_subtitle_in_call =
-    {$narrow ->
-        [0] {""}
-        *[1] Активный звонок |{" "}
-    }{$members} из {$allMembers} | {$duration}
 label_chats = Чаты
 label_chats_and_groups = Чаты и группы: {$count}
 label_city_country_activated_at = {$city}, {$country} • {$at}
