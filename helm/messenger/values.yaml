@@ -79,9 +79,10 @@ ingress:
   tls:
     enabled: no
     auto: no
-    # Not required when "auto" is enabled.
-    secretName:
-      messenger.test: messenger.test.tls
+    # Overridden names of TLS `Secret`s for `ingress.hosts`.
+    # If not specified, then default `<host>.tls` naming is used.
+    secretName: {}
+      #messenger.test: custom-name.tls
 
   httpAuth:
     enabled: no

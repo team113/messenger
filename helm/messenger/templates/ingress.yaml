@@ -63,10 +63,10 @@ spec:
   {{- end }}
 {{- if $.Values.ingress.tls.enabled }}
   tls:
-    - secretName: {{ if $.Values.ingress.tls.auto -}}
-                    {{ printf "%s.tls" ($host | trunc 48 | trimSuffix ".") | quote }}
+    - secretName: {{ if index $.Values.ingress.tls.secretName $host -}}
+                    {{ index $.Values.ingress.tls.secretName $host | quote }}
                   {{- else -}}
-                    {{ required (print `TLS Secret name must be specified for host ` $host ` !`) (index $.Values.ingress.tls.secretName $host) | quote }}
+                    {{ printf "%s.tls" ($host | trunc 48 | trimSuffix ".") | quote }}
                   {{- end }}
       hosts:
         - {{ $host | quote }}
