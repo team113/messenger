@@ -69,9 +69,9 @@ class CallView extends StatelessWidget {
         }
 
         if (c.isMobile) {
-          return Opacity(opacity: 0.5, child: mobileCall(c, context));
+          return mobileCall(c, context);
         } else {
-          return Opacity(opacity: 0.5, child: desktopCall(c, context));
+          return desktopCall(c, context);
         }
       },
     );
