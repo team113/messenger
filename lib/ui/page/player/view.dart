@@ -375,6 +375,7 @@ class PlayerView extends StatelessWidget {
               inverted: const SvgIcon(SvgIcons.copy19White),
               onPressed: () async => await c.copy(post, item),
             ),
+
           if (!PlatformUtils.isWeb && PlatformUtils.isMobile) ...[
             ContextMenuButton(
               label: 'btn_save_to_gallery'.l10n,
@@ -389,6 +390,7 @@ class PlayerView extends StatelessWidget {
               inverted: const SvgIcon(SvgIcons.download19White),
               onPressed: () async => await c.download(item),
             ),
+
             if (!PlatformUtils.isWeb && PlatformUtils.isDesktop)
               ContextMenuButton(
                 label: 'btn_download_as'.l10n,
@@ -595,6 +597,7 @@ class PlayerView extends StatelessWidget {
               ),
             ],
           ],
+
           Obx(() {
             if (!c.source.nextLoading.value) {
               return SizedBox();
@@ -608,6 +611,7 @@ class PlayerView extends StatelessWidget {
               ),
             );
           }),
+
           Obx(() {
             if (!c.source.previousLoading.value) {
               return SizedBox();
@@ -733,6 +737,7 @@ class PlayerView extends StatelessWidget {
                       }
                     },
                   ),
+
                 ContextMenuButton(
                   label: 'btn_save'.l10n,
                   trailing: const SvgIcon(SvgIcons.copy19),
@@ -785,6 +790,7 @@ class PlayerView extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         children: [
           _bar(context, c, constraints),
+
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
@@ -797,6 +803,7 @@ class PlayerView extends StatelessWidget {
               child: _position(context, c),
             ),
           ),
+
           Align(
             alignment: Alignment.bottomCenter,
             child: Column(
@@ -810,6 +817,7 @@ class PlayerView extends StatelessWidget {
               ],
             ),
           ),
+
           if (video != null)
             Positioned(
               bottom: 44 + padding.bottom,
@@ -1181,6 +1189,7 @@ class PlayerView extends StatelessWidget {
               ),
             ),
           ),
+
           Opacity(
             opacity: canReact ? 1 : 0.5,
             child: WidgetButton(
@@ -1192,6 +1201,7 @@ class PlayerView extends StatelessWidget {
               child: SvgIcon(SvgIcons.videoReact),
             ),
           ),
+
           Opacity(
             opacity: canReply ? 1 : 0.5,
             child: WidgetButton(
@@ -1204,6 +1214,7 @@ class PlayerView extends StatelessWidget {
               child: SvgIcon(SvgIcons.videoReply),
             ),
           ),
+
           Opacity(
             opacity: canShare ? 1 : 0.5,
             child: WidgetButton(
@@ -1254,7 +1265,9 @@ class PlayerView extends StatelessWidget {
             ),
           );
         }),
+
         SizedBox(width: 20),
+
         Obx(() {
           return Opacity(
             opacity: c.hasNextPage.value ? 1 : 0.5,
@@ -1276,7 +1289,9 @@ class PlayerView extends StatelessWidget {
             ),
           );
         }),
+
         SizedBox(width: 20),
+
         Obx(() {
           final Post? post = c.posts.elementAtOrNull(c.index.value);
           final ChatItem? item = post?.item;
@@ -1302,7 +1317,9 @@ class PlayerView extends StatelessWidget {
             ),
           );
         }),
-        const SizedBox(width: 20),
+
+        SizedBox(width: 20),
+
         Obx(() {
           final Post? post = c.posts.elementAtOrNull(c.index.value);
           final ChatItem? item = post?.item;
@@ -1333,7 +1350,9 @@ class PlayerView extends StatelessWidget {
             ),
           );
         }),
+
         SizedBox(width: 20),
+
         WidgetButton(
           onPressed: c.toggleFullscreen,
           child: SvgIcon(SvgIcons.videoExpand),

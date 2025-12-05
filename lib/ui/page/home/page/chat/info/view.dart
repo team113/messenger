@@ -97,10 +97,12 @@ class ChatInfoView extends StatelessWidget {
               )
             else
               _profile(c, context),
+
             if (!c.isMonolog) ...[
               SelectionContainer.disabled(child: _members(c, context)),
               SelectionContainer.disabled(child: _link(c, context)),
             ],
+
             SelectionContainer.disabled(
               child: Block(children: [_actions(c, context)]),
             ),
@@ -383,6 +385,7 @@ class ChatInfoView extends StatelessWidget {
             favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
           ),
         ),
+
         if (!isLocal) ...[
           ActionButton(
             key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),

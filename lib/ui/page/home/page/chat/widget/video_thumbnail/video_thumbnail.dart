@@ -222,6 +222,7 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
     final Widget interface = Stack(
       children: [
         child,
+
         if (widget.interface)
           Positioned(
             bottom: 6,

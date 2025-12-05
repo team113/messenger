@@ -144,7 +144,7 @@ class PlatformUtilsImpl {
   bool get isIOS => GetPlatform.isIOS;
 
   /// Indicates whether device is running on a mobile OS.
-  bool get isMobile => true; // GetPlatform.isIOS || GetPlatform.isAndroid;
+  bool get isMobile => GetPlatform.isIOS || GetPlatform.isAndroid;
 
   /// Indicates whether device is running on a desktop OS.
   bool get isDesktop =>

@@ -412,6 +412,7 @@ class ChatView extends StatelessWidget {
                                         SvgIcons.searchWhite,
                                       ),
                                     ),
+
                                     if (!c.selecting.value)
                                       ContextMenuButton(
                                         label: 'btn_select_messages'.l10n,

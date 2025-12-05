@@ -90,6 +90,7 @@ class AddEmailView extends StatelessWidget {
                 );
               }),
             ],
+
             AddEmailPage.confirm => [
               ?switch (c.email) {
                 UserEmail(:final val) => Padding(
@@ -152,6 +153,7 @@ class AddEmailView extends StatelessWidget {
                 );
               }),
             ],
+
             AddEmailPage.success => [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
