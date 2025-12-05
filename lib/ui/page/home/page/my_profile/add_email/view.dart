@@ -66,107 +66,108 @@ class AddEmailView extends StatelessWidget {
 
           final List<Widget> children = switch (c.page.value) {
             AddEmailPage.add => [
-                const SizedBox(height: 12),
-                ReactiveTextField(
-                  key: Key('EmailField'),
-                  state: c.emailField,
-                  label: 'label_email'.l10n,
-                  hint: 'label_email_example'.l10n,
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  style: style.fonts.normal.regular.onBackground,
-                  treatErrorAsStatus: false,
-                ),
-                const SizedBox(height: 25),
-                Obx(() {
-                  return PrimaryButton(
-                    key: const Key('Proceed'),
-                    onPressed:
-                        c.emailField.isEmpty.value ? null : c.emailField.submit,
-                    leading: c.emailField.isEmpty.value
-                        ? const SvgIcon(SvgIcons.emailGrey)
-                        : const SvgIcon(SvgIcons.emailWhite),
-                    title: 'btn_add'.l10n,
-                  );
-                }),
-              ],
+              const SizedBox(height: 12),
+              ReactiveTextField(
+                key: Key('EmailField'),
+                state: c.emailField,
+                label: 'label_email'.l10n,
+                hint: 'label_email_example'.l10n,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                style: style.fonts.normal.regular.onBackground,
+                treatErrorAsStatus: false,
+              ),
+              const SizedBox(height: 25),
+              Obx(() {
+                return PrimaryButton(
+                  key: const Key('Proceed'),
+                  onPressed: c.emailField.isEmpty.value
+                      ? null
+                      : c.emailField.submit,
+                  leading: c.emailField.isEmpty.value
+                      ? const SvgIcon(SvgIcons.emailGrey)
+                      : const SvgIcon(SvgIcons.emailWhite),
+                  title: 'btn_add'.l10n,
+                );
+              }),
+            ],
             AddEmailPage.confirm => [
-                switch (c.email) {
-                  UserEmail(:final val) => Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Text(
-                        val,
-                        textAlign: TextAlign.center,
-                        style: style.fonts.normal.regular.onBackground,
+              ?switch (c.email) {
+                UserEmail(:final val) => Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Text(
+                    val,
+                    textAlign: TextAlign.center,
+                    style: style.fonts.normal.regular.onBackground,
+                  ),
+                ),
+                null => null,
+              },
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  'label_add_email_confirmation_sent'.l10n,
+                  style: style.fonts.small.regular.secondary,
+                ),
+              ),
+              const SizedBox(height: 25),
+              ReactiveTextField(
+                key: const Key('ConfirmationCode'),
+                state: c.code,
+                label: 'label_one_time_password'.l10n,
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                hint: 'label_enter_code'.l10n,
+                formatters: [FilteringTextInputFormatter.digitsOnly],
+                type: TextInputType.number,
+              ),
+              const SizedBox(height: 25),
+              Obx(() {
+                final bool enabled = c.code.status.value.isEmpty;
+
+                return Row(
+                  children: [
+                    Expanded(
+                      child: PrimaryButton(
+                        key: const Key('Resend'),
+                        onPressed: c.resendEmailTimeout.value == 0 && enabled
+                            ? c.resendEmail
+                            : null,
+                        title: c.resendEmailTimeout.value == 0
+                            ? 'label_resend'.l10n
+                            : 'label_resend_timeout'.l10nfmt({
+                                'timeout': c.resendEmailTimeout.value,
+                              }),
                       ),
                     ),
-                  null => const SizedBox(),
-                },
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(
-                    'label_add_email_confirmation_sent'.l10n,
-                    style: style.fonts.small.regular.secondary,
-                  ),
-                ),
-                const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('ConfirmationCode'),
-                  state: c.code,
-                  label: 'label_one_time_password'.l10n,
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  hint: 'label_enter_code'.l10n,
-                  formatters: [FilteringTextInputFormatter.digitsOnly],
-                  type: TextInputType.number,
-                ),
-                const SizedBox(height: 25),
-                Obx(() {
-                  final bool enabled = c.code.status.value.isEmpty;
-
-                  return Row(
-                    children: [
-                      Expanded(
-                        child: PrimaryButton(
-                          key: const Key('Resend'),
-                          onPressed: c.resendEmailTimeout.value == 0 && enabled
-                              ? c.resendEmail
-                              : null,
-                          title: c.resendEmailTimeout.value == 0
-                              ? 'label_resend'.l10n
-                              : 'label_resend_timeout'.l10nfmt({
-                                  'timeout': c.resendEmailTimeout.value,
-                                }),
-                        ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: PrimaryButton(
+                        key: const Key('Proceed'),
+                        onPressed: c.code.isEmpty.value || !enabled
+                            ? null
+                            : c.code.submit,
+                        title: 'btn_confirm'.l10n,
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: PrimaryButton(
-                          key: const Key('Proceed'),
-                          onPressed: c.code.isEmpty.value || !enabled
-                              ? null
-                              : c.code.submit,
-                          title: 'btn_confirm'.l10n,
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-              ],
+                    ),
+                  ],
+                );
+              }),
+            ],
             AddEmailPage.success => [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(
-                    'label_add_email_confirmed'.l10n,
-                    textAlign: TextAlign.center,
-                    style: style.fonts.small.regular.secondary,
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  'label_add_email_confirmed'.l10n,
+                  textAlign: TextAlign.center,
+                  style: style.fonts.small.regular.secondary,
                 ),
-                const SizedBox(height: 24),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  onPressed: context.popModal,
-                  title: 'btn_ok'.l10n,
-                ),
-              ],
+              ),
+              const SizedBox(height: 24),
+              PrimaryButton(
+                key: const Key('Proceed'),
+                onPressed: context.popModal,
+                title: 'btn_ok'.l10n,
+              ),
+            ],
           };
 
           return Column(

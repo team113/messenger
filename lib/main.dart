@@ -280,7 +280,7 @@ Future<void> _runApp() async {
 
     await windowManager.show();
 
-    WebUtils.registerScheme().onError((_, __) => false);
+    WebUtils.registerScheme().onError((_, _) => false);
 
     Get.put(WindowWorker(preferences));
   }
@@ -443,8 +443,9 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       await accountProvider.init();
 
       final UserId? userId = accountProvider.userId;
-      final Credentials? credentials =
-          userId != null ? await credentialsProvider.read(userId) : null;
+      final Credentials? credentials = userId != null
+          ? await credentialsProvider.read(userId)
+          : null;
 
       if (credentials != null) {
         provider = GraphQlProvider();
@@ -465,8 +466,9 @@ Future<void> handlePushNotification(RemoteMessage message) async {
               }
             }
           } else if (events.$$typename == 'ChatEventsVersioned') {
-            final mixin = events
-                as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+            final mixin =
+                events
+                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
 
             for (var e in mixin.events) {
               if (e.$$typename == 'EventChatCallFinished') {
@@ -483,8 +485,9 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallConversationStarted') {
-                final node = e
-                    as ChatEventsVersionedMixin$Events$EventChatCallConversationStarted;
+                final node =
+                    e
+                        as ChatEventsVersionedMixin$Events$EventChatCallConversationStarted;
 
                 if (node.call.members.any(
                   (e) => e.user.id == credentials.userId,
@@ -494,24 +497,25 @@ Future<void> handlePushNotification(RemoteMessage message) async {
                   );
                 }
               } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
-                var node = e
-                    as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+                var node =
+                    e
+                        as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
                 if (node.userId == credentials.userId) {
                   await FlutterCallkitIncoming.endCall(
                     chatId.val.base62ToUuid(),
                   );
                 }
               } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                var node = e
-                    as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+                var node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
                 if (node.user.id == credentials.userId) {
                   await FlutterCallkitIncoming.endCall(
                     chatId.val.base62ToUuid(),
                   );
                 }
               } else if (e.$$typename == 'EventChatCallMemberLeft') {
-                var node = e
-                    as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
+                var node =
+                    e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
                 if (node.user.id == credentials.userId) {
                   await FlutterCallkitIncoming.endCall(
                     chatId.val.base62ToUuid(),
@@ -609,8 +613,9 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       await accountProvider.init();
 
       final UserId? userId = accountProvider.userId;
-      final Credentials? credentials =
-          userId != null ? await credentialsProvider.read(userId) : null;
+      final Credentials? credentials = userId != null
+          ? await credentialsProvider.read(userId)
+          : null;
 
       if (credentials != null) {
         final GraphQlProvider provider = GraphQlProvider()

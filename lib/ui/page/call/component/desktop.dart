@@ -109,7 +109,8 @@ Widget desktopCall(CallController c, BuildContext context) {
             Obx(
               () => SizedBox(
                 width: double.infinity,
-                height: c.secondary.isNotEmpty &&
+                height:
+                    c.secondary.isNotEmpty &&
                         c.secondaryAlignment.value == Alignment.topCenter
                     ? c.secondaryHeight.value
                     : 0,
@@ -121,7 +122,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                   Obx(
                     () => SizedBox(
                       height: double.infinity,
-                      width: c.secondary.isNotEmpty &&
+                      width:
+                          c.secondary.isNotEmpty &&
                               c.secondaryAlignment.value == Alignment.centerLeft
                           ? c.secondaryWidth.value
                           : 0,
@@ -131,14 +133,15 @@ Widget desktopCall(CallController c, BuildContext context) {
                     child: Stack(
                       children: [
                         Obx(() {
-                          final bool isOutgoing = (c.outgoing ||
+                          final bool isOutgoing =
+                              (c.outgoing ||
                                   c.state.value == OngoingCallState.local) &&
                               !c.started;
 
                           final bool isIncoming =
                               c.state.value != OngoingCallState.active &&
-                                  c.state.value != OngoingCallState.joining &&
-                                  !isOutgoing;
+                              c.state.value != OngoingCallState.joining &&
+                              !isOutgoing;
 
                           final Widget child;
 
@@ -188,7 +191,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                   Obx(
                     () => SizedBox(
                       height: double.infinity,
-                      width: c.secondary.isNotEmpty &&
+                      width:
+                          c.secondary.isNotEmpty &&
                               c.secondaryAlignment.value ==
                                   Alignment.centerRight
                           ? c.secondaryWidth.value
@@ -201,7 +205,8 @@ Widget desktopCall(CallController c, BuildContext context) {
             Obx(
               () => SizedBox(
                 width: double.infinity,
-                height: c.secondary.isNotEmpty &&
+                height:
+                    c.secondary.isNotEmpty &&
                         c.secondaryAlignment.value == Alignment.bottomCenter
                     ? c.secondaryHeight.value
                     : 0,
@@ -270,8 +275,9 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         // Empty drop zone if [secondary] is empty.
         Obx(() {
-          final Axis secondaryAxis =
-              c.size.width >= c.size.height ? Axis.horizontal : Axis.vertical;
+          final Axis secondaryAxis = c.size.width >= c.size.height
+              ? Axis.horizontal
+              : Axis.vertical;
 
           /// Pre-calculate the [ReorderableFit]'s size.
           final double panelSize = max(
@@ -315,9 +321,10 @@ Widget desktopCall(CallController c, BuildContext context) {
         return Obx(() {
           final bool isOutgoing =
               (c.outgoing || c.state.value == OngoingCallState.local) &&
-                  !c.started;
+              !c.started;
 
-          final bool showBottomUi = (c.showUi.isTrue ||
+          final bool showBottomUi =
+              (c.showUi.isTrue ||
               c.draggedButton.value != null ||
               c.state.value != OngoingCallState.active ||
               (c.state.value == OngoingCallState.active &&
@@ -326,7 +333,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                   c.focused.isEmpty &&
                   c.paneled.isEmpty));
 
-          final bool answer = c.state.value != OngoingCallState.joining &&
+          final bool answer =
+              c.state.value != OngoingCallState.joining &&
               c.state.value != OngoingCallState.active &&
               !isOutgoing;
 
@@ -389,7 +397,8 @@ Widget desktopCall(CallController c, BuildContext context) {
       // Builds the [Launchpad] panel containing the [CallController.panel].
       Widget launchpad() {
         return Obx(() {
-          bool enabled = c.displayMore.isTrue &&
+          bool enabled =
+              c.displayMore.isTrue &&
               c.primaryDrags.value == 0 &&
               c.secondaryDrags.value == 0;
 
@@ -427,7 +436,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                       },
                       onDragCompleted: () => c.draggedButton.value = null,
                       onDragEnd: (_) => c.draggedButton.value = null,
-                      onDraggableCanceled: (_, __) =>
+                      onDraggableCanceled: (_, _) =>
                           c.draggedButton.value = null,
                       maxSimultaneousDrags: e.isRemovable ? null : 0,
                       dragAnchorStrategy: pointerDragAnchorStrategy,
@@ -483,7 +492,7 @@ Widget desktopCall(CallController c, BuildContext context) {
         Obx(() {
           final bool isOutgoing =
               (c.outgoing || c.state.value == OngoingCallState.local) &&
-                  !c.started;
+              !c.started;
 
           final bool preferTitle =
               c.state.value != OngoingCallState.active && !isOutgoing;
@@ -537,7 +546,8 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         // Secondary panel itself.
         Obx(() {
-          final bool isIncoming = c.state.value != OngoingCallState.active &&
+          final bool isIncoming =
+              c.state.value != OngoingCallState.active &&
               c.state.value != OngoingCallState.joining &&
               !(c.outgoing || c.state.value == OngoingCallState.local);
 
@@ -566,16 +576,17 @@ Widget desktopCall(CallController c, BuildContext context) {
         Obx(() {
           return MouseRegion(
             opaque: false,
-            cursor: c.draggedRenderer.value != null ||
+            cursor:
+                c.draggedRenderer.value != null ||
                     c.doughDraggedRenderer.value != null
                 ? CustomMouseCursors.grabbing
                 : c.isCursorHidden.value
-                    ? SystemMouseCursors.none
-                    : c.hoveredRenderer.value != null
-                        ? CustomMouseCursors.grab
-                        : c.hoveredParticipant.value != null
-                            ? SystemMouseCursors.basic
-                            : MouseCursor.defer,
+                ? SystemMouseCursors.none
+                : c.hoveredRenderer.value != null
+                ? CustomMouseCursors.grab
+                : c.hoveredParticipant.value != null
+                ? SystemMouseCursors.basic
+                : MouseCursor.defer,
           );
         }),
 
@@ -612,7 +623,8 @@ Widget desktopCall(CallController c, BuildContext context) {
                 translate: false,
                 beginOffset: const Offset(0, -1),
                 endOffset: const Offset(0, 0),
-                isOpen: c.state.value == OngoingCallState.active &&
+                isOpen:
+                    c.state.value == OngoingCallState.active &&
                     c.showHeader.value,
                 child: MouseRegion(
                   onEnter: (_) {
@@ -811,8 +823,9 @@ Widget desktopCall(CallController c, BuildContext context) {
         }) {
           return Obx(() {
             return MouseRegion(
-              cursor:
-                  c.draggedRenderer.value != null ? MouseCursor.defer : cursor,
+              cursor: c.draggedRenderer.value != null
+                  ? MouseCursor.defer
+                  : cursor,
               child: Scaler(
                 key: key,
                 onDragUpdate: onDrag,
@@ -1060,24 +1073,25 @@ Widget _primaryView(CallController c) {
             return Obx(() {
               final bool? muted =
                   participant.member.owner == MediaOwnerKind.local
-                      ? !c.audioState.value.isEnabled
-                      : null;
+                  ? !c.audioState.value.isEnabled
+                  : null;
 
-              final bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+              final bool anyDragIsHappening =
+                  c.secondaryDrags.value != 0 ||
                   c.primaryDrags.value != 0 ||
                   c.secondaryDragged.value;
 
               final bool isHovered =
                   c.hoveredParticipant.value == participant &&
-                      !anyDragIsHappening;
+                  !anyDragIsHappening;
 
-              final String? id =
-                  participant.video.value?.renderer.value?.track.id();
+              final String? id = participant.video.value?.renderer.value?.track
+                  .id();
 
               final BoxFit? fit =
                   participant.video.value?.renderer.value == null
-                      ? null
-                      : c.rendererBoxFit[id] ?? participant.fit.value;
+                  ? null
+                  : c.rendererBoxFit[id] ?? participant.fit.value;
 
               return MouseRegion(
                 opaque: false,
@@ -1116,8 +1130,8 @@ Widget _primaryView(CallController c) {
                             onPressed: () {
                               c.rendererBoxFit[id!] =
                                   fit == null || fit == BoxFit.cover
-                                      ? BoxFit.contain
-                                      : BoxFit.cover;
+                                  ? BoxFit.contain
+                                  : BoxFit.cover;
 
                               if (c.focused.isNotEmpty) {
                                 c.focused.refresh();
@@ -1154,13 +1168,17 @@ Widget _primaryView(CallController c) {
                         ),
                       if (participant.member.id != c.me.id) ...[
                         if (participant
-                                .video.value?.direction.value.isEmitting ??
+                                .video
+                                .value
+                                ?.direction
+                                .value
+                                .isEmitting ??
                             false)
                           ContextMenuButton(
                             label:
                                 participant.video.value?.renderer.value != null
-                                    ? 'btn_call_disable_video'.l10n
-                                    : 'btn_call_enable_video'.l10n,
+                                ? 'btn_call_disable_video'.l10n
+                                : 'btn_call_enable_video'.l10n,
                             onPressed: () => c.toggleVideoEnabled(participant),
                             trailing: SvgIcon(
                               participant.video.value?.renderer.value != null
@@ -1174,24 +1192,41 @@ Widget _primaryView(CallController c) {
                             ),
                           ),
                         if (participant
-                                .audio.value?.direction.value.isEmitting ??
+                                .audio
+                                .value
+                                ?.direction
+                                .value
+                                .isEmitting ??
                             false)
                           ContextMenuButton(
-                            label: (participant.audio.value?.direction.value
+                            label:
+                                (participant
+                                        .audio
+                                        .value
+                                        ?.direction
+                                        .value
                                         .isEnabled ==
                                     true)
                                 ? 'btn_call_disable_audio'.l10n
                                 : 'btn_call_enable_audio'.l10n,
                             onPressed: () => c.toggleAudioEnabled(participant),
                             trailing: SvgIcon(
-                              participant.audio.value?.direction.value
+                              participant
+                                          .audio
+                                          .value
+                                          ?.direction
+                                          .value
                                           .isEnabled ==
                                       true
                                   ? SvgIcons.callDisableAudio
                                   : SvgIcons.callEnableAudio,
                             ),
                             inverted: SvgIcon(
-                              participant.audio.value?.direction.value
+                              participant
+                                          .audio
+                                          .value
+                                          ?.direction
+                                          .value
                                           .isEnabled ==
                                       true
                                   ? SvgIcons.callDisableAudioWhite
@@ -1269,8 +1304,15 @@ Widget _primaryView(CallController c) {
                 offstageUntilDetermined: true,
                 respectAspectRatio: true,
                 borderRadius: BorderRadius.zero,
-                fit: c.rendererBoxFit[
-                    participant.video.value?.renderer.value?.track.id() ?? ''],
+                fit:
+                    c.rendererBoxFit[participant
+                            .video
+                            .value
+                            ?.renderer
+                            .value
+                            ?.track
+                            .id() ??
+                        ''],
                 onHovered: (v) {
                   if (c.draggedRenderer.value == null) {
                     c.hoveredRenderer.value = v ? participant : null;
@@ -1363,8 +1405,9 @@ Widget _secondaryView(CallController c, BuildContext context) {
         }) {
           return Obx(() {
             return MouseRegion(
-              cursor:
-                  c.draggedRenderer.value == null ? cursor : MouseCursor.defer,
+              cursor: c.draggedRenderer.value == null
+                  ? cursor
+                  : MouseCursor.defer,
               child: Scaler(
                 key: key,
                 onDragUpdate: onDrag,
@@ -1626,11 +1669,13 @@ Widget _secondaryView(CallController c, BuildContext context) {
                     ? !c.audioState.value.isEnabled
                     : null;
 
-                bool anyDragIsHappening = c.secondaryDrags.value != 0 ||
+                bool anyDragIsHappening =
+                    c.secondaryDrags.value != 0 ||
                     c.primaryDrags.value != 0 ||
                     c.secondaryDragged.value;
 
-                bool isHovered = c.hoveredParticipant.value == participant &&
+                bool isHovered =
+                    c.hoveredParticipant.value == participant &&
                     !anyDragIsHappening;
 
                 return MouseRegion(
@@ -1669,12 +1714,20 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 inverted: SvgIcon(SvgIcons.callCenterWhite),
                               ),
                               if (participant.member.id != c.me.id) ...[
-                                if (participant.video.value?.direction.value
+                                if (participant
+                                        .video
+                                        .value
+                                        ?.direction
+                                        .value
                                         .isEmitting ??
                                     false)
                                   ContextMenuButton(
-                                    label: participant
-                                                .video.value?.renderer.value !=
+                                    label:
+                                        participant
+                                                .video
+                                                .value
+                                                ?.renderer
+                                                .value !=
                                             null
                                         ? 'btn_call_disable_video'.l10n
                                         : 'btn_call_enable_video'.l10n,
@@ -1693,26 +1746,43 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                           : SvgIcons.callEnableVideoWhite,
                                     ),
                                   ),
-                                if (participant.audio.value?.direction.value
+                                if (participant
+                                        .audio
+                                        .value
+                                        ?.direction
+                                        .value
                                         .isEmitting ??
                                     false)
                                   ContextMenuButton(
-                                    label: (participant.audio.value?.direction
-                                                .value.isEnabled ==
+                                    label:
+                                        (participant
+                                                .audio
+                                                .value
+                                                ?.direction
+                                                .value
+                                                .isEnabled ==
                                             true)
                                         ? 'btn_call_disable_audio'.l10n
                                         : 'btn_call_enable_audio'.l10n,
                                     onPressed: () =>
                                         c.toggleAudioEnabled(participant),
                                     trailing: SvgIcon(
-                                      participant.audio.value?.direction.value
+                                      participant
+                                                  .audio
+                                                  .value
+                                                  ?.direction
+                                                  .value
                                                   .isEnabled ==
                                               true
                                           ? SvgIcons.callDisableAudio
                                           : SvgIcons.callEnableAudio,
                                     ),
                                     inverted: SvgIcon(
-                                      participant.audio.value?.direction.value
+                                      participant
+                                                  .audio
+                                                  .value
+                                                  ?.direction
+                                                  .value
                                                   .isEnabled ==
                                               true
                                           ? SvgIcons.callDisableAudioWhite
@@ -1797,10 +1867,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 },
               );
             },
-            children:
-                c.secondary.map((e) => _DragData(e, c.chatId.value)).toList(),
-            borderRadius:
-                c.secondaryAlignment.value == null ? borderRadius : null,
+            children: c.secondary
+                .map((e) => _DragData(e, c.chatId.value))
+                .toList(),
+            borderRadius: c.secondaryAlignment.value == null
+                ? borderRadius
+                : null,
           ),
 
           // Discards the pointer when hovered over videos.
@@ -1841,8 +1913,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                         cursor: isAnyDrag
                             ? MouseCursor.defer
                             : c.secondaryDragged.isTrue
-                                ? CustomMouseCursors.grabbing
-                                : CustomMouseCursors.grab,
+                            ? CustomMouseCursors.grabbing
+                            : CustomMouseCursors.grab,
                         child: GestureDetector(
                           onPanStart: (d) {
                             c.secondaryBottomShifted = null;
@@ -1856,10 +1928,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
                               c.secondaryAlignment.value = null;
                               c.updateSecondaryOffset(d.globalPosition);
                             } else {
-                              c.secondaryLeft.value ??= c.size.width -
+                              c.secondaryLeft.value ??=
+                                  c.size.width -
                                   c.secondaryWidth.value -
                                   (c.secondaryRight.value ?? 0);
-                              c.secondaryTop.value ??= c.size.height -
+                              c.secondaryTop.value ??=
+                                  c.size.height -
                                   c.secondaryHeight.value -
                                   (c.secondaryBottom.value ?? 0);
                               c.applySecondaryConstraints();
@@ -1945,7 +2019,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                 child: Obx(() {
                   return SafeAnimatedSwitcher(
                     duration: 200.milliseconds,
-                    child: c.primaryDrags.value != 0 &&
+                    child:
+                        c.primaryDrags.value != 0 &&
                             c.secondaryTargets.value != 0
                         ? Container(
                             color: style.colors.onBackgroundOpacity27,
@@ -1957,8 +2032,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(16),
-                                    color: !c.minimized.value ||
-                                            c.fullscreen.value
+                                    color:
+                                        !c.minimized.value || c.fullscreen.value
                                         ? style.colors.onBackgroundOpacity27
                                         : style.colors.onBackgroundOpacity50,
                                   ),
@@ -1999,64 +2074,67 @@ Widget _secondaryView(CallController c, BuildContext context) {
                           duration: 200.milliseconds,
                           margin: const EdgeInsets.all(Scaler.size / 2),
                           decoration: ShapeDecoration(
-                            shape: c.secondaryHovered.value ||
+                            shape:
+                                c.secondaryHovered.value ||
                                     c.primaryDrags.value != 0
                                 ? c.secondaryAlignment.value == null
-                                    ? RoundedRectangleBorder(
-                                        side: BorderSide(
-                                          color: style.colors.secondary,
-                                          width: 1,
-                                        ),
-                                        borderRadius: borderRadius,
-                                      )
-                                    : Border(
-                                        top: c.secondaryAlignment.value ==
-                                                Alignment.bottomCenter
-                                            ? BorderSide(
-                                                color: style.colors.secondary,
-                                                width: 1,
-                                              )
-                                            : BorderSide.none,
-                                        left: c.secondaryAlignment.value ==
-                                                Alignment.centerRight
-                                            ? BorderSide(
-                                                color: style.colors.secondary,
-                                                width: 1,
-                                              )
-                                            : BorderSide.none,
-                                        right: c.secondaryAlignment.value ==
-                                                Alignment.centerLeft
-                                            ? BorderSide(
-                                                color: style.colors.secondary,
-                                                width: 1,
-                                              )
-                                            : BorderSide.none,
-                                        bottom: c.secondaryAlignment.value ==
-                                                Alignment.topCenter
-                                            ? BorderSide(
-                                                color: style.colors.secondary,
-                                                width: 1,
-                                              )
-                                            : BorderSide.none,
-                                      )
-                                : c.secondaryAlignment.value == null
-                                    ? RoundedRectangleBorder(
-                                        side: BorderSide(
-                                          color:
-                                              style.colors.secondary.withValues(
-                                            alpha: 0,
+                                      ? RoundedRectangleBorder(
+                                          side: BorderSide(
+                                            color: style.colors.secondary,
+                                            width: 1,
                                           ),
-                                          width: 1,
-                                        ),
-                                        borderRadius: borderRadius,
-                                      )
-                                    : Border.all(
-                                        color:
-                                            style.colors.secondary.withValues(
-                                          alpha: 0,
-                                        ),
-                                        width: 1,
+                                          borderRadius: borderRadius,
+                                        )
+                                      : Border(
+                                          top:
+                                              c.secondaryAlignment.value ==
+                                                  Alignment.bottomCenter
+                                              ? BorderSide(
+                                                  color: style.colors.secondary,
+                                                  width: 1,
+                                                )
+                                              : BorderSide.none,
+                                          left:
+                                              c.secondaryAlignment.value ==
+                                                  Alignment.centerRight
+                                              ? BorderSide(
+                                                  color: style.colors.secondary,
+                                                  width: 1,
+                                                )
+                                              : BorderSide.none,
+                                          right:
+                                              c.secondaryAlignment.value ==
+                                                  Alignment.centerLeft
+                                              ? BorderSide(
+                                                  color: style.colors.secondary,
+                                                  width: 1,
+                                                )
+                                              : BorderSide.none,
+                                          bottom:
+                                              c.secondaryAlignment.value ==
+                                                  Alignment.topCenter
+                                              ? BorderSide(
+                                                  color: style.colors.secondary,
+                                                  width: 1,
+                                                )
+                                              : BorderSide.none,
+                                        )
+                                : c.secondaryAlignment.value == null
+                                ? RoundedRectangleBorder(
+                                    side: BorderSide(
+                                      color: style.colors.secondary.withValues(
+                                        alpha: 0,
                                       ),
+                                      width: 1,
+                                    ),
+                                    borderRadius: borderRadius,
+                                  )
+                                : Border.all(
+                                    color: style.colors.secondary.withValues(
+                                      alpha: 0,
+                                    ),
+                                    width: 1,
+                                  ),
                           ),
                         ),
                       ),

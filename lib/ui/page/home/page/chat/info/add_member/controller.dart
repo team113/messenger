@@ -116,21 +116,21 @@ class AddChatMemberController extends GetxController {
       final Iterable<Future> futures = ids.map(
         (userId) => _chatService
             .addChatMember(chatId, userId)
-            .onError<AddChatMemberException>((_, __) async {
-          final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
-          final User? user =
-              (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
-                  ?.user
-                  .value;
+            .onError<AddChatMemberException>((_, _) async {
+              final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
+              final User? user =
+                  (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
+                      ?.user
+                      .value;
 
-          if (user != null) {
-            MessagePopup.error(
-              'err_blocked_by'.l10nfmt({
-                'user': '${user.name ?? user.num}',
-              }),
-            );
-          }
-        }, test: (e) => e.code == AddChatMemberErrorCode.blocked),
+              if (user != null) {
+                MessagePopup.error(
+                  'err_blocked_by'.l10nfmt({
+                    'user': '${user.name ?? user.num}',
+                  }),
+                );
+              }
+            }, test: (e) => e.code == AddChatMemberErrorCode.blocked),
       );
 
       await Future.wait(futures);

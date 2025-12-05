@@ -18,7 +18,6 @@
 // ignore_for_file: avoid_web_libraries_in_flutter
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:js_interop' as js;
@@ -137,29 +136,11 @@ class _AssetSvgLoader implements _SvgLoader {
   /// Asset path of the SVG picture.
   final String asset;
 
-  /// Naive [LinkedHashMap]-based cache of [Uint8List]s.
-  ///
-  /// FIFO policy is used, meaning if [_cache] exceeds its [_cacheSize], then
-  /// the first inserted element is removed.
-  static final LinkedHashMap<String, Uint8List> _cache = LinkedHashMap();
-
-  /// Maximum allowed length of the [_cache].
-  static const _cacheSize = 50;
-
   @override
   FutureOr<Uint8List> load() {
-    if (_cache[asset] != null) {
-      return _cache[asset]!;
-    }
-
     return Future(() async {
       String image = await PlatformUtils.loadString(asset);
       Uint8List bytes = Uint8List.fromList(utf8.encode(image));
-
-      _cache[asset] = bytes;
-      if (_cache.length > _cacheSize) {
-        _cache.remove(_cache.keys.first);
-      }
 
       return bytes;
     });

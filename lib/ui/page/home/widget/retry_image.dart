@@ -89,7 +89,8 @@ class RetryImage extends StatefulWidget {
     return RetryImage(
       image.url,
       checksum: image.checksum,
-      thumbhash: image.thumbhash ??
+      thumbhash:
+          image.thumbhash ??
           attachment.big.thumbhash ??
           attachment.medium.thumbhash ??
           attachment.small.thumbhash,
@@ -230,7 +231,7 @@ class _RetryImageState extends State<RetryImage> {
           height: widget.height,
           width: widget.width,
           fit: widget.fit,
-          frameBuilder: (_, child, frame, __) {
+          frameBuilder: (_, child, frame, _) {
             if (frame != null && _imageInitialized == false) {
               Future.delayed(Duration.zero, () {
                 if (context.mounted) {
@@ -417,17 +418,17 @@ class _RetryImageState extends State<RetryImage> {
       _isSvg =
           // Starts with `<svg`.
           (_image!.length >= 4 &&
-                  _image![0] == 60 &&
-                  _image![1] == 115 &&
-                  _image![2] == 118 &&
-                  _image![3] == 103) ||
-              // Starts with `<?xml`.
-              (_image!.length >= 5 &&
-                  _image![0] == 60 &&
-                  _image![1] == 63 &&
-                  _image![2] == 120 &&
-                  _image![3] == 109 &&
-                  _image![4] == 108);
+              _image![0] == 60 &&
+              _image![1] == 115 &&
+              _image![2] == 118 &&
+              _image![3] == 103) ||
+          // Starts with `<?xml`.
+          (_image!.length >= 5 &&
+              _image![0] == 60 &&
+              _image![1] == 63 &&
+              _image![2] == 120 &&
+              _image![3] == 109 &&
+              _image![4] == 108);
     }
 
     if (mounted) {

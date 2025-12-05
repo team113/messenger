@@ -32,7 +32,7 @@ class CustomPage extends Page {
   Route createRoute(BuildContext context) {
     return _CupertinoPageRoute(
       settings: this,
-      pageBuilder: (_, __, ___) => child,
+      pageBuilder: (_, _, _) => child,
       instant: !context.isNarrow,
     );
   }
@@ -46,11 +46,12 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
     super.settings,
     required this.pageBuilder,
     bool instant = false,
-  })  : transitionDuration =
-            instant ? Duration.zero : const Duration(milliseconds: 400),
-        matchingBuilder = PlatformUtils.isAndroid
-            ? const FadeUpwardsPageTransitionsBuilder()
-            : const CustomCupertinoPageTransitionsBuilder();
+  }) : transitionDuration = instant
+           ? Duration.zero
+           : const Duration(milliseconds: 400),
+       matchingBuilder = PlatformUtils.isAndroid
+           ? const FadeUpwardsPageTransitionsBuilder()
+           : const CustomCupertinoPageTransitionsBuilder();
 
   /// [PageTransitionsBuilder] transition animation.
   final PageTransitionsBuilder matchingBuilder;
@@ -75,8 +76,7 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-  ) =>
-      pageBuilder(context, animation, secondaryAnimation);
+  ) => pageBuilder(context, animation, secondaryAnimation);
 
   @override
   Widget buildTransitions(
@@ -123,27 +123,27 @@ class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
 
     if (widget is CupertinoPageTransition) {
       return SlideTransition(
-        position:
-            Tween(begin: Offset.zero, end: const Offset(-1.0, 0.0)).animate(
-          route.popGestureInProgress
-              ? animation
-              : CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.linearToEaseOut,
-                  reverseCurve: Curves.linearToEaseOut.flipped,
-                ),
-        ),
+        position: Tween(begin: Offset.zero, end: const Offset(-1.0, 0.0))
+            .animate(
+              route.popGestureInProgress
+                  ? animation
+                  : CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.linearToEaseOut,
+                      reverseCurve: Curves.linearToEaseOut.flipped,
+                    ),
+            ),
         child: SlideTransition(
-          position:
-              Tween(begin: const Offset(1.0, 0.0), end: Offset.zero).animate(
-            route.popGestureInProgress
-                ? secondaryAnimation
-                : CurvedAnimation(
-                    parent: secondaryAnimation,
-                    curve: Curves.linearToEaseOut,
-                    reverseCurve: Curves.easeInToLinear,
-                  ),
-          ),
+          position: Tween(begin: const Offset(1.0, 0.0), end: Offset.zero)
+              .animate(
+                route.popGestureInProgress
+                    ? secondaryAnimation
+                    : CurvedAnimation(
+                        parent: secondaryAnimation,
+                        curve: Curves.linearToEaseOut,
+                        reverseCurve: Curves.easeInToLinear,
+                      ),
+              ),
           child: widget.child,
         ),
       );

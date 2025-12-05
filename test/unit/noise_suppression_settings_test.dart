@@ -18,7 +18,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
-import 'package:messenger/domain/model/media_settings.dart';
 
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/settings.dart';

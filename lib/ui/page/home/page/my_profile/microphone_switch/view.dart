@@ -88,7 +88,7 @@ class MicrophoneSwitchView extends StatelessWidget {
                       return ListView.separated(
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
-                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemCount: c.devices.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
@@ -96,7 +96,7 @@ class MicrophoneSwitchView extends StatelessWidget {
 
                             final bool selected =
                                 (c.selected.value == null && i == 0) ||
-                                    c.selected.value?.id() == e.id();
+                                c.selected.value?.id() == e.id();
 
                             return RectangleButton(
                               selected: selected,

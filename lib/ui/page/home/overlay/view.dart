@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/ui/page/call/controller.dart';
+import '/util/log.dart';
 import 'controller.dart';
 
 /// View of an [OngoingCall]s overlay.
@@ -37,9 +38,12 @@ class CallOverlayView extends StatelessWidget {
       init: CallOverlayController(Get.find(), Get.find(), Get.find()),
       builder: (CallOverlayController c) {
         return Obx(() {
+          final bool visible =
+              c.calls.isEmpty || c.calls.every((e) => e.minimized.value);
+
           return Stack(
             children: [
-              child,
+              Visibility(visible: visible, maintainState: true, child: child),
               ...c.calls.map((e) {
                 return Obx(() {
                   if (e.call.value.state.value == OngoingCallState.ended) {
@@ -48,7 +52,18 @@ class CallOverlayView extends StatelessWidget {
 
                   return Listener(
                     onPointerDown: (_) => c.orderFirst(e),
-                    child: CallView(e.call, key: e.key),
+                    child: CallView(
+                      e.call,
+                      key: e.key,
+                      onMinimized: (m) {
+                        Log.debug(
+                          'onMinimized($m) for ${e.call.value.chatId.value}',
+                          '$runtimeType',
+                        );
+
+                        e.minimized.value = m;
+                      },
+                    ),
                   );
                 });
               }),

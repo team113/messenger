@@ -18,7 +18,8 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:dio/dio.dart' as dio
+import 'package:dio/dio.dart'
+    as dio
     show DioException, Options, Response, DioExceptionType, CancelToken;
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
@@ -40,7 +41,8 @@ import '/util/web/web_utils.dart';
 import 'exceptions.dart';
 import 'websocket/interface.dart'
     if (dart.library.io) 'websocket/io.dart'
-    if (dart.library.js_interop) 'websocket/web.dart' as websocket;
+    if (dart.library.js_interop) 'websocket/web.dart'
+    as websocket;
 
 /// Base GraphQl provider.
 class GraphQlProviderBase extends DisposableInterface {
@@ -532,7 +534,7 @@ class GraphQlClient {
               )
               .forGraphQL();
 
-          _wsChannel?.stream = _wsChannel!.stream.handleError((_, __) => false);
+          _wsChannel?.stream = _wsChannel!.stream.handleError((_, _) => false);
           _channelSubscription = _wsChannel?.stream.listen((e) {
             if (!_wsConnected) {
               Log.info('Connected', 'WebSocket');
@@ -596,8 +598,9 @@ class GraphQlClient {
 
     final AccessTokenSecret? bearer = raw?.token ?? token;
     final AuthLink authLink = AuthLink(getToken: () => 'Bearer $bearer');
-    final Link httpAuthLink =
-        bearer != null ? authLink.concat(httpLink) : httpLink;
+    final Link httpAuthLink = bearer != null
+        ? authLink.concat(httpLink)
+        : httpLink;
     Link link = httpAuthLink;
 
     // Update the WebSocket connection if not [raw].
@@ -773,7 +776,7 @@ class SubscriptionHandle {
 
   /// Callback, called to get the [Stream] of [QueryResult]s itself.
   final FutureOr<SubscriptionConnection> Function(SubscriptionOptions, int)
-      _listen;
+  _listen;
 
   /// Callback, called to cancel the provided [SubscriptionConnection].
   final void Function(SubscriptionConnection?) _cancel;

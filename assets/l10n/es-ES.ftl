@@ -551,6 +551,11 @@ label_chat_monolog_description3 =
     – disponible solo para Usted;
     – cantidad ilimitada de mensajes;
     – cualquier contenido (texto, video, imágenes).
+label_chat_subtitle_in_call =
+    {$narrow ->
+        [0] {""}
+        *[1] Active call |{" "}
+    }{$members} of {$allMembers} | {$duration}
 label_chats = Chats
 label_chats_and_groups = Chats y grupos: {$count}
 label_city_country_activated_at = {$city}, {$country} • {$at}

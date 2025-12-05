@@ -114,7 +114,7 @@ class ChatInfoView extends StatelessWidget {
               child: Scrollbar(
                 controller: c.scrollController,
                 child: ObscuredSelectionArea(
-                  contextMenuBuilder: (_, __) => const SizedBox(),
+                  contextMenuBuilder: (_, _) => const SizedBox(),
                   child: ScrollablePositionedList.builder(
                     key: const Key('ChatInfoScrollable'),
                     scrollController: c.scrollController,
@@ -310,9 +310,9 @@ class ChatInfoView extends StatelessWidget {
 
                         final bool inCall =
                             c.chat?.chat.value.ongoingCall?.members.any(
-                                  (u) => u.user.id == member.id,
-                                ) ==
-                                true;
+                              (u) => u.user.id == member.id,
+                            ) ==
+                            true;
 
                         child = MemberTile(
                           user: member,
@@ -339,8 +339,9 @@ class ChatInfoView extends StatelessWidget {
                             child,
                             CustomProgressIndicator(
                               key: const Key('MembersLoading'),
-                              value:
-                                  Config.disableInfiniteAnimations ? 0 : null,
+                              value: Config.disableInfiniteAnimations
+                                  ? 0
+                                  : null,
                             ),
                           ],
                         );
@@ -388,11 +389,11 @@ class ChatInfoView extends StatelessWidget {
             onPressed: muted ? c.unmuteChat : c.muteChat,
             text: muted
                 ? PlatformUtils.isMobile
-                    ? 'btn_unmute'.l10n
-                    : 'btn_unmute_chat'.l10n
+                      ? 'btn_unmute'.l10n
+                      : 'btn_unmute_chat'.l10n
                 : PlatformUtils.isMobile
-                    ? 'btn_mute'.l10n
-                    : 'btn_mute_chat'.l10n,
+                ? 'btn_mute'.l10n
+                : 'btn_mute_chat'.l10n,
             trailing: SvgIcon(
               muted ? SvgIcons.muteSmall : SvgIcons.unmuteSmall,
             ),

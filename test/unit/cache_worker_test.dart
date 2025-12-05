@@ -86,8 +86,6 @@ void main() async {
       base64Decode('someData1111'),
     );
 
-    FIFOCache.clear();
-
     expect(worker.exists('checksum'), true);
     expect(
       (await worker.get(checksum: 'checksum')).bytes,

@@ -59,8 +59,9 @@ class WelcomeFieldController extends GetxController {
     _editedWorker ??= ever(edited, (item) {
       if (item != null) {
         field.text = item.text?.val ?? '';
-        attachments.value =
-            item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
+        attachments.value = item.attachments
+            .map((e) => MapEntry(GlobalKey(), e))
+            .toList();
       } else {
         field.text = '';
         attachments.clear();
@@ -298,7 +299,7 @@ class WelcomeFieldController extends GetxController {
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true`, if back button should be intercepted, or otherwise returns
   /// `false`.
-  bool _onBack(bool _, RouteInfo __) {
+  bool _onBack(bool _, RouteInfo _) {
     if (moreOpened.isTrue) {
       toggleMore();
       return true;

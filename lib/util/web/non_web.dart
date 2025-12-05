@@ -20,6 +20,8 @@ import 'dart:ffi' hide Size;
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cupertino_http/cupertino_http.dart'
+    show CupertinoClient, URLSessionConfiguration;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/widgets.dart' show Rect;
@@ -99,13 +101,13 @@ class WebUtils {
 
   /// Returns custom [Client] to use for HTTP requests.
   static Client? get httpClient {
-    // if (PlatformUtils.isMacOS || PlatformUtils.isIOS) {
-    //   final URLSessionConfiguration config =
-    //       URLSessionConfiguration.defaultSessionConfiguration()
-    //         ..allowsExpensiveNetworkAccess = true
-    //         ..allowsCellularAccess = true;
-    //   return CupertinoClient.fromSessionConfiguration(config);
-    // }
+    if (PlatformUtils.isMacOS || PlatformUtils.isIOS) {
+      final URLSessionConfiguration config =
+          URLSessionConfiguration.defaultSessionConfiguration()
+            ..allowsExpensiveNetworkAccess = true
+            ..allowsCellularAccess = true;
+      return CupertinoClient.fromSessionConfiguration(config);
+    }
 
     return null;
   }
@@ -203,8 +205,7 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
-  }) =>
-      false;
+  }) => false;
 
   /// Closes the current window.
   static void closeWindow() {
@@ -330,11 +331,13 @@ class WebUtils {
         'Software\\Classes\\${Config.scheme}',
       );
 
-      // regKey.createValue(const RegistryValue.string('URL Protocol', ''));
+      regKey.createValue(const RegistryValue.string('URL Protocol', ''));
 
-      // regKey.createKey('shell\\open\\command').createValue(
-      //       RegistryValue.string('', '"${Platform.resolvedExecutable}" "%1"'),
-      //     );
+      regKey
+          .createKey('shell\\open\\command')
+          .createValue(
+            RegistryValue.string('', '"${Platform.resolvedExecutable}" "%1"'),
+          );
     }
   }
 
@@ -537,13 +540,13 @@ class WebUtils {
       return;
     }
 
-    // await webrtc.setupForegroundService(
-    //   webrtc.ForegroundServiceConfig(
-    //     enabled: true,
-    //     notificationText: 'Call',
-    //     notificationOngoing: true,
-    //   ),
-    // );
+    await webrtc.setupForegroundService(
+      webrtc.ForegroundServiceConfig(
+        enabled: true,
+        notificationText: 'Call',
+        notificationOngoing: true,
+      ),
+    );
   }
 
   /// Registers the plugins having separate implementations for web and non-web

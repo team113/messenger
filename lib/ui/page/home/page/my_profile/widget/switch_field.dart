@@ -74,7 +74,7 @@ class SwitchField extends StatelessWidget {
                   cursor: SystemMouseCursors.click,
                   child: Switch.adaptive(
                     activeTrackColor: style.colors.primary,
-                    // activeThumbColor: style.colors.onPrimary,
+                    activeThumbColor: style.colors.onPrimary,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     value: value,
                     onChanged: onChanged,

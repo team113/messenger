@@ -217,25 +217,26 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    _fading = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-      debugLabel: '$runtimeType',
-    )
-      ..addStatusListener((status) {
-        switch (status) {
-          case AnimationStatus.dismissed:
-            widget.onClosed?.call();
-            break;
+    _fading =
+        AnimationController(
+            vsync: this,
+            duration: const Duration(milliseconds: 150),
+            debugLabel: '$runtimeType',
+          )
+          ..addStatusListener((status) {
+            switch (status) {
+              case AnimationStatus.dismissed:
+                widget.onClosed?.call();
+                break;
 
-          case AnimationStatus.reverse:
-          case AnimationStatus.forward:
-          case AnimationStatus.completed:
-            // No-op.
-            break;
-        }
-      })
-      ..forward();
+              case AnimationStatus.reverse:
+              case AnimationStatus.forward:
+              case AnimationStatus.completed:
+                // No-op.
+                break;
+            }
+          })
+          ..forward();
 
     _bounds = widget.globalKey.globalPaintBounds ?? Rect.zero;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -302,8 +303,9 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                               bottom: false,
                               child: Padding(
                                 padding: EdgeInsets.only(
-                                  left:
-                                      widget.unconstrained ? 10 : _bounds.left,
+                                  left: widget.unconstrained
+                                      ? 10
+                                      : _bounds.left,
                                 ),
                                 child: SizedBox(
                                   width: widget.unconstrained
@@ -326,20 +328,21 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                       Positioned(
                         left: widget.unconstrained
                             ? (10 * _fading.value +
-                                _bounds.left * (1 - _fading.value))
+                                  _bounds.left * (1 - _fading.value))
                             : _bounds.left,
                         width: widget.unconstrained
                             ? (_bounds.width +
-                                    (constraints.maxWidth - _bounds.width) *
-                                        _fading.value) -
-                                (20 * _fading.value)
+                                      (constraints.maxWidth - _bounds.width) *
+                                          _fading.value) -
+                                  (20 * _fading.value)
                             : _bounds.width,
                         height: widget.unconstrained
                             ? (_bounds.height +
-                                (constraints.maxHeight / 2 - _bounds.height) *
-                                    _fading.value)
+                                  (constraints.maxHeight / 2 - _bounds.height) *
+                                      _fading.value)
                             : _bounds.height,
-                        bottom: (1 - _fading.value) *
+                        bottom:
+                            (1 - _fading.value) *
                                 (constraints.maxHeight -
                                     _bounds.top -
                                     _bounds.height) +
@@ -483,7 +486,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
   ///
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true` to intercept back button.
-  bool _onBack(bool _, RouteInfo __) {
+  bool _onBack(bool _, RouteInfo _) {
     _dismiss(withFeedback: false);
     return true;
   }

@@ -108,8 +108,7 @@ void main() async {
         limiter.execute(() async {
           await Future.delayed(per * 5);
           return i;
-        })
-          ..then((v) => finished.add(v)),
+        })..then((v) => finished.add(v)),
       );
     }
 
@@ -136,7 +135,7 @@ void main() async {
       futures.add(
         limiter
             .execute(() async => i)
-            .onError<OperationCanceledException>((_, __) => ++exceptions),
+            .onError<OperationCanceledException>((_, _) => ++exceptions),
       );
     }
 
@@ -152,7 +151,7 @@ void main() async {
       futures.add(
         limiter
             .execute(() async => i)
-            .onError<OperationCanceledException>((_, __) => ++exceptions),
+            .onError<OperationCanceledException>((_, _) => ++exceptions),
       );
     }
 

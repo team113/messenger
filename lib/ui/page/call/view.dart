@@ -27,7 +27,11 @@ import 'controller.dart';
 
 /// View of an [OngoingCall] overlay.
 class CallView extends StatelessWidget {
-  const CallView(this._call, {super.key});
+  const CallView(this._call, {super.key, this.onMinimized});
+
+  /// Callback, called when a [MinimizableView] that displays that call gets
+  /// minimized or expanded.
+  final void Function(bool)? onMinimized;
 
   /// Current [OngoingCall].
   final Rx<OngoingCall> _call;
@@ -41,6 +45,7 @@ class CallView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        onMinimized: onMinimized,
       ),
       tag: key?.hashCode.toString(),
       builder: (CallController c) {
@@ -55,16 +60,18 @@ class CallView extends StatelessWidget {
         if (c.isMobile != PlatformUtils.isMobile) {
           c.isMobile = PlatformUtils.isMobile;
           if (PlatformUtils.isMobile) {
+            onMinimized?.call(false);
             c.minimized.value = false;
           } else {
+            onMinimized?.call(true);
             c.minimized.value = true;
           }
         }
 
         if (c.isMobile) {
-          return mobileCall(c, context);
+          return Opacity(opacity: 0.5, child: mobileCall(c, context));
         } else {
-          return desktopCall(c, context);
+          return Opacity(opacity: 0.5, child: desktopCall(c, context));
         }
       },
     );

@@ -23,7 +23,6 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/drift/connection/connection.dart';
 import 'package:messenger/provider/drift/drift.dart';
-import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/get.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -61,8 +60,6 @@ class ResetAppHook extends Hook {
     );
 
     svg.cache.clear();
-
-    FIFOCache.clear();
 
     // Ensure any ongoing `drift` connections are indeed closed and cleared.
     await Future.delayed(const Duration(seconds: 1));

@@ -125,7 +125,7 @@ class PlayerView extends StatelessWidget {
       route = RawDialogRoute<T>(
         barrierColor: style.colors.backgroundGallery,
         barrierDismissible: true,
-        pageBuilder: (_, __, ___) {
+        pageBuilder: (_, _, _) {
           return CustomSafeArea(
             child: Material(type: MaterialType.transparency, child: gallery),
           );
@@ -134,7 +134,7 @@ class PlayerView extends StatelessWidget {
           context,
         ).modalBarrierDismissLabel,
         transitionDuration: const Duration(milliseconds: 300),
-        transitionBuilder: (_, Animation<double> animation, __, Widget child) {
+        transitionBuilder: (_, Animation<double> animation, _, Widget child) {
           return FadeTransition(
             opacity: CurvedAnimation(parent: animation, curve: Curves.linear),
             child: child,
@@ -332,8 +332,9 @@ class PlayerView extends StatelessWidget {
           ),
           MouseRegion(
             hitTestBehavior: HitTestBehavior.translucent,
-            cursor:
-                isVideo ? SystemMouseCursors.click : SystemMouseCursors.basic,
+            cursor: isVideo
+                ? SystemMouseCursors.click
+                : SystemMouseCursors.basic,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: c.playPause,
@@ -876,7 +877,8 @@ class PlayerView extends StatelessWidget {
                           AvatarWidget.fromUser(
                             user,
                             radius: AvatarRadius.small,
-                            isOnline: user.online &&
+                            isOnline:
+                                user.online &&
                                 user.presence == Presence.present,
                             isAway:
                                 user.online && user.presence == Presence.away,
@@ -916,7 +918,10 @@ class PlayerView extends StatelessWidget {
                                       Text(
                                         text,
                                         style: style
-                                            .fonts.normal.regular.onPrimary,
+                                            .fonts
+                                            .normal
+                                            .regular
+                                            .onPrimary,
                                         maxLines: null,
                                       ),
                                     SizedBox(height: 8),
@@ -925,11 +930,15 @@ class PlayerView extends StatelessWidget {
                                         Text(
                                           message.at.val.toRelative(),
                                           style: style
-                                              .fonts.normal.regular.onPrimary
+                                              .fonts
+                                              .normal
+                                              .regular
+                                              .onPrimary
                                               .copyWith(
-                                            color:
-                                                style.colors.onPrimaryOpacity50,
-                                          ),
+                                                color: style
+                                                    .colors
+                                                    .onPrimaryOpacity50,
+                                              ),
                                         ),
                                         Spacer(),
                                         Opacity(
@@ -941,18 +950,17 @@ class PlayerView extends StatelessWidget {
                                   ],
                                 )
                               : text == null
-                                  ? SizedBox(width: double.infinity)
-                                  : Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Text(
-                                        key: Key('Short'),
-                                        text,
-                                        style: style
-                                            .fonts.normal.regular.onPrimary,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
+                              ? SizedBox(width: double.infinity)
+                              : Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    key: Key('Short'),
+                                    text,
+                                    style: style.fonts.normal.regular.onPrimary,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                         );
                       }),
                     ),
@@ -1294,7 +1302,7 @@ class PlayerView extends StatelessWidget {
             ),
           );
         }),
-        SizedBox(width: 20),
+        const SizedBox(width: 20),
         Obx(() {
           final Post? post = c.posts.elementAtOrNull(c.index.value);
           final ChatItem? item = post?.item;
@@ -1399,8 +1407,9 @@ class PlayerView extends StatelessWidget {
                       }),
                       onPressed: c.includePhotos.toggle,
                       spacer: c.includePhotos.value ? selectedSpacer : null,
-                      spacerInverted:
-                          c.includePhotos.value ? selectedInverted : null,
+                      spacerInverted: c.includePhotos.value
+                          ? selectedInverted
+                          : null,
                     ),
                     ContextMenuButton(
                       label: 'label_videos_semicolon_amount'.l10nfmt({
@@ -1408,8 +1417,9 @@ class PlayerView extends StatelessWidget {
                       }),
                       onPressed: c.includeVideos.toggle,
                       spacer: c.includeVideos.value ? selectedSpacer : null,
-                      spacerInverted:
-                          c.includeVideos.value ? selectedInverted : null,
+                      spacerInverted: c.includeVideos.value
+                          ? selectedInverted
+                          : null,
                     ),
                   ],
                   enablePrimaryTap: true,
@@ -1423,60 +1433,62 @@ class PlayerView extends StatelessWidget {
           ),
           Expanded(
             child: Obx(() {
-              final Iterable<Widget> medias = c.posts.where((e) {
-                final PostItem? item = e.items.firstOrNull;
-                if (item == null) {
-                  return false;
-                }
-
-                if (item.attachment is ImageAttachment) {
-                  return c.includePhotos.value;
-                } else {
-                  return c.includeVideos.value;
-                }
-              }).mapIndexed((i, e) {
-                return WidgetButton(
-                  onPressed: () {
-                    c.vertical.animateToPage(
-                      i,
-                      duration: Duration(milliseconds: 250),
-                      curve: Curves.ease,
-                    );
-                  },
-                  child: Obx(() {
-                    final bool selected = c.index.value == i;
-
+              final Iterable<Widget> medias = c.posts
+                  .where((e) {
                     final PostItem? item = e.items.firstOrNull;
                     if (item == null) {
-                      return const SizedBox();
+                      return false;
                     }
 
-                    return Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        MediaAttachment(
-                          attachment: item.attachment,
-                          fit: BoxFit.cover,
-                          width: constraints.maxWidth / 5,
-                          height: constraints.maxWidth / 5,
-                          onError: () async => await c.reload(e),
-                        ),
-                        if (selected)
-                          Container(
-                            width: max(
-                              2,
-                              min(constraints.maxWidth / 100, 10),
+                    if (item.attachment is ImageAttachment) {
+                      return c.includePhotos.value;
+                    } else {
+                      return c.includeVideos.value;
+                    }
+                  })
+                  .mapIndexed((i, e) {
+                    return WidgetButton(
+                      onPressed: () {
+                        c.vertical.animateToPage(
+                          i,
+                          duration: Duration(milliseconds: 250),
+                          curve: Curves.ease,
+                        );
+                      },
+                      child: Obx(() {
+                        final bool selected = c.index.value == i;
+
+                        final PostItem? item = e.items.firstOrNull;
+                        if (item == null) {
+                          return const SizedBox();
+                        }
+
+                        return Stack(
+                          alignment: Alignment.centerLeft,
+                          children: [
+                            MediaAttachment(
+                              attachment: item.attachment,
+                              fit: BoxFit.cover,
+                              width: constraints.maxWidth / 5,
+                              height: constraints.maxWidth / 5,
+                              onError: () async => await c.reload(e),
                             ),
-                            height: constraints.maxWidth / 5,
-                            decoration: BoxDecoration(
-                              color: style.colors.primary,
-                            ),
-                          ),
-                      ],
+                            if (selected)
+                              Container(
+                                width: max(
+                                  2,
+                                  min(constraints.maxWidth / 100, 10),
+                                ),
+                                height: constraints.maxWidth / 5,
+                                decoration: BoxDecoration(
+                                  color: style.colors.primary,
+                                ),
+                              ),
+                          ],
+                        );
+                      }),
                     );
-                  }),
-                );
-              });
+                  });
 
               if (medias.isEmpty) {
                 return Center(

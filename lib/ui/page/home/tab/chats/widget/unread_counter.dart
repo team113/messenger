@@ -51,8 +51,8 @@ class UnreadCounter extends StatelessWidget {
         borderRadius: BorderRadius.circular(40),
         color: dimmed
             ? inverted
-                ? style.colors.onPrimary
-                : style.colors.secondaryHighlightDarkest
+                  ? style.colors.onPrimary
+                  : style.colors.secondaryHighlightDarkest
             : style.colors.danger,
       ),
       alignment: Alignment.center,

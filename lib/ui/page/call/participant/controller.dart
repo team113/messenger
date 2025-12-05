@@ -218,20 +218,22 @@ class ParticipantController extends GetxController {
           (id) => _chatService
               .addChatMember(chatId.value, id)
               .onError<AddChatMemberException>((e, _) async {
-            final FutureOr<RxUser?> userOrFuture = _userService.get(id);
-            final User? user =
-                (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
-                    ?.user
-                    .value;
+                final FutureOr<RxUser?> userOrFuture = _userService.get(id);
+                final User? user =
+                    (userOrFuture is RxUser?
+                            ? userOrFuture
+                            : await userOrFuture)
+                        ?.user
+                        .value;
 
-            if (user != null) {
-              await MessagePopup.error(
-                'err_blocked_by'.l10nfmt({
-                  'user': '${user.name ?? user.num}',
-                }),
-              );
-            }
-          }, test: (e) => e.code == AddChatMemberErrorCode.blocked),
+                if (user != null) {
+                  await MessagePopup.error(
+                    'err_blocked_by'.l10nfmt({
+                      'user': '${user.name ?? user.num}',
+                    }),
+                  );
+                }
+              }, test: (e) => e.code == AddChatMemberErrorCode.blocked),
         );
 
         await Future.wait(futures);
@@ -296,7 +298,7 @@ class ParticipantController extends GetxController {
   ///
   /// Intended to be used as a [BackButtonInterceptor] callback, thus returns
   /// `true` to intercept back button.
-  bool _onBack(bool _, RouteInfo __) {
+  bool _onBack(bool _, RouteInfo _) {
     pop?.call();
     return true;
   }
