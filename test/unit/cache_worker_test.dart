@@ -75,14 +75,14 @@ void main() async {
     await worker.add(base64Decode('someData'), 'checksum');
     expect(worker.exists('checksum'), true);
     expect(
-      (worker.get(checksum: 'checksum') as CacheEntry).bytes,
+      (await worker.get(checksum: 'checksum')).bytes,
       base64Decode('someData'),
     );
 
     await worker.add(base64Decode('someData1111'), 'checksum1');
     expect(worker.exists('checksum1'), true);
     expect(
-      (worker.get(checksum: 'checksum1') as CacheEntry).bytes,
+      (await worker.get(checksum: 'checksum1')).bytes,
       base64Decode('someData1111'),
     );
 
