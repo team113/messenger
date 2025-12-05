@@ -582,6 +582,7 @@ label_conditions_frontend_developer =
     - Control de horario y pago por horas extras
     - Posibilidad de reubicación
 label_confidentiality = Privacidad
+label_confirm_password = Confirmar la contraseña
 label_connection_lost = Conexión perdida
 label_connection_restored = Conexión restablecida
 label_contact_us_via_provided_email = Contáctenos por e-mail {$email}.
@@ -810,7 +811,7 @@ label_regulations_freelance =
     5. Debe hacer una confirmación al menos cada 72 horas durante el desarrollo de la atrea.
     6. El equipo frontend puede rechazar la colaboración si el código presentado es de calidad evidentemente baja.
 label_remove_member = Eliminar del grupo
-label_repeat_password = Confirmar la contraseña
+label_repeat_password = Repita la contraseña
 label_replace_this_text_with_concern = Describe el asunto.
 label_replace_this_text_with_feedback = Comentarios.
 label_replies = [{$count} {$count ->

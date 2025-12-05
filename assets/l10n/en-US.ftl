@@ -582,6 +582,7 @@ label_conditions_frontend_developer =
     - Time tracking and payment for overtime;
     - Relocation possible.
 label_confidentiality = Confidentiality
+label_confirm_password = Confirm password
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact_us_via_provided_email = Contact us by e-mail {$email}.
@@ -808,7 +809,7 @@ label_regulations_freelance =
     5. While working on the task you should push commit of your task at least once every 72 hours.
     6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
 label_remove_member = Remove from the group
-label_repeat_password = Confirm password
+label_repeat_password = Repeat password
 label_replace_this_text_with_concern = Describe the concern.
 label_replace_this_text_with_feedback = Feedback.
 label_replies = [{$count} {$count ->
