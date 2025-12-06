@@ -250,6 +250,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         rightClickMessage,
         rightClickWidget,
         scrollAndSee,
+        scrollAndSeeText,
         scrollToBottom,
         scrollToTop,
         scrollUntilPresent,

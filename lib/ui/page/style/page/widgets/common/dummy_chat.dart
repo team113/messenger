@@ -77,6 +77,12 @@ class DummyRxChat extends RxChat {
   RxBool get inCall => RxBool(false);
 
   @override
+  ChatScrollPosition? get scrollPosition => null;
+
+  @override
+  set scrollPosition(ChatScrollPosition position) {}
+
+  @override
   RxList<LastChatRead> get reads => RxList();
 
   @override
