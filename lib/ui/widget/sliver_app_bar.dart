@@ -32,6 +32,7 @@ class CustomSliverAppBar extends StatelessWidget {
     this.hasFlexible = true,
     this.height = 60,
     this.extended = 110,
+    this.hideSystemLeading = false,
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -60,6 +61,12 @@ class CustomSliverAppBar extends StatelessWidget {
   /// If `false`, then [flexible] is still displayed, but as a [subtitle].
   final bool hasFlexible;
 
+  /// Indicator whether [SliverAppBar.leading] should be hidden or not.
+  ///
+  /// If `true` [SliverAppBar.leading] replaced by [SizedBox] with zero
+  /// [SliverAppBar.leadingWidth]. Default `false`.
+  final bool hideSystemLeading;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -76,6 +83,8 @@ class CustomSliverAppBar extends StatelessWidget {
       expandedHeight: hasFlexible ? extended : height,
       toolbarHeight: hasFlexible ? height : extended,
       shape: BoxBorder.fromLTRB(right: style.cardBorder.right),
+      leading: hideSystemLeading ? SizedBox() : null,
+      leadingWidth: hideSystemLeading ? 0 : null,
       flexibleSpace: flexible != null && hasFlexible
           ? FlexibleSpaceBar(
               collapseMode: CollapseMode.parallax,
