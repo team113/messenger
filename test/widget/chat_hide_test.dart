@@ -414,7 +414,9 @@ void main() async {
     }
 
     await tester.pumpWidget(
-      createWidgetForTesting(child: const ChatsTabView()),
+      createWidgetForTesting(
+        child: ChatsTabView(chatsController: ScrollController()),
+      ),
     );
 
     expect(find.text('chatname'), findsOneWidget);
