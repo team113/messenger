@@ -309,7 +309,6 @@ class BlocklistRepository extends DisposableInterface
         count.value = blocklist.totalCount;
         await _sessionLocal.upsert(
           me,
-
           blocklistCount: NewType(blocklist.totalCount),
           blocklistVersion: NewType(blocklist.ver),
         );
@@ -357,7 +356,6 @@ class BlocklistRepository extends DisposableInterface
 
           await _sessionLocal.upsert(
             me,
-
             blocklistCount: NewType(count.value),
             blocklistVersion: NewType(versioned.ver),
           );

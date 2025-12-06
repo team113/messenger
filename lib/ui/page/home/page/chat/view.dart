@@ -1334,7 +1334,6 @@ class ChatView extends StatelessWidget {
                   sizeFactor: animation,
                   axis: Axis.horizontal,
                   axisAlignment: 0,
-
                   child: ScaleTransition(
                     scale: animation,
                     alignment: Alignment.centerLeft,

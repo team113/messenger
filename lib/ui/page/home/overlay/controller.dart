@@ -187,6 +187,9 @@ class OverlayCall {
   /// [GlobalKey] identifying the [call].
   final GlobalKey key = GlobalKey();
 
+  /// Indicator whether the [call] should be minimized or not.
+  final RxBool minimized = RxBool(true);
+
   /// Reactive [OngoingCall] itself.
   final Rx<OngoingCall> call;
 }
