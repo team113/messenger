@@ -47,6 +47,8 @@ class Backoff {
   }) async {
     int index = 0;
 
+    final StackTrace invokedFrom = StackTrace.current;
+
     final CancelableOperation operation = CancelableOperation.fromFuture(
       Future(() async {
         Duration backoff = Duration.zero;
@@ -75,7 +77,7 @@ class Backoff {
               backoff *= 2;
             }
 
-            Log.debug(e.toString(), 'Backoff');
+            Log.debug('$e\n$invokedFrom', 'Backoff');
           }
         }
       }),
