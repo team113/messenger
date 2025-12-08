@@ -1765,6 +1765,9 @@ class OngoingCall {
     _room?.onClose((r) async {
       _joined = false;
 
+      // In case a new link will be sent shortly.
+      connectionLost.value = true;
+
       Log.warning(
         'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
         '$runtimeType',
@@ -2133,6 +2136,9 @@ class OngoingCall {
 
     Log.info('Joining the room...', '$runtimeType');
     _joined = true;
+
+    // In case `RoomHandle.onClose` was fired.
+    connectionLost.value = false;
 
     if (_joinLink != null && _joinLink != link) {
       _joinLink = link;

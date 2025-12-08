@@ -569,6 +569,11 @@ class MessageFieldController extends GetxController {
   ///
   /// May be used to test a [file] upload since [FilePicker] can't be mocked.
   Future<void> _addAttachment(NativeFile file) async {
+    Log.debug(
+      '_addAttachment($file) -> edited(${edited.value})',
+      '$runtimeType',
+    );
+
     if (file.size < maxAttachmentSize && _chatService != null) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);

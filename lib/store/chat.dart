@@ -996,7 +996,10 @@ class ChatRepository extends DisposableInterface
     model.ChatMessageAttachmentsInput? attachments,
     model.ChatMessageRepliesInput? repliesTo,
   }) async {
-    Log.debug('editChatMessage($message, $text)', '$runtimeType');
+    Log.debug(
+      'editChatMessage($message, text: ${text?.changed}, attachments: ${attachments?.changed}, repliesTo: ${repliesTo?.changed})',
+      '$runtimeType',
+    );
 
     final Rx<ChatItem>? item = chats[message.chatId]?.messages.firstWhereOrNull(
       (e) => e.value.id == message.id,
