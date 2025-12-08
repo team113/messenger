@@ -226,7 +226,7 @@ Future<void> _fillField(
 
       await context.world.appDriver.waitForAppToSettle();
 
-      Focus.of(element.first).unfocus();
+      Focus.maybeOf(element.first)?.unfocus();
       FocusManager.instance.primaryFocus?.unfocus();
 
       return true;
