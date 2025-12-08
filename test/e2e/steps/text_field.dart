@@ -202,6 +202,11 @@ Future<void> _fillField(
 
     if (await context.world.appDriver.isPresent(finder) &&
         finder.tryEvaluate()) {
+      final element = finder.evaluate();
+      if (element.isEmpty) {
+        return false;
+      }
+
       await context.world.appDriver.tap(
         finder,
         timeout: const Duration(seconds: 30),
@@ -221,6 +226,7 @@ Future<void> _fillField(
 
       await context.world.appDriver.waitForAppToSettle();
 
+      Focus.of(element.first).unfocus();
       FocusManager.instance.primaryFocus?.unfocus();
 
       return true;
