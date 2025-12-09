@@ -191,6 +191,37 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
     ..timeout = const Duration(seconds: 30),
 );
 
+/// Erases any text from the widget with the provided [WidgetKey].
+///
+/// Examples:
+/// - Then I erase `EmailField` field from text
+/// - Then I erase `NameField` field from text
+StepDefinitionGeneric eraseField = when1<WidgetKey, FlutterWorld>(
+  'I erase {key} field from text',
+  (WidgetKey key, StepContext<FlutterWorld> context) async {
+    await context.world.appDriver.waitUntil(() async {
+      final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+      if (await context.world.appDriver.isPresent(finder)) {
+        final element = finder.evaluate();
+        if (element.isEmpty) {
+          return false;
+        }
+
+        await context.world.appDriver.enterText(finder, '');
+
+        Focus.maybeOf(element.first)?.unfocus();
+        FocusManager.instance.primaryFocus?.unfocus();
+
+        return true;
+      }
+
+      return false;
+    }, timeout: const Duration(seconds: 30));
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 30),
+);
+
 /// Enters the given [text] into the widget with the provided [WidgetKey].
 Future<void> _fillField(
   WidgetKey key,
@@ -202,11 +233,6 @@ Future<void> _fillField(
 
     if (await context.world.appDriver.isPresent(finder) &&
         finder.tryEvaluate()) {
-      final element = finder.evaluate();
-      if (element.isEmpty) {
-        return false;
-      }
-
       await context.world.appDriver.tap(
         finder,
         timeout: const Duration(seconds: 30),
@@ -226,7 +252,6 @@ Future<void> _fillField(
 
       await context.world.appDriver.waitForAppToSettle();
 
-      Focus.maybeOf(element.first)?.unfocus();
       FocusManager.instance.primaryFocus?.unfocus();
 
       return true;

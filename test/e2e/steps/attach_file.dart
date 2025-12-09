@@ -64,7 +64,7 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
           );
 
           Log.debug(
-            'attachFile -> `ChatForwardController` is `$controller` for route `${router.route.split('/').last}` -> edit(${controller.edit.value}), send(${controller.send})',
+            'attachFile -> `ChatController` is `$controller` for route `${router.route.split('/').last}` -> edit(${controller.edit.value}), send(${controller.send})',
             'E2E',
           );
 
