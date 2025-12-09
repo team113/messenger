@@ -81,7 +81,7 @@ class NotificationService: UNNotificationServiceExtension {
         let accountId = user[userId]
 
         let locks = LockProvider(db: db)
-        let lock = await locks?.acquireLock(asOperation: "refreshSession(\(userId))")
+        let lock = await locks?.acquireLock(asOperation: "refreshSession(\(accountId))")
 
         let query = tokens.select(credentials).where(userId == accountId).limit(1)
         let account = try! db.pluck(query)
