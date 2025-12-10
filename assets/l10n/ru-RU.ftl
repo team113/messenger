@@ -601,7 +601,6 @@ label_count_seconds = {$count} { $count ->
         [few] секунды
         *[other] секунд
     }
-label_critical_update = Критическое обновление
 label_critical_update_is_available = Текущая версия не поддерживается
 label_create_group = Создание группы
 label_create_link = Создать ссылку

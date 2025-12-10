@@ -152,10 +152,10 @@ class Config {
   /// URL address of IP address discovering API server.
   static String ipEndpoint = 'https://api.ipify.org?format=json';
 
-  /// Map of localized announcements that should be displayed within the app.
+  /// Map of localized [Announcement]s that should be displayed within the app.
   ///
   /// Each key is expected to be a string of Unicode BCP47 Locale Identifier.
-  static Map<String, String> announcements = {};
+  static Map<String, Announcement> announcements = {};
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
@@ -287,28 +287,28 @@ class Config {
       if (announcementsOrNull is Map<String, dynamic>) {
         announcements.clear();
         for (var entry in announcementsOrNull.entries) {
-          announcements[entry.key] = entry.value;
+          announcements[entry.key] = Announcement.parse(entry.value);
         }
       }
 
       // `bool.hasEnvironment` can only be used as a `const` constructor.
       if (const bool.hasEnvironment('SOCAPP_ANNOUNCEMENT_EN_US')) {
-        announcements['en-US'] = const String.fromEnvironment(
-          'SOCAPP_ANNOUNCEMENT_EN_US',
+        announcements['en-US'] = Announcement.parse(
+          const String.fromEnvironment('SOCAPP_ANNOUNCEMENT_EN_US'),
         );
       }
 
       // `bool.hasEnvironment` can only be used as a `const` constructor.
       if (const bool.hasEnvironment('SOCAPP_ANNOUNCEMENT_ES_ES')) {
-        announcements['es-ES'] = const String.fromEnvironment(
-          'SOCAPP_ANNOUNCEMENT_ES_ES',
+        announcements['es-ES'] = Announcement.parse(
+          const String.fromEnvironment('SOCAPP_ANNOUNCEMENT_ES_ES'),
         );
       }
 
       // `bool.hasEnvironment` can only be used as a `const` constructor.
       if (const bool.hasEnvironment('SOCAPP_ANNOUNCEMENT_RU_RU')) {
-        announcements['en-US'] = const String.fromEnvironment(
-          'SOCAPP_ANNOUNCEMENT_RU_RU',
+        announcements['en-US'] = Announcement.parse(
+          const String.fromEnvironment('SOCAPP_ANNOUNCEMENT_RU_RU'),
         );
       }
     } catch (e) {
@@ -404,7 +404,7 @@ class Config {
                 announcements.clear();
                 for (var entry in announcementsOrNull.entries) {
                   if (entry.key is String && entry.value is String) {
-                    announcements[entry.key] = entry.value;
+                    announcements[entry.key] = Announcement.parse(entry.value);
                   }
                 }
               }
@@ -448,6 +448,35 @@ class Config {
       });
     }
   }
+}
+
+/// [title] with a [body] intended to be used as an announcement to make to the
+/// client in a non-dismissible way.
+class Announcement {
+  const Announcement({this.title, required this.body});
+
+  /// Constructs an [Announcement] from the provided [text].
+  ///
+  /// First line of the [text], if there's multiple present, is considered as a
+  /// [title].
+  factory Announcement.parse(String text) {
+    final split = text.split('\n');
+    if (split.length >= 2) {
+      final String title = split.first;
+      return Announcement(title: title, body: text.substring(title.length));
+    }
+
+    return Announcement(body: text);
+  }
+
+  /// Indicates whether this [Announcement] is empty.
+  bool get isEmpty => title?.isNotEmpty != true && body.isEmpty;
+
+  /// Optional title of this [Announcement].
+  final String? title;
+
+  /// Body of this [Announcement].
+  final String body;
 }
 
 /// Parses the provided [val] as [int].

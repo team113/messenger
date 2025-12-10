@@ -452,7 +452,7 @@ class _HomeViewState extends State<HomeView> {
   Widget _announcement(BuildContext context, HomeController c) {
     return Obx(() {
       final String? language = L10n.chosen.value?.toString();
-      final String? announcement = Config.announcements[language];
+      final Announcement? announcement = Config.announcements[language];
 
       if (announcement == null || announcement.isEmpty) {
         return SizedBox();

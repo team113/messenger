@@ -17,20 +17,22 @@
 
 import 'package:flutter/material.dart';
 
-import '/l10n/l10n.dart';
+import '/config.dart';
 import '/ui/widget/svg/svg.dart';
 import '/themes.dart';
 
-/// Rectangular alert widget displaying the provided [text].
+/// Rectangular alert widget displaying the provided [Announcement].
 class AnnouncementWidget extends StatelessWidget {
-  const AnnouncementWidget(this.text, {super.key});
+  const AnnouncementWidget(this.announcement, {super.key});
 
-  /// Text to display.
-  final String text;
+  /// [Announcement] to display.
+  final Announcement announcement;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    final String? title = announcement.title;
 
     return Container(
       decoration: BoxDecoration(
@@ -41,27 +43,30 @@ class AnnouncementWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 12),
-          Padding(
-            padding: EdgeInsets.fromLTRB(12, 0, 12, 0),
-            child: Row(
-              children: [
-                SvgIcon(SvgIcons.attention),
-                Expanded(
-                  child: Text(
-                    'label_critical_update'.l10n,
-                    style: style.fonts.medium.regular.onBackground,
-                    textAlign: TextAlign.center,
+          if (title != null)
+            Padding(
+              padding: EdgeInsets.fromLTRB(12, 0, 12, 8),
+              child: Row(
+                children: [
+                  SvgIcon(SvgIcons.attention),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: style.fonts.medium.regular.onBackground,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-                SvgIcon(SvgIcons.attention),
-              ],
+                  SvgIcon(SvgIcons.attention),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
           Flexible(
             child: SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: Text(text, style: style.fonts.small.regular.onBackground),
+              child: Text(
+                announcement.body,
+                style: style.fonts.small.regular.onBackground,
+              ),
             ),
           ),
         ],

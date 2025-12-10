@@ -590,7 +590,6 @@ label_count_seconds = {$count} { $count ->
    }
 label_create_group = Group creation
 label_create_link = Create link
-label_critical_update = Critical update
 label_critical_update_is_available = Current version is no longer supported
 label_current_account = Current account
 label_current_password = Current password
