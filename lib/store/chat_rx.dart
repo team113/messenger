@@ -613,13 +613,13 @@ class RxChatImpl extends RxChat {
       firstUnreadIndex = messages.indexOf(firstUnread!);
     }
 
-    int lastReadIndex = messages.indexWhere(
+    final int lastReadIndex = messages.indexWhere(
       (m) => m.value.id == untilId,
       firstUnreadIndex,
     );
 
     if (lastReadIndex != -1 && firstUnreadIndex != -1) {
-      int read = messages
+      final int read = messages
           .skip(firstUnreadIndex)
           .take(lastReadIndex - firstUnreadIndex + 1)
           .where((e) => !e.value.id.isLocal && e.value.author.id != me)

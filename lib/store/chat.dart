@@ -673,7 +673,7 @@ class ChatRepository extends DisposableInterface
       await rxChat?.postChatMessage(
         existingId: item.id,
         existingDateTime: item.at,
-        text: item.text,
+        text: item.text?.nullIfEmpty,
         attachments: item.attachments,
         repliesTo: item.repliesTo.map((e) => e.original).nonNulls.toList(),
       );
