@@ -20,12 +20,14 @@ All user visible changes to this project will be documented in this file. This p
         - Top up and transactions pages. ([#4])
     - Monetization tab:
         - Partner programs and your promotion pages. ([#4])
+        - Set your prices, transactions and withdrawal pages. ([#5])
 - Deployment:
     - [Helm] chart. ([#1])
 
 [#1]: /../../pull/1
 [#2]: /../../pull/2
 [#4]: /../../pull/4
+[#5]: /../../pull/5
 
 
 

@@ -77,6 +77,7 @@ part 'themes.g.dart';
       'secondaryHighlight',
       'secondaryHighlightDarkest',
       'currencyPrimary',
+      'secondaryBackgroundLight',
     ],
   },
   'smaller': {
@@ -128,6 +129,7 @@ class Themes {
       acceptLight: const Color(0xFFBFE3B9),
       acceptLighter: const Color(0xFFD9FDD3),
       acceptLightest: const Color(0xFFF2FDED),
+      acceptShadow: const Color(0xFF7EA793),
       decline: const Color(0xFFFF0000),
       danger: const Color(0xFFF44336),
       warning: const Color(0xFFFF9800),
@@ -185,6 +187,7 @@ class Themes {
       primaryHighlightLightest: colors.primaryHighlightLightest,
       onBackground: colors.onBackground,
       secondary: colors.secondary,
+      secondaryBackgroundLight: colors.secondaryBackgroundLight,
       secondaryHighlight: colors.secondaryHighlight,
       secondaryHighlightDarkest: colors.secondaryHighlightDarkest,
       onPrimary: colors.onPrimary,
@@ -754,6 +757,7 @@ class Palette {
     required this.acceptLight,
     required this.acceptLighter,
     required this.acceptLightest,
+    required this.acceptShadow,
     required this.decline,
     Color? declineOpacity50,
     Color? declineOpacity88,
@@ -1076,6 +1080,9 @@ class Palette {
   /// Lightest variant of the [accept] color.
   final Color acceptLightest;
 
+  /// [accept] color acting like a shadow.
+  final Color acceptShadow;
+
   /// Indicator of rejection or cancellation in various elements of the user
   /// interface.
   final Color decline;
@@ -1338,6 +1345,7 @@ class Palette {
         other.acceptLightest,
         t,
       )!,
+      acceptShadow: Color.lerp(color.acceptShadow, other.acceptShadow, t)!,
       decline: Color.lerp(color.decline, other.decline, t)!,
       declineOpacity50: Color.lerp(
         color.declineOpacity50,

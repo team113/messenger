@@ -131,7 +131,7 @@ dev_dependencies:
     git: https://github.com/SleepySquash/artemis
   build_runner: ^2.4.11
   change_app_package_name: ^1.4.0
-  dartdoc: ^8.3.3
+  dartdoc: ^9.0.0
   drift_dev: ^2.26.1
   flutter_driver:
     sdk: flutter
@@ -147,10 +147,14 @@ dev_dependencies:
     sdk: flutter
   gherkin: ^2.0.8
   json_serializable: ^6.6.2
-  mockito: ^5.4.2
+  mockito: ^5.6.1
   sentry_dart_plugin: ^3.1.1
 
 dependency_overrides:
+  # TODO: Unpin when `dartdoc` updates.
+  analyzer: ^8.4.0
+  # TODO: Unpin when `flutter_gherkin` updates.
+  source_gen: ^4.1.1
   # TODO: Remove when `graphql` updates.
   graphql:
     git:

@@ -2042,12 +2042,6 @@ class SvgIcons {
     height: 50,
   );
 
-  static const SvgData menuStatistics = SvgData(
-    'assets/icons/menu/statistics.svg',
-    width: 50,
-    height: 50,
-  );
-
   static const SvgData menuMonetization = SvgData(
     'assets/icons/menu/monetization.svg',
     width: 50,
@@ -2136,5 +2130,137 @@ class SvgIcons {
     'assets/icons/preview_pause.svg',
     width: 6.76,
     height: 7.88,
+  );
+
+  static const SvgData withdrawUsdt = SvgData(
+    'assets/icons/withdraw_usdt.svg',
+    width: 31,
+    height: 27,
+  );
+
+  static const SvgData withdrawPayPal = SvgData(
+    'assets/icons/withdraw_paypal.svg',
+    width: 24,
+    height: 24,
+  );
+
+  static const SvgData withdrawMonobank = SvgData(
+    'assets/icons/withdraw_monobank.svg',
+    width: 31,
+    height: 31,
+  );
+
+  static const SvgData withdrawSepa = SvgData(
+    'assets/icons/withdraw_sepa.svg',
+    width: 31,
+    height: 9,
+  );
+
+  static const SvgData withdrawInfoTether = SvgData(
+    'assets/icons/withdraw_info_tether.svg',
+    width: 154,
+    height: 40,
+  );
+
+  static const SvgData withdrawInfoTetherArbitrum = SvgData(
+    'assets/icons/withdraw_info_tether_arbitrum.svg',
+    width: 154,
+    height: 40,
+  );
+
+  static const SvgData withdrawInfoTetherOptimism = SvgData(
+    'assets/icons/withdraw_info_tether_optimism.svg',
+    width: 154,
+    height: 40,
+  );
+
+  static const SvgData withdrawInfoTetherPlasma = SvgData(
+    'assets/icons/withdraw_info_tether_plasma.svg',
+    width: 154,
+    height: 40,
+  );
+
+  static const SvgData withdrawInfoTetherPolygon = SvgData(
+    'assets/icons/withdraw_info_tether_polygon.svg',
+    width: 154,
+    height: 40,
+  );
+
+  static const SvgData withdrawInfoTetherSolana = SvgData(
+    'assets/icons/withdraw_info_tether_solana.svg',
+    width: 154,
+    height: 40,
+  );
+
+  static const SvgData withdrawInfoTetherTon = SvgData(
+    'assets/icons/withdraw_info_tether_ton.svg',
+    width: 154,
+    height: 40,
+  );
+
+  static const SvgData withdrawInfoTetherTron = SvgData(
+    'assets/icons/withdraw_info_tether_tron.svg',
+    width: 154,
+    height: 40,
+  );
+
+  static const SvgData usdtNetworkArbitrumIcon = SvgData(
+    'assets/icons/usdt_network_arbitrum_icon.svg',
+    width: 23,
+    height: 23,
+  );
+
+  static const SvgData usdtNetworkOptimismIcon = SvgData(
+    'assets/icons/usdt_network_optimism_icon.svg',
+    width: 23,
+    height: 23,
+  );
+
+  static const SvgData usdtNetworkPlasmaIcon = SvgData(
+    'assets/icons/usdt_network_plasma_icon.svg',
+    width: 23,
+    height: 23,
+  );
+
+  static const SvgData usdtNetworkPolygonIcon = SvgData(
+    'assets/icons/usdt_network_polygon_icon.svg',
+    width: 23,
+    height: 23,
+  );
+
+  static const SvgData usdtNetworkSolanaIcon = SvgData(
+    'assets/icons/usdt_network_solana_icon.svg',
+    width: 23,
+    height: 23,
+  );
+
+  static const SvgData usdtNetworkTonIcon = SvgData(
+    'assets/icons/usdt_network_ton_icon.svg',
+    width: 23,
+    height: 23,
+  );
+
+  static const SvgData usdtNetworkTronIcon = SvgData(
+    'assets/icons/usdt_network_tron_icon.svg',
+    width: 23,
+    height: 23,
+  );
+
+  static const SvgData withdrawInfoPayPal = SvgData(
+    'assets/icons/withdraw_info_paypal.svg',
+    width: 165,
+    height: 40,
+  );
+
+  static const SvgData withdrawInfoMonobank = SvgData(
+    'assets/icons/withdraw_info_monobank.svg',
+    width: 297,
+    height: 40,
+  );
+
+  static const SvgData withdrawInfoSepa = SvgData(
+    'assets/icons/withdraw_info_sepa.svg',
+    width: 109,
+    height: 40,
   );
 }

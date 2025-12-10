@@ -18,25 +18,145 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
+import '/ui/page/home/widget/operation.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
+/// View of the [Routes.partnerTransactions] page.
 class PartnerTransactionsView extends StatelessWidget {
   const PartnerTransactionsView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: PartnerTransactionsController(),
+      init: PartnerTransactionsController(Get.find()),
       builder: (PartnerTransactionsController c) {
         return Scaffold(
           appBar: CustomAppBar(
             leading: const [SizedBox(width: 4), StyledBackButton()],
+            title: Text('label_your_transactions'.l10n),
+            actions: [
+              AnimatedButton(
+                onPressed: () {
+                  c.expanded.toggle();
+                  c.ids.clear();
+                },
+                decorator: (child) => Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 20, 8),
+                  child: child,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 4, 0, 4),
+                  child: Obx(() {
+                    return SvgIcon(
+                      c.expanded.value ? SvgIcons.viewFull : SvgIcons.viewShort,
+                    );
+                  }),
+                ),
+              ),
+            ],
           ),
-          body: Center(child: Text('$runtimeType')),
+          body: Builder(
+            builder: (_) {
+              return Obx(() {
+                final List<Widget> children = [
+                  ...c.operations.values.map((e) {
+                    return Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: 400),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                          child: WidgetButton(
+                            onPressed: () {
+                              if (c.ids.contains(e.id)) {
+                                c.ids.remove(e.id);
+                              } else {
+                                c.ids.add(e.id);
+                              }
+                            },
+                            child: Obx(() {
+                              final bool expanded = c.expanded.value;
+
+                              return OperationWidget(
+                                e,
+                                expanded:
+                                    (expanded && !c.ids.contains(e.id)) ||
+                                    (!expanded && c.ids.contains(e.id)),
+                              );
+                            }),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ];
+
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        reverse: true,
+                        children: [
+                          const SizedBox(height: 8),
+                          ...children,
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
+                    _search(context, c),
+                  ],
+                );
+              });
+            },
+          ),
         );
       },
+    );
+  }
+
+  /// Returns the search field for transactions filtering.
+  Widget _search(BuildContext context, PartnerTransactionsController c) {
+    final style = Theme.of(context).style;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: style.cardColor,
+        boxShadow: [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: style.colors.onBackgroundOpacity13,
+          ),
+        ],
+      ),
+      constraints: const BoxConstraints(minHeight: 57),
+      child: Row(
+        children: [
+          const SizedBox(width: 16),
+          const SvgIcon(SvgIcons.search),
+          Expanded(
+            child: Theme(
+              data: MessageFieldView.theme(context),
+              child: ReactiveTextField(
+                dense: true,
+                state: c.search,
+                hint: 'label_search_dots'.l10n,
+                style: style.fonts.medium.regular.onBackground,
+                onChanged: () {
+                  c.query.value = c.search.text.isEmpty ? null : c.search.text;
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

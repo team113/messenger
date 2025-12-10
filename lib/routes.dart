@@ -34,6 +34,7 @@ import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
 import 'domain/repository/contact.dart';
 import 'domain/repository/my_user.dart';
+import 'domain/repository/partner.dart';
 import 'domain/repository/session.dart';
 import 'domain/repository/settings.dart';
 import 'domain/repository/user.dart';
@@ -45,6 +46,7 @@ import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/notification.dart';
+import 'domain/service/partner.dart';
 import 'domain/service/session.dart';
 import 'domain/service/user.dart';
 import 'domain/service/wallet.dart';
@@ -74,6 +76,7 @@ import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
 import 'store/my_user.dart';
+import 'store/partner.dart';
 import 'store/session.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
@@ -1074,6 +1077,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               final AbstractWalletRepository walletRepository = deps
                   .put<AbstractWalletRepository>(WalletRepository(Get.find()));
               deps.put(WalletService(walletRepository));
+
+              final AbstractPartnerRepository partnerRepository = deps
+                  .put<AbstractPartnerRepository>(PartnerRepository());
+              deps.put(PartnerService(partnerRepository));
 
               deps.put(
                 CallWorker(

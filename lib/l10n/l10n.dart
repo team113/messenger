@@ -25,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
+import '/domain/model/price.dart';
 import '/routes.dart';
 import '/util/platform_utils.dart';
 
@@ -401,5 +402,67 @@ extension SpacesNumExtension on num {
     }
 
     return value;
+  }
+}
+
+/// Extension adding ability to retrieve a symbol of the provided [Currency].
+extension CurrencyL10nExtension on Currency {
+  /// Returns a symbol of this [Currency].
+  String get l10n => switch (val) {
+    'G' => '¤',
+    'USD' => '\$',
+    'EUR' => '€',
+    (_) => val,
+  };
+}
+
+/// Extension adding ability to retrieve a localized string of a [Price].
+extension PriceL10nExtention on Price {
+  /// Returns a localized string of this [Price].
+  String get l10n {
+    return switch (currency.val) {
+      'USDT' => '${sum.val.toStringAsDigits(2)} ${currency.l10n}',
+      (_) => '${currency.l10n}${sum.val.toStringAsDigits(2)}',
+    };
+  }
+}
+
+/// Extension adding ability to get [double] formatted as [String] with only
+/// significant digits present.
+extension on double {
+  /// Returns this [double] formatted as [String] with only significant digits
+  /// present.
+  ///
+  /// Examples:
+  /// - `0.toStringAsDigits(2)` -> `"0.00"`
+  /// - `1.2.toStringAsDigits(2)` -> `"1.20"`
+  /// - `2.345.toStringAsDigits(2)` -> `"2.345"`
+  /// - `0.00005.toStringAsDigits(2)` -> `"0.00005"`
+  String toStringAsDigits(int digits) {
+    final String str = toString();
+
+    // If the number has no fractional part → force `.00`.
+    if (!str.contains('.')) {
+      return toStringAsFixed(digits);
+    }
+
+    // Find digits after decimal.
+    final fractional = str.split('.')[1];
+
+    // Fractional length <= 2 -> force 2 decimal places.
+    if (fractional.length <= digits) {
+      return toStringAsFixed(digits);
+    }
+
+    // Fractional length > 2 -> check whether digits after 2nd decimal are all
+    // zero or not.
+    final extra = fractional.substring(digits);
+    final allZeros = extra.split('').every((c) => c == '0');
+
+    if (allZeros) {
+      return toStringAsFixed(digits);
+    }
+
+    return str;
   }
 }

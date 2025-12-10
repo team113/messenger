@@ -233,13 +233,8 @@ class OperationWidget extends StatelessWidget {
         break;
     }
 
-    final String currency = switch (operation.amount.currency.val) {
-      'G' => '¤',
-      (_) => operation.amount.currency.val,
-    };
-
     final String primaryText =
-        '${positive ? '+' : '-'}$currency${operation.amount.sum.val.toStringAsFixed(2)}';
+        '${positive ? '+' : '-'}${operation.amount.l10n}';
     final TextStyle primaryStyle = style.fonts.big.regular.onBackground
         .copyWith(
           fontWeight: FontWeight.bold,

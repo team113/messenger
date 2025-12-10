@@ -30,6 +30,7 @@ class RectangleButton extends StatelessWidget {
     this.label,
     this.child,
     this.leading,
+    this.trailing,
     this.subtitle,
   });
 
@@ -46,7 +47,13 @@ class RectangleButton extends StatelessWidget {
   /// Callback, called when this [RectangleButton] is pressed.
   final void Function()? onPressed;
 
+  /// [Widget] to display as a leading of this [RectangleButton].
   final Widget? leading;
+
+  /// [Widget] to display as a trailing of this [RectangleButton].
+  final Widget? trailing;
+
+  /// [Widget] to display in a subtitle under the [child] or [label].
   final String? subtitle;
 
   @override
@@ -61,14 +68,15 @@ class RectangleButton extends StatelessWidget {
         onTap: selected ? null : onPressed,
         child: Padding(
           padding: EdgeInsets.fromLTRB(
-            16,
             subtitle == null ? 16 : 8,
-            16,
+            subtitle == null ? 16 : 8,
+            subtitle == null ? 16 : 8,
             subtitle == null ? 16 : 8,
           ),
           child: Row(
             children: [
-              if (leading != null) ...[leading!, const SizedBox(width: 8)],
+              ?leading,
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,6 +101,8 @@ class RectangleButton extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
+              ?trailing,
             ],
           ),
         ),

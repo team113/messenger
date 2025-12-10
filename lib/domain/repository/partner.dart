@@ -17,5 +17,14 @@
 
 import 'package:get/get.dart';
 
-/// Controller for [Routes.prices] page.
-class PricesController extends GetxController {}
+import '/domain/model/operation.dart';
+import 'paginated.dart';
+
+/// [MyUser] partner repository interface.
+abstract class AbstractPartnerRepository {
+  /// Returns the balance [MyUser] has in their partner wallet.
+  RxDouble get balance;
+
+  /// Returns the [Operation]s happening in [MyUser]'s partner wallet.
+  Paginated<OperationId, Operation> get operations;
+}

@@ -17,5 +17,5 @@
 
 import 'package:get/get.dart';
 
-/// Controller for [Routes.prices] page.
-class PricesController extends GetxController {}
+/// Controller for a [UsdtNetworkView] modal.
+class UsdtNetworkController extends GetxController {}

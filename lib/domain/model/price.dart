@@ -21,6 +21,21 @@ import '/util/new_type.dart';
 class Price {
   const Price({required this.sum, required this.currency});
 
+  /// [Price] with value of zero with a `G` currency.
+  static const zero = Price(sum: Sum(0), currency: Currency('G'));
+
+  /// Constructs a [Price] with `G` currency of the provided [amount].
+  Price.g(double amount) : sum = Sum(amount), currency = Currency('G');
+
+  /// Constructs a [Price] with `USDT` currency of the provided [amount].
+  Price.usdt(double amount) : sum = Sum(amount), currency = Currency('USDT');
+
+  /// Constructs a [Price] with `USD` currency of the provided [amount].
+  Price.usd(double amount) : sum = Sum(amount), currency = Currency('USD');
+
+  /// Constructs a [Price] with `EUR` currency of the provided [amount].
+  Price.eur(double amount) : sum = Sum(amount), currency = Currency('EUR');
+
   /// [Sum] of this [Price].
   final Sum sum;
 

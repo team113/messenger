@@ -119,21 +119,6 @@ class PartnerTabView extends StatelessWidget {
                     );
                   }),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 1.5),
-                  child: Obx(() {
-                    final bool enabled =
-                        router.routes.lastOrNull == Routes.statistics;
-
-                    return MenuButton(
-                      title: 'label_your_statistics'.l10n,
-                      onPressed: router.statistics,
-                      leading: const SvgIcon(SvgIcons.menuStatistics),
-                      inverted: enabled,
-                      subtitle: 'label_monetization_details'.l10n,
-                    );
-                  }),
-                ),
                 SizedBox(height: 8),
                 LineDivider('label_for_authors'.l10n),
                 SizedBox(height: 8),

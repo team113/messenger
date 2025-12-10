@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import 'controller.dart';
@@ -32,6 +33,7 @@ class StatisticsView extends StatelessWidget {
       builder: (StatisticsController c) {
         return Scaffold(
           appBar: CustomAppBar(
+            title: Text('label_your_statistics'.l10n),
             leading: const [SizedBox(width: 4), StyledBackButton()],
           ),
           body: Center(child: Text('$runtimeType')),

@@ -17,4 +17,49 @@
 
 import 'package:get/get.dart';
 
-class PartnerTransactionsController extends GetxController {}
+import '/domain/model/operation.dart';
+import '/domain/repository/paginated.dart';
+import '/domain/service/partner.dart';
+import '/ui/widget/text_field.dart';
+
+/// Controller of the [Routes.partnerTransactions] page.
+class PartnerTransactionsController extends GetxController {
+  PartnerTransactionsController(this._partnerService);
+
+  /// Indicator whether the [operations] should be all expanded or not.
+  final RxBool expanded = RxBool(false);
+
+  /// [OperationId]s of the [Operation]s that are should be expanded only.
+  final RxSet<OperationId> ids = RxSet();
+
+  /// [TextFieldState] of a search field for filtering the [operations].
+  final TextFieldState search = TextFieldState();
+
+  /// Query of the [search].
+  final RxnString query = RxnString();
+
+  /// [PartnerService] maintaining the [Operation]s.
+  final PartnerService _partnerService;
+
+  /// [Worker] executing the filtering of the [operations] on [query] changes.
+  Worker? _queryWorker;
+
+  /// Returns the [Operation]s happening in [MyUser]'s partner wallet.
+  Paginated<OperationId, Operation> get operations =>
+      _partnerService.operations;
+
+  @override
+  void onInit() {
+    _queryWorker = debounce(query, (String? query) {
+      // TODO: Searching.
+    });
+
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    _queryWorker?.dispose();
+    super.onClose();
+  }
+}
