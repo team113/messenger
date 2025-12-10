@@ -454,7 +454,7 @@ class _HomeViewState extends State<HomeView> {
       final String? language = L10n.chosen.value?.toString();
       final String? announcement = Config.announcements[language];
 
-      if (announcement == null) {
+      if (announcement == null || announcement.isEmpty) {
         return SizedBox();
       }
 
