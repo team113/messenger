@@ -19,7 +19,8 @@ All user visible changes to this project will be documented in this file. This p
     - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
     - Chats tab:
         - Answered or declined call displayed as unread notification in chat. ([#1516], [#1508])
-
+    - Media panel:
+        - Calls ringing from muted chats. ([#1546])
 
 [#1508]: /../../issues/1508
 [#1516]: /../../pull/1516
@@ -27,6 +28,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1537]: /../../pull/1537
 [#1539]: /../../issues/1539
 [#1540]: /../../pull/1540
+[#1546]: /../../pull/1546
 
 
 
