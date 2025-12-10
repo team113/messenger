@@ -21,7 +21,7 @@ import '/l10n/l10n.dart';
 import '/ui/widget/svg/svg.dart';
 import '/themes.dart';
 
-/// Rectangular alert widget display the provided [text].
+/// Rectangular alert widget displaying the provided [text].
 class AnnouncementWidget extends StatelessWidget {
   const AnnouncementWidget(this.text, {super.key});
 
@@ -34,8 +34,8 @@ class AnnouncementWidget extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(width: 1, color: const Color(0xFFEEAE03)),
-        color: const Color(0x30EEAE03),
+        border: Border.all(width: 1, color: style.colors.warningSecondary),
+        color: style.colors.warningBackground,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
