@@ -152,6 +152,11 @@ class Config {
   /// URL address of IP address discovering API server.
   static String ipEndpoint = 'https://api.ipify.org?format=json';
 
+  /// Map of localized announcements that should be displayed within the app.
+  ///
+  /// Each key is expected to be a string of Unicode BCP47 Locale Identifier.
+  static Map<String, String> announcements = {};
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;

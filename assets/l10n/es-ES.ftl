@@ -589,6 +589,7 @@ label_count_seconds =
         [1] segundo
         *[other] segundos
     }
+label_critical_update = Actualización crítica
 label_critical_update_is_available = La versión actual ya no es compatible
 label_create_group = Creación de grupo
 label_create_link = Crear enlace
