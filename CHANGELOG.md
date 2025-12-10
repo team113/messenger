@@ -6,10 +6,10 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.7.0] · 2025-??-??
-[0.7.0]: /../../tree/v0.7.0
+## [0.6.13] · 2025-12-10
+[0.6.13]: /../../tree/v0.6.13
 
-[Diff](/../../compare/v0.6.12...v0.7.0) | [Milestone](/../../milestone/57)
+[Diff](/../../compare/v0.6.12...v0.6.13) | [Milestone](/../../milestone/57)
 
 ### Fixed
 
@@ -19,7 +19,6 @@ All user visible changes to this project will be documented in this file. This p
     - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
     - Chats tab:
         - Answered or declined call displayed as unread notification in chat. ([#1516], [#1508])
-
 
 [#1508]: /../../issues/1508
 [#1516]: /../../pull/1516
