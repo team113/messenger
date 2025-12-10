@@ -1087,7 +1087,7 @@ class ChatRepository extends DisposableInterface
             message.id,
             text: text == null
                 ? null
-                : ChatMessageTextInput(kw$new: text.changed),
+                : ChatMessageTextInput(kw$new: text.changed?.nullIfEmpty),
             attachments: attachments == null
                 ? null
                 : ChatMessageAttachmentsInput(
@@ -3234,4 +3234,17 @@ class ChatData {
   @override
   String toString() =>
       '$runtimeType(chat: $chat, lastItem: $lastItem, lastReadItem: $lastReadItem)';
+}
+
+/// Extension adding `null`ify methods to empty `ChatMessageText`s.
+extension on ChatMessageText {
+  /// Returns `null`, if this [ChatMessageText] is empty, or returns itself
+  /// otherwise.
+  ChatMessageText? get nullIfEmpty {
+    if (val.isEmpty) {
+      return null;
+    }
+
+    return this;
+  }
 }
