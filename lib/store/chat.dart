@@ -1069,10 +1069,15 @@ class ChatRepository extends DisposableInterface
         );
       }
 
+      final bool hasText =
+          (text?.changed ?? message.text)?.val.isNotEmpty == true;
+      final bool hasAttachments =
+          (attachments?.changed ?? message.attachments).isNotEmpty;
+      final bool hasReplies =
+          (repliesTo?.changed ?? message.repliesTo).isNotEmpty;
+
       // If after editing the message contains no content, then delete it.
-      if ((text == null || text.changed?.val == null) &&
-          (attachments == null || attachments.changed.isEmpty == true) &&
-          (repliesTo == null || repliesTo.changed.isEmpty == true)) {
+      if (!hasText && !hasAttachments && !hasReplies) {
         return await deleteChatMessage(message);
       }
 
