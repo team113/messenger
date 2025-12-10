@@ -268,7 +268,7 @@ class ChatService extends DisposableService {
     ChatMessageTextInput? text,
     ChatMessageAttachmentsInput? attachments,
     ChatMessageRepliesInput? repliesTo,
-  }) async {
+  }) {
     Log.debug('editChatMessage($item, $text)', '$runtimeType');
 
     if (text?.changed?.val.trim() == item.text?.val.trim()) {
@@ -307,6 +307,8 @@ class ChatService extends DisposableService {
         repliesTo: repliesTo,
       );
     }
+
+    return Future.value();
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].

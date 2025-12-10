@@ -790,7 +790,7 @@ class ChatController extends GetxController {
 
           _stopTyping();
 
-          final bool hasText = edit.value!.field.text.trim().isNotEmpty;
+          final bool hasText = edit.value!.field.text.trim() != item.text?.val;
 
           if (hasText ||
               edit.value!.attachments.isNotEmpty ||
