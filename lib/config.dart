@@ -282,6 +282,39 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_IP_ENDPOINT')
         : (document['ip']?['endpoint'] ?? ipEndpoint);
 
+    try {
+      final dynamic announcementsOrNull = document['announcement'];
+      if (announcementsOrNull is Map<String, dynamic>) {
+        announcements.clear();
+        for (var entry in announcementsOrNull.entries) {
+          announcements[entry.key] = entry.value;
+        }
+      }
+
+      // `bool.hasEnvironment` can only be used as a `const` constructor.
+      if (const bool.hasEnvironment('SOCAPP_ANNOUNCEMENT_EN_US')) {
+        announcements['en-US'] = const String.fromEnvironment(
+          'SOCAPP_ANNOUNCEMENT_EN_US',
+        );
+      }
+
+      // `bool.hasEnvironment` can only be used as a `const` constructor.
+      if (const bool.hasEnvironment('SOCAPP_ANNOUNCEMENT_ES_ES')) {
+        announcements['es-ES'] = const String.fromEnvironment(
+          'SOCAPP_ANNOUNCEMENT_ES_ES',
+        );
+      }
+
+      // `bool.hasEnvironment` can only be used as a `const` constructor.
+      if (const bool.hasEnvironment('SOCAPP_ANNOUNCEMENT_RU_RU')) {
+        announcements['en-US'] = const String.fromEnvironment(
+          'SOCAPP_ANNOUNCEMENT_RU_RU',
+        );
+      }
+    } catch (e) {
+      Log.warning('init() -> announcements failed: $e', 'Config');
+    }
+
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
@@ -320,7 +353,7 @@ class Config {
     if (confRemote) {
       try {
         final response = await (await PlatformUtils.dio).fetch(
-          RequestOptions(path: '$url:$port/conf'),
+          RequestOptions(path: '$url:$port/conf?${Pubspec.ref}'),
         );
         if (response.statusCode == 200) {
           dynamic remote;
@@ -364,6 +397,21 @@ class Config {
             }
             logAmount = _asInt(remote['log']?['amount']) ?? logAmount;
             logObfuscated = remote['log']?['obfuscated'] ?? logObfuscated;
+
+            try {
+              final dynamic announcementsOrNull = remote['announcement'];
+              if (announcementsOrNull is Map) {
+                announcements.clear();
+                for (var entry in announcementsOrNull.entries) {
+                  if (entry.key is String && entry.value is String) {
+                    announcements[entry.key] = entry.value;
+                  }
+                }
+              }
+            } catch (e) {
+              Log.warning('init() -> announcements failed: $e', 'Config');
+            }
+
             origin = url;
           }
         }

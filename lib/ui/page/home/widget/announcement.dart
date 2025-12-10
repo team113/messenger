@@ -33,7 +33,6 @@ class AnnouncementWidget extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
       decoration: BoxDecoration(
         border: Border.all(width: 1, color: const Color(0xFFEEAE03)),
         color: const Color(0x30EEAE03),
@@ -41,22 +40,29 @@ class AnnouncementWidget extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              SvgIcon(SvgIcons.attention),
-              Expanded(
-                child: Text(
-                  'label_critical_update'.l10n,
-                  style: style.fonts.medium.regular.onBackground,
-                  textAlign: TextAlign.center,
+          const SizedBox(height: 12),
+          Padding(
+            padding: EdgeInsets.fromLTRB(12, 0, 12, 0),
+            child: Row(
+              children: [
+                SvgIcon(SvgIcons.attention),
+                Expanded(
+                  child: Text(
+                    'label_critical_update'.l10n,
+                    style: style.fonts.medium.regular.onBackground,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ),
-              SvgIcon(SvgIcons.attention),
-            ],
+                SvgIcon(SvgIcons.attention),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           Flexible(
-            child: Text(text, style: style.fonts.small.regular.onBackground),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Text(text, style: style.fonts.small.regular.onBackground),
+            ),
           ),
         ],
       ),

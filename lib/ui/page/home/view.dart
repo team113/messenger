@@ -458,7 +458,12 @@ class _HomeViewState extends State<HomeView> {
         return SizedBox();
       }
 
-      return AnnouncementWidget(announcement, key: Key('AnnouncementAlert'));
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height / 4,
+        ),
+        child: AnnouncementWidget(announcement, key: Key('AnnouncementAlert')),
+      );
     });
   }
 }
