@@ -85,11 +85,15 @@ class MemberTile extends StatelessWidget {
           SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Material(
-              key: Key(inCall == true ? 'InCall' : 'NotInCall'),
+              key: inCall == true
+                  ? const Key('InCall')
+                  : const Key('NotInCall'),
               color: inCall == true
                   ? onCall == null
-                        ? style.colors.primaryHighlightLightest
+                        ? style.colors.dangerHighlightLightest
                         : style.colors.danger
+                  : onCall == null
+                  ? style.colors.primaryHighlightLightest
                   : style.colors.primary,
               type: MaterialType.circle,
               child: InkWell(
@@ -108,11 +112,10 @@ class MemberTile extends StatelessWidget {
             ),
           ),
         ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 41),
+          constraints: const BoxConstraints(minWidth: 50),
           child: Align(
             alignment: Alignment.centerRight,
             child: AnimatedButton(
-              enabled: !_me,
               decorator: (child) =>
                   Padding(padding: const EdgeInsets.all(12), child: child),
               onPressed: _me
@@ -141,12 +144,10 @@ class MemberTile extends StatelessWidget {
                         await onKick?.call();
                       }
                     },
-              child: _me
-                  ? const SizedBox()
-                  : const SvgIcon(
-                      SvgIcons.removeMember,
-                      key: Key('DeleteMemberButton'),
-                    ),
+              child: SvgIcon(
+                _me ? SvgIcons.leaveGroup : SvgIcons.removeMember,
+                key: Key('DeleteMemberButton'),
+              ),
             ),
           ),
         ),
