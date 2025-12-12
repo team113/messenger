@@ -51,7 +51,7 @@ class AnnouncementWidget extends StatelessWidget {
                 const SizedBox(width: 2),
                 Expanded(
                   child: Text(
-                    announcement.title * 20,
+                    announcement.title,
                     style: style.fonts.medium.regular.onBackground,
                     textAlign: TextAlign.center,
                   ),
