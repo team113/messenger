@@ -105,9 +105,7 @@ class UpgradeAvailableButton extends StatelessWidget {
           : null,
       child: Container(
         height: 48,
-        margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
           color: style.colors.primary,
           boxShadow: [
             CustomBoxShadow(

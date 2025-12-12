@@ -2045,4 +2045,10 @@ class SvgIcons {
     width: 6.76,
     height: 7.88,
   );
+
+  static const SvgData attention = SvgData(
+    'assets/icons/attention.svg',
+    width: 18,
+    height: 18,
+  );
 }

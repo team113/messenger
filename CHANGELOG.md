@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.7.0] · 2025-??-??
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.13...v0.7.0) | [Milestone](/../../milestone/58)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Calls ringing from muted chats. ([#1546])
+
+[#1546]: /../../pull/1546
+
+
+
+
 ## [0.6.13] · 2025-12-10
 [0.6.13]: /../../tree/v0.6.13
 
