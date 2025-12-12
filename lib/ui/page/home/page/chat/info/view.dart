@@ -306,10 +306,12 @@ class ChatInfoView extends StatelessWidget {
                                   }
                                 }
                               : c.joinCall,
+                          onKick: () => _leaveGroup(c, context),
                         );
                       } else {
                         final RxUser member = members[i];
 
+                        final bool meInCall = c.chat?.inCall.value == true;
                         final bool inCall =
                             c.chat?.chat.value.ongoingCall?.members.any(
                               (u) => u.user.id == member.id,
@@ -323,9 +325,11 @@ class ChatInfoView extends StatelessWidget {
                             ChatId.local(member.user.value.id),
                             mode: RouteAs.push,
                           ),
-                          onCall: inCall
-                              ? () => c.removeChatCallMember(member.id)
-                              : () => c.redialChatCallMember(member.id),
+                          onCall: meInCall
+                              ? inCall
+                                    ? () => c.removeChatCallMember(member.id)
+                                    : () => c.redialChatCallMember(member.id)
+                              : null,
                           onKick: () => c.removeChatMember(member.id),
                         );
                       }

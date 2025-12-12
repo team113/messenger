@@ -218,7 +218,7 @@ import sqlite3
 
           if isAuthorized {
             // Third, check if CallKit should be displayed at all (perhaps it
-            // was already declined in the main app).
+            // was already declined or accepted in the main app).
             var stmt3: OpaquePointer?
             let atQuery = "SELECT at FROM call_kit_calls WHERE id = ? LIMIT 1"
 

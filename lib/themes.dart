@@ -123,6 +123,7 @@ class Themes {
       acceptLightest: const Color(0xFFF2FDED),
       decline: const Color(0xFFFF0000),
       danger: const Color(0xFFF44336),
+      dangerHighlightLightest: const Color(0xFFF9A19A),
       warning: const Color(0xFFFF9800),
       warningBackground: const Color(0x30EEAE03),
       warningSecondary: const Color(0xFFEEAE03),
@@ -747,6 +748,7 @@ class Palette {
     Color? declineOpacity50,
     Color? declineOpacity88,
     required this.danger,
+    required this.dangerHighlightLightest,
     required this.warning,
     required this.warningBackground,
     required this.warningSecondary,
@@ -1083,6 +1085,9 @@ class Palette {
   /// interface.
   final Color danger;
 
+  /// [Color] to display [danger] in highlight lightest mode.
+  final Color dangerHighlightLightest;
+
   /// [Color] used to indicate caution, risk, or a potential threat.
   final Color warning;
 
@@ -1339,6 +1344,11 @@ class Palette {
         t,
       )!,
       danger: Color.lerp(color.danger, other.danger, t)!,
+      dangerHighlightLightest: Color.lerp(
+        color.dangerHighlightLightest,
+        other.dangerHighlightLightest,
+        t,
+      )!,
       warning: Color.lerp(color.warning, other.warning, t)!,
       warningBackground: Color.lerp(
         color.warningBackground,
