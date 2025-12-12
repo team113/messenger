@@ -32,44 +32,45 @@ class AnnouncementWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final String? title = announcement.title;
+    final String? body = announcement.body;
 
     return Container(
       decoration: BoxDecoration(
         border: Border.all(width: 1, color: style.colors.warningSecondary),
         color: style.colors.warningBackground,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 12),
-          if (title != null)
-            Padding(
-              padding: EdgeInsets.fromLTRB(12, 0, 12, 8),
-              child: Row(
-                children: [
-                  SvgIcon(SvgIcons.attention),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: style.fonts.medium.regular.onBackground,
-                      textAlign: TextAlign.center,
-                    ),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(12, 0, 12, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                const SvgIcon(SvgIcons.attention),
+                const SizedBox(width: 2),
+                Expanded(
+                  child: Text(
+                    announcement.title * 20,
+                    style: style.fonts.medium.regular.onBackground,
+                    textAlign: TextAlign.center,
                   ),
-                  SvgIcon(SvgIcons.attention),
-                ],
-              ),
+                ),
+                const SizedBox(width: 2),
+                const SvgIcon(SvgIcons.attention),
+              ],
             ),
-          Flexible(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: Text(
-                announcement.body,
-                style: style.fonts.small.regular.onBackground,
+            if (body != null) ...[
+              const SizedBox(height: 8),
+              Flexible(
+                child: Text(
+                  body,
+                  style: style.fonts.small.regular.onBackground,
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          ],
+        ),
       ),
     );
   }

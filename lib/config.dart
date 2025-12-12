@@ -453,7 +453,7 @@ class Config {
 /// [title] with a [body] intended to be used as an announcement to make to the
 /// client in a non-dismissible way.
 class Announcement {
-  const Announcement({this.title, required this.body});
+  const Announcement({required this.title, this.body});
 
   /// Constructs an [Announcement] from the provided [text].
   ///
@@ -463,20 +463,23 @@ class Announcement {
     final split = text.split('\n');
     if (split.length >= 2) {
       final String title = split.first;
-      return Announcement(title: title, body: text.substring(title.length));
+      return Announcement(
+        title: title.trim(),
+        body: text.substring(title.length + 1).trim(),
+      );
     }
 
-    return Announcement(body: text);
+    return Announcement(title: text);
   }
 
   /// Indicates whether this [Announcement] is empty.
-  bool get isEmpty => title?.isNotEmpty != true && body.isEmpty;
+  bool get isEmpty => title.isEmpty && body?.isNotEmpty != true;
 
-  /// Optional title of this [Announcement].
-  final String? title;
+  /// Title of this [Announcement].
+  final String title;
 
-  /// Body of this [Announcement].
-  final String body;
+  /// Optional body of this [Announcement].
+  final String? body;
 }
 
 /// Parses the provided [val] as [int].
