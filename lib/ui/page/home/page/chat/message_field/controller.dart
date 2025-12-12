@@ -71,9 +71,7 @@ class MessageFieldController extends GetxController {
        ) {
     field = TextFieldState(
       text: text,
-      onFocus: (s) {
-        onChanged?.call();
-      },
+      onFocus: (s) => onChanged?.call(),
       submitted: false,
       onSubmitted: (s) {
         field.unsubmit();

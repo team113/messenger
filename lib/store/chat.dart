@@ -673,7 +673,7 @@ class ChatRepository extends DisposableInterface
       await rxChat?.postChatMessage(
         existingId: item.id,
         existingDateTime: item.at,
-        text: item.text,
+        text: item.text?.nullIfEmpty,
         attachments: item.attachments,
         repliesTo: item.repliesTo.map((e) => e.original).nonNulls.toList(),
       );
@@ -1069,10 +1069,15 @@ class ChatRepository extends DisposableInterface
         );
       }
 
+      final bool hasText =
+          (text?.changed ?? message.text)?.val.isNotEmpty == true;
+      final bool hasAttachments =
+          (attachments?.changed ?? message.attachments).isNotEmpty;
+      final bool hasReplies =
+          (repliesTo?.changed ?? message.repliesTo).isNotEmpty;
+
       // If after editing the message contains no content, then delete it.
-      if ((text == null || text.changed?.val == null) &&
-          (attachments == null || attachments.changed.isEmpty == true) &&
-          (repliesTo == null || repliesTo.changed.isEmpty == true)) {
+      if (!hasText && !hasAttachments && !hasReplies) {
         return await deleteChatMessage(message);
       }
 
@@ -1082,7 +1087,7 @@ class ChatRepository extends DisposableInterface
             message.id,
             text: text == null
                 ? null
-                : ChatMessageTextInput(kw$new: text.changed),
+                : ChatMessageTextInput(kw$new: text.changed?.nullIfEmpty),
             attachments: attachments == null
                 ? null
                 : ChatMessageAttachmentsInput(
@@ -3229,4 +3234,17 @@ class ChatData {
   @override
   String toString() =>
       '$runtimeType(chat: $chat, lastItem: $lastItem, lastReadItem: $lastReadItem)';
+}
+
+/// Extension adding `null`ify methods to empty `ChatMessageText`s.
+extension on ChatMessageText {
+  /// Returns `null`, if this [ChatMessageText] is empty, or returns itself
+  /// otherwise.
+  ChatMessageText? get nullIfEmpty {
+    if (val.isEmpty) {
+      return null;
+    }
+
+    return this;
+  }
 }

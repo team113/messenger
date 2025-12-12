@@ -9,7 +9,23 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.7.0] · 2025-??-??
 [0.7.0]: /../../tree/v0.7.0
 
-[Diff](/../../compare/v0.6.12...v0.7.0) | [Milestone](/../../milestone/57)
+[Diff](/../../compare/v0.6.13...v0.7.0) | [Milestone](/../../milestone/58)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Calls ringing from muted chats. ([#1546])
+
+[#1546]: /../../pull/1546
+
+
+
+
+## [0.6.13] · 2025-12-10
+[0.6.13]: /../../tree/v0.6.13
+
+[Diff](/../../compare/v0.6.12...v0.6.13) | [Milestone](/../../milestone/57)
 
 ### Fixed
 
@@ -19,8 +35,6 @@ All user visible changes to this project will be documented in this file. This p
     - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
     - Chats tab:
         - Answered or declined call displayed as unread notification in chat. ([#1516], [#1508])
-    - Media panel:
-        - Calls ringing from muted chats. ([#1546])
 
 [#1508]: /../../issues/1508
 [#1516]: /../../pull/1516
@@ -28,7 +42,6 @@ All user visible changes to this project will be documented in this file. This p
 [#1537]: /../../pull/1537
 [#1539]: /../../issues/1539
 [#1540]: /../../pull/1540
-[#1546]: /../../pull/1546
 
 
 
