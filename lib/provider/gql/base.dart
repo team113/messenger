@@ -331,6 +331,8 @@ class GraphQlClient {
             cancelToken: cancelToken,
           );
         } on dio.DioException catch (e) {
+          Log.warning('post() -> `DioException` occurred: $e', '$runtimeType');
+
           if (e.response != null) {
             if (onException != null &&
                 e.response?.data is Map<String, dynamic> &&
