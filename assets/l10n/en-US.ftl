@@ -343,9 +343,9 @@ fcm_incoming_call =
         } started { $isVideo ->
             [yes] a
             *[other] an
-        }
+        }{" "}
         *[dialog] {""}
-    } { $isVideo ->
+    }{ $isVideo ->
         [yes] video
         *[other] audio
     } call
@@ -357,6 +357,9 @@ fcm_message =
                 [x] {$userNum}
                 *[other] {$userName}
             }:{" "}
+    }{ $donation ->
+        [x] {""}
+        *[other] [G{$donation}]{" "}
     }{ $attachmentsCount ->
           [0] {""}
           *[other] [{$attachmentsType ->
@@ -368,11 +371,7 @@ fcm_message =
                            [1] Video
                            *[other] {$attachmentsCount} videos
                        }
-               [file] { $attachmentsCount ->
-                          [1] File
-                          *[other] {$attachmentsCount} files
-                      }
-              *[attachments] {$attachmentsCount ->
+              *[file] { $attachmentsCount ->
                           [1] File
                           *[other] {$attachmentsCount} files
                        }
@@ -384,7 +383,7 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
-fcm_missed_cal =
+fcm_missed_call =
     Missed { $isVideo ->
         [yes] video
         *[other] audio

@@ -2135,13 +2135,13 @@ class CallController extends GetxController {
   }
 
   /// Initializes the [chat] and adds the [CallMember] afterwards.
-  void _initChat() {
+  Future<void> _initChat() async {
     try {
       final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId.value);
       if (chatOrFuture is RxChat?) {
         _updateChat(chatOrFuture);
       } else {
-        chatOrFuture.then(_updateChat);
+        _updateChat(await chatOrFuture);
       }
     } catch (e) {
       _ready.throwable = e;

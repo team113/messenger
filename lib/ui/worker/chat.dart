@@ -408,6 +408,7 @@ class _ChatWatchData {
       'userNum': num,
       'attachmentsCount': attachments.length,
       'attachmentsType': attachmentsType,
+      'donation': 'x',
     });
   }
 
