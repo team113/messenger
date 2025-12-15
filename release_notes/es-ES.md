@@ -1,3 +1,1 @@
-- Perfil de chat rediseñado.
-- Experiencia de usuario mejorada con el reproductor multimedia.
-- Corrección de errores y mejoras de rendimiento.
+- Se corrigieron errores y se mejoraron el rendimiento.

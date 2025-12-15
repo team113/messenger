@@ -77,7 +77,7 @@ part 'themes.g.dart';
     'regular': ['onBackground', 'secondary', 'onPrimary', 'primary'],
   },
   'smallest': {
-    'regular': ['onBackground', 'onPrimary', 'secondary'],
+    'regular': ['onBackground', 'onPrimary', 'secondary', 'primary'],
   },
 })
 class Themes {
@@ -124,6 +124,8 @@ class Themes {
       decline: const Color(0xFFFF0000),
       danger: const Color(0xFFF44336),
       warning: const Color(0xFFFF9800),
+      warningBackground: const Color(0x30EEAE03),
+      warningSecondary: const Color(0xFFEEAE03),
       userColors: const [
         Color(0xFFD2B334),
         Color(0xFF2192FF),
@@ -235,7 +237,7 @@ class Themes {
           ),
           readMessageColor: colors.primaryLight,
           secondaryBorder: Border.all(color: colors.acceptLight, width: 0.5),
-          sidebarColor: colors.onPrimaryOpacity50,
+          sidebarColor: colors.secondaryHighlight,
           systemMessageBorder: Border.all(
             color: colors.secondaryHighlightDark,
             width: 0.5,
@@ -746,6 +748,8 @@ class Palette {
     Color? declineOpacity88,
     required this.danger,
     required this.warning,
+    required this.warningBackground,
+    required this.warningSecondary,
     required this.userColors,
   }) : primaryOpacity20 = primaryOpacity20 ?? primary.withValues(alpha: 0.20),
        primaryDarkOpacity70 =
@@ -1082,6 +1086,12 @@ class Palette {
   /// [Color] used to indicate caution, risk, or a potential threat.
   final Color warning;
 
+  /// [Color] to display a background of a [warning] colors.
+  final Color warningBackground;
+
+  /// [Color] to display a secondary [warning] color.
+  final Color warningSecondary;
+
   /// [Color]s associated with the [User].
   ///
   /// Used for [AvatarWidget]s and [UserName]s.
@@ -1330,6 +1340,16 @@ class Palette {
       )!,
       danger: Color.lerp(color.danger, other.danger, t)!,
       warning: Color.lerp(color.warning, other.warning, t)!,
+      warningBackground: Color.lerp(
+        color.warningBackground,
+        other.warningBackground,
+        t,
+      )!,
+      warningSecondary: Color.lerp(
+        color.warningSecondary,
+        other.warningSecondary,
+        t,
+      )!,
       userColors: other.userColors.isNotEmpty
           ? other.userColors
           : color.userColors,

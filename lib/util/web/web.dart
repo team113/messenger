@@ -304,11 +304,12 @@ class WebUtils {
     return controller.stream;
   }
 
-  /// Returns a stream broadcasting the browser's broadcast channel changes.
-  static Stream<dynamic> get onBroadcastMessage {
+  /// Returns a stream broadcasting the browser's `fcm` broadcast channel
+  /// changes.
+  static Stream<dynamic> onBroadcastMessage({String name = 'fcm'}) {
     StreamController<dynamic>? controller;
 
-    final channel = web.BroadcastChannel('fcm');
+    final web.BroadcastChannel channel = web.BroadcastChannel(name);
 
     controller = StreamController(
       onListen: () {
@@ -487,6 +488,8 @@ class WebUtils {
     String? lang,
     String? tag,
     String? icon,
+    Map<String, dynamic> data = const {},
+    List<WebNotificationAction> actions = const [],
   }) async {
     final options = web.NotificationOptions();
 
@@ -504,6 +507,22 @@ class WebUtils {
     }
     if (icon != null) {
       options.icon = icon;
+    }
+    if (data.isNotEmpty) {
+      options.data = data.jsify();
+    }
+
+    if (actions.isNotEmpty) {
+      options.actions = actions
+          .map(
+            (e) => web.NotificationAction(
+              action: e.id,
+              title: e.title,
+              icon: e.icon ?? '',
+            ),
+          )
+          .toList()
+          .toJS;
     }
 
     // TODO: `onSelectNotification` was used in `onclick` event in
@@ -556,6 +575,8 @@ class WebUtils {
   /// Opens a new popup window at the [Routes.gallery] page with the provided
   /// [chatId].
   static bool openPopupGallery(ChatId chatId, {String? id, int? index}) {
+    Log.debug('openPopupGallery($chatId, id: $id, index: $index)', 'WebUtils');
+
     final int screenW = web.window.screen.width;
     final int screenH = web.window.screen.height;
 
@@ -592,8 +613,11 @@ class WebUtils {
     );
 
     try {
-      return window?.closed == false;
-    } catch (_) {
+      final bool opened = window?.closed == false;
+      Log.debug('openPopupGallery($chatId) -> $opened, $window', 'WebUtils');
+      return opened;
+    } catch (e) {
+      Log.debug('openPopupGallery($chatId) -> failed due to $e', 'WebUtils');
       return false;
     }
   }
@@ -606,6 +630,11 @@ class WebUtils {
     bool withVideo = false,
     bool withScreen = false,
   }) {
+    Log.debug(
+      'openPopupCall($chatId, withAudio: $withAudio, withVideo: $withVideo, withScreen: $withScreen)',
+      'WebUtils',
+    );
+
     final int screenW = web.window.screen.width;
     final int screenH = web.window.screen.height;
 
@@ -643,8 +672,11 @@ class WebUtils {
     );
 
     try {
-      return window?.closed == false;
-    } catch (_) {
+      final bool opened = window?.closed == false;
+      Log.debug('openPopupCall($chatId) -> $opened, $window', 'WebUtils');
+      return opened;
+    } catch (e) {
+      Log.debug('openPopupCall($chatId) -> failed due to $e', 'WebUtils');
       return false;
     }
   }

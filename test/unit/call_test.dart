@@ -604,6 +604,14 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   final StreamController<QueryResult> _heartbeat = StreamController.broadcast();
 
   @override
+  InternalFinalCallback<void> get onStart =>
+      InternalFinalCallback(callback: () {});
+
+  @override
+  InternalFinalCallback<void> get onDelete =>
+      InternalFinalCallback(callback: () {});
+
+  @override
   Future<void> reconnect() async {
     // No-op.
   }
@@ -616,8 +624,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Stream<QueryResult> chatEvents(
     ChatId id,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = 0,
+  }) {
     Future.delayed(
       Duration.zero,
       () => chatEventsStream.add(
@@ -654,6 +663,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Stream<QueryResult> recentChatsTopEvents(
     int count, {
     bool noFavorite = false,
+    bool archived = false,
     bool? withOngoingCalls,
   }) => Stream.value(
     QueryResult.internal(
@@ -772,6 +782,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     int? last,
     RecentChatsCursor? before,
     bool noFavorite = false,
+    bool archived = false,
     bool? withOngoingCalls,
   }) async {
     return RecentChats$Query.fromJson(chatsQuery);
@@ -940,6 +951,7 @@ final chatData = {
   'members': {'nodes': [], 'totalCount': 0},
   'kind': 'GROUP',
   'isHidden': false,
+  'isArchived': false,
   'muted': null,
   'directLink': null,
   'createdAt': '2021-12-15T15:11:18.316846+00:00',

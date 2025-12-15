@@ -146,7 +146,7 @@ class MyProfileController extends GetxController {
     onFocus: (s) async {
       s.error.value = null;
 
-      if (s.text.isNotEmpty) {
+      if (s.text.trim().isNotEmpty) {
         try {
           UserName(s.text);
         } on FormatException catch (_) {
@@ -171,7 +171,7 @@ class MyProfileController extends GetxController {
     onFocus: (s) async {
       s.error.value = null;
 
-      if (s.text.isNotEmpty) {
+      if (s.text.trim().isNotEmpty) {
         try {
           UserLogin(s.text.toLowerCase());
         } on FormatException catch (_) {
@@ -198,7 +198,7 @@ class MyProfileController extends GetxController {
     onFocus: (s) async {
       s.error.value = null;
 
-      if (s.text.isNotEmpty) {
+      if (s.text.trim().isNotEmpty) {
         try {
           UserBio(s.text);
         } on FormatException catch (_) {
@@ -223,7 +223,7 @@ class MyProfileController extends GetxController {
     onFocus: (s) async {
       s.error.value = null;
 
-      if (s.text.isNotEmpty) {
+      if (s.text.trim().isNotEmpty) {
         try {
           UserTextStatus(s.text);
         } on FormatException catch (_) {
@@ -383,7 +383,7 @@ class MyProfileController extends GetxController {
     phone = TextFieldState(
       approvable: true,
       onFocus: (s) {
-        if (s.text.isNotEmpty) {
+        if (s.text.trim().isNotEmpty) {
           try {
             final phone = UserPhone(s.text.replaceAll(' ', ''));
 
@@ -397,7 +397,7 @@ class MyProfileController extends GetxController {
         }
       },
       onSubmitted: (s) async {
-        if (s.text.isEmpty ||
+        if (s.text.trim().isEmpty ||
             (s.error.value != null && s.resubmitOnError.isFalse)) {
           return;
         }
@@ -439,7 +439,7 @@ class MyProfileController extends GetxController {
     email = TextFieldState(
       approvable: true,
       onFocus: (s) {
-        if (s.text.isNotEmpty) {
+        if (s.text.trim().isNotEmpty) {
           try {
             final email = UserEmail(s.text);
 
@@ -453,7 +453,7 @@ class MyProfileController extends GetxController {
         }
       },
       onSubmitted: (s) async {
-        if (s.text.isEmpty ||
+        if (s.text.trim().isEmpty ||
             (s.error.value != null && s.resubmitOnError.isFalse)) {
           return;
         }

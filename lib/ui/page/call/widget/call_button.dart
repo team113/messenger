@@ -27,13 +27,12 @@ import 'round_button.dart';
 class CallButtonWidget extends StatelessWidget {
   const CallButtonWidget({
     super.key,
-    this.asset,
+    required this.asset,
     this.offset,
     this.onPressed,
     this.hint,
     this.hinted = true,
     this.expanded = false,
-    this.withBlur = false,
     this.opaque = false,
     this.color,
     this.border,
@@ -44,7 +43,7 @@ class CallButtonWidget extends StatelessWidget {
            : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
 
   /// [SvgData] to display.
-  final SvgData? asset;
+  final SvgData asset;
 
   /// [Offset] to apply to the [asset].
   final Offset? offset;
@@ -64,9 +63,6 @@ class CallButtonWidget extends StatelessWidget {
 
   /// Indicator whether the [hint] should be always displayed under the button.
   final bool expanded;
-
-  /// Indicator whether background should be blurred.
-  final bool withBlur;
 
   /// Indicator whether this [CallButtonWidget] should be constrained.
   final bool constrained;
@@ -100,7 +96,6 @@ class CallButtonWidget extends StatelessWidget {
         text: expanded || constrained ? hint : null,
         minified: !constrained,
         showText: expanded,
-        withBlur: withBlur,
         border: border,
         onPressed: onPressed,
       ),

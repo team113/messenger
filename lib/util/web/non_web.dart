@@ -90,7 +90,8 @@ class WebUtils {
   static Stream<bool> get onWindowFocus => const Stream.empty();
 
   /// Returns a stream broadcasting the browser's broadcast channel changes.
-  static Stream<dynamic> get onBroadcastMessage => const Stream.empty();
+  static Stream<dynamic> onBroadcastMessage({String name = 'fcm'}) =>
+      const Stream.empty();
 
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;
@@ -170,6 +171,8 @@ class WebUtils {
     String? lang,
     String? tag,
     String? icon,
+    Map<String, dynamic> data = const {},
+    List<WebNotificationAction> actions = const [],
   }) async {
     // No-op.
   }

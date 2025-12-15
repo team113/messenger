@@ -33,20 +33,18 @@ import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/checkbox_button.dart';
-import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
@@ -55,6 +53,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
 import 'chat_item.dart';
+import 'context_buttons.dart';
 import 'message_info/view.dart';
 import 'message_timestamp.dart';
 import 'selection_text.dart';
@@ -68,6 +67,10 @@ class ChatForwardWidget extends StatefulWidget {
     required this.note,
     required this.authorId,
     required this.me,
+    this.withAvatar = true,
+    this.appendAvatarPadding = false,
+    this.selectable = true,
+    this.withName = true,
     this.reads = const [],
     this.user,
     this.getUser,
@@ -105,6 +108,29 @@ class ChatForwardWidget extends StatefulWidget {
 
   /// [User] posted these [forwards].
   final RxUser? user;
+
+  /// Indicator whether this [ChatForwardWidget] should display [UserExt.title].
+  ///
+  /// For example, [Chat]-groups should display messages with titles.
+  final bool withName;
+
+  /// Indicator whether this [ChatForwardWidget] should display an
+  /// [AvatarWidget].
+  ///
+  /// For example, [Chat]-groups should display messages with avatars.
+  final bool withAvatar;
+
+  /// Indicator whether this [ChatForwardWidget] should append a left padding in
+  /// place of [AvatarWidget] of [user].
+  ///
+  /// When an [withAvatar] is `true`, the padding is always applied
+  /// automatically. Otherwise setting this to `true` appends the padding as if
+  /// there's invisible [AvatarWidget] present.
+  final bool appendAvatarPadding;
+
+  /// Indicator whether this [ChatForwardWidget] enables [selectable] in
+  /// [SelectionText.rich].
+  final bool selectable;
 
   /// Callback, called when a [RxUser] identified by the provided [UserId] is
   /// required.
@@ -308,18 +334,21 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       if (widget.note.value != null) _note(menu),
                       if (!_fromMe &&
                           widget.chat.value?.isGroup == true &&
-                          widget.note.value == null) ...[
+                          widget.note.value == null &&
+                          widget.withName) ...[
                         const SizedBox(height: 6),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                           child: SelectionText.rich(
                             TextSpan(
-                              text: widget.user?.title ?? 'dot'.l10n * 3,
+                              text: widget.user?.title() ?? 'dot'.l10n * 3,
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () =>
                                     router.user(widget.authorId, push: true),
                             ),
-                            selectable: PlatformUtils.isDesktop || menu,
+                            selectable:
+                                widget.selectable &&
+                                (PlatformUtils.isDesktop || menu),
                             onChanged: (a) => _selection = a,
                             style: style.fonts.medium.regular.onBackground
                                 .copyWith(color: color),
@@ -329,10 +358,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       const SizedBox(height: 6),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
-                        child: Text(
+                        child: SelectionText(
                           'label_forwarded_messages'.l10nfmt({
                             'count': widget.forwards.length,
                           }),
+                          selectable:
+                              widget.selectable &&
+                              (PlatformUtils.isDesktop || menu),
                           style: style.fonts.small.regular.secondary,
                         ),
                       ),
@@ -349,7 +381,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 'MessageStatus_${widget.note.value?.value.id ?? widget.forwards.firstOrNull?.value.id}',
                               ),
                               at: _at,
-                              status: SendingStatus.sent,
+                              status: _fromMe
+                                  ? widget.forwards.first.value.status.value
+                                  : null,
                               read: _isRead,
                               halfRead: _isHalfRead,
                               delivered:
@@ -437,8 +471,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       child: Padding(
                         padding: const EdgeInsets.only(right: 9),
                         child: SelectionText(
-                          user?.title ?? 'dot'.l10n * 3,
-                          selectable: PlatformUtils.isDesktop || menu,
+                          user?.title() ?? 'dot'.l10n * 3,
+                          selectable:
+                              widget.selectable &&
+                              (PlatformUtils.isDesktop || menu),
                           onChanged: (a) => _selection = a,
                           style: style.fonts.medium.regular.onBackground
                               .copyWith(color: color),
@@ -518,7 +554,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           const WidgetSpan(child: SizedBox(width: 95)),
                         ],
                       ),
-                      selectable: PlatformUtils.isDesktop || menu,
+                      selectable:
+                          widget.selectable &&
+                          (PlatformUtils.isDesktop || menu),
                       onChanged: (a) => _selection = a,
                       style: style.fonts.medium.regular.onBackground,
                     ),
@@ -642,25 +680,18 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 right: timeInBubble ? 6 : 8,
                 bottom: 4,
                 child: timeInBubble
-                    ? ConditionalBackdropFilter(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 4, right: 4),
-                          decoration: BoxDecoration(
-                            color: style.colors.onBackgroundOpacity27,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: MessageTimestamp(
-                            at: quote.at,
-                            date: true,
-                            fontSize: style
-                                .fonts
-                                .smaller
-                                .regular
-                                .onBackground
-                                .fontSize,
-                            inverted: true,
-                          ),
+                    ? Container(
+                        padding: const EdgeInsets.only(left: 4, right: 4),
+                        decoration: BoxDecoration(
+                          color: style.colors.onBackgroundOpacity27,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: MessageTimestamp(
+                          at: quote.at,
+                          date: true,
+                          fontSize:
+                              style.fonts.smaller.regular.onBackground.fontSize,
+                          inverted: true,
                         ),
                       )
                     : MessageTimestamp(
@@ -715,12 +746,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                     child: SelectionText.rich(
                       TextSpan(
-                        text: widget.user?.title ?? 'dot'.l10n * 3,
+                        text: widget.user?.title() ?? 'dot'.l10n * 3,
                         recognizer: TapGestureRecognizer()
                           ..onTap = () =>
                               router.user(widget.authorId, push: true),
                       ),
-                      selectable: PlatformUtils.isDesktop || menu,
+                      selectable:
+                          widget.selectable &&
+                          (PlatformUtils.isDesktop || menu),
                       onChanged: (a) => _selection = a,
                       style: style.fonts.medium.regular.onBackground.copyWith(
                         color: color,
@@ -792,7 +825,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       padding: const EdgeInsets.fromLTRB(12, 0, 9, 0),
                       child: SelectionText.rich(
                         text,
-                        selectable: PlatformUtils.isDesktop || menu,
+                        selectable:
+                            widget.selectable &&
+                            (PlatformUtils.isDesktop || menu),
                         onChanged: (a) => _selection = a,
                         style: style.fonts.medium.regular.onBackground,
                       ),
@@ -812,17 +847,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
   /// Returns rounded rectangle of a [child] representing a message box.
   Widget _rounded(BuildContext context, Widget Function(bool) builder) {
     final style = Theme.of(context).style;
+    final ChatItem? note = widget.note.value?.value;
+    String? copyable = _text.values
+        .where((e) => e.text != null)
+        .firstOrNull
+        ?.text;
 
-    final ChatItem? item = widget.note.value?.value;
-
-    String? copyable;
-    if (item is ChatMessage) {
-      copyable = item.text?.val;
+    if (note is ChatMessage) {
+      copyable = note.text?.val;
     }
-
-    final Iterable<LastChatRead>? reads = widget.chat.value?.lastReads.where(
-      (e) => e.at.val.isAfter(_at.val) && e.memberId != widget.authorId,
-    );
 
     const int maxAvatars = 5;
     final List<Widget> avatars = [];
@@ -842,11 +875,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: FutureOrBuilder<RxUser?>(
-              key: Key('${item?.id}_4_${m.memberId}'),
+              key: Key('${note?.id}_4_${m.memberId}'),
               futureOr: () => widget.getUser?.call(m.memberId),
               builder: (context, member) {
                 return Tooltip(
-                  message: member?.title ?? user?.title ?? ('dot'.l10n * 3),
+                  message: member?.title() ?? user?.title() ?? ('dot'.l10n * 3),
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(
@@ -893,11 +926,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             Transform.translate(
               offset: const Offset(-12, 0),
               child: WidgetButton(
-                onPressed: () => MessageInfo.show(
-                  context,
-                  id: widget.forwards.first.value.id,
-                  reads: reads ?? [],
-                ),
+                onPressed: () =>
+                    MessageInfo.show(context, widget.forwards.first.value.id),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -917,25 +947,61 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ? MainAxisAlignment.end
           : MainAxisAlignment.start,
       children: [
-        if (!_fromMe && widget.chat.value!.isGroup)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: InkWell(
-              customBorder: const CircleBorder(),
-              onTap: () => router.user(widget.authorId, push: true),
-              child: AvatarWidget.fromRxUser(widget.user, radius: avatarRadius),
-            ),
-          ),
+        AnimatedSwitcher(
+          duration: 150.milliseconds,
+          layoutBuilder: (currentChild, previousChildren) {
+            return Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: <Widget>[
+                ...previousChildren,
+                if (currentChild != null) currentChild,
+              ],
+            );
+          },
+          transitionBuilder: (child, animation) {
+            return SizeTransition(
+              sizeFactor: animation,
+              axis: Axis.horizontal,
+              axisAlignment: 0,
+              child: ScaleTransition(
+                scale: animation,
+                alignment: Alignment.center,
+                child: AnimatedSwitcher.defaultTransitionBuilder(
+                  child,
+                  animation,
+                ),
+              ),
+            );
+          },
+          child: !_fromMe && widget.chat.value?.isGroup == true
+              ? Padding(
+                  key: Key('${widget.withAvatar}${widget.appendAvatarPadding}'),
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                  child: widget.withAvatar
+                      ? InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () => router.user(widget.authorId, push: true),
+                          child: AvatarWidget.fromRxUser(
+                            widget.user,
+                            radius: avatarRadius,
+                          ),
+                        )
+                      : widget.appendAvatarPadding
+                      ? SizedBox(width: avatarRadius.toDouble() * 2)
+                      : const SizedBox(key: Key('1')),
+                )
+              : _fromMe
+              ? widget.appendAvatarPadding
+                    ? SizedBox(width: avatarRadius.toDouble() * 2)
+                    : const SizedBox(key: Key('3'))
+              : const SizedBox(key: Key('4')),
+        ),
         Flexible(
           child: LayoutBuilder(
             builder: (context, constraints) {
               return ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: min(
-                    550,
-                    constraints.maxWidth - avatarRadius.toDouble() * 2,
-                  ),
-                ),
+                constraints: BoxConstraints(maxWidth: 550),
                 child: Padding(
                   padding: EdgeInsets.zero,
                   child: Material(
@@ -946,46 +1012,22 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                           ? Alignment.bottomRight
                           : Alignment.bottomLeft,
                       actions: [
-                        ContextMenuButton(
-                          label: PlatformUtils.isMobile
-                              ? 'btn_info'.l10n
-                              : 'btn_message_info'.l10n,
-                          trailing: const SvgIcon(SvgIcons.info),
-                          inverted: const SvgIcon(SvgIcons.infoWhite),
+                        InformationContextMenuButton(
                           onPressed: () => MessageInfo.show(
                             context,
-                            id: widget.forwards.first.value.id,
-                            reads: reads ?? [],
+                            widget.forwards.first.value.id,
                           ),
                         ),
                         if (copyable != null)
-                          ContextMenuButton(
-                            key: const Key('CopyButton'),
-                            label: PlatformUtils.isMobile
-                                ? 'btn_copy'.l10n
-                                : 'btn_copy_text'.l10n,
-                            trailing: const SvgIcon(SvgIcons.copy19),
-                            inverted: const SvgIcon(SvgIcons.copy19White),
+                          CopyContextMenuButton(
                             onPressed: () => widget.onCopy?.call(
                               _selection?.plainText ?? copyable!,
                             ),
                           ),
-                        ContextMenuButton(
-                          key: const Key('ReplyButton'),
-                          label: PlatformUtils.isMobile
-                              ? 'btn_reply'.l10n
-                              : 'btn_reply_message'.l10n,
-                          trailing: const SvgIcon(SvgIcons.reply),
-                          inverted: const SvgIcon(SvgIcons.replyWhite),
+                        ReplyContextMenuButton(
                           onPressed: () => widget.onReply?.call(null),
                         ),
-                        ContextMenuButton(
-                          key: const Key('ForwardButton'),
-                          label: PlatformUtils.isMobile
-                              ? 'btn_forward'.l10n
-                              : 'btn_forward_message'.l10n,
-                          trailing: const SvgIcon(SvgIcons.forwardSmall),
-                          inverted: const SvgIcon(SvgIcons.forwardSmallWhite),
+                        ForwardContextMenuButton(
                           onPressed: () async {
                             final List<ChatItemQuoteInput> quotes = [];
 
@@ -1017,19 +1059,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                   widget.note.value!.value,
                                   widget.me,
                                 )))
-                          ContextMenuButton(
-                            key: const Key('EditButton'),
-                            label: 'btn_edit'.l10n,
-                            trailing: const SvgIcon(SvgIcons.edit),
-                            inverted: const SvgIcon(SvgIcons.editWhite),
-                            onPressed: widget.onEdit,
-                          ),
-                        ContextMenuButton(
-                          label: PlatformUtils.isMobile
-                              ? 'btn_delete'.l10n
-                              : 'btn_delete_message'.l10n,
-                          trailing: const SvgIcon(SvgIcons.delete19),
-                          inverted: const SvgIcon(SvgIcons.delete19White),
+                          EditContextMenuButton(onPressed: widget.onEdit),
+                        DeleteContextMenuButton(
                           onPressed: () async {
                             bool isMonolog = widget.chat.value!.isMonolog;
                             bool deletable =
@@ -1077,12 +1108,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                             }
                           },
                         ),
-                        ContextMenuButton(
-                          label: 'btn_select_messages'.l10n,
-                          trailing: const SvgIcon(SvgIcons.select),
-                          inverted: const SvgIcon(SvgIcons.selectWhite),
-                          onPressed: widget.onSelect,
-                        ),
+                        SelectContextMenuButton(onPressed: widget.onSelect),
                       ],
                       builder: PlatformUtils.isMobile
                           ? (menu) => child(menu, constraints)
@@ -1097,6 +1123,14 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             },
           ),
         ),
+        if (_fromMe ||
+            (widget.chat.value?.isGroup == false && !widget.selectable))
+          AnimatedSize(duration: 150.milliseconds, child: SizedBox(width: 0))
+        else
+          AnimatedSize(
+            duration: 150.milliseconds,
+            child: SizedBox(width: avatarRadius.toDouble() * 2),
+          ),
       ],
     );
 

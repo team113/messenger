@@ -170,7 +170,7 @@ class AccountsController extends GetxController {
     email = TextFieldState(
       onFocus: (s) {
         try {
-          if (s.text.isNotEmpty) {
+          if (s.text.trim().isNotEmpty) {
             UserEmail(s.text.toLowerCase());
           }
 

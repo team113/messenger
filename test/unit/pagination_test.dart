@@ -36,7 +36,7 @@ import 'package:uuid/uuid.dart';
 
 import 'pagination_test.mocks.dart';
 
-@GenerateMocks([GraphQlProvider])
+@GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
   test('Pagination correctly invokes its methods', () async {
     final Pagination<int, int, int> pagination = Pagination(

@@ -110,6 +110,10 @@ class Config {
   /// Maximum allowed [Log.maxLogs] amount of log entries to keep.
   static int logAmount = 4096;
 
+  /// Indicator whether [Log]s should obfuscate any private information
+  /// (messages, tokens, etc).
+  static bool logObfuscated = true;
+
   /// URL of a Sparkle Appcast XML file.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
@@ -136,7 +140,7 @@ class Config {
   ///
   /// Should be bumped up, when breaking changes in this scheme occur, however
   /// be sure to write migrations and test them.
-  static int scopedVersion = 2;
+  static int scopedVersion = 3;
 
   /// Custom URL scheme to associate the application with when opening the deep
   /// links.
@@ -147,6 +151,11 @@ class Config {
 
   /// URL address of IP address discovering API server.
   static String ipEndpoint = 'https://api.ipify.org?format=json';
+
+  /// Map of localized [Announcement]s that should be displayed within the app.
+  ///
+  /// Each key is expected to be a string of Unicode BCP47 Locale Identifier.
+  static Map<String, Announcement> announcements = {};
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
@@ -241,6 +250,10 @@ class Config {
         ? const int.fromEnvironment('SOCAPP_LOG_AMOUNT')
         : (document['log']?['amount'] ?? 4096);
 
+    logObfuscated = const bool.hasEnvironment('SOCAPP_LOG_OBFUSCATED')
+        ? const bool.fromEnvironment('SOCAPP_LOG_OBFUSCATED')
+        : (document['log']?['obfuscated'] ?? !kDebugMode);
+
     appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
         ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
         : (document['appcast']?['url'] ?? appcast);
@@ -268,6 +281,39 @@ class Config {
     ipEndpoint = const bool.hasEnvironment('SOCAPP_IP_ENDPOINT')
         ? const String.fromEnvironment('SOCAPP_IP_ENDPOINT')
         : (document['ip']?['endpoint'] ?? ipEndpoint);
+
+    try {
+      final dynamic announcementsOrNull = document['announcement'];
+      if (announcementsOrNull is Map<String, dynamic>) {
+        announcements.clear();
+        for (var entry in announcementsOrNull.entries) {
+          announcements[entry.key] = Announcement.parse(entry.value);
+        }
+      }
+
+      // `bool.hasEnvironment` can only be used as a `const` constructor.
+      if (const bool.hasEnvironment('SOCAPP_ANNOUNCEMENT_EN_US')) {
+        announcements['en-US'] = Announcement.parse(
+          const String.fromEnvironment('SOCAPP_ANNOUNCEMENT_EN_US'),
+        );
+      }
+
+      // `bool.hasEnvironment` can only be used as a `const` constructor.
+      if (const bool.hasEnvironment('SOCAPP_ANNOUNCEMENT_ES_ES')) {
+        announcements['es-ES'] = Announcement.parse(
+          const String.fromEnvironment('SOCAPP_ANNOUNCEMENT_ES_ES'),
+        );
+      }
+
+      // `bool.hasEnvironment` can only be used as a `const` constructor.
+      if (const bool.hasEnvironment('SOCAPP_ANNOUNCEMENT_RU_RU')) {
+        announcements['en-US'] = Announcement.parse(
+          const String.fromEnvironment('SOCAPP_ANNOUNCEMENT_RU_RU'),
+        );
+      }
+    } catch (e) {
+      Log.warning('init() -> announcements failed: $e', 'Config');
+    }
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
@@ -307,7 +353,7 @@ class Config {
     if (confRemote) {
       try {
         final response = await (await PlatformUtils.dio).fetch(
-          RequestOptions(path: '$url:$port/conf'),
+          RequestOptions(path: '$url:$port/conf?${Pubspec.ref}'),
         );
         if (response.statusCode == 200) {
           dynamic remote;
@@ -350,6 +396,22 @@ class Config {
               );
             }
             logAmount = _asInt(remote['log']?['amount']) ?? logAmount;
+            logObfuscated = remote['log']?['obfuscated'] ?? logObfuscated;
+
+            try {
+              final dynamic announcementsOrNull = remote['announcement'];
+              if (announcementsOrNull is Map) {
+                announcements.clear();
+                for (var entry in announcementsOrNull.entries) {
+                  if (entry.key is String && entry.value is String) {
+                    announcements[entry.key] = Announcement.parse(entry.value);
+                  }
+                }
+              }
+            } catch (e) {
+              Log.warning('init() -> announcements failed: $e', 'Config');
+            }
+
             origin = url;
           }
         }
@@ -378,8 +440,46 @@ class Config {
     if (PlatformUtils.isIOS) {
       IosUtils.writeDefaults('url', url);
       IosUtils.writeDefaults('endpoint', graphql);
+
+      // Store user agent to use as a `User-Agent` header in Notification
+      // Service Extension.
+      PlatformUtils.userAgent.then((agent) {
+        IosUtils.writeDefaults('agent', agent);
+      });
     }
   }
+}
+
+/// [title] with a [body] intended to be used as an announcement to make to the
+/// client in a non-dismissible way.
+class Announcement {
+  const Announcement({required this.title, this.body});
+
+  /// Constructs an [Announcement] from the provided [text].
+  ///
+  /// First line of the [text], if there's multiple present, is considered as a
+  /// [title].
+  factory Announcement.parse(String text) {
+    final split = text.split('\n');
+    if (split.length >= 2) {
+      final String title = split.first;
+      return Announcement(
+        title: title.trim(),
+        body: text.substring(title.length + 1).trim(),
+      );
+    }
+
+    return Announcement(title: text);
+  }
+
+  /// Indicates whether this [Announcement] is empty.
+  bool get isEmpty => title.isEmpty && body?.isNotEmpty != true;
+
+  /// Title of this [Announcement].
+  final String title;
+
+  /// Optional body of this [Announcement].
+  final String? body;
 }
 
 /// Parses the provided [val] as [int].

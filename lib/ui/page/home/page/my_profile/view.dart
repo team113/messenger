@@ -52,6 +52,7 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/line_divider.dart';
@@ -110,28 +111,31 @@ class MyProfileView extends StatelessWidget {
           onTap: FocusManager.instance.primaryFocus?.unfocus,
           child: Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
-            body: Builder(
-              builder: (context) {
-                final Widget child = ScrollablePositionedList.builder(
-                  key: const Key('MyProfileScrollable'),
-                  initialScrollIndex: c.listInitIndex,
-                  scrollController: c.scrollController,
-                  itemScrollController: c.itemScrollController,
-                  itemPositionsListener: c.positionsListener,
-                  itemCount: ProfileTab.values.length,
-                  physics: const ClampingScrollPhysics(),
-                  itemBuilder: (context, i) => _block(context, c, i),
-                );
-
-                if (PlatformUtils.isMobile) {
-                  return Scrollbar(
-                    controller: c.scrollController,
-                    child: child,
+            body: ScrollKeyboardHandler(
+              scrollController: c.scrollController,
+              child: Builder(
+                builder: (context) {
+                  final Widget child = ScrollablePositionedList.builder(
+                    key: const Key('MyProfileScrollable'),
+                    initialScrollIndex: c.listInitIndex,
+                    scrollController: c.scrollController,
+                    itemScrollController: c.itemScrollController,
+                    itemPositionsListener: c.positionsListener,
+                    itemCount: ProfileTab.values.length,
+                    physics: const ClampingScrollPhysics(),
+                    itemBuilder: (context, i) => _block(context, c, i),
                   );
-                }
 
-                return child;
-              },
+                  if (PlatformUtils.isMobile) {
+                    return Scrollbar(
+                      controller: c.scrollController,
+                      child: child,
+                    );
+                  }
+
+                  return child;
+                },
+              ),
             ),
             floatingActionButton: Obx(() {
               if (c.myUser.value != null) {
@@ -407,8 +411,6 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
 Widget _profile(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  final presence = c.myUser.value?.presence ?? Presence.present;
-
   return Block(
     title: 'label_profile'.l10n,
     children: [
@@ -437,39 +439,44 @@ Widget _profile(BuildContext context, MyProfileController c) {
         );
       }),
       const SizedBox(height: 21),
-      FieldButton(
-        key: Key('StatusButton'),
-        headline: Text('label_your_status'.l10n),
-        onPressed: () async {
-          await PresenceSwitchView.show(context);
-        },
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: switch (presence) {
-                  Presence.present => style.colors.acceptAuxiliary,
-                  Presence.away => style.colors.warning,
-                  (_) => style.colors.secondary,
-                },
+      Obx(() {
+        final Presence presence = c.myUser.value?.presence ?? Presence.present;
+
+        return FieldButton(
+          key: Key('StatusButton'),
+          headline: Text('label_your_status'.l10n),
+          onPressed: () async => await PresenceSwitchView.show(context),
+          child: Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: switch (presence) {
+                    Presence.present => style.colors.acceptAuxiliary,
+                    Presence.away => style.colors.warning,
+                    (_) => style.colors.secondary,
+                  },
+                ),
+                width: 8,
+                height: 8,
               ),
-              width: 8,
-              height: 8,
-            ),
-            SizedBox(width: 5),
-            Expanded(
-              child: Text(switch (presence) {
-                Presence.present => 'label_presence_present'.l10n,
-                Presence.away => 'label_presence_away'.l10n,
-                (_) => '',
-              }, textAlign: TextAlign.left),
-            ),
-            Text('btn_change'.l10n, style: style.fonts.medium.regular.primary),
-            SizedBox(width: 5),
-          ],
-        ),
-      ),
+              SizedBox(width: 5),
+              Expanded(
+                child: Text(switch (presence) {
+                  Presence.present => 'label_presence_present'.l10n,
+                  Presence.away => 'label_presence_away'.l10n,
+                  (_) => '',
+                }, textAlign: TextAlign.left),
+              ),
+              Text(
+                'btn_change'.l10n,
+                style: style.fonts.medium.regular.primary,
+              ),
+              SizedBox(width: 5),
+            ],
+          ),
+        );
+      }),
       const SizedBox(height: 21),
       ReactiveTextField(
         key: Key('TextStatusField'),

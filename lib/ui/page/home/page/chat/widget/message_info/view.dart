@@ -18,18 +18,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/sending_status.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/message_field/view.dart';
-import '/ui/page/home/widget/app_bar.dart';
-import '/ui/page/home/widget/contact_tile.dart';
-import '/ui/widget/animated_switcher.dart';
+import '/ui/page/home/page/user/controller.dart';
+import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -39,184 +37,202 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class MessageInfo extends StatelessWidget {
-  const MessageInfo({super.key, this.id, this.reads = const []});
+  const MessageInfo(this.id, {super.key});
 
-  /// [ChatItemId] of a [ChatItem] this [MessageInfo] is about.
-  final ChatItemId? id;
-
-  /// [LastChatRead]s of a [ChatItem] this [MessageInfo] is about.
-  final Iterable<LastChatRead> reads;
+  /// ID of the [ChatItem] for this [MessageInfo].
+  final ChatItemId id;
 
   /// Displays a [MessageInfo] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(
-    BuildContext context, {
-    ChatItemId? id,
-    Iterable<LastChatRead> reads = const [],
-  }) {
-    return ModalPopup.show(
-      context: context,
-      child: MessageInfo(id: id, reads: reads),
-    );
+  static Future<T?> show<T>(BuildContext context, ChatItemId id) {
+    return ModalPopup.show(context: context, child: MessageInfo(id));
   }
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    final Style style = Theme.of(context).style;
 
     return GetBuilder(
-      init: MessageInfoController(Get.find(), reads: reads),
+      init: MessageInfoController(id, Get.find()),
       builder: (MessageInfoController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 4),
-            ModalPopupHeader(text: 'label_message'.l10n),
-            if (id != null)
-              Container(
-                margin: const EdgeInsets.only(top: 8, bottom: 16),
-                padding: ModalPopup.padding(context),
-                alignment: Alignment.center,
-                child: WidgetButton(
-                  onPressed: () {
-                    PlatformUtils.copy(text: id!.val);
-                    MessagePopup.success('label_copied'.l10n);
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${'label_id'.l10n}${'colon_space'.l10n}$id',
-                        style: style.fonts.small.regular.onBackground,
-                      ),
-                      const SizedBox(width: 8),
-                      const SvgIcon(SvgIcons.copySmall),
-                    ],
-                  ),
-                ),
-              ),
-            Obx(() {
-              if (c.users.length < 10) {
-                return const SizedBox();
-              }
+            ModalPopupHeader(text: 'label_information'.l10n),
+            Flexible(
+              child: Obx(() {
+                final ChatItem? item = c.item.value;
+                if (item == null) {
+                  if (c.status.value.isError) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                      child: CustomProgressIndicator(),
+                    );
+                  } else if (c.status.value.isLoading) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                      child: CustomProgressIndicator(),
+                    );
+                  }
 
-              return Container(
-                padding: ModalPopup.padding(context),
-                margin: const EdgeInsets.only(bottom: 12),
-                child: SizedBox(
-                  height: 50,
-                  child: CustomAppBar(
-                    border: !c.search.isEmpty.value || c.search.isFocused.value
-                        ? Border.all(color: style.colors.primary, width: 2)
-                        : null,
-                    margin: const EdgeInsets.only(top: 4),
-                    title: Theme(
-                      data: MessageFieldView.theme(context),
-                      child: Transform.translate(
-                        offset: const Offset(0, 1),
-                        child: ReactiveTextField(
-                          key: const Key('SearchField'),
-                          state: c.search,
-                          hint: 'label_search'.l10n,
-                          maxLines: 1,
-                          filled: false,
-                          dense: true,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          style: style.fonts.medium.regular.onBackground,
-                          onChanged: () => c.query.value = c.search.text,
+                  return const SizedBox();
+                }
+
+                return Padding(
+                  padding: ModalPopup.padding(
+                    context,
+                  ).copyWith(top: 6, right: 0),
+                  child: Table(
+                    columnWidths: const {
+                      0: IntrinsicColumnWidth(),
+                      1: MinColumnWidth(
+                        FixedColumnWidth(260),
+                        FractionColumnWidth(0.7),
+                      ),
+                    },
+                    defaultVerticalAlignment: TableCellVerticalAlignment.top,
+                    children: [
+                      _tableRow(
+                        context,
+                        'label_id'.l10n,
+                        WidgetButton(
+                          onPressed: () {
+                            PlatformUtils.copy(text: item.id.val);
+                            MessagePopup.success('label_copied'.l10n);
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                item.id.val,
+                                style: style.fonts.small.regular.onBackground,
+                              ),
+                              const SizedBox(width: 8),
+                              const SvgIcon(SvgIcons.copySmall),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    leading: const [
-                      Padding(
-                        padding: EdgeInsets.only(left: 20, right: 12),
-                        child: SvgIcon(SvgIcons.search),
+                      _tableRow(
+                        context,
+                        'label_sent'.l10n,
+                        Text(
+                          item.at.val.toLocal().hmyMd,
+                          style: style.fonts.small.regular.onBackground,
+                        ),
                       ),
-                    ],
-                    actions: [
-                      Obx(() {
-                        final Widget close = WidgetButton(
-                          onPressed: () {
-                            c.search.clear();
-                            c.search.unsubmit();
-                            c.query.value = '';
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.only(left: 12, right: 18),
-                            child: SvgIcon(SvgIcons.closePrimary),
+                      if (c.displayMembers.value)
+                        _tableRow(
+                          context,
+                          'label_status'.l10n,
+                          _members(context, c),
+                        )
+                      else
+                        _tableRow(
+                          context,
+                          'label_status'.l10n,
+                          Text(
+                            _status(item.status.value, c.reads.isNotEmpty),
+                            style: style.fonts.small.regular.onBackground,
                           ),
-                        );
-
-                        return SafeAnimatedSwitcher(
-                          duration: 250.milliseconds,
-                          child: c.search.isEmpty.value ? null : close,
-                        );
-                      }),
+                        ),
                     ],
                   ),
-                ),
-              );
-            }),
-            if (reads.isNotEmpty)
-              Flexible(
-                child: Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Scrollbar(
-                    controller: c.scrollController,
-                    child: Obx(() {
-                      final users = c.users.where((u) {
-                        if (c.query.isNotEmpty) {
-                          return u.user.value.name?.val.toLowerCase().contains(
-                                c.query.toLowerCase(),
-                              ) ==
-                              true;
-                        }
-
-                        return true;
-                      });
-
-                      return ListView(
-                        controller: c.scrollController,
-                        shrinkWrap: true,
-                        children: [
-                          if (users.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: Center(
-                                child: Text(
-                                  'label_nothing_found'.l10n,
-                                  style: style.fonts.small.regular.onBackground,
-                                ),
-                              ),
-                            )
-                          else
-                            ...users.map((e) {
-                              return ContactTile(
-                                user: e,
-                                dense: true,
-                                darken: 0.05,
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                  router.user(e.id, push: true);
-                                },
-                                subtitle: [
-                                  const SizedBox(height: 3),
-                                  Text(
-                                    'label_read_by'.l10n,
-                                    style: style.fonts.small.regular.secondary,
-                                  ),
-                                ],
-                              );
-                            }),
-                        ],
-                      );
-                    }),
-                  ),
-                ),
-              ),
+                );
+              }),
+            ),
             const SizedBox(height: 16),
           ],
         );
       },
     );
+  }
+
+  /// Builds a stylized [TableRow] with [label] and [child].
+  TableRow _tableRow(BuildContext context, String label, Widget child) {
+    final style = Theme.of(context).style;
+
+    return TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+          child: Text(
+            label,
+            style: style.fonts.small.regular.secondary,
+            textAlign: TextAlign.right,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 4, 0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: DefaultTextStyle(
+              style: style.fonts.small.regular.secondary.copyWith(
+                color: style.colors.secondaryBackgroundLight,
+              ),
+              child: child,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Returns a list of [RxUser] visualized.
+  Widget _members(BuildContext context, MessageInfoController c) {
+    final style = Theme.of(context).style;
+
+    final List<Widget> children = [];
+
+    for (int i = 0; i < c.members.length; ++i) {
+      final RxUser member = c.members.elementAt(i);
+      final bool isRead = c.reads.map((r) => r.memberId).contains(member.id);
+
+      final Widget widget = Container(
+        padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: style.colors.onPrimary,
+          border: style.cardBorder,
+        ),
+        child: Row(
+          children: [
+            AvatarWidget.fromRxUser(member, radius: AvatarRadius.smaller),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                member.title(),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+            SizedBox(width: 4),
+            SvgIcon(isRead ? SvgIcons.read : SvgIcons.sent),
+          ],
+        ),
+      );
+
+      children.add(widget);
+      if (i != c.members.length) {
+        children.add(const SizedBox(height: 4));
+      }
+    }
+
+    return Column(children: children);
+  }
+
+  /// Returns a localized string of [ChatItem] status.
+  String _status(SendingStatus status, bool isRead) {
+    if (isRead) {
+      return 'label_message_status_read'.l10n;
+    }
+
+    if (status.name == 'sent') {
+      return 'label_message_status_delivered'.l10n;
+    }
+
+    if (status.name == 'sending') {
+      return 'label_message_status_sent'.l10n;
+    }
+
+    return 'label_message_status_not_sent'.l10n;
   }
 }

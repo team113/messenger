@@ -404,9 +404,6 @@ class ChatController extends GetxController {
   /// Indicates whether a next page of the [elements] is loading.
   RxBool get nextLoading => _fragment?.nextLoading ?? chat!.nextLoading;
 
-  /// Returns the [CallButtonsPosition] currently set.
-  CallButtonsPosition? get callPosition => settings.value?.callButtonsPosition;
-
   /// Indicates whether the [chat] this [ChatController] is about is a dialog.
   bool get isDialog => chat?.chat.value.isDialog == true;
 
@@ -448,7 +445,7 @@ class ChatController extends GetxController {
       _chatService,
       _userService,
       _settingsRepository,
-      onChanged: updateDraft,
+      onChanged: _updateDraft,
       onCall: call,
       onKeyUp: (key) {
         if (send.field.controller.text.isNotEmpty) {
@@ -579,6 +576,8 @@ class ChatController extends GetxController {
       }
     });
 
+    HardwareKeyboard.instance.addHandler(_keyboardHandler);
+
     super.onInit();
   }
 
@@ -627,6 +626,8 @@ class ChatController extends GetxController {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
+
+    HardwareKeyboard.instance.removeHandler(_keyboardHandler);
 
     for (final s in _fragmentSubscriptions) {
       s.cancel();
@@ -782,28 +783,47 @@ class ChatController extends GetxController {
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
+          Log.debug(
+            'editMessage() -> onSubmit() -> text(${edit.value!.field.text.trim()}) vs send(${send.field.text}), attachments(${edit.value!.attachments}), replies(${edit.value!.replied})',
+            '$runtimeType',
+          );
+
           _stopTyping();
 
-          if (edit.value!.field.text.trim().isNotEmpty ||
+          final bool hasText = edit.value!.field.text.trim() != item.text?.val;
+
+          if (hasText ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
             try {
-              await _chatService.editChatMessage(
-                item,
-                text: ChatMessageTextInput(
-                  ChatMessageText(edit.value!.field.text),
-                ),
-                attachments: ChatMessageAttachmentsInput(
-                  edit.value!.attachments.map((e) => e.value).toList(),
-                ),
-                repliesTo: ChatMessageRepliesInput(
-                  edit.value!.replied.map((e) => e.value.id).toList(),
-                ),
+              final ChatMessageTextInput text = ChatMessageTextInput(
+                ChatMessageText(edit.value!.field.text),
+              );
+
+              final ChatMessageAttachmentsInput attachments =
+                  ChatMessageAttachmentsInput(
+                    edit.value!.attachments.map((e) => e.value).toList(),
+                  );
+
+              final ChatMessageRepliesInput repliesTo = ChatMessageRepliesInput(
+                edit.value!.replied.map((e) => e.value.id).toList(),
               );
 
               closeEditing();
 
               send.field.focus.requestFocus();
+
+              await _chatService.editChatMessage(
+                item,
+                text: text,
+                attachments: attachments,
+                repliesTo: repliesTo,
+              );
+
+              // If the message is not sent yet, resend it.
+              if (item.status.value == SendingStatus.error) {
+                await resendItem(item);
+              }
             } on EditChatMessageException catch (e) {
               if (e.code == EditChatMessageErrorCode.blocked) {
                 _showBlockedPopup();
@@ -847,7 +867,7 @@ class ChatController extends GetxController {
   }
 
   /// Updates [RxChat.draft] with the current values of the [send] field.
-  void updateDraft() {
+  void _updateDraft() {
     // [Attachment]s to persist in a [RxChat.draft].
     final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
 
@@ -909,7 +929,6 @@ class ChatController extends GetxController {
           send.field.unchecked = draft?.text?.val ?? send.field.text;
         }
 
-        send.inCall = chat!.inCall;
         send.field.unsubmit();
         send.replied.value = List.from(
           draft?.repliesTo.map((e) => e.original).nonNulls.map((e) => Rx(e)) ??
@@ -2078,7 +2097,7 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Highlights the item with the provided [index].
+  /// Highlights the item with the provided [id].
   Future<void> _highlight(ListElementId id) async {
     highlighted.value = id;
 
@@ -2417,6 +2436,45 @@ class ChatController extends GetxController {
       toggleSearch(true);
     }
   }
+
+  /// Enables or disables search based on the [event].
+  bool _keyboardHandler(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      switch (event.logicalKey) {
+        case LogicalKeyboardKey.keyF:
+          final Set<PhysicalKeyboardKey> pressed =
+              HardwareKeyboard.instance.physicalKeysPressed;
+
+          final bool isMetaPressed = pressed.any(
+            (key) =>
+                key == PhysicalKeyboardKey.metaLeft ||
+                key == PhysicalKeyboardKey.metaRight,
+          );
+
+          final bool isControlPressed = pressed.any(
+            (key) =>
+                key == PhysicalKeyboardKey.controlLeft ||
+                key == PhysicalKeyboardKey.controlRight,
+          );
+
+          if (isMetaPressed || isControlPressed) {
+            toggleSearch();
+            return true;
+          }
+          break;
+
+        case LogicalKeyboardKey.escape:
+          toggleSearch(true);
+          return true;
+
+        default:
+          // No-op.
+          break;
+      }
+    }
+
+    return false;
+  }
 }
 
 /// ID of a [ListElement] containing its [PreciseDateTime] and [ChatItemId].
@@ -2547,51 +2605,6 @@ class LoaderElement extends ListElement {
 
 /// Extension adding [ChatView] related wrappers and helpers.
 extension ChatViewExt on Chat {
-  /// Returns text represented title of this [Chat].
-  String getTitle(Iterable<RxUser> users, UserId? me) {
-    String title = 'dot'.l10n * 3;
-
-    switch (kind) {
-      case ChatKind.monolog:
-        title = name?.val ?? 'label_chat_monolog'.l10n;
-        break;
-
-      case ChatKind.dialog:
-        final String? name =
-            users.firstWhereOrNull((u) => u.id != me)?.title ??
-            members.firstWhereOrNull((e) => e.user.id != me)?.user.title;
-        if (name != null) {
-          title = name;
-        }
-        break;
-
-      case ChatKind.group:
-        if (name == null) {
-          final Iterable<String> names;
-
-          if (users.length < membersCount && users.length < 3) {
-            names = members.take(3).map((e) => e.user.title);
-          } else {
-            names = users.take(3).map((e) => e.title);
-          }
-
-          title = names.join('comma_space'.l10n);
-          if (membersCount > 3) {
-            title += 'comma_space'.l10n + ('dot'.l10n * 3);
-          }
-        } else {
-          title = name!.val;
-        }
-        break;
-
-      case ChatKind.artemisUnknown:
-        // No-op.
-        break;
-    }
-
-    return title;
-  }
-
   /// Returns string represented subtitle of this [Chat].
   ///
   /// If [isGroup], then returns the [members] length, otherwise returns the
@@ -2623,6 +2636,71 @@ extension ChatViewExt on Chat {
       case ChatKind.artemisUnknown:
         return id.val;
     }
+  }
+}
+
+/// Extension adding [RxChat] related wrappers and helpers.
+extension ChatRxExt on RxChat {
+  /// Returns text represented title of this [RxChat].
+  ///
+  /// If [withDeletedLabel] is `true`, then returns the title with the deleted
+  /// label for deleted users.
+  String title({bool withDeletedLabel = true}) {
+    String title = 'dot'.l10n * 3;
+
+    switch (chat.value.kind) {
+      case ChatKind.monolog:
+        title = chat.value.name?.val ?? 'label_chat_monolog'.l10n;
+        break;
+
+      case ChatKind.dialog:
+        final String? name =
+            members.values
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user
+                .title(withDeletedLabel: withDeletedLabel) ??
+            chat.value.members
+                .firstWhereOrNull((e) => e.user.id != me)
+                ?.user
+                .title(withDeletedLabel: withDeletedLabel);
+
+        title = name ?? title;
+        break;
+
+      case ChatKind.group:
+        if (chat.value.name != null) {
+          title = chat.value.name!.val;
+        } else {
+          final Iterable<String> names;
+
+          final List<RxUser> users = members.values
+              .take(3)
+              .map((e) => e.user)
+              .toList();
+
+          if (users.length < chat.value.membersCount && users.length < 3) {
+            names = chat.value.members
+                .take(3)
+                .map((e) => e.user.title(withDeletedLabel: withDeletedLabel));
+          } else {
+            names = users
+                .take(3)
+                .map((e) => e.title(withDeletedLabel: withDeletedLabel));
+          }
+
+          title = names.join('comma_space'.l10n);
+          if (chat.value.membersCount > 3) {
+            title += 'comma_space'.l10n + ('dot'.l10n * 3);
+          }
+        }
+        break;
+
+      case ChatKind.artemisUnknown:
+        // No-op.
+        break;
+    }
+
+    return title;
   }
 }
 

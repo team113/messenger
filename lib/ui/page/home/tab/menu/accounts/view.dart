@@ -66,7 +66,7 @@ class AccountsView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('AccountsView'),
-      init: AccountsController(Get.find(), Get.find()),
+      init: AccountsController(Get.find(), Get.find(), initial: initial),
       builder: (AccountsController c) {
         return Obx(() {
           final Widget header;
@@ -85,21 +85,18 @@ class AccountsView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('UsernameField'),
                   state: c.login,
-                  label: 'label_sign_in_input'.l10n,
+                  label: 'label_identifier'.l10n,
+                  hint: 'label_sign_in_input'.l10n,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
                 ),
                 const SizedBox(height: 16),
-                ReactiveTextField(
-                  key: const ValueKey('PasswordField'),
+                ReactiveTextField.password(
+                  key: const Key('PasswordField'),
                   state: c.password,
                   label: 'label_password'.l10n,
-                  obscure: c.obscurePassword.value,
-                  onSuffixPressed: c.obscurePassword.toggle,
+                  hint: 'label_your_password'.l10n,
+                  obscured: c.obscurePassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscurePassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
@@ -263,7 +260,9 @@ class AccountsView extends StatelessWidget {
             case AccountsViewStage.add:
               header = ModalPopupHeader(
                 text: 'label_add_account'.l10n,
-                onBack: () => c.stage.value = AccountsViewStage.accounts,
+                onBack: initial == AccountsViewStage.accounts
+                    ? () => c.stage.value = AccountsViewStage.accounts
+                    : null,
               );
 
               children = [

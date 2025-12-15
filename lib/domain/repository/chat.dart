@@ -42,6 +42,9 @@ abstract class AbstractChatRepository {
   /// Returns reactive map of [RxChat]s in the current pagination view.
   RxObsMap<ChatId, RxChat> get paginated;
 
+  /// Returns the [Paginated] of archived [RxChat]s.
+  Paginated<ChatId, RxChat> get archived;
+
   /// Returns reactive map of all [RxChat]s stored.
   RxObsMap<ChatId, RxChat> get chats;
 
@@ -72,6 +75,9 @@ abstract class AbstractChatRepository {
 
   /// Returns an [RxChat] by the provided [id].
   FutureOr<RxChat?> get(ChatId id);
+
+  /// Returns a [ChatItem] by the provided [id].
+  FutureOr<ChatItem?> getItem(ChatItemId id);
 
   /// Removes a [Chat] identified by the provided [id] from the [chats].
   Future<void> remove(ChatId id);
@@ -119,6 +125,9 @@ abstract class AbstractChatRepository {
   /// Marks the specified [Chat] as hidden for the authenticated [MyUser].
   Future<void> hideChat(ChatId id);
 
+  /// Marks the specified [Chat] as archived for the authenticated [MyUser].
+  Future<void> archiveChat(ChatId id, bool archive);
+
   /// Marks the specified [Chat] as read for the authenticated [MyUser] until
   /// the specified [ChatItem] inclusively.
   ///
@@ -159,7 +168,7 @@ abstract class AbstractChatRepository {
 
   /// Creates a new [Attachment] linked to the authenticated [MyUser] for a
   /// later use in the [sendChatMessage] method.
-  Future<Attachment> uploadAttachment(LocalAttachment attachment);
+  Future<Attachment?> uploadAttachment(LocalAttachment attachment);
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the given [Chat]-group (if
@@ -248,9 +257,6 @@ abstract class RxChat implements Comparable<RxChat> {
 
   /// [Paginated] of [User]s being members of this [chat].
   Paginated<UserId, RxChatMember> get members;
-
-  /// Text representing the title of this [chat].
-  String get title;
 
   /// Reactive [Avatar] of this [chat].
   Rx<Avatar?> get avatar;

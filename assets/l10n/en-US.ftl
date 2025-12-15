@@ -126,11 +126,13 @@ btn_call_video_on_desc =
     video on
 btn_camera = Camera
 btn_cancel = Cancel
+btn_cancel_selection = Cancel selection
 btn_change = Change
 btn_change_account_desc =
     Change
     account
 btn_change_password = Change password
+btn_change_status = Change status
 btn_check_for_updates = Check for updates
 btn_clear = Clear
 btn_clear_cache = Clear cache
@@ -158,6 +160,7 @@ btn_download = Download
 btn_download_all = Download all
 btn_download_all_as = Download all as
 btn_download_as = Download as
+btn_download_logs = Download logs
 btn_download_version = Download {$version}
 btn_edit = Edit
 btn_email = E-mail
@@ -171,6 +174,8 @@ btn_gallery = Gallery
 btn_guest = Guest
 btn_help = Help
 btn_hide = Hide
+btn_hidden_chats = Hidden chats
+btn_hide_chat = Hide chat
 btn_hide_interface = Hide interface
 btn_info = Information
 btn_install_android = .apk file for Android
@@ -211,12 +216,14 @@ btn_save_my_credentials_for_one_click = Save my credentials for one-click sign i
 btn_save_to_gallery = Save to gallery
 btn_save_to_gallery_all = Save all to galley
 btn_schedule_an_interview = Schedule an interview
+btn_search_chat = Search in chat
 btn_select = Select
 btn_select_messages = Select messages
 btn_send_application = Send an application
 btn_send_one_time_code = Send one-time code
 btn_set_password = Set password
 btn_share = Share
+btn_show_chat = Unhide chat
 btn_sign_in = Sign in
 btn_sign_up = Create an account
 btn_skip = Skip
@@ -228,6 +235,7 @@ btn_terminate_all_other_sessions = Terminate all other sessions
 btn_terminate_this_session = Terminate this session
 btn_terms_and_conditions = Terms of Usage & Privacy Policy
 btn_unblock = Unblock
+btn_unhide = Unhide
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
@@ -335,9 +343,9 @@ fcm_incoming_call =
         } started { $isVideo ->
             [yes] a
             *[other] an
-        }
+        }{" "}
         *[dialog] {""}
-    } { $isVideo ->
+    }{ $isVideo ->
         [yes] video
         *[other] audio
     } call
@@ -349,6 +357,9 @@ fcm_message =
                 [x] {$userNum}
                 *[other] {$userName}
             }:{" "}
+    }{ $donation ->
+        [x] {""}
+        *[other] [G{$donation}]{" "}
     }{ $attachmentsCount ->
           [0] {""}
           *[other] [{$attachmentsType ->
@@ -360,13 +371,9 @@ fcm_message =
                            [1] Video
                            *[other] {$attachmentsCount} videos
                        }
-               [file] { $attachmentsCount ->
+              *[file] { $attachmentsCount ->
                           [1] File
                           *[other] {$attachmentsCount} files
-                      }
-              *[attachments] {$attachmentsCount ->
-                          [1] Attachment
-                          *[other] {$attachmentsCount} attachments
                        }
         }]
     }{ $textLength ->
@@ -376,7 +383,7 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
-fcm_missed_cal =
+fcm_missed_call =
     Missed { $isVideo ->
         [yes] video
         *[other] audio
@@ -490,6 +497,7 @@ label_all_chats_and_groups = All chats and groups
 label_all_session_except_current_terminated = All sessions except this one will be terminated
 label_also_delete_for_everyone = Also delete for everyone
 label_always_muted = Always muted
+label_amount_k = {$amount}k
 label_application = Application
 label_audio_call = Audio call{$by ->
         [x]{""}
@@ -530,7 +538,6 @@ label_call_title =
 label_call_window = Call window
 label_camera = Camera
 label_change_password = Change password
-label_chat = Chat
 label_chat_call_declined = Declined call
 label_chat_call_ended = Ended call
 label_chat_call_missed = Missed call
@@ -569,6 +576,7 @@ label_conditions_frontend_developer =
     - Time tracking and payment for overtime;
     - Relocation possible.
 label_confidentiality = Confidentiality
+label_confirm_password = Confirm password
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact_us_via_provided_email = Contact us by e-mail {$email}.
@@ -582,6 +590,7 @@ label_count_seconds = {$count} { $count ->
 label_create_group = Group creation
 label_create_link = Create link
 label_critical_update_is_available = Current version is no longer supported
+label_current_account = Current account
 label_current_password = Current password
 label_days_short = {$days} d
 label_delete_account = Delete account
@@ -590,6 +599,7 @@ label_delete_chats = Delete chat(s)
 label_delete_email = Delete E-mail
 label_delete_message = Delete message?
 label_delete_messages = Delete messages?
+label_deleted_account = Deleted Account
 label_desktop_apps = Desktop apps
 label_device_by_default = By default - {$device}
 label_dialog_created = Dialog created
@@ -626,7 +636,8 @@ label_for_learning_use_our_flutter_incubator1 = If you would like to learn/impro
 label_for_learning_use_our_flutter_incubator2 = Sandbox.
 label_for_learning_use_our_rust_incubator1 = If you would like to learn/improve your knowledge of Rust, you can use our{" "}
 label_for_learning_use_our_rust_incubator2 = Sandbox.
-label_forward_message = Forward message
+label_forward_message = Forward
+label_forward_subtitle = select chat
 label_forwarded_message = Forwarded message
 label_forwarded_messages = {$count ->
     [1] Forwarded message
@@ -640,6 +651,9 @@ label_guest_account_created = Guest account created
 label_hello = Hello!
 label_hello_reply = Yay, hello :)
 label_hidden = Last seen recently
+label_hidden_chats = Hidden chats
+label_hide_chats = Hide chat(s)
+label_hide_chats_modal_description = The chats will be moved to the "Hidden chats" list
 label_high_pass_filter = High pass filter
 label_hotkey = Hotkeys
 label_id = ID
@@ -659,10 +673,8 @@ label_introduction_description =
          • the token has been invalidated due to technical issues (cookie / cash deleted; OS / browser / application updated; certificate changed; etc.).
 
     To save access to your account, set a password and/or e-mail.
-label_introduction_description1 = You can change your avatar, name, text status, password, login and e-mail in the{" "}
-label_introduction_description2 = profile settings
-label_introduction_description3 = .
 label_introduction_description_email = No e-mail is added. Access to your account will be lost if you forget the password.
+label_introduction_for_one_time = To save access to your account, set a password, login or e-mail in your profile settings.
 label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
 label_b = {$amount} B
 label_kb = {$amount} KB
@@ -688,7 +700,10 @@ label_media_no_device_available = No device is available
 label_media_output = Speaker
 label_media_section_hint = Microphone, speaker, camera
 label_media_semicolon_amount = Media: {$amount}
-label_message = Message
+label_message_status_delivered = Delivered
+label_message_status_not_sent = Not sent
+label_message_status_read = Read
+label_message_status_sent = Sent
 label_message_will_deleted_for_you = The message will be deleted only for you
 label_messages_will_deleted_for_you = The messages will be deleted only for you
 label_messenger_full = Messenger by Gapopa
@@ -709,6 +724,7 @@ label_muted_chats = Muted chats
 label_muted_until_i_turn_on = Muted until: I turn it on
 label_muted_until_period = Muted until: {$period}
 label_name = Name
+label_name_hint = Your public name
 label_name_updated = {$author} updated group name
 label_name_updated1 = {$author}
 label_name_updated2 = {" "}updated group name
@@ -765,11 +781,9 @@ label_presence_away = Away
 label_presence_present = Online
 label_profile = Profile
 label_public_section_hint = Avatar, name, about you, ...
-label_read_by = Read
 label_reason = Reason
 label_reason_described = Reason: {$reason}
 label_reason_hint = Enter reason
-label_recent = Recent
 label_reconnecting_ellipsis = Reconnecting...
 label_recover_account = Access recovery
 label_recover_account_description = Specify your Gapopa ID, login or E-mail.
@@ -789,7 +803,7 @@ label_regulations_freelance =
     5. While working on the task you should push commit of your task at least once every 72 hours.
     6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
 label_remove_member = Remove from the group
-label_repeat_password = Confirm password
+label_repeat_password = Repeat password
 label_replace_this_text_with_concern = Describe the concern.
 label_replace_this_text_with_feedback = Feedback.
 label_replies = [{$count} {$count ->
@@ -829,12 +843,18 @@ label_review_freelance =
 label_saved_files = Downloaded files
 label_screen_sharing = Screen sharing
 label_search = Search
+label_search_category_chats = Chats
+label_search_category_contacts = Contacts
+label_search_category_users = Users
 label_selected = Selected: {$count}
 label_send_message_hint = Message...
+label_sent = Sent
 label_sessions_terminated = Session(s) terminated
 label_set_cache_limits = Set cache limits
 label_set_password = Set password
 label_show_call_window = Show call window
+label_show_chats = Unhide chat(s)
+label_show_chats_modal_description = The chats will be removed from the "Hidden chats" list.
 label_sign_in = Sign in
 label_sign_in_input = Gapopa ID, login or e-mail
 label_sign_in_required = Sign in required
@@ -888,6 +908,7 @@ label_terminate_sessions = Terminate session(s)
 label_terms_and_privacy_policy = Terms & Privacy Policy
 label_text_status = Text status
 label_text_status_description = 25 characters max
+label_text_status_hint = Text status. 25 symb. max
 label_this_device = This device
 label_to_restore_chats_use_search = To restore the chats, use the search
 label_typing = Typing
@@ -900,7 +921,6 @@ label_unread_messages = {$quantity ->
 }
 label_unmuted = Sound on
 label_update_available = Update available
-label_user = User
 label_user_added_user = {$author} added {$user}
 label_user_added_user1 = {$author}{" "}
 label_user_added_user2 = added

@@ -15,12 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:log_me/log_me.dart' as me;
-import 'package:share_plus/share_plus.dart';
 
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
@@ -104,7 +101,15 @@ class LogView extends StatelessWidget {
                                     onPressed: () async {
                                       try {
                                         await PlatformUtils.copy(
-                                          text: c.report(),
+                                          text: LogController.report(
+                                            sessions: c.sessions,
+                                            sessionId: c.sessionId,
+                                            userAgent: c.userAgent.value,
+                                            myUser: c.myUser?.value,
+                                            token: c.token,
+                                            pushNotifications:
+                                                c.pushNotifications,
+                                          ),
                                         );
 
                                         MessagePopup.success(
@@ -121,26 +126,14 @@ class LogView extends StatelessWidget {
                                 Expanded(
                                   child: PrimaryButton(
                                     onPressed: () async {
-                                      try {
-                                        final file =
-                                            await PlatformUtils.createAndDownload(
-                                              'report_${DateTime.now().millisecondsSinceEpoch}.log',
-                                              Uint8List.fromList(
-                                                c.report().codeUnits,
-                                              ),
-                                            );
-
-                                        if (file != null &&
-                                            PlatformUtils.isMobile) {
-                                          await SharePlus.instance.share(
-                                            ShareParams(
-                                              files: [XFile(file.path)],
-                                            ),
-                                          );
-                                        }
-                                      } catch (e) {
-                                        MessagePopup.error(e);
-                                      }
+                                      await LogController.download(
+                                        sessions: c.sessions,
+                                        sessionId: c.sessionId,
+                                        userAgent: c.userAgent.value,
+                                        myUser: c.myUser?.value,
+                                        token: c.token,
+                                        pushNotifications: c.pushNotifications,
+                                      );
                                     },
                                     title: 'Download as file',
                                   ),
@@ -345,6 +338,9 @@ class LogView extends StatelessWidget {
         Text('${c.token}'),
         Text(
           'Push Notifications are considered active: ${c.pushNotifications}',
+        ),
+        Text(
+          'Push Notifications permissions are: ${c.notificationSettings.value?.authorizationStatus.name}',
         ),
       ],
     );

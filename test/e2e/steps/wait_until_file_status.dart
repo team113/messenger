@@ -26,6 +26,7 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/worker/cache.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
@@ -42,42 +43,71 @@ waitUntilFileStatus = then2<String, DownloadStatus, CustomWorld>(
   'I wait until {string} file is {downloadStatus}',
   (name, status, context) async {
     await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-
-      RxChat? chat =
-          Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-      Attachment? attachment = chat!.messages
+      final ChatService chatService = Get.find<ChatService>();
+      final RxChat? chat =
+          chatService.chats[ChatId(router.route.split('/').last)];
+      final Attachment? attachment = chat?.messages
           .map((e) => e.value)
           .whereType<ChatMessage>()
           .expand((e) => e.attachments)
           .firstWhereOrNull((a) => a.filename == name);
 
-      Finder finder = context.world.appDriver.findByKeySkipOffstage(
+      Log.debug(
+        'waitUntilFileStatus() -> last(`${router.route.split('/').last}`), thus found `$chat` in chats: ${chatService.chats}',
+        'E2E',
+      );
+
+      Log.debug(
+        'waitUntilFileStatus() -> tried looking for attachment with filename `$name`, found: $attachment',
+        'E2E',
+      );
+
+      Log.debug(
+        'waitUntilFileStatus() -> the whole list of attachments in the chat: `${chat?.messages.map((e) => e.value).whereType<ChatMessage>().expand((e) => e.attachments).map((e) => e.filename).join(', ')}`',
+        'E2E',
+      );
+
+      final Finder finder = context.world.appDriver.findByKeySkipOffstage(
         'File_${attachment?.id}',
       );
 
-      if (attachment != null &&
-          await context.world.appDriver.isPresent(finder)) {
-        return status == DownloadStatus.notStarted
-            ? context.world.appDriver.isPresent(
-                context.world.appDriver.findByDescendant(
-                  finder,
-                  context.world.appDriver.findByKeySkipOffstage('Download'),
-                ),
-              )
-            : status == DownloadStatus.inProgress
-            ? context.world.appDriver.isPresent(
-                context.world.appDriver.findByDescendant(
-                  finder,
-                  context.world.appDriver.findByKeySkipOffstage('Downloading'),
-                ),
-              )
-            : context.world.appDriver.isPresent(
-                context.world.appDriver.findByDescendant(
-                  finder,
-                  context.world.appDriver.findByKeySkipOffstage('Downloaded'),
-                ),
-              );
+      final bool isPresent = await context.world.appDriver.isPresent(finder);
+
+      Log.debug('waitUntilFileStatus() -> isPresent = $isPresent', 'E2E');
+
+      if (attachment != null && isPresent) {
+        final String key = switch (status) {
+          DownloadStatus.notStarted => 'Download',
+          DownloadStatus.inProgress => 'Downloading',
+          DownloadStatus.isFinished => 'Downloaded',
+        };
+
+        final bool hasWithinFile = await context.world.appDriver.isPresent(
+          context.world.appDriver.findByDescendant(
+            finder,
+            context.world.appDriver.findByKeySkipOffstage(key),
+            firstMatchOnly: true,
+          ),
+        );
+
+        Log.debug(
+          'waitUntilFileStatus() -> looking for `$key`, hasWithinFile -> $hasWithinFile',
+          'E2E',
+        );
+
+        if (!hasWithinFile && status == DownloadStatus.inProgress) {
+          // File might've already downloaded, thus when expecting in progress
+          // status, we should also check for downloaded one.
+          return await context.world.appDriver.isPresent(
+            context.world.appDriver.findByDescendant(
+              finder,
+              context.world.appDriver.findByKeySkipOffstage('Downloaded'),
+              firstMatchOnly: true,
+            ),
+          );
+        }
+
+        return hasWithinFile;
       }
 
       return false;

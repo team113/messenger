@@ -15,9 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
+import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
@@ -29,6 +34,7 @@ import '/domain/service/session.dart';
 import '/pubspec.g.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/util/log.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Controller of a [LogView].
@@ -45,6 +51,9 @@ class LogController extends GetxController {
 
   /// [PlatformUtilsImpl.userAgent] string.
   final RxnString userAgent = RxnString();
+
+  /// [NotificationSettings] the [FirebaseMessaging] has currently.
+  final Rx<NotificationSettings?> notificationSettings = Rx(null);
 
   /// [AuthService] used to retrieve the current [sessionId].
   final AuthService _authService;
@@ -77,11 +86,62 @@ class LogController extends GetxController {
   @override
   void onInit() {
     PlatformUtils.userAgent.then((e) => userAgent.value = e);
+    getNotificationSettings().then((e) => notificationSettings.value = e);
     super.onInit();
   }
 
+  /// Creates and downloads the [report] as a `.txt` file.
+  static Future<void> download({
+    List<RxSession>? sessions,
+    SessionId? sessionId,
+    String? userAgent,
+    MyUser? myUser,
+    DeviceToken? token,
+    bool? pushNotifications,
+    NotificationSettings? notificationSettings,
+  }) async {
+    try {
+      final encoder = Utf8Encoder();
+
+      final DateTime utc = DateTime.now().toUtc();
+
+      final String app = PlatformUtils.isWeb
+          ? Config.origin
+          : Config.userAgentProduct;
+
+      final file = await PlatformUtils.createAndDownload(
+        '${app.toLowerCase()}_bug_report_${utc.year.toString().padLeft(4, '0')}.${utc.month.toString().padLeft(2, '0')}.${utc.day.toString().padLeft(2, '0')}_${utc.hour.toString().padLeft(2, '0')}.${utc.minute.toString().padLeft(2, '0')}.${utc.second.toString().padLeft(2, '0')}.log',
+        encoder.convert(
+          LogController.report(
+            sessions: sessions,
+            sessionId: sessionId,
+            userAgent: userAgent,
+            myUser: myUser,
+            token: token,
+            pushNotifications: pushNotifications,
+            notificationSettings: notificationSettings,
+          ),
+        ),
+      );
+
+      if (file != null && PlatformUtils.isMobile) {
+        await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
+      }
+    } catch (e) {
+      MessagePopup.error(e);
+    }
+  }
+
   /// Returns a report of the technical information and [Log]s.
-  String report() {
+  static String report({
+    List<RxSession>? sessions,
+    SessionId? sessionId,
+    String? userAgent,
+    MyUser? myUser,
+    DeviceToken? token,
+    bool? pushNotifications,
+    NotificationSettings? notificationSettings,
+  }) {
     final Session? session = sessions
         ?.firstWhereOrNull((e) => e.session.value.id == sessionId)
         ?.session
@@ -92,7 +152,7 @@ class LogController extends GetxController {
 
 Created at: ${DateTime.now().toUtc()}
 Application: ${Pubspec.ref}
-User-Agent: ${userAgent.value}
+User-Agent: $userAgent
 Is PWA: ${CustomSafeArea.isPwa}
 
 MyUser:
@@ -104,6 +164,12 @@ $sessionId
 Session:
 ${session?.toJson()}
 
+Push Notifications are considered active:
+$pushNotifications
+
+Push Notifications permissions are:
+${notificationSettings?.authorizationStatus.name}
+
 Token:
 $token
 
@@ -113,6 +179,27 @@ ${Log.logs.map((e) => '[${e.at.toUtc().toStamp}] [${e.level.name}] ${e.text}').j
 
 ========================================
 ''';
+  }
+
+  /// Tries to retrieve the [notificationSettings] by invoking
+  /// [FirebaseMessaging].
+  static Future<NotificationSettings?> getNotificationSettings() async {
+    if (!PlatformUtils.pushNotifications) {
+      // If push notifications aren't considered supported on this device, then
+      // there's no need to even try.
+      return null;
+    }
+
+    try {
+      return await FirebaseMessaging.instance.getNotificationSettings();
+    } catch (e) {
+      Log.debug(
+        'Unable to `getNotificationSettings()` due to: $e',
+        'LogController',
+      );
+    }
+
+    return null;
   }
 
   /// Refreshes the current [Session].

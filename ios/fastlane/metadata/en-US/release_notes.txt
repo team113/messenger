@@ -1,3 +1,1 @@
-- Redesigned chat profile.
-- Improved media player user experience.
 - Bug fixes and performance improvements.

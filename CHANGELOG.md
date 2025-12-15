@@ -9,16 +9,317 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.7.0] · 2025-??-??
 [0.7.0]: /../../tree/v0.7.0
 
-[Diff](/../../compare/v0.6.2...v0.7.0) | [Milestone](/../../milestone/47)
+[Diff](/../../compare/v0.6.13...v0.7.0) | [Milestone](/../../milestone/58)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Calls ringing from muted chats. ([#1546])
+
+[#1546]: /../../pull/1546
+
+
+
+
+## [0.6.13] · 2025-12-10
+[0.6.13]: /../../tree/v0.6.13
+
+[Diff](/../../compare/v0.6.12...v0.6.13) | [Milestone](/../../milestone/57)
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Presence status sometimes not being updated. ([#1540], [#1539])
+    - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
+    - Chats tab:
+        - Answered or declined call displayed as unread notification in chat. ([#1516], [#1508])
+
+[#1508]: /../../issues/1508
+[#1516]: /../../pull/1516
+[#1533]: /../../issues/1533
+[#1537]: /../../pull/1537
+[#1539]: /../../issues/1539
+[#1540]: /../../pull/1540
+
+
+
+
+## [0.6.12] · 2025-12-01
+[0.6.12]: /../../tree/v0.6.12
+
+[Diff](/../../compare/v0.6.11...v0.6.12) | [Milestone](/../../milestone/56)
+
+### Changed
+
+- UI:
+    - Menu tab:
+       - Redesigned sidebar color. [[#1529], [#1524]]
+    - Chat page:
+        - Auto-play video thumbnails only when hovered. ([#1518], [#1446])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Page sometimes not being popped when navigating back. ([#1526])
+        - Forwarded messages displaying invalid sent/read status. ([#1521], [#1452])
+    - Home Page:
+        - Navigation bar expanding inappropriately when side bar is wide enough. ([#1532], [#1528])
+
+[#1446]: /../../issues/1446
+[#1452]: /../../issues/1452
+[#1518]: /../../pull/1518
+[#1521]: /../../pull/1521
+[#1524]: /../../issues/1524
+[#1526]: /../../pull/1526
+[#1528]: /../../issues/1528
+[#1529]: /../../pull/1529
+[#1532]: /../../pull/1532
+
+
+
+
+## [0.6.11] · 2025-11-24
+[0.6.11]: /../../tree/v0.6.11
+
+[Diff](/../../compare/v0.6.10...v0.6.11) | [Milestone](/../../milestone/55)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - File uploads can be canceled. ([#1496], [#1490])
+    - Chats tab:
+        - Redesigned chats appearing animation. ([#1514])
+        - Redesigned unread messages counter. ([#1512], [#1507])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
+
+[#1460]: /../../issues/1460
+[#1490]: /../../issues/1490
+[#1496]: /../../pull/1496
+[#1504]: /../../pull/1504
+[#1507]: /../../issues/1507
+[#1512]: /../../pull/1512
+[#1514]: /../../pull/1514
+
+
+
+
+## [0.6.10] · 2025-11-17
+[0.6.10]: /../../tree/v0.6.10
+
+[Diff](/../../compare/v0.6.9...v0.6.10) | [Milestone](/../../milestone/54)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Upload progress indicator not updating during file upload. ([#1492], [#1491])
+- Web:
+    - Inability to crop SVG avatar images on Web. ([#1501], [#1489])
+
+[#1489]: /../../issues/1489
+[#1491]: /../../issues/1491
+[#1492]: /../../pull/1492
+[#1501]: /../../pull/1501
+
+
+
+
+## [0.6.9] · 2025-11-11
+[0.6.9]: /../../tree/v0.6.9
+
+[Diff](/../../compare/v0.6.8...v0.6.9) | [Milestone](/../../milestone/53)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to move caret in message field up and down. ([#1494], [#1493])
+        - Redesigned file attachments. ([#1480], [#1412])
+- Push notifications:
+    - Notifications duplicating on iOS and Android. ([#1500], [#1495], [#1472])
+    - Notifications not being canceled after reading on another device on iOS and Android. ([#1500])
+- iOS:
+    - [VoIP] [CallKit] notification still ringing despite already joined call on another device. ([#1499])
+    - Unread chats badge not updating sometimes on app's icon. ([#1500])
+
+[#1412]: /../../issues/1412
+[#1472]: /../../issues/1472
+[#1480]: /../../pull/1480
+[#1493]: /../../issues/1493
+[#1494]: /../../pull/1494
+[#1495]: /../../pull/1495
+[#1499]: /../../pull/1499
+[#1500]: /../../pull/1500
+
+
+
+
+## [0.6.8] · 2025-11-03
+[0.6.8]: /../../tree/v0.6.8
+
+[Diff](/../../compare/v0.6.7...v0.6.8) | [Milestone](/../../milestone/52)
+
+### Added
+
+- UI:
+    - Pages scrolling by pressing "PageUp" and "PageDown" keys. ([#1469], [#1228])
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned forward message modal. ([#1476], [#1408])
+
+[#1228]: /../../issues/1228
+[#1408]: /../../issues/1408
+[#1469]: /../../pull/1469
+[#1476]: /../../pull/1476
+
+
+
+
+## [0.6.7] · 2025-10-29
+[0.6.7]: /../../tree/v0.6.7
+
+[Diff](/../../compare/v0.6.6...v0.6.7) | [Milestone](/../../milestone/51)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Display "Deleted Account" title for deleted users. ([#1445], [#1419])
+    - Chats tab:
+        - Redesigned app bar and searching. ([#1438], [#1396])
+    - Chat page:
+        - "Ctrl+F"/"Cmd+F" toggling messages searching. ([#1438], [#1396])
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Updated overlay icons. ([#1466], [#1453])
+        - Invalid tooltip positions for buttons in dock. ([#1473], [#1436])
+
+[#1396]: /../../issues/1396
+[#1419]: /../../issues/1419
+[#1436]: /../../issues/1436
+[#1438]: /../../pull/1438
+[#1445]: /../../pull/1445
+[#1453]: /../../issues/1453
+[#1466]: /../../pull/1466
+[#1473]: /../../pull/1473
+
+
+
+
+## [0.6.6] · 2025-10-13
+[0.6.6]: /../../tree/v0.6.6
+
+[Diff](/../../compare/v0.6.5...v0.6.6) | [Milestone](/../../milestone/50)
+
+### Added
+
+- UI:
+    - Help page:
+        - Download logs button. ([#1458])
+    - Archived chats. ([#1414], [#1255])
+
+### Fixed
+
+- Web:
+    - Player:
+        - Inability to copy images to clipboard. ([#1457])
+
+[#1255]: /../../issues/1255
+[#1414]: /../../pull/1414
+[#1457]: /../../pull/1457
+[#1458]: /../../pull/1458
+
+
+
+
+## [0.6.5] · 2025-10-06
+[0.6.5]: /../../tree/v0.6.5
+
+[Diff](/../../compare/v0.6.4...v0.6.5) | [Milestone](/../../milestone/49)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Redesigned messages selection. ([#1416], [#1410])
+        - Redesigned message information. ([#1437], [#1379])
+
+### Fixed
+
+- UI:
+    - Login modal:
+        - Meaningless formatting errors when leading/trailing spaces are present. ([#1448], [#1443])
+
+[#1379]: /../../issues/1379
+[#1410]: /../../issues/1410
+[#1416]: /../../pull/1416
+[#1437]: /../../pull/1437
+[#1443]: /../../issues/1443
+[#1448]: /../../issues/1448
+
+
+
+
+## [0.6.4] · 2025-09-29
+[0.6.4]: /../../tree/v0.6.4
+
+[Diff](/../../compare/v0.6.3...v0.6.4) | [Milestone](/../../milestone/48)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Redesigned context panel for switching statuses over profile button. ([#1422], [#1254])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to copy text from forwarded messages. ([#1434], [#1271])
+
+[#1254]: /../../issues/1254
+[#1271]: /../../issues/1271
+[#1422]: /../../pull/1422
+[#1434]: /../../pull/1434
+
+
+
+
+## [0.6.3] · 2025-09-22
+[0.6.3]: /../../tree/v0.6.3
+
+[Diff](/../../compare/v0.6.2...v0.6.3) | [Milestone](/../../milestone/47)
 
 ### Changed
 
 - UI:
     - Chat info page:
         - Updated monolog description. ([#1409], [#1248])
+    - Home page:
+        - Redesigned introduction for guests accounts. ([#1430])
+    - Media panel:
+        - Updated remote audio icons. ([#1424], [#1281])
 
 [#1248]: /../../issues/1248
+[#1281]: /../../issues/1281
 [#1409]: /../../pull/1409
+[#1424]: /../../pull/1424
+[#1430]: /../../pull/1430
 
 
 

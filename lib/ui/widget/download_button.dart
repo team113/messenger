@@ -23,13 +23,12 @@ import '/config.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/field_button.dart';
-import '/ui/page/login/widget/prefix_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'progress_indicator.dart';
 
-/// [PrefixButton] stylized with the provided [asset] and [title] downloading a
+/// [FieldButton] stylized with the provided [asset] and [title] downloading a
 /// file by the specified [link] when pressed.
 class DownloadButton extends StatefulWidget {
   /// Constructs a [DownloadButton] for downloading the Windows application.

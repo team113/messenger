@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -177,6 +178,10 @@ class FileAttachment extends Attachment {
   @override
   Map<String, dynamic> toJson() =>
       _$FileAttachmentToJson(this)..['runtimeType'] = 'FileAttachment';
+
+  @override
+  String toString() =>
+      'FileAttachment(id: $id, size: ${original.size}, filename: $filename)';
 }
 
 /// Unique ID of an [Attachment].
@@ -220,14 +225,24 @@ class LocalAttachment extends Attachment {
   @JsonKey(toJson: SendingStatusJson.toJson)
   final Rx<SendingStatus> status;
 
+  /// [CancelToken] used to cancel the uploading of this [LocalAttachment].
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  final CancelToken cancelToken = CancelToken();
+
   /// Upload progress of this [LocalAttachment].
   final Rx<double> progress = Rx(0);
 
   /// [Completer] resolving once this [LocalAttachment]'s uploading is finished.
-  final Rx<Completer<Attachment>?> upload = Rx<Completer<Attachment>?>(null);
+  final Rx<Completer<Attachment?>?> upload = Rx<Completer<Attachment?>?>(null);
 
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
+
+  /// Indicator whether the [upload] was canceled.
+  bool get isCanceled => cancelToken.isCancelled;
+
+  /// Cancels the uploading of this [LocalAttachment].
+  void cancelUpload() => cancelToken.cancel();
 
   /// Returns a [Map] representing this [LocalAttachment].
   @override
