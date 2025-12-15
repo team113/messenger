@@ -195,15 +195,13 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
         if (member != null) {
           return Obx(() {
             final String? presence = chat.getSubtitle(partner: member);
-            final UserBio? bio = member.user.value.bio;
 
-            if (bio == null && presence == null) {
+            if (presence == null) {
               return const SizedBox();
             }
 
             final String subtitle = [
               presence,
-              bio,
             ].nonNulls.join('space_vertical_space'.l10n);
 
             return Text(subtitle, style: style.fonts.small.regular.secondary);
