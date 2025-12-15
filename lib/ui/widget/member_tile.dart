@@ -146,7 +146,9 @@ class MemberTile extends StatelessWidget {
                     },
               child: SvgIcon(
                 _me ? SvgIcons.leaveGroup : SvgIcons.removeMember,
-                key: Key('DeleteMemberButton'),
+                key: _me
+                    ? const Key('DeleteMeButton')
+                    : Key('DeleteMemberButton'),
               ),
             ),
           ),
