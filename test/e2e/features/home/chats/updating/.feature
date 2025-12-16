@@ -25,8 +25,8 @@ Feature: Chats tab is correctly updated
     And I wait until `ChatsTab` is present
 
     Given Bob has dialog with me
-    And Bob sends "Hello, world" message to me
     And Charlie has dialog with me
+    And Bob sends "Hello, world" message to me
     And Charlie sends "Nice boat" message to me
     Then I wait until text "Bob" is present
     And I wait until text "Hello, world" is present

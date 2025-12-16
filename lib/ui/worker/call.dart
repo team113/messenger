@@ -380,6 +380,9 @@ class CallWorker extends DisposableService {
               await FlutterCallkitIncoming.setCallConnected(
                 callId.val.base62ToUuid(),
               );
+
+              final String base62 = callId.val.base62ToUuid();
+              await _callKitCalls.upsert(base62, PreciseDateTime.now());
             }
             break;
 

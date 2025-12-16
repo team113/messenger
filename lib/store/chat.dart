@@ -2333,14 +2333,17 @@ class ChatRepository extends DisposableInterface
       case RecentChatsEventKind.updated:
         event as EventRecentChatsUpdated;
 
+        final bool isSubscribed =
+            chats[event.chat.chat.value.id]?.subscribed == true;
+
         Log.debug(
-          '_recentChatsRemoteEvent(${event.kind}) -> ${event.chat.chat}',
+          '_recentChatsRemoteEvent(${event.kind}) -> ${event.chat.chat} -> isSubscribed($isSubscribed)',
           '$runtimeType',
         );
 
         // Update the chat only if its state is not maintained by itself via
         // [chatEvents].
-        if (chats[event.chat.chat.value.id]?.subscribed != true) {
+        if (!isSubscribed) {
           final ChatData data = event.chat;
           final Chat chat = data.chat.value;
 
@@ -2900,6 +2903,13 @@ class ChatRepository extends DisposableInterface
     // If the [data] is already in [chats], then don't invoke [_putEntry] again.
     final RxChatImpl? saved = chats[chatId];
     if (saved != null) {
+      if (!updateVersion) {
+        Log.debug(
+          '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> doing `put()`, because saved is `${chats[chatId]}`',
+          '$runtimeType',
+        );
+      }
+
       return put(
         data.chat,
         pagination: pagination,
@@ -2917,6 +2927,13 @@ class ChatRepository extends DisposableInterface
       RxChatImpl? entry = chats[chatId];
 
       if (entry == null) {
+        if (!updateVersion) {
+          Log.debug(
+            '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> await mutex.protect() succeeded, and `entry` is `null` -> data.chat.value.isGroup(${data.chat.value.isGroup}), chatId.isLocal(${chatId.isLocal})',
+            '$runtimeType',
+          );
+        }
+
         // If [data] is a remote [Chat]-dialog, then try to replace the existing
         // local [Chat], if any is associated with this [data].
         if (!data.chat.value.isGroup && !chatId.isLocal) {
@@ -2958,6 +2975,14 @@ class ChatRepository extends DisposableInterface
       }
 
       _putEntryGuards.remove(chatId);
+
+      if (!updateVersion) {
+        Log.debug(
+          '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> `await put()` is done, thus entry is fulfilled: `$entry`',
+          '$runtimeType',
+        );
+      }
+
       return entry;
     });
   }
