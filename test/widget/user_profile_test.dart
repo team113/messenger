@@ -135,7 +135,7 @@ void main() async {
   );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
-  final monologProvider = Get.put(MonologDriftProvider(common));
+  final monologProvider = Get.put(MonologDriftProvider(common, scoped));
   final versionProvider = Get.put(VersionDriftProvider(common));
   final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
   final geoProvider = Get.put(GeoLocationDriftProvider(common));
@@ -250,118 +250,6 @@ void main() async {
       when(
         graphQlProvider.myUserEvents(any),
       ).thenAnswer((_) async => myUserEvents.stream);
-
-      // when(graphQlProvider.createChatContact(
-      //   name: UserName('user name'),
-      //   records: [
-      //     ChatContactRecord(
-      //       userId: const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
-      //     )
-      //   ],
-      // )).thenAnswer((_) {
-      //   var event1 = {
-      //     '__typename': 'EventChatContactCreated',
-      //     'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
-      //     'at': DateTime.now().toString(),
-      //     'name': '1009422423626377'
-      //   };
-
-      //   var event2 = {
-      //     '__typename': 'EventChatContactUserAdded',
-      //     'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
-      //     'at': DateTime.now().toString(),
-      //     'user': {
-      //       '__typename': 'User',
-      //       'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1be',
-      //       'num': '5769236098621822',
-      //       'name': 'user name',
-      //       'avatar': null,
-      //       'callCover': null,
-      //       'mutualContactsCount': 0,
-      //       'contacts': [
-      //         {
-      //           'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
-      //           'name': '1009422423626377',
-      //         }
-      //       ],
-      //       'online': {
-      //         '__typename': 'UserOffline',
-      //         'lastSeenAt': '2022-03-14T12:55:28.415454+00:00'
-      //       },
-      //       'presence': 'PRESENT',
-      //       'status': null,
-      //       'isDeleted': false,
-      //       'dialog': null,
-      //       'isBlocked': {'ver': '5'},
-      //       'ver': '4'
-      //     },
-      //   };
-
-      //   contactEvents.add(QueryResult.internal(
-      //     data: {
-      //       'chatContactsEvents': {
-      //         '__typename': 'ChatContactEventsVersioned',
-      //         'events': [event1, event2],
-      //         'ver': '5',
-      //         'listVer': '5',
-      //       }
-      //     },
-      //     parserFn: (_) => null,
-      //     source: null,
-      //   ));
-
-      //   return Future.value(CreateChatContact$Mutation.fromJson({
-      //     'createChatContact': {
-      //       '__typename': 'ChatContactEventsVersioned',
-      //       'events': [event1, event2],
-      //       'ver': '6',
-      //       'listVer': '6',
-      //     }
-      //   }).createChatContact as ChatContactEventsVersionedMixin?);
-      // });
-
-      // when(graphQlProvider.deleteChatContact(
-      //   const ChatContactId('9188c6b1-c2d7-4af2-a662-f68c0a00a1b2'),
-      // )).thenAnswer((_) {
-      //   var event = {
-      //     '__typename': 'ChatContactEventsVersioned',
-      //     'events': [
-      //       {
-      //         '__typename': 'EventChatContactDeleted',
-      //         'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
-      //         'at': '2022-03-21T12:58:29.700441900+00:00',
-      //       }
-      //     ],
-      //     'ver': '7',
-      //     'listVer': '7'
-      //   };
-
-      //   contactEvents.add(QueryResult.internal(
-      //     data: {'chatContactsEvents': event},
-      //     parserFn: (_) => null,
-      //     source: null,
-      //   ));
-
-      //   return Future.value(
-      //       DeleteChatContact$Mutation.fromJson({'deleteChatContact': event}));
-      // });
-
-      // when(graphQlProvider.chatContact(
-      //   const ChatContactId('9188c6b1-c2d7-4af2-a662-f68c0a00a1b2'),
-      // )).thenAnswer(
-      //   (_) => Future.value(GetContact$Query.fromJson({
-      //     'chatContact': {
-      //       'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
-      //       'name': '1009422423626377',
-      //       'users': [newUserData],
-      //       'groups': [],
-      //       'emails': [],
-      //       'phones': [],
-      //       'favoritePosition': null,
-      //       'ver': '0',
-      //     }
-      //   })),
-      // );
 
       when(
         graphQlProvider.getUser(
@@ -478,35 +366,15 @@ void main() async {
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       expect(find.text('user name'), findsAny);
+      expect(find.byKey(const Key('Present')), findsOneWidget);
+
       await tester.dragUntilVisible(
         find.byKey(const Key('NumCopyable')),
         find.byKey(const Key('UserScrollable')),
         const Offset(1, 1),
       );
       await tester.pumpAndSettle(const Duration(seconds: 2));
-      expect(find.byKey(const Key('Present')), findsOneWidget);
       expect(find.text('5769hyphen2360hyphen9862hyphen1822'), findsOneWidget);
-
-      // TODO: Uncomment, when contacts are implemented.
-      // await tester.tap(find.byKey(const Key('MoreButton')));
-      // await tester.pumpAndSettle(const Duration(seconds: 2));
-      // await tester.tap(find.byKey(const Key('AddToContactsButton')));
-      //
-      // for (int i = 0; i < 20; i++) {
-      //   await tester.runAsync(() => Future.delayed(1.milliseconds));
-      // }
-      // await tester.pumpAndSettle(const Duration(seconds: 2));
-      //
-      // await tester.tap(find.byKey(const Key('MoreButton')));
-      // await tester.pumpAndSettle(const Duration(seconds: 2));
-      // var deleteFromContacts = find.byKey(const Key('DeleteFromContactsButton'));
-      // expect(deleteFromContacts, findsOneWidget);
-      // await tester.tap(deleteFromContacts);
-      // await tester.pumpAndSettle(const Duration(seconds: 2));
-      //
-      // await tester.tap(find.byKey(const Key('MoreButton')));
-      // await tester.pumpAndSettle(const Duration(seconds: 2));
-      // expect(find.byKey(const Key('AddToContactsButton')), findsOneWidget);
 
       PlatformUtils.activityTimer?.cancel();
 

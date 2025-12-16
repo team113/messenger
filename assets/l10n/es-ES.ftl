@@ -1046,7 +1046,7 @@ label_no_chat_found = Chat no encontrado
 label_no_chats = No hay chats
 label_no_limit = ∞
 label_no_messages = Sin mensajes
-label_no_notes = Chat privado
+label_no_notes = Chat con uno mismo
 label_no_users = Sin usuarios
 label_no_welcome_message = Mensaje de bienvenida no agregado
 label_noise_suppression = Supresión de ruido
@@ -1238,6 +1238,7 @@ label_subtitle_participants =
         [1] miembro
         *[other] miembros
     }
+label_support_service = Servicio de soporte
 label_synchronization = Sincronización...
 label_tab_chats = Chats
 label_tab_menu = Menú

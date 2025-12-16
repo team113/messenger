@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '/api/backend/schema.dart' show ChatKind;
+import '/config.dart';
 import '/util/new_type.dart';
 import 'avatar.dart';
 import 'chat_call.dart';
@@ -162,6 +163,15 @@ class Chat implements Comparable<Chat> {
 
   /// Indicates whether this [Chat] is a group.
   bool get isGroup => kind == ChatKind.group;
+
+  /// Indicates whether this [Chat] is a support chat.
+  bool get isSupport {
+    if (id.isLocal) {
+      return id.userId.val == Config.supportId;
+    }
+
+    return isDialog && members.any((e) => e.user.id.val == Config.supportId);
+  }
 
   /// Returns an [UserAvatar] of this [Chat].
   UserAvatar? getUserAvatar(UserId? me) {

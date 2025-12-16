@@ -1057,7 +1057,7 @@ label_no_chat_found = Чат не найден
 label_no_chats = Нет чатов
 label_no_limit = ∞
 label_no_messages = Нет сообщений
-label_no_notes = Приватный чат
+label_no_notes = Чат с собой
 label_no_users = Нет пользователей
 label_no_welcome_message = Приветственное сообщение не добавлено
 label_noise_suppression = Шумоподавление
@@ -1250,6 +1250,7 @@ label_subtitle_participants = {$count} {$count ->
     [few] участника
     *[other] участников
 }
+label_support_service = Служба поддержки
 label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_menu = Меню

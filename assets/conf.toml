@@ -180,3 +180,9 @@
 #
 # Default:
 #   endpoint = "https://api.ipify.org?format=json"
+
+[support]
+# User ID of the support user.
+#
+# Default:
+#   id = "7NRfLwR5L7ikgQBWxdpLjg"

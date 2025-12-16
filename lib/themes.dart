@@ -121,6 +121,7 @@ class Themes {
       backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
       backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
       backgroundGallery: const Color(0xF20C0C0C),
+      backgroundService: const Color(0xFFECF3F7),
       onBackground: const Color(0xFF000000),
       transparent: const Color(0x00000000),
       almostTransparent: const Color(0x01000000),
@@ -741,6 +742,7 @@ class Palette {
     required this.backgroundAuxiliaryLighter,
     required this.backgroundAuxiliaryLightest,
     required this.backgroundGallery,
+    required this.backgroundService,
     required this.onBackground,
     Color? onBackgroundOpacity2,
     Color? onBackgroundOpacity7,
@@ -1012,6 +1014,9 @@ class Palette {
 
   /// [PlayerView] background color.
   final Color backgroundGallery;
+
+  /// [Color] used for service backgrounds.
+  final Color backgroundService;
 
   /// [Color] for elements to put above the [background] color.
   final Color onBackground;
@@ -1288,6 +1293,11 @@ class Palette {
       backgroundGallery: Color.lerp(
         color.backgroundGallery,
         other.backgroundGallery,
+        t,
+      )!,
+      backgroundService: Color.lerp(
+        color.backgroundService,
+        other.backgroundService,
         t,
       )!,
       onBackground: Color.lerp(color.onBackground, other.onBackground, t)!,

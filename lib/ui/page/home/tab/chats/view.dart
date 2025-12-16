@@ -835,7 +835,10 @@ class ChatsTabView extends StatelessWidget {
 
       for (ChatEntry e in c.archived) {
         final bool notLocalOrHasMessages =
-            !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
+            !e.id.isLocal ||
+            e.messages.isNotEmpty ||
+            e.chat.value.isMonolog ||
+            e.chat.value.isSupport;
 
         if (notLocalOrHasMessages &&
             !e.chat.value.isHidden &&
@@ -989,7 +992,10 @@ class ChatsTabView extends StatelessWidget {
 
       for (ChatEntry e in c.chats) {
         final bool notLocalOrHasMessages =
-            !e.id.isLocal || e.messages.isNotEmpty || e.chat.value.isMonolog;
+            !e.id.isLocal ||
+            e.messages.isNotEmpty ||
+            e.chat.value.isMonolog ||
+            e.chat.value.isSupport;
 
         if (notLocalOrHasMessages &&
             !e.chat.value.isHidden &&

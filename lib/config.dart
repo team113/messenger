@@ -149,6 +149,10 @@ class Config {
   /// URL address of IP address discovering API server.
   static String ipEndpoint = 'https://api.ipify.org?format=json';
 
+  // TODO: Replace this hardcoded [UserId] with backend query.
+  /// [UserId] of the support [Chat] user.
+  static String supportId = '7NRfLwR5L7ikgQBWxdpLjg';
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
@@ -270,6 +274,10 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_IP_ENDPOINT')
         : (document['ip']?['endpoint'] ?? ipEndpoint);
 
+    supportId = const bool.hasEnvironment('SOCAPP_SUPPORT_ID')
+        ? const String.fromEnvironment('SOCAPP_SUPPORT_ID')
+        : (document['support']?['id'] ?? supportId);
+
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
@@ -351,6 +359,7 @@ class Config {
             }
             logAmount = _asInt(remote['log']?['amount']) ?? logAmount;
             logObfuscated = remote['log']?['obfuscated'] ?? logObfuscated;
+            supportId = remote['support']?['id'] ?? supportId;
             origin = url;
           }
         }

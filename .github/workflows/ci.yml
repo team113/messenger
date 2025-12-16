@@ -409,7 +409,8 @@ jobs:
                             SOCAPP_DOWNLOADS_DOWNLOADABLE=${{ !startsWith(github.ref, 'refs/tags/v') || !contains('appbundle ios', matrix.platform) }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}
-                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}
+                            SOCAPP_SUPPORT_ID=${{ secrets.SUPPORT_ID }}'
         if: ${{ matrix.platform != 'web' }}
 
       - name: Read generated `pubspec.g.dart`
@@ -669,7 +670,8 @@ jobs:
                             SOCAPP_APPCAST_URL=${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_STABLE || secrets.APPCAST_MAIN }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}
-                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
+                            SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}
+                            SOCAPP_SUPPORT_ID=${{ secrets.SUPPORT_ID }}'
 
       - name: Read generated `pubspec.g.dart`
         id: pubspec

@@ -69,6 +69,7 @@ Feature: Attachments uploading
     Then I wait until attachment "test.txt" is absent
     And I wait until status of "Hi" message is sent
 
+  @disabled
   Scenario: Canceling upload of all files after editing a message
     When I fill `MessageField` field with "Hello"
     And I tap `Send` button

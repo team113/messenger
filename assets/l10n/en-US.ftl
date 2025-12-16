@@ -1044,7 +1044,7 @@ label_no_chat_found = Chat not found
 label_no_chats = No chats
 label_no_limit = ∞
 label_no_messages = No messages
-label_no_notes = Private chat
+label_no_notes = Chat with yourself
 label_no_users = No users
 label_no_welcome_message = Welcome message has not been added
 label_noise_suppression = Noise suppression
@@ -1235,6 +1235,7 @@ label_subtitle_participants = {$count} {$count ->
     [1] member
     *[other] members
 }
+label_support_service = Support service
 label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_menu = Menu

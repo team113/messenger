@@ -25,8 +25,8 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/config.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -35,7 +35,6 @@ import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
-import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -60,7 +59,6 @@ class UserController extends GetxController {
   UserController(
     this.id,
     this._userService,
-    this._contactService,
     this._chatService,
     this._callService,
   );
@@ -114,9 +112,6 @@ class UserController extends GetxController {
   /// [TextFieldState] for report reason.
   final TextFieldState reporting = TextFieldState();
 
-  /// Indicator whether the editing mode is enabled.
-  final RxBool nameEditing = RxBool(false);
-
   /// Status of a [block] progression.
   ///
   /// May be:
@@ -131,17 +126,11 @@ class UserController extends GetxController {
   /// [UserService] fetching the [user].
   final UserService _userService;
 
-  /// [ContactService] maintaining [ChatContact]s of this [user].
-  final ContactService _contactService;
-
   /// [ChatService] creating a [Chat] with this [user].
   final ChatService _chatService;
 
   /// [CallService] starting a new [OngoingCall] with this [user].
   final CallService _callService;
-
-  /// [Worker] reacting on the [RxUser.contact] changes updating the [_worker].
-  Worker? _contactWorker;
 
   /// [Worker] reacting on the [RxChatContact.contact] or [user] changes
   /// updating the [name].
@@ -170,77 +159,25 @@ class UserController extends GetxController {
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
 
-  /// Returns reactive [RxChatContact] linked to the [user].
-  ///
-  /// Only meaningful, if [user] is non-`null`.
-  Rx<RxChatContact?> get contact => user!.contact;
-
-  /// Returns [ChatContactId] of the [contact].
-  ///
-  /// Should be used to determine whether the [user] is in the contacts list, as
-  /// [contact] may be fetched with a delay.
-  ChatContactId? get contactId => user?.user.value.contacts.firstOrNull?.id;
-
   /// Indicates whether the contact's [chat] is a favorite.
   bool get isFavorite =>
       user?.dialog.value?.chat.value.favoritePosition != null;
 
+  /// Indicates whether this [user] is a [Config.supportId].
+  bool get isSupport => (user?.id ?? id).val == Config.supportId;
+
   @override
   void onInit() {
-    _fetchUser().whenComplete(() {
-      if (isClosed) {
-        return;
-      }
-
-      if (user != null) {
-        _contactWorker = ever(contact, (contact) {
-          if (contact == null) {
-            nameEditing.value = false;
-          }
-        });
-      }
-    });
-
+    _fetchUser();
     super.onInit();
   }
 
   @override
   void onClose() {
     _userSubscription?.cancel();
-    _contactWorker?.dispose();
     _worker?.dispose();
     scrollController.dispose();
     super.onClose();
-  }
-
-  /// Adds the [user] to the contacts list of the authenticated [MyUser].
-  Future<void> addToContacts() async {
-    if (contactId == null) {
-      status.value = RxStatus.loadingMore();
-      try {
-        await _contactService.createChatContact(user!.user.value);
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      } finally {
-        status.value = RxStatus.success();
-      }
-    }
-  }
-
-  /// Removes the [user] from the contacts list of the authenticated [MyUser].
-  Future<void> removeFromContacts() async {
-    if (contactId != null) {
-      status.value = RxStatus.loadingMore();
-      try {
-        await _contactService.deleteContact(contactId!);
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      } finally {
-        status.value = RxStatus.success();
-      }
-    }
   }
 
   /// Opens a [Chat]-dialog with this [user].
@@ -338,34 +275,6 @@ class UserController extends GetxController {
       MessagePopup.error(e.toMessage());
     } catch (e) {
       MessagePopup.error('err_data_transfer'.l10n);
-      rethrow;
-    }
-  }
-
-  /// Marks the [user] as favorited.
-  Future<void> favoriteContact() async {
-    try {
-      if (contactId != null) {
-        await _contactService.favoriteChatContact(contactId!);
-      }
-    } on FavoriteChatContactException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Removes the [user] from the favorites.
-  Future<void> unfavoriteContact() async {
-    try {
-      if (contactId != null) {
-        await _contactService.unfavoriteChatContact(contactId!);
-      }
-    } on UnfavoriteChatContactException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
       rethrow;
     }
   }

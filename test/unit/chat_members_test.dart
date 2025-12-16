@@ -261,7 +261,7 @@ void main() async {
       ChatCredentialsDriftProvider(common, scoped),
     );
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
-    final monologProvider = Get.put(MonologDriftProvider(common));
+    final monologProvider = Get.put(MonologDriftProvider(common, scoped));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final sessionProvider = Get.put(VersionDriftProvider(common));
     final locksProvider = Get.put(LockDriftProvider(common));

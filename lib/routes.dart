@@ -589,7 +589,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
               deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
               deps.put(CallRectDriftProvider(Get.find(), scoped));
-              deps.put(MonologDriftProvider(Get.find()));
+              deps.put(MonologDriftProvider(Get.find(), scoped));
               deps.put(DraftDriftProvider(Get.find(), scoped));
               deps.put(SessionDriftProvider(Get.find(), scoped));
               await deps.put(VersionDriftProvider(Get.find())).init();
@@ -726,7 +726,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
               deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
               deps.put(CallRectDriftProvider(Get.find(), scoped));
-              deps.put(MonologDriftProvider(Get.find()));
+              deps.put(MonologDriftProvider(Get.find(), scoped));
               deps.put(DraftDriftProvider(Get.find(), scoped));
               deps.put(SessionDriftProvider(Get.find(), scoped));
               await deps.put(VersionDriftProvider(Get.find())).init();
@@ -866,7 +866,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               final callRectProvider = deps.put(
                 CallRectDriftProvider(common, scoped),
               );
-              final monologProvider = deps.put(MonologDriftProvider(common));
+              final monologProvider = deps.put(
+                MonologDriftProvider(common, scoped),
+              );
               final draftProvider = deps.put(
                 DraftDriftProvider(common, scoped),
               );
@@ -911,8 +913,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                         Get.findOrNull<BackgroundDriftProvider>();
                     final credentialsProvider =
                         Get.findOrNull<CredentialsDriftProvider>();
-                    final monologProvider =
-                        Get.findOrNull<MonologDriftProvider>();
                     final myUserProvider =
                         Get.findOrNull<MyUserDriftProvider>();
                     final settingsProvider =
@@ -922,7 +922,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
                     await backgroundProvider?.delete(me);
                     await credentialsProvider?.delete(me);
-                    await monologProvider?.delete(me);
                     await myUserProvider?.delete(me);
                     await settingsProvider?.delete(me);
                     await versionProvider?.delete(me);

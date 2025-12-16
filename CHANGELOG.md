@@ -21,6 +21,7 @@ All user visible changes to this project will be documented in this file. This p
     - Monetization tab:
         - Partner programs and your promotion pages. ([#4])
         - Set your prices, transactions and withdrawal pages. ([#5])
+    - Support chat. ([#6])
 - Deployment:
     - [Helm] chart. ([#1])
 
@@ -28,6 +29,7 @@ All user visible changes to this project will be documented in this file. This p
 [#2]: /../../pull/2
 [#4]: /../../pull/4
 [#5]: /../../pull/5
+[#6]: /../../pull/6
 
 
 

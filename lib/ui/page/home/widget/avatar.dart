@@ -241,7 +241,7 @@ class AvatarWidget extends StatelessWidget {
         return SvgIcon(
           SvgIcons.notes,
           width: constraints.maxWidth,
-          height: constraints.maxWidth / 2,
+          height: constraints.maxWidth / 1.6,
         );
       },
     ),
@@ -405,7 +405,7 @@ class AvatarWidget extends StatelessWidget {
 
     if (color != null) {
       if (color == 0) {
-        gradient = style.colors.background;
+        gradient = style.colors.backgroundService;
       } else {
         gradient =
             style.colors.userColors[color! % style.colors.userColors.length];
@@ -431,11 +431,14 @@ class AvatarWidget extends StatelessWidget {
 
     final Widget defaultAvatar = Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [gradient.lighten(), gradient],
-        ),
+        color: color == 0 ? gradient : null,
+        gradient: color == 0
+            ? null
+            : LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [gradient.lighten(), gradient],
+              ),
         borderRadius: switch (shape) {
           BoxShape.circle => null,
           BoxShape.rectangle => BorderRadius.circular(0.035 * _minDiameter),
@@ -619,7 +622,7 @@ class WithBadge extends StatelessWidget {
           right: 0,
           child: Transform.translate(
             offset: size > 40
-                ? const Offset(-1.4, -1.4)
+                ? const Offset(-1, -1)
                 : size > 30
                 ? const Offset(1, 1)
                 : const Offset(2.5, 2.5),
