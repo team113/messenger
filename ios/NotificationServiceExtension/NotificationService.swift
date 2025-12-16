@@ -32,11 +32,13 @@ class NotificationService: UNNotificationServiceExtension {
     Task {
       let userInfo = request.content.userInfo
 
-      Task {
-        if let chatId = userInfo["thread"] as? String {
-          await acknowledgeDelivery(chatId: chatId)
-        }
-      }
+      // TODO: Commented out temporary just to check whether authorization being
+      //       lost problems are not related to this code.
+      // Task {
+      //   if let chatId = userInfo["thread"] as? String {
+      //     await acknowledgeDelivery(chatId: chatId)
+      //   }
+      // }
 
       if let tag = userInfo["tag"] as? String {
         cancelNotification(tag: String(tag.asHash))
