@@ -22,6 +22,7 @@ import 'dart:convert';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
@@ -355,7 +356,9 @@ class WebUtils {
   }
 
   /// Indicates whether browser is considering to have connectivity status.
-  static bool get isOnLine => web.window.navigator.onLine;
+  static bool get isOnLine =>
+      web.window.navigator.onLine &&
+      router.lifecycle.value != AppLifecycleState.detached;
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.

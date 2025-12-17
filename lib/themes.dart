@@ -160,7 +160,7 @@ class Themes {
     );
 
     if (_roboto == null) {
-      _roboto = FontLoader('Roboto');
+      _roboto = FontLoader('Roboto-Gapopa');
       _roboto?.addFont(
         PlatformUtils.loadBytes('assets/fonts/Roboto-Gapopa-Regular.ttf'),
       );
@@ -173,7 +173,8 @@ class Themes {
     }
 
     final TextStyle textStyle = TextStyle(
-      fontFamily: 'Roboto',
+      fontFamily: 'Roboto-Gapopa',
+      fontFamilyFallback: ['Roboto'],
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,

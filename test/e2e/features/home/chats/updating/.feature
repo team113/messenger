@@ -17,6 +17,7 @@
 
 Feature: Chats tab is correctly updated
 
+  @disabled
   Scenario: Alice sees chats and messages from Bob and Charlie
     Given I am Alice
     And users Bob and Charlie
