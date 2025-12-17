@@ -358,7 +358,8 @@ class WebUtils {
   /// Indicates whether browser is considering to have connectivity status.
   static bool get isOnLine =>
       web.window.navigator.onLine &&
-      router.lifecycle.value != AppLifecycleState.detached;
+      (Config.allowDetachedActivity ||
+          router.lifecycle.value != AppLifecycleState.detached);
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.

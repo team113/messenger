@@ -30,5 +30,6 @@ part 'suite.g.dart';
 )
 void main() async {
   Config.disableInfiniteAnimations = true;
+  Config.allowDetachedActivity = true;
   executeTestSuite(gherkinTestConfiguration, appInitializationFn);
 }
