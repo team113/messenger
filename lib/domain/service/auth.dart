@@ -124,8 +124,8 @@ class AuthService extends DisposableService {
   /// [RefreshSessionSecrets] to use during [refreshSession].
   RefreshSessionSecrets? _failed;
 
-  /// [DateTime] when the last successful [refreshSession] occurred.
-  DateTime? _refreshedAt;
+  /// [Stopwatch] counting since the last successful [refreshSession] occurred.
+  final Map<UserId, Stopwatch> _refreshedAt = {};
 
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
@@ -700,16 +700,17 @@ class AuthService extends DisposableService {
           '$runtimeType',
         );
 
-        // If the `refreshSession()` is already being executed, then shouldn't
-        // look at the `proceedIfRefreshBefore`, since the session probably will
-        // be refreshed afterwards.
-        if (proceedIfRefreshBefore != null && _refreshedAt != null) {
-          final compared = _refreshedAt!.difference(proceedIfRefreshBefore);
-          if (compared.inSeconds <= 10) {
+        final Stopwatch? watch = _refreshedAt[userId];
+
+        // If previous `refreshSession()` happened less than 10 seconds ago,
+        // then ignore this `refreshSession()`, since it might already be new.
+        if (watch != null) {
+          if (watch.elapsed.inSeconds <= 10) {
             Log.debug(
-              'refreshSession($userId |-> $attempt) seems like `proceedIfRefreshBefore` has less that 10 seconds in difference compered to `_refreshedAt`: $_refreshedAt vs $proceedIfRefreshBefore -> $compared',
+              'refreshSession($userId |-> $attempt) seems like `Stopwatch` is less than 10 seconds: $_refreshedAt, thus ignoring this `refreshSession()`',
               '$runtimeType',
             );
+
             return Future.value();
           }
         }
@@ -911,7 +912,8 @@ class AuthService extends DisposableService {
           );
 
           _failed = null;
-          _refreshedAt = DateTime.now();
+          _refreshedAt[userId]?.stop();
+          _refreshedAt[userId] = Stopwatch()..start();
 
           if (areCurrent) {
             await _authorized(data);
