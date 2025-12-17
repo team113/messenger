@@ -707,7 +707,7 @@ class AuthService extends DisposableService {
         if (watch != null) {
           if (watch.elapsed.inSeconds <= 10) {
             Log.debug(
-              'refreshSession($userId |-> $attempt) seems like `Stopwatch` is less than 10 seconds: $_refreshedAt, thus ignoring this `refreshSession()`',
+              'refreshSession($userId |-> $attempt) seems like `Stopwatch` is less than 10 seconds: ${watch.elapsed}, thus ignoring this `refreshSession()`',
               '$runtimeType',
             );
 
