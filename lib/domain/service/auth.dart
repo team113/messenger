@@ -124,6 +124,9 @@ class AuthService extends DisposableService {
   /// [RefreshSessionSecrets] to use during [refreshSession].
   RefreshSessionSecrets? _failed;
 
+  /// [DateTime] when the last successful [refreshSession] occurred.
+  DateTime? _refreshedAt;
+
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
@@ -697,6 +700,20 @@ class AuthService extends DisposableService {
           '$runtimeType',
         );
 
+        // If the `refreshSession()` is already being executed, then shouldn't
+        // look at the `proceedIfRefreshBefore`, since the session probably will
+        // be refreshed afterwards.
+        if (proceedIfRefreshBefore != null && _refreshedAt != null) {
+          final compared = _refreshedAt!.difference(proceedIfRefreshBefore);
+          if (compared.inSeconds <= 10) {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) seems like `proceedIfRefreshBefore` has less that 10 seconds in difference compered to `_refreshedAt`: $_refreshedAt vs $proceedIfRefreshBefore -> $compared',
+              '$runtimeType',
+            );
+            return Future.value();
+          }
+        }
+
         while (!WebUtils.isOnLine && !isClosed) {
           Log.debug(
             'refreshSession($userId |-> $attempt) navigator.onLine returned `false`, retrying in 1 seconds...',
@@ -894,6 +911,7 @@ class AuthService extends DisposableService {
           );
 
           _failed = null;
+          _refreshedAt = DateTime.now();
 
           if (areCurrent) {
             await _authorized(data);
