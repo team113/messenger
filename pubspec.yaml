@@ -7,6 +7,7 @@ environment:
   sdk: ">=3.10.0 <4.0.0"
 
 dependencies:
+  age_range_signals: ^0.4.2
   all_sensors:
     git: https://github.com/SleepySquash/all_sensors
   animated_size_and_fade: ^5.1.1
