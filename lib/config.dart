@@ -88,6 +88,11 @@ class Config {
   /// Intended to be used in E2E testing.
   static bool disableDragArea = false;
 
+  /// Indicator whether any activity in [AppLifecycleState.detached] is allowed.
+  ///
+  /// Intended to be used in E2E testing.
+  static bool allowDetachedActivity = false;
+
   /// Product identifier of `User-Agent` header to put in network queries.
   static String userAgentProduct = 'Gapopa';
 
