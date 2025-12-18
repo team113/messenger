@@ -35,7 +35,7 @@ import '/pubspec.g.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web.dart';
+import '/util/web/web_utils.dart';
 
 /// Controller of a [LogView].
 class LogController extends GetxController {
