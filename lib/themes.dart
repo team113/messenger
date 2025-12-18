@@ -133,7 +133,10 @@ class Themes {
       acceptShadow: const Color(0xFF7EA793),
       decline: const Color(0xFFFF0000),
       danger: const Color(0xFFF44336),
+      dangerHighlightLightest: const Color(0xFFF9A19A),
       warning: const Color(0xFFFF9800),
+      warningBackground: const Color(0x30EEAE03),
+      warningSecondary: const Color(0xFFEEAE03),
       currencyPrimary: const Color(0xFF08A521),
       currencySecondary: const Color.fromRGBO(8, 165, 34, 0.4),
       userColors: const [
@@ -160,7 +163,7 @@ class Themes {
     );
 
     if (_roboto == null) {
-      _roboto = FontLoader('Roboto');
+      _roboto = FontLoader('Roboto-Gapopa');
       _roboto?.addFont(
         PlatformUtils.loadBytes('assets/fonts/Roboto-Gapopa-Regular.ttf'),
       );
@@ -173,7 +176,8 @@ class Themes {
     }
 
     final TextStyle textStyle = TextStyle(
-      fontFamily: 'Roboto',
+      fontFamily: 'Roboto-Gapopa',
+      fontFamilyFallback: ['Roboto'],
       color: colors.onBackground,
       fontSize: 17,
       fontWeight: FontWeight.w400,
@@ -764,7 +768,10 @@ class Palette {
     Color? declineOpacity50,
     Color? declineOpacity88,
     required this.danger,
+    required this.dangerHighlightLightest,
     required this.warning,
+    required this.warningBackground,
+    required this.warningSecondary,
     required this.userColors,
     required this.currencyPrimary,
     required this.currencySecondary,
@@ -1106,8 +1113,17 @@ class Palette {
   /// interface.
   final Color danger;
 
+  /// [Color] to display [danger] in highlight lightest mode.
+  final Color dangerHighlightLightest;
+
   /// [Color] used to indicate caution, risk, or a potential threat.
   final Color warning;
+
+  /// [Color] to display a background of a [warning] colors.
+  final Color warningBackground;
+
+  /// [Color] to display a secondary [warning] color.
+  final Color warningSecondary;
 
   /// [Color]s associated with the [User].
   ///
@@ -1368,7 +1384,22 @@ class Palette {
         t,
       )!,
       danger: Color.lerp(color.danger, other.danger, t)!,
+      dangerHighlightLightest: Color.lerp(
+        color.dangerHighlightLightest,
+        other.dangerHighlightLightest,
+        t,
+      )!,
       warning: Color.lerp(color.warning, other.warning, t)!,
+      warningBackground: Color.lerp(
+        color.warningBackground,
+        other.warningBackground,
+        t,
+      )!,
+      warningSecondary: Color.lerp(
+        color.warningSecondary,
+        other.warningSecondary,
+        t,
+      )!,
       userColors: other.userColors.isNotEmpty
           ? other.userColors
           : color.userColors,

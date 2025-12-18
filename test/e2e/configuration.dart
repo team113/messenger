@@ -192,6 +192,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         downloadFile,
         dragChatDown,
         dragContactDown,
+        eraseField,
         favoriteGroup,
         fillField,
         fillFieldN,

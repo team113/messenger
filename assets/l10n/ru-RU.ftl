@@ -596,9 +596,9 @@ fcm_incoming_call =
         [group] {$userName ->
            [x] {$userNum}
            *[other] {$userName}
-        } начал
+        } начал{" "}
         *[dialog] {""}
-    } { $isVideo ->
+    }{ $isVideo ->
         [yes] видеозвонок
         *[other] аудиозвонок
     }
@@ -610,6 +610,9 @@ fcm_message =
                [x] {$userNum}
                *[other] {$userName}
            }:{" "}
+    }{ $donation ->
+        [x] {""}
+        *[other] [G{$donation}]{" "}
     }{ $attachmentsCount ->
           [0] {""}
           *[other] [{$attachmentsType ->
@@ -642,7 +645,7 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
-fcm_missed_cal =
+fcm_missed_call =
     Пропущенный { $isVideo ->
         [yes] видеозвонок
         *[other] аудиозвонок
@@ -856,6 +859,7 @@ label_commission_from_value = Комиссия: от {$value}
 label_commission_up_to_amount_usdt = Комиссия: до {$amount} USDT
 label_commission_value = Комиссия: {$value}
 label_confidentiality = Конфиденциальность
+label_confirm_password = Подтвердить пароль
 label_connection_lost = Связь потеряна
 label_connection_restored = Связь восстановлена
 label_copied = Скопировано
@@ -1194,7 +1198,7 @@ label_recovery_code = Код восстановления
 label_recovery_code_sent = Проверочный код отправлен на верифицрованный E-mail, указанный для данного аккаунта. Ввведите код ниже.
 label_recovery_enter_new_password = Введите новый пароль ниже.
 label_remove_member = Удалить из группы
-label_repeat_password = Подтвердить пароль
+label_repeat_password = Повторите пароль
 label_replies = [{$count} {$count ->
     [1] ответ
     [few] ответа

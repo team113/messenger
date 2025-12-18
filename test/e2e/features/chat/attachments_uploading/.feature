@@ -77,7 +77,8 @@ Feature: Attachments uploading
 
     When I long press "Hello" message
     And I tap `EditMessageButton` button
-    And I fill `MessageField` field with ""
+    And I pause for 3 seconds
+    And I erase `MessageField` field from text
     And I have Internet with delay of 10 seconds
     And I attach "test.txt" file
     And I attach "test2.txt" file

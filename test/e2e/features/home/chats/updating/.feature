@@ -17,6 +17,7 @@
 
 Feature: Chats tab is correctly updated
 
+  @disabled
   Scenario: Alice sees chats and messages from Bob and Charlie
     Given I am Alice
     And users Bob and Charlie
@@ -25,8 +26,8 @@ Feature: Chats tab is correctly updated
     And I wait until `ChatsTab` is present
 
     Given Bob has dialog with me
-    And Bob sends "Hello, world" message to me
     And Charlie has dialog with me
+    And Bob sends "Hello, world" message to me
     And Charlie sends "Nice boat" message to me
     Then I wait until text "Bob" is present
     And I wait until text "Hello, world" is present

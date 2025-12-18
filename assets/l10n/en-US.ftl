@@ -601,9 +601,9 @@ fcm_incoming_call =
         } started { $isVideo ->
             [yes] a
             *[other] an
-        }
+        }{" "}
         *[dialog] {""}
-    } { $isVideo ->
+    }{ $isVideo ->
         [yes] video
         *[other] audio
     } call
@@ -615,6 +615,9 @@ fcm_message =
                 [x] {$userNum}
                 *[other] {$userName}
             }:{" "}
+    }{ $donation ->
+        [x] {""}
+        *[other] [G{$donation}]{" "}
     }{ $attachmentsCount ->
           [0] {""}
           *[other] [{$attachmentsType ->
@@ -626,11 +629,7 @@ fcm_message =
                            [1] Video
                            *[other] {$attachmentsCount} videos
                        }
-               [file] { $attachmentsCount ->
-                          [1] File
-                          *[other] {$attachmentsCount} files
-                      }
-              *[attachments] {$attachmentsCount ->
+              *[file] { $attachmentsCount ->
                           [1] File
                           *[other] {$attachmentsCount} files
                        }
@@ -642,7 +641,7 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
-fcm_missed_cal =
+fcm_missed_call =
     Missed { $isVideo ->
         [yes] video
         *[other] audio
@@ -844,6 +843,7 @@ label_commission_from_value = Commission: from {$value}
 label_commission_up_to_amount_usdt = Commission: up to {$amount} USDT
 label_commission_value = Commission: {$value}
 label_confidentiality = Confidentiality
+label_confirm_password = Confirm password
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_copied = Copied
@@ -1181,7 +1181,7 @@ label_recovery_code = Recovery code
 label_recovery_code_sent = The verification code has been sent to the verified E-mail added to this account. Enter the code below.
 label_recovery_enter_new_password = Enter the new password below.
 label_remove_member = Remove from the group
-label_repeat_password = Confirm password
+label_repeat_password = Repeat password
 label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies

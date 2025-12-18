@@ -34,11 +34,13 @@ class NotificationService: UNNotificationServiceExtension {
     Task {
       let userInfo = request.content.userInfo
 
-      Task {
-        if let chatId = userInfo["thread"] as? String {
-          await acknowledgeDelivery(chatId: chatId)
-        }
-      }
+      // TODO: Commented out temporary just to check whether authorization being
+      //       lost problems are not related to this code.
+      // Task {
+      //   if let chatId = userInfo["thread"] as? String {
+      //     await acknowledgeDelivery(chatId: chatId)
+      //   }
+      // }
 
       if let tag = userInfo["tag"] as? String {
         cancelNotification(tag: String(tag.asHash))
@@ -83,7 +85,7 @@ class NotificationService: UNNotificationServiceExtension {
         let accountId = user[userId]
 
         let locks = LockProvider(db: db)
-        let lock = await locks?.acquireLock(asOperation: "refreshSession(\(userId))")
+        let lock = await locks?.acquireLock(asOperation: "refreshSession(\(accountId))")
 
         let query = tokens.select(credentials).where(userId == accountId).limit(1)
         let account = try! db.pluck(query)
@@ -412,7 +414,7 @@ extension String {
     var result: UInt32 = 0x811C_9DC5  // FNV offset basis.
     for unit in self.utf16 {
       result ^= UInt32(unit)
-      result = (result &* 0x0100_0193) & 0xFFFF_FFFF  // 32-bit overflow.
+      result = (result &* 0x0100_0193) & 0x7FFF_FFFF  // 32-bit overflow.
     }
     return result
   }

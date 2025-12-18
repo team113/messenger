@@ -183,6 +183,7 @@ class CallService extends DisposableService {
         call?.value.dispose();
       } else {
         call?.value.connect(this);
+        await _maybeMarkAsRead(chatId, chat: chat);
       }
     } on JoinChatCallException catch (e) {
       switch (e.code) {
@@ -226,6 +227,10 @@ class CallService extends DisposableService {
 
     _callRepository.remove(chatId);
     WebUtils.removeCall(chatId);
+
+    // Try to mark the `Chat` this call is taking place it as read, in case that
+    // thus `leave()` method is called from a separate window.
+    await _maybeMarkAsRead(chatId);
   }
 
   /// Declines an [OngoingCall] identified by the given [chatId].
@@ -238,12 +243,22 @@ class CallService extends DisposableService {
       // required to await the decline.
       if (WebUtils.isPopup) {
         await _callRepository.decline(chatId);
+
+        // First, try to mark the `Chat` this call is taking place it as read.
+        await _maybeMarkAsRead(chatId);
+
+        // Setting `OngoingCallState` to `ended` will make `PopupCallController`
+        // to close itself, thus this should be done only after every mutation
+        // occurs.
         call.value.state.value = OngoingCallState.ended;
         call.value.dispose();
       } else {
         call.value.state.value = OngoingCallState.ended;
         call.value.dispose();
         await _callRepository.decline(chatId);
+
+        // Try to mark the `Chat` this call is taking place it as read.
+        await _maybeMarkAsRead(chatId);
       }
     }
   }
@@ -383,5 +398,29 @@ class CallService extends DisposableService {
   FutureOr<RxChat?> getChat(ChatId id) {
     Log.debug('getChat($id)', '$runtimeType');
     return _chatService.get(id);
+  }
+
+  /// Marks a [Chat] with the provided [id] as read, if there's one unread
+  /// message of [ChatCall] notification.
+  Future<void> _maybeMarkAsRead(ChatId id, {RxChat? chat}) async {
+    try {
+      if (chat == null) {
+        final FutureOr<RxChat?> chatOrFuture = _chatService.get(id);
+        chat = chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
+      }
+
+      // If the only unread message is the `ChatCall` happened just now, then
+      // the `Chat` should get read.
+      if (chat?.unreadCount.value == 1) {
+        final ChatItem? last = chat?.lastItem;
+
+        if (last is ChatCall) {
+          Log.debug('_maybeMarkAsRead($id)', '$runtimeType');
+          await _chatService.readAll([id]);
+        }
+      }
+    } catch (e) {
+      Log.warning('_maybeMarkAsRead($id) -> failed due to: $e', '$runtimeType');
+    }
   }
 }

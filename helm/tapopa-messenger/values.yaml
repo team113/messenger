@@ -72,21 +72,22 @@ service:
   type: ClusterIP
 
 ingress:
-  enabled: yes
+  enabled: true
 
   # Hosts must be specified without "www." part.
   hosts:
     - tapopa.test
 
   tls:
-    enabled: no
-    auto: no
-    # Not required when "auto" is enabled.
-    secretName:
-      tapopa.test: tapopa.test.tls
+    enabled: false
+    auto: false
+    # Overridden names of TLS `Secret`s for `ingress.hosts`.
+    # If not specified, then default `<host>.tls` naming is used.
+    secretName: {}
+      #tapopa.test: custom-name.tls
 
   httpAuth:
-    enabled: no
+    enabled: false
 
   annotations:
     kubernetes.io/ingress.class: nginx
@@ -94,7 +95,7 @@ ingress:
 
 
 sftp:
-  enabled: no
+  enabled: false
 
   image:
     repository: atmoz/sftp

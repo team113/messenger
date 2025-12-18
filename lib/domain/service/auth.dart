@@ -124,6 +124,9 @@ class AuthService extends DisposableService {
   /// [RefreshSessionSecrets] to use during [refreshSession].
   RefreshSessionSecrets? _failed;
 
+  /// [Stopwatch] counting since the last successful [refreshSession] occurred.
+  final Map<UserId, Stopwatch> _refreshedAt = {};
+
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
@@ -697,6 +700,21 @@ class AuthService extends DisposableService {
           '$runtimeType',
         );
 
+        final Stopwatch? watch = _refreshedAt[userId];
+
+        // If previous `refreshSession()` happened less than 10 seconds ago,
+        // then ignore this `refreshSession()`, since it might already be new.
+        if (watch != null) {
+          if (watch.elapsed.inSeconds <= 10) {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) seems like `Stopwatch` is less than 10 seconds: ${watch.elapsed}, thus ignoring this `refreshSession()`',
+              '$runtimeType',
+            );
+
+            return Future.value();
+          }
+        }
+
         while (!WebUtils.isOnLine && !isClosed) {
           Log.debug(
             'refreshSession($userId |-> $attempt) navigator.onLine returned `false`, retrying in 1 seconds...',
@@ -894,6 +912,8 @@ class AuthService extends DisposableService {
           );
 
           _failed = null;
+          _refreshedAt[userId]?.stop();
+          _refreshedAt[userId] = Stopwatch()..start();
 
           if (areCurrent) {
             await _authorized(data);

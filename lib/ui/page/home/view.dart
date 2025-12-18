@@ -24,7 +24,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '/config.dart';
 import '/domain/model/user.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/scaler.dart';
@@ -44,6 +46,7 @@ import 'tab/menu/controller.dart';
 import 'tab/partner/view.dart';
 import 'tab/wallet/view.dart';
 import 'widget/animated_slider.dart';
+import 'widget/announcement.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
 
@@ -225,6 +228,7 @@ class _HomeViewState extends State<HomeView> {
                     bottomNavigationBar: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        _announcement(context, c),
                         _upgradePopup(context, c),
                         _navigation(context, c),
                       ],
@@ -448,14 +452,30 @@ class _HomeViewState extends State<HomeView> {
         return SizedBox();
       }
 
-      return Padding(
+      return UpgradeAvailableButton(
         key: Key('UpgradeAlert'),
-        padding: const EdgeInsets.only(bottom: 6),
-        child: UpgradeAvailableButton(
-          scheduled: c.scheduled.value!,
-          download: c.activeDownload.value,
-          onClose: () => c.scheduled.value = null,
+        scheduled: c.scheduled.value!,
+        download: c.activeDownload.value,
+        onClose: () => c.scheduled.value = null,
+      );
+    });
+  }
+
+  /// Builds the [Config.announcements] visualized, if any.
+  Widget _announcement(BuildContext context, HomeController c) {
+    return Obx(() {
+      final String? language = L10n.chosen.value?.toString();
+      final Announcement? announcement = Config.announcements[language];
+
+      if (announcement == null || announcement.isEmpty) {
+        return SizedBox();
+      }
+
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height / 4,
         ),
+        child: AnnouncementWidget(announcement, key: Key('AnnouncementAlert')),
       );
     });
   }

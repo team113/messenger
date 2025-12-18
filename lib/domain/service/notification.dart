@@ -746,7 +746,7 @@ extension TagToHash on String {
     for (var e in codeUnits) {
       result ^= e;
       result *= 0x01000193;
-      result &= 0xFFFFFFFF;
+      result &= 0x7FFFFFFF;
     }
 
     return result;

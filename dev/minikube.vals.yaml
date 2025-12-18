@@ -14,5 +14,5 @@ ingress:
   hosts:
     - tapopa.test
   tls:
-    enabled: yes
-    auto: yes
+    enabled: true
+    auto: true

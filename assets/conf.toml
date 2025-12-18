@@ -181,6 +181,22 @@
 # Default:
 #   endpoint = "https://api.ipify.org?format=json"
 
+[announcement]
+# Announcement to display in `ru-RU` locale.
+#
+# Default:
+#   ru-RU = ""
+
+# Announcement to display in `en-US` locale.
+#
+# Default:
+#   en-US = ""
+
+# Announcement to display in `es-ES` locale.
+#
+# Default:
+#   es-ES = ""
+
 [support]
 # User ID of the support user.
 #

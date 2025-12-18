@@ -72,8 +72,9 @@ class CallController extends GetxController {
     this._calls,
     this._chatService,
     this._userService,
-    this._settingsRepository,
-  );
+    this._settingsRepository, {
+    this.onMinimized,
+  });
 
   /// Duration of the current ongoing call.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
@@ -289,6 +290,9 @@ class CallController extends GetxController {
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
 
+  /// Callback, called [minimized] changes.
+  final void Function(bool)? onMinimized;
+
   /// Indicator whether the [relocateSecondary] is already invoked during the
   /// current frame.
   bool _secondaryRelocated = false;
@@ -426,6 +430,15 @@ class CallController extends GetxController {
 
   /// [Timer] setting [hidden] to `false` on timeout.
   Timer? _hiddenTimer;
+
+  /// [Worker] reacting on [minimized] changes to invoke [onMinimized].
+  Worker? _minimizedWorker;
+
+  /// [Worker] reacting on [fullscreen] changes to invoke [onMinimized].
+  Worker? _fullscreenWorker;
+
+  /// [Worker] reacting on [minimizing] changes to invoke [onMinimized].
+  Worker? _minimizingWorker;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -824,6 +837,26 @@ class CallController extends GetxController {
       }
     }
 
+    _minimizedWorker = ever(minimized, (m) {
+      onMinimized?.call(m);
+    });
+
+    _fullscreenWorker = ever(fullscreen, (m) {
+      onMinimized?.call(!m);
+    });
+
+    _minimizingWorker = ever(minimizing, (m) {
+      if (!m) {
+        onMinimized?.call(minimized.value);
+      } else {
+        onMinimized?.call(m);
+      }
+    });
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      onMinimized?.call(minimized.value);
+    });
+
     span.finish();
     span = _ready.startChild('chat');
     _initChat();
@@ -854,6 +887,9 @@ class CallController extends GetxController {
     _reconnectAudio?.cancel();
     _reconnectWorker?.dispose();
     _hiddenTimer?.cancel();
+    _minimizedWorker?.dispose();
+    _fullscreenWorker?.dispose();
+    _minimizingWorker?.dispose();
 
     secondaryEntry?.remove();
 

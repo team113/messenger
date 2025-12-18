@@ -268,16 +268,14 @@ class ChatService extends DisposableService {
     ChatMessageTextInput? text,
     ChatMessageAttachmentsInput? attachments,
     ChatMessageRepliesInput? repliesTo,
-  }) async {
+  }) {
     Log.debug('editChatMessage($item, $text)', '$runtimeType');
 
     if (text?.changed?.val.trim() == item.text?.val.trim()) {
       text = null;
     } else if (text != null) {
       text = ChatMessageTextInput(
-        text.changed?.val.trim().isEmpty != false
-            ? null
-            : ChatMessageText(text.changed!.val.trim()),
+        text.changed == null ? null : ChatMessageText(text.changed!.val.trim()),
       );
     }
 
@@ -307,6 +305,8 @@ class ChatService extends DisposableService {
         repliesTo: repliesTo,
       );
     }
+
+    return Future.value();
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].

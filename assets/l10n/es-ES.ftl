@@ -598,9 +598,9 @@ fcm_incoming_call =
         [group] {$userName ->
             [x] {$userNum}
             *[other] {$userName}
-        } inició
+        } inició{" "}
         *[dialog] {""}
-    } { $isVideo ->
+    }{ $isVideo ->
         [yes] videollamada
         *[other] llamada de audio
     }
@@ -612,6 +612,9 @@ fcm_message =
                 [x] {$userNum}
                 *[other] {$userName}
             }:{" "}
+    }{ $donation ->
+        [x] {""}
+        *[other] [G{$donation}]{" "}
     }{ $attachmentsCount ->
             [0] {""}
             *[other] [{$attachmentsType ->
@@ -639,7 +642,7 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
-fcm_missed_cal =
+fcm_missed_call =
     { $isVideo ->
         [yes] Videollamada perdida
         *[other] Llamada de audio perdida
@@ -844,6 +847,7 @@ label_commission_from_value = Comisión: desde {$value}
 label_commission_up_to_amount_usdt = Comisión: hasta {$amount} USDT
 label_commission_value = Comisión: {$value}
 label_confidentiality = Privacidad
+label_confirm_password = Confirmar la contraseña
 label_connection_lost = Conexión perdida
 label_connection_restored = Conexión restablecida
 label_copied = Copiado
@@ -1183,7 +1187,7 @@ label_recovery_code = Código de recuperación
 label_recovery_code_sent = El código de recuperación ha sido enviado al e-mail agregado a esta cuenta. Ingrese el código a continuación.
 label_recovery_enter_new_password = Ingrese la nueva contraseña a continuación
 label_remove_member = Eliminar del grupo
-label_repeat_password = Confirmar la contraseña
+label_repeat_password = Repita la contraseña
 label_replies = [{$count} {$count ->
     [1] respuesta
     *[other] respuestas
