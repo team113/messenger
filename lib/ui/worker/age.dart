@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:age_range_signals/age_range_signals.dart';
+import 'package:flutter/services.dart';
 
 import '/domain/service/disposable_service.dart';
 import '/util/platform_utils.dart';
@@ -52,6 +53,8 @@ class AgeWorker extends DisposableService {
         '_initialize() -> Age signals status: ${result.status}',
         '$runtimeType',
       );
+    } on MissingPluginException {
+      // No-op.
     } on AgeSignalsException catch (e) {
       // Do not block the app usage.
       Log.warning(
