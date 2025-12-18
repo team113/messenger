@@ -182,6 +182,10 @@ class WebUtils {
   /// Indicates whether device's browser is in focus.
   static bool get isFocused => _hasFocus();
 
+  /// Indicates whether this device is considered to be running as a PWA.
+  static bool get isPwa =>
+      web.window.matchMedia('(display-mode: standalone)').matches;
+
   /// Returns a stream broadcasting browser's fullscreen changes.
   static Stream<bool> get onFullscreenChange {
     StreamController<bool>? controller;

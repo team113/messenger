@@ -32,10 +32,10 @@ import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/domain/service/session.dart';
 import '/pubspec.g.dart';
-import '/ui/widget/safe_area/safe_area.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web.dart';
 
 /// Controller of a [LogView].
 class LogController extends GetxController {
@@ -153,7 +153,7 @@ class LogController extends GetxController {
 Created at: ${DateTime.now().toUtc()}
 Application: ${Pubspec.ref}
 User-Agent: $userAgent
-Is PWA: ${CustomSafeArea.isPwa}
+Is PWA: ${WebUtils.isPwa}
 
 MyUser:
 ${myUser?.toJson()}
