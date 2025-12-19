@@ -655,6 +655,19 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                     ),
                   );
 
+              final AbstractSessionRepository sessionRepository = deps
+                  .put<AbstractSessionRepository>(
+                    SessionRepository(
+                      graphQlProvider,
+                      Get.find(),
+                      Get.find(),
+                      Get.find(),
+                      Get.find(),
+                      Get.find(),
+                    ),
+                  );
+              deps.put<SessionService>(SessionService(sessionRepository));
+
               deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
