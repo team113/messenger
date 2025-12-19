@@ -1144,7 +1144,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   Widget build(BuildContext context) {
     return SentryDisplayWidget(
       child: LifecycleObserver(
-        onStateChange: (v) => _state.lifecycle.value = v,
+        onStateChange: (v) {
+          Log.debug('onStateChange() -> $v', '$runtimeType');
+          _state.lifecycle.value = v;
+        },
         child: Listener(
           onPointerDown: (_) => PlatformUtils.keepActive(),
           onPointerHover: (_) => PlatformUtils.keepActive(),

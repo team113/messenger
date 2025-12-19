@@ -15,12 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/foundation.dart';
 import 'package:web/web.dart' as web;
 
 import 'package:flutter/material.dart';
 
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 /// [SafeArea] accounting possible bottom insets on iOS devices in PWA mode.
 class CustomSafeArea extends StatelessWidget {
@@ -50,8 +50,7 @@ class CustomSafeArea extends StatelessWidget {
 
   /// Indicates whether this device is considered to be running as a PWA on iOS.
   static bool get isPwa {
-    return kIsWeb &&
-        web.window.matchMedia('(display-mode: standalone)').matches &&
+    return WebUtils.isPwa &&
         web.window.navigator.userAgent.contains(RegExp(r'iPhone'));
   }
 
