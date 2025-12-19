@@ -15,9 +15,10 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Media panel:
-        - Calls ringing from muted chats. ([#1546])
+        - Calls ringing from muted chats. ([#1557], [#1546])
 
 [#1546]: /../../pull/1546
+[#1557]: /../../pull/1557
 
 
 
