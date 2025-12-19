@@ -722,6 +722,16 @@ class AuthService extends DisposableService {
           );
 
           await Future.delayed(Duration(seconds: 1));
+
+          // If there's any ongoing call, then ignore the device being in
+          // background.
+          if (WebUtils.containsCalls() || hasCalls?.call() == true) {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) navigator.onLine returned `false`, however there\'s a call, thus proceeding: ${WebUtils.containsCalls()} || ${hasCalls?.call()}',
+              '$runtimeType',
+            );
+            break;
+          }
         }
 
         Credentials? oldCreds;
