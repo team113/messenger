@@ -15,7 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:log_me/log_me.dart';
+
+import '/util/platform_utils.dart';
 
 /// Reporter of [AppLifecycleState] changes via a [onStateChange].
 class LifecycleObserver extends StatefulWidget {
@@ -36,18 +41,81 @@ class _LifecycleObserverState extends State<LifecycleObserver> {
   /// [AppLifecycleListener] listening for [AppLifecycleState] changes.
   late final AppLifecycleListener _listener;
 
+  /// Subscription to the [PlatformUtilsImpl.onFocusChanged].
+  StreamSubscription? _onFocusChanged;
+
+  /// Indicator whether the first [build] was not invoked yet.
+  bool _initial = true;
+
+  /// Latest [AppLifecycleState] reported via the callback.
+  AppLifecycleState? _reported;
+
   @override
   void initState() {
-    _listener = AppLifecycleListener(onStateChange: widget.onStateChange);
+    _listener = AppLifecycleListener(onStateChange: _report);
+
+    // It seems that `AppLifecycleListener` under Web doesn't fire any lifecycle
+    // events at all.
+    if (PlatformUtils.isWeb && PlatformUtils.isMobile) {
+      _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) {
+        Log.debug('_onFocusChanged -> $focused', '$runtimeType');
+
+        if (focused) {
+          _report(AppLifecycleState.resumed);
+        } else {
+          _report(switch (_reported) {
+            AppLifecycleState.detached => AppLifecycleState.detached,
+            AppLifecycleState.hidden => AppLifecycleState.hidden,
+            AppLifecycleState.paused => AppLifecycleState.paused,
+            AppLifecycleState.resumed => AppLifecycleState.hidden,
+            AppLifecycleState.inactive => AppLifecycleState.inactive,
+            null => AppLifecycleState.hidden,
+          });
+        }
+      });
+    }
+
     super.initState();
   }
 
   @override
   void dispose() {
     _listener.dispose();
+    _onFocusChanged?.cancel();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    // It seems that initial transition from `detached` to `resumed` doesn't
+    // fire despite a mention in the documentation to do so:
+    // https://github.com/flutter/flutter/issues/134728
+    if (_initial) {
+      switch (_reported) {
+        case AppLifecycleState.detached:
+        case null:
+          _report(AppLifecycleState.resumed);
+          break;
+
+        case AppLifecycleState.resumed:
+        case AppLifecycleState.hidden:
+        case AppLifecycleState.paused:
+        case AppLifecycleState.inactive:
+          // No-op.
+          break;
+      }
+
+      _initial = false;
+    }
+
+    return widget.child;
+  }
+
+  /// Reports the [state].
+  void _report(AppLifecycleState state) {
+    if (_reported != state) {
+      _reported = state;
+      widget.onStateChange?.call(state);
+    }
+  }
 }

@@ -255,6 +255,46 @@ class CallWorker extends DisposableService {
         }
       });
 
+      _workers.remove(key)?.dispose();
+      _workers[key] = ever(c.state, (OngoingCallState state) async {
+        final ChatItemId? callId = c.call.value?.id;
+
+        switch (state) {
+          case OngoingCallState.local:
+          case OngoingCallState.pending:
+            // No-op.
+            break;
+
+          case OngoingCallState.joining:
+          case OngoingCallState.active:
+            _workers.remove(key)?.dispose();
+            if (_workers.isEmpty) {
+              stop();
+            }
+
+            if (_isCallKit && callId != null) {
+              await FlutterCallkitIncoming.setCallConnected(
+                callId.val.base62ToUuid(),
+              );
+
+              final String base62 = callId.val.base62ToUuid();
+              await _callKitCalls.upsert(base62, PreciseDateTime.now());
+            }
+            break;
+
+          case OngoingCallState.ended:
+            _workers.remove(key)?.dispose();
+            if (_workers.isEmpty) {
+              stop();
+            }
+
+            if (_isCallKit && callId != null) {
+              await FlutterCallkitIncoming.endCall(callId.val.base62ToUuid());
+            }
+            break;
+        }
+      });
+
       if (c.state.value == OngoingCallState.pending ||
           c.state.value == OngoingCallState.local) {
         // Indicator whether it is us who are calling.
@@ -276,7 +316,8 @@ class CallWorker extends DisposableService {
           _answeredCalls.remove(c.chatId.value);
         } else if (outgoing) {
           play(_outgoing);
-        } else if (!PlatformUtils.isMobile || isInForeground) {
+        } else if (_workers.isNotEmpty &&
+            (!PlatformUtils.isMobile || isInForeground)) {
           play(_incoming, fade: true);
           Vibration.hasVibrator()
               .then((bool? v) {
@@ -359,45 +400,6 @@ class CallWorker extends DisposableService {
           }
         });
       }
-
-      _workers[key] = ever(c.state, (OngoingCallState state) async {
-        final ChatItemId? callId = c.call.value?.id;
-
-        switch (state) {
-          case OngoingCallState.local:
-          case OngoingCallState.pending:
-            // No-op.
-            break;
-
-          case OngoingCallState.joining:
-          case OngoingCallState.active:
-            _workers.remove(key)?.dispose();
-            if (_workers.isEmpty) {
-              stop();
-            }
-
-            if (_isCallKit && callId != null) {
-              await FlutterCallkitIncoming.setCallConnected(
-                callId.val.base62ToUuid(),
-              );
-
-              final String base62 = callId.val.base62ToUuid();
-              await _callKitCalls.upsert(base62, PreciseDateTime.now());
-            }
-            break;
-
-          case OngoingCallState.ended:
-            _workers.remove(key)?.dispose();
-            if (_workers.isEmpty) {
-              stop();
-            }
-
-            if (_isCallKit && callId != null) {
-              await FlutterCallkitIncoming.endCall(callId.val.base62ToUuid());
-            }
-            break;
-        }
-      });
 
       if (_isCallKit) {
         _eventsSubscriptions.remove(c.chatId.value)?.cancel();
