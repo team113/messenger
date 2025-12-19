@@ -34,7 +34,7 @@ class AgeWorker extends DisposableService {
 
   /// Initializes the [AgeRangeSignals].
   Future<void> _initialize() async {
-    // `AgeRangeSignals` works only on iOS and Android.
+    // `AgeRangeSignals` work only on iOS and Android.
     if (PlatformUtils.isWeb || PlatformUtils.isDesktop) {
       return;
     }
@@ -55,8 +55,47 @@ class AgeWorker extends DisposableService {
       );
     } on MissingPluginException {
       // No-op.
+    } on MissingEntitlementException catch (e) {
+      Log.warning(
+        'checkAgeSignals() -> setup required: ${e.message}\n${e.details}',
+        '$runtimeType',
+      );
+    } on UserCancelledException catch (e) {
+      Log.warning(
+        'checkAgeSignals() -> user cancelled: ${e.message}',
+        '$runtimeType',
+      );
+    } on NetworkErrorException catch (e) {
+      Log.warning(
+        'checkAgeSignals() -> network error: ${e.message}',
+        '$runtimeType',
+      );
+    } on PlayServicesException catch (e) {
+      Log.warning(
+        'checkAgeSignals() -> Play Services required: ${e.message}',
+        '$runtimeType',
+      );
+    } on UserNotSignedInException catch (e) {
+      Log.warning(
+        'checkAgeSignals() -> Sign in required: ${e.message}',
+        '$runtimeType',
+      );
+    } on ApiNotAvailableException catch (e) {
+      Log.warning(
+        'checkAgeSignals() -> API not available: ${e.message}',
+        '$runtimeType',
+      );
+    } on UnsupportedPlatformException catch (e) {
+      Log.warning(
+        'checkAgeSignals() -> Platform not supported: ${e.message}',
+        '$runtimeType',
+      );
+    } on ApiErrorException catch (e) {
+      Log.warning(
+        'checkAgeSignals() -> API error: ${e.message}\n${e.details}',
+        '$runtimeType',
+      );
     } on AgeSignalsException catch (e) {
-      // Do not block the app usage.
       Log.warning(
         '_initialize() -> checkAgeSignals() failed with: ${e.message}',
         '$runtimeType',
