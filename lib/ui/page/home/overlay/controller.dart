@@ -99,6 +99,12 @@ class CallOverlayController extends GetxController {
           // which should only be applied to pending calls only.
           switch (ongoingCall.state.value) {
             case OngoingCallState.pending:
+              // If global `MyUser` mute is applied, then ignore the call.
+              final MuteDuration? meMuted = _myUserService.myUser.value?.muted;
+              if (meMuted != null) {
+                return _callService.remove(ongoingCall.chatId.value);
+              }
+
               bool redialed = false;
 
               final ChatMembersDialed? dialed = ongoingCall.call.value?.dialed;
@@ -110,13 +116,6 @@ class CallOverlayController extends GetxController {
 
               // If redialed, then show the notification anyway.
               if (!redialed) {
-                // If global `MyUser` mute is applied, then ignore the call.
-                final MuteDuration? meMuted =
-                    _myUserService.myUser.value?.muted;
-                if (meMuted != null) {
-                  return _callService.remove(ongoingCall.chatId.value);
-                }
-
                 try {
                   // If this exact `Chat` is muted, then ignore the call.
                   final RxChat? chat = await _chatService.get(
