@@ -1,4 +1,6 @@
 PODS:
+  - age_range_signals (0.4.2):
+    - Flutter
   - all_sensors (0.0.1):
     - Flutter
   - app_badge_plus (1.2.3):
@@ -211,6 +213,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - age_range_signals (from `.symlinks/plugins/age_range_signals/ios`)
   - all_sensors (from `.symlinks/plugins/all_sensors/ios`)
   - app_badge_plus (from `.symlinks/plugins/app_badge_plus/ios`)
   - app_links (from `.symlinks/plugins/app_links/ios`)
@@ -274,6 +277,8 @@ SPEC REPOS:
     - SwiftyGif
 
 EXTERNAL SOURCES:
+  age_range_signals:
+    :path: ".symlinks/plugins/age_range_signals/ios"
   all_sensors:
     :path: ".symlinks/plugins/all_sensors/ios"
   app_badge_plus:
@@ -352,6 +357,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
+  age_range_signals: 2bcb535be1acb48c4e6286606d42ec87e7fb2b03
   all_sensors: 8b8131f5d3d1b833d8c7b689b2df5e8b2c688615
   app_badge_plus: 0e3470f993dd08094e16463f57a7e0db04c6b587
   app_links: 3dbc685f76b1693c66a6d9dd1e9ab6f73d97dc0a
