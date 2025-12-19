@@ -116,7 +116,8 @@ class WebUtils {
   }
 
   /// Indicates whether browser is considering to have connectivity status.
-  static bool get isOnLine => true;
+  static bool get isOnLine =>
+      !PlatformUtils.isIOS || router.lifecycle.value.inForeground;
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
