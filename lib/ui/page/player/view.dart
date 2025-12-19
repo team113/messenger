@@ -278,6 +278,7 @@ class PlayerView extends StatelessWidget {
         width: aspect >= 1 ? double.infinity : null,
         height: aspect >= 1 ? null : double.infinity,
         checksum: attachment.original.checksum,
+        thumbhash: attachment.big.thumbhash,
         fit: BoxFit.contain,
         onForbidden: () async => await c.reload(post),
       );
