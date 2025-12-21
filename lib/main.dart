@@ -64,6 +64,7 @@ import 'routes.dart';
 import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
+import 'ui/worker/age.dart';
 import 'ui/worker/cache.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/log.dart';
@@ -334,6 +335,7 @@ Future<void> _runApp() async {
   Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
   Get.put(UpgradeWorker(Get.findOrNull()));
   Get.put(LogWorker());
+  Get.put(AgeWorker());
 
   WebUtils.deleteLoader();
 

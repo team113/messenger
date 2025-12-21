@@ -673,7 +673,7 @@ class ChatRepository extends DisposableInterface
       await rxChat?.postChatMessage(
         existingId: item.id,
         existingDateTime: item.at,
-        text: item.text,
+        text: item.text?.nullIfEmpty,
         attachments: item.attachments,
         repliesTo: item.repliesTo.map((e) => e.original).nonNulls.toList(),
       );
@@ -996,7 +996,10 @@ class ChatRepository extends DisposableInterface
     model.ChatMessageAttachmentsInput? attachments,
     model.ChatMessageRepliesInput? repliesTo,
   }) async {
-    Log.debug('editChatMessage($message, $text)', '$runtimeType');
+    Log.debug(
+      'editChatMessage($message, text: ${text?.changed}, attachments: ${attachments?.changed}, repliesTo: ${repliesTo?.changed})',
+      '$runtimeType',
+    );
 
     final Rx<ChatItem>? item = chats[message.chatId]?.messages.firstWhereOrNull(
       (e) => e.value.id == message.id,
@@ -1066,10 +1069,15 @@ class ChatRepository extends DisposableInterface
         );
       }
 
+      final bool hasText =
+          (text?.changed ?? message.text)?.val.isNotEmpty == true;
+      final bool hasAttachments =
+          (attachments?.changed ?? message.attachments).isNotEmpty;
+      final bool hasReplies =
+          (repliesTo?.changed ?? message.repliesTo).isNotEmpty;
+
       // If after editing the message contains no content, then delete it.
-      if ((text == null || text.changed?.val == null) &&
-          (attachments == null || attachments.changed.isEmpty == true) &&
-          (repliesTo == null || repliesTo.changed.isEmpty == true)) {
+      if (!hasText && !hasAttachments && !hasReplies) {
         return await deleteChatMessage(message);
       }
 
@@ -1079,7 +1087,7 @@ class ChatRepository extends DisposableInterface
             message.id,
             text: text == null
                 ? null
-                : ChatMessageTextInput(kw$new: text.changed),
+                : ChatMessageTextInput(kw$new: text.changed?.nullIfEmpty),
             attachments: attachments == null
                 ? null
                 : ChatMessageAttachmentsInput(
@@ -2325,14 +2333,17 @@ class ChatRepository extends DisposableInterface
       case RecentChatsEventKind.updated:
         event as EventRecentChatsUpdated;
 
+        final bool isSubscribed =
+            chats[event.chat.chat.value.id]?.subscribed == true;
+
         Log.debug(
-          '_recentChatsRemoteEvent(${event.kind}) -> ${event.chat.chat}',
+          '_recentChatsRemoteEvent(${event.kind}) -> ${event.chat.chat} -> isSubscribed($isSubscribed)',
           '$runtimeType',
         );
 
         // Update the chat only if its state is not maintained by itself via
         // [chatEvents].
-        if (chats[event.chat.chat.value.id]?.subscribed != true) {
+        if (!isSubscribed) {
           final ChatData data = event.chat;
           final Chat chat = data.chat.value;
 
@@ -2892,6 +2903,13 @@ class ChatRepository extends DisposableInterface
     // If the [data] is already in [chats], then don't invoke [_putEntry] again.
     final RxChatImpl? saved = chats[chatId];
     if (saved != null) {
+      if (!updateVersion) {
+        Log.debug(
+          '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> doing `put()`, because saved is `${chats[chatId]}`',
+          '$runtimeType',
+        );
+      }
+
       return put(
         data.chat,
         pagination: pagination,
@@ -2909,6 +2927,13 @@ class ChatRepository extends DisposableInterface
       RxChatImpl? entry = chats[chatId];
 
       if (entry == null) {
+        if (!updateVersion) {
+          Log.debug(
+            '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> await mutex.protect() succeeded, and `entry` is `null` -> data.chat.value.isGroup(${data.chat.value.isGroup}), chatId.isLocal(${chatId.isLocal})',
+            '$runtimeType',
+          );
+        }
+
         // If [data] is a remote [Chat]-dialog, then try to replace the existing
         // local [Chat], if any is associated with this [data].
         if (!data.chat.value.isGroup && !chatId.isLocal) {
@@ -2950,6 +2975,14 @@ class ChatRepository extends DisposableInterface
       }
 
       _putEntryGuards.remove(chatId);
+
+      if (!updateVersion) {
+        Log.debug(
+          '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> `await put()` is done, thus entry is fulfilled: `$entry`',
+          '$runtimeType',
+        );
+      }
+
       return entry;
     });
   }
@@ -3226,4 +3259,17 @@ class ChatData {
   @override
   String toString() =>
       '$runtimeType(chat: $chat, lastItem: $lastItem, lastReadItem: $lastReadItem)';
+}
+
+/// Extension adding `null`ify methods to empty `ChatMessageText`s.
+extension on ChatMessageText {
+  /// Returns `null`, if this [ChatMessageText] is empty, or returns itself
+  /// otherwise.
+  ChatMessageText? get nullIfEmpty {
+    if (val.isEmpty) {
+      return null;
+    }
+
+    return this;
+  }
 }

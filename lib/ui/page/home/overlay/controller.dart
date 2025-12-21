@@ -23,10 +23,13 @@ import 'package:get/get.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -40,6 +43,7 @@ class CallOverlayController extends GetxController {
   CallOverlayController(
     this._callService,
     this._chatService,
+    this._myUserService,
     this._settingsRepo,
   );
 
@@ -48,6 +52,9 @@ class CallOverlayController extends GetxController {
 
   /// [ChatService] used to [ChatService.get] chats.
   final ChatService _chatService;
+
+  /// [MyUserService] used to retrieve [MyUser]'s muted status.
+  final MyUserService _myUserService;
 
   /// Settings repository, used to get the stored [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -67,7 +74,7 @@ class CallOverlayController extends GetxController {
 
   @override
   void onInit() {
-    _subscription = _callService.calls.changes.listen((event) {
+    _subscription = _callService.calls.changes.listen((event) async {
       Log.debug(
         '_callService.calls.changes -> ${event.op}: key(${event.key}), value(${event.value?.value})',
         '$runtimeType',
@@ -86,7 +93,52 @@ class CallOverlayController extends GetxController {
 
           bool window = false;
 
-          var ongoingCall = event.value!.value;
+          final OngoingCall ongoingCall = event.value!.value;
+
+          // Check whether the call notification should be displayed at all,
+          // which should only be applied to pending calls only.
+          switch (ongoingCall.state.value) {
+            case OngoingCallState.pending:
+              // If global `MyUser` mute is applied, then ignore the call.
+              final MuteDuration? meMuted = _myUserService.myUser.value?.muted;
+              if (meMuted != null) {
+                return _callService.remove(ongoingCall.chatId.value);
+              }
+
+              bool redialed = false;
+
+              final ChatMembersDialed? dialed = ongoingCall.call.value?.dialed;
+              if (dialed is ChatMembersDialedConcrete) {
+                redialed = dialed.members.any(
+                  (e) => e.user.id == _chatService.me,
+                );
+              }
+
+              // If redialed, then show the notification anyway.
+              if (!redialed) {
+                try {
+                  // If this exact `Chat` is muted, then ignore the call.
+                  final RxChat? chat = await _chatService.get(
+                    ongoingCall.chatId.value,
+                  );
+                  final MuteDuration? chatMuted = chat?.chat.value.muted;
+                  if (chatMuted != null) {
+                    return _callService.remove(ongoingCall.chatId.value);
+                  }
+                } catch (_) {
+                  // No-op, as it's ok to fail.
+                }
+              }
+              break;
+
+            case OngoingCallState.local:
+            case OngoingCallState.joining:
+            case OngoingCallState.active:
+            case OngoingCallState.ended:
+              // No-op.
+              break;
+          }
+
           if (PlatformUtils.isWeb &&
               !PlatformUtils.isMobile &&
               _settings.value?.enablePopups != false) {
@@ -160,6 +212,7 @@ class CallOverlayController extends GetxController {
           break;
       }
     });
+
     super.onInit();
   }
 
@@ -186,6 +239,9 @@ class OverlayCall {
 
   /// [GlobalKey] identifying the [call].
   final GlobalKey key = GlobalKey();
+
+  /// Indicator whether the [call] should be minimized or not.
+  final RxBool minimized = RxBool(true);
 
   /// Reactive [OngoingCall] itself.
   final Rx<OngoingCall> call;

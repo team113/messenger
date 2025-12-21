@@ -338,9 +338,9 @@ fcm_incoming_call =
         [group] {$userName ->
            [x] {$userNum}
            *[other] {$userName}
-        } начал
+        } начал{" "}
         *[dialog] {""}
-    } { $isVideo ->
+    }{ $isVideo ->
         [yes] видеозвонок
         *[other] аудиозвонок
     }
@@ -352,6 +352,9 @@ fcm_message =
                [x] {$userNum}
                *[other] {$userName}
            }:{" "}
+    }{ $donation ->
+        [x] {""}
+        *[other] [G{$donation}]{" "}
     }{ $attachmentsCount ->
           [0] {""}
           *[other] [{$attachmentsType ->
@@ -384,7 +387,7 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
-fcm_missed_cal =
+fcm_missed_call =
     Пропущенный { $isVideo ->
         [yes] видеозвонок
         *[other] аудиозвонок
@@ -589,6 +592,7 @@ label_conditions_frontend_developer =
     - Учёт рабочего времени и оплата переработок;
     - Возможность релокации.
 label_confidentiality = Конфиденциальность
+label_confirm_password = Подтвердить пароль
 label_connection_lost = Связь потеряна
 label_connection_restored = Связь восстановлена
 label_contact_us_via_provided_email = Свяжитесь с нами по e-mail {$email}.
@@ -816,7 +820,7 @@ label_regulations_freelance =
     5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа
     6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
 label_remove_member = Удалить из группы
-label_repeat_password = Подтвердить пароль
+label_repeat_password = Повторите пароль
 label_replace_this_text_with_concern = Опишите проблему.
 label_replace_this_text_with_feedback = Обратная связь.
 label_replies = [{$count} {$count ->

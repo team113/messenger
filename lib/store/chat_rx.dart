@@ -616,18 +616,21 @@ class RxChatImpl extends RxChat {
       firstUnreadIndex = messages.indexOf(firstUnread!);
     }
 
-    int lastReadIndex = messages.indexWhere(
+    final int lastReadIndex = messages.indexWhere(
       (m) => m.value.id == untilId,
       firstUnreadIndex,
     );
 
     if (lastReadIndex != -1 && firstUnreadIndex != -1) {
-      int read = messages
+      final int read = messages
           .skip(firstUnreadIndex)
           .take(lastReadIndex - firstUnreadIndex + 1)
           .where((e) => !e.value.id.isLocal && e.value.author.id != me)
           .length;
-      unreadCount.value = chat.value.unreadCount - read;
+      unreadCount.value = (chat.value.unreadCount - read).clamp(
+        0,
+        chat.value.unreadCount,
+      );
     }
 
     final ChatItemId? lastReadItem = chat.value.lastReadItem;
@@ -2180,6 +2183,10 @@ class RxChatImpl extends RxChat {
                 unreadCount.value = event.count;
               } else if (event.count > dto.value.unreadCount) {
                 unreadCount.value += event.count - dto.value.unreadCount;
+
+                if (unreadCount.value < 0) {
+                  unreadCount.value = 0;
+                }
               }
 
               write((chat) => chat.value.unreadCount = event.count);

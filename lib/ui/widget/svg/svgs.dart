@@ -104,8 +104,8 @@ class SvgIcons {
 
   static const SvgData callStartSmall = SvgData(
     'assets/icons/call_start_small.svg',
-    width: 9.99,
-    height: 10,
+    width: 11,
+    height: 11,
   );
 
   static const SvgData downloadFile = SvgData(
@@ -1518,6 +1518,12 @@ class SvgIcons {
     height: 16.5,
   );
 
+  static const SvgData leaveGroup = SvgData(
+    'assets/icons/leave_group.svg',
+    width: 20,
+    height: 20,
+  );
+
   static const SvgData leaveGroupRed = SvgData(
     'assets/icons/leave_group_red.svg',
     width: 16.28,
@@ -2038,5 +2044,11 @@ class SvgIcons {
     'assets/icons/preview_pause.svg',
     width: 6.76,
     height: 7.88,
+  );
+
+  static const SvgData attention = SvgData(
+    'assets/icons/attention.svg',
+    width: 18,
+    height: 18,
   );
 }

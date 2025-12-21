@@ -445,7 +445,7 @@ class ChatController extends GetxController {
       _chatService,
       _userService,
       _settingsRepository,
-      onChanged: updateDraft,
+      onChanged: _updateDraft,
       onCall: call,
       onKeyUp: (key) {
         if (send.field.controller.text.isNotEmpty) {
@@ -785,9 +785,14 @@ class ChatController extends GetxController {
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
+          Log.debug(
+            'editMessage() -> onSubmit() -> text(${edit.value!.field.text.trim()}) vs send(${send.field.text}), attachments(${edit.value!.attachments}), replies(${edit.value!.replied})',
+            '$runtimeType',
+          );
+
           _stopTyping();
 
-          final bool hasText = edit.value!.field.text.trim().isNotEmpty;
+          final bool hasText = edit.value!.field.text.trim() != item.text?.val;
 
           if (hasText ||
               edit.value!.attachments.isNotEmpty ||
@@ -864,7 +869,7 @@ class ChatController extends GetxController {
   }
 
   /// Updates [RxChat.draft] with the current values of the [send] field.
-  void updateDraft() {
+  void _updateDraft() {
     // [Attachment]s to persist in a [RxChat.draft].
     final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
 

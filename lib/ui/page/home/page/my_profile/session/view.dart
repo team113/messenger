@@ -26,7 +26,6 @@ import '/themes.dart';
 import '/ui/page/home/page/my_profile/widget/session_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -134,33 +133,22 @@ class DeleteSessionView extends StatelessWidget {
                       ],
                       if (hasEmail || hasPassword) ...[
                         const SizedBox(height: 7),
-                        Obx(() {
-                          return ReactiveTextField(
-                            key: const Key('PasswordField'),
-                            state: c.password,
-                            label: hasEmail && hasPassword
-                                ? 'label_password_or_one_time_code'.l10n
-                                : hasEmail
-                                ? 'label_one_time_password'.l10n
-                                : 'label_password'.l10n,
-                            hint: hasEmail && hasPassword
-                                ? 'label_enter_password_or_code'.l10n
-                                : hasEmail
-                                ? 'label_enter_code'.l10n
-                                : 'label_enter_password'.l10n,
-                            obscure: c.obscurePassword.value,
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            onSuffixPressed: c.obscurePassword.toggle,
-                            treatErrorAsStatus: false,
-                            trailing: Center(
-                              child: SvgIcon(
-                                c.obscurePassword.value
-                                    ? SvgIcons.visibleOff
-                                    : SvgIcons.visibleOn,
-                              ),
-                            ),
-                          );
-                        }),
+                        ReactiveTextField.password(
+                          key: const Key('PasswordField'),
+                          state: c.password,
+                          label: hasEmail && hasPassword
+                              ? 'label_password_or_one_time_code'.l10n
+                              : hasEmail
+                              ? 'label_one_time_password'.l10n
+                              : 'label_password'.l10n,
+                          hint: hasEmail && hasPassword
+                              ? 'label_enter_password_or_code'.l10n
+                              : hasEmail
+                              ? 'label_enter_code'.l10n
+                              : 'label_enter_password'.l10n,
+                          obscured: c.obscurePassword,
+                          treatErrorAsStatus: false,
+                        ),
                         const SizedBox(height: 21),
                       ],
                       Obx(() {

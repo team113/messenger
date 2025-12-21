@@ -22,7 +22,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
-import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
@@ -79,7 +78,7 @@ class ConfirmDeleteView extends StatelessWidget {
               ),
 
               const SizedBox(height: 24),
-              ReactiveTextField(
+              ReactiveTextField.password(
                 state: c.code,
                 label: hasPassword
                     ? 'label_password_or_one_time_code'.l10n
@@ -87,16 +86,7 @@ class ConfirmDeleteView extends StatelessWidget {
                 hint: hasPassword
                     ? 'label_enter_password_or_code'.l10n
                     : 'label_enter_code'.l10n,
-                obscure: c.obscurePassword.value,
-                trailing: Center(
-                  child: SvgIcon(
-                    c.obscurePassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
-                ),
-                onSuffixPressed: c.obscurePassword.toggle,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
+                obscured: c.obscurePassword,
               ),
               const SizedBox(height: 25),
               Obx(() {
@@ -134,25 +124,14 @@ class ConfirmDeleteView extends StatelessWidget {
           } else if (hasPassword) {
             children.addAll([
               const SizedBox(height: 18),
-              Obx(() {
-                return ReactiveTextField(
-                  key: const Key('PasswordField'),
-                  state: c.password,
-                  treatErrorAsStatus: false,
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  obscure: c.obscurePassword.value,
-                  onSuffixPressed: c.obscurePassword.toggle,
-                  trailing: Center(
-                    child: SvgIcon(
-                      c.obscurePassword.value
-                          ? SvgIcons.visibleOff
-                          : SvgIcons.visibleOn,
-                    ),
-                  ),
-                  hint: 'label_enter_password'.l10n,
-                  label: 'label_password'.l10n,
-                );
-              }),
+              ReactiveTextField.password(
+                key: const Key('PasswordField'),
+                state: c.password,
+                treatErrorAsStatus: false,
+                obscured: c.obscurePassword,
+                hint: 'label_enter_password'.l10n,
+                label: 'label_password'.l10n,
+              ),
               const SizedBox(height: 25),
               Obx(() {
                 final bool enabled =

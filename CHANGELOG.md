@@ -6,6 +6,47 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.6.14] · 2025-12-19
+[0.6.14]: /../../tree/v0.6.14
+
+[Diff](/../../compare/v0.6.13...v0.6.14) | [Milestone](/../../milestone/58)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Calls ringing from muted chats. ([#1557], [#1546])
+
+[#1546]: /../../pull/1546
+[#1557]: /../../pull/1557
+
+
+
+
+## [0.6.13] · 2025-12-10
+[0.6.13]: /../../tree/v0.6.13
+
+[Diff](/../../compare/v0.6.12...v0.6.13) | [Milestone](/../../milestone/57)
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Presence status sometimes not being updated. ([#1540], [#1539])
+    - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
+    - Chats tab:
+        - Answered or declined call displayed as unread notification in chat. ([#1516], [#1508])
+
+[#1508]: /../../issues/1508
+[#1516]: /../../pull/1516
+[#1533]: /../../issues/1533
+[#1537]: /../../pull/1537
+[#1539]: /../../issues/1539
+[#1540]: /../../pull/1540
+
+
+
+
 ## [0.6.12] · 2025-12-01
 [0.6.12]: /../../tree/v0.6.12
 

@@ -24,6 +24,7 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
@@ -33,33 +34,73 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - And I cancel "test.txt" file upload
-final StepDefinitionGeneric cancelFileUpload = then1<String, CustomWorld>(
-  'I cancel {string} file upload',
-  (String fileName, context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
+final StepDefinitionGeneric
+cancelFileUpload = then1<String, CustomWorld>('I cancel {string} file upload', (
+  String fileName,
+  context,
+) async {
+  await context.world.appDriver.waitUntil(() async {
+    await context.world.appDriver.waitForAppToSettle();
 
-      final RxChat? chat = Get.find<ChatService>()
-          .chats[ChatId(router.route.split('/').lastOrNull ?? '')];
+    final RxChat? chat = Get.find<ChatService>()
+        .chats[ChatId(router.route.split('/').lastOrNull ?? '')];
 
-      final Attachment? attachment = chat!.messages
-          .map((e) => e.value)
-          .whereType<ChatMessage>()
-          .expand((e) => e.attachments)
-          .firstWhereOrNull((a) => a.filename == fileName);
+    Log.debug('cancelFileUpload -> chat is $chat', 'E2E');
 
-      if (attachment == null) {
-        return false;
-      }
+    final Iterable<ChatMessage> messages = chat!.messages
+        .map((e) => e.value)
+        .whereType<ChatMessage>();
 
-      final cancelButton = context.world.appDriver.findByDescendant(
-        context.world.appDriver.findByKeySkipOffstage('File_${attachment.id}'),
-        context.world.appDriver.findByKeySkipOffstage('CancelUploading'),
+    final Iterable<Attachment> attachments = messages.expand(
+      (e) => e.attachments,
+    );
+
+    final Attachment? attachment = attachments.firstWhereOrNull(
+      (a) => a.filename == fileName,
+    );
+
+    Log.debug('cancelFileUpload -> attachment is $attachment', 'E2E');
+
+    if (attachment == null) {
+      Log.debug(
+        'cancelFileUpload -> it seems that no attachments were found, thus the whole attachment list: $attachments',
+        'E2E',
       );
 
-      await context.world.appDriver.nativeDriver.tap(cancelButton);
+      Log.debug(
+        'cancelFileUpload -> and the whole messages list: $messages',
+        'E2E',
+      );
 
-      return true;
-    }, timeout: const Duration(seconds: 30));
-  },
-);
+      return false;
+    }
+
+    final fileFinder = context.world.appDriver.findByKeySkipOffstage(
+      'File_${attachment.id}',
+    );
+
+    final cancelButton = context.world.appDriver.findByDescendant(
+      fileFinder,
+      context.world.appDriver.findByKeySkipOffstage('CancelUploading'),
+    );
+
+    Log.debug(
+      'cancelFileUpload -> looking for `File_${attachment.id}` -> $fileFinder',
+      'E2E',
+    );
+
+    Log.debug(
+      'cancelFileUpload -> looking for `CancelUploading` within `File_${attachment.id}` -> $cancelButton',
+      'E2E',
+    );
+
+    Log.debug(
+      'cancelFileUpload -> all `CancelUploading` present in the tree: ${context.world.appDriver.findByKeySkipOffstage('CancelUploading')}',
+      'E2E',
+    );
+
+    await context.world.appDriver.nativeDriver.tap(cancelButton);
+
+    return true;
+  }, timeout: const Duration(seconds: 30));
+});

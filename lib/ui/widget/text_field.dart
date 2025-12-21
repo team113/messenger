@@ -71,7 +71,39 @@ class ReactiveTextField extends StatelessWidget {
     this.clearable = true,
     this.selectable,
     this.floatingAccent = false,
+    this.textCapitalization = TextCapitalization.sentences,
   });
+
+  /// Constructs a [ReactiveTextField] tuned best for password-type fields.
+  static Widget password({
+    Key? key,
+    required TextFieldState state,
+    String? label,
+    String? hint,
+    required RxBool obscured,
+    bool treatErrorAsStatus = true,
+    TextStyle? style,
+  }) {
+    return Obx(() {
+      return ReactiveTextField(
+        key: key,
+        state: state,
+        label: label,
+        hint: hint,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        trailing: Center(
+          child: SvgIcon(
+            obscured.value ? SvgIcons.visibleOff : SvgIcons.visibleOn,
+          ),
+        ),
+        obscure: obscured.value,
+        onSuffixPressed: obscured.toggle,
+        treatErrorAsStatus: treatErrorAsStatus,
+        textCapitalization: TextCapitalization.none,
+        style: style,
+      );
+    });
+  }
 
   /// [ReactiveTextField] with trailing copy button.
   factory ReactiveTextField.copyable({
@@ -163,6 +195,11 @@ class ReactiveTextField extends StatelessWidget {
   /// Defaults to [TextInputAction.newline] if [type] is
   /// [TextInputType.multiline], or [TextInputAction.done] otherwise.
   final TextInputAction? textInputAction;
+
+  /// [TextCapitalization] of this [ReactiveTextField].
+  ///
+  /// Defaults to [TextCapitalization.sentences].
+  final TextCapitalization textCapitalization;
 
   /// Callback, called when user presses the [suffix].
   ///
@@ -423,7 +460,7 @@ class ReactiveTextField extends StatelessWidget {
               minLines: minLines,
               maxLines: maxLines,
               textInputAction: textInputAction,
-              textCapitalization: TextCapitalization.sentences,
+              textCapitalization: textCapitalization,
               maxLength: maxLength,
               contextMenuBuilder: (_, field) {
                 final double dx = field.contextMenuAnchors.primaryAnchor.dx;
