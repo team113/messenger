@@ -36,6 +36,8 @@ class LogWorker extends DisposableService {
   /// Optional [LogFileProvider] to write [Log]s to a [File].
   final LogFileProvider? _logProvider;
 
+  /// Subscription to the [LogImpl.logs] changes to write the [LogEntry] to
+  /// [_logProvider].
   StreamSubscription? _logsSubscription;
 
   @override

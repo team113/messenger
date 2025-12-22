@@ -457,7 +457,11 @@ class Config {
       // Store user agent to use as a `User-Agent` header in Notification
       // Service Extension.
       PlatformUtils.userAgent.then((agent) {
-        IosUtils.writeDefaults('agent', '$agent (NSE)');
+        if (agent.endsWith(')')) {
+          agent = '${agent.substring(0, agent.length - 1)}; NSE)';
+        }
+
+        IosUtils.writeDefaults('agent', agent);
       });
     }
   }
