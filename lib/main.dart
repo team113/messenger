@@ -57,6 +57,7 @@ import 'provider/drift/my_user.dart';
 import 'provider/drift/settings.dart';
 import 'provider/drift/skipped_version.dart';
 import 'provider/drift/window.dart';
+import 'provider/file/log.dart';
 import 'provider/geo/geo.dart';
 import 'provider/gql/graphql.dart';
 import 'pubspec.g.dart';
@@ -255,6 +256,7 @@ Future<void> _runApp() async {
     Get.put(CacheDriftProvider(Get.find()));
     Get.put(DownloadDriftProvider(Get.find()));
     Get.put(SkippedVersionDriftProvider(Get.find()));
+    Get.put(LogFileProvider());
   }
 
   final accountProvider = Get.put(AccountDriftProvider(Get.find()));
@@ -332,9 +334,14 @@ Future<void> _runApp() async {
   await authService.init();
   await L10n.init();
 
-  Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
-  Get.put(UpgradeWorker(Get.findOrNull()));
-  Get.put(LogWorker());
+  Get.put(
+    CacheWorker(
+      Get.findOrNull<CacheDriftProvider>(),
+      Get.findOrNull<DownloadDriftProvider>(),
+    ),
+  );
+  Get.put(UpgradeWorker(Get.findOrNull<SkippedVersionDriftProvider>()));
+  Get.put(LogWorker(Get.findOrNull<LogFileProvider>()));
   Get.put(AgeWorker());
 
   WebUtils.deleteLoader();

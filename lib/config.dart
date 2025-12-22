@@ -112,12 +112,15 @@ class Config {
   /// Level of [Log]ger to log.
   static me.LogLevel logLevel = me.LogLevel.info;
 
-  /// Maximum allowed [Log.maxLogs] amount of log entries to keep.
+  /// Maximum allowed [LogImpl.maxLogs] amount of log entries to keep.
   static int logAmount = 4096;
 
   /// Indicator whether [Log]s should obfuscate any private information
   /// (messages, tokens, etc).
   static bool logObfuscated = true;
+
+  /// Indicator whether [Log]s should be written to a [File].
+  static bool logWrite = false;
 
   /// URL of a Sparkle Appcast XML file.
   ///
@@ -258,6 +261,10 @@ class Config {
     logObfuscated = const bool.hasEnvironment('SOCAPP_LOG_OBFUSCATED')
         ? const bool.fromEnvironment('SOCAPP_LOG_OBFUSCATED')
         : (document['log']?['obfuscated'] ?? !kDebugMode);
+
+    logWrite = const bool.hasEnvironment('SOCAPP_LOG_WRITE')
+        ? const bool.fromEnvironment('SOCAPP_LOG_WRITE')
+        : (document['log']?['write'] ?? !PlatformUtils.isWeb);
 
     appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
         ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
@@ -402,6 +409,7 @@ class Config {
             }
             logAmount = _asInt(remote['log']?['amount']) ?? logAmount;
             logObfuscated = remote['log']?['obfuscated'] ?? logObfuscated;
+            logWrite = remote['log']?['obfuscated'] ?? logWrite;
 
             try {
               final dynamic announcementsOrNull = remote['announcement'];
@@ -442,13 +450,17 @@ class Config {
 
     // Notification Service Extension needs those to send message received
     // notification to backend.
-    if (PlatformUtils.isIOS) {
+    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
       IosUtils.writeDefaults('url', url);
       IosUtils.writeDefaults('endpoint', graphql);
 
       // Store user agent to use as a `User-Agent` header in Notification
       // Service Extension.
       PlatformUtils.userAgent.then((agent) {
+        if (agent.endsWith(')')) {
+          agent = '${agent.substring(0, agent.length - 1)}; NSE)';
+        }
+
         IosUtils.writeDefaults('agent', agent);
       });
     }
