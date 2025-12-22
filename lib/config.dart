@@ -119,6 +119,9 @@ class Config {
   /// (messages, tokens, etc).
   static bool logObfuscated = true;
 
+  /// Indicator whether [Log]s should be written to a [File].
+  static bool logWrite = PlatformUtils.isIOS && !PlatformUtils.isWeb;
+
   /// URL of a Sparkle Appcast XML file.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
@@ -442,14 +445,14 @@ class Config {
 
     // Notification Service Extension needs those to send message received
     // notification to backend.
-    if (PlatformUtils.isIOS) {
+    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
       IosUtils.writeDefaults('url', url);
       IosUtils.writeDefaults('endpoint', graphql);
 
       // Store user agent to use as a `User-Agent` header in Notification
       // Service Extension.
       PlatformUtils.userAgent.then((agent) {
-        IosUtils.writeDefaults('agent', agent);
+        IosUtils.writeDefaults('agent', '$agent (NSE)');
       });
     }
   }

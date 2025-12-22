@@ -15,27 +15,57 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import '/config.dart';
 import '/domain/service/disposable_service.dart';
+import '/provider/file/log.dart';
 import '/routes.dart';
 import '/ui/page/support/log/view.dart';
 import '/ui/widget/text_field.dart';
+import '/util/log.dart';
+import '/util/obs/obs.dart';
 
 /// Worker opening [LogView] modal.
 class LogWorker extends DisposableService {
-  LogWorker();
+  LogWorker(this._logProvider);
+
+  /// Optional [LogFileProvider] to write [Log]s to a [File].
+  final LogFileProvider? _logProvider;
+
+  StreamSubscription? _logsSubscription;
 
   @override
   void onInit() {
     HardwareKeyboard.instance.addHandler(_consoleListener);
+
+    if (Config.logWrite) {
+      _logsSubscription = Log.logs.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _logProvider?.write(e.element);
+            break;
+
+          case OperationKind.updated:
+          case OperationKind.removed:
+            // No-op.
+            break;
+        }
+      });
+    }
+
     super.onInit();
   }
 
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_consoleListener);
+
+    _logsSubscription?.cancel();
+
     super.onClose();
   }
 

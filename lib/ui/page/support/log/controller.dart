@@ -104,9 +104,10 @@ class LogController extends GetxController {
       final encoder = Utf8Encoder();
 
       final DateTime utc = DateTime.now().toUtc();
-
       final String app = PlatformUtils.isWeb
           ? Config.origin
+                .replaceFirst('https://', '')
+                .replaceFirst('http://', '')
           : Config.userAgentProduct;
 
       final file = await PlatformUtils.createAndDownload(
@@ -175,7 +176,7 @@ $token
 
 ================= Logs =================
 
-${Log.logs.map((e) => '[${e.at.toUtc().toStamp}] [${e.level.name}] ${e.text}').join('\n')}
+${Log.logs.map((e) => e.toString()).join('\n')}
 
 ========================================
 ''';
@@ -210,13 +211,5 @@ ${Log.logs.map((e) => '[${e.at.toUtc().toStamp}] [${e.level.name}] ${e.text}').j
   /// Clears the [Log.logs].
   void clearLogs() {
     Log.logs.clear();
-  }
-}
-
-/// Extention adding text representation in stamp view of [DateTime].
-extension DateTimeToStamp on DateTime {
-  /// Returns this [DateTime] formatted as a stamp.
-  String get toStamp {
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}:${second.toString().padLeft(2, '0')}.${millisecond.toString().padLeft(4, '0')}';
   }
 }
