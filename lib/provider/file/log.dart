@@ -36,6 +36,9 @@ class LogFileProvider extends DisposableInterface {
   /// [LogEntry]ies that were [write]en while [_sink] wasn't available.
   final List<LogEntry> _buffer = [];
 
+  /// Returns the [File] to write [LogEntry] to.
+  File? get file => _file;
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
@@ -63,6 +66,11 @@ class LogFileProvider extends DisposableInterface {
     }
 
     _sink?.writeln(entry);
+  }
+
+  /// Returns a [FileStat] of the currently opened logs [File], if any.
+  Future<FileStat?> stat() async {
+    return await _file?.stat();
   }
 
   /// Opens the [_file] and appends the initial payload.

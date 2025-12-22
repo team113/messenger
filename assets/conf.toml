@@ -126,6 +126,12 @@
 #   obfuscated = true (if `kDebugMode`  is `true`)
 #   obfuscated = false" (if `kProfileMode` or `kReleaseMode` is `true`)
 
+# Indicator whether [Log]s should be also written to a `File` in temporary dir.
+#
+# Default:
+#   write = true (on native iOS devices)
+#   write = false (on any other platforms)
+
 [link]
 # Prefix of the direct chat link URL.
 #

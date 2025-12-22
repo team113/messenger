@@ -120,7 +120,7 @@ class Config {
   static bool logObfuscated = true;
 
   /// Indicator whether [Log]s should be written to a [File].
-  static bool logWrite = PlatformUtils.isIOS && !PlatformUtils.isWeb;
+  static bool logWrite = false;
 
   /// URL of a Sparkle Appcast XML file.
   ///
@@ -261,6 +261,10 @@ class Config {
     logObfuscated = const bool.hasEnvironment('SOCAPP_LOG_OBFUSCATED')
         ? const bool.fromEnvironment('SOCAPP_LOG_OBFUSCATED')
         : (document['log']?['obfuscated'] ?? !kDebugMode);
+
+    logWrite = const bool.hasEnvironment('SOCAPP_LOG_WRITE')
+        ? const bool.fromEnvironment('SOCAPP_LOG_WRITE')
+        : (document['log']?['write'] ?? !PlatformUtils.isWeb);
 
     appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
         ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
@@ -405,6 +409,7 @@ class Config {
             }
             logAmount = _asInt(remote['log']?['amount']) ?? logAmount;
             logObfuscated = remote['log']?['obfuscated'] ?? logObfuscated;
+            logWrite = remote['log']?['obfuscated'] ?? logWrite;
 
             try {
               final dynamic announcementsOrNull = remote['announcement'];
