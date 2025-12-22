@@ -112,7 +112,7 @@ class Config {
   /// Level of [Log]ger to log.
   static me.LogLevel logLevel = me.LogLevel.info;
 
-  /// Maximum allowed [Log.maxLogs] amount of log entries to keep.
+  /// Maximum allowed [LogImpl.maxLogs] amount of log entries to keep.
   static int logAmount = 4096;
 
   /// Indicator whether [Log]s should obfuscate any private information
