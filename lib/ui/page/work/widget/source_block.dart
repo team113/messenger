@@ -69,7 +69,7 @@ class SourceCodeBlock extends StatelessWidget {
         button(
           label: '- GraphQL API',
           onPressed: () => launchUrlString(
-            'https://messenger.soc.stg.t11913.org/api/graphql/playground',
+            'https://messenger.soc.stg.t11913.org/api/graphql/v1/graphiql',
           ),
         ),
       ],

@@ -101,6 +101,13 @@ enum Angle {
   "270 degrees." DEG270
 }
 
+"Possible origins of a `Balance`."
+enum BalanceOrigin {
+  "Income `Balance` available for withdrawal." INCOME_AVAILABLE
+  "Income `Balance` on hold, not available for withdrawal." INCOME_HOLD
+  "Purse `Balance`." PURSE
+}
+
 "Possible error codes of performing `Mutation.blockUser`."
 enum BlockUserErrorCode {
   """
@@ -149,6 +156,30 @@ enum ClearChatErrorCode {
 
     Status code: 404 Not Found.
   """ UNKNOWN_CHAT_ITEM
+}
+
+"Possible error codes of performing `Mutation.completeOperationDeposit`."
+enum CompleteOperationDepositErrorCode {
+  """
+    `OperationDeposit` cannot be completed immediately and will be processed in background. Try again later or use `Subscription.operationsEvents` for awaiting the correspondent `EventOperationDepositCompleted` or `EventOperationDepositFailed` upon completion.
+
+    Status code: 202 Accepted.
+  """ IN_PROGRESS
+  """
+    `OperationDeposit` approval is unavailable at the moment. Try again later.
+
+    Status code: 503 Service Unavailable.
+  """ UNAVAILABLE
+  """
+    `OperationDeposit` with the provided ID doesn't exist or the provided `OperationDepositSecret` is wrong.
+
+    Status code: 404 Not Found.
+  """ UNKNOWN_OPERATION
+  """
+    `OperationDeposit` is already declined and cannot be completed.
+
+    Status code: 403 Forbidden.
+  """ UNPROCESSABLE
 }
 
 "Possible error codes of performing `Mutation.createChatContact`."
@@ -348,6 +379,20 @@ enum DeclineChatCallErrorCode {
   """ UNKNOWN_CHAT
 }
 
+"Possible error codes of performing `Mutation.declineOperationDeposit`."
+enum DeclineOperationDepositErrorCode {
+  """
+    `OperationDeposit` with the provided ID doesn't exist or the provided `OperationDepositSecret` is wrong.
+
+    Status code: 404 Not Found.
+  """ UNKNOWN_OPERATION
+  """
+    `OperationDeposit` is complete or failed already and cannot be declined.
+
+    Status code: 403 Forbidden.
+  """ UNPROCESSABLE
+}
+
 "Possible error codes of performing `Mutation.deleteChatContactRecord`."
 enum DeleteChatContactRecordErrorCode {
   """
@@ -384,12 +429,14 @@ enum DeleteChatForwardErrorCode {
     Status code: 403 Forbidden.
   """ QUOTED
   """
-    `ChatForward` has been read by `Chat` members already.
+    `ChatForward` cannot be deleted anymore.
 
-    Only unread `ChatForward`s can be deleted.
+    `ChatForward` is allowed to be deleted only if it:
+    - hasn't been read by any other `ChatMember` yet;
+    - has been read by other `ChatMember`, but 5 minutes haven't passed since its posting time (`ChatMessage.at` field).
 
     Status code: 403 Forbidden.
-  """ READ
+  """ UNEDITABLE
   """
     `ChatForward` with the provided ID doesn't exist.
 
@@ -410,12 +457,16 @@ enum DeleteChatMessageErrorCode {
     Status code: 403 Forbidden.
   """ QUOTED
   """
-    `ChatMessage` has been read by `Chat` members already.
+    `ChatMessage` cannot be deleted anymore.
 
-    Only unread `ChatMessage`s can be deleted.
+    `ChatMessage` is allowed to be deleted only if it:
+    - hasn't been read by any other `ChatMember` yet;
+    - has been read by other `ChatMember`, but:
+    - doesn't contain any paid content;
+    - and 5 minutes haven't passed since its posting time (`ChatMessage.at` field).
 
     Status code: 403 Forbidden.
-  """ READ
+  """ UNEDITABLE
   """
     `ChatMessage` with the provided ID doesn't exist.
 
@@ -466,7 +517,7 @@ enum EditChatMessageErrorCode {
   """
     Authenticated `MyUser` is blocked by the `User` who receives the `ChatMessage`.
 
-    This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+    This error can happen only if the `Chat` represents a dialog (consists only of two `User`s).
 
     Status code: 403 Forbidden.
   """ BLOCKED
@@ -474,14 +525,20 @@ enum EditChatMessageErrorCode {
     `ChatMessage`'s text can be set as `null` only if there is at least 1 `Attachment` in it.
 
     Status code: 400 Bad Request.
-  """ NO_TEXT_AND_NO_ATTACHMENT
+  """ NO_CONTENT
   """
     Authenticated `MyUser` is not an author of the `ChatMessage`.
 
     Status code: 403 Forbidden.
   """ NOT_AUTHOR
   """
-    5 minutes passed since `ChatMessage` creation and it was read by other `Chat` members.
+    `ChatMessage` cannot be edited anymore.
+
+    `ChatMessage` is allowed to be edited only if it:
+    - hasn't been read by any other `ChatMember` yet;
+    - has been read by other `ChatMember`, but:
+    - doesn't contain any paid content;
+    - and 5 minutes haven't passed since its posting time (`ChatMessage.at` field).
 
     Status code: 403 Forbidden.
   """ UNEDITABLE
@@ -535,15 +592,27 @@ enum ForwardChatItemsErrorCode {
   """
     Authenticated `MyUser` is blocked by the `User`, who receives the `ChatForward`.
 
-    This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+    This error can happen only if the `Chat` represents a dialog (consists only of two `User`s).
 
     Status code: 403 Forbidden.
   """ BLOCKED
   """
-    Either `withText` field or at least one ID in `attachments` field should be specified in all of the `ChatItemQuoteInput`s.
+    All of the `ChatItemQuoteInput`s should quote either a `ChatMessageText` or at least a single `Attachment` or `Donation`.
 
     Status code: 400 Bad Request.
-  """ NO_TEXT_AND_NO_ATTACHMENT
+  """ NO_QUOTED_CONTENT
+  """
+    Not enough funds in `MyUser`'s purse.
+
+    Status code: 402 Payment Required.
+  """ NOT_ENOUGH_FUNDS
+  """
+    Posting `donation` in this `Chat` is not allowed.
+
+    This error can happen only if the `Chat` doesn't represent a dialog (doesn't consist only of two `User`s).
+
+    Status code: 403 Forbidden.
+  """ UNALLOWED_DONATION
   """
     One of the specified `Attachment`s doesn't exist.
 
@@ -560,6 +629,11 @@ enum ForwardChatItemsErrorCode {
     Status code: 404 Not Found.
   """ UNKNOWN_FORWARDED_ATTACHMENT
   """
+    One or more forwarded `Donation`s don't belong to the corresponding `ChatItem`s.
+
+    Status code: 404 Not Found.
+  """ UNKNOWN_FORWARDED_DONATION
+  """
     One or more forwarded `ChatItem`s not found.
 
     Status code: 404 Not Found.
@@ -567,7 +641,7 @@ enum ForwardChatItemsErrorCode {
   """
     The `User` who receives the `ChatForward` was deleted.
 
-    This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+    This error can happen only if the `Chat` represents a dialog (consists only of two `User`s).
 
     Status code: 404 Not Found.
   """ UNKNOWN_USER
@@ -629,6 +703,14 @@ enum LeaveChatCallErrorCode {
   """ UNKNOWN_DEVICE
 }
 
+"Code of an `OperationCancellation`."
+enum OperationCancellationCode {
+  """
+    `Operation` was canceled because the `ChatMessage`, triggering its
+    creation, was deleted.
+  """ DELETED_MESSAGE
+}
+
 "Possible kinds of an `OperationDeposit`."
 enum OperationDepositKind {
   """
@@ -638,16 +720,31 @@ enum OperationDepositKind {
   """ PAYPAL
 }
 
+"Direction of an `Operation`."
+enum OperationDirection {
+  "Incoming `Operation`, meaning the funds are granted to its owner." INCOMING
+  "Outgoing `Operation`, meaning the funds are charged from its owner." OUTGOING
+}
+
 "Possible origins of an `Operation`."
 enum OperationOrigin {
-  "`Operation` happened in the `MyUser`'s purse." PURSE
+  "`Operation` happened in the `User`'s income." INCOME
+  "`Operation` happened in the `User`'s purse." PURSE
 }
 
 "Possible statuses of an `Operation`."
 enum OperationStatus {
+  "`Operation` is canceled." CANCELED
   "`Operation` is successfully completed." COMPLETED
+  "`Operation` is declined." DECLINED
   "`Operation` is in progress." IN_PROGRESS
   "`Operation` failed." FAILED
+}
+
+"Filter of `Operation`s by their `Operation.holdUntil` field."
+enum OperationsFilterHold {
+  "`Operation.holdUntil` is absent." ABSENT
+  "`Operation.holdUntil` is present." PRESENT
 }
 
 "Possible error codes of performing `Mutation.postChatMessage`."
@@ -655,15 +752,27 @@ enum PostChatMessageErrorCode {
   """
     Authenticated `MyUser` is blocked by the `User` who receives the `ChatMessage`.
 
-    This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+    This error can happen only if the `Chat` represents a dialog (consists only of two `User`s).
 
     Status code: 403 Forbidden.
   """ BLOCKED
   """
-    Either `text` argument or at least one ID in `attachments` should be specified.
+    Either `text` argument, or at least one ID in `attachments` argument, or a `donation` argument should be specified.
 
     Status code: 400 Bad Request.
-  """ NO_TEXT_AND_NO_ATTACHMENT
+  """ NO_CONTENT
+  """
+    Not enough funds in `MyUser`'s purse.
+
+    Status code: 402 Payment Required.
+  """ NOT_ENOUGH_FUNDS
+  """
+    Posting `donation` in this `Chat` is not allowed.
+
+    This error can happen only if the `Chat` doesn't represent a dialog (doesn't consist only of two `User`s).
+
+    Status code: 403 Forbidden.
+  """ UNALLOWED_DONATION
   """
     One of the specified `Attachment`s doesn't exist.
 
@@ -682,7 +791,7 @@ enum PostChatMessageErrorCode {
   """
     The `User` who receives the `ChatMessage` was deleted.
 
-    This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+    This error can happen only if the `Chat` represents a dialog (consists only of two `User`s).
 
     Status code: 404 Not Found.
   """ UNKNOWN_USER
@@ -696,20 +805,6 @@ enum PostChatMessageErrorCode {
 
     Status code: 400 Bad Request.
   """ WRONG_REPLYING_CHAT_ITEMS_COUNT
-}
-
-"Presence manually set by a `User` to himself."
-enum Presence {
-  """
-    `User` is currently present and expected to see notifications right
-    away.
-
-    This is the default `Presence` all `User`s have.
-  """ PRESENT
-  """
-    `User` is away and expected to see notifications as soon as he comes
-    back.
-  """ AWAY
 }
 
 "Possible error codes of performing `Mutation.readChat`."
@@ -878,7 +973,7 @@ enum StartChatCallErrorCode {
   """
     Authenticated `MyUser` is blocked by the `User`, who responds to the `ChatCall`.
 
-    This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+    This error can happen only if the `Chat` represents a dialog (consists only of two `User`s).
 
     Status code: 403 Forbidden.
   """ BLOCKED
@@ -890,7 +985,7 @@ enum StartChatCallErrorCode {
   """
     The `User` who responds to the `ChatCall` was deleted.
 
-    This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+    This error can happen only if the `Chat` represents a dialog (consists only of two `User`s).
 
     Status code: 404 Not Found.
   """ UNKNOWN_USER
@@ -1177,7 +1272,7 @@ enum UpdateWelcomeMessageErrorCode {
     `WelcomeMessage.text` can be set as `null` only if there is at least 1 `WelcomeMessage.attachments`.
 
     Status code: 400 Bad Request.
-  """ NO_TEXT_AND_NO_ATTACHMENT
+  """ NO_CONTENT
   """
     One of the specified `Attachment`s doesn't exist.
 
@@ -1230,6 +1325,20 @@ enum UseChatDirectLinkErrorCode {
   """ UNKNOWN_DIRECT_LINK
 }
 
+"Presence manually set by a `User` to himself."
+enum UserPresence {
+  """
+    `User` is currently present and expected to see notifications right
+    away.
+
+    This is the default `UserPresence` all `User`s have.
+  """ PRESENT
+  """
+    `User` is away and expected to see notifications as soon as he comes
+    back.
+  """ AWAY
+}
+
 "Possible error codes of performing `Mutation.validateConfirmationCode`."
 enum ValidateConfirmationCodeErrorCode {
   """
@@ -1256,16 +1365,22 @@ input ChatItemQuoteInput {
   "ID of the `ChatItem` to be forwarded." id: ChatItemId!
   """
     Indicator whether a forward should contain the full `ChatMessageText` of
-    the original `ChatItem` (if it contains any).
+    the original `ChatItem`, if it contains any.
   """ withText: Boolean!
   """
     IDs of the `ChatItem`'s `Attachment`s to be forwarded.
 
     - `null` means all the `ChatItem`'s `Attachment`s will be forwarded, if
       any.
-    - `[]` (empty list) means no `Attachment`s, only the text will be
-      forwarded.
+    - `[]` (empty list) means no `Attachment`s will be forwarded.
   """ attachments: [AttachmentId!]
+  """
+    IDs of the `ChatItem`'s `Donation`s to be forwarded.
+
+    - `null` means all the `ChatItem`'s `Donation`s will be forwarded, if
+      any.
+    - `[]` (empty list) means no `Donation`s will be forwarded.
+  """ donations: [DonationId!]
 }
 
 "Criteria for filtering `ChatItem`s by, returned in a `ChatItemsConnection`."
@@ -1326,6 +1441,53 @@ input CropAreaInput {
   "Angle to rotate image before cropping." angle: Angle
 }
 
+"Half-open range of `DateTime`s."
+input DateTimeRange {
+  """
+    `DateTime` the range starts from (inclusive).
+
+    If absent or `null` then no lower bound is applied.
+  """ from: DateTime
+  """
+    `DateTime` the range ends at (exclusive).
+
+    If absent or `null` then no upper bound is applied.
+  """ to: DateTime
+}
+
+"Input of a `Donation` attached to a `Message`."
+input DonationInput {
+  """
+    `Sum` of the `Donation` to be made.
+
+    Cannot be zero.
+  """ sum: Sum!
+}
+
+"""
+  Details of a `ChatMessage` to be posted along with the forwarded `ChatItem`s
+  used as input of `Mutation.forwardChatItems`.
+
+  If all fields are not specified or `null`, then no `ChatMessage` will be
+  posted.
+"""
+input ForwardChatItemsMessageInput {
+  """
+    Optional text to post a `ChatMessage` along with the forwarded
+    `ChatItem`s.
+  """ text: ChatMessageText
+  """
+    Optional IDs of `Attachment`s to be attached to the `ChatMessage`
+    posted along with the forwarded `ChatItem`s.
+  """ attachments: [AttachmentId!]
+  """
+    Optional `Donation` to be attached to the `ChatMessage` posted along
+    with the forwarded `ChatItem`s.
+
+    `Donation`s are allowed in dialog `Chat`s only.
+  """ donation: DonationInput
+}
+
 """
   Muting input argument for `Mutation.toggleChatMute` and
   `Mutation.toggleMyUserMute`.
@@ -1377,42 +1539,94 @@ input OperationDepositInput {
 "Input of an `OperationDepositKind.PAYPAL`."
 input OperationDepositPayPalInput {
   "Nominal `Sum` to be deposited in XXX." nominal: Sum!
+  """
+    Secret for authenticating later client operations on the created
+    `OperationDeposit`.
+  """ secret: OperationDepositSecret!
 }
 
 """
-  Filter of the `Query.operations`.
+  Possible identifiers of an `Operation`.
 
   Exactly one should be specified.
 """
+input OperationIdentifier {
+  "Unique `OperationId` identifying the `Operation`." id: OperationId
+  "Unique `OperationNum` identifying the `Operation`." num: OperationNum
+}
+
+"Filter of the `Query.operations`."
 input OperationsFilter {
-  "Unique ID of an `Operation` to search by." id: OperationId
-  "Sequential number of an `Operation` to search by." num: OperationNum
+  """
+    Unique ID of an `Operation` to search by.
+
+    Searching by `OperationsFilter.id` is exact, always returning a single
+    `Operation`.
+  """ id: OperationId
+  """
+    Sequential number of an `Operation` to search by.
+
+    Searching by `OperationsFilter.num` is exact, always returning a single
+    `Operation`.
+  """ num: OperationNum
+  """
+    `OperationStatus` of the `Operation`s to filter by.
+
+    If absent or `null` then `Operation`s of all `OperationStatus`es will be
+    returned.
+  """ status: OperationStatus
+  """
+    Filtering `Operation`s by being in hold.
+
+    If absent or `null` then `Operation`s with no filtering by being in hold
+    will be returned.
+  """ hold: OperationsFilterHold
+  """
+    `OperationDirection` of the `Operation`s to filter by.
+
+    If absent or `null` then `Operation`s of all `OperationDirection`s will
+    be returned.
+  """ direction: OperationDirection
+  """
+    `DateTimeRange` to filter the `Operation`s by their
+    `Operation.createdAt` field.
+  """ createdAt: DateTimeRange
 }
 
 """
-  Pagination arguments of the `Query.operations`.
+  [Arguments] for pagination over `OperationsEdge`s.
 
   It's allowed to specify both `first` and `last` counts at the same time,
-  provided that `after` and `before` cursors are equal. In such case the
-  returned page will include the `Operation` pointed by the cursor and the
-  requested count of `Operation`s preceding and following it.
+  provided that `after` and `before` `OperationsCursor`s are equal. In such
+  case, the returned page will include the `Operation` pointed by that
+  `OperationsCursor` and the requested counts of `Operation`s preceding and
+  following it.
 
-  If it's desired to receive the `Operation`, pointed by the cursor, without
-  querying in both directions, one can specify `first` or `last` count as `0`.
+  If it's desired to receive the `Operation`, pointed by the
+  `OperationsCursor`, without querying in both directions, one can specify
+  `first` or `last` count as `0`.
 
-  If no arguments are provided, then `first` parameter will be considered as
+  If no parameters are provided, then `first` parameter will be considered as
   `50`.
+
+  `after` and `before` `OperationsCursor`s are only meaningful once other
+  non-`OperationsPagination` arguments remain the same between queries. Trying
+  to query a page of some filtered `Operation`s with an `OperationsCursor`
+  pointing to a page of totally different filtered `Operation`s is nonsense
+  and will produce an invalid result (usually, returning nothing).
+
+  [Arguments]: https://tinyurl.com/gql-relay#sec-Arguments
 """
 input OperationsPagination {
   "Number of next `OperationsEdge`s to return." first: Int
   """
-    Cursor indicating the `OperationsEdge` position to return next
-    `Operation`s after.
+    `OperationsCursor` indicating the `OperationsEdge` position to return
+    next `Operation`s after.
   """ after: OperationsCursor
   "Number of prior `OperationsEdge`s to return." last: Int
   """
-    Cursor indicating the `OperationsEdge` position to return prior
-    `Operation`s before.
+    `OperationsCursor` indicating the `OperationsEdge` position to return
+    prior `Operation`s before.
   """ before: OperationsCursor
 }
 
@@ -1451,6 +1665,16 @@ input PromoShareHistoryPagination {
     Cursor indicating the `PromoShareHistoryEdge` position to return prior
     `PromoShare`s before.
   """ before: PromoShareHistoryCursor
+}
+
+"Settings of a push device registration."
+input PushDeviceSettings {
+  """
+    Indicator whether the push device should receive cancellations for push
+    notifications as well.
+
+    Defaults to `false`.
+  """ cancellation: Boolean! = false
 }
 
 """
@@ -1536,6 +1760,19 @@ input RecentChatsPagination {
 input RefreshSessionSecretsInput {
   "New `AccessTokenSecretInput` for the `Session` being authenticated with." accessToken: AccessTokenSecretInput!
   "New `RefreshTokenSecretInput` for the `Session` being refreshed with." refreshToken: RefreshTokenSecretInput!
+}
+
+"""
+  Arguments for affiliation of a created `MyUser` in `Mutation.createUser` and
+  `Mutation.createSession`.
+"""
+input UserAffiliationInput {
+  """
+    [Slug][slug] value of the `ChatDirectLink` the `User` found the `Site`
+    by.
+
+    [slug]: https://en.wikipedia.org/wiki/Clean_URL#Slug
+  """ slug: ChatDirectLinkSlug!
 }
 
 """
@@ -1637,6 +1874,12 @@ interface ChatItem {
   chatId: ChatId!
   "`User` who posted this `ChatItem`."
   author: User!
+  """
+    ID of the `ChatItem`s' batch this `ChatItem` is part of.
+
+    `null` if this `ChatItem` is not posted in a batch.
+  """
+  batchId: ChatItemBatchId
   "`DateTime` when this `ChatItem` was posted."
   at: DateTime!
   """
@@ -1725,10 +1968,24 @@ interface Operation {
   num: OperationNum!
   "Status of this `Operation`."
   status: OperationStatus!
+  "`OperationOrigin` of this `Operation`."
+  origin: OperationOrigin!
+  "`OperationDirection` of this `Operation`."
+  direction: OperationDirection!
   "Money `Sum` and `Currency` of this `Operation`."
   amount: Price!
+  """
+    `DateTime` until which this `Operation` is on hold.
+
+    `null` if this `Operation` is not on hold
+  """
+  holdUntil: DateTime
+  "`OperationsEdge`s of the `Operation`s this `Operation` is linked to."
+  linkedOperations: [OperationsEdge!]!
   "`DateTime` when this `Operation` was created."
   createdAt: DateTime!
+  "Information about why this `Operation` was canceled, if it was."
+  canceled: OperationCancellation
   """
     Version of the `Operation`'s state.
 
@@ -1736,6 +1993,18 @@ interface Operation {
     tracking state's actuality.
   """
   ver: OperationVersion!
+}
+
+"Events happening with an `Operation`."
+interface OperationEvent {
+  "ID of the `Operation` this `OperationEvent` is related to."
+  id: OperationId!
+  "`OperationOrigin` this `OperationEvent` happened in."
+  origin: OperationOrigin!
+  "`OperationsEdge` of the `Operation` this `OperationEvent` is related to."
+  operation: OperationsEdge!
+  "`DateTime` when this `OperationEvent` happened."
+  at: DateTime!
 }
 
 "Events happening in a `Session`."
@@ -1812,7 +2081,15 @@ scalar AttachmentId
 "Cursor of `BlocklistRecord`s."
 scalar BlocklistCursor
 
-"Reason of blocking a `User` by the authenticated `MyUser`."
+"""
+  Reason of blocking a `User` by the authenticated `MyUser`.
+
+  Its values are always considered to be non-empty and meet the following
+  requirements:
+  - not start and end with space-like characters;
+  - not contain line breaks;
+  - be at least 1 and maximum 100 characters long.
+"""
 scalar BlocklistReason
 
 """
@@ -1911,6 +2188,12 @@ scalar ChatFavoritePosition
 "ID of a `Chat`."
 scalar ChatId
 
+"""
+  ID of `ChatItem`s' batch grouping multiple `ChatItem`s posted by a single
+  `User` action.
+"""
+scalar ChatItemBatchId
+
 "ID of a `ChatItem`."
 scalar ChatItemId
 
@@ -1938,7 +2221,7 @@ scalar ChatMembersCursor
 scalar ChatMessageText
 
 """
-  Type of a `Chat`'s name.
+  Type of `Chat`'s name.
 
   Its values are always considered to be non-empty, and meet the following
   requirements:
@@ -1991,6 +2274,9 @@ scalar Currency
 """
 scalar DateTime
 
+"ID of a `Donation`."
+scalar DonationId
+
 "Cursor of favorite `ChatContact`s."
 scalar FavoriteChatContactsCursor
 
@@ -2038,7 +2324,7 @@ scalar IncomingChatCallsCursor
   [Base64]: https://base64.guru/learn/base64-characters
   [PDF]: https://wikipedia.org/wiki/PDF
 """
-scalar Invoice
+scalar InvoiceFile
 
 """
   Version of `MyUser`'s state.
@@ -2048,11 +2334,30 @@ scalar Invoice
 """
 scalar MyUserVersion
 
+"Arbitrary additional reason of an `OperationCancellation`."
+scalar OperationCancellationReason
+
+"""
+  Secret authenticating client operations on an `OperationDeposit`.
+
+  Must represent 32 random bytes encoded as [valid Base64 string][1].
+
+  __Use a [cryptographically secure random generator][1] to produce array of
+  bytes for this value.__
+
+  [1]: https://base64.guru/learn/base64-characters
+  [2]: https://tinyurl.com/a958u37d
+"""
+scalar OperationDepositSecret
+
 "ID of an `Operation`."
 scalar OperationId
 
 "Sequential number of an `Operation`."
 scalar OperationNum
+
+"Reason of an `Operation` creation."
+scalar OperationReason
 
 """
   Version of `Operation`'s state.
@@ -2124,16 +2429,41 @@ scalar SessionVersion
 """
 scalar SessionsListVersion
 
+"""
+  Type of `Site`'s [FQDN] (fully qualified domain name).
+
+  Its values are always considered to be non-empty and meet the requirements
+  of the [Domain Name Syntax format][1]. TLDs (top-level domains) are
+  considered as valid [`Domain`]s.
+
+  [FQDN]: https://en.wikipedia.org/wiki/Fully_qualified_domain_name
+  [1]: https://en.wikipedia.org/wiki/Domain_name#Domain_name_syntax
+"""
+scalar SiteDomain
+
 "Sum of money."
 scalar Sum
 
 """
   [Base64URL]-encoded [ThumbHash].
 
+  Its values are always considered to be non-empty and represent a
+  [valid Base64URL string][Base64URL].
+
   [Base64URL]: https://base64.guru/standards/base64url
   [ThumbHash]: https://evanw.github.io/thumbhash
 """
 scalar ThumbHash
+
+"""
+  URL in [RFC 3986] format.
+
+  [`URL` scalar][1] compliant.
+
+  [1]: https://graphql-scalars.dev/docs/scalars/url
+  [RFC 3339]: https://www.ietf.org/rfc/rfc3986.txt
+"""
+scalar URL
 
 """
   Type of [GraphQL multipart request][1] upload.
@@ -2192,7 +2522,7 @@ scalar UserId
 scalar UserLogin
 
 """
-  Type of a `User`'s name.
+  Type of `User`'s name.
 
   Its values are always considered to be non-empty, and meet the following
   requirements:
@@ -2232,11 +2562,11 @@ scalar UserPassword
 scalar UserPhone
 
 """
-  Type of a `User`'s text status value.
+  Type of `User`'s text status value.
 
   Its values are always considered to be non-empty, and meet the following
   requirements:
-  - be at least 1 and maximum 25 characters long.
+  - be at least 1 and maximum 33 characters long.
 """
 scalar UserTextStatus
 
@@ -2290,6 +2620,14 @@ type AddUserEmailError {
 type AddUserPhoneError {
   "Code indicating why this error has happened."
   code: AddUserPhoneErrorCode!
+}
+
+"Balance of some `BalanceOrigin`."
+type Balance {
+  "`Sum` of this `Balance`."
+  sum: Sum!
+  "Currency of this `Balance`."
+  currency: Currency!
 }
 
 "Error of performing `Mutation.blockUser`."
@@ -2692,6 +3030,12 @@ type ChatCall implements ChatItem {
     moment.
   """
   author: User!
+  """
+    ID of the `ChatItem`s' batch this `ChatCall` is part of.
+
+    Always `null` as `ChatCall`s are never posted in batches.
+  """
+  batchId: ChatItemBatchId
   "Indicator whether this `ChatCall` is intended to start with video."
   withVideo: Boolean!
   """
@@ -2979,6 +3323,12 @@ type ChatForward implements ChatItem {
   "`User` who posted this `ChatForward`."
   author: User!
   """
+    ID of the `ChatItem`s' batch this `ChatForward` is part of.
+
+    `null` if this `ChatForward` is not posted in a batch.
+  """
+  batchId: ChatItemBatchId
+  """
     `ChatItemQuote` of the forwarded `ChatItem`.
 
     Re-forwarding a `ChatForward` is indistinguishable from just forwarding
@@ -3004,6 +3354,12 @@ type ChatInfo implements ChatItem {
   chatId: ChatId!
   "`User` who triggered this `ChatInfo`."
   author: User!
+  """
+    ID of the `ChatItem`s' batch this `ChatInfo` is part of.
+
+    Always `null` as `ChatInfo`s are never posted in batches.
+  """
+  batchId: ChatItemBatchId
   "`ChatInfoAction` taken upon the `Chat`."
   action: ChatInfoAction!
   "`DateTime` when this `ChatInfo` was posted."
@@ -3230,6 +3586,12 @@ type ChatMessage implements ChatItem {
   chatId: ChatId!
   "`User` who posted this `ChatMessage`."
   author: User!
+  """
+    ID of the `ChatItem`s' batch this `ChatMessage` is part of.
+
+    `null` if this `ChatMessage` is not posted in a batch.
+  """
+  batchId: ChatItemBatchId
   "`ChatItemQuote`s of the `ChatItem`s this `ChatMessage` replies to."
   repliesTo: [ChatItemQuote!]!
   "Text of this `ChatMessage`."
@@ -3245,6 +3607,8 @@ type ChatMessage implements ChatItem {
     the `Mutation.postChatMessage` by this `ChatMessage`'s author.
   """
   attachments: [Attachment!]!
+  "`Donation`s attached to this `ChatMessage`."
+  donations: [Donation!]!
   "`DateTime` when this `ChatMessage` was posted."
   at: DateTime!
   """
@@ -3277,6 +3641,11 @@ type ChatMessageQuote implements ChatItemQuote {
     made.
   """
   attachments: [Attachment!]!
+  """
+    `Donation`s the quoted `ChatMessage` had when this `ChatItemQuote` was
+    made.
+  """
+  donations: [Donation!]!
   "`DateTime` when the quoted `ChatMessage` was posted."
   at: DateTime!
 }
@@ -3285,6 +3654,12 @@ type ChatMessageQuote implements ChatItemQuote {
 type ClearChatError {
   "Code indicating why this error has happened."
   code: ClearChatErrorCode!
+}
+
+"Error of performing `Mutation.completeOperationDeposit`."
+type CompleteOperationDepositError {
+  "Code indicating why this error has happened."
+  code: CompleteOperationDepositErrorCode!
 }
 
 "Error of performing `Mutation.createChatContact`."
@@ -3394,6 +3769,12 @@ type DeclineChatCallError {
   code: DeclineChatCallErrorCode!
 }
 
+"Error of performing `Mutation.declineOperationDeposit`."
+type DeclineOperationDepositError {
+  "Code indicating why this error has happened."
+  code: DeclineOperationDepositErrorCode!
+}
+
 "Error of performing `Mutation.deleteChatContactRecord`."
 type DeleteChatContactRecordError {
   "Code indicating why this error has happened."
@@ -3428,6 +3809,46 @@ type DeleteMyUserError {
 type DeleteSessionError {
   "Code indicating why this error has happened."
   code: DeleteSessionErrorCode!
+}
+
+"Donation attached to a `ChatMessage`."
+type Donation {
+  "Unique ID of this `Donation`."
+  id: DonationId!
+  """
+    `Sum` of this `Donation`.
+
+    Guaranteed to not be zero.
+  """
+  amount: Sum!
+  """
+    `Operation` representing this `Donation`.
+
+    ## Result
+
+    One of the following `Operation`s may be returned:
+    - `OperationPurchaseDonation` (if the authenticated `MyUser` is the
+      sender of this `Donation`);
+    - `OperationEarnDonation` (if the authenticated `MyUser` is the
+      receiver of this `Donation`).
+
+    Returns `null` when the authenticated `MyUser` is:
+    - neither sender nor receiver of this `Donation`;
+    - receiver of this `Donation`, but its `ChatItem` is:
+        - not read by him yet;
+        - read, but the corresponding `OperationEarnDonation` hasn't been
+          created yet (a small delay is expected).
+
+    ## Versioning
+
+    This field and the returned `Operation` are versioned by its own
+    `OperationVersion` and not by the `ChatItemVersion` of the `ChatItem`
+    this `Donation` is attached to.
+
+    Changes of this field should be tracked via
+    `Subscription.operationsEvents`.
+  """
+  operation: OperationsEdge
 }
 
 "Error of performing `Mutation.editChatMessage`."
@@ -4170,53 +4591,268 @@ type EventIncomingChatCallsTopChatCallRemoved {
   call: ChatCall!
 }
 
+"Event of an `Operation` being canceled."
+type EventOperationCanceled implements OperationEvent {
+  "ID of the canceled `Operation`."
+  id: OperationId!
+  """
+    `OperationOrigin` of the canceled `Operation`.
+
+    Alias to the `EventOperationCanceled.operation.node.origin` field.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the canceled `Operation`."
+  operation: OperationsEdge!
+  "Information about why the `Operation` was canceled."
+  canceled: OperationCancellation!
+  "`DateTime` when the `Operation` was canceled."
+  at: DateTime!
+}
+
+"Event of a new `OperationCharge` being created."
+type EventOperationChargeCreated implements OperationEvent {
+  "Unique ID of the created `OperationCharge`."
+  id: OperationId!
+  "Sequential number of the created `OperationCharge`."
+  num: OperationNum!
+  """
+    `OperationOrigin` of the created `OperationCharge`.
+
+    Could be either `OperationOrigin.PURSE` or `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the created `OperationCharge`."
+  operation: OperationsEdge!
+  "Money `Sum` and `Currency` of the created `OperationCharge`."
+  amount: Price!
+  "Reason of the `OperationCharge` creation."
+  reason: OperationReason!
+  """
+    `OperationsEdge`s of the `Operation`s the created `OperationCharge` is
+    linked to.
+  """
+  linkedOperations: [OperationsEdge!]!
+  "`DateTime` when the `OperationCharge` was created."
+  at: DateTime!
+}
+
 "Event of a new `OperationDepositBonus` being created."
-type EventOperationDepositBonusCreated {
+type EventOperationDepositBonusCreated implements OperationEvent {
   "Unique ID of the created `OperationDepositBonus`."
   id: OperationId!
   "Sequential number of the created `OperationDepositBonus`."
   num: OperationNum!
-  "`OperationDeposit` the created `OperationDepositBonus` is related to."
+  """
+    `OperationOrigin` of the created `OperationDepositBonus`.
+
+    Always an `OperationOrigin.PURSE`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the created `OperationDepositBonus`."
+  operation: OperationsEdge!
+  "`OperationDeposit` the created `OperationDepositBonus` is linked to."
   deposit: OperationDeposit!
   "Money `Sum` and `Currency` of the created `OperationDepositBonus`."
   amount: Price!
+  """
+    `OperationsEdge` of the `OperationDeposit` this `OperationDepositBonus`
+    is linked to.
+  """
+  linkedOperation: OperationsEdge!
   "`DateTime` when the `OperationDepositBonus` was created."
   at: DateTime!
 }
 
 "Event of an `OperationDeposit` being completed."
-type EventOperationDepositCompleted {
+type EventOperationDepositCompleted implements OperationEvent {
   "ID of the completed `OperationDeposit`."
   id: OperationId!
+  """
+    `OperationOrigin` of the completed `OperationDeposit`.
+
+    Always an `OperationOrigin.PURSE`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the completed `OperationDeposit`."
+  operation: OperationsEdge!
   "`DateTime` when the `OperationDeposit` was completed."
   at: DateTime!
 }
 
 "Event of a new `OperationDeposit` being created."
-type EventOperationDepositCreated {
-  "Unique ID of the created `Operation`."
+type EventOperationDepositCreated implements OperationEvent {
+  "Unique ID of the created `OperationDeposit`."
   id: OperationId!
-  "Sequential `Num` of the created `Operation`."
+  "Sequential number of the created `OperationDeposit`."
   num: OperationNum!
+  """
+    `OperationOrigin` of the created `OperationDeposit`.
+
+    Always an `OperationOrigin.PURSE`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the created `OperationDeposit`."
+  operation: OperationsEdge!
   "Kind of the created `OperationDeposit`."
   kind: OperationDepositKind!
-  "Billing country of the created `OperationDeposit`."
-  billingCountry: CountryCode!
   """
     Pricing of the created `OperationDeposit`.
 
     `null` means that the pricing is not yet determined.
   """
   price: OperationDepositPricing
+  "Billing country of the created `OperationDeposit`."
+  billingCountry: CountryCode!
   "`DateTime` when the `OperationDeposit` was created."
   at: DateTime!
 }
 
+"Event of an `OperationDeposit` being declined."
+type EventOperationDepositDeclined implements OperationEvent {
+  "ID of the declined `OperationDeposit`."
+  id: OperationId!
+  """
+    `OperationOrigin` of the declined `OperationDeposit`.
+
+    Always an `OperationOrigin.PURSE`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the declined `OperationDeposit`."
+  operation: OperationsEdge!
+  "`DateTime` when the `OperationDeposit` was declined."
+  at: DateTime!
+}
+
 "Event of an `OperationDeposit` being failed."
-type EventOperationDepositFailed {
+type EventOperationDepositFailed implements OperationEvent {
   "ID of the failed `OperationDeposit`."
   id: OperationId!
+  """
+    `OperationOrigin` of the failed `OperationDeposit`.
+
+    Always an `OperationOrigin.PURSE`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the failed `OperationDeposit`."
+  operation: OperationsEdge!
   "`DateTime` when the `OperationDeposit` was failed."
+  at: DateTime!
+}
+
+"Event of a new `OperationEarnDonation` being created."
+type EventOperationEarnDonationCreated implements OperationEvent {
+  "Unique ID of the created `OperationEarnDonation`."
+  id: OperationId!
+  "Sequential number of the created `OperationEarnDonation`."
+  num: OperationNum!
+  """
+    Money `Sum` and `Currency` of the created `OperationEarnDonation`.
+
+    `Currency` is always `XXX`.
+  """
+  amount: Price!
+  """
+    `OperationOrigin` of the created `OperationEarnDonation`.
+
+    Always an `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the created `OperationEarnDonation`."
+  operation: OperationsEdge!
+  """
+    `ChatItem` the earned `Donation` is part of.
+
+    `null` if the `ChatItem` was deleted or is unavailable for the
+    authenticated `MyUser`.
+  """
+  chatItem: ChatItemsEdge
+  """
+    `Chat` the related `ChatItem` of the earned `Donation` belongs to.
+
+    Always non-`null` at this moment.
+  """
+  chat: Chat
+  "ID of the `Donation` earned by the created `OperationEarnDonation`."
+  donationId: DonationId!
+  """
+    `User` who made the `Donation` triggering the `OperationEarnDonation`
+    creation.
+  """
+  customer: User!
+  "`DateTime` when the `OperationEarnDonation` was created."
+  at: DateTime!
+}
+
+"Event of a new `OperationGrant` being created."
+type EventOperationGrantCreated implements OperationEvent {
+  "Unique ID of the created `OperationGrant`."
+  id: OperationId!
+  "Sequential number of the created `OperationGrant`."
+  num: OperationNum!
+  """
+    `OperationOrigin` of the created `OperationGrant`.
+
+    Could be either `OperationOrigin.PURSE` or `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the created `OperationGrant`."
+  operation: OperationsEdge!
+  "Money `Sum` and `Currency` of the created `OperationGrant`."
+  amount: Price!
+  "Reason of the `OperationGrant` creation."
+  reason: OperationReason!
+  """
+    `OperationsEdge`s of the `Operation`s the created `OperationGrant` is
+    linked to.
+  """
+  linkedOperations: [OperationsEdge!]!
+  "`DateTime` when the `OperationGrant` was created."
+  at: DateTime!
+}
+
+"Event of a new `OperationPurchaseDonation` being created."
+type EventOperationPurchaseDonationCreated implements OperationEvent {
+  "Unique ID of the created `OperationPurchaseDonation`."
+  id: OperationId!
+  "Sequential number of the created `OperationPurchaseDonation`."
+  num: OperationNum!
+  """
+    Money `Sum` and `Currency` of the created `OperationPurchaseDonation`.
+
+    `Currency` is always `XXX`.
+  """
+  amount: Price!
+  """
+    `OperationOrigin` of the created `OperationPurchaseDonation`.
+
+    Always an `OperationOrigin.PURSE`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the created `OperationPurchaseDonation`."
+  operation: OperationsEdge!
+  """
+    `ChatItem` the made `Donation` is part of.
+
+    `null` if the `ChatItem` was deleted or is unavailable for the
+    authenticated `MyUser`.
+  """
+  chatItem: ChatItemsEdge
+  """
+    `Chat` the related `ChatItem` of the made `Donation` belongs to.
+
+    Always non-`null` at this moment.
+  """
+  chat: Chat
+  "ID of the `Donation` made by the created `OperationPurchaseDonation`."
+  donationId: DonationId!
+  """
+    `Vendor` receiving the `Donation` made by the created
+    `OperationPurchaseDonation`.
+
+    Always a `User`.
+  """
+  vendor: Vendor!
+  "`DateTime` when the `OperationPurchaseDonation` was created."
   at: DateTime!
 }
 
@@ -4505,13 +5141,13 @@ type EventUserPhoneRemoved {
   at: DateTime!
 }
 
-"Event of a `User`'s `Presence` being updated."
+"Event of a `User`'s `UserPresence` being updated."
 type EventUserPresenceUpdated implements UserEvent {
-  "ID of the `User` whose `Presence` was updated."
+  "ID of the `User` whose `UserPresence` was updated."
   userId: UserId!
-  "New `User`'s `Presence`."
-  presence: Presence!
-  "`DateTime` when the `User`'s `Presence` was updated."
+  "New `User`'s `UserPresence`."
+  presence: UserPresence!
+  "`DateTime` when the `User`'s `UserPresence` was updated."
   at: DateTime!
 }
 
@@ -5010,7 +5646,7 @@ type Mutation {
 
     [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
-  createUser("Optional login to create the `MyUser` with." login: UserLogin, "Optional password to create the `MyUser` with." password: UserPassword): CreateUserResult!
+  createUser("Optional login to create the `MyUser` with." login: UserLogin, "Optional password to create the `MyUser` with." password: UserPassword, "Optional affiliation of the created `MyUser`." affiliate: UserAffiliationInput): CreateUserResult!
   """
     Adds a new `email` address for the authenticated `MyUser`.
 
@@ -5475,7 +6111,7 @@ type Mutation {
     Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
     `MyUser` has the provided `presence` value already.
   """
-  updateUserPresence("`Presence` to update `MyUser` with." presence: Presence!): MyUserEventsVersioned
+  updateUserPresence("`UserPresence` to update `MyUser` with." presence: UserPresence!): MyUserEventsVersioned
   """
     Updates or resets the `MyUser.status` field of the authenticated
     `MyUser`.
@@ -5655,7 +6291,7 @@ type Mutation {
     `MyUserIdentifier` of the `MyUser` to create the `Session` for.
 
     Exactly one should be specified.
-  """ ident: MyUserIdentifier!, "`MyUserCredentials` to authenticate with." credentials: MyUserCredentials!): CreateSessionResult!
+  """ ident: MyUserIdentifier!, "`MyUserCredentials` to authenticate with." credentials: MyUserCredentials!, "Optional affiliation of the created `MyUser`, if he will be created." affiliate: UserAffiliationInput): CreateSessionResult!
   """
     Refreshes a `Session` of the `MyUser` identified by the provided
     `RefreshTokenSecret`.
@@ -6077,7 +6713,11 @@ type Mutation {
     Each time creates a new unique `ChatMessage`, producing a new
     `ChatEvent`.
   """
-  postChatMessage("ID of the `Chat` to post a new `ChatMessage` in." chatId: ChatId!, "Optional text of the posted `ChatMessage`. If not specified then `attachments` argument must be specified and non-empty." text: ChatMessageText, "Optional IDs of `Attachment`s to be attached to the posted `ChatMessage`. If not specified or empty then `text` argument must be specified." attachments: [AttachmentId!], "IDs of the `ChatItem`s that the posted `ChatMessage` is replying to. The replied `ChatItem`s may belong to the current `Chat` only." repliesTo: [ChatItemId!]!): PostChatMessageResult!
+  postChatMessage("ID of the `Chat` to post a new `ChatMessage` in." chatId: ChatId!, "Optional text of the posted `ChatMessage`. If not specified then `attachments` argument must be specified and non-empty." text: ChatMessageText, "Optional IDs of `Attachment`s to be attached to the posted `ChatMessage`. If not specified or empty then `text` argument must be specified." attachments: [AttachmentId!], "IDs of the `ChatItem`s that the posted `ChatMessage` is replying to. The replied `ChatItem`s may belong to the current `Chat` only." repliesTo: [ChatItemId!]!, """
+    Optional `Donation` to be attached to the posted `ChatMessage`.
+
+    `Donation`s are allowed in dialog `Chat`s only.
+  """ donation: DonationInput): PostChatMessageResult!
   """
     Updates the `WelcomeMessage` of the authenticated `MyUser`.
 
@@ -6207,13 +6847,18 @@ type Mutation {
     Deletes the specified `ChatMessage` posted by the authenticated
     `MyUser`.
 
-    `ChatMessage` is allowed to be deleted only when it's not read by any
-    other `Chat` member and neither forwarded, nor replied. Once deleted,
-    `ChatMessage` is not visible for anyone in the `Chat`.
+    `ChatMessage` is allowed to be deleted only if it:
+    - hasn't been read by any other `ChatMember` yet;
+    - has been read by other `ChatMember`, but:
+        - doesn't contain any paid content;
+        - and 5 minutes haven't passed since its posting time
+          (`ChatMessage.at` field).
 
-    If this mutation returns `READ` (or `QUOTED`) error, use
+    Once deleted, `ChatMessage` is not visible for anyone in the `Chat`.
+
+    If this mutation returns `UNEDITABLE` (or `QUOTED`) error, use the
     `Mutation.hideChatItem` to "remove" the `ChatMessage` for the
-    authenticated `MyUser`.
+    authenticated `MyUser` only.
 
     ## Authentication
 
@@ -6235,8 +6880,12 @@ type Mutation {
     `text`/`attachments`/`repliesTo` (at least one of three must be
     specified).
 
-    `ChatMessage` is allowed to be edited within 5 minutes since its
-    creation __or__ if it hasn't been read by any other `Chat` member yet.
+    `ChatMessage` is allowed to be edited only if it:
+    - hasn't been read by any other `ChatMember` yet;
+    - has been read by other `ChatMember`, but:
+        - doesn't contain any paid content;
+        - and 5 minutes haven't passed since its posting time
+          (`ChatMessage.at` field).
 
     ## Authentication
 
@@ -6291,8 +6940,9 @@ type Mutation {
     visible for other `User`s.
 
     Use this mutation for "deleting" a `ChatItem` for the authenticated
-    `MyUser` in `Chat`'s UI in case `Mutation.deleteChatMessage` (or
-    `Mutation.deleteChatForward`) returns `READ` (or `QUOTED`) error.
+    `MyUser` only in `Chat`'s UI in case the `Mutation.deleteChatMessage`
+    (or `Mutation.deleteChatForward`) returns `UNEDITABLE` (or `QUOTED`)
+    error.
 
     ## Authentication
 
@@ -6315,15 +6965,20 @@ type Mutation {
 
     Supported `ChatItem`s are `ChatMessage` and `ChatForward`.
 
-    If `text` or `attachments` argument is specified, then the forwarded
-    `ChatItem`s will be followed with a posted `ChatMessage` containing that
-    text and/or attachments.
+    If the `message` argument is specified, then the forwarded `ChatItem`s
+    will be followed with a posted `ChatMessage` containing the specified
+    `message.text`, `message.attachments` and/or `message.donation`.
 
     When re-forwarding a `ChatForward`, the `ChatItemQuoteInput` arguments
     should be filled, as operation is performed on the inner `ChatMessage`.
     This allows to re-forward only part of the existing `ChatForward`.
     Re-forwarding a `ChatForward` is indistinguishable from just forwarding
     its inner `ChatMessage` (`ChatItemQuote` depth will still be just 1).
+
+    The forwarded `ChatItem`s, along with the posted `ChatMessage` (if any),
+    will have its `ChatItem.batchId` field set to the same non-`null` value,
+    indicating that all these `ChatItem`s belong to the same forwarded
+    batch.
 
     The maximum number of forwarded `ChatItem`s at once is 100.
 
@@ -6340,18 +6995,25 @@ type Mutation {
 
     Each time posts a new `ChatForward`.
   """
-  forwardChatItems("ID of the `Chat` to forward `ChatItem`s from." from: ChatId!, "ID of the `Chat` to forward `ChatItem`s into." to: ChatId!, "Quotes of the `ChatItem`s to be forwarded." items: [ChatItemQuoteInput!]!, "Optional text to post a `ChatMessage` along with the forwarded `ChatItem`s." text: ChatMessageText, "Optional IDs of `Attachment`s to be attached to the `ChatMessage` posted along with the forwarded `ChatItem`s." attachments: [AttachmentId!]): ForwardChatItemsResult!
+  forwardChatItems("ID of the `Chat` to forward `ChatItem`s from." from: ChatId!, "ID of the `Chat` to forward `ChatItem`s into." to: ChatId!, "Quotes of the `ChatItem`s to be forwarded." items: [ChatItemQuoteInput!]!, """
+    Optional `ChatMessage` to be posted along with the forwarded `ChatItem`s.
+
+    If all fields are not specified or `null`, then no `ChatMessage` will be posted.
+  """ message: ForwardChatItemsMessageInput): ForwardChatItemsResult!
   """
     Deletes the specified `ChatForward` posted by the authenticated
     `MyUser`.
 
-    `ChatForward` is allowed to be deleted only when it's not read by any
-    other `Chat` member and neither forwarded, nor replied. Once deleted,
-    `ChatForward` is not visible for anyone in the `Chat`.
+    `ChatForward` is allowed to be deleted only if it:
+    - hasn't been read by any other `ChatMember` yet;
+    - has been read by other `ChatMember`, but 5 minutes haven't passed
+      since its posting time (`ChatForward.at` field).
 
-    If this mutation returns `READ` (or `QUOTED`) error, use
+    Once deleted, `ChatForward` is not visible for anyone in the `Chat`.
+
+    If this mutation returns `UNEDITABLE` (or `QUOTED`) error, use the
     `Mutation.hideChatItem` to "remove" the `ChatForward` for the
-    authenticated `MyUser`.
+    authenticated `MyUser` only.
 
     ## Authentication
 
@@ -7001,9 +7663,9 @@ type Mutation {
     [`Accept-Language` HTTP header][3], which will localize notifications to
     that device using the [best match][4] of the supported locales.
 
-    In order to change the locale of the device, you should re-register it
-    supplying the desired locale (use `Mutation.unregisterPushDevice`, and
-    then `Mutation.registerPushDevice` once again).
+    In order to change the locale or `PushDeviceSettings` of the device, it
+    should be re-registered (use `Mutation.unregisterPushDevice`, and then
+    `Mutation.registerPushDevice` once again).
 
     ## Authentication
 
@@ -7029,7 +7691,7 @@ type Mutation {
     [3]: https://developer.mozilla.org/docs/Web/HTTP/Headers/Accept-Language
     [4]: https://www.ietf.org/rfc/rfc4647.html#section-3.3
   """
-  registerPushDevice("Token of the device to register." token: PushDeviceToken!): RegisterPushDeviceErrorCode
+  registerPushDevice("Token of the device to register." token: PushDeviceToken!, "Settings of the push device to register with." settings: PushDeviceSettings! = {cancellation: false}): RegisterPushDeviceErrorCode
   """
     Unregisters a device (Android, iOS, or Web) from receiving push
     notifications.
@@ -7037,10 +7699,6 @@ type Mutation {
     ## Authentication
 
     Mandatory.
-
-    ## Result
-
-    Always returns `true` on success.
 
     ## Idempotent
 
@@ -7062,6 +7720,52 @@ type Mutation {
     Each time creates a new unique `OperationDeposit`.
   """
   createOperationDeposit("Kind of the created `OperationDeposit`." kind: OperationDepositInput!, "Billing `CountryCode` of the created `OperationDeposit`." billingCountry: CountryCode!): CreateOperationDepositResult!
+  """
+    Completes an `OperationDeposit`.
+
+    ## Authentication
+
+    Mandatory if the `secret` argument is not specified (or is `null`).
+
+    ## Result
+
+    One of the following `OperationEvent`s may be produced on success:
+    - `EventOperationDepositCompleted`;
+    - `EventOperationDepositFailed`.
+
+    ## Idempotent
+
+    Succeeds as no-op (and returns no `OperationEvent`) if the
+    `OperationDeposit` with the specified `id` is completed or failed
+    already.
+  """
+  completeOperationDeposit("ID of the `OperationDeposit` to complete." id: OperationId!, """
+    Secret to authenticate the `OperationDeposit` completion.
+
+    If absent or `null` then authentication is mandatory.
+  """ secret: OperationDepositSecret): CompleteOperationDepositResult
+  """
+    Declines an `OperationDeposit`.
+
+    ## Authentication
+
+    Mandatory if the `secret` argument is not specified (or is `null`).
+
+    ## Result
+
+    Only the following `OperationEvent` may be produced on success:
+    - `EventOperationDepositDeclined`.
+
+    ## Idempotent
+
+    Succeeds if the `OperationDeposit` with the specified `id` is declined
+    already.
+  """
+  declineOperationDeposit("ID of the `OperationDeposit` to decline." id: OperationId!, """
+    Secret to authenticate the `OperationDeposit` decline.
+
+    If absent or `null` then authentication is mandatory.
+  """ secret: OperationDepositSecret): DeclineOperationDepositResult
 }
 
 "Forever mute duration."
@@ -7098,14 +7802,14 @@ type MyUser {
   """
     Unique number of this `MyUser`.
 
-    `num` is intended for an easier `MyUser` identification by other
-    `User`s. It's just like a telephone number in a real life.
+    `num` is intended for easier `MyUser` identification by other `User`s.
+    It's just like a telephone number in a real life.
 
     `num` allows `MyUser` to perform a sign-in, when combined with a
     password.
 
-    It may be reused by another `User` in future, once this `MyUser` becomes
-    unreachable (sign-in for this `MyUser` is impossible).
+    It may be reused by another `User` in the future, once this `MyUser`
+    becomes unreachable (sign-in for this `MyUser` is impossible).
   """
   num: UserNum!
   """
@@ -7160,8 +7864,8 @@ type MyUser {
     `Subscription.keepOnline`.
   """
   online: UserOnlineState!
-  "`Presence` of this `MyUser`."
-  presence: Presence!
+  "`UserPresence` of this `MyUser`."
+  presence: UserPresence!
   "Custom text status of this `MyUser`."
   status: UserTextStatus
   """
@@ -7232,6 +7936,21 @@ type MyUser {
   """
   promo: UserPromo
   """
+    Returns the current `Balance` of this `MyUser` in the provided
+    `BalanceOrigin`.
+
+    Alias of the `Query.balance`.
+
+    ## Versioning
+
+    Returned `Balance` is not versioned by the `MyUserVersion` of this
+    `MyUser`.
+
+    Use `Subscription.balanceUpdates` instead of `Subscription.myUserEvents`
+    to be up-to-date with the returned `Balance` changes.
+  """
+  balance("Origin to return the `Balance` of." origin: BalanceOrigin!): Balance!
+  """
     Version of this `MyUser`'s state.
 
     It increases monotonically, so may be used (and is intended to) for
@@ -7259,6 +7978,68 @@ type MyUserEventsVersioned {
   ver: MyUserVersion!
 }
 
+"Information about `Operation`'s cancellation."
+type OperationCancellation {
+  "Code explaining why the `Operation` was canceled."
+  code: OperationCancellationCode!
+  "Additional reason of why the `Operation` was canceled."
+  reason: OperationCancellationReason
+  "`DateTime` when the `Operation` was canceled."
+  at: DateTime!
+}
+
+"`Operation` of charging money from `MyUser`."
+type OperationCharge implements Operation {
+  "ID of this `OperationCharge`."
+  id: OperationId!
+  "Sequential number of this `OperationCharge`."
+  num: OperationNum!
+  "Status of this `OperationCharge`."
+  status: OperationStatus!
+  """
+    `OperationOrigin` of this `OperationCharge`.
+
+    Could be either `OperationOrigin.PURSE` or `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  """
+    `OperationDirection` of this `OperationCharge`.
+
+    Always an `OperationDirection.OUTGOING`.
+  """
+  direction: OperationDirection!
+  "Money `Sum` and `Currency` of this `OperationCharge`."
+  amount: Price!
+  "Reason of this `OperationCharge`."
+  reason: OperationReason!
+  """
+    `OperationsEdge`s of the `Operation`s this `OperationCharge` is linked
+    to.
+  """
+  linkedOperations: [OperationsEdge!]!
+  """
+    `DateTime` until which this `OperationCharge` is on hold.
+
+    Always `null` as an `OperationCharge` could never be on hold.
+  """
+  holdUntil: DateTime
+  "`DateTime` when this `OperationCharge` was created."
+  createdAt: DateTime!
+  """
+    Information about why this `OperationCharge` was canceled.
+
+    Always `null` as an `OperationCharge` could never be canceled.
+  """
+  canceled: OperationCancellation
+  """
+    Version of the `OperationCharge`'s state.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  ver: OperationVersion!
+}
+
 "`Operation` of depositing money to `MyUser`'s purse."
 type OperationDeposit implements Operation {
   "ID of this `OperationDeposit`."
@@ -7269,20 +8050,63 @@ type OperationDeposit implements Operation {
   kind: OperationDepositKind!
   "Status of this `OperationDeposit`."
   status: OperationStatus!
+  """
+    `OperationOrigin` of this `OperationDeposit`.
+
+    Always an `OperationOrigin.PURSE`.
+  """
+  origin: OperationOrigin!
+  """
+    `OperationDirection` of this `OperationDeposit`.
+
+    Always an `OperationDirection.INCOMING`.
+  """
+  direction: OperationDirection!
   "Country of the billing address of this `OperationDeposit`."
   billingCountry: CountryCode!
   "Nominal `Price` of this `OperationDeposit`."
   amount: Price!
-  "Pricing of this `OperationDeposit`."
+  """
+    Pricing of this `OperationDeposit`.
+
+    `null` if the `DepositPricing` is not determined yet.
+  """
   price: OperationDepositPricing
   """
-    `Invoice` of this `OperationDeposit`.
+    URL to process this `OperationDeposit` on.
 
-    `null` if this `Deposit.status` is not `COMPLETED`.
+    `null` if this `OperationDeposit` doesn't require processing on external
+    URL.
   """
-  invoice: Invoice
+  processingUrl: URL
+  """
+    `InvoiceFile` of this `OperationDeposit`.
+
+    `null` if this `OperationDeposit` is not `OperationStatus.COMPLETED`.
+  """
+  invoice: InvoiceFile
+  """
+    `OperationsEdge`s of the `Operation`s this `OperationDeposit` is linked
+    to.
+
+    Always empty as an `OperationDeposit` cannot be linked to other
+    `Operation`s.
+  """
+  linkedOperations: [OperationsEdge!]!
+  """
+    `DateTime` until which this `OperationDeposit` is on hold.
+
+    Always `null` as an `OperationDeposit` could never be on hold.
+  """
+  holdUntil: DateTime
   "`DateTime` when this `OperationDeposit` was created."
   createdAt: DateTime!
+  """
+    Information about why this `OperationDeposit` was canceled.
+
+    Always `null` as an `OperationDeposit` could never be canceled.
+  """
+  canceled: OperationCancellation
   """
     Version of the `OperationDeposit`'s state.
 
@@ -7303,12 +8127,41 @@ type OperationDepositBonus implements Operation {
   num: OperationNum!
   "Status of this `OperationDepositBonus`."
   status: OperationStatus!
-  "`OperationDeposit` this `OperationDepositBonus` is related to."
+  """
+    `OperationOrigin` of this `OperationDepositBonus`.
+
+    Always an `OperationOrigin.PURSE`.
+  """
+  origin: OperationOrigin!
+  """
+    `OperationDirection` of this `OperationDepositBonus`.
+
+    Always an `OperationDirection.INCOMING`.
+  """
+  direction: OperationDirection!
+  "`OperationDeposit` this `OperationDepositBonus` is linked to."
   deposit: OperationDeposit!
   "Money `Sum` and `Currency` of this `OperationDepositBonus`."
   amount: Price!
+  """
+    `OperationsEdge` of the `OperationDeposit` this `OperationDepositBonus`
+    is linked to.
+  """
+  linkedOperations: [OperationsEdge!]!
+  """
+    `DateTime` until which this `OperationDepositBonus` is on hold.
+
+    Always `null` as an `OperationDepositBonus` cound never be on hold.
+  """
+  holdUntil: DateTime
   "`DateTime` when this `OperationDepositBonus` was created."
   createdAt: DateTime!
+  """
+    Information about why this `OperationDepositBonus` was canceled.
+
+    Always `null` as an `OperationDepositBonus` could never be canceled.
+  """
+  canceled: OperationCancellation
   """
     Version of the `OperationDepositBonus`'s state.
 
@@ -7416,6 +8269,83 @@ type OperationDepositPricing {
   """ currency: Currency): Price
 }
 
+"`Operation` of earning money as a `Vendor` from a made `Donation`."
+type OperationEarnDonation implements Operation {
+  "ID of this `OperationEarnDonation`."
+  id: OperationId!
+  "Sequential number of this `OperationEarnDonation`."
+  num: OperationNum!
+  "Status of this `OperationEarnDonation`."
+  status: OperationStatus!
+  """
+    `OperationOrigin` of this `OperationEarnDonation`.
+
+    Always an `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  """
+    Money `Sum` and `Currency` of this `OperationEarnDonation`.
+
+    `Currency` is always `XXX`.
+  """
+  amount: Price!
+  """
+    `OperationDirection` of this `OperationEarnDonation`.
+
+    Always an `OperationDirection.INCOMING`.
+  """
+  direction: OperationDirection!
+  """
+    `ChatItem` the earned `Donation` is part of.
+
+    `null` if the `ChatItem` was deleted or is unavailable for the
+    authenticated `MyUser`.
+  """
+  chatItem: ChatItemsEdge
+  """
+    `Chat` the related `ChatItem` of the earned `Donation` belongs to.
+
+    Always non-`null` at this moment.
+  """
+  chat: Chat
+  "ID of the `Donation` earned by this `OperationEarnDonation`."
+  donationId: DonationId!
+  "`User` who made the `Donation` triggering this `OperationEarnDonation`."
+  customer: User!
+  """
+    `OperationsEdge`s of the `Operation`s this `OperationEarnDonation` is
+    linked to.
+
+    Always empty as an `OperationEarnDonation` cannot be linked to other
+    `Operation`s.
+  """
+  linkedOperations: [OperationsEdge!]!
+  """
+    `DateTime` until which this `OperationEarnDonation` is on hold.
+
+    If it's less than now, it means that the hold is in process of being
+    lifted yet.
+
+    `null` if this `OperationEarnDonation` is not on hold.
+  """
+  holdUntil: DateTime
+  "`DateTime` when this `OperationEarnDonation` was created."
+  createdAt: DateTime!
+  """
+    Information about why this `OperationEarnDonation` was canceled.
+
+    Always `null` as an `OperationEarnDonation` could never be canceled.
+  """
+  canceled: OperationCancellation
+  """
+    Version of this `OperationEarnDonation`'s state.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  ver: OperationVersion!
+}
+
 "`OperationEvent`s along with the corresponding `OperationVersion`."
 type OperationEventsVersioned {
   "`OperationEvent`s themselves."
@@ -7435,6 +8365,139 @@ type OperationEventsVersioned {
     tracking state's actuality.
   """
   listVer: OperationVersion!
+}
+
+"`Operation` of granting money to `MyUser`."
+type OperationGrant implements Operation {
+  "ID of this `OperationGrant`."
+  id: OperationId!
+  "Sequential number of this `OperationGrant`."
+  num: OperationNum!
+  "Status of this `OperationGrant`."
+  status: OperationStatus!
+  """
+    `OperationOrigin` of this `OperationGrant`.
+
+    Could be either `OperationOrigin.PURSE` or `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  """
+    `OperationDirection` of this `OperationGrant`.
+
+    Always an `OperationDirection.INCOMING`.
+  """
+  direction: OperationDirection!
+  "Money `Sum` and `Currency` of this `OperationGrant`."
+  amount: Price!
+  "Reason of this `OperationGrant`."
+  reason: OperationReason!
+  """
+    `OperationsEdge`s of the `Operation`s this `OperationGrant` is linked
+    to.
+  """
+  linkedOperations: [OperationsEdge!]!
+  """
+    `DateTime` until which this `OperationGrant` is on hold.
+
+    If it's less than now, it means that the hold is in process of being
+    lifted yet.
+
+    `null` if this `OperationGrant` is not on hold.
+  """
+  holdUntil: DateTime
+  "`DateTime` when this `OperationGrant` was created."
+  createdAt: DateTime!
+  """
+    Information about why this `OperationGrant` was canceled.
+
+    Always `null` as an `OperationGrant` could never be canceled.
+  """
+  canceled: OperationCancellation
+  """
+    Version of the `OperationGrant`'s state.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  ver: OperationVersion!
+}
+
+"`Operation` of making a `Donation` by a `User` to some `Vendor`."
+type OperationPurchaseDonation implements Operation {
+  "ID of this `OperationPurchaseDonation`."
+  id: OperationId!
+  "Sequential number of this `OperationPurchaseDonation`."
+  num: OperationNum!
+  "Status of this `OperationPurchaseDonation`."
+  status: OperationStatus!
+  """
+    `OperationOrigin` of this `OperationPurchaseDonation`.
+
+    Always an `OperationOrigin.PURSE`.
+  """
+  origin: OperationOrigin!
+  """
+    Money `Sum` and `Currency` of this `OperationPurchaseDonation`.
+
+    `Currency` is always `XXX`.
+  """
+  amount: Price!
+  """
+    `OperationDirection` of this `OperationPurchaseDonation`.
+
+    Always an `OperationDirection.OUTGOING`.
+  """
+  direction: OperationDirection!
+  """
+    `ChatItem` the made `Donation` is part of.
+
+    `null` if the `ChatItem` was deleted or is unavailable for the
+    authenticated `MyUser`.
+  """
+  chatItem: ChatItemsEdge
+  """
+    `Chat` the related `ChatItem` of the made `Donation` belongs to.
+
+    Always non-`null` at this moment.
+  """
+  chat: Chat
+  "ID of the `Donation` made by this `OperationPurchaseDonation`."
+  donationId: DonationId!
+  """
+    `Vendor` receiving the `Donation` made by this
+    `OperationPurchaseDonation`.
+
+    Always a `User`.
+  """
+  vendor: Vendor!
+  """
+    `OperationsEdge`s of the `Operation`s this `OperationPurchaseDonation`
+    is linked to.
+
+    Always empty as an `OperationPurchaseDonation` cannot be linked to other
+    `Operation`s.
+  """
+  linkedOperations: [OperationsEdge!]!
+  """
+    `DateTime` until which this `OperationPurchaseDonation` is on hold.
+
+    Always `null` as an `OperationPurchaseDonation` could never be on hold.
+  """
+  holdUntil: DateTime
+  "`DateTime` when this `OperationPurchaseDonation` was created."
+  createdAt: DateTime!
+  """
+    Information about why this `OperationPurchaseDonation` was canceled, if
+    it was.
+  """
+  canceled: OperationCancellation
+  """
+    Version of the `OperationPurchaseDonation`'s state.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  ver: OperationVersion!
 }
 
 """
@@ -8359,10 +9422,17 @@ type Query {
     If absent or `null` then the `PromoShare`s of the authenticated `MyUser` will be returned.
   """ ownerId: UserId, "Pagination arguments to return the `PromoShare`s by." pagination: PromoShareHistoryPagination): PromoShareHistoryConnection
   """
+    Returns an `OperationsEdge` of an `Operation` by its
+    `OperationIdentifier`.
+
+    ## Authentication
+
+    Mandatory.
+  """
+  operation("Identifier of the `Operation` to return." by: OperationIdentifier!): OperationsEdge
+  """
     Returns `Operation`s filtered by the provided criteria in the provided
     `OperationOrigin`.
-
-    Exactly one of `by` argument's fields must be specified (be non-`null`).
 
     Searching `by.id` or `by.num` is exact.
 
@@ -8382,29 +9452,9 @@ type Query {
       returned.
     - Otherwise, the returned `Operation`s are sorted by their
       `OperationNum` in descending order.
-
-    ## Pagination
-
-    It's allowed to specify both `first` and `last` counts at the same time,
-    provided that `after` and `before` cursors are equal. In such case the
-    returned page will include the `Operation` pointed by the cursor and the
-    requested count of `Operation`s preceding and following it.
-
-    If it's desired to receive the `Operation`, pointed by the cursor,
-    without querying in both directions, one can specify `first` or `last`
-    count as `0`.
-
-    If no arguments are provided, then `first` parameter will be considered
-    as `50`.
-
-    `after` and `before` cursors are only meaningful once other
-    non-`pagination` arguments remain the same between queries. Trying to
-    query a page of some filtered entries with a cursor pointing to a page
-    of totally different filtered entries is nonsense and will produce an
-    invalid result (usually returning nothing).
   """
   operations("Origin to return `Operation`s from." origin: OperationOrigin!, "Filter to search `Operation`s by." by: OperationsFilter, """
-    Pagination arguments to return the `Operation`s by.
+    Arguments for pagination over returned `Operation`s.
 
     Does nothing if the `by.id` or `by.num` argument is specified.
   """ pagination: OperationsPagination): OperationsConnection!
@@ -8429,6 +9479,15 @@ type Query {
     Mandatory.
   """
   operationDepositPricing("Kind of the `OperationDeposit` to return the `OperationDepositPricing` for." kind: OperationDepositKind!, "`CountryCode` to return the `OperationDepositPricing` for." country: CountryCode!): OperationDepositPricing
+  """
+    Returns the current `Balance` of the authenticated `MyUser` in the
+    provided `BalanceOrigin`.
+
+    ## Authentication
+
+    Mandatory.
+  """
+  balance("Origin to return the `Balance` of." origin: BalanceOrigin!): Balance!
 }
 
 "Error of performing `Mutation.readChat`."
@@ -8579,6 +9638,8 @@ type RenameChatError {
 type Session {
   "Unique ID of this `Session`."
   id: SessionId!
+  "`SiteDomain` of the `Site` this `Session` was created on."
+  siteDomain: SiteDomain!
   "`UserAgent` of the device, that used this `Session` last time."
   userAgent: UserAgent!
   "`IP` of the device, that used this `Session` last time."
@@ -8625,7 +9686,7 @@ type SessionEventsVersioned {
   listVer: SessionsListVersion!
 }
 
-"Represents `Session`s list of authenticated `MyUser`."
+"Represents `Session`s list of a `User`."
 type SessionsList {
   """
     List of `Session`s.
@@ -9428,6 +10489,47 @@ type Subscription {
 
     If omitted (or is `null`) then an initial state of the `Operations` will be emitted after `SubscriptionInitialized` and before any other `OperationEvent`s.
   """ ver: OperationVersion): OperationsEvents!
+  """
+    Subscribes to `Balance` updates of the authenticated `MyUser` in the
+    provided `BalanceOrigin`.
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Initialization
+
+    Once this subscription is initialized completely, it immediately emits
+    `SubscriptionInitialized`.
+
+    If nothing has been emitted for a long period of time after establishing
+    this subscription (while not being completed), it should be considered
+    as an unexpected server error. This fact can be used on a client side to
+    decide whether this subscription has been initialized successfully.
+
+    ## Result
+
+    Initial `Balance` will be emitted after `SubscriptionInitialized`. This
+    allows to skip calling `Query.balance` before establishing this
+    subscription.
+
+    ## Completion
+
+    Infinite.
+
+    Completes requiring a re-subscription when:
+    - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
+    - An error occurs on the server (error is emitted).
+    - The server is shutting down or becoming unreachable (unexpectedly
+      completes after initialization).
+
+    ## Idempotency
+
+    Emits only changed `Balance` against the previously emitted one, so a
+    client side is expected to handle all the updates idempotently using the
+    same logic.
+  """
+  balanceUpdates("Origin of the `Balance` to subscribe to." origin: BalanceOrigin!): BalanceUpdate!
 }
 
 """
@@ -9573,11 +10675,11 @@ type User {
   """
     Unique number of this `User`.
 
-    `num` is intended for an easier `User` identification by other `User`s.
+    `num` is intended for easier `User` identification by other `User`s.
     It's just like a telephone number in a real life.
 
-    It may be reused by another `User` in future, once this `User` becomes
-    unreachable (sign-in for this `User` is impossible).
+    It may be reused by another `User` in the future, once this `User`
+    becomes unreachable (sign-in for this `User` is impossible).
   """
   num: UserNum!
   """
@@ -9632,11 +10734,11 @@ type User {
   """
   online: UserOnlineState
   """
-    `Presence` of this `User`.
+    `UserPresence` of this `User`.
 
-    Returns `null` if this `User` hid his `Presence`.
+    Returns `null` if this `User` hid his `UserPresence`.
   """
-  presence: Presence
+  presence: UserPresence
   "Custom text status of this `User`."
   status: UserTextStatus
   "Indicator whether this `User` is deleted."
@@ -9741,13 +10843,13 @@ type UserCallCover {
   square: ImageFile!
 }
 
-"List of `UserEmail` addresses associated with a `MyUser`."
+"List of `UserEmail` addresses associated with a `User`."
 type UserEmails {
   """
     List of already confirmed `UserEmail` addresses.
 
     Any `confirmed` `UserEmail` address can be used in combination with
-    `password` to sign-in a `MyUser`.
+    `password` to sign in a `MyUser`.
 
     All `confirmed` `UserEmail` addresses can be used for a `password`
     recovery.
@@ -9986,6 +11088,9 @@ union AddUserEmailResult = MyUserEventsVersioned | AddUserEmailError
 "Result of performing `Mutation.addUserPhone`."
 union AddUserPhoneResult = MyUserEventsVersioned | AddUserPhoneError
 
+"Updates emitted by `Subscription.balanceUpdates`."
+union BalanceUpdate = SubscriptionInitialized | Balance
+
 "Result of performing `Mutation.blockUser`."
 union BlockUserResult = BlocklistEventsVersioned | BlockUserError
 
@@ -10012,6 +11117,9 @@ union ChatMembersDialed = ChatMembersDialedAll | ChatMembersDialedConcrete
 
 "Result of performing `Mutation.clearChat`."
 union ClearChatResult = ChatEventsVersioned | ClearChatError
+
+"Result of performing `Mutation.completeOperationDeposit`."
+union CompleteOperationDepositResult = OperationEventsVersioned | CompleteOperationDepositError
 
 "Result of performing `Mutation.createChatContactRecord`."
 union CreateChatContactRecordResult = ChatContactEventsVersioned | CreateChatContactRecordError
@@ -10042,6 +11150,9 @@ union CreateUserResult = CreateSessionOk | CreateUserError
 
 "Result of performing `Mutation.declineChatCall`."
 union DeclineChatCallResult = ChatEventsVersioned | DeclineChatCallError
+
+"Result of performing `Mutation.declineOperationDeposit`."
+union DeclineOperationDepositResult = OperationEventsVersioned | DeclineOperationDepositError
 
 "Result of performing `Mutation.deleteChatContactRecord`."
 union DeleteChatContactRecordResult = ChatContactEventsVersioned | DeleteChatContactRecordError
@@ -10102,9 +11213,6 @@ union MyUserEvents = SubscriptionInitialized | MyUser | MyUserEventsVersioned
 
 "Criterion of `OperationDepositKind` availability for `CountryCode`s."
 union OperationDepositKindCriteriaCountry = OperationDepositKindCriteriaCountryExcept | OperationDepositKindCriteriaCountryOnly
-
-"Events happening with an `Operation`."
-union OperationEvent = EventOperationDepositCompleted | EventOperationDepositCreated | EventOperationDepositFailed | EventOperationDepositBonusCreated
 
 "Events emitted by `Subscription.operationsEvents`."
 union OperationsEvents = SubscriptionInitialized | OperationsList | OperationEventsVersioned
@@ -10210,3 +11318,6 @@ union UserEvents = SubscriptionInitialized | User | UserEventsVersioned | IsBloc
 
 "Online state of a `User`."
 union UserOnlineState = UserOnline | UserOffline
+
+"Vendor providing services or goods."
+union Vendor = User

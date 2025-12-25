@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
@@ -196,7 +196,7 @@ class HomeController extends GetxController {
       _settings.setSideBarWidth(sideBarWidth.value);
 
   /// Sets the [MyUser.presence] to the provided value.
-  Future<void> setPresence(Presence presence) =>
+  Future<void> setPresence(UserPresence presence) =>
       _myUserService.updateUserPresence(presence);
 
   /// Toggles the [MyUser.muted] status.

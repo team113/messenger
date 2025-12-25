@@ -11,12 +11,11 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.6.14...v0.7.0) | [Milestone](/../../milestone/59)
 
-### Changed
+### Fixed
 
-- Deployment:
-    - Upgraded to 0.7 backend version. ([#1563])
+- Authorization sometimes being lost on some devices. ([#1564])
 
-[#1563]: /../../pull/1563
+[#1564]: /../../pull/1564
 
 
 

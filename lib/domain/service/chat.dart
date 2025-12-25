@@ -329,7 +329,7 @@ class ChatService extends DisposableService {
 
         if (me != null && chat?.isRead(item, me!) == true) {
           throw const DeleteChatMessageException(
-            DeleteChatMessageErrorCode.read,
+            DeleteChatMessageErrorCode.uneditable,
           );
         }
       }
@@ -345,7 +345,7 @@ class ChatService extends DisposableService {
 
         if (me != null && chat?.isRead(item, me!) == true) {
           throw const DeleteChatForwardException(
-            DeleteChatForwardErrorCode.read,
+            DeleteChatForwardErrorCode.uneditable,
           );
         }
       }

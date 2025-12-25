@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/avatar.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
@@ -446,12 +446,12 @@ class EventUserPhoneRemoved extends MyUserEvent {
   int get hashCode => phone.hashCode;
 }
 
-/// Event of an [MyUser]'s [Presence] being updated.
+/// Event of an [MyUser]'s [UserPresence] being updated.
 class EventUserPresenceUpdated extends MyUserEvent {
   const EventUserPresenceUpdated(super.userId, this.presence);
 
-  /// New [MyUser]'s [Presence].
-  final Presence presence;
+  /// New [MyUser]'s [UserPresence].
+  final UserPresence presence;
 
   @override
   MyUserEventKind get kind => MyUserEventKind.presenceUpdated;

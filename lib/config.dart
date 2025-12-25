@@ -37,7 +37,7 @@ class Config {
   static int port = 80;
 
   /// GraphQL API endpoint of HTTP backend server.
-  static String graphql = '/api/graphql';
+  static String graphql = '/api/graphql/v1';
 
   /// Backend's WebSocket URL.
   static String ws = 'ws://localhost';
