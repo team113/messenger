@@ -319,10 +319,10 @@ class Credentials {
 
 /// [RefreshTokenSecretInput] and [AccessTokenSecretInput].
 class RefreshSessionSecrets {
-  RefreshSessionSecrets._(this.refresh, this.access);
+  RefreshSessionSecrets(this.refresh, this.access);
 
   factory RefreshSessionSecrets.generate() {
-    return RefreshSessionSecrets._(
+    return RefreshSessionSecrets(
       RefreshTokenSecretInput(
         base64Encode(List.generate(32, (_) => Random.secure().nextInt(255))),
       ),
