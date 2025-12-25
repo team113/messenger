@@ -548,7 +548,7 @@ class UserTextStatus extends NewType<String> {
   const UserTextStatus._(super.val);
 
   UserTextStatus(String val) : super(val) {
-    if (val.length > 25) {
+    if (val.length > 33) {
       throw const FormatException('Must contain no more than 25 characters');
     } else if (val.isEmpty) {
       throw const FormatException('Must not be empty');

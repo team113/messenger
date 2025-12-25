@@ -429,7 +429,7 @@ class AccountsSwitcherView extends StatelessWidget {
                       style: style.fonts.small.regular.onBackground,
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       maxLines: 1,
-                      formatters: [LengthLimitingTextInputFormatter(25)],
+                      formatters: [LengthLimitingTextInputFormatter(33)],
                     ),
                   ),
                 ],
