@@ -22,7 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -132,7 +132,8 @@ class AvatarWidget extends StatelessWidget {
             contact.contact.value.users.length == 1 &&
             contact.user.value?.user.value.online == true,
         isAway:
-            badge && contact.user.value?.user.value.presence == Presence.away,
+            badge &&
+            contact.user.value?.user.value.presence == UserPresence.away,
         avatar: contact.user.value?.user.value.avatar,
         title: contact.contact.value.name.val,
         color: contact.user.value == null
@@ -156,7 +157,7 @@ class AvatarWidget extends StatelessWidget {
   }) => AvatarWidget(
     key: key,
     isOnline: badge && myUser?.online == true,
-    isAway: badge && myUser?.presence == Presence.away,
+    isAway: badge && myUser?.presence == UserPresence.away,
     avatar: myUser?.avatar,
     title: myUser?.name?.val ?? myUser?.num.toString(),
     color: myUser?.num.val.sum(),
@@ -214,7 +215,7 @@ class AvatarWidget extends StatelessWidget {
       () => AvatarWidget(
         key: key,
         isOnline: badge && user.user.value.online == true,
-        isAway: badge && user.user.value.presence == Presence.away,
+        isAway: badge && user.user.value.presence == UserPresence.away,
         avatar: user.user.value.avatar,
         title: user.title(withDeletedLabel: false),
         color: user.user.value.num.val.sum(),
@@ -302,7 +303,7 @@ class AvatarWidget extends StatelessWidget {
         isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
         isAway:
             chat.chat.value.isDialog &&
-            user?.user.value.presence == Presence.away,
+            user?.user.value.presence == UserPresence.away,
         avatar: chat.avatar.value,
         title: chat.title(withDeletedLabel: false),
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),

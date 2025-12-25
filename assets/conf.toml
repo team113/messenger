@@ -22,7 +22,7 @@
 # GraphQL API endpoint of HTTP backend server.
 #
 # Default:
-#   graphql = "/api/graphql"
+#   graphql = "/api/graphql/v1"
 
 [server.ws]
 # URL address of WebSocket backend server.

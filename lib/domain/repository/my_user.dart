@@ -19,7 +19,7 @@ import 'package:get/get.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 
-import '/api/backend/schema.dart' show Presence, CropAreaInput;
+import '/api/backend/schema.dart' show UserPresence, CropAreaInput;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -65,7 +65,7 @@ abstract class AbstractMyUserRepository {
   Future<void> updateUserLogin(UserLogin? login);
 
   /// Updates [MyUser.presence] to the provided value.
-  Future<void> updateUserPresence(Presence presence);
+  Future<void> updateUserPresence(UserPresence presence);
 
   /// Updates the [WelcomeMessage] of the authenticated [MyUser].
   Future<void> updateWelcomeMessage({
