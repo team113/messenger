@@ -1071,6 +1071,7 @@ class AuthService extends DisposableService {
     final UserId? id = userId;
     if (id != null) {
       _credentialsProvider.delete(id);
+      _secretProvider.delete(id);
       _refreshTimers.remove(id)?.cancel();
       accounts.remove(id);
       WebUtils.removeCredentials(id);

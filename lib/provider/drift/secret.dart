@@ -43,15 +43,27 @@ class RefreshSecretDriftProvider extends DriftProviderBase {
   /// and writes to the database the new secrets.
   Future<RefreshSessionSecrets> getOrCreate(UserId userId) async {
     final result = await safe((db) async {
-      final row = await db
-          .into(db.refreshSecrets)
-          .insertReturning(
-            RefreshSessionSecrets.generate().toDb(userId),
-            mode: InsertMode.insertOrIgnore,
-          );
+      return await db.transaction(() async {
+        final stmt = db.select(db.refreshSecrets)
+          ..where((e) => e.userId.equals(userId.val));
+        final existing = await stmt.getSingleOrNull();
 
-      return _RefreshSessionSecretsDb.fromDb(row);
-    }, tag: 'lock.clear()');
+        if (existing != null) {
+          return _RefreshSessionSecretsDb.fromDb(existing);
+        }
+
+        final secrets = RefreshSessionSecrets.generate().toDb(userId);
+        final row = await db
+            .into(db.refreshSecrets)
+            .insertReturning(
+              secrets,
+              mode: InsertMode.insert,
+              onConflict: DoUpdate((_) => secrets),
+            );
+
+        return _RefreshSessionSecretsDb.fromDb(row);
+      });
+    }, tag: 'refresh_secrets.getOrCreate($userId)');
 
     return result ?? RefreshSessionSecrets.generate();
   }
