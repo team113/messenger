@@ -4,6 +4,10 @@
 
 version: "2.4"
 
+networks:
+  default:
+    driver: bridge
+
 services:
   frontend:
     container_name: ${COMPOSE_PROJECT_NAME}-frontend
@@ -12,7 +16,7 @@ services:
       context: .
     depends_on: ["backend", "baza-server"]
     ports:
-      - 80:80        # nginx http
+      - 80:80  # nginx http
     volumes:
       - ./assets/conf.toml:/var/www/conf.toml:ro,Z
       - ./build/web/:/var/www/public/:ro,Z
@@ -24,6 +28,10 @@ services:
     depends_on:
       cockroachdb:
         condition: service_healthy
+      tigerbeetle:
+        condition: service_healthy
+      vault:
+        condition: service_healthy
       baza-storage:
         condition: service_started
       mailhog:
@@ -31,6 +39,7 @@ services:
     environment:
       CONF.MODE.DEBUG: "true"
       CONF.DB.COCKROACHDB.HOST: cockroachdb
+      CONF.DB.TIGERBEETLE.ADDRESSES[0]: 127.0.0.1:3030
       CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST.STUN.MAIN: 127.0.0.1:3478
       CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST.TURN.MAIN: 127.0.0.1:3478
       CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.HTTP.PUBLIC_URL: ws://localhost/api/medea/ws
@@ -43,6 +52,9 @@ services:
       CONF.PUSH.APNS.PRIVATE_KEY: ${COMPOSE_PUSH_APNS_PRIVATE_KEY}
       CONF.STORAGE.FILE.S3.HOST: baza-storage
       CONF.SMTP.HOST: mailhog
+      CONF.VAULT.HASHICORP.URL: http://vault:8200
+    security_opt:
+      - seccomp=unconfined  # required for TigerBeetle to use `io_uring` on CI
     ports:
       - 3478:3478                # backend medea stun tcp
       - 3478:3478/udp            # backend medea stun udp
@@ -87,6 +99,28 @@ services:
     environment:
       DATABASE_URL: postgres://root@127.0.0.1:26257/defaultdb?sslmode=disable
     network_mode: service:cockroachdb
+  tigerbeetle:
+    container_name: ${COMPOSE_PROJECT_NAME}-tigerbeetle
+    image: ${COMPOSE_TIGERBEETLE}
+    command: ["start", "--addresses=0.0.0.0:3030", "/data/0_0.tigerbeetle"]
+    cap_add:
+      - IPC_LOCK            # required for TigerBeetle to lock memory on CI
+    security_opt:
+      - seccomp=unconfined  # required for TigerBeetle to use `io_uring` on CI
+    ports:
+      - 3030:3030  # tigerbeetle
+    volumes:
+      - ./.cache/tigerbeetle/data/:/data/
+    healthcheck:
+      # NOTE: We're using `grep` here because `tigerbeetle` can't handle `help`
+      #       command and loops execution.
+      test: /tigerbeetle repl --addresses=0.0.0.0:3030 --cluster=0
+                              --command="lookup_accounts"
+                              2>&1
+            | grep " connected "
+      interval: 3s
+      timeout: 3s
+      retries: 5
   vault:
     container_name: ${COMPOSE_PROJECT_NAME}-vault
     image: ${COMPOSE_VAULT}
