@@ -1492,7 +1492,7 @@ class OngoingCall {
     final MediaStreamSettings settings = MediaStreamSettings();
 
     if (audio) {
-      AudioTrackConstraints constraints = AudioTrackConstraints();
+      DeviceAudioTrackConstraints constraints = DeviceAudioTrackConstraints();
 
       if (audioDevice != null) {
         constraints.deviceId(audioDevice.deviceId());
@@ -1519,7 +1519,7 @@ class OngoingCall {
         constraints.idealHighPassFilter(_highPassFilter.value!);
       }
 
-      settings.audio(constraints);
+      settings.deviceAudio(constraints);
     }
 
     if (video) {
@@ -1765,27 +1765,41 @@ class OngoingCall {
     _room?.onClose((r) async {
       _joined = false;
 
-      // In case a new link will be sent shortly.
-      connectionLost.value = true;
-
       Log.warning(
         'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
         '$runtimeType',
       );
 
-      // Awaiting 5 seconds for another `EventChatCallRoomReady` to come in case
-      // there's a new room being opened instead of the closed one.
-      await Future.delayed(Duration(seconds: 5));
+      switch (r.reason()) {
+        case RoomCloseKind.finished:
+          // No-op.
+          break;
 
-      if (!_joined) {
-        // TODO: Can we somehow reconnect to a new room in such scenarios?
-        dispose();
+        case RoomCloseKind.rejected:
+        // TODO: Try to do `Mutation.joinCall()` again.
 
-        if (r.isErr()) {
-          throw Exception(
-            'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
-          );
-        }
+        case RoomCloseKind.internalClientError:
+        case RoomCloseKind.internalServerError:
+        case RoomCloseKind.idle:
+        case RoomCloseKind.evicted:
+          await Future.delayed(Duration(seconds: 1));
+
+          // In case a new link will be sent shortly.
+          connectionLost.value = true;
+
+          // Awaiting 5 seconds for another `EventChatCallRoomReady` to come in
+          // case there's a new room being opened instead of the closed one.
+          await Future.delayed(Duration(seconds: 4));
+
+          if (!_joined) {
+            // TODO: Can we somehow reconnect to a new room in such scenarios?
+            dispose();
+
+            throw Exception(
+              'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
+            );
+          }
+          break;
       }
     });
   }

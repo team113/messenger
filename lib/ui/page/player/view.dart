@@ -888,9 +888,10 @@ class PlayerView extends StatelessWidget {
                             radius: AvatarRadius.small,
                             isOnline:
                                 user.online &&
-                                user.presence == Presence.present,
+                                user.presence == UserPresence.present,
                             isAway:
-                                user.online && user.presence == Presence.away,
+                                user.online &&
+                                user.presence == UserPresence.away,
                           ),
                           SizedBox(width: 8),
                           Expanded(
