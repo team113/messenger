@@ -85,9 +85,11 @@ class RefreshSecretDriftProvider extends DriftProviderBase {
   }
 }
 
-/// Extension adding conversion methods from [MyUserRow] to [DtoMyUser].
+/// Extension adding conversion methods from [RefreshSecretRow] to
+/// [RefreshSessionSecrets].
 extension _RefreshSessionSecretsDb on RefreshSessionSecrets {
-  /// Constructs a [RefreshSessionSecrets] from the provided [RefreshSecretRow].
+  /// Constructs the [RefreshSessionSecrets] from the provided
+  /// [RefreshSecretRow].
   static RefreshSessionSecrets fromDb(RefreshSecretRow e) {
     return RefreshSessionSecrets(
       RefreshTokenSecretInput(e.refresh),
