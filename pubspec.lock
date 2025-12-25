@@ -1349,18 +1349,18 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: "07852d01034108cf8b634c6b4e40a8e09b6f8080d97ce4695b587026ac60b808"
+      sha256: "7fea44c6fe98742ae8cf93b6763d25cb3f67ac664d32dcc7a4ac6c7ebb71d1bc"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.1"
+    version: "0.16.0"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: f73e8cf63d4b81918ba6578d5f4f5793317c0c3dff23d5704919dec6f0e3f841
+      sha256: "545df92a675cf4f8df6fb487936e2bdab896eac286e0762b97ba5b1d2ef5ac59"
       url: "https://pub.dev"
     source: hosted
-    version: "0.11.0"
+    version: "0.12.0"
   media_kit:
     dependency: "direct overridden"
     description:

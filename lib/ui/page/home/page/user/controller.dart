@@ -25,7 +25,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -536,7 +536,7 @@ extension UserViewExt on User {
   /// [User.presence] and [User.online] fields.
   String? getStatus([PreciseDateTime? lastSeen]) {
     switch (presence) {
-      case Presence.present:
+      case UserPresence.present:
         if (online) {
           return 'label_online'.l10n;
         } else if (lastSeenAt != null) {
@@ -545,7 +545,7 @@ extension UserViewExt on User {
           return 'label_offline'.l10n;
         }
 
-      case Presence.away:
+      case UserPresence.away:
         if (online) {
           return 'label_away'.l10n;
         } else if (lastSeenAt != null) {
@@ -557,7 +557,7 @@ extension UserViewExt on User {
       case null:
         return 'label_hidden'.l10n;
 
-      case Presence.artemisUnknown:
+      case UserPresence.artemisUnknown:
         return null;
     }
   }
@@ -577,7 +577,7 @@ extension UserViewExt on User {
   /// Returns the string representation of this [User] to display as a subtitle.
   String? getSubtitle([PreciseDateTime? lastSeen]) {
     switch (presence) {
-      case Presence.present:
+      case UserPresence.present:
         if (online) {
           return 'label_online'.l10n;
         } else if (lastSeenAt != null) {
@@ -588,7 +588,7 @@ extension UserViewExt on User {
           return 'label_offline'.l10n;
         }
 
-      case Presence.away:
+      case UserPresence.away:
         if (online) {
           return 'label_away'.l10n;
         } else if (lastSeenAt != null) {
@@ -602,7 +602,7 @@ extension UserViewExt on User {
       case null:
         return 'label_hidden'.l10n;
 
-      case Presence.artemisUnknown:
+      case UserPresence.artemisUnknown:
         return null;
     }
   }

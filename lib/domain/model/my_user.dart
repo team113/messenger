@@ -124,8 +124,8 @@ class MyUser {
   /// Presence of this [MyUser].
   int presenceIndex;
 
-  Presence get presence => Presence.values[presenceIndex];
-  set presence(Presence pres) {
+  UserPresence get presence => UserPresence.values[presenceIndex];
+  set presence(UserPresence pres) {
     presenceIndex = pres.index;
   }
 

@@ -134,12 +134,12 @@ class User {
   /// Sets the provided [ChatId] as a [dialog] of this [User].
   set dialog(ChatId dialog) => _dialog = dialog;
 
-  /// Returns the [Presence] of this [User].
-  Presence? get presence =>
-      presenceIndex == null ? null : Presence.values[presenceIndex!];
+  /// Returns the [UserPresence] of this [User].
+  UserPresence? get presence =>
+      presenceIndex == null ? null : UserPresence.values[presenceIndex!];
 
-  /// Sets the [Presence] of this [User] to be the provided [pres].
-  set presence(Presence? pres) {
+  /// Sets the [UserPresence] of this [User] to be the provided [pres].
+  set presence(UserPresence? pres) {
     presenceIndex = pres?.index;
   }
 

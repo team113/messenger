@@ -356,9 +356,10 @@ class AccountsSwitcherView extends StatelessWidget {
                             return Text.rich(
                               TextSpan(
                                 text: switch (presence) {
-                                  Presence.present =>
+                                  UserPresence.present =>
                                     'label_presence_present'.l10n,
-                                  Presence.away => 'label_presence_away'.l10n,
+                                  UserPresence.away =>
+                                    'label_presence_away'.l10n,
                                   (_) => 'label_offline'.l10n.capitalized,
                                 },
                                 style: style.fonts.small.regular.secondary,

@@ -292,7 +292,7 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] has the provided [presence] value already.
   Future<MyUserEventsVersionedMixin?> updateUserPresence(
-    Presence presence,
+    UserPresence presence,
   ) async {
     Log.debug('updateUserPresence($presence)', '$runtimeType');
 

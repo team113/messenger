@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/avatar.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
@@ -273,8 +273,8 @@ class EventUserNameUpdated extends UserEvent {
 class EventUserPresenceUpdated extends UserEvent {
   const EventUserPresenceUpdated(super.userId, this.presence, this.at);
 
-  /// New [User]'s [Presence].
-  final Presence presence;
+  /// New [User]'s [UserPresence].
+  final UserPresence presence;
 
   /// [PreciseDateTime] when the [User]'s [Presence] was updated.
   final PreciseDateTime at;
