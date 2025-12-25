@@ -39,6 +39,7 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -265,6 +266,7 @@ void main() async {
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final sessionProvider = Get.put(VersionDriftProvider(common));
     final locksProvider = Get.put(LockDriftProvider(common));
+    final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
     final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -284,6 +286,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
     router = RouterState(authService);

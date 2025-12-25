@@ -6,6 +6,20 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.6.15] · 2025-??-??
+[0.6.15]: /../../tree/v0.6.15
+
+[Diff](/../../compare/v0.6.14...v0.6.15) | [Milestone](/../../milestone/59)
+
+### Fixed
+
+- Authorization sometimes being lost on some devices. ([#1564])
+
+[#1564]: /../../pull/1564
+
+
+
+
 ## [0.6.14] · 2025-12-19
 [0.6.14]: /../../tree/v0.6.14
 
