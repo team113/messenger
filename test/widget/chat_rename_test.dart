@@ -89,7 +89,7 @@ void main() async {
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
-  final secretsProvider = Get.put(RefreshSecretDriftProvider(Get.find()));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   await accountProvider.upsert(const UserId('me'));
   await credentialsProvider.upsert(

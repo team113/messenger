@@ -93,7 +93,7 @@ void main() async {
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
-  final secretsProvider = Get.put(RefreshSecretDriftProvider(Get.find()));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
   final skippedProvider = Get.put(SkippedVersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {

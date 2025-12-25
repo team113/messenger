@@ -98,7 +98,7 @@ void main() async {
   final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
   final geoProvider = Get.put(GeoLocationDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
-  final secretsProvider = Get.put(RefreshSecretDriftProvider(Get.find()));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',

@@ -73,7 +73,7 @@ void main() async {
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = UserDriftProvider(common, scoped);
   final locksProvider = Get.put(LockDriftProvider(common));
-  final secretsProvider = Get.put(RefreshSecretDriftProvider(Get.find()));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(

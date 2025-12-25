@@ -95,7 +95,7 @@ void main() async {
   final monologProvider = Get.put(MonologDriftProvider(common));
   final sessionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
-  final secretsProvider = Get.put(RefreshSecretDriftProvider(Get.find()));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   when(
     graphQlProvider.recentChatsTopEvents(3),

@@ -64,7 +64,7 @@ void main() async {
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
   final versionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
-  final secretsProvider = Get.put(RefreshSecretDriftProvider(Get.find()));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   setUp(() async {
     await myUserProvider.clear();

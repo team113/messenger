@@ -109,7 +109,7 @@ void main() async {
   final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
   final geoProvider = Get.put(GeoLocationDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
-  final secretsProvider = Get.put(RefreshSecretDriftProvider(Get.find()));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.connected).thenReturn(RxBool(true));
