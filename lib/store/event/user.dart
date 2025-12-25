@@ -269,14 +269,14 @@ class EventUserNameUpdated extends UserEvent {
   UserEventKind get kind => UserEventKind.nameUpdated;
 }
 
-/// Event of a [User]'s [Presence] being updated.
+/// Event of a [User]'s [UserPresence] being updated.
 class EventUserPresenceUpdated extends UserEvent {
   const EventUserPresenceUpdated(super.userId, this.presence, this.at);
 
   /// New [User]'s [UserPresence].
   final UserPresence presence;
 
-  /// [PreciseDateTime] when the [User]'s [Presence] was updated.
+  /// [PreciseDateTime] when the [User]'s [UserPresence] was updated.
   final PreciseDateTime at;
 
   @override
