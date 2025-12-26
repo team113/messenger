@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '/api/backend/schema.dart' show Presence, CropAreaInput;
+import '/api/backend/schema.dart' show UserPresence, CropAreaInput;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/mute_duration.dart';
@@ -143,7 +143,7 @@ class MyUserService extends DisposableService {
   }
 
   /// Updates [MyUser.presence] to the provided value.
-  Future<void> updateUserPresence(Presence presence) async {
+  Future<void> updateUserPresence(UserPresence presence) async {
     Log.debug('updateUserPresence($presence)', '$runtimeType');
     await _myUserRepository.updateUserPresence(presence);
   }

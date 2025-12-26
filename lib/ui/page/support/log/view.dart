@@ -19,10 +19,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:log_me/log_me.dart' as me;
 
+import '/config.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/domain/service/session.dart';
 import '/l10n/l10n.dart';
+import '/provider/file/log.dart';
 import '/pubspec.g.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -72,6 +74,7 @@ class LogView extends StatelessWidget {
         Get.findOrNull<MyUserService>(),
         Get.findOrNull<SessionService>(),
         Get.findOrNull<NotificationService>(),
+        Get.findOrNull<LogFileProvider>(),
       ),
       builder: (LogController c) {
         return Scaffold(
@@ -141,6 +144,27 @@ class LogView extends StatelessWidget {
                               ],
                             ),
                           ),
+
+                          if (Config.logWrite)
+                            Obx(() {
+                              final stat = c.stat.value;
+
+                              if (stat == null) {
+                                return const SizedBox();
+                              }
+
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: SelectionContainer.disabled(
+                                  child: PrimaryButton(
+                                    onPressed: () async =>
+                                        await c.downloadArchive(),
+                                    title:
+                                        'Download whole ${stat.size ~/ 1024} KB dump',
+                                  ),
+                                ),
+                              );
+                            }),
 
                           _application(context, c),
                           _myUser(context, c),

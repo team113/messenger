@@ -673,6 +673,19 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                     ),
                   );
 
+              final AbstractSessionRepository sessionRepository = deps
+                  .put<AbstractSessionRepository>(
+                    SessionRepository(
+                      graphQlProvider,
+                      Get.find(),
+                      Get.find(),
+                      Get.find(),
+                      Get.find(),
+                      Get.find(),
+                    ),
+                  );
+              deps.put<SessionService>(SessionService(sessionRepository));
+
               deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
@@ -1153,7 +1166,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   Widget build(BuildContext context) {
     return SentryDisplayWidget(
       child: LifecycleObserver(
-        onStateChange: (v) => _state.lifecycle.value = v,
+        onStateChange: (v) {
+          Log.debug('onStateChange() -> $v', '$runtimeType');
+          _state.lifecycle.value = v;
+        },
         child: Listener(
           onPointerDown: (_) => PlatformUtils.keepActive(),
           onPointerHover: (_) => PlatformUtils.keepActive(),

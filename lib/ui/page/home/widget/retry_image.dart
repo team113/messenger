@@ -353,9 +353,10 @@ class _RetryImageState extends State<RetryImage> {
             width: widget.width,
             child: Stack(
               alignment: Alignment.center,
+              fit: StackFit.expand,
               children: [
                 if (widget.loadingBuilder != null) widget.loadingBuilder!(),
-                thumbhash,
+                Center(child: thumbhash),
                 Positioned.fill(
                   child: Center(
                     child: SafeAnimatedSwitcher(

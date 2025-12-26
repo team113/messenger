@@ -20,7 +20,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -59,7 +59,7 @@ class MenuTabView extends StatelessWidget {
               actions: [
                 ContextMenuButton(
                   label: 'label_presence_present'.l10n,
-                  onPressed: () => c.setPresence(Presence.present),
+                  onPressed: () => c.setPresence(UserPresence.present),
                   trailing: Container(
                     width: 10,
                     height: 10,
@@ -71,7 +71,7 @@ class MenuTabView extends StatelessWidget {
                 ),
                 ContextMenuButton(
                   label: 'label_presence_away'.l10n,
-                  onPressed: () => c.setPresence(Presence.away),
+                  onPressed: () => c.setPresence(UserPresence.away),
                   trailing: Container(
                     width: 10,
                     height: 10,

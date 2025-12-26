@@ -22,7 +22,7 @@ import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -154,15 +154,15 @@ class UserView extends StatelessWidget {
           bool isAway = false;
 
           switch (c.user!.user.value.presence) {
-            case Presence.present:
+            case UserPresence.present:
               isOnline = c.user!.user.value.online;
               break;
 
-            case Presence.away:
+            case UserPresence.away:
               isAway = c.user!.user.value.online;
               break;
 
-            case null || Presence.artemisUnknown:
+            case null || UserPresence.artemisUnknown:
               // No-op.
               break;
           }

@@ -807,7 +807,9 @@ class RxChatImpl extends RxChat {
       } on PostChatMessageException catch (e) {
         switch (e.code) {
           case PostChatMessageErrorCode.blocked:
-          case PostChatMessageErrorCode.noTextAndNoAttachment:
+          case PostChatMessageErrorCode.noContent:
+          case PostChatMessageErrorCode.notEnoughFunds:
+          case PostChatMessageErrorCode.unallowedDonation:
           case PostChatMessageErrorCode.wrongAttachmentsCount:
           case PostChatMessageErrorCode.wrongReplyingChatItemsCount:
           case PostChatMessageErrorCode.unknownAttachment:

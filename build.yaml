@@ -183,6 +183,8 @@ targets:
                 name: Currency
                 imports:
                   - "package:messenger/domain/model/price.dart"
+            - graphql_type: DonationId
+              dart_type: String
             - graphql_type: DateTime
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/precise_date_time.dart"
               dart_type:
@@ -219,10 +221,10 @@ targets:
                 name: IncomingChatCallsCursor
                 imports:
                   - "package:messenger/store/model/chat_call.dart"
-            - graphql_type: Invoice
+            - graphql_type: InvoiceFile
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/monetization.dart"
               dart_type:
-                name: Invoice
+                name: InvoiceFile
                 imports:
                   - "package:messenger/domain/model/operation.dart"
             - graphql_type: IP

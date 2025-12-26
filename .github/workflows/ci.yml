@@ -856,15 +856,11 @@ jobs:
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_PUSH_FCM_SA_KEY: ${{ secrets.E2E_FCM_SA_KEY }}
-          envkey_COMPOSE_PUSH_APNS_TEAM_ID: ${{ secrets.E2E_APNS_TEAM_ID }}
-          envkey_COMPOSE_PUSH_APNS_KEY_ID: ${{ secrets.E2E_APNS_KEY_ID }}
-          envkey_COMPOSE_PUSH_APNS_TOPIC: ${{ secrets.E2E_APNS_TOPIC }}
-          envkey_COMPOSE_PUSH_APNS_PRIVATE_KEY: ${{ secrets.E2E_APNS_PRIVATE_KEY }}
+          envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
           envkey_COMPOSE_FRONTEND_IMAGE: nginx
           envkey_COMPOSE_FRONTEND_TAG: stable-alpine
-          envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
           envkey_COMPOSE_PROJECT_NAME: tapopa
+          envkey_COMPOSE_TIGERBEETLE: ${{ secrets.E2E_TIGERBEETLE }}
           envkey_COMPOSE_VAULT: ${{ secrets.E2E_VAULT }}
           fail_on_empty: true
 

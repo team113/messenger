@@ -1,5 +1,5 @@
 name: messenger
-version: 0.6.14
+version: 0.7.1
 publish_to: none
 
 environment:
@@ -7,6 +7,7 @@ environment:
   sdk: ">=3.10.0 <4.0.0"
 
 dependencies:
+  age_range_signals: ^0.4.2
   all_sensors:
     git: https://github.com/SleepySquash/all_sensors
   animated_size_and_fade: ^5.1.1
@@ -70,8 +71,8 @@ dependencies:
   log_me: ^0.1.2
   macos_haptic_feedback: ^1.0.0
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: ^0.15.1
-  medea_jason: ^0.11.0
+  medea_flutter_webrtc: ^0.16.0
+  medea_jason: ^0.12.0
   media_kit_libs_ios_video: ^1.1.3
   media_kit_libs_linux: ^1.1.1
   media_kit_libs_macos_video: ^1.1.3

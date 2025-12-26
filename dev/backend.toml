@@ -15,9 +15,9 @@ files_url = "http://localhost/files"
 sender_id = 985927661367
 
 [l10n.fluent]
-locales = ["en-US", "ru-RU"]
+locales = ["en-US", "es-ES", "ru-RU"]
 [l10n.fluent.refresh]
-url = "https://raw.githubusercontent.com/tapopa/messenger/14628ecf84fc85105fb6b692a861d70384e0b1cc/assets/l10n"
+url = "https://raw.githubusercontent.com/team113/messenger/v0.6.13/assets/l10n"
 
 [smtp]
 port = 1025

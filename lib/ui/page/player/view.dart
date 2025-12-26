@@ -278,6 +278,7 @@ class PlayerView extends StatelessWidget {
         width: aspect >= 1 ? double.infinity : null,
         height: aspect >= 1 ? null : double.infinity,
         checksum: attachment.original.checksum,
+        thumbhash: attachment.big.thumbhash,
         fit: BoxFit.contain,
         onForbidden: () async => await c.reload(post),
       );
@@ -887,9 +888,10 @@ class PlayerView extends StatelessWidget {
                             radius: AvatarRadius.small,
                             isOnline:
                                 user.online &&
-                                user.presence == Presence.present,
+                                user.presence == UserPresence.present,
                             isAway:
-                                user.online && user.presence == Presence.away,
+                                user.online &&
+                                user.presence == UserPresence.away,
                           ),
                           SizedBox(width: 8),
                           Expanded(

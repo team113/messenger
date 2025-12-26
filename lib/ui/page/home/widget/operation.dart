@@ -111,6 +111,14 @@ class OperationWidget extends StatelessWidget {
                   'label_operation_failed'.l10n,
                   style: style.fonts.normal.regular.secondary,
                 ),
+                OperationStatus.canceled => Text(
+                  'label_operation_canceled'.l10n,
+                  style: style.fonts.normal.regular.secondary,
+                ),
+                OperationStatus.declined => Text(
+                  'label_operation_declined'.l10n,
+                  style: style.fonts.normal.regular.secondary,
+                ),
                 OperationStatus.artemisUnknown => Text('label_unknown'.l10n),
               }),
               row(
@@ -190,6 +198,14 @@ class OperationWidget extends StatelessWidget {
                   'label_operation_failed'.l10n,
                   style: style.fonts.normal.regular.secondary,
                 ),
+                OperationStatus.canceled => Text(
+                  'label_operation_canceled'.l10n,
+                  style: style.fonts.normal.regular.secondary,
+                ),
+                OperationStatus.declined => Text(
+                  'label_operation_declined'.l10n,
+                  style: style.fonts.normal.regular.secondary,
+                ),
                 OperationStatus.artemisUnknown => Text('label_unknown'.l10n),
               }),
               row(
@@ -242,6 +258,8 @@ class OperationWidget extends StatelessWidget {
             OperationStatus.completed => style.colors.currencyPrimary,
             OperationStatus.inProgress => style.colors.currencySecondary,
             OperationStatus.failed => style.colors.currencySecondary,
+            OperationStatus.declined => style.colors.currencySecondary,
+            OperationStatus.canceled => style.colors.currencySecondary,
             OperationStatus.artemisUnknown => style.colors.secondary,
           },
         );
@@ -295,6 +313,8 @@ class OperationWidget extends StatelessWidget {
               OperationStatus.completed => SvgIcons.operationDone,
               OperationStatus.inProgress => SvgIcons.operationSending,
               OperationStatus.failed => SvgIcons.operationCanceled,
+              OperationStatus.declined => SvgIcons.operationCanceled,
+              OperationStatus.canceled => SvgIcons.operationCanceled,
               OperationStatus.artemisUnknown => SvgIcons.operationCanceled,
             }),
           ],

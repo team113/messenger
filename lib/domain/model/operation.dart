@@ -68,10 +68,10 @@ class OperationDeposit extends Operation {
   /// Country of the billing address of this [OperationDeposit].
   final CountryCode billingCountry;
 
-  /// [Invoice] of this [OperationDeposit].
+  /// [InvoiceFile] of this [OperationDeposit].
   ///
   /// `null` if this [status] is not `COMPLETED`.
-  final Invoice? invoice;
+  final InvoiceFile? invoice;
 }
 
 /// Operation of depositing money to [MyUser]'s purse.
@@ -99,7 +99,7 @@ class OperationNum extends NewType<String> {
   const OperationNum(super.val);
 }
 
-/// Sequential number of an [Operation].
-class Invoice extends NewType<String> {
-  const Invoice(super.val);
+/// Base64-encoded PDF invoice of an [Operation].
+class InvoiceFile extends NewType<String> {
+  const InvoiceFile(super.val);
 }

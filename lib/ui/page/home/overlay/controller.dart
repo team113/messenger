@@ -95,23 +95,48 @@ class CallOverlayController extends GetxController {
 
           final OngoingCall ongoingCall = event.value!.value;
 
-          // If global `MyUser` mute is applied, then ignore the call.
-          final MuteDuration? meMuted = _myUserService.myUser.value?.muted;
-          if (meMuted != null) {
-            return _callService.remove(ongoingCall.chatId.value);
-          }
+          // Check whether the call notification should be displayed at all,
+          // which should only be applied to pending calls only.
+          switch (ongoingCall.state.value) {
+            case OngoingCallState.pending:
+              // If global `MyUser` mute is applied, then ignore the call.
+              final MuteDuration? meMuted = _myUserService.myUser.value?.muted;
+              if (meMuted != null) {
+                return _callService.remove(ongoingCall.chatId.value);
+              }
 
-          try {
-            // If this exact `Chat` is muted, then ignore the call.
-            final RxChat? chat = await _chatService.get(
-              ongoingCall.chatId.value,
-            );
-            final MuteDuration? chatMuted = chat?.chat.value.muted;
-            if (chatMuted != null) {
-              return _callService.remove(ongoingCall.chatId.value);
-            }
-          } catch (_) {
-            // No-op, as it's ok to fail.
+              bool redialed = false;
+
+              final ChatMembersDialed? dialed = ongoingCall.call.value?.dialed;
+              if (dialed is ChatMembersDialedConcrete) {
+                redialed = dialed.members.any(
+                  (e) => e.user.id == _chatService.me,
+                );
+              }
+
+              // If redialed, then show the notification anyway.
+              if (!redialed) {
+                try {
+                  // If this exact `Chat` is muted, then ignore the call.
+                  final RxChat? chat = await _chatService.get(
+                    ongoingCall.chatId.value,
+                  );
+                  final MuteDuration? chatMuted = chat?.chat.value.muted;
+                  if (chatMuted != null) {
+                    return _callService.remove(ongoingCall.chatId.value);
+                  }
+                } catch (_) {
+                  // No-op, as it's ok to fail.
+                }
+              }
+              break;
+
+            case OngoingCallState.local:
+            case OngoingCallState.joining:
+            case OngoingCallState.active:
+            case OngoingCallState.ended:
+              // No-op.
+              break;
           }
 
           if (PlatformUtils.isWeb &&

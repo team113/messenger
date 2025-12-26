@@ -47,6 +47,7 @@ import 'package:messenger/provider/drift/geolocation.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
@@ -85,6 +86,7 @@ void main() async {
   final accountProvider = Get.put(AccountDriftProvider(common));
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   await accountProvider.upsert(const UserId('me'));
 
@@ -113,6 +115,7 @@ void main() async {
     credentialsProvider,
     accountProvider,
     locksProvider,
+    secretsProvider,
   );
 
   router = RouterState(authService);
@@ -267,6 +270,7 @@ void main() async {
           credentialsProvider,
           accountProvider,
           locksProvider,
+          secretsProvider,
         ),
       );
       authService.init();

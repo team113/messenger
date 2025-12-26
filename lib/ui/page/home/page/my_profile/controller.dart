@@ -31,10 +31,10 @@ import '/api/backend/schema.dart'
     show
         AddUserEmailErrorCode,
         AddUserPhoneErrorCode,
-        Presence,
         CropAreaInput,
         UpdateUserAvatarErrorCode,
-        UpdateUserCallCoverErrorCode;
+        UpdateUserCallCoverErrorCode,
+        UserPresence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
@@ -914,28 +914,28 @@ class MyProfileController extends GetxController {
   }
 }
 
-/// Extension adding text and [Color] representations of a [Presence] value.
-extension PresenceL10n on Presence {
+/// Extension adding text and [Color] representations of a [UserPresence] value.
+extension PresenceL10n on UserPresence {
   /// Returns text representation of a current value.
   String? localizedString() {
     switch (this) {
-      case Presence.present:
+      case UserPresence.present:
         return 'label_presence_present'.l10n;
-      case Presence.away:
+      case UserPresence.away:
         return 'label_presence_away'.l10n;
-      case Presence.artemisUnknown:
+      case UserPresence.artemisUnknown:
         return null;
     }
   }
 
-  /// Returns a [Color] representing this [Presence].
+  /// Returns a [Color] representing this [UserPresence].
   Color? getColor() {
     final Style style = Theme.of(router.context!).style;
 
     return switch (this) {
-      Presence.present => style.colors.acceptAuxiliary,
-      Presence.away => style.colors.warning,
-      Presence.artemisUnknown => null,
+      UserPresence.present => style.colors.acceptAuxiliary,
+      UserPresence.away => style.colors.warning,
+      UserPresence.artemisUnknown => null,
     };
   }
 }

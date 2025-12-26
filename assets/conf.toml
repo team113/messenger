@@ -22,7 +22,7 @@
 # GraphQL API endpoint of HTTP backend server.
 #
 # Default:
-#   graphql = "/api/graphql"
+#   graphql = "/api/graphql/v1"
 
 [server.ws]
 # URL address of WebSocket backend server.
@@ -119,12 +119,18 @@
 # Default:
 #   amount = 4096
 
-# Indicator whether [Log]s should obfuscate any private information (messages,
+# Indicator whether logs should obfuscate any private information (messages,
 # tokens, etc).
 #
 # Default:
 #   obfuscated = true (if `kDebugMode`  is `true`)
 #   obfuscated = false" (if `kProfileMode` or `kReleaseMode` is `true`)
+
+# Indicator whether logs should be also written to a `File` in temporary dir.
+#
+# Default:
+#   write = true (on native iOS devices)
+#   write = false (on any other platforms)
 
 [link]
 # Prefix of the direct chat link URL.
@@ -201,4 +207,4 @@
 # User ID of the support user.
 #
 # Default:
-#   id = "7NRfLwR5L7ikgQBWxdpLjg"
+#   id = "5TnWvlDyfr1pYagapHpInO"

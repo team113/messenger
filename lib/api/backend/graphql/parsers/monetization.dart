@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/domain/model/country.dart';
+import '/domain/model/donation.dart';
 import '/domain/model/operation.dart';
 import '/domain/model/price.dart';
 import '/domain/model/promo_share.dart';
@@ -345,42 +346,62 @@ fromDartListNullableCountryCodeNullableToGraphQLListNullableCountryCodeNullable(
     ?.map((e) => fromDartCountryCodeNullableToGraphQLCountryCodeNullable(e))
     .toList();
 
-// Invoice
+// InvoiceFile
 
-Invoice fromGraphQLInvoiceToDartInvoice(String v) => Invoice(v);
-String fromDartInvoiceToGraphQLInvoice(Invoice v) => v.val;
-List<Invoice> fromGraphQLListInvoiceToDartListInvoice(List<Object?> v) =>
-    v.map((e) => fromGraphQLInvoiceToDartInvoice(e as String)).toList();
-List<String> fromDartListInvoiceToGraphQLListInvoice(List<Invoice> v) =>
-    v.map((e) => fromDartInvoiceToGraphQLInvoice(e)).toList();
-List<Invoice>? fromGraphQLListNullableInvoiceToDartListNullableInvoice(
+InvoiceFile fromGraphQLInvoiceFileToDartInvoiceFile(String v) => InvoiceFile(v);
+String fromDartInvoiceFileToGraphQLInvoiceFile(InvoiceFile v) => v.val;
+List<InvoiceFile> fromGraphQLListInvoiceFileToDartListInvoiceFile(
+  List<Object?> v,
+) =>
+    v.map((e) => fromGraphQLInvoiceFileToDartInvoiceFile(e as String)).toList();
+List<String> fromDartListInvoiceFileToGraphQLListInvoiceFile(
+  List<InvoiceFile> v,
+) => v.map((e) => fromDartInvoiceFileToGraphQLInvoiceFile(e)).toList();
+List<InvoiceFile>?
+fromGraphQLListNullableInvoiceFileToDartListNullableInvoiceFile(
   List<Object?>? v,
-) => v?.map((e) => fromGraphQLInvoiceToDartInvoice(e as String)).toList();
-List<String>? fromDartListNullableInvoiceToGraphQLListNullableInvoice(
-  List<Invoice>? v,
-) => v?.map((e) => fromDartInvoiceToGraphQLInvoice(e)).toList();
+) => v
+    ?.map((e) => fromGraphQLInvoiceFileToDartInvoiceFile(e as String))
+    .toList();
+List<String>? fromDartListNullableInvoiceFileToGraphQLListNullableInvoiceFile(
+  List<InvoiceFile>? v,
+) => v?.map((e) => fromDartInvoiceFileToGraphQLInvoiceFile(e)).toList();
 
-Invoice? fromGraphQLInvoiceNullableToDartInvoiceNullable(String? v) =>
-    v == null ? null : Invoice(v);
-String? fromDartInvoiceNullableToGraphQLInvoiceNullable(Invoice? v) => v?.val;
-List<Invoice?> fromGraphQLListInvoiceNullableToDartListInvoiceNullable(
+InvoiceFile? fromGraphQLInvoiceFileNullableToDartInvoiceFileNullable(
+  String? v,
+) => v == null ? null : InvoiceFile(v);
+String? fromDartInvoiceFileNullableToGraphQLInvoiceFileNullable(
+  InvoiceFile? v,
+) => v?.val;
+List<InvoiceFile?>
+fromGraphQLListInvoiceFileNullableToDartListInvoiceFileNullable(
   List<Object?> v,
 ) => v
-    .map((e) => fromGraphQLInvoiceNullableToDartInvoiceNullable(e as String?))
+    .map(
+      (e) =>
+          fromGraphQLInvoiceFileNullableToDartInvoiceFileNullable(e as String?),
+    )
     .toList();
-List<String?> fromDartListInvoiceNullableToGraphQLListInvoiceNullable(
-  List<Invoice?> v,
-) => v.map((e) => fromDartInvoiceNullableToGraphQLInvoiceNullable(e)).toList();
-List<Invoice?>?
-fromGraphQLListNullableInvoiceNullableToDartListNullableInvoiceNullable(
+List<String?> fromDartListInvoiceFileNullableToGraphQLListInvoiceFileNullable(
+  List<InvoiceFile?> v,
+) => v
+    .map((e) => fromDartInvoiceFileNullableToGraphQLInvoiceFileNullable(e))
+    .toList();
+List<InvoiceFile?>?
+fromGraphQLListNullableInvoiceFileNullableToDartListNullableInvoiceFileNullable(
   List<Object?>? v,
 ) => v
-    ?.map((e) => fromGraphQLInvoiceNullableToDartInvoiceNullable(e as String?))
+    ?.map(
+      (e) =>
+          fromGraphQLInvoiceFileNullableToDartInvoiceFileNullable(e as String?),
+    )
     .toList();
 List<String?>?
-fromDartListNullableInvoiceNullableToGraphQLListNullableInvoiceNullable(
-  List<Invoice?>? v,
-) => v?.map((e) => fromDartInvoiceNullableToGraphQLInvoiceNullable(e)).toList();
+fromDartListNullableInvoiceFileNullableToGraphQLListNullableInvoiceFileNullable(
+  List<InvoiceFile?>? v,
+) => v
+    ?.map((e) => fromDartInvoiceFileNullableToGraphQLInvoiceFileNullable(e))
+    .toList();
 
 // OperationsCursor
 
@@ -502,4 +523,54 @@ fromDartListNullablePercentageNullableToGraphQLListNullablePercentageNullable(
   List<Percentage?>? v,
 ) => v
     ?.map((e) => fromDartPercentageNullableToGraphQLPercentageNullable(e))
+    .toList();
+
+// DonationId
+
+DonationId fromGraphQLDonationIdToDartDonationId(String v) => DonationId(v);
+String fromDartDonationIdToGraphQLDonationId(DonationId v) => v.val;
+List<DonationId> fromGraphQLListDonationIdToDartListDonationId(
+  List<Object?> v,
+) => v.map((e) => fromGraphQLDonationIdToDartDonationId(e as String)).toList();
+List<String> fromDartListDonationIdToGraphQLListDonationId(
+  List<DonationId> v,
+) => v.map((e) => fromDartDonationIdToGraphQLDonationId(e)).toList();
+List<DonationId>? fromGraphQLListNullableDonationIdToDartListNullableDonationId(
+  List<Object?>? v,
+) => v?.map((e) => fromGraphQLDonationIdToDartDonationId(e as String)).toList();
+List<String>? fromDartListNullableDonationIdToGraphQLListNullableDonationId(
+  List<DonationId>? v,
+) => v?.map((e) => fromDartDonationIdToGraphQLDonationId(e)).toList();
+
+DonationId? fromGraphQLDonationIdNullableToDartDonationIdNullable(String? v) =>
+    v == null ? null : DonationId(v);
+String? fromDartDonationIdNullableToGraphQLDonationIdNullable(DonationId? v) =>
+    v?.val;
+List<DonationId?> fromGraphQLListDonationIdNullableToDartListDonationIdNullable(
+  List<Object?> v,
+) => v
+    .map(
+      (e) =>
+          fromGraphQLDonationIdNullableToDartDonationIdNullable(e as String?),
+    )
+    .toList();
+List<String?> fromDartListDonationIdNullableToGraphQLListDonationIdNullable(
+  List<DonationId?> v,
+) => v
+    .map((e) => fromDartDonationIdNullableToGraphQLDonationIdNullable(e))
+    .toList();
+List<DonationId?>?
+fromGraphQLListNullableDonationIdNullableToDartListNullableDonationIdNullable(
+  List<Object?>? v,
+) => v
+    ?.map(
+      (e) =>
+          fromGraphQLDonationIdNullableToDartDonationIdNullable(e as String?),
+    )
+    .toList();
+List<String?>?
+fromDartListNullableDonationIdNullableToGraphQLListNullableDonationIdNullable(
+  List<DonationId?>? v,
+) => v
+    ?.map((e) => fromDartDonationIdNullableToGraphQLDonationIdNullable(e))
     .toList();

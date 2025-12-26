@@ -71,7 +71,7 @@ class WalletRepository extends DisposableInterface
           id: OperationId('cccccccccc'),
           num: OperationNum('3'),
           status: OperationStatus.completed,
-          invoice: Invoice('example.com'),
+          invoice: InvoiceFile('example.com'),
           amount: Price(sum: Sum(1000), currency: Currency('G')),
           createdAt: PreciseDateTime.now(),
           billingCountry: CountryCode('US'),

@@ -46,6 +46,7 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -92,6 +93,7 @@ void main() async {
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final sessionProvider = Get.put(VersionDriftProvider(common));
     final locksProvider = Get.put(LockDriftProvider(common));
+    final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
     await accountProvider.upsert(const UserId('me'));
     await credentialsProvider.upsert(
@@ -151,6 +153,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
     router = RouterState(authService);
@@ -314,6 +317,7 @@ void main() async {
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final sessionProvider = Get.put(VersionDriftProvider(common));
     final locksProvider = Get.put(LockDriftProvider(common));
+    final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -327,6 +331,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
     router = RouterState(authService);
@@ -428,6 +433,7 @@ void main() async {
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final sessionProvider = Get.put(VersionDriftProvider(common));
     final locksProvider = Get.put(LockDriftProvider(common));
+    final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
     final graphQlProvider = _FakeGraphQlProvider();
 
@@ -440,6 +446,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
     router = RouterState(authService);
