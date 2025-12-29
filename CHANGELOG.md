@@ -10,6 +10,14 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.7.0...main) | [Milestone](/../../milestone/60)
 
+### Fixed
+
+- UI:
+    - Media panel:
+        - Empty screen sharing being displayed sometimes. ([#1566])
+
+[#1566]: /../../pull/1566
+
 
 
 
