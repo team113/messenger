@@ -1035,6 +1035,8 @@ class OngoingCall {
           try {
             await _room?.disableVideo(MediaSourceKind.display);
             _removeLocalTracks(MediaKind.video, MediaSourceKind.display);
+            await _room?.disableAudio(MediaSourceKind.display);
+            _removeLocalTracks(MediaKind.audio, MediaSourceKind.display);
             screenShareState.value = LocalTrackState.disabled;
             screenDevice.value = null;
           } on MediaStateTransitionException catch (_) {
@@ -2034,6 +2036,7 @@ class OngoingCall {
       if (screenShareState.value != LocalTrackState.enabled &&
           screenShareState.value != LocalTrackState.enabling) {
         await _room?.disableVideo(MediaSourceKind.display);
+        await _room?.disableAudio(MediaSourceKind.display);
       }
 
       try {
