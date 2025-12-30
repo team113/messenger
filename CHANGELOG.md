@@ -15,8 +15,10 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Empty screen sharing being displayed sometimes. ([#1566])
+        - Incoming call window not being displayed in rare cases. ([#1567])
 
 [#1566]: /../../pull/1566
+[#1567]: /../../pull/1567
 
 
 
