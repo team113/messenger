@@ -281,6 +281,7 @@ err_no_filename = El archivo debe tener nombre
 err_password_incorrect = La contraseña es demasiado larga y/o comienza/termina con un espacio
 err_passwords_mismatch = Las contraseñas no coinciden
 err_popup_call_cant_be_closed = La ventana no se puede cerrar automáticamente. Cierre la ventana manualmente.
+err_screen_permission_denied = Acceso denegado a la pantalla. Asegúrese de que la aplicación tenga permiso para usarla.
 err_size_too_big = El tamaño del archivo supera los 15 MB
 err_too_many_emails = Número máximo de e-mails alcanzado
 err_unauthorized = Se necesita autentificación
