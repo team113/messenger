@@ -951,17 +951,28 @@ class CallController extends GetxController {
       // TODO: `medea_jason` should have `onScreenChange` callback.
       await _currentCall.value.enumerateDevices(media: false);
 
-      if (_currentCall.value.displays.length > 1) {
-        final MediaDisplayDetails? display = await ScreenShareView.show(
-          router.context!,
-          _currentCall,
-        );
+      // Currently only desktops can have multiple displays.
+      if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
+        return await _currentCall.value.setScreenShareEnabled(
+          true,
 
-        if (display != null) {
-          await _currentCall.value.setScreenShareEnabled(true, device: display);
-        }
-      } else {
-        await _currentCall.value.setScreenShareEnabled(true);
+          // Whether to share or not to share the audio is dependent on the
+          // browser's API, so always try to query it.
+          withAudio: !PlatformUtils.isMobile,
+        );
+      }
+
+      final ScreenShareRequest? display = await ScreenShareView.show(
+        router.context!,
+        _currentCall,
+      );
+
+      if (display != null) {
+        await _currentCall.value.setScreenShareEnabled(
+          true,
+          device: display.details,
+          withAudio: display.audio,
+        );
       }
     }
   }

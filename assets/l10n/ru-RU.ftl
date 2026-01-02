@@ -223,6 +223,7 @@ btn_send_application = Отправить заявку
 btn_send_one_time_code = Отправить одноразовый код
 btn_set_password = Установить пароль
 btn_share = Поделиться
+btn_share_audio = Транслировать звук
 btn_show_chat = Показать чат
 btn_sign_in = Войти
 btn_sign_up = Создать аккаунт
