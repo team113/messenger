@@ -365,6 +365,11 @@ class WebUtils {
       (Config.allowDetachedActivity ||
           router.lifecycle.value != AppLifecycleState.detached);
 
+  /// Indicates whether this platform supports system audio capture.
+  static FutureOr<bool> get canShareAudio {
+    return false;
+  }
+
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
   static void removeCredentials(UserId userId) {
