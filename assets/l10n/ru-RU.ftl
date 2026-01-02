@@ -281,6 +281,7 @@ err_no_filename = Файл должен иметь имя
 err_password_incorrect = Пароль слишком длинный и/или заканчивается/начинается пробелом
 err_passwords_mismatch = Пароли не совпадают
 err_popup_call_cant_be_closed = Окно не может быть закрыто автоматически. Закройте окно вручную.
+err_screen_permission_denied = Доступ к экрану отсутствует. Убедитесь, что приложению разрешено использовать экран.
 err_size_too_big = Размер файла превышает 15 МБ
 err_too_many_emails = Был достигнут максимум E-mail адресов
 err_unauthorized = Требуется авторизация

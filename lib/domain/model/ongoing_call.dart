@@ -1017,12 +1017,20 @@ class OngoingCall {
             screenShareState.value = LocalTrackState.disabled;
             if (!e.message().contains('Permission denied') &&
                 !e.message().contains('NotAllowedError')) {
-              addError('enableScreenShare() call failed with $e');
+              _notifications.add(ScreenDeviceFailedNotification());
+              Log.warning(
+                'enableScreenShare() call failed with $e',
+                '$runtimeType',
+              );
               rethrow;
             }
           } catch (e) {
             screenShareState.value = LocalTrackState.disabled;
-            addError('enableScreenShare() call failed with $e');
+            _notifications.add(ScreenDeviceFailedNotification());
+            Log.warning(
+              'enableScreenShare() call failed with $e',
+              '$runtimeType',
+            );
             rethrow;
           }
         }
@@ -1086,12 +1094,14 @@ class OngoingCall {
                 e.message().contains('NotAllowedError')) {
               _notifications.add(MicrophonePermissionDeniedNotification());
             } else {
-              addError('unmuteAudio() call failed due to ${e.message()}');
+              _notifications.add(MicrophoneDeviceFailedNotification());
+              Log.warning('unmuteAudio() call failed with $e', '$runtimeType');
               rethrow;
             }
           } catch (e) {
             audioState.value = LocalTrackState.disabled;
-            addError('unmuteAudio() call failed with $e');
+            _notifications.add(MicrophoneDeviceFailedNotification());
+            Log.warning('unmuteAudio() call failed with $e', '$runtimeType');
             rethrow;
           }
         }
@@ -1144,11 +1154,13 @@ class OngoingCall {
                 e.message().contains('NotAllowedError')) {
               _notifications.add(CameraPermissionDeniedNotification());
             } else {
-              addError('enableVideo() call failed with $e');
+              _notifications.add(CameraDeviceFailedNotification());
+              Log.warning('enableVideo() call failed with $e', '$runtimeType');
               rethrow;
             }
           } catch (e) {
-            addError('enableVideo() call failed with $e');
+            _notifications.add(CameraDeviceFailedNotification());
+            Log.warning('enableVideo() call failed with $e', '$runtimeType');
             videoState.value = LocalTrackState.disabled;
             rethrow;
           }
@@ -1555,55 +1567,7 @@ class OngoingCall {
       Log.debug('onFailedLocalMedia($e)', '$runtimeType');
 
       if (e is LocalMediaInitException) {
-        try {
-          switch (e.kind()) {
-            case LocalMediaInitExceptionKind.getUserMediaAudioFailed:
-              addError('Failed to acquire local audio: ${e.message()}');
-              await _room?.disableAudio();
-              _removeLocalTracks(MediaKind.audio, MediaSourceKind.device);
-              audioState.value = LocalTrackState.disabled;
-              break;
-
-            case LocalMediaInitExceptionKind.getUserMediaVideoFailed:
-              addError('Failed to acquire local video: ${e.message()}');
-              await setVideoEnabled(false);
-              break;
-
-            case LocalMediaInitExceptionKind.getDisplayMediaFailed:
-              if (e.message().contains('Permission denied') ||
-                  e.message().contains('NotAllowedError')) {
-                break;
-              }
-
-              addError('Failed to initiate screen capture: $e');
-              await setScreenShareEnabled(false);
-              break;
-
-            default:
-              if (e.message().contains('Permission denied') ||
-                  e.message().contains('NotAllowedError')) {
-                break;
-              }
-
-              addError('Failed to get media: $e');
-
-              await _room?.disableAudio();
-              _removeLocalTracks(MediaKind.audio, MediaSourceKind.device);
-              audioState.value = LocalTrackState.disabled;
-              audioDevice.value = null;
-
-              await setVideoEnabled(false);
-              videoState.value = LocalTrackState.disabled;
-              videoDevice.value = null;
-
-              await setScreenShareEnabled(false);
-              screenShareState.value = LocalTrackState.disabled;
-              screenDevice.value = null;
-              return;
-          }
-        } catch (e) {
-          addError('$e');
-        }
+        await _handleFailedLocalMedia(e);
       }
     });
 
@@ -1965,8 +1929,15 @@ class OngoingCall {
       // First, try to init the local tracks with [_mediaStreamSettings].
       List<LocalMediaTrack> tracks = [];
 
+      // Tries of [initLocalTracks].
+      int tries = 0;
+
       // Initializes the local tracks recursively.
       Future<void> initLocalTracks() async {
+        if (tries++ >= 5) {
+          return;
+        }
+
         try {
           tracks = await MediaUtils.getTracks(
             audio: hasAudio || audioState.value.isEnabled
@@ -2050,14 +2021,19 @@ class OngoingCall {
             e.message().contains('NotAllowedError')) {
           _notifications.add(MicrophonePermissionDeniedNotification());
         } else {
-          addError('initLocalTracks() call failed due to: ${e.message()}');
+          Log.error(
+            'initLocalTracks() call failed due to: ${e.message()}',
+            '$runtimeType',
+          );
+          _notifications.add(MediaFailedNotification(e));
           rethrow;
         }
       } catch (e) {
         audioState.value = LocalTrackState.disabled;
         videoState.value = LocalTrackState.disabled;
         screenShareState.value = LocalTrackState.disabled;
-        addError('initLocalTracks() call failed with $e');
+        _notifications.add(MediaFailedNotification(null));
+        Log.error('initLocalTracks() call failed with $e', '$runtimeType');
       }
 
       // Add the local tracks asynchronously.
@@ -2276,6 +2252,8 @@ class OngoingCall {
             video: videoDevice != null,
             screen: screenDevice != null,
           );
+        } on LocalMediaInitException catch (e) {
+          await _handleFailedLocalMedia(e);
         } catch (e) {
           Log.error(
             '_updateSettings(audioDevice: $audioDevice, videoDevice: $videoDevice, screenDevice: $screenDevice) failed: $e',
@@ -2430,7 +2408,7 @@ class OngoingCall {
   }
 
   /// Picks the [outputDevice] based on the [devices] list.
-  void _pickOutputDevice() {
+  Future<void> _pickOutputDevice() async {
     Log.debug('_pickOutputDevice()', '$runtimeType');
 
     // TODO: For Android and iOS, default device is __NOT__ the first one.
@@ -2441,12 +2419,12 @@ class OngoingCall {
 
     if (device != null && outputDevice.value != device) {
       _notifications.add(DeviceChangedNotification(device: device));
-      _setOutputDevice(device);
+      await _setOutputDevice(device);
     }
   }
 
   /// Picks the [audioDevice] based on the [devices] list.
-  void _pickAudioDevice() async {
+  Future<void> _pickAudioDevice() async {
     Log.debug('_pickAudioDevice()', '$runtimeType');
 
     // TODO: For Android and iOS, default device is __NOT__ the first one.
@@ -2527,6 +2505,107 @@ class OngoingCall {
         outputDevice.value = previous;
         rethrow;
       }
+    }
+  }
+
+  /// Handles the [LocalMediaInitException] by enabling/disabling certain
+  /// devices and tracks.
+  Future<void> _handleFailedLocalMedia(LocalMediaInitException e) async {
+    try {
+      switch (e.kind()) {
+        case LocalMediaInitExceptionKind.getUserMediaAudioFailed:
+          _notifications.add(MicrophoneDeviceFailedNotification());
+          await enumerateDevices();
+          await _pickAudioDevice();
+          break;
+
+        case LocalMediaInitExceptionKind.getUserMediaVideoFailed:
+          _notifications.add(CameraDeviceFailedNotification());
+          await setVideoEnabled(false);
+          break;
+
+        case LocalMediaInitExceptionKind.getDisplayMediaFailed:
+          if (e.message().contains('Permission denied') ||
+              e.message().contains('NotAllowedError')) {
+            break;
+          }
+
+          _notifications.add(ScreenDeviceFailedNotification());
+          await setScreenShareEnabled(false);
+          break;
+
+        case LocalMediaInitExceptionKind.getUserMediaFailed:
+        case LocalMediaInitExceptionKind.localTrackIsEnded:
+          if (e.message().contains('Permission denied') ||
+              e.message().contains('NotAllowedError')) {
+            break;
+          }
+
+          await enumerateDevices();
+
+          bool noCamera =
+              videoDevice.value != null &&
+              devices.none(
+                (e) => e.deviceId() == videoDevice.value?.deviceId(),
+              );
+
+          bool noMicrophone =
+              audioDevice.value != null &&
+              devices.none(
+                (e) => e.deviceId() == audioDevice.value?.deviceId(),
+              );
+
+          bool noOutput =
+              outputDevice.value != null &&
+              devices.none(
+                (e) => e.deviceId() == outputDevice.value?.deviceId(),
+              );
+
+          bool noScreen =
+              screenDevice.value != null &&
+              displays.none(
+                (e) => e.deviceId() == screenDevice.value?.deviceId(),
+              );
+
+          Log.debug(
+            'onFailedLocalMedia($e) -> noScreen($noScreen), noOutput($noOutput), noMicrophone($noMicrophone), noCamera($noCamera)',
+            '$runtimeType',
+          );
+
+          // If every device is present, then do nothing?
+          if (!noScreen && !noOutput && !noMicrophone && !noCamera) {
+            _notifications.add(MediaFailedNotification(e));
+            break;
+          }
+
+          // Disable the screen sharing, if screen has failed.
+          if (noScreen) {
+            await setScreenShareEnabled(false);
+            screenShareState.value = LocalTrackState.disabled;
+            screenDevice.value = null;
+          }
+
+          // Disable the camera, if video device has failed.
+          if (noCamera) {
+            await setVideoEnabled(false);
+            videoState.value = LocalTrackState.disabled;
+            videoDevice.value = null;
+          }
+
+          // Pick another microphone, if audio device has failed.
+          if (noMicrophone) {
+            await _pickAudioDevice();
+          }
+
+          // Pick another output, if output device has failed.
+          if (noOutput) {
+            await _pickOutputDevice();
+          }
+          return;
+      }
+    } catch (e) {
+      Log.warning('Unable to handle `$e`', '$runtimeType');
+      addError('$e');
     }
   }
 }
@@ -2894,12 +2973,16 @@ extension DevicesList on List<DeviceDetails> {
 
 /// Possible [CallNotification] kind.
 enum CallNotificationKind {
+  cameraDeviceFailed,
   cameraPermissionDenied,
-  microphonePermissionDenied,
   connectionLost,
   connectionRestored,
   deviceChanged,
   error,
+  mediaFailed,
+  microphoneDeviceFailed,
+  microphonePermissionDenied,
+  screenDeviceFailed,
 }
 
 /// Notification of an event happened in [OngoingCall].
@@ -2954,4 +3037,33 @@ class MicrophonePermissionDeniedNotification extends CallNotification {
   @override
   CallNotificationKind get kind =>
       CallNotificationKind.microphonePermissionDenied;
+}
+
+/// [CallNotification] of a microphone device being failed to acquire event.
+class MicrophoneDeviceFailedNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.microphoneDeviceFailed;
+}
+
+/// [CallNotification] of a camera device being failed to acquire event.
+class CameraDeviceFailedNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.cameraDeviceFailed;
+}
+
+/// [CallNotification] of a screen device being failed to acquire event.
+class ScreenDeviceFailedNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.screenDeviceFailed;
+}
+
+/// [CallNotification] of all the devices request has failed.
+class MediaFailedNotification extends CallNotification {
+  MediaFailedNotification(this.exception);
+
+  @override
+  CallNotificationKind get kind => CallNotificationKind.screenDeviceFailed;
+
+  /// [LocalMediaInitException] blocked the request.
+  final LocalMediaInitException? exception;
 }
