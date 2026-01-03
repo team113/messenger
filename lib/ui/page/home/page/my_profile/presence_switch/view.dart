@@ -19,7 +19,7 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
@@ -57,7 +57,7 @@ class PresenceSwitchView extends StatelessWidget {
                   shrinkWrap: true,
                   padding: ModalPopup.padding(context),
                   children: [
-                    ...[Presence.present, Presence.away].map((e) {
+                    ...[UserPresence.present, UserPresence.away].map((e) {
                       return Obx(() {
                         return Padding(
                           padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
@@ -76,9 +76,10 @@ class PresenceSwitchView extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: switch (e) {
-                                        Presence.present =>
+                                        UserPresence.present =>
                                           style.colors.acceptAuxiliary,
-                                        Presence.away => style.colors.warning,
+                                        UserPresence.away =>
+                                          style.colors.warning,
                                         (_) => style.colors.secondary,
                                       },
                                     ),
@@ -88,9 +89,10 @@ class PresenceSwitchView extends StatelessWidget {
                                 ),
                                 SizedBox(width: 5),
                                 Text(switch (e) {
-                                  Presence.present =>
+                                  UserPresence.present =>
                                     'label_presence_present'.l10n,
-                                  Presence.away => 'label_presence_away'.l10n,
+                                  UserPresence.away =>
+                                    'label_presence_away'.l10n,
                                   (_) => '',
                                 }),
                               ],

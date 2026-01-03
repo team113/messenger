@@ -87,6 +87,26 @@ class CallNotificationWidget extends StatelessWidget {
         notification as ErrorNotification;
         title = notification.message;
         break;
+
+      case CallNotificationKind.microphoneDeviceFailed:
+        notification as MicrophoneDeviceFailedNotification;
+        title = 'err_microphone_permission_denied'.l10n;
+        break;
+
+      case CallNotificationKind.cameraDeviceFailed:
+        notification as CameraDeviceFailedNotification;
+        title = 'err_camera_permission_denied'.l10n;
+        break;
+
+      case CallNotificationKind.screenDeviceFailed:
+        notification as ScreenDeviceFailedNotification;
+        title = 'err_screen_permission_denied'.l10n;
+        break;
+
+      case CallNotificationKind.mediaFailed:
+        notification as MediaFailedNotification;
+        title = 'err_media_devices_are_null'.l10n;
+        break;
     }
 
     return Container(

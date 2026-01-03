@@ -692,7 +692,7 @@ class ChatController extends GetxController {
 
         case DeleteChatMessageErrorCode.notAuthor:
         case DeleteChatMessageErrorCode.quoted:
-        case DeleteChatMessageErrorCode.read:
+        case DeleteChatMessageErrorCode.uneditable:
           MessagePopup.error(e.toMessage());
           break;
 
@@ -708,7 +708,7 @@ class ChatController extends GetxController {
 
         case DeleteChatForwardErrorCode.notAuthor:
         case DeleteChatForwardErrorCode.quoted:
-        case DeleteChatForwardErrorCode.read:
+        case DeleteChatForwardErrorCode.uneditable:
           MessagePopup.error(e.toMessage());
           break;
 

@@ -512,7 +512,9 @@ class NotificationService extends DisposableService {
       final String? thread = message.data['thread'];
 
       if (tag != null) {
-        await AndroidUtils.cancelNotificationById(tag, tag.asHash);
+        if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+          await AndroidUtils.cancelNotificationById(tag, tag.asHash);
+        }
       }
 
       // If message contains no notification (it's a background notification),

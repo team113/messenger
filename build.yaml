@@ -171,6 +171,10 @@ targets:
                 name: ConfirmationCode
                 imports:
                   - "package:messenger/domain/model/my_user.dart"
+            - graphql_type: DonationId
+              dart_type: String
+            - graphql_type: Sum
+              dart_type: String
             - graphql_type: DateTime
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/precise_date_time.dart"
               dart_type:

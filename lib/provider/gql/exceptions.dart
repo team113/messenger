@@ -614,7 +614,9 @@ class PostChatMessageException
       case PostChatMessageErrorCode.blocked:
         return 'err_blocked'.l10n;
 
-      case PostChatMessageErrorCode.noTextAndNoAttachment:
+      case PostChatMessageErrorCode.noContent:
+      case PostChatMessageErrorCode.notEnoughFunds:
+      case PostChatMessageErrorCode.unallowedDonation:
       case PostChatMessageErrorCode.unknownAttachment:
       case PostChatMessageErrorCode.wrongAttachmentsCount:
       case PostChatMessageErrorCode.unknownReplyingChatItem:
@@ -822,7 +824,7 @@ class DeleteChatMessageException
 
       case DeleteChatMessageErrorCode.notAuthor:
       case DeleteChatMessageErrorCode.quoted:
-      case DeleteChatMessageErrorCode.read:
+      case DeleteChatMessageErrorCode.uneditable:
         return 'err_message_was_read'.l10n;
 
       case DeleteChatMessageErrorCode.unknownChatItem:
@@ -851,7 +853,7 @@ class DeleteChatForwardException
 
       case DeleteChatForwardErrorCode.notAuthor:
       case DeleteChatForwardErrorCode.quoted:
-      case DeleteChatForwardErrorCode.read:
+      case DeleteChatForwardErrorCode.uneditable:
         return 'err_message_was_read'.l10n;
 
       case DeleteChatForwardErrorCode.unknownChatItem:
@@ -1019,7 +1021,7 @@ class EditChatMessageException
       case EditChatMessageErrorCode.wrongAttachmentsCount:
       case EditChatMessageErrorCode.unknownAttachment:
       case EditChatMessageErrorCode.notAuthor:
-      case EditChatMessageErrorCode.noTextAndNoAttachment:
+      case EditChatMessageErrorCode.noContent:
         return toString();
 
       case EditChatMessageErrorCode.artemisUnknown:
@@ -1173,7 +1175,10 @@ class ForwardChatItemsException
       case ForwardChatItemsErrorCode.unknownChat:
       case ForwardChatItemsErrorCode.unknownUser:
       case ForwardChatItemsErrorCode.unknownForwardedAttachment:
-      case ForwardChatItemsErrorCode.noTextAndNoAttachment:
+      case ForwardChatItemsErrorCode.noQuotedContent:
+      case ForwardChatItemsErrorCode.notEnoughFunds:
+      case ForwardChatItemsErrorCode.unallowedDonation:
+      case ForwardChatItemsErrorCode.unknownForwardedDonation:
       case ForwardChatItemsErrorCode.wrongItemsCount:
       case ForwardChatItemsErrorCode.unsupportedForwardedItem:
       case ForwardChatItemsErrorCode.unknownAttachment:
@@ -1630,7 +1635,7 @@ class UpdateWelcomeMessageException
     switch (code) {
       case UpdateWelcomeMessageErrorCode.wrongAttachmentsCount:
       case UpdateWelcomeMessageErrorCode.unknownAttachment:
-      case UpdateWelcomeMessageErrorCode.noTextAndNoAttachment:
+      case UpdateWelcomeMessageErrorCode.noContent:
         return toString();
 
       case UpdateWelcomeMessageErrorCode.artemisUnknown:

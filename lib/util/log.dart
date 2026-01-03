@@ -17,62 +17,68 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/config.dart';
 import 'new_type.dart';
+import 'obs/rxlist.dart';
+
+/// Global variable to access [LogImpl].
+///
+/// May be reassigned to mock specific functionally.
+// ignore: non_constant_identifier_names
+LogImpl Log = LogImpl();
 
 /// Utility logging messages to console.
-class Log {
+class LogImpl {
   /// List of [String]s representing the logs kept in the variable.
-  static final RxList<LogEntry> logs = RxList();
+  final RxObsList<LogEntry> logs = RxObsList();
 
   /// Amount of [logs] to keep in the variable.
   ///
   /// If set to zero, then no [logs] will be kept at all in the variable.
-  static int maxLogs = 0;
+  int maxLogs = 0;
 
   /// Prints the fatal [message] with [tag] to the [me.Log].
-  static void fatal(String message, [String? tag]) {
+  void fatal(String message, [String? tag]) {
     _print(me.LogLevel.fatal, '${tag != null ? '[$tag]' : ''} $message');
     _breadcrumb(message, tag, SentryLevel.fatal);
   }
 
   /// Prints the error [message] with [tag] to the [me.Log].
-  static void error(String message, [String? tag]) {
+  void error(String message, [String? tag]) {
     _print(me.LogLevel.error, '${tag != null ? '[$tag]' : ''} $message');
     _breadcrumb(message, tag, SentryLevel.error);
   }
 
   /// Prints the warning [message] with [tag] to the [me.Log].
-  static void warning(String message, [String? tag]) {
+  void warning(String message, [String? tag]) {
     _print(me.LogLevel.warning, '${tag != null ? '[$tag]' : ''} $message');
     _breadcrumb(message, tag, SentryLevel.warning);
   }
 
   /// Prints the information [message] with [tag] to the [me.Log].
-  static void info(String message, [String? tag]) {
+  void info(String message, [String? tag]) {
     _print(me.LogLevel.info, '${tag != null ? '[$tag]' : ''} $message');
     _breadcrumb(message, tag, SentryLevel.info);
   }
 
   /// Prints the debug [message] with [tag] to the [me.Log].
-  static void debug(String message, [String? tag]) {
+  void debug(String message, [String? tag]) {
     _print(me.LogLevel.debug, '${tag != null ? '[$tag]' : ''} $message');
     _breadcrumb(message, tag, SentryLevel.debug);
   }
 
   /// Prints the trace [message] with [tag] to the [me.Log].
-  static void trace(String message, [String? tag]) {
+  void trace(String message, [String? tag]) {
     _print(me.LogLevel.trace, '${tag != null ? '[$tag]' : ''} $message');
     _breadcrumb(message, tag, SentryLevel.debug);
   }
 
   /// Reports the [exception] to [Sentry], if enabled.
-  static Future<void> report(Exception exception, {StackTrace? trace}) async {
+  Future<void> report(Exception exception, {StackTrace? trace}) async {
     if (!kDebugMode && Config.sentryDsn.isNotEmpty) {
       try {
         await Sentry.captureException(exception, stackTrace: trace);
@@ -84,7 +90,7 @@ class Log {
 
   /// Reports a [Breadcrumb] with the provided details to the [Sentry], if
   /// enabled.
-  static Future<void> _breadcrumb(
+  Future<void> _breadcrumb(
     String message,
     String? tag,
     SentryLevel level,
@@ -101,7 +107,7 @@ class Log {
   }
 
   /// Stores the provided [text] to the [logs].
-  static void _print(me.LogLevel level, String text) {
+  void _print(me.LogLevel level, String text) {
     switch (level) {
       case me.LogLevel.fatal:
         me.Log.fatal(text);
@@ -163,6 +169,9 @@ class LogEntry {
 
   /// [DateTime] this entry is created at.
   final DateTime at;
+
+  @override
+  String toString() => '[${at.toUtc().toStamp}] [${level.name}] $text';
 }
 
 /// Extension adding obscured getter to [NewType]s.
@@ -193,5 +202,13 @@ extension JsonSerializableExtension on JsonSerializable {
     }
 
     return toJson().toString();
+  }
+}
+
+/// Extention adding text representation in stamp view of [DateTime].
+extension DateTimeToStamp on DateTime {
+  /// Returns this [DateTime] formatted as a stamp.
+  String get toStamp {
+    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}:${second.toString().padLeft(2, '0')}.${millisecond.toString().padLeft(4, '0')}';
   }
 }

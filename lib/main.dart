@@ -54,9 +54,11 @@ import 'provider/drift/drift.dart';
 import 'provider/drift/geolocation.dart';
 import 'provider/drift/locks.dart';
 import 'provider/drift/my_user.dart';
+import 'provider/drift/secret.dart';
 import 'provider/drift/settings.dart';
 import 'provider/drift/skipped_version.dart';
 import 'provider/drift/window.dart';
+import 'provider/file/log.dart';
 import 'provider/geo/geo.dart';
 import 'provider/gql/graphql.dart';
 import 'pubspec.g.dart';
@@ -248,6 +250,7 @@ Future<void> _runApp() async {
   Get.put(BackgroundDriftProvider(Get.find()));
   Get.put(GeoLocationDriftProvider(Get.find()));
   Get.put(LockDriftProvider(Get.find()));
+  Get.put(RefreshSecretDriftProvider(Get.find()));
   Get.put(CallKitCallsDriftProvider(Get.find()));
 
   if (!PlatformUtils.isWeb) {
@@ -255,6 +258,7 @@ Future<void> _runApp() async {
     Get.put(CacheDriftProvider(Get.find()));
     Get.put(DownloadDriftProvider(Get.find()));
     Get.put(SkippedVersionDriftProvider(Get.find()));
+    Get.put(LogFileProvider());
   }
 
   final accountProvider = Get.put(AccountDriftProvider(Get.find()));
@@ -293,7 +297,7 @@ Future<void> _runApp() async {
     AuthRepository(graphQlProvider, myUserProvider, Get.find()),
   );
   final authService = Get.put(
-    AuthService(authRepository, Get.find(), Get.find(), Get.find()),
+    AuthService(authRepository, Get.find(), Get.find(), Get.find(), Get.find()),
   );
 
   Uri? initial;
@@ -332,9 +336,14 @@ Future<void> _runApp() async {
   await authService.init();
   await L10n.init();
 
-  Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
-  Get.put(UpgradeWorker(Get.findOrNull()));
-  Get.put(LogWorker());
+  Get.put(
+    CacheWorker(
+      Get.findOrNull<CacheDriftProvider>(),
+      Get.findOrNull<DownloadDriftProvider>(),
+    ),
+  );
+  Get.put(UpgradeWorker(Get.findOrNull<SkippedVersionDriftProvider>()));
+  Get.put(LogWorker(Get.findOrNull<LogFileProvider>()));
   Get.put(AgeWorker());
 
   WebUtils.deleteLoader();

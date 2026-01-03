@@ -1256,8 +1256,9 @@ mixin ChatGraphQlMixin {
       from: from,
       to: to,
       items: items,
-      text: text,
-      attachments: attachments,
+      message: text != null || attachments != null
+          ? ForwardChatItemsMessageInput(attachments: attachments, text: text)
+          : null,
     );
     final QueryResult result = await client.mutate(
       MutationOptions(
