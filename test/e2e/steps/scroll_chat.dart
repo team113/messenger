@@ -71,3 +71,51 @@ final StepDefinitionGeneric<FlutterWorld> scrollAndSee =
         expect(ids.length, quantity);
       },
     );
+
+/// Scrolls the currently opened [Chat] and ensures the provided "dummy msg"
+/// in [ChatMessage]s are visible.
+///
+/// Examples:
+/// - Then I scroll and see "dummy msg" message text in chat
+final StepDefinitionGeneric<FlutterWorld> scrollAndSeeText =
+    then1<String, FlutterWorld>(
+      'I scroll and see {string} message text in chat',
+      (String text, StepContext<FlutterWorld> context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
+
+          final messageFinder = find.byWidgetPredicate((Widget widget) {
+            if (widget is ChatItemWidget) {
+              final ChatItem item = widget.item.value;
+              if (item is ChatMessage) {
+                return item.text?.val.contains(text) == true;
+              }
+            }
+            return false;
+          }, skipOffstage: false);
+
+          final scrollable = find.descendant(
+            of: find.byKey(const Key('MessagesList')),
+            matching: find.byWidgetPredicate((widget) {
+              if (widget is Scrollable) {
+                return widget.restorationId == null;
+              }
+              return false;
+            }),
+          );
+
+          if (!await context.world.appDriver.isPresent(scrollable)) {
+            return false;
+          }
+          await context.world.appDriver.scrollIntoVisible(
+            messageFinder,
+            scrollable,
+            dy: 100,
+          );
+
+          await context.world.appDriver.waitForAppToSettle();
+
+          return context.world.appDriver.isPresent(messageFinder);
+        }, timeout: const Duration(seconds: 30));
+      },
+    );
