@@ -23,7 +23,6 @@ import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/video_view.dart';
-import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -43,11 +42,11 @@ class ScreenShareView extends StatelessWidget {
   static const double videoHeight = 200;
 
   /// Displays a [ScreenShareView] wrapped in a [ModalPopup].
-  static Future<ScreenShareRequest?> show<T>(
+  static Future<MediaDisplayDetails?> show<T>(
     BuildContext context,
     Rx<OngoingCall> call,
   ) {
-    return ModalPopup.show<ScreenShareRequest?>(
+    return ModalPopup.show<MediaDisplayDetails?>(
       context: context,
       child: ScreenShareView(call),
     );
@@ -114,26 +113,6 @@ class ScreenShareView extends StatelessWidget {
                   itemCount: c.call.value.displays.length,
                 ),
               ),
-              Obx(() {
-                if (!c.hasAudioSharingSupport.value) {
-                  return const SizedBox();
-                }
-
-                return Padding(
-                  padding: ModalPopup.padding(context),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 25),
-                      SwitchField(
-                        text: 'btn_share_audio'.l10n,
-                        value: c.shareAudio.value,
-                        onChanged: (b) => c.shareAudio.value = b,
-                      ),
-                    ],
-                  ),
-                );
-              }),
               const SizedBox(height: 25),
               Padding(
                 padding: ModalPopup.padding(context),
@@ -142,17 +121,7 @@ class ScreenShareView extends StatelessWidget {
                   title: 'btn_share'.l10n,
                   onPressed: () {
                     c.freeTracks();
-
-                    if (c.selected.value == null) {
-                      Navigator.of(context).pop(null);
-                    } else {
-                      Navigator.of(context).pop(
-                        ScreenShareRequest(
-                          c.selected.value!,
-                          audio: c.shareAudio.value,
-                        ),
-                      );
-                    }
+                    Navigator.of(context).pop(c.selected.value);
                   },
                 ),
               ),
@@ -163,18 +132,4 @@ class ScreenShareView extends StatelessWidget {
       },
     );
   }
-}
-
-/// [MediaDisplayDetails] along with a [audio] boolean whether it should be
-/// included or not.
-///
-/// Intended to be served as a result of [ScreenShareView] invoke.
-class ScreenShareRequest {
-  const ScreenShareRequest(this.details, {this.audio = false});
-
-  /// [MediaDisplayDetails] of this request.
-  final MediaDisplayDetails details;
-
-  /// Indicator whether audio should be captured as well.
-  final bool audio;
 }

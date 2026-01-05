@@ -351,14 +351,7 @@ class MediaUtilsImpl {
           DisplayVideoTrackConstraints();
       if (screen.device != null) constraints.deviceId(screen.device!);
       constraints.idealFrameRate(screen.framerate ?? 30);
-      constraints.idealHeight(1080);
       settings.displayVideo(constraints);
-
-      if (screen.audio) {
-        final DisplayAudioTrackConstraints constraints =
-            DisplayAudioTrackConstraints();
-        settings.displayAudio(constraints);
-      }
     }
 
     return settings;
@@ -410,13 +403,10 @@ class VideoPreferences extends TrackPreferences {
 
 /// [TrackPreferences] of a screen share track.
 class ScreenPreferences extends TrackPreferences {
-  const ScreenPreferences({super.device, this.framerate, this.audio = false});
+  const ScreenPreferences({super.device, this.framerate});
 
   /// Preferred framerate of the screen track.
   final int? framerate;
-
-  /// Indicator whether audio system capture should be enabled.
-  final bool audio;
 }
 
 /// Extension adding conversion on [MediaDeviceDetails] to [AudioSpeakerKind].

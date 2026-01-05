@@ -22,13 +22,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
-import '/domain/model/chat_call.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/service/call.dart';
 import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
-import '/util/web/web_utils.dart';
 import 'view.dart';
 
 export 'view.dart';
@@ -54,12 +53,6 @@ class ScreenShareController extends GetxController {
 
   /// Currently selected [MediaDisplayDetails].
   final Rx<MediaDisplayDetails?> selected = Rx(null);
-
-  /// Indicator whether system audio capture is available on this platform.
-  final RxBool hasAudioSharingSupport = RxBool(false);
-
-  /// Indicator whether system audio should be captured as well.
-  final RxBool shareAudio = RxBool(false);
 
   /// Subscription for the [CallService.calls] changes.
   late final StreamSubscription? _callsSubscription;
@@ -104,13 +97,6 @@ class ScreenShareController extends GetxController {
     }
 
     selected.value = call.value.displays.firstOrNull;
-
-    final FutureOr<bool> canShareAudioOrFuture = WebUtils.canShareAudio;
-    if (canShareAudioOrFuture is Future<bool>) {
-      canShareAudioOrFuture.then((e) => hasAudioSharingSupport.value = e);
-    } else {
-      hasAudioSharingSupport.value = canShareAudioOrFuture;
-    }
 
     super.onInit();
   }
