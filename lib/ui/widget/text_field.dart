@@ -73,6 +73,7 @@ class ReactiveTextField extends StatelessWidget {
     this.floatingAccent = false,
     this.textCapitalization = TextCapitalization.sentences,
     this.spellCheck = true,
+    this.autocomplete,
   });
 
   /// Constructs a [ReactiveTextField] tuned best for password-type fields.
@@ -84,6 +85,7 @@ class ReactiveTextField extends StatelessWidget {
     required RxBool obscured,
     bool treatErrorAsStatus = true,
     TextStyle? style,
+    AutocompleteKind autocomplete = AutocompleteKind.currentPassword,
   }) {
     return Obx(() {
       return ReactiveTextField(
@@ -103,6 +105,7 @@ class ReactiveTextField extends StatelessWidget {
         textCapitalization: TextCapitalization.none,
         style: style,
         spellCheck: false,
+        autocomplete: autocomplete,
       );
     });
   }
@@ -249,6 +252,9 @@ class ReactiveTextField extends StatelessWidget {
   /// Indicator whether spell checking and auto correction should be enabled for
   /// this field.
   final bool spellCheck;
+
+  /// [AutocompleteKind] to pass to this field.
+  final AutocompleteKind? autocomplete;
 
   @override
   Widget build(BuildContext context) {
@@ -473,6 +479,7 @@ class ReactiveTextField extends StatelessWidget {
                   : SpellCheckConfiguration.disabled(),
               autocorrect: spellCheck ? null : false,
               enableSuggestions: spellCheck,
+              autofillHints: [?autocomplete?.value],
               contextMenuBuilder: (_, field) {
                 final double dx = field.contextMenuAnchors.primaryAnchor.dx;
                 final double dy = field.contextMenuAnchors.primaryAnchor.dy;
@@ -561,6 +568,20 @@ class ReactiveTextField extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+/// Possible autocomplete hints to pass to a [TextField].
+enum AutocompleteKind {
+  currentPassword,
+  newPassword;
+
+  /// Returns the actual value to use from this [AutocompleteKind].
+  String get value {
+    return switch (this) {
+      currentPassword => 'current-password',
+      newPassword => 'new-password',
+    };
   }
 }
 

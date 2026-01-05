@@ -164,6 +164,7 @@ class LoginView extends StatelessWidget {
                   hint: 'label_enter_password'.l10n,
                   obscured: c.obscureNewPassword,
                   treatErrorAsStatus: false,
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField.password(
@@ -173,6 +174,7 @@ class LoginView extends StatelessWidget {
                   hint: 'label_repeat_password'.l10n,
                   obscured: c.obscureRepeatPassword,
                   treatErrorAsStatus: false,
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
@@ -213,6 +215,7 @@ class LoginView extends StatelessWidget {
                   hint: 'label_enter_password'.l10n,
                   obscured: c.obscurePassword,
                   treatErrorAsStatus: false,
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField.password(
@@ -222,6 +225,7 @@ class LoginView extends StatelessWidget {
                   hint: 'label_repeat_password'.l10n,
                   obscured: c.obscureRepeatPassword,
                   treatErrorAsStatus: false,
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
