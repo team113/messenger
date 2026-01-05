@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -47,6 +47,9 @@ class CallOverlayController extends GetxController {
     this._settingsRepo,
   );
 
+  /// Reactive ordered list of [OngoingCall]s.
+  final RxList<OverlayCall> calls = RxList<OverlayCall>([]);
+
   /// Call service used to expose the [calls].
   final CallService _callService;
 
@@ -58,9 +61,6 @@ class CallOverlayController extends GetxController {
 
   /// Settings repository, used to get the stored [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
-
-  /// Reactive ordered list of [OngoingCall]s.
-  final RxList<OverlayCall> calls = RxList<OverlayCall>([]);
 
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
@@ -82,129 +82,27 @@ class CallOverlayController extends GetxController {
 
       switch (event.op) {
         case OperationKind.added:
-          if (WebUtils.containsCall(event.key!)) {
-            // Call's popup is already displayed, perhaps by another tab, so
-            // don't react to this call at all.
+          if (event.key == null || event.value == null) {
+            Log.error(
+              '_callService.calls.changes -> ${event.op} -> Unreachable situation with `null`s: `${event.key}` or ${event.value}',
+              '$runtimeType',
+            );
             return;
           }
 
-          // Unfocus any inputs being active.
-          FocusManager.instance.primaryFocus?.unfocus();
-
-          bool window = false;
-
-          final OngoingCall ongoingCall = event.value!.value;
-
-          // Check whether the call notification should be displayed at all,
-          // which should only be applied to pending calls only.
-          switch (ongoingCall.state.value) {
-            case OngoingCallState.pending:
-              // If global `MyUser` mute is applied, then ignore the call.
-              final MuteDuration? meMuted = _myUserService.myUser.value?.muted;
-              if (meMuted != null) {
-                return _callService.remove(ongoingCall.chatId.value);
-              }
-
-              bool redialed = false;
-
-              final ChatMembersDialed? dialed = ongoingCall.call.value?.dialed;
-              if (dialed is ChatMembersDialedConcrete) {
-                redialed = dialed.members.any(
-                  (e) => e.user.id == _chatService.me,
-                );
-              }
-
-              // If redialed, then show the notification anyway.
-              if (!redialed) {
-                try {
-                  // If this exact `Chat` is muted, then ignore the call.
-                  final RxChat? chat = await _chatService.get(
-                    ongoingCall.chatId.value,
-                  );
-                  final MuteDuration? chatMuted = chat?.chat.value.muted;
-                  if (chatMuted != null) {
-                    return _callService.remove(ongoingCall.chatId.value);
-                  }
-                } catch (_) {
-                  // No-op, as it's ok to fail.
-                }
-              }
-              break;
-
-            case OngoingCallState.local:
-            case OngoingCallState.joining:
-            case OngoingCallState.active:
-            case OngoingCallState.ended:
-              // No-op.
-              break;
-          }
-
-          if (PlatformUtils.isWeb &&
-              !PlatformUtils.isMobile &&
-              _settings.value?.enablePopups != false) {
-            window = WebUtils.openPopupCall(
-              event.key!,
-              withAudio:
-                  ongoingCall.audioState.value == LocalTrackState.enabling ||
-                  ongoingCall.audioState.value == LocalTrackState.enabled,
-              withVideo:
-                  ongoingCall.videoState.value == LocalTrackState.enabling ||
-                  ongoingCall.videoState.value == LocalTrackState.enabled,
-              withScreen:
-                  ongoingCall.screenShareState.value ==
-                      LocalTrackState.enabling ||
-                  ongoingCall.screenShareState.value == LocalTrackState.enabled,
-            );
-
-            // If [window] is `true`, then a new popup window is created, so
-            // treat this call as a popup windowed call.
-            if (window) {
-              WebUtils.setCall(ongoingCall.toStored());
-              if (ongoingCall.callChatItemId == null ||
-                  ongoingCall.deviceId == null) {
-                _workers[event.key!] = ever(event.value!.value.call, (
-                  ChatCall? call,
-                ) {
-                  WebUtils.setCall(
-                    WebStoredCall(
-                      chatId: ongoingCall.chatId.value,
-                      call: call,
-                      creds: ongoingCall.creds,
-                      deviceId: ongoingCall.deviceId,
-                      state: ongoingCall.state.value,
-                    ),
-                  );
-
-                  if (call?.id != null) {
-                    _workers[event.key!]?.dispose();
-                  }
-                });
-              }
-            } else {
-              Future.delayed(Duration.zero, () {
-                ongoingCall.addError('err_call_popup_was_blocked'.l10n);
-              });
-            }
-          }
-
-          if (!window) {
-            // Otherwise the popup creation request failed or wasn't invoked, so
-            // add this call to the [calls] to display it in the view.
-            calls.add(OverlayCall(event.value!));
-            event.value?.value.init(getChat: _chatService.get);
-          }
+          await _handleAddedCall(event.key!, event.value!);
           break;
 
         case OperationKind.removed:
-          calls.removeWhere((e) => e.call.value.chatId.value == event.key);
-
-          final OngoingCall call = event.value!.value;
-          final WebStoredCall? web = WebUtils.getCall(event.key!);
-          if (call.callChatItemId == null ||
-              call.connected ||
-              web?.state == OngoingCallState.pending) {
-            WebUtils.removeCall(event.key!);
+          if (event.key == null) {
+            Log.error(
+              '_callService.calls.changes -> ${event.op} -> Unreachable situation with `null` at: `${event.key}`',
+              '$runtimeType',
+            );
+            return;
           }
+
+          _handleCallRemoved(event.key!, event.value);
           break;
 
         case OperationKind.updated:
@@ -212,6 +110,11 @@ class CallOverlayController extends GetxController {
           break;
       }
     });
+
+    // Account the calls that are already present in the service.
+    for (var e in _callService.calls.entries) {
+      _handleAddedCall(e.key, e.value);
+    }
 
     super.onInit();
   }
@@ -229,6 +132,135 @@ class CallOverlayController extends GetxController {
     if (index != calls.length - 1) {
       calls.removeAt(index);
       calls.add(call);
+    }
+  }
+
+  /// Accounts a call happening in [key] chat and either displays it in the
+  /// [calls] or creates a [WebUtils.openPopupCall] popup, if available.
+  Future<void> _handleAddedCall(ChatId key, Rx<OngoingCall> reactive) async {
+    Log.debug('_handleAddedCall($key, ${reactive.value})', '$runtimeType');
+
+    final OngoingCall value = reactive.value;
+
+    if (WebUtils.containsCall(key)) {
+      // Call's popup is already displayed, perhaps by another tab, so
+      // don't react to this call at all.
+      return;
+    }
+
+    // Unfocus any inputs being active.
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    bool window = false;
+
+    // Check whether the call notification should be displayed at all,
+    // which should only be applied to pending calls only.
+    switch (value.state.value) {
+      case OngoingCallState.pending:
+        // If global `MyUser` mute is applied, then ignore the call.
+        final MuteDuration? meMuted = _myUserService.myUser.value?.muted;
+        if (meMuted != null) {
+          return _callService.remove(value.chatId.value);
+        }
+
+        bool redialed = false;
+
+        final ChatMembersDialed? dialed = value.call.value?.dialed;
+        if (dialed is ChatMembersDialedConcrete) {
+          redialed = dialed.members.any((e) => e.user.id == _chatService.me);
+        }
+
+        // If redialed, then show the notification anyway.
+        if (!redialed) {
+          try {
+            // If this exact `Chat` is muted, then ignore the call.
+            final RxChat? chat = await _chatService.get(value.chatId.value);
+            final MuteDuration? chatMuted = chat?.chat.value.muted;
+            if (chatMuted != null) {
+              return _callService.remove(value.chatId.value);
+            }
+          } catch (_) {
+            // No-op, as it's ok to fail.
+          }
+        }
+        break;
+
+      case OngoingCallState.local:
+      case OngoingCallState.joining:
+      case OngoingCallState.active:
+      case OngoingCallState.ended:
+        // No-op.
+        break;
+    }
+
+    if (PlatformUtils.isWeb &&
+        !PlatformUtils.isMobile &&
+        _settings.value?.enablePopups != false) {
+      window = WebUtils.openPopupCall(
+        key,
+        withAudio:
+            value.audioState.value == LocalTrackState.enabling ||
+            value.audioState.value == LocalTrackState.enabled,
+        withVideo:
+            value.videoState.value == LocalTrackState.enabling ||
+            value.videoState.value == LocalTrackState.enabled,
+        withScreen:
+            value.screenShareState.value == LocalTrackState.enabling ||
+            value.screenShareState.value == LocalTrackState.enabled,
+      );
+
+      // If [window] is `true`, then a new popup window is created, so
+      // treat this call as a popup windowed call.
+      if (window) {
+        WebUtils.setCall(value.toStored());
+        if (value.callChatItemId == null || value.deviceId == null) {
+          _workers[key] = ever(value.call, (ChatCall? call) {
+            WebUtils.setCall(
+              WebStoredCall(
+                chatId: value.chatId.value,
+                call: call,
+                creds: value.creds,
+                deviceId: value.deviceId,
+                state: value.state.value,
+              ),
+            );
+
+            if (call?.id != null) {
+              _workers[key]?.dispose();
+            }
+          });
+        }
+      } else {
+        Future.delayed(Duration.zero, () {
+          value.addError('err_call_popup_was_blocked'.l10n);
+        });
+      }
+    }
+
+    if (!window) {
+      // Otherwise the popup creation request failed or wasn't invoked, so
+      // add this call to the [calls] to display it in the view.
+      calls.add(OverlayCall(reactive));
+      value.init(getChat: _chatService.get);
+    }
+  }
+
+  /// Removes an [OngoingCall] from the provided [key] chat.
+  void _handleCallRemoved(ChatId key, Rx<OngoingCall>? value) {
+    Log.debug('_handleCallRemoved($key, ${reactive.value})', '$runtimeType');
+
+    calls.removeWhere((e) => e.call.value.chatId.value == key);
+
+    final OngoingCall? call = value?.value;
+    if (call != null) {
+      if (call.callChatItemId == null || call.connected) {
+        WebUtils.removeCall(key);
+      }
+    }
+
+    final WebStoredCall? web = WebUtils.getCall(key);
+    if (web?.state == OngoingCallState.pending) {
+      WebUtils.removeCall(key);
     }
   }
 }

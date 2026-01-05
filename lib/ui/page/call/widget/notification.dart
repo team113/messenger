@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -86,6 +86,26 @@ class CallNotificationWidget extends StatelessWidget {
       case CallNotificationKind.error:
         notification as ErrorNotification;
         title = notification.message;
+        break;
+
+      case CallNotificationKind.microphoneDeviceFailed:
+        notification as MicrophoneDeviceFailedNotification;
+        title = 'err_microphone_permission_denied'.l10n;
+        break;
+
+      case CallNotificationKind.cameraDeviceFailed:
+        notification as CameraDeviceFailedNotification;
+        title = 'err_camera_permission_denied'.l10n;
+        break;
+
+      case CallNotificationKind.screenDeviceFailed:
+        notification as ScreenDeviceFailedNotification;
+        title = 'err_screen_permission_denied'.l10n;
+        break;
+
+      case CallNotificationKind.mediaFailed:
+        notification as MediaFailedNotification;
+        title = 'err_media_devices_are_null'.l10n;
         break;
     }
 

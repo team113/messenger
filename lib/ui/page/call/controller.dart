@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -394,6 +394,9 @@ class CallController extends GetxController {
 
   /// [StreamSubscription]s for the [CallMember.tracks] updates.
   late final Map<CallMemberId, StreamSubscription> _membersTracksSubscriptions;
+
+  /// [StreamSubscription]s of [RxUser.updates] for [CallMember]s.
+  final Map<UserId, List<StreamSubscription>> _usersSubscriptions = {};
 
   /// [Worker]s reacting on [CallMember.isConnected] or [CallMember.joinedAt]
   /// changes playing the [_connected] sound.
@@ -917,6 +920,10 @@ class CallController extends GetxController {
     _notificationTimers.clear();
     _chatSubscription?.cancel();
     _proximitySubscription?.cancel();
+
+    for (var e in _usersSubscriptions.values.expand((e) => e)) {
+      e.cancel();
+    }
   }
 
   /// Drops the call.
@@ -951,17 +958,28 @@ class CallController extends GetxController {
       // TODO: `medea_jason` should have `onScreenChange` callback.
       await _currentCall.value.enumerateDevices(media: false);
 
-      if (_currentCall.value.displays.length > 1) {
-        final MediaDisplayDetails? display = await ScreenShareView.show(
-          router.context!,
-          _currentCall,
-        );
+      // Currently only desktops can have multiple displays.
+      if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
+        return await _currentCall.value.setScreenShareEnabled(
+          true,
 
-        if (display != null) {
-          await _currentCall.value.setScreenShareEnabled(true, device: display);
-        }
-      } else {
-        await _currentCall.value.setScreenShareEnabled(true);
+          // Whether to share or not to share the audio is dependent on the
+          // browser's API, so always try to query it.
+          withAudio: !PlatformUtils.isMobile,
+        );
+      }
+
+      final ScreenShareRequest? display = await ScreenShareView.show(
+        router.context!,
+        _currentCall,
+      );
+
+      if (display != null) {
+        await _currentCall.value.setScreenShareEnabled(
+          true,
+          device: display.details,
+          withAudio: display.audio,
+        );
       }
     }
   }
@@ -2185,6 +2203,7 @@ class CallController extends GetxController {
 
             _ensureCorrectGrouping();
             _playConnected(e.value!);
+            _ensureUserSubscription(e.value!.id.userId);
             break;
 
           case OperationKind.removed:
@@ -2195,6 +2214,7 @@ class CallController extends GetxController {
             remotes.removeWhere((m) => m.member.id == e.key);
             _membersTracksSubscriptions.remove(e.key)?.cancel();
             _memberWorkers.remove(e.key)?.dispose();
+            _removeUserSubscription(e.key?.userId);
             _ensureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
@@ -2324,6 +2344,45 @@ class CallController extends GetxController {
     top.value = height.value + 50 < size.height
         ? prefs?.top ?? 50
         : prefs?.top ?? size.height / 2 - height.value / 2;
+  }
+
+  Future<void> _ensureUserSubscription(UserId? userId) async {
+    Log.debug('_ensureUserSubscription($userId)', '$runtimeType');
+
+    if (userId == null || userId == me.id.userId) {
+      return;
+    }
+
+    final RxUser? user = await _userService.get(userId);
+    if (user == null) {
+      return;
+    }
+
+    final List<StreamSubscription>? existing = _usersSubscriptions[userId];
+    if (existing == null) {
+      _usersSubscriptions[userId] = [user.updates.listen((_) {})];
+    } else {
+      existing.add(user.updates.listen((_) {}));
+    }
+  }
+
+  void _removeUserSubscription(UserId? userId) {
+    Log.debug('_removeUserSubscription($userId)', '$runtimeType');
+
+    if (userId == null || userId == me.id.userId) {
+      return;
+    }
+
+    final List<StreamSubscription>? existing = _usersSubscriptions[userId];
+    if (existing != null) {
+      if (existing.isNotEmpty) {
+        existing.removeLast().cancel();
+      }
+
+      if (existing.isEmpty) {
+        _usersSubscriptions.remove(userId);
+      }
+    }
   }
 }
 

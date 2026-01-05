@@ -1,4 +1,4 @@
-# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 # Copyright © 2025 Ideas Networks Solutions S.A.,
 #                       <https://github.com/tapopa>
@@ -229,6 +229,7 @@ btn_set_password = Configurar contraseña
 btn_set_your_prices = Establezca sus precios
 btn_set_your_prices_subtitle = Comunicación pagada con Usted
 btn_share = Compartir
+btn_share_audio = Compartir audio
 btn_show_chat = Mostrar el chat
 btn_sign_in = Ingresar
 btn_sign_up = Crear una cuenta
@@ -539,6 +540,7 @@ err_no_filename = El archivo debe tener nombre
 err_password_incorrect = La contraseña es demasiado larga y/o comienza/termina con un espacio
 err_passwords_mismatch = Las contraseñas no coinciden
 err_popup_call_cant_be_closed = La ventana no se puede cerrar automáticamente. Cierre la ventana manualmente.
+err_screen_permission_denied = Acceso denegado a la pantalla. Asegúrese de que la aplicación tenga permiso para usarla.
 err_size_too_big = El tamaño del archivo supera los 15 MB
 err_too_many_emails = Número máximo de e-mails alcanzado
 err_unauthorized = Se necesita autentificación

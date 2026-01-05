@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -364,6 +364,11 @@ class WebUtils {
       web.window.navigator.onLine &&
       (Config.allowDetachedActivity ||
           router.lifecycle.value != AppLifecycleState.detached);
+
+  /// Indicates whether this platform supports system audio capture.
+  static FutureOr<bool> get canShareAudio {
+    return false;
+  }
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.

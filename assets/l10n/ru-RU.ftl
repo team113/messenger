@@ -1,4 +1,4 @@
-# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 # Copyright © 2025 Ideas Networks Solutions S.A.,
 #                       <https://github.com/tapopa>
@@ -229,6 +229,7 @@ btn_set_password = Установить пароль
 btn_set_your_prices = Установите Ваши цены
 btn_set_your_prices_subtitle = Платное общение с Вами
 btn_share = Поделиться
+btn_share_audio = Транслировать звук
 btn_show_chat = Показать чат
 btn_sign_in = Войти
 btn_sign_up = Создать аккаунт
@@ -539,6 +540,7 @@ err_no_filename = Файл должен иметь имя
 err_password_incorrect = Пароль слишком длинный и/или заканчивается/начинается пробелом
 err_passwords_mismatch = Пароли не совпадают
 err_popup_call_cant_be_closed = Окно не может быть закрыто автоматически. Закройте окно вручную.
+err_screen_permission_denied = Доступ к экрану отсутствует. Убедитесь, что приложению разрешено использовать экран.
 err_size_too_big = Размер файла превышает 15 МБ
 err_too_many_emails = Был достигнут максимум E-mail адресов
 err_unauthorized = Требуется авторизация

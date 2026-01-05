@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -204,7 +204,7 @@ class RxUserImpl extends RxUser {
         final versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver < userEntity.ver) {
           Log.debug(
-            '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+            '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)} cuz ${versioned.ver} is lower than ${userEntity?.ver}',
             '$runtimeType($id)',
           );
           return;
