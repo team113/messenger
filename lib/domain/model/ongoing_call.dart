@@ -1523,7 +1523,7 @@ class OngoingCall {
     bool screenAudio = false,
   }) {
     Log.debug(
-      '_mediaStreamSettings($audio, $video, $screen, $audioDevice, $videoDevice, $screenDevice, $facingMode, $screenAudio)',
+      '_mediaStreamSettings($audio, $video, $screen, audioDevice: $audioDevice, videoDevice: $videoDevice, screenDevice: $screenDevice, facingMode: $facingMode, screenAudio: $screenAudio)',
       '$runtimeType',
     );
 
@@ -2252,7 +2252,7 @@ class OngoingCall {
     bool? screenAudio,
   }) async {
     Log.debug(
-      '_updateSettings($audioDevice, $videoDevice, $screenDevice, $screenAudio)',
+      '_updateSettings(audio: $audio, audioDevice: $audioDevice, video: $video, videoDevice: $videoDevice, screen: $screen, screenDevice: $screenDevice, screenAudio: $screenAudio)',
       '$runtimeType',
     );
 
@@ -2278,7 +2278,7 @@ class OngoingCall {
           }
 
           final MediaStreamSettings settings = _mediaStreamSettings(
-            audio: audio ?? audioState.value.isEnabled,
+            audio: audio ?? hasAudio,
             video: video ?? videoState.value.isEnabled,
             screen: screen ?? screenShareState.value.isEnabled,
             audioDevice: audioDevice ?? this.audioDevice.value,
@@ -2356,20 +2356,28 @@ class OngoingCall {
   /// Adds the provided [track] to the local tracks and initializes video
   /// renderer if required.
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
-    Log.debug('_addLocalTrack($track)', '$runtimeType');
-
     final MediaKind kind = track.kind();
     final MediaSourceKind source = track.mediaSourceKind();
+
+    Log.debug('_addLocalTrack($track) -> $kind, $source}', '$runtimeType');
 
     track.onEnded(() {
       Log.debug('track.onEnded($track)', '$runtimeType');
 
       switch (kind) {
         case MediaKind.audio:
-          // Currently used [MediaKind.audio] track has ended, try picking a new
-          // one.
-          audioDevice.value = null;
-          _pickAudioDevice();
+          switch (source) {
+            case MediaSourceKind.device:
+              // Currently used [MediaKind.audio] track has ended, try picking a
+              // new one.
+              audioDevice.value = null;
+              _pickAudioDevice();
+              break;
+
+            case MediaSourceKind.display:
+              // No-op?
+              break;
+          }
           break;
 
         case MediaKind.video:
