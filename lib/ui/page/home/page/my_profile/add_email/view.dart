@@ -75,6 +75,7 @@ class AddEmailView extends StatelessWidget {
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 style: style.fonts.normal.regular.onBackground,
                 treatErrorAsStatus: false,
+                spellCheck: false,
               ),
               const SizedBox(height: 25),
               Obx(() {

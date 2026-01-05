@@ -103,6 +103,7 @@ class LoginView extends StatelessWidget {
                   label: 'label_identifier'.l10n,
                   hint: 'label_sign_in_input'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
+                  spellCheck: false,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(
@@ -202,6 +203,7 @@ class LoginView extends StatelessWidget {
                   label: 'label_login'.l10n,
                   hint: 'alphanumeric-login_123',
                   floatingLabelBehavior: FloatingLabelBehavior.always,
+                  spellCheck: false,
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField.password(
@@ -255,6 +257,7 @@ class LoginView extends StatelessWidget {
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
+                  spellCheck: false,
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -381,6 +384,7 @@ class LoginView extends StatelessWidget {
                   label: 'label_identifier'.l10n,
                   hint: 'label_sign_in_input'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
+                  spellCheck: false,
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField.password(
@@ -448,6 +452,7 @@ class LoginView extends StatelessWidget {
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
+                  spellCheck: false,
                 ),
                 const SizedBox(height: 25),
                 Center(

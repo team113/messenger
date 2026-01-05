@@ -125,6 +125,7 @@ class EraseView extends StatelessWidget {
             label: 'label_identifier'.l10n,
             hint: 'label_sign_in_input'.l10n,
             floatingLabelBehavior: FloatingLabelBehavior.always,
+            spellCheck: false,
           ),
           const SizedBox(height: 16),
           ReactiveTextField.password(

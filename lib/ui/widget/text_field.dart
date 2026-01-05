@@ -72,6 +72,7 @@ class ReactiveTextField extends StatelessWidget {
     this.selectable,
     this.floatingAccent = false,
     this.textCapitalization = TextCapitalization.sentences,
+    this.spellCheck = true,
   });
 
   /// Constructs a [ReactiveTextField] tuned best for password-type fields.
@@ -101,6 +102,7 @@ class ReactiveTextField extends StatelessWidget {
         treatErrorAsStatus: treatErrorAsStatus,
         textCapitalization: TextCapitalization.none,
         style: style,
+        spellCheck: false,
       );
     });
   }
@@ -243,6 +245,10 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Indicator whether the style of floating [label] should have accent.
   final bool floatingAccent;
+
+  /// Indicator whether spell checking and auto correction should be enabled for
+  /// this field.
+  final bool spellCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -462,6 +468,11 @@ class ReactiveTextField extends StatelessWidget {
               textInputAction: textInputAction,
               textCapitalization: textCapitalization,
               maxLength: maxLength,
+              spellCheckConfiguration: spellCheck
+                  ? null
+                  : SpellCheckConfiguration.disabled(),
+              autocorrect: spellCheck ? null : false,
+              enableSuggestions: spellCheck,
               contextMenuBuilder: (_, field) {
                 final double dx = field.contextMenuAnchors.primaryAnchor.dx;
                 final double dy = field.contextMenuAnchors.primaryAnchor.dy;
