@@ -206,6 +206,7 @@ class LoginView extends StatelessWidget {
                   hint: 'alphanumeric-login_123',
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   spellCheck: false,
+                  autocomplete: AutocompleteKind.username,
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField.password(
@@ -389,6 +390,7 @@ class LoginView extends StatelessWidget {
                   hint: 'label_sign_in_input'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   spellCheck: false,
+                  autocomplete: AutocompleteKind.username,
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField.password(

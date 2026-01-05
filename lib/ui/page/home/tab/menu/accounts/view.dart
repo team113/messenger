@@ -89,6 +89,7 @@ class AccountsView extends StatelessWidget {
                   hint: 'label_sign_in_input'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   spellCheck: false,
+                  autocomplete: AutocompleteKind.username,
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField.password(

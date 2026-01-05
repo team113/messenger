@@ -18,7 +18,6 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:ui_web' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:web/web.dart' as web;
 
@@ -59,7 +58,7 @@ class ContextMenuInterceptor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!forceEnabled && (!enabled || kIsWasm)) {
+    if (!forceEnabled && !enabled) {
       return child;
     }
 

@@ -574,13 +574,15 @@ class ReactiveTextField extends StatelessWidget {
 /// Possible autocomplete hints to pass to a [TextField].
 enum AutocompleteKind {
   currentPassword,
-  newPassword;
+  newPassword,
+  username;
 
   /// Returns the actual value to use from this [AutocompleteKind].
   String get value {
     return switch (this) {
       currentPassword => 'current-password',
       newPassword => 'new-password',
+      username => 'username',
     };
   }
 }
