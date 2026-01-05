@@ -23,11 +23,14 @@ All user visible changes to this project will be documented in this file. This p
         - Empty screen sharing being displayed sometimes. ([#1566])
         - Incoming call window not being displayed in rare cases. ([#1567])
         - Camera device turning off sometimes when microphone device is disconnected. ([#1568])
+        - Autocorrect invalidly enabled for login, passwords and e-mail fields. ([#1571])
+        - New and repeat password fields filling in current password instead of suggesting new. ([#1571])
 
 [#1566]: /../../pull/1566
 [#1567]: /../../pull/1567
 [#1568]: /../../pull/1568
 [#1570]: /../../pull/1570
+[#1571]: /../../pull/1571
 
 
 

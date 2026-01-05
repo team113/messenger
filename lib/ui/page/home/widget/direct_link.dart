@@ -126,6 +126,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             floatingAccent: true,
             label: Config.link,
             floatingLabelBehavior: FloatingLabelBehavior.always,
+            spellCheck: false,
           ),
           SizedBox(height: 8),
           Stack(

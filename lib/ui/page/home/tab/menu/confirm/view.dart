@@ -67,6 +67,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   obscured: c.obscurePassword,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 12),
                 ReactiveTextField.password(
@@ -77,6 +78,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   obscured: c.obscureRepeat,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
