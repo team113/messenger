@@ -22,6 +22,7 @@ import 'dart:convert';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
@@ -180,6 +181,10 @@ class WebUtils {
 
   /// Indicates whether device's browser is in focus.
   static bool get isFocused => _hasFocus();
+
+  /// Indicates whether this device is considered to be running as a PWA.
+  static bool get isPwa =>
+      web.window.matchMedia('(display-mode: standalone)').matches;
 
   /// Returns a stream broadcasting browser's fullscreen changes.
   static Stream<bool> get onFullscreenChange {
@@ -355,7 +360,10 @@ class WebUtils {
   }
 
   /// Indicates whether browser is considering to have connectivity status.
-  static bool get isOnLine => web.window.navigator.onLine;
+  static bool get isOnLine =>
+      web.window.navigator.onLine &&
+      (Config.allowDetachedActivity ||
+          router.lifecycle.value != AppLifecycleState.detached);
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.

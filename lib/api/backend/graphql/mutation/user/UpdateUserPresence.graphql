@@ -15,7 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation UpdateUserPresence($presence: Presence!) {
+mutation UpdateUserPresence($presence: UserPresence!) {
     updateUserPresence(presence: $presence) {
         __typename
         ...MyUserEventsVersioned

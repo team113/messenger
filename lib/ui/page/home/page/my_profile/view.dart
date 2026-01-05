@@ -26,7 +26,7 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/cache_info.dart';
@@ -411,8 +411,6 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
 Widget _profile(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  final presence = c.myUser.value?.presence ?? Presence.present;
-
   return Block(
     title: 'label_profile'.l10n,
     children: [
@@ -441,39 +439,45 @@ Widget _profile(BuildContext context, MyProfileController c) {
         );
       }),
       const SizedBox(height: 21),
-      FieldButton(
-        key: Key('StatusButton'),
-        headline: Text('label_your_status'.l10n),
-        onPressed: () async {
-          await PresenceSwitchView.show(context);
-        },
-        child: Row(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: switch (presence) {
-                  Presence.present => style.colors.acceptAuxiliary,
-                  Presence.away => style.colors.warning,
-                  (_) => style.colors.secondary,
-                },
+      Obx(() {
+        final UserPresence presence =
+            c.myUser.value?.presence ?? UserPresence.present;
+
+        return FieldButton(
+          key: Key('StatusButton'),
+          headline: Text('label_your_status'.l10n),
+          onPressed: () async => await PresenceSwitchView.show(context),
+          child: Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: switch (presence) {
+                    UserPresence.present => style.colors.acceptAuxiliary,
+                    UserPresence.away => style.colors.warning,
+                    (_) => style.colors.secondary,
+                  },
+                ),
+                width: 8,
+                height: 8,
               ),
-              width: 8,
-              height: 8,
-            ),
-            SizedBox(width: 5),
-            Expanded(
-              child: Text(switch (presence) {
-                Presence.present => 'label_presence_present'.l10n,
-                Presence.away => 'label_presence_away'.l10n,
-                (_) => '',
-              }, textAlign: TextAlign.left),
-            ),
-            Text('btn_change'.l10n, style: style.fonts.medium.regular.primary),
-            SizedBox(width: 5),
-          ],
-        ),
-      ),
+              SizedBox(width: 5),
+              Expanded(
+                child: Text(switch (presence) {
+                  UserPresence.present => 'label_presence_present'.l10n,
+                  UserPresence.away => 'label_presence_away'.l10n,
+                  (_) => '',
+                }, textAlign: TextAlign.left),
+              ),
+              Text(
+                'btn_change'.l10n,
+                style: style.fonts.medium.regular.primary,
+              ),
+              SizedBox(width: 5),
+            ],
+          ),
+        );
+      }),
       const SizedBox(height: 21),
       ReactiveTextField(
         key: Key('TextStatusField'),

@@ -118,8 +118,12 @@ class SessionRepository extends DisposableInterface
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
-    _initLocalSubscription();
-    _initRemoteSubscription();
+    // For popups this store should be used for connectivity check only.
+    if (!WebUtils.isPopup) {
+      _initLocalSubscription();
+      _initRemoteSubscription();
+    }
+
     _initConnectivity();
 
     super.onInit();

@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.64"
+  age_range_signals:
+    dependency: "direct main"
+    description:
+      name: age_range_signals
+      sha256: "8e8f819d21a39769f5320cf83844db2d4a269ee4fec2a4da97c3d80434294111"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.2"
   all_sensors:
     dependency: "direct main"
     description:
@@ -737,14 +745,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.2.2"
-  flutter_staggered_animations:
-    dependency: "direct main"
-    description:
-      name: flutter_staggered_animations
-      sha256: "81d3c816c9bb0dca9e8a5d5454610e21ffb068aedb2bde49d2f8d04f75538351"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.1"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -1349,18 +1349,18 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: "07852d01034108cf8b634c6b4e40a8e09b6f8080d97ce4695b587026ac60b808"
+      sha256: "7fea44c6fe98742ae8cf93b6763d25cb3f67ac664d32dcc7a4ac6c7ebb71d1bc"
       url: "https://pub.dev"
     source: hosted
-    version: "0.15.1"
+    version: "0.16.0"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: f73e8cf63d4b81918ba6578d5f4f5793317c0c3dff23d5704919dec6f0e3f841
+      sha256: "545df92a675cf4f8df6fb487936e2bdab896eac286e0762b97ba5b1d2ef5ac59"
       url: "https://pub.dev"
     source: hosted
-    version: "0.11.0"
+    version: "0.12.0"
   media_kit:
     dependency: "direct overridden"
     description:
@@ -2632,5 +2632,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.9.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
   flutter: ">=3.38.0"

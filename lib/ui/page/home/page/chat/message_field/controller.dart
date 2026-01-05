@@ -71,9 +71,7 @@ class MessageFieldController extends GetxController {
        ) {
     field = TextFieldState(
       text: text,
-      onFocus: (s) {
-        onChanged?.call();
-      },
+      onFocus: (s) => onChanged?.call(),
       submitted: false,
       onSubmitted: (s) {
         field.unsubmit();
@@ -569,16 +567,28 @@ class MessageFieldController extends GetxController {
   ///
   /// May be used to test a [file] upload since [FilePicker] can't be mocked.
   Future<void> _addAttachment(NativeFile file) async {
+    Log.debug(
+      '_addAttachment($file) -> edited(${edited.value})',
+      '$runtimeType',
+    );
+
     if (file.size < maxAttachmentSize && _chatService != null) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(MapEntry(GlobalKey(), attachment));
 
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
+        final Attachment? uploaded = await _chatService.uploadAttachment(
+          attachment,
+        );
 
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {
-          attachments[index] = MapEntry(attachments[index].key, uploaded);
+          // If `Attachment` returned is `null`, then it was canceled.
+          if (uploaded == null) {
+            attachments.removeAt(index);
+          } else {
+            attachments[index] = MapEntry(attachments[index].key, uploaded);
+          }
           onChanged?.call();
         }
       } on UploadAttachmentException catch (e) {

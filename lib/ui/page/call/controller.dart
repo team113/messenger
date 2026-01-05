@@ -72,8 +72,9 @@ class CallController extends GetxController {
     this._calls,
     this._chatService,
     this._userService,
-    this._settingsRepository,
-  );
+    this._settingsRepository, {
+    this.onMinimized,
+  });
 
   /// Duration of the current ongoing call.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
@@ -289,6 +290,9 @@ class CallController extends GetxController {
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
 
+  /// Callback, called [minimized] changes.
+  final void Function(bool)? onMinimized;
+
   /// Indicator whether the [relocateSecondary] is already invoked during the
   /// current frame.
   bool _secondaryRelocated = false;
@@ -391,6 +395,9 @@ class CallController extends GetxController {
   /// [StreamSubscription]s for the [CallMember.tracks] updates.
   late final Map<CallMemberId, StreamSubscription> _membersTracksSubscriptions;
 
+  /// [StreamSubscription]s of [RxUser.updates] for [CallMember]s.
+  final Map<UserId, List<StreamSubscription>> _usersSubscriptions = {};
+
   /// [Worker]s reacting on [CallMember.isConnected] or [CallMember.joinedAt]
   /// changes playing the [_connected] sound.
   final Map<CallMemberId, Worker> _memberWorkers = {};
@@ -426,6 +433,15 @@ class CallController extends GetxController {
 
   /// [Timer] setting [hidden] to `false` on timeout.
   Timer? _hiddenTimer;
+
+  /// [Worker] reacting on [minimized] changes to invoke [onMinimized].
+  Worker? _minimizedWorker;
+
+  /// [Worker] reacting on [fullscreen] changes to invoke [onMinimized].
+  Worker? _fullscreenWorker;
+
+  /// [Worker] reacting on [minimizing] changes to invoke [onMinimized].
+  Worker? _minimizingWorker;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -824,6 +840,26 @@ class CallController extends GetxController {
       }
     }
 
+    _minimizedWorker = ever(minimized, (m) {
+      onMinimized?.call(m);
+    });
+
+    _fullscreenWorker = ever(fullscreen, (m) {
+      onMinimized?.call(!m);
+    });
+
+    _minimizingWorker = ever(minimizing, (m) {
+      if (!m) {
+        onMinimized?.call(minimized.value);
+      } else {
+        onMinimized?.call(m);
+      }
+    });
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      onMinimized?.call(minimized.value);
+    });
+
     span.finish();
     span = _ready.startChild('chat');
     _initChat();
@@ -854,6 +890,9 @@ class CallController extends GetxController {
     _reconnectAudio?.cancel();
     _reconnectWorker?.dispose();
     _hiddenTimer?.cancel();
+    _minimizedWorker?.dispose();
+    _fullscreenWorker?.dispose();
+    _minimizingWorker?.dispose();
 
     secondaryEntry?.remove();
 
@@ -881,6 +920,10 @@ class CallController extends GetxController {
     _notificationTimers.clear();
     _chatSubscription?.cancel();
     _proximitySubscription?.cancel();
+
+    for (var e in _usersSubscriptions.values.expand((e) => e)) {
+      e.cancel();
+    }
   }
 
   /// Drops the call.
@@ -2149,6 +2192,7 @@ class CallController extends GetxController {
 
             _ensureCorrectGrouping();
             _playConnected(e.value!);
+            _ensureUserSubscription(e.value!.id.userId);
             break;
 
           case OperationKind.removed:
@@ -2159,6 +2203,7 @@ class CallController extends GetxController {
             remotes.removeWhere((m) => m.member.id == e.key);
             _membersTracksSubscriptions.remove(e.key)?.cancel();
             _memberWorkers.remove(e.key)?.dispose();
+            _removeUserSubscription(e.key?.userId);
             _ensureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
@@ -2288,6 +2333,45 @@ class CallController extends GetxController {
     top.value = height.value + 50 < size.height
         ? prefs?.top ?? 50
         : prefs?.top ?? size.height / 2 - height.value / 2;
+  }
+
+  Future<void> _ensureUserSubscription(UserId? userId) async {
+    Log.debug('_ensureUserSubscription($userId)', '$runtimeType');
+
+    if (userId == null || userId == me.id.userId) {
+      return;
+    }
+
+    final RxUser? user = await _userService.get(userId);
+    if (user == null) {
+      return;
+    }
+
+    final List<StreamSubscription>? existing = _usersSubscriptions[userId];
+    if (existing == null) {
+      _usersSubscriptions[userId] = [user.updates.listen((_) {})];
+    } else {
+      existing.add(user.updates.listen((_) {}));
+    }
+  }
+
+  void _removeUserSubscription(UserId? userId) {
+    Log.debug('_removeUserSubscription($userId)', '$runtimeType');
+
+    if (userId == null || userId == me.id.userId) {
+      return;
+    }
+
+    final List<StreamSubscription>? existing = _usersSubscriptions[userId];
+    if (existing != null) {
+      if (existing.isNotEmpty) {
+        existing.removeLast().cancel();
+      }
+
+      if (existing.isEmpty) {
+        _usersSubscriptions.remove(userId);
+      }
+    }
   }
 }
 

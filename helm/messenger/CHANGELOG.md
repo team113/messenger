@@ -6,6 +6,18 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.2.0] · 2025-12-05
+[0.2.0]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.2.0/helm/messenger
+
+### BC Breaks
+
+- Made `ingress.tls.secretName` not mandatory, falling back to default naming. ([5fee031e])
+
+[5fee031e]: https://github.com/team113/messenger/commits/5fee031e50efbe1f722aff749edc778d8363e4a4
+
+
+
+
 ## [0.1.4] · 2025-09-09
 [0.1.4]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.4/helm/messenger
 

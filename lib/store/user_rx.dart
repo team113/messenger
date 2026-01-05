@@ -204,7 +204,7 @@ class RxUserImpl extends RxUser {
         final versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver < userEntity.ver) {
           Log.debug(
-            '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+            '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)} cuz ${versioned.ver} is lower than ${userEntity?.ver}',
             '$runtimeType($id)',
           );
           return;

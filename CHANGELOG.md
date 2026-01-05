@@ -6,6 +6,167 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## main
+
+[Diff](/../../compare/v0.7.0...main) | [Milestone](/../../milestone/60)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Empty screen sharing being displayed sometimes. ([#1566])
+        - Incoming call window not being displayed in rare cases. ([#1567])
+        - Camera device turning off sometimes when microphone device is disconnected. ([#1568])
+
+[#1566]: /../../pull/1566
+[#1567]: /../../pull/1567
+[#1568]: /../../pull/1568
+
+
+
+
+## [0.7.0] · 2025-12-25
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.14...v0.7.0) | [Milestone](/../../milestone/59)
+
+### Fixed
+
+- Authorization sometimes being lost on some devices. ([#1564])
+
+[#1564]: /../../pull/1564
+
+
+
+
+## [0.6.14] · 2025-12-19
+[0.6.14]: /../../tree/v0.6.14
+
+[Diff](/../../compare/v0.6.13...v0.6.14) | [Milestone](/../../milestone/58)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Calls ringing from muted chats. ([#1557], [#1546])
+
+[#1546]: /../../pull/1546
+[#1557]: /../../pull/1557
+
+
+
+
+## [0.6.13] · 2025-12-10
+[0.6.13]: /../../tree/v0.6.13
+
+[Diff](/../../compare/v0.6.12...v0.6.13) | [Milestone](/../../milestone/57)
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Presence status sometimes not being updated. ([#1540], [#1539])
+    - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
+    - Chats tab:
+        - Answered or declined call displayed as unread notification in chat. ([#1516], [#1508])
+
+[#1508]: /../../issues/1508
+[#1516]: /../../pull/1516
+[#1533]: /../../issues/1533
+[#1537]: /../../pull/1537
+[#1539]: /../../issues/1539
+[#1540]: /../../pull/1540
+
+
+
+
+## [0.6.12] · 2025-12-01
+[0.6.12]: /../../tree/v0.6.12
+
+[Diff](/../../compare/v0.6.11...v0.6.12) | [Milestone](/../../milestone/56)
+
+### Changed
+
+- UI:
+    - Menu tab:
+       - Redesigned sidebar color. [[#1529], [#1524]]
+    - Chat page:
+        - Auto-play video thumbnails only when hovered. ([#1518], [#1446])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Page sometimes not being popped when navigating back. ([#1526])
+        - Forwarded messages displaying invalid sent/read status. ([#1521], [#1452])
+    - Home Page:
+        - Navigation bar expanding inappropriately when side bar is wide enough. ([#1532], [#1528])
+
+[#1446]: /../../issues/1446
+[#1452]: /../../issues/1452
+[#1518]: /../../pull/1518
+[#1521]: /../../pull/1521
+[#1524]: /../../issues/1524
+[#1526]: /../../pull/1526
+[#1528]: /../../issues/1528
+[#1529]: /../../pull/1529
+[#1532]: /../../pull/1532
+
+
+
+
+## [0.6.11] · 2025-11-24
+[0.6.11]: /../../tree/v0.6.11
+
+[Diff](/../../compare/v0.6.10...v0.6.11) | [Milestone](/../../milestone/55)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - File uploads can be canceled. ([#1496], [#1490])
+    - Chats tab:
+        - Redesigned chats appearing animation. ([#1514])
+        - Redesigned unread messages counter. ([#1512], [#1507])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
+
+[#1460]: /../../issues/1460
+[#1490]: /../../issues/1490
+[#1496]: /../../pull/1496
+[#1504]: /../../pull/1504
+[#1507]: /../../issues/1507
+[#1512]: /../../pull/1512
+[#1514]: /../../pull/1514
+
+
+
+
+## [0.6.10] · 2025-11-17
+[0.6.10]: /../../tree/v0.6.10
+
+[Diff](/../../compare/v0.6.9...v0.6.10) | [Milestone](/../../milestone/54)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Upload progress indicator not updating during file upload. ([#1492], [#1491])
+- Web:
+    - Inability to crop SVG avatar images on Web. ([#1501], [#1489])
+
+[#1489]: /../../issues/1489
+[#1491]: /../../issues/1491
+[#1492]: /../../pull/1492
+[#1501]: /../../pull/1501
+
+
+
+
 ## [0.6.9] · 2025-11-11
 [0.6.9]: /../../tree/v0.6.9
 

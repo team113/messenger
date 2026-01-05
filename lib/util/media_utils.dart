@@ -307,7 +307,8 @@ class MediaUtilsImpl {
     final MediaStreamSettings settings = MediaStreamSettings();
 
     if (audio != null) {
-      final AudioTrackConstraints constraints = AudioTrackConstraints();
+      final DeviceAudioTrackConstraints constraints =
+          DeviceAudioTrackConstraints();
       if (audio.device != null) constraints.deviceId(audio.device!);
 
       if (audio.noiseSuppression != null) {
@@ -331,7 +332,7 @@ class MediaUtilsImpl {
         constraints.idealHighPassFilter(audio.highPassFilter!);
       }
 
-      settings.audio(constraints);
+      settings.deviceAudio(constraints);
     }
 
     if (video != null) {
@@ -478,6 +479,9 @@ class DeviceDetails extends MediaDeviceDetails {
 
   /// Returns a unique identifier of this [DeviceDetails].
   String id() => _device.deviceId();
+
+  @override
+  AudioDeviceKind? audioDeviceKind() => null;
 }
 
 /// [DeviceDetails] representing a default device.

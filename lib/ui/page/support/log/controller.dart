@@ -17,10 +17,12 @@
 
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:universal_io/io.dart';
 
 import '/config.dart';
 import '/domain/model/my_user.dart';
@@ -31,11 +33,12 @@ import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/domain/service/session.dart';
+import '/provider/file/log.dart';
 import '/pubspec.g.dart';
-import '/ui/widget/safe_area/safe_area.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 /// Controller of a [LogView].
 class LogController extends GetxController {
@@ -44,6 +47,7 @@ class LogController extends GetxController {
     this._myUserService,
     this._sessionService,
     this._notificationService,
+    this._logProvider,
   );
 
   /// [ScrollController] to use in a [ListView].
@@ -54,6 +58,9 @@ class LogController extends GetxController {
 
   /// [NotificationSettings] the [FirebaseMessaging] has currently.
   final Rx<NotificationSettings?> notificationSettings = Rx(null);
+
+  /// [FileStat] of the written [File] of the [LogEntry]ies.
+  final Rx<FileStat?> stat = Rx(null);
 
   /// [AuthService] used to retrieve the current [sessionId].
   final AuthService _authService;
@@ -66,6 +73,9 @@ class LogController extends GetxController {
 
   /// [NotificationService] having the [DeviceToken] information.
   final NotificationService? _notificationService;
+
+  /// [LogFileProvider] to read a [File] of the [LogEntry] from.
+  final LogFileProvider? _logProvider;
 
   /// Returns the currently authenticated [MyUser], if any.
   Rx<MyUser?>? get myUser => _myUserService?.myUser;
@@ -87,6 +97,7 @@ class LogController extends GetxController {
   void onInit() {
     PlatformUtils.userAgent.then((e) => userAgent.value = e);
     getNotificationSettings().then((e) => notificationSettings.value = e);
+    _tryFile();
     super.onInit();
   }
 
@@ -104,9 +115,10 @@ class LogController extends GetxController {
       final encoder = Utf8Encoder();
 
       final DateTime utc = DateTime.now().toUtc();
-
       final String app = PlatformUtils.isWeb
           ? Config.origin
+                .replaceFirst('https://', '')
+                .replaceFirst('http://', '')
           : Config.userAgentProduct;
 
       final file = await PlatformUtils.createAndDownload(
@@ -132,7 +144,7 @@ class LogController extends GetxController {
     }
   }
 
-  /// Returns a report of the technical information and [Log]s.
+  /// Returns a report of the technical information and [LogEntry]s.
   static String report({
     List<RxSession>? sessions,
     SessionId? sessionId,
@@ -153,7 +165,7 @@ class LogController extends GetxController {
 Created at: ${DateTime.now().toUtc()}
 Application: ${Pubspec.ref}
 User-Agent: $userAgent
-Is PWA: ${CustomSafeArea.isPwa}
+Is PWA: ${WebUtils.isPwa}
 
 MyUser:
 ${myUser?.toJson()}
@@ -175,7 +187,7 @@ $token
 
 ================= Logs =================
 
-${Log.logs.map((e) => '[${e.at.toUtc().toStamp}] [${e.level.name}] ${e.text}').join('\n')}
+${Log.logs.map((e) => e.toString()).join('\n')}
 
 ========================================
 ''';
@@ -207,16 +219,57 @@ ${Log.logs.map((e) => '[${e.at.toUtc().toStamp}] [${e.level.name}] ${e.text}').j
     await _authService.refreshSession(proceedIfRefreshBefore: DateTime.now());
   }
 
-  /// Clears the [Log.logs].
+  /// Clears the [LogImpl.logs].
   void clearLogs() {
     Log.logs.clear();
   }
-}
 
-/// Extention adding text representation in stamp view of [DateTime].
-extension DateTimeToStamp on DateTime {
-  /// Returns this [DateTime] formatted as a stamp.
-  String get toStamp {
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}:${second.toString().padLeft(2, '0')}.${millisecond.toString().padLeft(4, '0')}';
+  /// Downloads the [File] with the whole dump of logs, if any.
+  Future<void> downloadArchive() async {
+    // [File]s aren't available for Web platform.
+    if (PlatformUtils.isWeb) {
+      return;
+    }
+
+    try {
+      final File? file = _logProvider?.file;
+      if (file == null) {
+        return;
+      }
+
+      final DateTime utc = DateTime.now().toUtc();
+      final String app = PlatformUtils.isWeb
+          ? Config.origin
+                .replaceFirst('https://', '')
+                .replaceFirst('http://', '')
+          : Config.userAgentProduct;
+
+      final String filename =
+          '${app.toLowerCase()}_dump_${utc.year.toString().padLeft(4, '0')}.${utc.month.toString().padLeft(2, '0')}.${utc.day.toString().padLeft(2, '0')}_${utc.hour.toString().padLeft(2, '0')}.${utc.minute.toString().padLeft(2, '0')}.${utc.second.toString().padLeft(2, '0')}.log';
+
+      if (PlatformUtils.isMobile) {
+        await SharePlus.instance.share(
+          ShareParams(files: [XFile(file.path, name: filename)]),
+        );
+      } else if (PlatformUtils.isDesktop) {
+        await FilePicker.platform.saveFile(
+          fileName: filename,
+          lockParentWindow: true,
+          bytes: await file.readAsBytes(),
+        );
+      }
+    } catch (e) {
+      MessagePopup.error(e);
+    }
+  }
+
+  /// Retrieves the [FileStat] from the [_logProvider].
+  Future<void> _tryFile() async {
+    // [File]s aren't available for Web platform.
+    if (PlatformUtils.isWeb) {
+      return;
+    }
+
+    stat.value = await _logProvider?.stat();
   }
 }

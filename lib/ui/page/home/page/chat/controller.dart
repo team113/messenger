@@ -445,7 +445,7 @@ class ChatController extends GetxController {
       _chatService,
       _userService,
       _settingsRepository,
-      onChanged: updateDraft,
+      onChanged: _updateDraft,
       onCall: call,
       onKeyUp: (key) {
         if (send.field.controller.text.isNotEmpty) {
@@ -690,7 +690,7 @@ class ChatController extends GetxController {
 
         case DeleteChatMessageErrorCode.notAuthor:
         case DeleteChatMessageErrorCode.quoted:
-        case DeleteChatMessageErrorCode.read:
+        case DeleteChatMessageErrorCode.uneditable:
           MessagePopup.error(e.toMessage());
           break;
 
@@ -706,7 +706,7 @@ class ChatController extends GetxController {
 
         case DeleteChatForwardErrorCode.notAuthor:
         case DeleteChatForwardErrorCode.quoted:
-        case DeleteChatForwardErrorCode.read:
+        case DeleteChatForwardErrorCode.uneditable:
           MessagePopup.error(e.toMessage());
           break;
 
@@ -783,30 +783,42 @@ class ChatController extends GetxController {
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
+          Log.debug(
+            'editMessage() -> onSubmit() -> text(${edit.value!.field.text.trim()}) vs send(${send.field.text}), attachments(${edit.value!.attachments}), replies(${edit.value!.replied})',
+            '$runtimeType',
+          );
+
           _stopTyping();
 
-          final bool hasText = edit.value!.field.text.trim().isNotEmpty;
+          final bool hasText = edit.value!.field.text.trim() != item.text?.val;
 
           if (hasText ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
             try {
-              await _chatService.editChatMessage(
-                item,
-                text: ChatMessageTextInput(
-                  ChatMessageText(edit.value!.field.text),
-                ),
-                attachments: ChatMessageAttachmentsInput(
-                  edit.value!.attachments.map((e) => e.value).toList(),
-                ),
-                repliesTo: ChatMessageRepliesInput(
-                  edit.value!.replied.map((e) => e.value.id).toList(),
-                ),
+              final ChatMessageTextInput text = ChatMessageTextInput(
+                ChatMessageText(edit.value!.field.text),
+              );
+
+              final ChatMessageAttachmentsInput attachments =
+                  ChatMessageAttachmentsInput(
+                    edit.value!.attachments.map((e) => e.value).toList(),
+                  );
+
+              final ChatMessageRepliesInput repliesTo = ChatMessageRepliesInput(
+                edit.value!.replied.map((e) => e.value.id).toList(),
               );
 
               closeEditing();
 
               send.field.focus.requestFocus();
+
+              await _chatService.editChatMessage(
+                item,
+                text: text,
+                attachments: attachments,
+                repliesTo: repliesTo,
+              );
 
               // If the message is not sent yet, resend it.
               if (item.status.value == SendingStatus.error) {
@@ -855,7 +867,7 @@ class ChatController extends GetxController {
   }
 
   /// Updates [RxChat.draft] with the current values of the [send] field.
-  void updateDraft() {
+  void _updateDraft() {
     // [Attachment]s to persist in a [RxChat.draft].
     final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
 

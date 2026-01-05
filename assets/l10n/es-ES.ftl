@@ -281,6 +281,7 @@ err_no_filename = El archivo debe tener nombre
 err_password_incorrect = La contraseña es demasiado larga y/o comienza/termina con un espacio
 err_passwords_mismatch = Las contraseñas no coinciden
 err_popup_call_cant_be_closed = La ventana no se puede cerrar automáticamente. Cierre la ventana manualmente.
+err_screen_permission_denied = Acceso denegado a la pantalla. Asegúrese de que la aplicación tenga permiso para usarla.
 err_size_too_big = El tamaño del archivo supera los 15 MB
 err_too_many_emails = Número máximo de e-mails alcanzado
 err_unauthorized = Se necesita autentificación
@@ -340,9 +341,9 @@ fcm_incoming_call =
         [group] {$userName ->
             [x] {$userNum}
             *[other] {$userName}
-        } inició
+        } inició{" "}
         *[dialog] {""}
-    } { $isVideo ->
+    }{ $isVideo ->
         [yes] videollamada
         *[other] llamada de audio
     }
@@ -354,6 +355,9 @@ fcm_message =
                 [x] {$userNum}
                 *[other] {$userName}
             }:{" "}
+    }{ $donation ->
+        [x] {""}
+        *[other] [G{$donation}]{" "}
     }{ $attachmentsCount ->
             [0] {""}
             *[other] [{$attachmentsType ->
@@ -381,7 +385,7 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
-fcm_missed_cal =
+fcm_missed_call =
     { $isVideo ->
         [yes] Videollamada perdida
         *[other] Llamada de audio perdida
@@ -497,6 +501,7 @@ label_all_chats_and_groups = Todos los chats y grupos
 label_all_session_except_current_terminated = Todas las sesiones, excepto esta, serán terminadas
 label_also_delete_for_everyone = También eliminar para todas
 label_always_muted = Siempre silenciados
+label_amount_k = {$amount}k
 label_application = Aplicación
 label_audio_call =
     Llamada de audio{$by ->
@@ -576,6 +581,7 @@ label_conditions_frontend_developer =
     - Control de horario y pago por horas extras
     - Posibilidad de reubicación
 label_confidentiality = Privacidad
+label_confirm_password = Confirmar la contraseña
 label_connection_lost = Conexión perdida
 label_connection_restored = Conexión restablecida
 label_contact_us_via_provided_email = Contáctenos por e-mail {$email}.
@@ -804,7 +810,7 @@ label_regulations_freelance =
     5. Debe hacer una confirmación al menos cada 72 horas durante el desarrollo de la atrea.
     6. El equipo frontend puede rechazar la colaboración si el código presentado es de calidad evidentemente baja.
 label_remove_member = Eliminar del grupo
-label_repeat_password = Confirmar la contraseña
+label_repeat_password = Repita la contraseña
 label_replace_this_text_with_concern = Describe el asunto.
 label_replace_this_text_with_feedback = Comentarios.
 label_replies = [{$count} {$count ->
@@ -907,8 +913,8 @@ label_tech_stack_frontend_developer =
 label_terminate_sessions = Terminar sesión(es)
 label_terms_and_privacy_policy = Condiciones y Política de Privacidad
 label_text_status = Estatus del texto
-label_text_status_description = Hasta 26 caracteres
-label_text_status_hint = Estatus del texto. Máximo 25 símbolos.
+label_text_status_description = Hasta 33 caracteres
+label_text_status_hint = Estatus del texto. Máximo 33 símbolos.
 label_this_device = Este dispositivo
 label_to_restore_chats_use_search = Para recuperar los chats, utiliza la búsqueda
 label_typing = Escribiendo

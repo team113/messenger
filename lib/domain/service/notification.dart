@@ -512,7 +512,9 @@ class NotificationService extends DisposableService {
       final String? thread = message.data['thread'];
 
       if (tag != null) {
-        await AndroidUtils.cancelNotificationById(tag, tag.asHash);
+        if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+          await AndroidUtils.cancelNotificationById(tag, tag.asHash);
+        }
       }
 
       // If message contains no notification (it's a background notification),
@@ -581,6 +583,12 @@ class NotificationService extends DisposableService {
         (PlatformUtils.isAndroid &&
             settings.authorizationStatus != AuthorizationStatus.authorized)) {
       settings = await FirebaseMessaging.instance.requestPermission();
+    }
+
+    if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+      Log.warning(
+        'Unable to proceed with `_initPushNotifications()` due to `authorizationStatus` being `${settings.authorizationStatus.name}`',
+      );
     }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
@@ -738,7 +746,7 @@ extension TagToHash on String {
     for (var e in codeUnits) {
       result ^= e;
       result *= 0x01000193;
-      result &= 0xFFFFFFFF;
+      result &= 0x7FFFFFFF;
     }
 
     return result;

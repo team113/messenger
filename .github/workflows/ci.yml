@@ -50,14 +50,14 @@ jobs:
   copyright:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - run: make copyright check=yes
 
   dartanalyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
@@ -75,7 +75,7 @@ jobs:
   dartfmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -95,7 +95,7 @@ jobs:
         chart: ["messenger"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: azure/setup-helm@v4
 
       - run: make helm.lint chart=${{ matrix.chart }}
@@ -103,7 +103,7 @@ jobs:
   pubspec:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -127,7 +127,7 @@ jobs:
     runs-on: ${{ matrix.store == 'App Store' && 'macos'
               ||                                'ubuntu' }}-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2 # For commit message retrieving.
       - name: Retrieve last commit messages
@@ -153,7 +153,7 @@ jobs:
                        || contains(steps.commit.outputs.message, '[run ci]') }}"
              >> $GITHUB_OUTPUT
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-${{ (matrix.store == 'App Store' &&   'ipa')
                        || (matrix.store == 'Google Play' && 'appbundle')
@@ -212,7 +212,7 @@ jobs:
   appcast:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
 
@@ -243,7 +243,7 @@ jobs:
                     ||     '' }}
       - run: make appcast.xml
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
@@ -265,7 +265,7 @@ jobs:
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
@@ -533,7 +533,7 @@ jobs:
               ||     'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: build-${{ matrix.platform }}-${{ github.run_number }}
           path: artifacts/
@@ -558,7 +558,7 @@ jobs:
       #     filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
       #     directory: debug
       #   if: ${{ contains('apk appbundle ipa macos web', matrix.platform) }}
-      # - uses: actions/upload-artifact@v5
+      # - uses: actions/upload-artifact@v6
       #   with:
       #     name: debug-${{ matrix.platform }}-${{ github.run_number }}
       #     path: debug-${{ matrix.platform }}.zip
@@ -601,7 +601,7 @@ jobs:
           apt-get update
           apt-get install -y git
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
@@ -688,7 +688,7 @@ jobs:
         run: ${{ 'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
@@ -698,7 +698,7 @@ jobs:
   dartdoc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
@@ -711,7 +711,7 @@ jobs:
 
       - run: make docs.dart clean=yes
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: dartdoc-${{ github.run_number }}
           path: doc/api/
@@ -723,44 +723,44 @@ jobs:
     needs: ["appcast", "build", "build-linux"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v3
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-web-${{ github.run_number }}
       - run: mkdir -p build/web/
       - run: unzip *.zip -d build/web/
 
       - run: mkdir -p build/web/artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-apk-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-appbundle-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-ipa-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-linux-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-macos-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
 
       # TODO: Refactor when actions/download-artifact#176 is implemented:
       #       https://github.com/actions/download-artifact/issues/176
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
@@ -776,7 +776,7 @@ jobs:
 
       - run: make docker.tar to-file=.cache/image.tar
                   tags=build-${{ github.run_number }}
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: docker-${{ github.run_number }}
           path: .cache/image.tar
@@ -794,7 +794,7 @@ jobs:
     name: test (E2E)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
       - name: Retrieve commit messages
@@ -835,15 +835,16 @@ jobs:
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_PUSH_FCM_SA_KEY: ${{ secrets.E2E_FCM_SA_KEY }}
-          envkey_COMPOSE_PUSH_APNS_TEAM_ID: ${{ secrets.E2E_APNS_TEAM_ID }}
-          envkey_COMPOSE_PUSH_APNS_KEY_ID: ${{ secrets.E2E_APNS_KEY_ID }}
-          envkey_COMPOSE_PUSH_APNS_TOPIC: ${{ secrets.E2E_APNS_TOPIC }}
-          envkey_COMPOSE_PUSH_APNS_PRIVATE_KEY: ${{ secrets.E2E_APNS_PRIVATE_KEY }}
+          envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
           envkey_COMPOSE_FRONTEND_IMAGE: nginx
           envkey_COMPOSE_FRONTEND_TAG: stable-alpine
-          envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
           envkey_COMPOSE_PROJECT_NAME: messenger
+          envkey_COMPOSE_PUSH_APNS_KEY_ID: ${{ secrets.E2E_APNS_KEY_ID }}
+          envkey_COMPOSE_PUSH_APNS_PRIVATE_KEY: ${{ secrets.E2E_APNS_PRIVATE_KEY }}
+          envkey_COMPOSE_PUSH_APNS_TEAM_ID: ${{ secrets.E2E_APNS_TEAM_ID }}
+          envkey_COMPOSE_PUSH_APNS_TOPIC: ${{ secrets.E2E_APNS_TOPIC }}
+          envkey_COMPOSE_PUSH_FCM_SA_KEY: ${{ secrets.E2E_FCM_SA_KEY }}
+          envkey_COMPOSE_TIGERBEETLE: ${{ secrets.E2E_TIGERBEETLE }}
           envkey_COMPOSE_VAULT: ${{ secrets.E2E_VAULT }}
           fail_on_empty: true
 
@@ -879,7 +880,7 @@ jobs:
     #       https://github.com/actions/runner-images/issues/11279
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
@@ -927,10 +928,10 @@ jobs:
                     && secrets.DOCKERHUB_BOT_USER == ''))
              ) }}" >> $GITHUB_OUTPUT
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: docker-${{ github.run_number }}
           path: .cache/
@@ -1032,7 +1033,7 @@ jobs:
                             format('refs/tags/helm/{0}/', matrix.chart))
              }}" >> $GITHUB_OUTPUT
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: ${{ steps.skip.outputs.no == 'true' }}
       - uses: azure/setup-helm@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
@@ -1142,9 +1143,9 @@ jobs:
     runs-on: ${{ matrix.store == 'App Store' && 'macos'
               ||                                'ubuntu' }}-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-${{ (matrix.store == 'App Store' &&   'ipa')
                        || (matrix.store == 'Google Play' && 'appbundle')
@@ -1196,7 +1197,7 @@ jobs:
       - release-github
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: gh-pages
 
@@ -1208,7 +1209,7 @@ jobs:
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
 
       - run: rm -rf appcast/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
@@ -1239,7 +1240,7 @@ jobs:
       - test-unit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Parse semver versions from Git tag
         id: semver
@@ -1261,36 +1262,36 @@ jobs:
         run: echo "link=${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)"
              >> $GITHUB_OUTPUT
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-apk-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-appbundle-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-ipa-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-macos-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-web-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-windows-${{ github.run_number }}
           path: artifacts/
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: dartdoc-${{ github.run_number }}
           path: .cache/dartdoc/
@@ -1337,13 +1338,13 @@ jobs:
     needs: ["dartdoc"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: gh-pages
 
       - run: rm -rf ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: dartdoc-${{ github.run_number }}
           path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
@@ -1365,21 +1366,21 @@ jobs:
   #   needs: ["release-github"]
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v5
+  #     - uses: actions/checkout@v6
 
-  #     - uses: actions/download-artifact@v6
+  #     - uses: actions/download-artifact@v7
   #       with:
   #         name: debug-apk-${{ github.run_number }}
   #         path: debug/
-  #     - uses: actions/download-artifact@v6
+  #     - uses: actions/download-artifact@v7
   #       with:
   #         name: debug-appbundle-${{ github.run_number }}
   #         path: debug/
-  #     - uses: actions/download-artifact@v6
+  #     - uses: actions/download-artifact@v7
   #       with:
   #         name: debug-ipa-${{ github.run_number }}
   #         path: debug/
-  #     - uses: actions/download-artifact@v6
+  #     - uses: actions/download-artifact@v7
   #       with:
   #         name: debug-macos-${{ github.run_number }}
   #         path: debug/
@@ -1389,7 +1390,7 @@ jobs:
   #         for f in debug/debug-*.zip
   #           do unzip "$f" -d "${f%.zip}/"
   #         done
-  #     - uses: actions/download-artifact@v6
+  #     - uses: actions/download-artifact@v7
   #       with:
   #         name: debug-web-${{ github.run_number }}
   #     # `sentry_dart_plugin` expects source maps to be in `build/web/` dir.
@@ -1424,7 +1425,7 @@ jobs:
     needs: ["docker-push", "helm-lint"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: azure/setup-kubectl@v4
       - name: Login to Kubernetes cluster

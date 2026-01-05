@@ -24,6 +24,7 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/forward/controller.dart';
+import 'package:messenger/util/log.dart';
 
 import '../parameters/attachment.dart';
 import '../world/custom_world.dart';
@@ -50,12 +51,26 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
 
         if (Get.isRegistered<ChatForwardController>()) {
           final controller = Get.find<ChatForwardController>();
+
+          Log.debug(
+            'attachFile -> `ChatForwardController` is `$controller`',
+            'E2E',
+          );
+
           controller.send.addPlatformAttachment(file);
         } else {
           final controller = Get.find<ChatController>(
             tag: router.route.split('/').last,
           );
-          controller.send.addPlatformAttachment(file);
+
+          Log.debug(
+            'attachFile -> `ChatController` is `$controller` for route `${router.route.split('/').last}` -> edit(${controller.edit.value}), send(${controller.send})',
+            'E2E',
+          );
+
+          (controller.edit.value ?? controller.send).addPlatformAttachment(
+            file,
+          );
         }
         break;
 

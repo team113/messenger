@@ -547,4 +547,4 @@ __Note__, that you may pass `--dart-define`s to `make e2e`, `make build` or `mak
 [1]: https://flutter.dev/docs/get-started/install
 [2]: https://api.flutter.dev/flutter/dart-ui/Locale/toLanguageTag.html
 [3]: https://github.com/flutter/flutter/wiki/Style-guide-for-Flutter-repo#constructors-come-first-in-a-class
-[4]: https://messenger.soc.stg.t11913.org/api/graphql/playground
+[4]: https://messenger.soc.stg.t11913.org/api/graphql/v1/graphiql

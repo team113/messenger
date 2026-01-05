@@ -673,7 +673,7 @@ class ChatRepository extends DisposableInterface
       await rxChat?.postChatMessage(
         existingId: item.id,
         existingDateTime: item.at,
-        text: item.text,
+        text: item.text?.nullIfEmpty,
         attachments: item.attachments,
         repliesTo: item.repliesTo.map((e) => e.original).nonNulls.toList(),
       );
@@ -996,7 +996,10 @@ class ChatRepository extends DisposableInterface
     model.ChatMessageAttachmentsInput? attachments,
     model.ChatMessageRepliesInput? repliesTo,
   }) async {
-    Log.debug('editChatMessage($message, $text)', '$runtimeType');
+    Log.debug(
+      'editChatMessage($message, text: ${text?.changed}, attachments: ${attachments?.changed}, repliesTo: ${repliesTo?.changed})',
+      '$runtimeType',
+    );
 
     final Rx<ChatItem>? item = chats[message.chatId]?.messages.firstWhereOrNull(
       (e) => e.value.id == message.id,
@@ -1032,12 +1035,20 @@ class ChatRepository extends DisposableInterface
     }
 
     final List<Future>? uploads = attachments?.changed
-        .mapIndexed((i, e) {
+        .map((e) {
           if (e is LocalAttachment) {
             return e.upload.value?.future.then(
               (a) {
-                attachments.changed[i] = a;
-                (item?.value as ChatMessage).attachments[i] = a;
+                final index = attachments.changed.indexOf(e);
+
+                // If `Attachment` returned is `null`, then it was canceled.
+                if (a == null) {
+                  attachments.changed.removeAt(index);
+                } else {
+                  attachments.changed[index] = a;
+                }
+
+                item?.update((_) {});
               },
               onError: (_) {
                 // No-op, as failed upload attempts are handled below.
@@ -1058,13 +1069,25 @@ class ChatRepository extends DisposableInterface
         );
       }
 
+      final bool hasText =
+          (text?.changed ?? message.text)?.val.isNotEmpty == true;
+      final bool hasAttachments =
+          (attachments?.changed ?? message.attachments).isNotEmpty;
+      final bool hasReplies =
+          (repliesTo?.changed ?? message.repliesTo).isNotEmpty;
+
+      // If after editing the message contains no content, then delete it.
+      if (!hasText && !hasAttachments && !hasReplies) {
+        return await deleteChatMessage(message);
+      }
+
       await Backoff.run(
         () async {
           await _graphQlProvider.editChatMessage(
             message.id,
             text: text == null
                 ? null
-                : ChatMessageTextInput(kw$new: text.changed),
+                : ChatMessageTextInput(kw$new: text.changed?.nullIfEmpty),
             attachments: attachments == null
                 ? null
                 : ChatMessageAttachmentsInput(
@@ -1094,7 +1117,7 @@ class ChatRepository extends DisposableInterface
           break;
 
         case EditChatMessageErrorCode.notAuthor:
-        case EditChatMessageErrorCode.noTextAndNoAttachment:
+        case EditChatMessageErrorCode.noContent:
           // No-op.
           break;
       }
@@ -1142,7 +1165,7 @@ class ChatRepository extends DisposableInterface
           switch (e.code) {
             case DeleteChatMessageErrorCode.notAuthor:
             case DeleteChatMessageErrorCode.quoted:
-            case DeleteChatMessageErrorCode.read:
+            case DeleteChatMessageErrorCode.uneditable:
               rethrow;
 
             case DeleteChatMessageErrorCode.unknownChatItem:
@@ -1203,7 +1226,7 @@ class ChatRepository extends DisposableInterface
             case DeleteChatForwardErrorCode.artemisUnknown:
             case DeleteChatForwardErrorCode.notAuthor:
             case DeleteChatForwardErrorCode.quoted:
-            case DeleteChatForwardErrorCode.read:
+            case DeleteChatForwardErrorCode.uneditable:
               rethrow;
 
             case DeleteChatForwardErrorCode.unknownChatItem:
@@ -1281,7 +1304,7 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
+  Future<Attachment?> uploadAttachment(LocalAttachment attachment) async {
     Log.debug('uploadAttachment($attachment)', '$runtimeType');
 
     if (attachment.upload.value?.isCompleted != false) {
@@ -1296,44 +1319,14 @@ class ChatRepository extends DisposableInterface
     await attachment.file.ensureCorrectMediaType();
 
     try {
-      dio.MultipartFile upload;
-
       await attachment.file.readFile();
       attachment.read.value?.complete(null);
       attachment.status.refresh();
 
-      String filename = attachment.file.name;
-
-      if (filename.replaceAll(' ', '').isEmpty) {
-        final mime = attachment.file.mime;
-        if (mime != null) {
-          filename = '${DateTime.now().microsecondsSinceEpoch}.${mime.subtype}';
-        } else {
-          filename = '${DateTime.now().microsecondsSinceEpoch}';
-        }
-      }
-
-      if (attachment.file.bytes.value != null) {
-        upload = dio.MultipartFile.fromBytes(
-          attachment.file.bytes.value!,
-          filename: filename,
-          contentType: attachment.file.mime,
-        );
-      } else if (attachment.file.path != null) {
-        upload = await dio.MultipartFile.fromFile(
-          attachment.file.path!,
-          filename: filename,
-          contentType: attachment.file.mime,
-        );
-      } else {
-        throw ArgumentError(
-          'At least stream, bytes or path should be specified.',
-        );
-      }
-
       var response = await _graphQlProvider.uploadAttachment(
-        upload,
+        await attachment.file.toMultipartFile(),
         onSendProgress: (now, max) => attachment.progress.value = now / max,
+        cancelToken: attachment.cancelToken,
       );
 
       var model = response.attachment.toModel();
@@ -1344,6 +1337,13 @@ class ChatRepository extends DisposableInterface
       attachment.status.value = SendingStatus.sent;
       attachment.progress.value = 1;
       return model;
+    } on dio.DioException {
+      if (attachment.isCanceled) {
+        attachment.upload.value?.complete(null);
+        return null;
+      }
+
+      rethrow;
     } catch (e) {
       if (attachment.read.value?.isCompleted == false) {
         attachment.read.value?.complete(null);
@@ -1474,7 +1474,10 @@ class ChatRepository extends DisposableInterface
     } on ForwardChatItemsException catch (e) {
       switch (e.code) {
         case ForwardChatItemsErrorCode.blocked:
-        case ForwardChatItemsErrorCode.noTextAndNoAttachment:
+        case ForwardChatItemsErrorCode.noQuotedContent:
+        case ForwardChatItemsErrorCode.unknownForwardedDonation:
+        case ForwardChatItemsErrorCode.notEnoughFunds:
+        case ForwardChatItemsErrorCode.unallowedDonation:
         case ForwardChatItemsErrorCode.unknownUser:
         case ForwardChatItemsErrorCode.unknownForwardedAttachment:
         case ForwardChatItemsErrorCode.wrongItemsCount:
@@ -1509,30 +1512,7 @@ class ChatRepository extends DisposableInterface
     if (file != null) {
       await file.ensureCorrectMediaType();
 
-      if (file.stream != null) {
-        upload = dio.MultipartFile.fromStream(
-          () => file.stream!,
-          file.size,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else if (file.bytes.value != null) {
-        upload = dio.MultipartFile.fromBytes(
-          file.bytes.value!,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else if (file.path != null) {
-        upload = await dio.MultipartFile.fromFile(
-          file.path!,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else {
-        throw ArgumentError(
-          'At least stream, bytes or path should be specified.',
-        );
-      }
+      upload = await file.toMultipartFile();
     }
 
     final RxChatImpl? chat = chats[id];
@@ -1741,31 +1721,37 @@ class ChatRepository extends DisposableInterface
   Stream<ChatEvents> chatEvents(
     ChatId chatId,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
-    Log.debug('chatEvents($chatId, $ver, onVer)', '$runtimeType');
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = -10,
+  }) {
+    Log.debug('chatEvents($chatId)', '$runtimeType');
 
-    return _graphQlProvider.chatEvents(chatId, ver, onVer).asyncExpand((
-      event,
-    ) async* {
-      Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
+    return _graphQlProvider
+        .chatEvents(chatId, ver, onVer, priority: priority)
+        .asyncExpand((event) async* {
+          Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
 
-      var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
-        yield const ChatEventsInitialized();
-      } else if (events.$$typename == 'Chat') {
-        final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
-        final data = _chat(chat);
-        yield ChatEventsChat(data.chat);
-      } else if (events.$$typename == 'ChatEventsVersioned') {
-        var mixin =
-            events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
-        yield ChatEventsEvent(
-          ChatEventsVersioned(mixin.events.map(chatEvent).toList(), mixin.ver),
-        );
-      }
-    });
+          var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+          if (events.$$typename == 'SubscriptionInitialized') {
+            events
+                as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
+            yield const ChatEventsInitialized();
+          } else if (events.$$typename == 'Chat') {
+            final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
+            final data = _chat(chat);
+            yield ChatEventsChat(data.chat);
+          } else if (events.$$typename == 'ChatEventsVersioned') {
+            var mixin =
+                events
+                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+            yield ChatEventsEvent(
+              ChatEventsVersioned(
+                mixin.events.map(chatEvent).toList(),
+                mixin.ver,
+              ),
+            );
+          }
+        });
   }
 
   @override
@@ -2350,14 +2336,17 @@ class ChatRepository extends DisposableInterface
       case RecentChatsEventKind.updated:
         event as EventRecentChatsUpdated;
 
+        final bool isSubscribed =
+            chats[event.chat.chat.value.id]?.subscribed == true;
+
         Log.debug(
-          '_recentChatsRemoteEvent(${event.kind}) -> ${event.chat.chat}',
+          '_recentChatsRemoteEvent(${event.kind}) -> ${event.chat.chat} -> isSubscribed($isSubscribed)',
           '$runtimeType',
         );
 
         // Update the chat only if its state is not maintained by itself via
         // [chatEvents].
-        if (chats[event.chat.chat.value.id]?.subscribed != true) {
+        if (!isSubscribed) {
           final ChatData data = event.chat;
           final Chat chat = data.chat.value;
 
@@ -2917,6 +2906,13 @@ class ChatRepository extends DisposableInterface
     // If the [data] is already in [chats], then don't invoke [_putEntry] again.
     final RxChatImpl? saved = chats[chatId];
     if (saved != null) {
+      if (!updateVersion) {
+        Log.debug(
+          '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> doing `put()`, because saved is `${chats[chatId]}`',
+          '$runtimeType',
+        );
+      }
+
       return put(
         data.chat,
         pagination: pagination,
@@ -2934,6 +2930,13 @@ class ChatRepository extends DisposableInterface
       RxChatImpl? entry = chats[chatId];
 
       if (entry == null) {
+        if (!updateVersion) {
+          Log.debug(
+            '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> await mutex.protect() succeeded, and `entry` is `null` -> data.chat.value.isGroup(${data.chat.value.isGroup}), chatId.isLocal(${chatId.isLocal})',
+            '$runtimeType',
+          );
+        }
+
         // If [data] is a remote [Chat]-dialog, then try to replace the existing
         // local [Chat], if any is associated with this [data].
         if (!data.chat.value.isGroup && !chatId.isLocal) {
@@ -2975,6 +2978,14 @@ class ChatRepository extends DisposableInterface
       }
 
       _putEntryGuards.remove(chatId);
+
+      if (!updateVersion) {
+        Log.debug(
+          '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> `await put()` is done, thus entry is fulfilled: `$entry`',
+          '$runtimeType',
+        );
+      }
+
       return entry;
     });
   }
@@ -3251,4 +3262,17 @@ class ChatData {
   @override
   String toString() =>
       '$runtimeType(chat: $chat, lastItem: $lastItem, lastReadItem: $lastReadItem)';
+}
+
+/// Extension adding `null`ify methods to empty `ChatMessageText`s.
+extension on ChatMessageText {
+  /// Returns `null`, if this [ChatMessageText] is empty, or returns itself
+  /// otherwise.
+  ChatMessageText? get nullIfEmpty {
+    if (val.isEmpty) {
+      return null;
+    }
+
+    return this;
+  }
 }

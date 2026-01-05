@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
@@ -55,6 +55,6 @@ class MenuTabController extends GetxController {
   }
 
   /// Sets the [MyUser.presence] to the provided value.
-  Future<void> setPresence(Presence presence) =>
+  Future<void> setPresence(UserPresence presence) =>
       _myUserService.updateUserPresence(presence);
 }

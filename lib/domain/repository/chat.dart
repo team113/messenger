@@ -168,7 +168,7 @@ abstract class AbstractChatRepository {
 
   /// Creates a new [Attachment] linked to the authenticated [MyUser] for a
   /// later use in the [sendChatMessage] method.
-  Future<Attachment> uploadAttachment(LocalAttachment attachment);
+  Future<Attachment?> uploadAttachment(LocalAttachment attachment);
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the given [Chat]-group (if

@@ -31,6 +31,7 @@ import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -63,6 +64,7 @@ void main() async {
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
   final versionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   setUp(() async {
     await myUserProvider.clear();
@@ -188,6 +190,7 @@ void main() async {
           credentialsProvider,
           accountProvider,
           locksProvider,
+          secretsProvider,
         ),
       );
       UserRepository userRepository = Get.put(
@@ -274,6 +277,7 @@ void main() async {
           credentialsProvider,
           accountProvider,
           locksProvider,
+          secretsProvider,
         ),
       );
       UserRepository userRepository = Get.put(

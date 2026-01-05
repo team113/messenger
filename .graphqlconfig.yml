@@ -2,5 +2,5 @@ schemaPath: schema.graphql
 extensions:
   endpoints:
     local:
-      url: http://localhost/api/graphql
-      subscription: ws://localhost/api/graphql
+      url: http://localhost/api/graphql/v1
+      subscription: ws://localhost/api/graphql/v1

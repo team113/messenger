@@ -57,6 +57,7 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -278,6 +279,7 @@ void main() async {
     graphQlProvider.uploadAttachment(
       any,
       onSendProgress: anyNamed('onSendProgress'),
+      cancelToken: anyNamed('cancelToken'),
     ),
   ).thenAnswer(
     (_) => Future.value(
@@ -401,6 +403,7 @@ void main() async {
   final monologProvider = Get.put(MonologDriftProvider(common));
   final versionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -427,6 +430,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
 

@@ -61,7 +61,6 @@ import '/util/awaitable_timer.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
-import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
 import 'chat.dart';
@@ -614,18 +613,21 @@ class RxChatImpl extends RxChat {
       firstUnreadIndex = messages.indexOf(firstUnread!);
     }
 
-    int lastReadIndex = messages.indexWhere(
+    final int lastReadIndex = messages.indexWhere(
       (m) => m.value.id == untilId,
       firstUnreadIndex,
     );
 
     if (lastReadIndex != -1 && firstUnreadIndex != -1) {
-      int read = messages
+      final int read = messages
           .skip(firstUnreadIndex)
           .take(lastReadIndex - firstUnreadIndex + 1)
           .where((e) => !e.value.id.isLocal && e.value.author.id != me)
           .length;
-      unreadCount.value = chat.value.unreadCount - read;
+      unreadCount.value = (chat.value.unreadCount - read).clamp(
+        0,
+        chat.value.unreadCount,
+      );
     }
 
     final ChatItemId? lastReadItem = chat.value.lastReadItem;
@@ -709,6 +711,8 @@ class RxChatImpl extends RxChat {
       existingDateTime: existingDateTime,
     );
 
+    bool putFinally = true;
+
     // Storing the already stored [ChatMessage] is meaningless as it creates
     // lag spikes, so update it's reactive value directly.
     if (existingId != null) {
@@ -731,19 +735,23 @@ class RxChatImpl extends RxChat {
     try {
       if (attachments != null) {
         final List<Future> uploads = attachments
-            .mapIndexed((i, e) {
+            .map((e) {
               if (e is LocalAttachment) {
                 return e.upload.value?.future.then(
                   (a) {
-                    attachments[i] = a;
+                    final index = attachments.indexOf(e);
 
-                    // Frequent writes of byte data freezes the Web page.
-                    if (!PlatformUtils.isWeb) {
-                      put(message);
+                    // If returned `Attachment` is `null`, then it was canceled.
+                    if (a == null) {
+                      attachments.removeAt(index);
+                    } else {
+                      attachments[index] = a;
                     }
+
+                    put(message);
                   },
                   onError: (_) {
-                    // No-op, as failed upload attempts are handled below.
+                    put(message);
                   },
                 );
               }
@@ -772,6 +780,11 @@ class RxChatImpl extends RxChat {
         );
       }
 
+      if (attachments?.isEmpty == true && text == null && repliesTo.isEmpty) {
+        putFinally = false;
+        return message.value;
+      }
+
       try {
         final response = await _chatRepository.postChatMessage(
           id,
@@ -794,7 +807,9 @@ class RxChatImpl extends RxChat {
       } on PostChatMessageException catch (e) {
         switch (e.code) {
           case PostChatMessageErrorCode.blocked:
-          case PostChatMessageErrorCode.noTextAndNoAttachment:
+          case PostChatMessageErrorCode.noContent:
+          case PostChatMessageErrorCode.notEnoughFunds:
+          case PostChatMessageErrorCode.unallowedDonation:
           case PostChatMessageErrorCode.wrongAttachmentsCount:
           case PostChatMessageErrorCode.wrongReplyingChatItemsCount:
           case PostChatMessageErrorCode.unknownAttachment:
@@ -813,7 +828,12 @@ class RxChatImpl extends RxChat {
       _pending.remove(message.value);
       rethrow;
     } finally {
-      put(message);
+      if (putFinally) {
+        put(message);
+      } else {
+        remove(message.value.id);
+        _pending.remove(message.value);
+      }
     }
 
     return message.value;
@@ -1945,7 +1965,12 @@ class RxChatImpl extends RxChat {
         }
 
         _remoteSubscription = StreamQueue(
-          _chatRepository.chatEvents(id, ver, () => ver),
+          _chatRepository.chatEvents(
+            id,
+            ver,
+            () => ver,
+            priority: chat.value.ongoingCall == null ? -10 : 10,
+          ),
         );
 
         await _remoteSubscription!.execute(
@@ -2157,6 +2182,10 @@ class RxChatImpl extends RxChat {
                 unreadCount.value = event.count;
               } else if (event.count > dto.value.unreadCount) {
                 unreadCount.value += event.count - dto.value.unreadCount;
+
+                if (unreadCount.value < 0) {
+                  unreadCount.value = 0;
+                }
               }
 
               write((chat) => chat.value.unreadCount = event.count);

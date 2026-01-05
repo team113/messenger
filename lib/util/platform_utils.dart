@@ -333,15 +333,17 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a path to the temporary directory.
-  Future<Directory> get temporaryDirectory async {
+  FutureOr<Directory> get temporaryDirectory {
     if (_temporaryDirectory != null) {
       return _temporaryDirectory!;
     }
 
-    _temporaryDirectory = Directory(
-      '${(await getTemporaryDirectory()).path}${Config.downloads}',
-    );
-    return _temporaryDirectory!;
+    return Future(() async {
+      _temporaryDirectory = Directory(
+        '${(await getTemporaryDirectory()).path}${Config.downloads}',
+      );
+      return _temporaryDirectory!;
+    });
   }
 
   /// Returns a path to the library directory.

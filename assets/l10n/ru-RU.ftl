@@ -281,6 +281,7 @@ err_no_filename = Файл должен иметь имя
 err_password_incorrect = Пароль слишком длинный и/или заканчивается/начинается пробелом
 err_passwords_mismatch = Пароли не совпадают
 err_popup_call_cant_be_closed = Окно не может быть закрыто автоматически. Закройте окно вручную.
+err_screen_permission_denied = Доступ к экрану отсутствует. Убедитесь, что приложению разрешено использовать экран.
 err_size_too_big = Размер файла превышает 15 МБ
 err_too_many_emails = Был достигнут максимум E-mail адресов
 err_unauthorized = Требуется авторизация
@@ -338,9 +339,9 @@ fcm_incoming_call =
         [group] {$userName ->
            [x] {$userNum}
            *[other] {$userName}
-        } начал
+        } начал{" "}
         *[dialog] {""}
-    } { $isVideo ->
+    }{ $isVideo ->
         [yes] видеозвонок
         *[other] аудиозвонок
     }
@@ -352,6 +353,9 @@ fcm_message =
                [x] {$userNum}
                *[other] {$userName}
            }:{" "}
+    }{ $donation ->
+        [x] {""}
+        *[other] [G{$donation}]{" "}
     }{ $attachmentsCount ->
           [0] {""}
           *[other] [{$attachmentsType ->
@@ -384,12 +388,12 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
-fcm_missed_cal =
+fcm_missed_call =
     Пропущенный { $isVideo ->
         [yes] видеозвонок
         *[other] аудиозвонок
     }{ $type ->
-        [group] {" from "}{$userName ->
+        [group] {" от "}{$userName ->
             [x] {$userNum}
             *[other] {$userName}
         }
@@ -510,6 +514,7 @@ label_all_chats_and_groups = Все чаты и группы
 label_all_session_except_current_terminated = Все сессии, кроме текущей, будут завершены
 label_also_delete_for_everyone = Также удалить для всех
 label_always_muted = Всегда беззвучные
+label_amount_k = {$amount}k
 label_application = Приложение
 label_audio_call = Аудиозвонок{$by ->
         [x]{""}
@@ -588,6 +593,7 @@ label_conditions_frontend_developer =
     - Учёт рабочего времени и оплата переработок;
     - Возможность релокации.
 label_confidentiality = Конфиденциальность
+label_confirm_password = Подтвердить пароль
 label_connection_lost = Связь потеряна
 label_connection_restored = Связь восстановлена
 label_contact_us_via_provided_email = Свяжитесь с нами по e-mail {$email}.
@@ -815,7 +821,7 @@ label_regulations_freelance =
     5. В процессе работы над задачей Вы должны делать push commit'ов в свой PR не реже, чем каждые 72 часа
     6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
 label_remove_member = Удалить из группы
-label_repeat_password = Подтвердить пароль
+label_repeat_password = Повторите пароль
 label_replace_this_text_with_concern = Опишите проблему.
 label_replace_this_text_with_feedback = Обратная связь.
 label_replies = [{$count} {$count ->
@@ -921,8 +927,8 @@ label_tech_stack_frontend_developer =
 label_terminate_sessions = Завершить сессию(-ии)
 label_terms_and_privacy_policy = Условия и Политика конфиденциальности
 label_text_status = Текстовый статус
-label_text_status_description = Максимум 25 символов
-label_text_status_hint = Текстовый статус. Макс. 25 символов.
+label_text_status_description = Максимум 33 символа
+label_text_status_hint = Текстовый статус. Макс. 33 символа.
 label_this_device = Это устройство
 label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
 label_typing = Печатает

@@ -268,16 +268,14 @@ class ChatService extends DisposableService {
     ChatMessageTextInput? text,
     ChatMessageAttachmentsInput? attachments,
     ChatMessageRepliesInput? repliesTo,
-  }) async {
+  }) {
     Log.debug('editChatMessage($item, $text)', '$runtimeType');
 
     if (text?.changed?.val.trim() == item.text?.val.trim()) {
       text = null;
     } else if (text != null) {
       text = ChatMessageTextInput(
-        text.changed?.val.trim().isEmpty != false
-            ? null
-            : ChatMessageText(text.changed!.val.trim()),
+        text.changed == null ? null : ChatMessageText(text.changed!.val.trim()),
       );
     }
 
@@ -307,6 +305,8 @@ class ChatService extends DisposableService {
         repliesTo: repliesTo,
       );
     }
+
+    return Future.value();
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
@@ -329,7 +329,7 @@ class ChatService extends DisposableService {
 
         if (me != null && chat?.isRead(item, me!) == true) {
           throw const DeleteChatMessageException(
-            DeleteChatMessageErrorCode.read,
+            DeleteChatMessageErrorCode.uneditable,
           );
         }
       }
@@ -345,7 +345,7 @@ class ChatService extends DisposableService {
 
         if (me != null && chat?.isRead(item, me!) == true) {
           throw const DeleteChatForwardException(
-            DeleteChatForwardErrorCode.read,
+            DeleteChatForwardErrorCode.uneditable,
           );
         }
       }
@@ -363,7 +363,7 @@ class ChatService extends DisposableService {
   /// Creates a new [Attachment] from the provided [LocalAttachment] linked to
   /// the authenticated [MyUser] for a later use in the [sendChatMessage]
   /// method.
-  Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
+  Future<Attachment?> uploadAttachment(LocalAttachment attachment) async {
     Log.debug('uploadAttachment($attachment)', '$runtimeType');
     return await _chatRepository.uploadAttachment(attachment);
   }

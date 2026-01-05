@@ -20,6 +20,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:async/async.dart' show StreamGroup, StreamQueue;
+import 'package:dio/dio.dart' as dio;
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:http_parser/http_parser.dart';
@@ -239,6 +240,62 @@ class NativeFile {
 
       return bytes.value;
     });
+  }
+
+  /// Converts the [NativeFile] to a [MultipartFile].
+  Future<dio.MultipartFile> toMultipartFile() async {
+    final String filename = _resolveFilename();
+
+    if (path != null) {
+      return await dio.MultipartFile.fromFile(
+        path!,
+        filename: filename,
+        contentType: mime,
+      );
+    }
+
+    final Uint8List? byteData = bytes.value;
+    if (byteData != null) {
+      return dio.MultipartFile.fromStream(
+        () => _chunkedStream(byteData),
+        byteData.length,
+        filename: filename,
+        contentType: mime,
+      );
+    }
+
+    if (stream != null) {
+      return dio.MultipartFile.fromStream(
+        () => stream!,
+        size,
+        filename: filename,
+        contentType: mime,
+      );
+    }
+
+    throw ArgumentError('At least stream, bytes or path should be specified.');
+  }
+
+  /// Returns a valid filename, using timestamp if the original name is empty.
+  String _resolveFilename() {
+    final String result = name.trim();
+    if (result.isNotEmpty) return result;
+
+    final int timestamp = DateTime.now().microsecondsSinceEpoch;
+    return mime != null ? '$timestamp.${mime?.subtype}' : '$timestamp';
+  }
+
+  /// Creates a chunked stream from bytes to allow proper progress callbacks.
+  Stream<List<int>> _chunkedStream(
+    List<int> bytes, {
+    int chunkSize = 64 * 1024,
+  }) async* {
+    for (int offset = 0; offset < bytes.length; offset += chunkSize) {
+      final int end = (offset + chunkSize > bytes.length)
+          ? bytes.length
+          : offset + chunkSize;
+      yield bytes.sublist(offset, end);
+    }
   }
 
   /// Determines the [dimensions].

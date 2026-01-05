@@ -281,6 +281,7 @@ err_no_filename = File must have a name
 err_password_incorrect = Password is too long and/or starts/ends with a space
 err_passwords_mismatch = Passwords do not match
 err_popup_call_cant_be_closed = Window cannot be closed automatically. Close the window manually.
+err_screen_permission_denied = Access to screen is denied. Make sure application has permission to use screen.
 err_size_too_big = File size exceeds 15 MB
 err_too_many_emails = Reached maximum allowed number of e-mails
 err_unauthorized = Authentication required
@@ -343,9 +344,9 @@ fcm_incoming_call =
         } started { $isVideo ->
             [yes] a
             *[other] an
-        }
+        }{" "}
         *[dialog] {""}
-    } { $isVideo ->
+    }{ $isVideo ->
         [yes] video
         *[other] audio
     } call
@@ -357,6 +358,9 @@ fcm_message =
                 [x] {$userNum}
                 *[other] {$userName}
             }:{" "}
+    }{ $donation ->
+        [x] {""}
+        *[other] [G{$donation}]{" "}
     }{ $attachmentsCount ->
           [0] {""}
           *[other] [{$attachmentsType ->
@@ -368,11 +372,7 @@ fcm_message =
                            [1] Video
                            *[other] {$attachmentsCount} videos
                        }
-               [file] { $attachmentsCount ->
-                          [1] File
-                          *[other] {$attachmentsCount} files
-                      }
-              *[attachments] {$attachmentsCount ->
+              *[file] { $attachmentsCount ->
                           [1] File
                           *[other] {$attachmentsCount} files
                        }
@@ -384,7 +384,7 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
-fcm_missed_cal =
+fcm_missed_call =
     Missed { $isVideo ->
         [yes] video
         *[other] audio
@@ -498,6 +498,7 @@ label_all_chats_and_groups = All chats and groups
 label_all_session_except_current_terminated = All sessions except this one will be terminated
 label_also_delete_for_everyone = Also delete for everyone
 label_always_muted = Always muted
+label_amount_k = {$amount}k
 label_application = Application
 label_audio_call = Audio call{$by ->
         [x]{""}
@@ -576,6 +577,7 @@ label_conditions_frontend_developer =
     - Time tracking and payment for overtime;
     - Relocation possible.
 label_confidentiality = Confidentiality
+label_confirm_password = Confirm password
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
 label_contact_us_via_provided_email = Contact us by e-mail {$email}.
@@ -802,7 +804,7 @@ label_regulations_freelance =
     5. While working on the task you should push commit of your task at least once every 72 hours.
     6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
 label_remove_member = Remove from the group
-label_repeat_password = Confirm password
+label_repeat_password = Repeat password
 label_replace_this_text_with_concern = Describe the concern.
 label_replace_this_text_with_feedback = Feedback.
 label_replies = [{$count} {$count ->
@@ -906,8 +908,8 @@ label_tech_stack_frontend_developer =
 label_terminate_sessions = Terminate session(s)
 label_terms_and_privacy_policy = Terms & Privacy Policy
 label_text_status = Text status
-label_text_status_description = 25 characters max
-label_text_status_hint = Text status. 25 symb. max
+label_text_status_description = 33 characters max
+label_text_status_hint = Text status. 33 symb. max
 label_this_device = This device
 label_to_restore_chats_use_search = To restore the chats, use the search
 label_typing = Typing

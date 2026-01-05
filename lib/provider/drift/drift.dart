@@ -48,6 +48,7 @@ import 'geolocation.dart';
 import 'locks.dart';
 import 'monolog.dart';
 import 'my_user.dart';
+import 'secret.dart';
 import 'session.dart';
 import 'settings.dart';
 import 'skipped_version.dart';
@@ -70,6 +71,7 @@ part 'drift.g.dart';
     Locks,
     Monologs,
     MyUsers,
+    RefreshSecrets,
     Settings,
     SkippedVersions,
     Tokens,
