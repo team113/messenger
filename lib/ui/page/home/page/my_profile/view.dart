@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -526,6 +526,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             onPressed: () => _deleteEmail(c, context, e),
             child: Center(child: SvgIcon(SvgIcons.delete)),
           ),
+          spellCheck: false,
         ),
       );
 
@@ -548,6 +549,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
                 _deleteEmail(c, context, unconfirmed, confirmed: false),
             child: Center(child: SvgIcon(SvgIcons.delete)),
           ),
+          spellCheck: false,
         ),
       );
       widgets.add(const SizedBox(height: 16));
@@ -573,6 +575,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
                 : style.fonts.medium.regular.onBackground,
             floatingLabelBehavior: FloatingLabelBehavior.always,
             formatters: [LengthLimitingTextInputFormatter(100)],
+            spellCheck: false,
             trailing: c.myUser.value?.login == null
                 ? null
                 : WidgetButton(

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -59,6 +59,11 @@ class WebUtils {
   /// [Mutex]es guarding the [protect] method.
   static final Map<String, Mutex> _guards = {};
 
+  /// Indicator whether this platform supports system audio capture.
+  ///
+  /// Used to "cache" the response of [webrtc.systemAudioCaptureIsAvailable].
+  static bool? _systemAudioCaptureIsAvailable;
+
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS => false;
 
@@ -118,6 +123,18 @@ class WebUtils {
   /// Indicates whether browser is considering to have connectivity status.
   static bool get isOnLine =>
       !PlatformUtils.isIOS || router.lifecycle.value.inForeground;
+
+  /// Indicates whether this platform supports system audio capture.
+  static FutureOr<bool> get canShareAudio {
+    if (_systemAudioCaptureIsAvailable != null) {
+      return _systemAudioCaptureIsAvailable ?? false;
+    }
+
+    return Future(() async {
+      return _systemAudioCaptureIsAvailable = await webrtc
+          .systemAudioCaptureIsAvailable();
+    });
+  }
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.

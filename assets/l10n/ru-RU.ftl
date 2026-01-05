@@ -1,4 +1,4 @@
-# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -223,6 +223,7 @@ btn_send_application = Отправить заявку
 btn_send_one_time_code = Отправить одноразовый код
 btn_set_password = Установить пароль
 btn_share = Поделиться
+btn_share_audio = Транслировать звук
 btn_show_chat = Показать чат
 btn_sign_in = Войти
 btn_sign_up = Создать аккаунт

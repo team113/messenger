@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -88,6 +88,8 @@ class AccountsView extends StatelessWidget {
                   label: 'label_identifier'.l10n,
                   hint: 'label_sign_in_input'.l10n,
                   floatingLabelBehavior: FloatingLabelBehavior.always,
+                  spellCheck: false,
+                  autocomplete: AutocompleteKind.username,
                 ),
                 const SizedBox(height: 16),
                 ReactiveTextField.password(
@@ -221,6 +223,7 @@ class AccountsView extends StatelessWidget {
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
+                  spellCheck: false,
                 ),
                 const SizedBox(height: 25),
                 Center(

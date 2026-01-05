@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -67,6 +67,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   obscured: c.obscurePassword,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 12),
                 ReactiveTextField.password(
@@ -77,6 +78,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   obscured: c.obscureRepeat,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
