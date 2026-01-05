@@ -1,4 +1,4 @@
-// Copyright © 2025 Ideas Networks Solutions S.A.,
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
 //                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under

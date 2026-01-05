@@ -12,4 +12,4 @@ PRODUCT_NAME = Tapopa
 PRODUCT_BUNDLE_IDENTIFIER = com.tapopa.messenger
 
 // The copyright displayed in application information.
-PRODUCT_COPYRIGHT = Copyright © 2025 Ideas Networks Solutions S.A. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025-2026 Ideas Networks Solutions S.A. All rights reserved.
