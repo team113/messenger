@@ -223,7 +223,6 @@ btn_send_application = Send an application
 btn_send_one_time_code = Send one-time code
 btn_set_password = Set password
 btn_share = Share
-btn_share_audio = Share audio
 btn_show_chat = Unhide chat
 btn_sign_in = Sign in
 btn_sign_up = Create an account

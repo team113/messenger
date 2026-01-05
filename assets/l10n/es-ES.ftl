@@ -223,7 +223,6 @@ btn_send_application = Enviar solicitud
 btn_send_one_time_code = Enviar código desechable
 btn_set_password = Configurar contraseña
 btn_share = Compartir
-btn_share_audio = Compartir audio
 btn_show_chat = Mostrar el chat
 btn_sign_in = Ingresar
 btn_sign_up = Crear una cuenta

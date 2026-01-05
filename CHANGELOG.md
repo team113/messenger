@@ -10,12 +10,6 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.7.0...main) | [Milestone](/../../milestone/60)
 
-### Added
-
-- UI:
-    - Media panel:
-        - Audio sharing with screen sharing. ([#1570])
-
 ### Fixed
 
 - UI:
@@ -28,7 +22,6 @@ All user visible changes to this project will be documented in this file. This p
 [#1566]: /../../pull/1566
 [#1567]: /../../pull/1567
 [#1568]: /../../pull/1568
-[#1570]: /../../pull/1570
 [#1571]: /../../pull/1571
 
 
