@@ -336,7 +336,7 @@ packages:
     description:
       path: "pkgs/cupertino_http"
       ref: HEAD
-      resolved-ref: "353dfc1b506732ee1eedf50c46d33ec833e45f8e"
+      resolved-ref: "907782f5a792e7a5b0ed92f118c0ad91f3ecde51"
       url: "https://github.com/dart-lang/http.git"
     source: git
     version: "3.0.0-wip"
