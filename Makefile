@@ -199,6 +199,8 @@ else
 			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v)) \
 		$(if $(call eq,$(platform),ios),--no-codesign,)\
+		$(if $(call eq,$(platform),apk),--verbose,)\
+		$(if $(call eq,$(platform),appbundle),--verbose,)\
 		$(if $(call eq,$(platform),ipa),\
 			$(if $(call eq,$(export-options),),,\
 				--export-options-plist=$(export-options)),)
