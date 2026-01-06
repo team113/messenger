@@ -242,6 +242,10 @@ class SessionRepository extends DisposableInterface
     _remoteSubscription?.cancel(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(
         await _sessionRemoteEvents(
           () => _versionLocal.data[_accountLocal.userId]?.sessionsListVersion,
