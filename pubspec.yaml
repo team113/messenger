@@ -160,8 +160,6 @@ dependency_overrides:
       path: packages/image_picker/image_picker_ios
   # TODO: Remove when `media_kit` updates.
   js: ^0.7.1
-  # TODO: Remove when `sentry_flutter` upgrades to use `objective_c` 8.1.0+.
-  objective_c: ^8.1.0
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit:
     git:
