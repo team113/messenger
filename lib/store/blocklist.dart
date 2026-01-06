@@ -210,6 +210,10 @@ class BlocklistRepository extends DisposableInterface
     _remoteSubscription?.close(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(
         await _blocklistRemoteEvents(
           () => _sessionLocal.data[me]?.blocklistVersion,
