@@ -6,8 +6,8 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.7.0] · 2026-01-06
-[0.7.0]: /../../tree/v0.7.0
+## [0.7.1] · 2026-01-06
+[0.7.1]: /../../tree/v0.7.1
 
 [Diff](/../../compare/v0.7.0...v0.7.1) | [Milestone](/../../milestone/60)
 
@@ -24,8 +24,11 @@ All user visible changes to this project will be documented in this file. This p
         - Empty screen sharing being displayed sometimes. ([#1566])
         - Incoming call window not being displayed in rare cases. ([#1567])
         - Camera device turning off sometimes when microphone device is disconnected. ([#1568])
-        - Autocorrect invalidly enabled for login, passwords and e-mail fields. ([#1571])
-        - New and repeat password fields filling in current password instead of suggesting new. ([#1571])
+    - Autocorrect invalidly enabled for login, passwords and e-mail fields. ([#1571])
+    - New and repeat password fields filling in current password instead of suggesting new. ([#1571])
+- iOS:
+    - Media panel:
+        - Calls not transmitting neither audio nor video to recipients. ([#1571])
 
 [#1566]: /../../pull/1566
 [#1567]: /../../pull/1567
