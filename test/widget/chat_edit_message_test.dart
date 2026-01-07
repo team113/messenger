@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart' hide ChatMessageTextInput;
 import 'package:messenger/api/backend/schema.dart' as api;
 import 'package:messenger/config.dart';

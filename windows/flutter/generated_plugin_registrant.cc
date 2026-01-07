@@ -25,7 +25,6 @@
 #include <sqlite3_flutter_libs/sqlite3_flutter_libs_plugin.h>
 #include <super_native_extensions/super_native_extensions_plugin_c_api.h>
 #include <url_launcher_windows/url_launcher_windows.h>
-#include <volume_controller/volume_controller_plugin_c_api.h>
 #include <win_toast/win_toast_plugin.h>
 #include <window_manager/window_manager_plugin.h>
 #include <windows_taskbar/windows_taskbar_plugin.h>
@@ -69,8 +68,6 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("SuperNativeExtensionsPluginCApi"));
   UrlLauncherWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("UrlLauncherWindows"));
-  VolumeControllerPluginCApiRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("VolumeControllerPluginCApi"));
   WinToastPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("WinToastPlugin"));
   WindowManagerPluginRegisterWithRegistrar(

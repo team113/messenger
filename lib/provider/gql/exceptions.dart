@@ -18,7 +18,7 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/user.dart';
