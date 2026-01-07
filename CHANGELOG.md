@@ -138,6 +138,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Redesigned chats appearing animation. ([#1514])
         - Redesigned unread messages counter. ([#1512], [#1507])
+        - Added scroll-to-top behavior when tapping the Chats tab button on the navigation bar. ([#1520], [#1513])
 
 ### Fixed
 
@@ -151,7 +152,9 @@ All user visible changes to this project will be documented in this file. This p
 [#1504]: /../../pull/1504
 [#1507]: /../../issues/1507
 [#1512]: /../../pull/1512
+[#1513]: /../../issues/1513
 [#1514]: /../../pull/1514
+[#1520]: /../../pull/1520
 
 
 

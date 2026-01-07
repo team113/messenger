@@ -51,7 +51,10 @@ import 'widget/search_user_tile.dart';
 
 /// View of the [HomeTab.chats] tab.
 class ChatsTabView extends StatelessWidget {
-  const ChatsTabView({super.key});
+  const ChatsTabView({super.key, required this.chatsController});
+
+  /// [ScrollController] for the chats list
+  final ScrollController chatsController;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +70,7 @@ class ChatsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        chatsController: chatsController,
       ),
       builder: (ChatsTabController c) {
         return Stack(
@@ -111,115 +115,6 @@ class ChatsTabView extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-
-  /// Builds a [BottomPaddedRow] for selecting the [Chat]s.
-  static Widget selectingBuilder(BuildContext context, ChatsTabController c) {
-    final style = Theme.of(context).style;
-
-    return BottomPaddedRow(
-      spacer: (_) {
-        return Container(
-          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
-          width: 1,
-          height: 24,
-        );
-      },
-      children: [
-        WidgetButton(
-          onPressed: c.readAll,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_read_all'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-        WidgetButton(
-          onPressed: c.selectedChats.isEmpty
-              ? null
-              : () => _archiveChats(context, c),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-        WidgetButton(
-          key: const Key('DeleteChatsButton'),
-          onPressed: c.selectedChats.isEmpty
-              ? null
-              : () => _hideChats(context, c),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_delete'.l10n,
-                style: style.fonts.normal.regular.danger,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Builds a [BottomPaddedRow] for creating a [Chat]-group.
-  static Widget createGroupBuilder(BuildContext context, ChatsTabController c) {
-    final style = Theme.of(context).style;
-
-    return BottomPaddedRow(
-      spacer: (_) {
-        return Container(
-          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
-          width: 1,
-          height: 24,
-        );
-      },
-      children: [
-        WidgetButton(
-          onPressed: c.closeGroupCreating,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_cancel'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-        WidgetButton(
-          onPressed: c.creatingStatus.value.isEmpty ? c.createGroup : null,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
-              child: Text(
-                'btn_create'.l10n,
-                style: style.fonts.normal.regular.primary,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1173,6 +1068,115 @@ class ChatsTabView extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// Builds a [BottomPaddedRow] for selecting the [Chat]s.
+  static Widget selectingBuilder(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    return BottomPaddedRow(
+      spacer: (_) {
+        return Container(
+          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
+          width: 1,
+          height: 24,
+        );
+      },
+      children: [
+        WidgetButton(
+          onPressed: c.readAll,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_read_all'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          onPressed: c.selectedChats.isEmpty
+              ? null
+              : () => _archiveChats(context, c),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                c.archivedOnly.value ? 'btn_unhide'.l10n : 'btn_hide'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          key: const Key('DeleteChatsButton'),
+          onPressed: c.selectedChats.isEmpty
+              ? null
+              : () => _hideChats(context, c),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_delete'.l10n,
+                style: style.fonts.normal.regular.danger,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Builds a [BottomPaddedRow] for creating a [Chat]-group.
+  static Widget createGroupBuilder(BuildContext context, ChatsTabController c) {
+    final style = Theme.of(context).style;
+
+    return BottomPaddedRow(
+      spacer: (_) {
+        return Container(
+          decoration: BoxDecoration(color: style.colors.onBackgroundOpacity13),
+          width: 1,
+          height: 24,
+        );
+      },
+      children: [
+        WidgetButton(
+          onPressed: c.closeGroupCreating,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_cancel'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+        WidgetButton(
+          onPressed: c.creatingStatus.value.isEmpty ? c.createGroup : null,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(10, 6.5, 10, 6.5),
+              child: Text(
+                'btn_create'.l10n,
+                style: style.fonts.normal.regular.primary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
