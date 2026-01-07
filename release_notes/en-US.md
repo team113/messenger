@@ -1,1 +1,2 @@
+- Added audio system sharing on macOS, Windows and in browsers.
 - Bug fixes and performance improvements.
