@@ -23,7 +23,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';

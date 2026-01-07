@@ -27,7 +27,7 @@ import 'package:dio/dio.dart'
         DioException,
         CancelToken,
         DioExceptionType;
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 
 import '../base.dart';
 import '../exceptions.dart';
