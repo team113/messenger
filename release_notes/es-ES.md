@@ -1,1 +1,2 @@
+- Se agregó la función de compartir el sistema de audio en macOS, Windows y navegadores.
 - Se corrigieron errores y se mejoraron el rendimiento.

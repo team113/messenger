@@ -1937,6 +1937,10 @@ class RxChatImpl extends RxChat {
       _remoteSubscription?.close(immediate: true);
 
       await WebUtils.protect(() async {
+        if (_disposed) {
+          return;
+        }
+
         if (ver != null) {
           _justSubscribed = true;
           _eventsDebounce = debounce(_debouncedEvents, (events) {

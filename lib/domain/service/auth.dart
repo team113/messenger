@@ -233,6 +233,10 @@ class AuthService extends DisposableService {
     });
 
     return await WebUtils.protect(() async {
+      if (isClosed) {
+        return null;
+      }
+
       final List<Credentials> allCredentials = await _credentialsProvider.all();
       for (final Credentials e in allCredentials) {
         WebUtils.putCredentials(e);
@@ -373,6 +377,10 @@ class AuthService extends DisposableService {
     status.value = force ? RxStatus.loadingMore() : RxStatus.loading();
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase or account
       // switching, or otherwise the dependencies will be broken as of now.
@@ -468,6 +476,10 @@ class AuthService extends DisposableService {
 
     status.value = RxStatus.loadingMore();
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       await _authorized(credentials);
       status.value = RxStatus.success();
     });
@@ -533,6 +545,10 @@ class AuthService extends DisposableService {
     }
 
     return await WebUtils.protect(() async {
+      if (isClosed) {
+        return null;
+      }
+
       try {
         await _authRepository.deleteSession();
       } catch (e) {
@@ -603,6 +619,10 @@ class AuthService extends DisposableService {
       final bool areValid = await validateToken(creds);
       if (areValid) {
         await WebUtils.protect(() async {
+          if (isClosed) {
+            return;
+          }
+
           await _authorized(creds!);
           status.value = RxStatus.success();
         });
@@ -649,6 +669,10 @@ class AuthService extends DisposableService {
     }
 
     return await WebUtils.protect(() async {
+      if (isClosed) {
+        return false;
+      }
+
       // If [creds] are not provided, then validate the current [credentials].
       creds ??= credentials.value;
 
@@ -696,6 +720,10 @@ class AuthService extends DisposableService {
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
+        if (isClosed) {
+          return;
+        }
+
         Log.debug(
           'refreshSession($userId |-> $attempt) acquired both `dbLock` and `WebUtils.protect()`',
           '$runtimeType',

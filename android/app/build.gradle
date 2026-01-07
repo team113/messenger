@@ -31,7 +31,7 @@ android {
     namespace 'com.tapopa.messenger'
 
     ndkVersion = "28.2.13676358"
-    compileSdkVersion 36
+    compileSdk = 36
 
     compileOptions {
         // TODO: Remove when MaikuB/flutter_local_notifications#2389 is fixed:

@@ -31,6 +31,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
@@ -322,54 +323,56 @@ class _HomeViewState extends State<HomeView> {
             isOpen: router.navigation.value,
             beginOffset: const Offset(0.0, 5),
             translate: false,
-            child: CustomNavigationBar(
-              key: c.panelKey,
-              items: tabs.map((e) {
-                switch (e) {
-                  case HomeTab.wallet:
-                    return Obx(() {
-                      return CustomNavigationBarItem.wallet(
-                        balance: c.purse.value,
-                      );
-                    });
+            child: ContextMenuInterceptor(
+              child: CustomNavigationBar(
+                key: c.panelKey,
+                items: tabs.map((e) {
+                  switch (e) {
+                    case HomeTab.wallet:
+                      return Obx(() {
+                        return CustomNavigationBarItem.wallet(
+                          balance: c.purse.value,
+                        );
+                      });
 
-                  case HomeTab.partner:
-                    return CustomNavigationBarItem.partner(
-                      balance: c.income.value,
-                    );
-
-                  case HomeTab.chats:
-                    return Obx(() {
-                      return CustomNavigationBarItem.chats(
-                        unread: c.unreadChats.value.toString(),
-                        danger: c.myUser.value?.muted == null,
-                        selector: c.chatsKey,
-                        onMute: c.toggleMute,
+                    case HomeTab.partner:
+                      return CustomNavigationBarItem.partner(
+                        balance: c.income.value,
                       );
-                    });
 
-                  case HomeTab.menu:
-                    return Obx(() {
-                      return CustomNavigationBarItem.menu(
-                        avatarKey: c.avatarKey,
-                        onAvatar: c.updateAvatar,
-                        myUser: c.myUser.value,
-                        onSecondary: () async {
-                          PlatformUtils.haptic(kind: HapticKind.light);
-                          await AccountsSwitcherView.show(
-                            context,
-                            avatarKey: c.avatarKey,
-                            panelKey: c.panelKey,
-                          );
-                        },
-                      );
-                    });
-                }
-              }).toList(),
-              currentIndex: tabs.indexOf(router.tab),
-              onTap: (i) {
-                c.pages.jumpToPage(tabs[i].index);
-              },
+                    case HomeTab.chats:
+                      return Obx(() {
+                        return CustomNavigationBarItem.chats(
+                          unread: c.unreadChats.value.toString(),
+                          danger: c.myUser.value?.muted == null,
+                          selector: c.chatsKey,
+                          onMute: c.toggleMute,
+                        );
+                      });
+
+                    case HomeTab.menu:
+                      return Obx(() {
+                        return CustomNavigationBarItem.menu(
+                          avatarKey: c.avatarKey,
+                          onAvatar: c.updateAvatar,
+                          myUser: c.myUser.value,
+                          onSecondary: () async {
+                            PlatformUtils.haptic(kind: HapticKind.light);
+                            await AccountsSwitcherView.show(
+                              context,
+                              avatarKey: c.avatarKey,
+                              panelKey: c.panelKey,
+                            );
+                          },
+                        );
+                      });
+                  }
+                }).toList(),
+                currentIndex: tabs.indexOf(router.tab),
+                onTap: (i) {
+                  c.pages.jumpToPage(tabs[i].index);
+                },
+              ),
             ),
           ),
           ?router.navigator.value?.call(context),

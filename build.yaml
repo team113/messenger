@@ -433,6 +433,14 @@ targets:
             - lib/store/model/**
       messenger|pubspec_builder:
         enabled: true
+      sound_fonts|fonts_generator:
+        generate_for:
+          include:
+            - lib/themes.dart
+      sound_fonts|colors_generator:
+        generate_for:
+          include:
+            - lib/themes.dart
 
 builders:
   pubspec_builder:

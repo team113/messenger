@@ -317,6 +317,7 @@ class IntroductionView extends StatelessWidget {
           ? const SvgIcon(SvgIcons.share)
           : const SvgIcon(SvgIcons.copy),
       label: 'label_your_direct_link'.l10n,
+      spellCheck: false,
     );
   }
 

@@ -18,7 +18,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio show Options, FormData;
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 
 import '../base.dart';
 import '../exceptions.dart';

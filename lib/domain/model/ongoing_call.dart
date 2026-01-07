@@ -401,14 +401,17 @@ class OngoingCall {
       isActive && members.values.where((e) => e.isConnected.isTrue).length > 1;
 
   /// Indicates whether this [OngoingCall] has an active microphone track.
-  bool get hasAudio =>
-      members[_me]?.tracks
-          .where(
-            (t) =>
-                t.kind == MediaKind.audio && t.source == MediaSourceKind.device,
-          )
-          .isNotEmpty ??
-      false;
+  bool get hasAudio => _hasTracks(MediaKind.audio, MediaSourceKind.device);
+
+  /// Indicates whether this [OngoingCall] has an active camera track.
+  bool get hasCamera => _hasTracks(MediaKind.video, MediaSourceKind.device);
+
+  /// Indicates whether this [OngoingCall] has an active screen track.
+  bool get hasScreen => _hasTracks(MediaKind.video, MediaSourceKind.display);
+
+  /// Indicates whether this [OngoingCall] has an active screen audio track.
+  bool get hasScreenAudio =>
+      _hasTracks(MediaKind.audio, MediaSourceKind.display);
 
   /// Indicates whether the current authorized [MyUser] is the caller.
   bool get outgoing => _me.userId == caller?.id || caller == null;
@@ -1011,6 +1014,7 @@ class OngoingCall {
       case LocalTrackState.disabling:
         if (enabled) {
           screenShareState.value = LocalTrackState.enabling;
+
           try {
             await _updateSettings(
               screen: true,
@@ -1019,15 +1023,29 @@ class OngoingCall {
             );
 
             await _room?.enableVideo(MediaSourceKind.display);
-            if (withAudio) {
+            if (hasScreenAudio) {
               await _room?.enableAudio(MediaSourceKind.display);
             }
 
-            screenShareState.value = LocalTrackState.enabled;
+            Log.debug(
+              'setScreenShareEnabled($enabled, ${device?.deviceId()}, withAudio: $withAudio) -> $hasScreen || $hasScreenAudio -> ${members[_me]?.tracks.map((e) => '${e.kind}, ${e.source}')}',
+              '$runtimeType',
+            );
+
+            screenShareState.value = hasScreen || hasScreenAudio
+                ? LocalTrackState.enabled
+                : LocalTrackState.disabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
             screenShareState.value = LocalTrackState.disabled;
+
+            _room?.disableVideo(MediaSourceKind.display);
+            _removeLocalTracks(MediaKind.video, MediaSourceKind.display);
+            if (hasScreenAudio) {
+              _room?.disableAudio(MediaSourceKind.display);
+              _removeLocalTracks(MediaKind.audio, MediaSourceKind.display);
+            }
 
             if (!e.message().contains('Permission denied') &&
                 !e.message().contains('NotAllowedError')) {
@@ -1048,8 +1066,10 @@ class OngoingCall {
             );
 
             _room?.disableVideo(MediaSourceKind.display);
-            if (withAudio) {
+            _removeLocalTracks(MediaKind.video, MediaSourceKind.display);
+            if (hasScreenAudio) {
               _room?.disableAudio(MediaSourceKind.display);
+              _removeLocalTracks(MediaKind.audio, MediaSourceKind.display);
             }
 
             rethrow;
@@ -1068,7 +1088,11 @@ class OngoingCall {
             _removeLocalTracks(MediaKind.video, MediaSourceKind.display);
             await _room?.disableAudio(MediaSourceKind.display);
             _removeLocalTracks(MediaKind.audio, MediaSourceKind.display);
-            screenShareState.value = LocalTrackState.disabled;
+
+            screenShareState.value = hasScreen || hasScreenAudio
+                ? LocalTrackState.enabled
+                : LocalTrackState.disabled;
+
             screenDevice.value = null;
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -2668,6 +2692,15 @@ class OngoingCall {
       Log.warning('Unable to handle `$e`', '$runtimeType');
       addError('$e');
     }
+  }
+
+  /// Indicates whether [_me] member has the [Track]s of the provided [kind] and
+  /// [source].
+  bool _hasTracks(MediaKind kind, MediaSourceKind source) {
+    return members[_me]?.tracks
+            .where((t) => t.kind == kind && t.source == source)
+            .isNotEmpty ??
+        false;
   }
 }
 

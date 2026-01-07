@@ -2305,6 +2305,10 @@ class ChatRepository extends DisposableInterface
     _remoteArchiveSubscription?.close(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteArchiveSubscription = StreamQueue(_archiveChatsRemoteEvents());
       await _remoteArchiveSubscription!.execute(
         _archiveChatsRemoteEvent,
@@ -3036,6 +3040,10 @@ class ChatRepository extends DisposableInterface
     _favoriteChatsSubscription?.cancel();
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _favoriteChatsSubscription = StreamQueue(
         _favoriteChatsEvents(
           () => _sessionLocal.data[me]?.favoriteChatsListVersion,

@@ -23,7 +23,7 @@ import 'package:dio/dio.dart'
     show DioException, Options, Response, DioExceptionType, CancelToken;
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';

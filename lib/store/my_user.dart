@@ -858,6 +858,10 @@ class MyUserRepository extends DisposableInterface
     _remoteSubscription?.close(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(
         await _myUserRemoteEvents(() async => (await _active)?.ver),
       );
@@ -880,6 +884,10 @@ class MyUserRepository extends DisposableInterface
     _keepOnlineSubscription?.cancel(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _keepOnlineSubscription = StreamQueue(_graphQlProvider.keepOnline());
       await _keepOnlineSubscription!.execute((_) {
         // No-op.

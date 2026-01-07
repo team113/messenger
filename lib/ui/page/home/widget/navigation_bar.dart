@@ -207,6 +207,7 @@ class CustomNavigationBarItem extends StatelessWidget {
            selector: selector,
            alignment: Alignment.bottomCenter,
            margin: const EdgeInsets.only(bottom: 16),
+           preventContextMenu: false,
            actions: [
              if (danger)
                ContextMenuTile(
