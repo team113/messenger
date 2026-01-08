@@ -201,6 +201,7 @@ btn_paste = Paste
 btn_proceed = Proceed
 btn_previous = Previous
 btn_read_all = Read all
+btn_reconnect_call = Reconnect call
 btn_refresh_page = Refresh page
 btn_remove_account = Remove account from the list
 btn_reply = Reply
@@ -501,6 +502,7 @@ label_also_delete_for_everyone = Also delete for everyone
 label_always_muted = Always muted
 label_amount_k = {$amount}k
 label_application = Application
+label_attention = Attention
 label_audio_call = Audio call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
@@ -752,6 +754,7 @@ label_num = Gapopa ID
 label_occupied_space = Occupied
 label_offline = offline
 label_one_time_password = One-time code
+label_ongoing_audio_and_video_may_be_blocked = Outgoing audio and video may be blocked by your device's operating system when the app is in the background
 label_online = online
 label_open_calls_in_app = In the same window
 label_open_calls_in_window = In a separate window

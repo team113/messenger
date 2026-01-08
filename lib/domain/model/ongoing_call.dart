@@ -1441,11 +1441,7 @@ class OngoingCall {
         return false;
       });
 
-      await _updateTracks(
-        audio: audioState.value.isEnabled,
-        video: videoState.value.isEnabled,
-        screen: screenShareState.value.isEnabled,
-      );
+      await _updateTracks(audio: audioState.value.isEnabled);
 
       await _room?.enableAudio(MediaSourceKind.device);
       return;

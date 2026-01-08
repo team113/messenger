@@ -550,6 +550,27 @@ class SwitchButton extends CallButton {
   }
 }
 
+/// [CallButton] invoking the [MediaUtilsImpl.ensureReconnected].
+class ReconnectButton extends CallButton {
+  const ReconnectButton(super.c);
+
+  @override
+  String get hint => 'btn_reconnect_call'.l10n;
+
+  @override
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
+    return CallButtonWidget(
+      hint: hint,
+      asset: SvgIcons.callReconnect,
+      hinted: hinted,
+      expanded: expanded,
+      big: big,
+      constrained: c.isMobile,
+      onPressed: () => MediaUtils.ensureReconnected(),
+    );
+  }
+}
+
 /// Returns a [Widget] building the title call information.
 Widget callTitle(CallController c) {
   return Obx(() {

@@ -157,7 +157,7 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       oldWidget.items.map((e) => e.runtimeType).toList(),
       widget.items.map((e) => e.runtimeType).toList(),
     )) {
-      _items = widget.items.map((e) => _DraggedItem<T>(e)).toList();
+      _items = widget.items.map(_DraggedItem<T>.new).toList();
       _populateExpandedKeys();
     }
 

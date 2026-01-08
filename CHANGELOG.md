@@ -10,6 +10,17 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.7.1...main) | [Milestone](/../../milestone/61)
 
+### Added
+
+- UI:
+    - Media panel:
+        - Reconnect call button. ([#1575])
+- Mobile:
+    - Media panel:
+        - Disclaimer of microphone and camera being blocked when tab is in background. ([#1575])
+
+[#1575]: /../../pull/1575
+
 
 
 
