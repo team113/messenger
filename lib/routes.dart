@@ -668,7 +668,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   );
               deps.put<SessionService>(SessionService(sessionRepository));
 
-              deps.put(MyUserService(Get.find(), myUserRepository));
+              final myUserService = deps.put(
+                MyUserService(Get.find(), myUserRepository),
+              );
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
 
@@ -682,6 +684,20 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callService.onChatRemoved = chatRepository.remove;
 
               deps.put(BlocklistService(blocklistRepository));
+
+              deps.put(
+                CallWorker(
+                  callService,
+                  chatService,
+                  myUserService,
+                  null,
+                  Get.find(),
+                  settingsRepository,
+                  graphQlProvider,
+                  Get.find(),
+                  sessionRepository,
+                ),
+              );
 
               return deps;
             },
@@ -1074,11 +1090,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   callService,
                   chatService,
                   myUserService,
-                  Get.find(),
+                  notificationService,
                   Get.find(),
                   settingsRepository,
                   graphQlProvider,
                   Get.find(),
+                  sessionRepository,
                 ),
               );
 

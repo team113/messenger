@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
@@ -40,6 +41,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
@@ -55,6 +57,7 @@ import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
+import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -71,6 +74,7 @@ class CallWorker extends DisposableService {
     this._settingsRepository,
     this._graphQlProvider,
     this._callKitCalls,
+    this._sessionRepository,
   );
 
   /// [CallService] used to get reactive changes of [OngoingCall]s.
@@ -83,7 +87,7 @@ class CallWorker extends DisposableService {
   final MyUserService _myUserService;
 
   /// [NotificationService] used to show an incoming call notification.
-  final NotificationService _notificationService;
+  final NotificationService? _notificationService;
 
   /// [AuthService] for retrieving the current [Credentials] in
   /// [FlutterCallkitIncoming] events handling.
@@ -99,6 +103,9 @@ class CallWorker extends DisposableService {
   /// [CallKitCallsDriftProvider] to mark [FlutterCallkitIncoming] calls as
   /// accounted.
   final CallKitCallsDriftProvider _callKitCalls;
+
+  /// [AbstractSessionRepository] to receive connection changes.
+  final AbstractSessionRepository _sessionRepository;
 
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
@@ -158,6 +165,9 @@ class CallWorker extends DisposableService {
   /// [_hotKey].
   Worker? _settingsWorker;
 
+  /// [DateTime] when last [MediaUtilsImpl.ensureReconnected] was invoked.
+  DateTime? _lastConnectedAt;
+
   /// [Duration] between [FlutterCallkitIncoming]s displayed to be considered as
   /// a new call instead of already reported one.
   static const Duration _accountedTimeout = Duration(seconds: 15);
@@ -194,7 +204,10 @@ class CallWorker extends DisposableService {
     Log.debug('onInit', '$runtimeType');
 
     AudioUtils.ensureInitialized();
-    _initWebUtils();
+
+    if (!WebUtils.isPopup) {
+      _initWebUtils();
+    }
 
     List<String>? lastKeys = _settingsRepository
         .applicationSettings
@@ -353,7 +366,7 @@ class CallWorker extends DisposableService {
                     chat?.chat.value.muted == null) {
                   final String? title = chat?.title() ?? c.caller?.title();
 
-                  _notificationService.show(
+                  _notificationService?.show(
                     title ?? 'label_incoming_call'.l10n,
                     body: title == null ? null : 'label_incoming_call'.l10n,
                     payload: '${Routes.chats}/${c.chatId}',
@@ -365,7 +378,7 @@ class CallWorker extends DisposableService {
 
               // If FCM wasn't initialized, show a local notification
               // immediately.
-              if (!_notificationService.pushNotifications) {
+              if (_notificationService?.pushNotifications != true) {
                 notify();
               } else if (PlatformUtils.isWeb && PlatformUtils.isDesktop) {
                 // [NotificationService] will not show the scheduled local
@@ -456,81 +469,83 @@ class CallWorker extends DisposableService {
       }
     }
 
-    _subscription = _callService.calls.changes.listen((event) async {
-      if (!wakelock && _callService.calls.isNotEmpty) {
-        wakelock = true;
-        WakelockPlus.enable().onError((_, _) => false);
-      } else if (wakelock && _callService.calls.isEmpty) {
-        wakelock = false;
-        WakelockPlus.disable().onError((_, _) => false);
-      }
+    if (!WebUtils.isPopup) {
+      _subscription = _callService.calls.changes.listen((event) async {
+        if (!wakelock && _callService.calls.isNotEmpty) {
+          wakelock = true;
+          WakelockPlus.enable().onError((_, _) => false);
+        } else if (wakelock && _callService.calls.isEmpty) {
+          wakelock = false;
+          WakelockPlus.disable().onError((_, _) => false);
+        }
 
-      switch (event.op) {
-        case OperationKind.added:
-          if (event.key != null && event.value != null) {
-            await handle(event.key!, event.value!.value);
-          }
-          break;
+        switch (event.op) {
+          case OperationKind.added:
+            if (event.key != null && event.value != null) {
+              await handle(event.key!, event.value!.value);
+            }
+            break;
 
-        case OperationKind.removed:
-          _answeredCalls.remove(event.key);
-          _audioWorkers.remove(event.key)?.dispose();
-          _workers.remove(event.key)?.dispose();
-          _eventsSubscriptions.remove(event.key)?.cancel();
-          if (_workers.isEmpty) {
-            stop();
-          }
-
-          // Play an [_endCall] sound, when an [OngoingCall] with [myUser] ends.
-          final OngoingCall? call = event.value?.value;
-          if (call != null) {
-            final bool isActiveOrEnded =
-                call.state.value == OngoingCallState.active ||
-                call.state.value == OngoingCallState.ended;
-            final bool withMe = call.members.containsKey(call.me.id);
-
-            if (withMe && isActiveOrEnded && call.participated) {
-              play(_endCall);
+          case OperationKind.removed:
+            _answeredCalls.remove(event.key);
+            _audioWorkers.remove(event.key)?.dispose();
+            _workers.remove(event.key)?.dispose();
+            _eventsSubscriptions.remove(event.key)?.cancel();
+            if (_workers.isEmpty) {
+              stop();
             }
 
-            if (_isCallKit) {
-              final ChatItemId? callId = call.call.value?.id;
+            // Play an [_endCall] sound, when an [OngoingCall] with [myUser] ends.
+            final OngoingCall? call = event.value?.value;
+            if (call != null) {
+              final bool isActiveOrEnded =
+                  call.state.value == OngoingCallState.active ||
+                  call.state.value == OngoingCallState.ended;
+              final bool withMe = call.members.containsKey(call.me.id);
 
-              if (callId != null) {
-                final String base62 = callId.val.base62ToUuid();
-                _callKitCalls.upsert(base62, PreciseDateTime.now());
-                await FlutterCallkitIncoming.endCall(base62);
+              if (withMe && isActiveOrEnded && call.participated) {
+                play(_endCall);
               }
 
-              await FlutterCallkitIncoming.endCall(
-                call.chatId.value.val.base62ToUuid(),
-              );
+              if (_isCallKit) {
+                final ChatItemId? callId = call.call.value?.id;
+
+                if (callId != null) {
+                  final String base62 = callId.val.base62ToUuid();
+                  _callKitCalls.upsert(base62, PreciseDateTime.now());
+                  await FlutterCallkitIncoming.endCall(base62);
+                }
+
+                await FlutterCallkitIncoming.endCall(
+                  call.chatId.value.val.base62ToUuid(),
+                );
+              }
             }
-          }
 
-          // Set the default speaker, when all the [OngoingCall]s are ended.
-          if (_callService.calls.isEmpty) {
-            _unbindHotKey();
+            // Set the default speaker, when all the [OngoingCall]s are ended.
+            if (_callService.calls.isEmpty) {
+              _unbindHotKey();
 
-            try {
-              await AudioUtils.setDefaultSpeaker();
-            } on PlatformException {
-              // No-op.
+              try {
+                await AudioUtils.setDefaultSpeaker();
+              } on PlatformException {
+                // No-op.
+              }
+
+              if (_isCallKit) {
+                await FlutterCallkitIncoming.endAllCalls();
+              }
             }
+            break;
 
-            if (_isCallKit) {
-              await FlutterCallkitIncoming.endAllCalls();
-            }
-          }
-          break;
+          default:
+            break;
+        }
+      });
 
-        default:
-          break;
+      for (Rx<OngoingCall> call in _callService.calls.values) {
+        handle(call.value.chatId.value, call.value);
       }
-    });
-
-    for (Rx<OngoingCall> call in _callService.calls.values) {
-      handle(call.value.chatId.value, call.value);
     }
 
     if (_isCallKit) {
@@ -630,7 +645,38 @@ class CallWorker extends DisposableService {
         _settingsRepository.applicationSettings.value?.muteHotKey ??
         MuteHotKeyExtension.defaultHotKey;
 
-    _callKitCalls.clear();
+    if (!WebUtils.isPopup) {
+      _callKitCalls.clear();
+    }
+
+    final List<ConnectivityResult> previous = _sessionRepository.connectivity
+        .toList();
+    ever(_sessionRepository.connectivity, (connections) async {
+      if (previous.isEmpty && connections.isNotEmpty) {
+        return previous.addAll(connections.toList());
+      }
+
+      if (!const ListEquality().equals(previous, connections)) {
+        Log.debug(
+          '_sessionRepository.connectivity -> $previous != $connections',
+          '$runtimeType',
+        );
+
+        previous.clear();
+        previous.addAll(connections.toList());
+
+        if (connections.every((e) => e != ConnectivityResult.none)) {
+          final int seconds =
+              _lastConnectedAt?.difference(DateTime.now()).abs().inSeconds ??
+              10;
+
+          if (_lastConnectedAt == null || seconds >= 5) {
+            _lastConnectedAt = DateTime.now();
+            await MediaUtils.ensureReconnected();
+          }
+        }
+      }
+    });
 
     super.onInit();
   }

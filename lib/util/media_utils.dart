@@ -244,6 +244,13 @@ class MediaUtilsImpl {
     }
   }
 
+  /// Reconnects the current [jason] instance, if any is initialized.
+  Future<void> ensureReconnected() async {
+    Log.debug('ensureReconnected()...', '$runtimeType');
+    await _jason?.networkChanged();
+    Log.debug('ensureReconnected()... done!', '$runtimeType');
+  }
+
   /// Invokes a [MediaManagerHandle.setOutputAudioId] method.
   Future<void> _setOutputDevice() async {
     // If the [_mutex] is locked, the output device is already being set.

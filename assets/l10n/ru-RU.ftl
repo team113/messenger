@@ -201,6 +201,7 @@ btn_paste = Вставить
 btn_proceed = Продолжить
 btn_previous = Предыдущее
 btn_read_all = Прочитать все
+btn_reconnect_call = Переподключить звонок
 btn_refresh_page = Обновить страницу
 btn_remove_account = Удалить аккаунт из списка
 btn_reply = Ответить
@@ -517,6 +518,7 @@ label_also_delete_for_everyone = Также удалить для всех
 label_always_muted = Всегда беззвучные
 label_amount_k = {$amount}k
 label_application = Приложение
+label_attention = Внимание
 label_audio_call = Аудиозвонок{$by ->
         [x]{""}
         *[other] {" "}от {$by}
@@ -769,6 +771,7 @@ label_num = Gapopa ID
 label_occupied_space = Занято
 label_offline = офлайн
 label_one_time_password = Одноразовый код
+label_ongoing_audio_and_video_may_be_blocked = Микрофон и камера могут блокироваться операционной системой Вашего устройства при переходе приложения в фоновый режим.
 label_online = онлайн
 label_open_calls_in_app = В том же окне
 label_open_calls_in_window = В отдельном окне
