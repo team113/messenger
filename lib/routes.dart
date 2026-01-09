@@ -138,17 +138,20 @@ enum ProfileTab {
   public,
   signing,
   link,
-  media,
   welcome,
   notifications,
-  storage,
   confidential,
-  interface,
   devices,
+
+  interface,
+  media,
+  storage,
   download,
-  legal,
-  danger,
+
   support,
+  legal,
+
+  danger,
   logout,
 }
 

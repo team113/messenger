@@ -445,7 +445,10 @@ label_account_has_been_signed_out_due_to_reasons2 =
 
     Password or e-mail has not been set for this account. Sign in is impossible.
 label_account_created = Account is created
+label_account_may_be_lost = Account may be lost
+label_account_settings = Account settings
 label_accounts = Your accounts
+label_actions = Actions
 label_active_account = Online
 label_active_devices = Active devices
 label_active_sessions = Active sessions
@@ -606,6 +609,7 @@ label_delete_messages = Delete messages?
 label_deleted_account = Deleted Account
 label_desktop_apps = Desktop apps
 label_device_by_default = By default - {$device}
+label_device_settings = Device settings
 label_dialog_created = Dialog created
 label_dialog_created_by_link = Dialog created via direct link
 label_direct_chat_link = Invite to the group

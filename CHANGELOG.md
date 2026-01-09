@@ -14,15 +14,22 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Media panel:
-        - Reconnect call button. ([#1575])
+        - Reconnect call button. ([#1577], [#1575])
     - Profile page:
         - Display domains of linked devices. ([#1576])
 - Mobile:
     - Media panel:
         - Disclaimer of microphone and camera being blocked when tab is in background. ([#1575])
 
+### Changed
+
+- UI:
+    - Menu tab:
+        - Buttons grouped into sections. ([#1577])
+
 [#1575]: /../../pull/1575
 [#1576]: /../../pull/1576
+[#1577]: /../../pull/1577
 
 
 

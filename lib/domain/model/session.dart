@@ -99,10 +99,10 @@ class UserAgent extends NewType<String> {
   String toJson() => val;
 }
 
-/// Type of `Site`'s [FQDN](1) (fully qualified domain name).
+/// Type of `Site`'s [FQDN][1] (fully qualified domain name).
 ///
 /// Its values are always considered to be non-empty and meet the requirements
-/// of the [Domain Name Syntax format](2). TLDs (top-level domains) are
+/// of the [Domain Name Syntax format][2]. TLDs (top-level domains) are
 /// considered as valid `Domain`s.
 ///
 /// [1]: https://en.wikipedia.org/wiki/Fully_qualified_domain_name
@@ -309,16 +309,16 @@ class Credentials {
         return Credentials(
           AccessToken(
             AccessTokenSecret(json['access']['secret']),
-            PreciseDateTime.parse(json['access']['expireAt']),
+            PreciseDateTime.parse(json['access']['expireAt']['val']),
           ),
           RefreshToken(
             RefreshTokenSecret(json['refresh']['secret']),
-            PreciseDateTime.parse(json['refresh']['expireAt']),
+            PreciseDateTime.parse(json['refresh']['expireAt']['val']),
           ),
           Session(
-            id: SessionId(json['sessionId'] ?? ''),
-            ip: IpAddress('127.0.0.0'),
-            userAgent: UserAgent(''),
+            id: SessionId(json['session']?['id'] ?? json['sessionId'] ?? ''),
+            ip: IpAddress(json['session']?['ip'] ?? '127.0.0.0'),
+            userAgent: UserAgent(json['session']?['userAgent'] ?? ''),
             lastActivatedAt: PreciseDateTime.now(),
             siteDomain: SiteDomain(''),
           ),

@@ -27,6 +27,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/line_divider.dart';
 import '/ui/widget/menu_button.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -135,73 +136,103 @@ class MenuTabView extends StatelessWidget {
           ),
           body: Scrollbar(
             controller: c.scrollController,
-            child: ListView.builder(
+            child: ListView(
               controller: c.scrollController,
               padding: EdgeInsets.fromLTRB(0, 4, 0, 4),
               key: const Key('MenuListView'),
-              itemCount: ProfileTab.values.length,
-              itemBuilder: (context, i) {
-                final ProfileTab tab = ProfileTab.values[i];
+              children: [
+                const SizedBox(height: 8),
+                LineDivider('label_account_settings'.l10n),
+                const SizedBox(height: 8),
+                _tab(ProfileTab.public),
+                _tab(ProfileTab.signing),
+                _tab(ProfileTab.link),
+                _tab(ProfileTab.welcome),
+                _tab(ProfileTab.notifications),
+                _tab(ProfileTab.confidential),
+                _tab(ProfileTab.devices),
 
-                switch (tab) {
-                  case ProfileTab.media:
-                    if (PlatformUtils.isMobile) {
-                      return const SizedBox();
-                    }
-                    break;
+                const SizedBox(height: 8),
+                LineDivider('label_device_settings'.l10n),
+                const SizedBox(height: 8),
+                _tab(ProfileTab.interface),
+                _tab(ProfileTab.media),
+                _tab(ProfileTab.storage),
+                _tab(ProfileTab.download),
 
-                  case ProfileTab.storage:
-                    if (PlatformUtils.isWeb) {
-                      return const SizedBox();
-                    }
-                    break;
+                const SizedBox(height: 8),
+                LineDivider('btn_help'.l10n),
+                const SizedBox(height: 8),
+                _tab(ProfileTab.support),
+                _tab(ProfileTab.legal),
 
-                  default:
-                    // No-op.
-                    break;
-                }
-
-                return Obx(() {
-                  final bool inverted =
-                      tab == router.profileSection.value &&
-                      router.route == Routes.me;
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 1.5),
-                    child: MenuButton.tab(
-                      tab,
-                      key: key,
-                      inverted: switch (tab) {
-                        ProfileTab.danger => router.route == Routes.erase,
-                        ProfileTab.support => router.route == Routes.support,
-                        (_) => inverted,
-                      },
-                      onPressed: switch (tab) {
-                        ProfileTab.legal => () async {
-                          await TermsOfUseView.show(router.context!);
-                        },
-                        ProfileTab.danger => () => router.erase(push: true),
-                        ProfileTab.support => router.support,
-                        ProfileTab.logout => () async {
-                          await ConfirmLogoutView.show(router.context!);
-                        },
-                        (_) => () {
-                          if (router.profileSection.value == tab) {
-                            router.profileSection.refresh();
-                          } else {
-                            router.profileSection.value = tab;
-                          }
-                          router.me();
-                        },
-                      },
-                    ),
-                  );
-                });
-              },
+                const SizedBox(height: 8),
+                LineDivider('label_actions'.l10n),
+                const SizedBox(height: 8),
+                _tab(ProfileTab.logout),
+                _tab(ProfileTab.danger),
+              ],
             ),
           ),
         );
       },
     );
+  }
+
+  /// Builds the provided [ProfileTab].
+  Widget _tab(ProfileTab tab) {
+    switch (tab) {
+      case ProfileTab.media:
+        if (PlatformUtils.isMobile) {
+          return const SizedBox();
+        }
+        break;
+
+      case ProfileTab.storage:
+        if (PlatformUtils.isWeb) {
+          return const SizedBox();
+        }
+        break;
+
+      default:
+        // No-op.
+        break;
+    }
+
+    return Obx(() {
+      final bool inverted =
+          tab == router.profileSection.value && router.route == Routes.me;
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 1.5),
+        child: MenuButton.tab(
+          tab,
+          key: key,
+          inverted: switch (tab) {
+            ProfileTab.danger => router.route == Routes.erase,
+            ProfileTab.support => router.route == Routes.support,
+            (_) => inverted,
+          },
+          onPressed: switch (tab) {
+            ProfileTab.legal => () async {
+              await TermsOfUseView.show(router.context!);
+            },
+            ProfileTab.danger => () => router.erase(push: true),
+            ProfileTab.support => router.support,
+            ProfileTab.logout => () async {
+              await ConfirmLogoutView.show(router.context!);
+            },
+            (_) => () {
+              if (router.profileSection.value == tab) {
+                router.profileSection.refresh();
+              } else {
+                router.profileSection.value = tab;
+              }
+              router.me();
+            },
+          },
+        ),
+      );
+    });
   }
 }

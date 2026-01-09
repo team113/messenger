@@ -449,7 +449,10 @@ label_account_has_been_signed_out_due_to_reasons2 =
 
     Пароль или e-mail не были установлены для этого аккаунта. Вход невозможен.
 label_accounts = Ваши аккаунты
+label_actions = Действия
 label_account_created = Аккаунт создан
+label_account_may_be_lost = Аккаунт может быть утерян
+label_account_settings = Настройки аккаунта
 label_active_account = Онлайн
 label_active_devices = Активные устройства
 label_active_sessions = Активные сессии
@@ -623,6 +626,7 @@ label_deleted_account = Удалённый Aккаунт
 label_delete_messages = Удалить сообщения?
 label_desktop_apps = Приложения для компьютера
 label_device_by_default = По умолчанию - {$device}
+label_device_settings = Device settings
 label_dialog_created = Диалог создан
 label_dialog_created_by_link = Диалог создан по прямой ссылке
 label_direct_chat_link = Пригласить в группу
