@@ -2537,7 +2537,10 @@ class OngoingCall {
   ///
   /// Does nothing if [device] is already the [outputDevice].
   Future<void> _setOutputDevice(DeviceDetails device) async {
-    Log.debug('_setOutputDevice($device)', '$runtimeType');
+    Log.debug(
+      '_setOutputDevice($device) -> ${device.audioDeviceKind()?.name}',
+      '$runtimeType',
+    );
 
     if (device != outputDevice.value) {
       final DeviceDetails? previous = outputDevice.value;

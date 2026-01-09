@@ -510,7 +510,7 @@ class DeviceDetails extends MediaDeviceDetails {
   String id() => _device.deviceId();
 
   @override
-  AudioDeviceKind? audioDeviceKind() => null;
+  AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
 }
 
 /// [DeviceDetails] representing a default device.
