@@ -111,6 +111,7 @@ void main() async {
           ip: IpAddress('localhost'),
           userAgent: UserAgent(''),
           lastActivatedAt: PreciseDateTime.now(),
+          siteDomain: SiteDomain(''),
         ),
         const UserId('me'),
       ),

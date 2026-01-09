@@ -940,6 +940,7 @@ label_user_added_user = {$author} agregó {$user}
 label_user_added_user1 = {$author}{" "}
 label_user_added_user2 = agregó
 label_user_added_user3 = {" "}{$user}
+label_user_agent_dot_site = {$application} • {$site}
 label_user_is_blocked = Usuario bloqueado
 label_user_removed_user = {$author} eliminó {$user}
 label_user_removed_user1 = {$author}{" "}

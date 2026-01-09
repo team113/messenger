@@ -306,6 +306,17 @@ class ScopedDatabase extends _$ScopedDatabase {
           bool migrated = false;
 
           try {
+            if (to >= 4 && from <= 3) {
+              await m.alterTable(
+                TableMigration(
+                  sessions,
+                  columnTransformer: {sessions.siteDomain: Constant('')},
+                  newColumns: [sessions.siteDomain],
+                ),
+              );
+              migrated = true;
+            }
+
             if (to >= 3 && from <= 2) {
               await m.addColumn(chats, chats.isArchived);
               migrated = true;
