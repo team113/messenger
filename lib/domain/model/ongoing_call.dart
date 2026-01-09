@@ -18,12 +18,10 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '/domain/model/media_settings.dart';
 import '/domain/model/my_user.dart';
@@ -1641,7 +1639,10 @@ class OngoingCall {
     });
 
     _room!.onNewConnection((conn) {
-      Log.debug('onNewConnection', '$runtimeType');
+      Log.debug(
+        'onNewConnection -> getState(${conn.getState()})',
+        '$runtimeType',
+      );
 
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
@@ -1655,7 +1656,7 @@ class OngoingCall {
       if (member != null) {
         member.id = id;
         member._connection = conn;
-        member.isConnected.value = true;
+        member.isConnected.value = conn.getState() != null;
         member.isDialing.value = false;
       } else {
         members[id] = CallMember(
@@ -1666,9 +1667,17 @@ class OngoingCall {
                   .firstWhereOrNull((e) => e.user.id == id.userId)
                   ?.handRaised ??
               false,
-          isConnected: true,
+          isConnected: conn.getState() != null,
         );
       }
+
+      conn.onStateChange((s) {
+        Log.debug('onStateChange($s)', '$runtimeType');
+
+        if (s is MemberConnectionStateP2P) {
+          member?.isConnected.value = true;
+        }
+      });
 
       conn.onClose(() {
         Log.debug('onClose', '$runtimeType');
@@ -1897,18 +1906,6 @@ class OngoingCall {
         'Unable to enable foreground service due to: $e',
         '$runtimeType',
       );
-    }
-
-    try {
-      if (hasAudio || audioState.value.isEnabled) {
-        await Permission.microphone.request();
-      }
-
-      if (videoState.value.isEnabled) {
-        await Permission.camera.request();
-      }
-    } on MissingPluginException {
-      // No-op.
     }
 
     await _mediaSettingsGuard.protect(() async {

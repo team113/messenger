@@ -446,7 +446,10 @@ label_account_has_been_signed_out_due_to_reasons2 =
 
     No se ha configurado la contraseña ni el e-mail para esta cuenta. No es posible ingresar.
 label_accounts = Sus cuentas
+label_actions = Acciones
 label_account_created = La cuenta ha sido creada
+label_account_may_be_lost = La cuenta puede perderse
+label_account_settings = Configuración de la cuenta
 label_active_account = Online
 label_active_devices = Dispositivos activos
 label_active_sessions = Sesiones activas
@@ -611,6 +614,7 @@ label_delete_messages = ¿Eliminar los mensajes?
 label_deleted_account = Cuenta Eliminada
 label_desktop_apps = Aplicaciones para computadora
 label_device_by_default = Por defecto - {$device}
+label_device_settings = Configuración del dispositivo
 label_dialog_created = Diálogo creado
 label_dialog_created_by_link = Diálogo creado mediante enlace directo
 label_direct_chat_link = Invitar al grupo

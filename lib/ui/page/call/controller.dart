@@ -452,6 +452,10 @@ class CallController extends GetxController {
   /// and video being blocked.
   bool _audioBlockedInBackgroundDisplayed = false;
 
+  /// [DateTime] of device transitioning into [AppLifecycleState] that is
+  /// considered as a background.
+  DateTime? _backgroundSince;
+
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
 
@@ -869,15 +873,21 @@ class CallController extends GetxController {
     AppLifecycleState previousLifecycle = router.lifecycle.value;
     _lifecycleWorker = ever(router.lifecycle, (lifecycle) {
       if (previousLifecycle != lifecycle) {
-        // If previous state was a background one, and a new one is foreground,
-        // then display the popup.
-        if (PlatformUtils.isWeb &&
-            PlatformUtils.isMobile &&
-            !previousLifecycle.inForeground &&
-            lifecycle.inForeground) {
-          if (!_audioBlockedInBackgroundDisplayed) {
-            BackgroundAudioDisclaimerView.show(router.context!);
-            _audioBlockedInBackgroundDisplayed = true;
+        if (PlatformUtils.isWeb && PlatformUtils.isMobile) {
+          if (previousLifecycle.inForeground && !lifecycle.inForeground) {
+            _backgroundSince = DateTime.now();
+          }
+          // If previous state was a background one, and a new one is
+          // foreground, then display the popup.
+          else if (!previousLifecycle.inForeground && lifecycle.inForeground) {
+            final int backgroundSeconds =
+                _backgroundSince?.difference(DateTime.now()).abs().inSeconds ??
+                0;
+
+            if (!_audioBlockedInBackgroundDisplayed && backgroundSeconds >= 5) {
+              BackgroundAudioDisclaimerView.show(router.context!);
+              _audioBlockedInBackgroundDisplayed = true;
+            }
           }
         }
 

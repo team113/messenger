@@ -38,6 +38,7 @@ class CallButtonWidget extends StatelessWidget {
     this.border,
     this.constrained = false,
     bool big = false,
+    this.builder = _defaultBuilder,
   }) : size = constrained
            ? null
            : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
@@ -76,6 +77,9 @@ class CallButtonWidget extends StatelessWidget {
   /// Border style of this [CallButtonWidget].
   final BoxBorder? border;
 
+  /// Builder building the [icon] and the rounded button around it.
+  final Widget Function(BuildContext context, Widget child) builder;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -98,7 +102,11 @@ class CallButtonWidget extends StatelessWidget {
         showText: expanded,
         border: border,
         onPressed: onPressed,
+        builder: builder,
       ),
     );
   }
+
+  /// Returns the [child].
+  static Widget _defaultBuilder(BuildContext context, Widget child) => child;
 }

@@ -35,6 +35,7 @@ class RoundFloatingButton extends StatelessWidget {
     this.hint,
     this.minified = false,
     this.border,
+    this.builder = _defaultBuilder,
   });
 
   /// Callback, called when the button is tapped or activated other way.
@@ -67,15 +68,21 @@ class RoundFloatingButton extends StatelessWidget {
   /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
 
+  /// Builder building the [icon] and the rounded button around it.
+  final Widget Function(BuildContext context, Widget child) builder;
+
   @override
   Widget build(BuildContext context) {
-    final button = _IconButton(
-      icon: icon,
-      color: color,
-      onPressed: onPressed,
-      offset: offset,
-      border: border,
-      hint: hint,
+    final button = builder(
+      context,
+      _IconButton(
+        icon: icon,
+        color: color,
+        onPressed: onPressed,
+        offset: offset,
+        border: border,
+        hint: hint,
+      ),
     );
 
     if (text == null) {
@@ -89,6 +96,9 @@ class RoundFloatingButton extends StatelessWidget {
       child: button,
     );
   }
+
+  /// Returns the [child].
+  static Widget _defaultBuilder(BuildContext context, Widget child) => child;
 }
 
 /// [FloatingActionButton] of some [icon].
