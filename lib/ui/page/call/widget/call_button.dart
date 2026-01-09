@@ -77,7 +77,7 @@ class CallButtonWidget extends StatelessWidget {
   /// Border style of this [CallButtonWidget].
   final BoxBorder? border;
 
-  /// Builder building the [icon] and the rounded button around it.
+  /// Builder building the [asset] and the rounded button around it.
   final Widget Function(BuildContext context, Widget child) builder;
 
   @override

@@ -309,16 +309,16 @@ class Credentials {
         return Credentials(
           AccessToken(
             AccessTokenSecret(json['access']['secret']),
-            PreciseDateTime.parse(json['access']['expireAt']),
+            PreciseDateTime.parse(json['access']['expireAt']['val']),
           ),
           RefreshToken(
             RefreshTokenSecret(json['refresh']['secret']),
-            PreciseDateTime.parse(json['refresh']['expireAt']),
+            PreciseDateTime.parse(json['refresh']['expireAt']['val']),
           ),
           Session(
-            id: SessionId(json['sessionId'] ?? ''),
-            ip: IpAddress('127.0.0.0'),
-            userAgent: UserAgent(''),
+            id: SessionId(json['session']?['id'] ?? json['sessionId'] ?? ''),
+            ip: IpAddress(json['session']?['ip'] ?? '127.0.0.0'),
+            userAgent: UserAgent(json['session']?['userAgent'] ?? ''),
             lastActivatedAt: PreciseDateTime.now(),
             siteDomain: SiteDomain(''),
           ),
