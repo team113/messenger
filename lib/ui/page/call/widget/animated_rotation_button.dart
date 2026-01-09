@@ -51,24 +51,24 @@ class _AnimatedRotatedButtonState extends State<AnimatedRotatedButton>
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      behavior: HitTestBehavior.translucent,
-      onPointerDown: (_) => _controller.forward(from: 0),
-      child: AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) {
-          return IgnorePointer(
-            ignoring: _controller.isAnimating,
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return IgnorePointer(
+          ignoring: _controller.isAnimating,
+          child: Listener(
+            behavior: HitTestBehavior.translucent,
+            onPointerDown: (_) => _controller.forward(from: 0),
             child: RotationTransition(
               turns: Tween(begin: 0.0, end: 2.0).animate(
                 CurvedAnimation(parent: _controller, curve: Curves.ease),
               ),
               child: child,
             ),
-          );
-        },
-        child: widget.child,
-      ),
+          ),
+        );
+      },
+      child: widget.child,
     );
   }
 }

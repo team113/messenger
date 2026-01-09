@@ -432,11 +432,23 @@ extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
   ///
   /// Only meaningful, if these [MediaDeviceDetails] are of
   /// [MediaDeviceKind.audioOutput].
-  AudioSpeakerKind get speaker => switch (deviceId()) {
-    'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
-    'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
-    (_) => AudioSpeakerKind.headphones,
-  };
+  AudioSpeakerKind get speaker {
+    return switch (audioDeviceKind()) {
+      AudioDeviceKind.earSpeaker => AudioSpeakerKind.earpiece,
+      AudioDeviceKind.speakerphone => AudioSpeakerKind.speaker,
+      AudioDeviceKind.wiredHeadphones => AudioSpeakerKind.headphones,
+      AudioDeviceKind.wiredHeadset => AudioSpeakerKind.headphones,
+      AudioDeviceKind.usbHeadphones => AudioSpeakerKind.headphones,
+      AudioDeviceKind.usbHeadset => AudioSpeakerKind.headphones,
+      AudioDeviceKind.bluetoothHeadphones => AudioSpeakerKind.headphones,
+      AudioDeviceKind.bluetoothHeadset => AudioSpeakerKind.headphones,
+      null => switch (deviceId()) {
+        'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
+        'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
+        (_) => AudioSpeakerKind.headphones,
+      },
+    };
+  }
 }
 
 /// Possible kind of an audio output device.

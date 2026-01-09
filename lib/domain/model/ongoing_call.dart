@@ -1311,25 +1311,13 @@ class OngoingCall {
     Log.debug('setRemoteAudioEnabled($enabled)', '$runtimeType');
 
     try {
-      final List<Future> futures = [];
-
-      if (enabled && isRemoteAudioEnabled.isFalse) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          futures.add(m.setAudioEnabled(true));
-        }
-
-        isRemoteAudioEnabled.toggle();
-      } else if (!enabled && isRemoteAudioEnabled.isTrue) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          if (m.tracks.any((e) => e.kind == MediaKind.audio)) {
-            futures.add(m.setAudioEnabled(false));
-          }
-        }
-
-        isRemoteAudioEnabled.toggle();
+      if (enabled) {
+        await _room?.enableRemoteAudio();
+      } else {
+        await _room?.disableRemoteAudio();
       }
 
-      await Future.wait(futures);
+      isRemoteAudioEnabled.toggle();
     } on MediaStateTransitionException catch (_) {
       // No-op.
     }
@@ -1342,28 +1330,13 @@ class OngoingCall {
     Log.debug('setRemoteVideoEnabled($enabled)', '$runtimeType');
 
     try {
-      final List<Future> futures = [];
-
-      if (enabled && isRemoteVideoEnabled.isFalse) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          futures.addAll([
-            m.setVideoEnabled(true, source: MediaSourceKind.device),
-            m.setVideoEnabled(true, source: MediaSourceKind.display),
-          ]);
-        }
-
-        isRemoteVideoEnabled.toggle();
-      } else if (!enabled && isRemoteVideoEnabled.isTrue) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          m.tracks.where((e) => e.kind == MediaKind.video).forEach((e) {
-            futures.add(m.setVideoEnabled(false, source: e.source));
-          });
-        }
-
-        isRemoteVideoEnabled.toggle();
+      if (enabled) {
+        await _room?.enableRemoteVideo();
+      } else {
+        await _room?.disableRemoteVideo();
       }
 
-      await Future.wait(futures);
+      isRemoteVideoEnabled.toggle();
     } on MediaStateTransitionException catch (_) {
       // No-op.
     }
