@@ -35,6 +35,7 @@ class Session implements Comparable<Session> {
     required this.ip,
     required this.userAgent,
     required this.lastActivatedAt,
+    required this.siteDomain,
   });
 
   /// Constructs a [Session] from the provided [json].
@@ -53,6 +54,9 @@ class Session implements Comparable<Session> {
   /// [DateTime] when this [Session] was activated last time (either created or
   /// refreshed).
   final PreciseDateTime lastActivatedAt;
+
+  /// [SiteDomain] of the `Site` this [Session] was created on.
+  final SiteDomain siteDomain;
 
   @override
   int compareTo(Session other) {
@@ -92,6 +96,24 @@ class UserAgent extends NewType<String> {
   factory UserAgent.fromJson(String val) = UserAgent;
 
   /// Returns a [String] representing this [UserAgent].
+  String toJson() => val;
+}
+
+/// Type of `Site`'s [FQDN](1) (fully qualified domain name).
+///
+/// Its values are always considered to be non-empty and meet the requirements
+/// of the [Domain Name Syntax format](2). TLDs (top-level domains) are
+/// considered as valid `Domain`s.
+///
+/// [1]: https://en.wikipedia.org/wiki/Fully_qualified_domain_name
+/// [2]: https://en.wikipedia.org/wiki/Domain_name#Domain_name_syntax
+class SiteDomain extends NewType<String> {
+  const SiteDomain(super.val);
+
+  /// Constructs a [SiteDomain] from the provided [val].
+  factory SiteDomain.fromJson(String val) = SiteDomain;
+
+  /// Returns a [String] representing this [SiteDomain].
   String toJson() => val;
 }
 
@@ -298,6 +320,7 @@ class Credentials {
             ip: IpAddress('127.0.0.0'),
             userAgent: UserAgent(''),
             lastActivatedAt: PreciseDateTime.now(),
+            siteDomain: SiteDomain(''),
           ),
           UserId(json['userId']),
         );

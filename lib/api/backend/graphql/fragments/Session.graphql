@@ -21,4 +21,5 @@ fragment Session on Session {
     ip
     lastActivatedAt
     ver
+    siteDomain
 }

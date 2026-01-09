@@ -88,7 +88,16 @@ class EventSessionCreated extends SessionEvent {
 
   /// Constructs a [Session] from this event.
   Session toModel() {
-    return Session(id: id, ip: ip, userAgent: userAgent, lastActivatedAt: at);
+    return Session(
+      id: id,
+      ip: ip,
+      userAgent: userAgent,
+      lastActivatedAt: at,
+
+      // TODO: Replace when backend introduces [SiteDomain] in
+      //       [EventSessionCreated].
+      siteDomain: SiteDomain(''),
+    );
   }
 }
 
@@ -132,6 +141,15 @@ class EventSessionRefreshed extends SessionEvent {
 
   /// Constructs a [Session] from this event.
   Session toModel() {
-    return Session(id: id, ip: ip, userAgent: userAgent, lastActivatedAt: at);
+    return Session(
+      id: id,
+      ip: ip,
+      userAgent: userAgent,
+      lastActivatedAt: at,
+
+      // TODO: Replace when backend introduces [SiteDomain] in
+      //       [EventSessionRefreshed].
+      siteDomain: SiteDomain(''),
+    );
   }
 }

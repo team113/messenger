@@ -950,6 +950,7 @@ label_user_added_user = {$author} добавил(а) {$user}
 label_user_added_user1 = {$author}{" "}
 label_user_added_user2 = добавил(а)
 label_user_added_user3 = {" "}{$user}
+label_user_agent_dot_site = {$application} • {$site}
 label_user_is_blocked = Пользователь заблокирован
 label_user_removed_user = {$author} удалил(а) {$user}
 label_user_removed_user1 = {$author}{" "}
