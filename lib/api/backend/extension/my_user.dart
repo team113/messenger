@@ -99,6 +99,7 @@ extension SessionExtension on SessionMixin {
       ip: ip,
       lastActivatedAt: lastActivatedAt,
       userAgent: userAgent,
+      siteDomain: siteDomain,
     );
   }
 }

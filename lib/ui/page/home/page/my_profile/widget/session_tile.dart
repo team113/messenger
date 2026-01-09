@@ -87,7 +87,12 @@ class SessionTileWidget extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    session.userAgent.application,
+                    session.siteDomain.val.isEmpty
+                        ? session.userAgent.application
+                        : 'label_user_agent_dot_site'.l10nfmt({
+                            'application': session.userAgent.application,
+                            'site': session.siteDomain.val,
+                          }),
                     style: style.fonts.small.regular.onBackground,
                   ),
                   SizedBox(height: 4),
