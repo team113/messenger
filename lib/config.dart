@@ -300,7 +300,7 @@ class Config {
 
     redirectStdOut = const bool.hasEnvironment('SOCAPP_LOG_REDIRECT_STDOUT')
         ? const bool.fromEnvironment('SOCAPP_LOG_REDIRECT_STDOUT')
-        : (document['log']?['redirect_stdout'] ?? !kDebugMode);
+        : (document['log']?['redirect_stdout'] ?? true);
 
     try {
       final dynamic announcementsOrNull = document['announcement'];
