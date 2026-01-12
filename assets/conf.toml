@@ -132,6 +132,13 @@
 #   write = true (on native iOS devices)
 #   write = false (on any other platforms)
 
+# Indicator whether `stdout` and `stderr` streams should be redirected to a
+# `File` in some temporary directory.
+#
+# Default:
+#   redirect_logs = true (if `kProfileMode` or `kReleaseMode` is `true`)
+#   redirect_logs = false (if `kDebugMode`  is `true`)
+
 [link]
 # Prefix of the direct chat link URL.
 #

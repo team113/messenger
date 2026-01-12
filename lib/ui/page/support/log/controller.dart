@@ -62,6 +62,9 @@ class LogController extends GetxController {
   /// [FileStat] of the written [File] of the [LogEntry]ies.
   final Rx<FileStat?> stat = Rx(null);
 
+  /// [FileStat] of a application logs forwarded from stdout/stderr, if any.
+  final Rx<FileStat?> appLogs = Rx(null);
+
   /// [AuthService] used to retrieve the current [sessionId].
   final AuthService _authService;
 
@@ -98,6 +101,7 @@ class LogController extends GetxController {
     PlatformUtils.userAgent.then((e) => userAgent.value = e);
     getNotificationSettings().then((e) => notificationSettings.value = e);
     _tryFile();
+    _tryAppLogs();
     super.onInit();
   }
 
@@ -225,14 +229,27 @@ ${Log.logs.map((e) => e.toString()).join('\n')}
   }
 
   /// Downloads the [File] with the whole dump of logs, if any.
-  Future<void> downloadArchive() async {
+  Future<void> downloadArchive() async => _download(_logProvider?.file);
+
+  /// Downloads the [File] with the `stdout` and `stderr` streams, if any.
+  Future<void> downloadAppLogs() async {
+    // [File]s aren't available for Web platform.
+    if (PlatformUtils.isWeb) {
+      return;
+    }
+
+    final Directory library = await PlatformUtils.libraryDirectory;
+    await _download(File('${library.path}/app.log'));
+  }
+
+  /// Downloads the provided [File], if any.
+  Future<void> _download(File? file) async {
     // [File]s aren't available for Web platform.
     if (PlatformUtils.isWeb) {
       return;
     }
 
     try {
-      final File? file = _logProvider?.file;
       if (file == null) {
         return;
       }
@@ -271,5 +288,17 @@ ${Log.logs.map((e) => e.toString()).join('\n')}
     }
 
     stat.value = await _logProvider?.stat();
+  }
+
+  /// Retrieves the [FileStat] for `stdout` and `stderr` streams.
+  Future<void> _tryAppLogs() async {
+    // [File]s aren't available for Web platform.
+    if (PlatformUtils.isWeb) {
+      return;
+    }
+
+    final Directory library = await PlatformUtils.libraryDirectory;
+    final File file = File('${library.path}/app.log');
+    appLogs.value = await file.stat();
   }
 }

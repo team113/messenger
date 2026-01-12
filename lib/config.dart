@@ -165,6 +165,10 @@ class Config {
   /// Each key is expected to be a string of Unicode BCP47 Locale Identifier.
   static Map<String, Announcement> announcements = {};
 
+  /// Indicator whether logs from `stdout` and `stderr` streams should be
+  /// redirected.
+  static bool redirectStdOut = true;
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
@@ -293,6 +297,10 @@ class Config {
     ipEndpoint = const bool.hasEnvironment('SOCAPP_IP_ENDPOINT')
         ? const String.fromEnvironment('SOCAPP_IP_ENDPOINT')
         : (document['ip']?['endpoint'] ?? ipEndpoint);
+
+    redirectStdOut = const bool.hasEnvironment('SOCAPP_LOG_REDIRECT_STDOUT')
+        ? const bool.fromEnvironment('SOCAPP_LOG_REDIRECT_STDOUT')
+        : (document['log']?['redirect_stdout'] ?? !kDebugMode);
 
     try {
       final dynamic announcementsOrNull = document['announcement'];
