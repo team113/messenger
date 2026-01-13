@@ -61,29 +61,43 @@ class MainFlutterWindow: NSWindow {
     let url: URL = docs.appendingPathComponent("Gapopa").appendingPathComponent("app.log")
 
     if FileManager.default.createFile(atPath: url.path, contents: nil, attributes: nil) {
-      var fds: [Int32] = [0, 0]
-      pipe(&fds)
-
-      let fileFD = open(url.path, O_CREAT | O_WRONLY | O_APPEND, 0o644)
-      let originalStdout = dup(STDOUT_FILENO)
-
-      // Redirect stdout into pipe.
-      dup2(fds[1], STDOUT_FILENO)
-      Darwin.close(fds[1])
-      setbuf(stdout, nil)
-
-      DispatchQueue.global(qos: .utility).async {
-        var buffer = [UInt8](repeating: 0, count: 4096)
-        while true {
-          let n = read(fds[0], &buffer, buffer.count)
-          if n <= 0 { break }
-
-          write(fileFD, buffer, n)
-          write(originalStdout, buffer, n)
-        }
-      }
-
+      let file = open(url.path, O_CREAT | O_WRONLY, 0o644)
+      createPipeFor(port: STDOUT_FILENO, file: file)
+      createPipeFor(port: STDERR_FILENO, file: file)
       print("stdout/stderr redirected to \(url.path)")
+    }
+  }
+
+  /// Creates a pipe for the provided port to forward to the provided file.
+  private func createPipeFor(port: Int32, file: Int32) {
+    // Create a pipe.
+    var stdoutPipe: [Int32] = [0, 0]
+    pipe(&stdoutPipe)
+
+    let originalStdout = dup(port)
+
+    // Replace `stdout` with the pipe's write end.
+    dup2(stdoutPipe[1], port)
+    Darwin.close(stdoutPipe[1])
+
+    // Disable buffering for logs to appear immediately.
+    setbuf(stdout, nil)
+
+    DispatchQueue.global(qos: .utility).async {
+      var buffer = [UInt8](repeating: 0, count: 4096)
+
+      while true {
+        let bytesRead = read(stdoutPipe[0], &buffer, buffer.count)
+        if bytesRead <= 0 {
+          break
+        }
+
+        // Write to log file.
+        write(file, buffer, bytesRead)
+
+        // Write back to original `stdout`.
+        write(originalStdout, buffer, bytesRead)
+      }
     }
   }
 }
