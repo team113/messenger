@@ -1,2 +1,4 @@
-- Added audio system sharing on macOS, Windows and in browsers.
-- Bug fixes and performance improvements.
+- Added reconnect button to calls.
+- Added popup of microphone and camera being blocked when tab is in background for mobile web devices.
+- Redesigned linked devices to display domains.
+- Redesigned buttons on menu tab to have sections.
