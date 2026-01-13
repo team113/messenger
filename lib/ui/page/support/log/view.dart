@@ -166,6 +166,27 @@ class LogView extends StatelessWidget {
                               );
                             }),
 
+                          if (Config.redirectStdOut)
+                            Obx(() {
+                              final stat = c.appLogs.value;
+
+                              if (stat == null) {
+                                return const SizedBox();
+                              }
+
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: SelectionContainer.disabled(
+                                  child: PrimaryButton(
+                                    onPressed: () async =>
+                                        await c.downloadAppLogs(),
+                                    title:
+                                        'Download ${stat.size ~/ 1024} KB `stdout`',
+                                  ),
+                                ),
+                              );
+                            }),
+
                           _application(context, c),
                           _myUser(context, c),
                           _session(context, c),

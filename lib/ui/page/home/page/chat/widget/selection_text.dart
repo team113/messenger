@@ -67,6 +67,9 @@ class SelectionText extends StatefulWidget {
 /// State of a [SelectionText] invoking a [SelectionText.onChanged] in its
 /// [initState].
 class _SelectionTextState extends State<SelectionText> {
+  /// [GlobalKey] for [ObscuredSelectionArea] to keep it from rebuilding.
+  final GlobalKey _key = GlobalKey();
+
   @override
   void initState() {
     widget.onChanged?.call(null);
@@ -94,6 +97,7 @@ class _SelectionTextState extends State<SelectionText> {
         );
       } else {
         child = ObscuredSelectionArea(
+          key: _key,
           onSelectionChanged: widget.onChanged,
           child: child,
         );

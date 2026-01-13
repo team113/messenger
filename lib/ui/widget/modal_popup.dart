@@ -212,18 +212,18 @@ class ModalPopupHeader extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (onBack != null)
                   WidgetButton(
                     onPressed: onBack,
                     child: const Padding(
-                      padding: EdgeInsets.fromLTRB(12, 14, 14, 8),
+                      padding: EdgeInsets.fromLTRB(16, 12, 12, 12),
                       child: SvgIcon(SvgIcons.backSmall),
                     ),
                   )
                 else
-                  const SizedBox(width: 40),
+                  const SizedBox(width: 34),
 
                 if (text != null)
                   Expanded(
@@ -249,11 +249,11 @@ class ModalPopupHeader extends StatelessWidget {
                     key: const Key('CloseButton'),
                     onPressed: Navigator.of(context).pop,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 16, 16, 16),
+                      padding: const EdgeInsets.fromLTRB(12, 12, 16, 12),
                       child: const SvgIcon(
                         SvgIcons.closeSmallPrimary,
-                        width: 9,
-                        height: 9,
+                        width: 10,
+                        height: 10,
                       ),
                     ),
                   )

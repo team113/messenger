@@ -119,7 +119,7 @@ class MemberTile extends StatelessWidget {
               decorator: (child) =>
                   Padding(padding: const EdgeInsets.all(12), child: child),
               onPressed: _me
-                  ? null
+                  ? onKick
                   : () async {
                       final bool? result = await MessagePopup.alert(
                         'label_remove_member'.l10n,

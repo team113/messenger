@@ -512,6 +512,11 @@ class ChatInfoView extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_leave_group'.l10n,
       description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
+      button: (context) => MessagePopup.deleteButton(
+        context,
+        icon: SvgIcons.leaveGroupWhite,
+        label: 'btn_leave'.l10n,
+      ),
     );
 
     if (result == true) {

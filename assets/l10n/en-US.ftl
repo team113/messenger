@@ -181,6 +181,7 @@ btn_info = Information
 btn_install_android = .apk file for Android
 btn_install_ios = .ipa file for iOS
 btn_install_web_app = Install Web App
+btn_leave = Leave
 btn_leave_group = Leave group
 btn_login_and_password = Login and password
 btn_logout = Sign out

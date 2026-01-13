@@ -1530,6 +1530,12 @@ class SvgIcons {
     height: 20,
   );
 
+  static const SvgData leaveGroupWhite = SvgData(
+    'assets/icons/leave_group_white.svg',
+    width: 20,
+    height: 20,
+  );
+
   static const SvgData leaveGroupRed = SvgData(
     'assets/icons/leave_group_red.svg',
     width: 16.28,

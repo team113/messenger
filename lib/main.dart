@@ -75,6 +75,7 @@ import 'ui/worker/window.dart';
 import 'util/backoff.dart';
 import 'util/get.dart';
 import 'util/log.dart';
+import 'util/macos_utils.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
 
@@ -95,6 +96,12 @@ Future<void> main() async {
       );
 
       Log.maxLogs = Config.logAmount;
+
+      if (Config.redirectStdOut) {
+        if (PlatformUtils.isMacOS) {
+          MacosUtils.redirectStdOut().onError((_, _) => false);
+        }
+      }
 
       // No need to initialize the Sentry if no DSN is provided, otherwise
       // useless messages are printed to the console every time the application
