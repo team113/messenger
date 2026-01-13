@@ -56,14 +56,34 @@ class MainFlutterWindow: NSWindow {
   }
 
   private func redirectStdOutErr() {
-    // Where you want logs to go
-    let fm = FileManager.default
-    let docs = fm.urls(for: .libraryDirectory, in: .userDomainMask).first!
-    let logURL = docs.appendingPathComponent("Gapopa").appendingPathComponent("app.log")
+    // Calculate the URL of `app.log` file.
+    let docs = FileManager.default.urls(for: .libraryDirectory, in: .userDomainMask).first!
+    let url: URL = docs.appendingPathComponent("Gapopa").appendingPathComponent("app.log")
 
-    freopen(logURL.path, "w+", stdout)
-    freopen(logURL.path, "w+", stderr)
+    if FileManager.default.createFile(atPath: url.path, contents: nil, attributes: nil) {
+      var fds: [Int32] = [0, 0]
+      pipe(&fds)
 
-    print("stdout/stderr redirected to \(logURL.path)")
+      let fileFD = open(url.path, O_CREAT | O_WRONLY | O_APPEND, 0o644)
+      let originalStdout = dup(STDOUT_FILENO)
+
+      // Redirect stdout into pipe.
+      dup2(fds[1], STDOUT_FILENO)
+      Darwin.close(fds[1])
+      setbuf(stdout, nil)
+
+      DispatchQueue.global(qos: .utility).async {
+        var buffer = [UInt8](repeating: 0, count: 4096)
+        while true {
+          let n = read(fds[0], &buffer, buffer.count)
+          if n <= 0 { break }
+
+          write(fileFD, buffer, n)
+          write(originalStdout, buffer, n)
+        }
+      }
+
+      print("stdout/stderr redirected to \(url.path)")
+    }
   }
 }

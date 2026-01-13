@@ -16,7 +16,10 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
+    - Chat info page:
+        - Leave group button in members list not working. ([#1578])
 
+[#1578]: /../../pull/1578
 [#1580]: /../../pull/1580
 
 
