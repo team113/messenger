@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.8.0] · 2026-??-??
+[0.8.0]: /../../tree/v0.8.0
+
+[Diff](/../../compare/v0.7.2...v0.8.0) | [Milestone](/../../milestone/62)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
+
+[#1580]: /../../pull/1580
+
+
+
+
 ## [0.7.2] · 2026-01-12
 [0.7.2]: /../../tree/v0.7.2
 

@@ -26,10 +26,12 @@ import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:mutex/mutex.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration_presets.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '/api/backend/schema.dart';
@@ -167,6 +169,9 @@ class CallWorker extends DisposableService {
 
   /// [DateTime] when last [MediaUtilsImpl.ensureReconnected] was invoked.
   DateTime? _lastConnectedAt;
+
+  /// [Mutex] guarding async access to [Vibration] related functions.
+  final Mutex _vibrateMutex = Mutex();
 
   /// [Duration] between [FlutterCallkitIncoming]s displayed to be considered as
   /// a new call instead of already reported one.
@@ -332,28 +337,6 @@ class CallWorker extends DisposableService {
         } else if (_workers.isNotEmpty &&
             (!PlatformUtils.isMobile || isInForeground)) {
           play(_incoming, fade: true);
-          Vibration.hasVibrator()
-              .then((bool? v) {
-                _vibrationTimer?.cancel();
-
-                if (v == true) {
-                  Vibration.vibrate(
-                    pattern: [500, 1000],
-                  ).onError((_, _) => false);
-                  _vibrationTimer = Timer.periodic(
-                    const Duration(milliseconds: 1500),
-                    (timer) {
-                      Vibration.vibrate(
-                        pattern: [500, 1000],
-                        repeat: 0,
-                      ).onError((_, _) => false);
-                    },
-                  );
-                }
-              })
-              .catchError((_, _) {
-                // No-op.
-              });
 
           // Show a notification of an incoming call.
           if (!outgoing && !PlatformUtils.isMobile && !_focused) {
@@ -723,6 +706,7 @@ class CallWorker extends DisposableService {
           fade: fade ? 1.seconds : Duration.zero,
         );
         previous?.cancel();
+        _startVibrating();
       }
     } else if (asset == _outgoing) {
       final previous = _outgoingAudio;
@@ -739,6 +723,7 @@ class CallWorker extends DisposableService {
   /// Stops the audio that is currently playing.
   Future<void> stop() async {
     if (_vibrationTimer != null) {
+      _stopVibrating();
       _vibrationTimer?.cancel();
       Vibration.cancel();
     }
@@ -981,6 +966,44 @@ class CallWorker extends DisposableService {
       _eventsSubscriptions.remove(chatId)?.cancel();
       await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
     }
+  }
+
+  /// Starts [Vibration.vibrate].
+  Future<void> _startVibrating() async {
+    await _vibrateMutex.protect(() async {
+      _vibrationTimer?.cancel();
+
+      try {
+        await Vibration.cancel();
+
+        _vibrationTimer = Timer.periodic(const Duration(milliseconds: 1400), (
+          timer,
+        ) {
+          Vibration.vibrate(
+            preset: VibrationPreset.rhythmicBuzz,
+          ).onError((_, _) => false);
+        });
+
+        Vibration.vibrate(
+          preset: VibrationPreset.rhythmicBuzz,
+        ).onError((_, _) => false);
+      } catch (_) {
+        // No-op.
+      }
+    });
+  }
+
+  /// Stops [Vibration.vibrate].
+  Future<void> _stopVibrating() async {
+    await _vibrateMutex.protect(() async {
+      _vibrationTimer?.cancel();
+
+      try {
+        await Vibration.cancel();
+      } catch (_) {
+        // No-op.
+      }
+    });
   }
 }
 
