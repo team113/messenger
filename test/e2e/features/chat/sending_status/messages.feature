@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -39,6 +41,7 @@ Feature: Chat messages have correct sending status
     Then I wait until status of "123" message is sending
     And I wait until status of "123" message is sent
 
+  @internet
   Scenario: User deletes non-sent message
     Given I do not have Internet
     When I fill `MessageField` field with "123"
@@ -50,6 +53,7 @@ Feature: Chat messages have correct sending status
     And I tap `Proceed` button
     Then I wait until "123" message is absent
 
+  @internet
   Scenario: User resends message
     Given I do not have Internet
     When I fill `MessageField` field with "123"
@@ -62,6 +66,7 @@ Feature: Chat messages have correct sending status
     Then I wait until status of "123" message is sending
     And I wait until status of "123" message is sent
 
+  @internet
   Scenario: Non-sent messages are persisted
     Given I do not have Internet
     When I fill `MessageField` field with "123"

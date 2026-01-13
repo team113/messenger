@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -31,9 +33,9 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:http/http.dart' show Client;
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart' as jason;
-import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stdlibc/stdlibc.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:win32/win32.dart';
 import 'package:win32_registry/win32_registry.dart';
 
@@ -56,8 +58,8 @@ class WebUtils {
   /// Indicator whether this device has a PWA installed.
   static bool hasPwa = false;
 
-  /// [Mutex]es guarding the [protect] method.
-  static final Map<String, Mutex> _guards = {};
+  /// [Lock]es guarding the [protect] method.
+  static final Map<String, Lock> _guards = {};
 
   /// Indicator whether this platform supports system audio capture.
   ///
@@ -105,7 +107,7 @@ class WebUtils {
   static bool get isPopup => false;
 
   /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> get isLocked => _guards['mutex']?.isLocked == true;
+  static FutureOr<bool> get isLocked => _guards['mutex']?.locked == true;
 
   /// Returns custom [Client] to use for HTTP requests.
   static Client? get httpClient {
@@ -158,13 +160,13 @@ class WebUtils {
     bool exclusive = true,
     String tag = 'mutex',
   }) {
-    Mutex? mutex = _guards[tag];
+    Lock? mutex = _guards[tag];
     if (mutex == null) {
-      mutex = Mutex();
+      mutex = Lock();
       _guards[tag] = mutex;
     }
 
-    return mutex.protect(callback);
+    return mutex.synchronized(callback);
   }
 
   /// Pushes [title] to browser's window title.

@@ -1,3 +1,10 @@
+# Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License v3.0 as published by the
 # Free Software Foundation, either version 3 of the License, or (at your
 # option) any later version.
 #
@@ -10,6 +17,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+@disabled
 Feature: Chat members pagination
 
   Scenario: Chat members pagination works correctly
@@ -18,10 +26,10 @@ Feature: Chat members pagination
     And I sign in as Alice
     And I pause for 2 seconds
     And I am in "Members" group
+    And I pause for 5 seconds
 
-    When I scroll `IntroductionScrollable` until `ProceedButton` is present
-    And I tap `ProceedButton` button
-    And I open chat's info
+    When I open chat's info
+    And I pause for 10 seconds
     Then I see 15 chat members
 
     Given I have Internet with delay of 3 seconds

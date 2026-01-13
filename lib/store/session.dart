@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -29,6 +31,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/session.dart';
+import '/domain/service/disposable_service.dart';
 import '/provider/drift/account.dart';
 import '/provider/drift/geolocation.dart';
 import '/provider/drift/session.dart';
@@ -46,7 +49,7 @@ import 'model/session_data.dart';
 import 'model/session.dart';
 
 /// [Session]s repository.
-class SessionRepository extends DisposableInterface
+class SessionRepository extends IdentityDependency
     implements AbstractSessionRepository {
   SessionRepository(
     this._graphQlProvider,
@@ -54,8 +57,9 @@ class SessionRepository extends DisposableInterface
     this._versionLocal,
     this._sessionLocal,
     this._geoLocal,
-    this._geoProvider,
-  );
+    this._geoProvider, {
+    required super.me,
+  });
 
   @override
   final RxList<RxSessionImpl> sessions = RxList();
@@ -142,6 +146,22 @@ class SessionRepository extends DisposableInterface
   }
 
   @override
+  void onIdentityChanged(UserId me) {
+    super.onIdentityChanged(me);
+
+    Log.debug('onIdentityChanged($me)', '$runtimeType');
+
+    _localSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
+
+    // For popups this store should be used for connectivity check only.
+    if (!me.isLocal && !WebUtils.isPopup) {
+      _initLocalSubscription();
+      _initRemoteSubscription();
+    }
+  }
+
+  @override
   Future<IpGeoLocation> fetch({IpAddress? ip}) async {
     Log.debug('fetch(ip: $ip) with $_language', '$runtimeType');
 
@@ -204,7 +224,7 @@ class SessionRepository extends DisposableInterface
       return;
     }
 
-    Log.debug('_initSessionLocalSubscription()', '$runtimeType');
+    Log.debug('_initLocalSubscription()', '$runtimeType');
 
     _localSubscription = _sessionLocal.watch().listen((events) {
       for (var e in events) {
@@ -233,16 +253,16 @@ class SessionRepository extends DisposableInterface
 
   /// Initializes [_sessionRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    if (isClosed) {
+    Log.debug('_initRemoteSubscription()', '$runtimeType');
+
+    _remoteSubscription?.close(immediate: true);
+
+    if (isClosed || me.isLocal) {
       return;
     }
 
-    Log.debug('_initSessionSubscription()', '$runtimeType');
-
-    _remoteSubscription?.cancel(immediate: true);
-
     await WebUtils.protect(() async {
-      if (isClosed) {
+      if (isClosed || me.isLocal) {
         return;
       }
 

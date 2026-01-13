@@ -24,7 +24,7 @@ import '/domain/repository/session.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [Session]s management.
-class SessionService extends DisposableService {
+class SessionService extends Dependency {
   SessionService(this._sessionRepository);
 
   /// Repository responsible for storing [Session]s.

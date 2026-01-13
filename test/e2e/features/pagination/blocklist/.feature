@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,11 +23,8 @@ Feature: Blocklist pagination
     Given user Alice
     And Alice has 16 blocked users
     And I sign in as Alice
-    And I wait until `HomeView` is present
 
-    When I scroll `IntroductionScrollable` until `ProceedButton` is present
-    And I tap `ProceedButton` button
-    And I tap `MenuButton` button
+    When I tap `MenuButton` button
     And I scroll `MenuListView` until `Blocklist` is present
     And I tap `Blocklist` button
     And I tap `ShowBlocklist` button

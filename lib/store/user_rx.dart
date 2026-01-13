@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -159,6 +161,9 @@ class RxUserImpl extends RxUser {
   @override
   Stream<void> get updates => _controller.stream;
 
+  /// Returns a [UserId] of the currently authenticated [MyUser].
+  UserId get me => _userRepository.me;
+
   /// Disposes this [RxUserImpl].
   void dispose() {
     Log.debug('dispose()', '$runtimeType($id)');
@@ -174,6 +179,10 @@ class RxUserImpl extends RxUser {
     Log.debug('_initRemoteSubscription()', '$runtimeType($id)');
 
     _remoteSubscription?.close(immediate: true);
+
+    if (me.isLocal || id.isLocal) {
+      return;
+    }
 
     await WebUtils.protect(() async {
       if (_disposed) {

@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,8 +23,10 @@ import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:drift/drift.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/user.dart';
+import '/domain/service/disposable_service.dart';
 import 'drift.dart';
 
 /// [ChatMessage]s being [Chat] drafts to be stored in a [Table].
@@ -36,7 +40,7 @@ class Drafts extends Table {
 }
 
 /// [DriftProviderBase] for manipulating the persisted [ChatMessage] drafts.
-class DraftDriftProvider extends DriftProviderBaseWithScope {
+class DraftDriftProvider extends DriftProviderBaseWithScope with IdentityAware {
   DraftDriftProvider(super.common, super.scoped);
 
   /// [StreamController] emitting [ChatMessage]s in [watch].
@@ -44,6 +48,14 @@ class DraftDriftProvider extends DriftProviderBaseWithScope {
 
   /// [ChatMessage] that have started the [upsert]ing, but not yet finished it.
   final Map<ChatId, ChatMessage> _cache = {};
+
+  @override
+  int get order => IdentityAware.providerOrder;
+
+  @override
+  void onIdentityChanged(UserId me) {
+    _cache.clear();
+  }
 
   /// Creates or updates the provided [message] in the database.
   Future<void> upsert(ChatId id, ChatMessage message) async {

@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,11 +20,12 @@
 Feature: Logout confirmation
 
   Scenario: Confirmation is displayed when password isn't set
-    When I tap `StartButton` button
-    Then I wait until `IntroductionView` is present
+    When I wait until `IntroductionView` is present
+    And I tap `GuestButton` button
+    Then I wait until `GuestCreatedScreen` is present
+    And my account is indeed remote
 
     When I copy from `NumCopyable` field
-    And I scroll `IntroductionScrollable` until `ProceedButton` is present
     And I tap `ProceedButton` button
     And I tap `MenuButton` button
     And I scroll `MenuListView` until `LogoutButton` is present
@@ -39,14 +42,17 @@ Feature: Logout confirmation
     When I tap `LogoutButton` button
     And I tap `KeepCredentialsSwitch` button
     And I tap `ConfirmLogoutButton` button
-    Then I wait until `AuthView` is present
+    Then I wait until `IntroductionView` is present
 
     When I tap `SignInButton` button
-    Then I wait until `LoginView` is present
+    Then I wait until `SignInScreen` is present
 
     When I tap `PasswordButton` button
-    And I paste to `UsernameField` field
+    Then I wait until `SignInWithPasswordScreen` is present
+
+    When I paste to `UsernameField` field
     And I fill `PasswordField` field with "123"
     And I tap `LoginButton` button
     Then I wait until `HomeView` is present
     And I pause for 2 seconds
+    And my account is indeed remote

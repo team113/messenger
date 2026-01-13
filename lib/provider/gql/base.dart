@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -317,7 +319,8 @@ class GraphQlClient {
         final dio.Options authorized = options ?? dio.Options();
         authorized.headers = (authorized.headers ?? {});
 
-        if (raw == null || raw.token != null) {
+        final AccessTokenSecret? bearer = raw?.token ?? token;
+        if (bearer != null && (raw == null || raw.token != null)) {
           authorized.headers!['Authorization'] =
               'Bearer ${raw?.token ?? token}';
         }
@@ -331,7 +334,10 @@ class GraphQlClient {
             cancelToken: cancelToken,
           );
         } on dio.DioException catch (e) {
-          Log.warning('post() -> `DioException` occurred: $e', '$runtimeType');
+          Log.warning(
+            'post() -> `DioException` occurred: $e\nData: ${e.response?.data}',
+            '$runtimeType',
+          );
 
           if (e.response != null) {
             if (onException != null &&

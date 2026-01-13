@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -470,6 +472,8 @@ class SearchController extends GetxController {
   ///
   /// Query may be a [UserNum], [UserName], [UserLogin] or [ChatDirectLinkSlug].
   void _searchUsers(String query) {
+    Log.debug('_searchUsers($query)', '$runtimeType');
+
     _usersSearchWorker?.dispose();
     _usersSearchWorker = null;
 
@@ -499,6 +503,11 @@ class SearchController extends GetxController {
           if (!_chatService.hasNext.value) {
             searchStatus.value = s;
           }
+
+          Log.debug(
+            '_searchUsers($query) -> ${s.isSuccess} -> ${result.items}',
+            '$runtimeType',
+          );
 
           if (s.isSuccess && !s.isLoadingMore) {
             _populateUsers();
@@ -679,10 +688,14 @@ class SearchController extends GetxController {
   /// - [stored] [User]s obtained from paginated [Chat]-dialogs;
   /// - other [User]s obtained from global search.
   void _populateUsers() {
+    Log.debug('_populateUsers()', '$runtimeType');
+
     if (categories.contains(SearchCategory.user) &&
         _chatService.hasNext.isFalse) {
       final Iterable<RxChat> storedChats = _chatService.chats.values;
       final Iterable<RxUser> searched = usersSearch.value?.items.values ?? [];
+
+      Log.debug('_populateUsers() -> searched($searched)', '$runtimeType');
 
       // Predicates to filter non-hidden [Chat]-dialogs.
       bool remoteDialog(RxChat c) => c.chat.value.isDialog && !c.id.isLocal;

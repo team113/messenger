@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -116,7 +118,7 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(credentialsProvider);
     Get.put(draftProvider);
-    Get.put(NotificationService(graphQlProvider));
+    Get.put(NotificationService(graphQlProvider, me: const UserId('me')));
     Get.put(monologProvider);
     Get.put(backgroundProvider);
     Get.put(blocklistProvider);
@@ -334,8 +336,8 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Future<GetUser$Query> getUser(UserId id) async {
-    return GetUser$Query.fromJson({'user': null});
+  Future<UserMixin?> getUser(UserId id) async {
+    return GetUser$Query.fromJson({'user': null}).user;
   }
 
   @override

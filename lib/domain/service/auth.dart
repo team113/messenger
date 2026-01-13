@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -45,7 +47,7 @@ import 'disposable_service.dart';
 ///
 /// It contains all the required methods to do the authentication process and
 /// exposes [credentials] (a session and an user) of the authorized session.
-class AuthService extends DisposableService {
+class AuthService extends Dependency {
   AuthService(
     this._authRepository,
     this._credentialsProvider,
@@ -129,8 +131,12 @@ class AuthService extends DisposableService {
   /// [Stopwatch] counting since the last successful [refreshSession] occurred.
   final Map<UserId, Stopwatch> _refreshedAt = {};
 
+  /// [Worker] reacting on [credentials] changes to notify [IdentityAware]
+  /// dependencies.
+  Worker? _credentialsWorker;
+
   /// Returns the currently authorized [Credentials.userId].
-  UserId? get userId => credentials.value?.userId;
+  UserId get userId => credentials.value?.userId ?? UserId.local();
 
   /// Returns the reactive list of known [MyUser]s.
   RxList<MyUser> get profiles => _authRepository.profiles;
@@ -146,6 +152,7 @@ class AuthService extends DisposableService {
     _deltaWorker?.dispose();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
+    _credentialsWorker?.dispose();
 
     _authRepository.authExceptionHandler = null;
   }
@@ -162,6 +169,30 @@ class AuthService extends DisposableService {
       // Always try to refresh session, as we cannot rely on the expiry dates.
       await refreshSession(proceedIfRefreshBefore: DateTime.now());
     };
+
+    UserId? previousId;
+
+    _credentialsWorker = ever(credentials, (_) {
+      if (previousId == userId) {
+        Log.debug(
+          '_credentialsWorker -> onIdentityChanged($userId) ignored, since `$previousId` is the same',
+          '$runtimeType',
+        );
+        return;
+      }
+
+      final List<IdentityAware> deps = Get.findAll<IdentityAware>();
+      deps.sort((a, b) => a.order.compareTo(b.order));
+
+      Log.debug(
+        '_credentialsWorker -> onIdentityChanged($userId) for $deps',
+        '$runtimeType',
+      );
+
+      for (var e in deps) {
+        e.onIdentityChanged(userId);
+      }
+    });
 
     // Listen to the [Credentials] changes to stay synchronized with another
     // tabs.
@@ -440,7 +471,15 @@ class AuthService extends DisposableService {
     status.value = _hasAuthorization
         ? RxStatus.loadingMore()
         : RxStatus.loading();
+
+    Log.debug('signIn() -> await protect()...', '$runtimeType');
     await protect(() async {
+      Log.debug('signIn() -> await protect()... done!', '$runtimeType');
+
+      if (isClosed) {
+        return;
+      }
+
       try {
         final Credentials creds = await _authRepository.signIn(
           password: password,
@@ -533,9 +572,7 @@ class AuthService extends DisposableService {
     }
 
     if (force) {
-      if (userId != null) {
-        _authRepository.removeAccount(userId!);
-      }
+      _authRepository.removeAccount(userId);
 
       _unauthorized();
 
@@ -572,14 +609,12 @@ class AuthService extends DisposableService {
   Future<String> logout([bool keepProfile = false]) async {
     Log.debug('logout()', '$runtimeType');
 
-    if (userId != null) {
-      accounts.remove(userId);
-      if (!keepProfile) {
-        profiles.removeWhere((e) => e.id == userId);
-      }
-
-      _authRepository.removeAccount(userId!, keepProfile: keepProfile);
+    accounts.remove(userId);
+    if (!keepProfile) {
+      profiles.removeWhere((e) => e.id == userId);
     }
+
+    _authRepository.removeAccount(userId, keepProfile: keepProfile);
 
     return await deleteSession(keepData: keepProfile) ?? Routes.auth;
   }
@@ -1077,15 +1112,15 @@ class AuthService extends DisposableService {
   Future<void> _authorized(Credentials creds) async {
     Log.debug('_authorized($creds)', '$runtimeType');
 
-    _authRepository.token = creds.access.secret;
-    credentials.value = creds;
-    _putCredentials(creds);
-
-    WebUtils.putCredentials(creds);
     await Future.wait([
       _credentialsProvider.upsert(creds),
       _accountProvider.upsert(creds.userId),
     ]);
+
+    _authRepository.token = creds.access.secret;
+    credentials.value = creds;
+    _putCredentials(creds);
+    WebUtils.putCredentials(creds);
 
     _initRefreshTimers();
 
@@ -1096,14 +1131,12 @@ class AuthService extends DisposableService {
   String _unauthorized() {
     Log.debug('_unauthorized()', '$runtimeType');
 
-    final UserId? id = userId;
-    if (id != null) {
-      _credentialsProvider.delete(id);
-      _secretProvider.delete(id);
-      _refreshTimers.remove(id)?.cancel();
-      accounts.remove(id);
-      WebUtils.removeCredentials(id);
-    }
+    final UserId id = userId;
+    _credentialsProvider.delete(id);
+    _secretProvider.delete(id);
+    _refreshTimers.remove(id)?.cancel();
+    accounts.remove(id);
+    WebUtils.removeCredentials(id);
 
     if (id == _accountProvider.userId) {
       // This workarounds the situation when another tab on Web has already

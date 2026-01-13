@@ -40,6 +40,7 @@ import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
 import 'accounts_switcher/view.dart';
 import 'controller.dart';
+import 'introduction/view.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
@@ -53,18 +54,7 @@ import 'widget/navigation_bar.dart';
 
 /// View of the [Routes.home] page.
 class HomeView extends StatefulWidget {
-  const HomeView(
-    this._depsFactory, {
-    super.key,
-    this.signedUp = false,
-    this.link,
-  });
-
-  /// Indicator whether the [IntroductionView] should be displayed with
-  /// [IntroductionViewStage.signUp] initial stage.
-  ///
-  /// Should also mean that sign up operation just has been occurred.
-  final bool signedUp;
+  const HomeView(this._depsFactory, {super.key, this.link});
 
   /// [ChatDirectLinkSlug] to display [IntroductionView] with.
   final ChatDirectLinkSlug? link;
@@ -154,7 +144,6 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         Get.find(),
         Get.find(),
-        signedUp: widget.signedUp,
         link: widget.link,
         context: context,
       ),
@@ -289,23 +278,18 @@ class _HomeViewState extends State<HomeView> {
         // [SizedBox]es are required for the [sideBar] to keep its state.
         // Otherwise, [Stack] widget will be updated, which will lead its
         // children to be updated as well.
-        return CallOverlayView(
-          child: Obx(() {
-            return Stack(
+        return IntroductionView(
+          child: CallOverlayView(
+            child: Stack(
               key: const Key('HomeView'),
               children: [
                 _background(c),
-                if (c.authStatus.value.isSuccess) ...[
-                  SizedBox(child: context.isNarrow ? null : navigation),
-                  sideBar,
-                  SizedBox(child: context.isNarrow ? navigation : null),
-                ] else
-                  const Scaffold(
-                    body: Center(child: CustomProgressIndicator.primary()),
-                  ),
+                SizedBox(child: context.isNarrow ? null : navigation),
+                sideBar,
+                SizedBox(child: context.isNarrow ? navigation : null),
               ],
-            );
-          }),
+            ),
+          ),
         );
       },
     );

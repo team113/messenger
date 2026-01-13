@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,8 +19,9 @@
 
 Feature: Connection status
 
+  @internet
   Scenario: Connection status is properly displayed
-    Given I am Alice
+    Given I am guest
     And I wait for app to settle
 
     When I do not have Internet

@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -25,7 +27,9 @@ import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
+import '/config.dart';
 import '/domain/model/user.dart';
+import '/provider/drift/interceptor/log.dart';
 import '/util/ios_utils.dart';
 import '/util/platform_utils.dart';
 
@@ -61,10 +65,16 @@ QueryExecutor connect([UserId? userId]) {
     // Explicitly tell it about the correct temporary directory.
     sqlite3.tempDirectory = cache;
 
-    return NativeDatabase.createInBackground(
+    final connection = NativeDatabase.createInBackground(
       file,
       setup: (db) => db.execute('PRAGMA journal_mode = wal'),
     );
+
+    if (!Config.logDatabase) {
+      return connection;
+    }
+
+    return connection.interceptWith(LogInterceptor());
   });
 }
 

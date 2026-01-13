@@ -35,7 +35,7 @@ packages:
     source: git
     version: "0.4.2"
   analyzer:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: analyzer
       sha256: f51c8499b35f9b26820cfe914828a6a98a94efd5cc78b37bb7d03debae3a1d08
@@ -786,11 +786,12 @@ packages:
   get:
     dependency: "direct main"
     description:
-      name: get
-      sha256: "5ed34a7925b85336e15d472cc4cfe7d9ebf4ab8e8b9f688585bf6b50f4c3d79a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.7.3"
+      path: "."
+      ref: HEAD
+      resolved-ref: e8345198b68913db871d22ec9d82879d2980d69d
+      url: "https://github.com/sleepysquash/getx.git"
+    source: git
+    version: "4.7.2"
   gherkin:
     dependency: "direct dev"
     description:
@@ -2077,7 +2078,7 @@ packages:
     source: git
     version: "0.1.2"
   source_gen:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: source_gen
       sha256: "07b277b67e0096c45196cbddddf2d8c6ffc49342e88bf31d460ce04605ddac75"
@@ -2197,7 +2198,7 @@ packages:
     source: hosted
     version: "0.3.1"
   synchronized:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: synchronized
       sha256: c254ade258ec8282947a0acbbc90b9575b4f19673533ee46f2f6e9b3aeefd7c0

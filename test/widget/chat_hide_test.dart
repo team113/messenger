@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -154,9 +156,9 @@ void main() async {
     graphQlProvider.blocklistEvents(any),
   ).thenAnswer((_) => const Stream.empty());
 
-  when(
-    graphQlProvider.getUser(any),
-  ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getUser(any)).thenAnswer(
+    (_) => Future.value(GetUser$Query.fromJson({'user': null}).user),
+  );
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
@@ -331,6 +333,7 @@ void main() async {
         sessionProvider,
         geoProvider,
         MockedGeoLocationProvider(),
+        me: const UserId('me'),
       ),
     );
     Get.put(SessionService(sessionRepository));
@@ -338,6 +341,7 @@ void main() async {
     UserRepository userRepository = UserRepository(
       graphQlProvider,
       userProvider,
+      me: const UserId('me'),
     );
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
@@ -370,16 +374,17 @@ void main() async {
         blocklistRepository,
         userRepository,
         accountProvider,
+        me: const UserId('me'),
       ),
     );
     Get.put(MyUserService(authService, myUserRepository));
 
     final settingsRepository = Get.put<AbstractSettingsRepository>(
       SettingsRepository(
-        const UserId('me'),
         settingsProvider,
         backgroundProvider,
         callRectProvider,
+        me: const UserId('me'),
       ),
     );
 

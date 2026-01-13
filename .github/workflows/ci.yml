@@ -871,6 +871,7 @@ jobs:
           fail_on_empty: true
 
       - run: mkdir build/
+      - run: mkdir build/web/
 
       # Run `chromedriver` and `make test.e2e` simultaneously, as `web-server`
       # device doesn't produce any progression logs, yet `--enable-chrome-logs`

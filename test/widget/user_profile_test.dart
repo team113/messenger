@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -103,9 +105,9 @@ void main() async {
     graphQlProvider.favoriteChatsEvents(any),
   ).thenAnswer((_) => const Stream.empty());
 
-  when(
-    graphQlProvider.getUser(any),
-  ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(graphQlProvider.getUser(any)).thenAnswer(
+    (_) => Future.value(GetUser$Query.fromJson({'user': null}).user),
+  );
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
@@ -121,7 +123,7 @@ void main() async {
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
 
-  authService.init();
+  await authService.init();
 
   final settingsProvider = Get.put(SettingsDriftProvider(common));
   final userProvider = Get.put(UserDriftProvider(common, scoped));
@@ -259,7 +261,7 @@ void main() async {
           const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
         ),
       ).thenAnswer(
-        (_) => Future.value(GetUser$Query.fromJson({'user': newUserData})),
+        (_) => Future.value(GetUser$Query.fromJson({'user': newUserData}).user),
       );
 
       final authService = Get.put(
@@ -273,10 +275,10 @@ void main() async {
           secretsProvider,
         ),
       );
-      authService.init();
+      await authService.init();
 
       final userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider),
+        UserRepository(graphQlProvider, userProvider, me: const UserId('me')),
       );
       final BlocklistRepository blocklistRepository = Get.put(
         BlocklistRepository(
@@ -296,6 +298,7 @@ void main() async {
           blocklistRepository,
           userRepository,
           accountProvider,
+          me: const UserId('me'),
         ),
       );
       Get.put(MyUserService(authService, myUserRepository));
@@ -308,16 +311,17 @@ void main() async {
           sessionProvider,
           geoProvider,
           MockedGeoLocationProvider(),
+          me: const UserId('me'),
         ),
       );
       Get.put(SessionService(sessionRepository));
 
       final settingsRepository = Get.put(
         SettingsRepository(
-          const UserId('me'),
           settingsProvider,
           backgroundProvider,
           callRectProvider,
+          me: const UserId('me'),
         ),
       );
       final contactRepository = Get.put(

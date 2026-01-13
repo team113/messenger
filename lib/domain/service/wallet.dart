@@ -23,7 +23,7 @@ import '/domain/repository/wallet.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [MyUser] wallet functionality.
-class WalletService extends DisposableService {
+class WalletService extends Dependency {
   WalletService(this._walletRepository);
 
   /// [AbstractWalletRepository] managing the wallet data.

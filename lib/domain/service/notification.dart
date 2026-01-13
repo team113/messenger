@@ -2,6 +2,8 @@
 //                       <https://github.com/team113>
 // Copyright © 2025-2026 Ideas Networks Solutions S.A.,
 //                       <https://github.com/tapopa>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -36,6 +38,7 @@ import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
 import '/domain/model/push_token.dart';
+import '/domain/model/user.dart';
 import '/provider/gql/exceptions.dart' show RegisterPushDeviceException;
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
@@ -50,8 +53,8 @@ import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for notifications management.
-class NotificationService extends DisposableService {
-  NotificationService(this._graphQlProvider);
+class NotificationService extends IdentityDependency {
+  NotificationService(this._graphQlProvider, {required super.me});
 
   /// GraphQL API provider for registering and un-registering current device for
   /// receiving Firebase Cloud Messaging notifications.
@@ -193,6 +196,13 @@ class NotificationService extends DisposableService {
     _onActivityChanged?.cancel();
     _onBroadcastMessage?.cancel();
     _onRouteMessage?.cancel();
+  }
+
+  @override
+  void onIdentityChanged(UserId me) {
+    super.onIdentityChanged(me);
+
+    _registerPushDevice();
   }
 
   // TODO: Implement icons and attachments on non-web platforms.
@@ -656,6 +666,10 @@ class NotificationService extends DisposableService {
     Log.debug('_registerPushDevice() -> _apns: $_apns', '$runtimeType');
     Log.debug('_registerPushDevice() -> _voip: $_voip', '$runtimeType');
 
+    if (me.isLocal) {
+      return;
+    }
+
     final List<Future> futures = [];
 
     if (_token != null) {
@@ -713,6 +727,10 @@ class NotificationService extends DisposableService {
     Log.debug('unregisterPushDevice() -> _token: $_token', '$runtimeType');
     Log.debug('unregisterPushDevice() -> _apns: $_apns', '$runtimeType');
     Log.debug('unregisterPushDevice() -> _voip: $_voip', '$runtimeType');
+
+    if (me.isLocal) {
+      return;
+    }
 
     try {
       await Future.wait([

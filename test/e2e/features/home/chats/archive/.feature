@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -26,7 +28,6 @@ Feature: Archive chats
     And Alice has "05" group in archive
     And I sign in as Alice
     And I wait for app to settle
-    And I tap `ProceedButton` button
 
     When I tap `ChatsMenu` button
     And I tap `ArchiveChatsButton` button

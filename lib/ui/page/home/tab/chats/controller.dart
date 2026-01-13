@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -243,6 +245,11 @@ class ChatsTabController extends GetxController {
 
     chats.where((c) => c.chat.value.isDialog).forEach(listenUpdates);
     _chatsSubscription = _chatService.paginated.changes.listen((event) {
+      Log.debug(
+        '_chatsSubscription -> ${event.op} -> ${event.value}',
+        '$runtimeType',
+      );
+
       switch (event.op) {
         case OperationKind.added:
           final entry = ChatEntry(event.value!, chats.sort);
@@ -828,6 +835,7 @@ class ChatsTabController extends GetxController {
   /// Toggles the [archivedOnly].
   void toggleArchive() {
     archivedOnly.value = !archivedOnly.value;
+    Log.debug('toggleArchive() -> ${archivedOnly.value}', '$runtimeType');
   }
 
   /// Initializes the [search].

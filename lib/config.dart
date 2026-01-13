@@ -123,6 +123,9 @@ class Config {
   /// Indicator whether [Log]s should be written to a [File].
   static bool logWrite = false;
 
+  /// Indicator whether logs for database related operations should be logged.
+  static bool logDatabase = false;
+
   /// URL of a Sparkle Appcast XML file.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
@@ -261,7 +264,7 @@ class Config {
 
     logObfuscated = const bool.hasEnvironment('SOCAPP_LOG_OBFUSCATED')
         ? const bool.fromEnvironment('SOCAPP_LOG_OBFUSCATED')
-        : (document['log']?['obfuscated'] ?? !kDebugMode);
+        : (document['log']?['obfuscated'] ?? !kDebugMode && !kProfileMode);
 
     logWrite = const bool.hasEnvironment('SOCAPP_LOG_WRITE')
         ? const bool.fromEnvironment('SOCAPP_LOG_WRITE')

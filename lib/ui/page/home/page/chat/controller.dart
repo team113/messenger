@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -38,6 +40,7 @@ import '/api/backend/schema.dart'
         ChatMessageTextInput,
         ChatMessageAttachmentsInput,
         ChatMessageRepliesInput;
+import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -60,6 +63,7 @@ import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/disposable_service.dart';
 import '/domain/service/notification.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
@@ -99,7 +103,7 @@ import 'view.dart';
 export 'view.dart';
 
 /// Controller of the [Routes.chats] page.
-class ChatController extends GetxController {
+class ChatController extends GetxController with IdentityAware {
   ChatController(
     this.id,
     this._chatService,
@@ -421,6 +425,9 @@ class ChatController extends GetxController {
   /// [MyUser], if any.
   ChatId get monolog => _chatService.monolog;
 
+  @override
+  int get order => IdentityAware.interfaceOrder;
+
   /// Indicates whether the [listController] is scrolled to its bottom.
   bool get _atBottom =>
       listController.hasClients && listController.position.pixels < 500;
@@ -437,6 +444,8 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
+    Log.debug('onInit($id) -> $hashCode', '$runtimeType');
+
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
@@ -583,12 +592,14 @@ class ChatController extends GetxController {
 
   @override
   void onReady() {
+    Log.debug('onReady($id) -> $hashCode', '$runtimeType');
+
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
     AudioUtils.ensureInitialized();
     _fetchChat();
 
-    if (!PlatformUtils.isMobile) {
+    if (!PlatformUtils.isMobile && router.obscuring.isEmpty) {
       send.field.focus.requestFocus();
     }
 
@@ -597,6 +608,8 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
+    Log.debug('onClose($id) -> $hashCode', '$runtimeType');
+
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _selectingWorker?.dispose();
@@ -634,6 +647,15 @@ class ChatController extends GetxController {
     }
 
     super.onClose();
+  }
+
+  @override
+  void onIdentityChanged(UserId me) {
+    Log.debug('onIdentityChanged($me)', '$runtimeType');
+
+    super.onIdentityChanged(me);
+
+    _fetchChat();
   }
 
   /// Starts a [ChatCall] in this [Chat] [withVideo] or without.
@@ -892,10 +914,17 @@ class ChatController extends GetxController {
 
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
+    Log.debug('_fetchChat($id)', '$runtimeType');
+
     ISentrySpan span = _ready.startChild('fetch');
 
     try {
       _ignorePositionChanges = true;
+
+      if (isClosed) {
+        Log.debug('_fetchChat($id) -> isClosed', '$runtimeType');
+        return;
+      }
 
       status.value = RxStatus.loading();
 
@@ -906,21 +935,44 @@ class ChatController extends GetxController {
             ? userOrFuture
             : await userOrFuture;
 
+        if (isClosed) {
+          Log.debug('_fetchChat($id) -> isClosed', '$runtimeType');
+          return;
+        }
+
+        Log.debug(
+          '_fetchChat($id) -> replacing id($id) with user -> `$user`, hash -> $hashCode',
+          '$runtimeType',
+        );
+
         id = user?.user.value.dialog ?? id;
-        if (user != null && user.id == me) {
-          id = _chatService.monolog;
+
+        if (user != null) {
+          if (user.id == me) {
+            id = _chatService.monolog;
+          } else if (user.id.val == Config.supportId) {
+            id = _chatService.support;
+          }
         }
       }
 
       final FutureOr<RxChat?> fetched = _chatService.get(id);
       chat = fetched is RxChat? ? fetched : await fetched;
 
+      if (isClosed) {
+        Log.debug('_fetchChat($id) -> isClosed', '$runtimeType');
+        return;
+      }
+
       span.finish();
       span = _ready.startChild('fetch');
+
+      Log.debug('_fetchChat($id) -> chat is $chat', '$runtimeType');
 
       if (chat == null) {
         status.value = RxStatus.empty();
       } else {
+        _chatSubscription?.cancel();
         _chatSubscription = chat!.updates.listen((_) {});
 
         unreadMessages = chat!.chat.value.unreadCount;
@@ -983,6 +1035,7 @@ class ChatController extends GetxController {
         };
 
         if (isDialog) {
+          _userSubscription?.cancel();
           _userSubscription = chat?.members.values
               .lastWhereOrNull((u) => u.user.id != me)
               ?.user
@@ -1015,6 +1068,7 @@ class ChatController extends GetxController {
         // [_messageInitializedWorker] to determine the initial messages list
         // index and offset.
         if (!chat!.status.value.isSuccess) {
+          _messageInitializedWorker?.dispose();
           _messageInitializedWorker = ever(chat!.status, (
             RxStatus status,
           ) async {
@@ -1038,6 +1092,11 @@ class ChatController extends GetxController {
               }
             }
           });
+        }
+
+        if (isClosed) {
+          Log.debug('_fetchChat($id) -> isClosed', '$runtimeType');
+          return;
         }
 
         span.finish();
@@ -1087,6 +1146,7 @@ class ChatController extends GetxController {
         if (_bottomLoader != null) {
           showLoaders.value = false;
 
+          _bottomLoaderEndTimer?.cancel();
           _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
             if (_bottomLoader != null) {
               elements.remove(_bottomLoader!.id);

@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -38,6 +40,7 @@ import '/domain/model/user.dart';
 import '/domain/model/welcome_message.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/disposable_service.dart';
 import '/provider/drift/account.dart';
 import '/provider/drift/my_user.dart';
 import '/provider/gql/exceptions.dart';
@@ -57,15 +60,16 @@ import 'model/my_user.dart';
 import 'user.dart';
 
 /// [MyUser] repository.
-class MyUserRepository extends DisposableInterface
+class MyUserRepository extends IdentityDependency
     implements AbstractMyUserRepository {
   MyUserRepository(
     this._graphQlProvider,
     this._driftMyUser,
     this._blocklistRepository,
     this._userRepository,
-    this._accountLocal,
-  );
+    this._accountLocal, {
+    required super.me,
+  });
 
   @override
   final Rx<MyUser?> myUser = Rx(null);
@@ -122,7 +126,7 @@ class MyUserRepository extends DisposableInterface
 
   /// Returns the currently active [DtoMyUser] from the storage.
   Future<DtoMyUser?> get _active async {
-    final UserId? userId = _accountLocal.userId;
+    final UserId? userId = await _accountLocal.read();
     final DtoMyUser? saved = userId != null
         ? await _driftMyUser.read(userId)
         : null;
@@ -135,20 +139,13 @@ class MyUserRepository extends DisposableInterface
     required Function() onUserDeleted,
     required Function() onPasswordUpdated,
   }) async {
-    Log.debug('init(onUserDeleted, onPasswordUpdated)', '$runtimeType');
+    Log.debug(
+      'init(onUserDeleted, onPasswordUpdated)',
+      '$runtimeType($hashCode)',
+    );
 
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
-
-    _active.then((v) => myUser.value = v?.value ?? myUser.value);
-
-    _initProfiles();
-    _initLocalSubscription();
-    _initRemoteSubscription();
-
-    if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
-      _initKeepOnlineSubscription();
-    }
 
     if (!PlatformUtils.isDesktop) {
       _onFocusChanged = PlatformUtils.onFocusChanged.listen((focused) {
@@ -157,7 +154,7 @@ class MyUserRepository extends DisposableInterface
             _initKeepOnlineSubscription();
           }
         } else {
-          _keepOnlineSubscription?.cancel(immediate: true);
+          _keepOnlineSubscription?.close(immediate: true);
           _keepOnlineSubscription = null;
         }
       });
@@ -166,17 +163,44 @@ class MyUserRepository extends DisposableInterface
 
   @override
   void onClose() {
-    Log.debug('onClose()', '$runtimeType');
+    Log.debug('onClose()', '$runtimeType($hashCode)');
 
     _disposed = true;
     _localSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
-    _keepOnlineSubscription?.cancel(immediate: true);
+    _keepOnlineSubscription?.close(immediate: true);
     _onFocusChanged?.cancel();
     _pool.dispose();
     _localSubscriptionRetry?.cancel();
 
     super.onClose();
+  }
+
+  @override
+  void onIdentityChanged(UserId me) async {
+    super.onIdentityChanged(me);
+
+    Log.debug('onIdentityChanged($me)', '$runtimeType');
+
+    _localSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
+    _keepOnlineSubscription?.close(immediate: true);
+    _onFocusChanged?.cancel();
+    _pool.dispose();
+    _localSubscriptionRetry?.cancel();
+
+    _active.then((v) => myUser.value = v?.value ?? myUser.value);
+
+    _initProfiles();
+    _initLocalSubscription();
+
+    if (!me.isLocal) {
+      _initRemoteSubscription();
+    }
+
+    if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
+      _initKeepOnlineSubscription();
+    }
   }
 
   @override
@@ -825,13 +849,40 @@ class MyUserRepository extends DisposableInterface
       return;
     }
 
-    Log.debug('_initLocalSubscription()', '$runtimeType');
+    Log.debug(
+      '_initLocalSubscription() -> isLocal(${me.isLocal})',
+      '$runtimeType($hashCode)',
+    );
+
+    if (me.isLocal) {
+      _applyMyUser(
+        me,
+        DtoMyUser(
+          MyUser(
+            id: me,
+            num: UserNum('0000000000000000'),
+            emails: MyUserEmails(confirmed: []),
+            phones: MyUserPhones(confirmed: []),
+            presenceIndex: 0,
+            online: true,
+          ),
+          MyUserVersion('0'),
+        ),
+      );
+
+      return;
+    }
 
     final UserId? id = await _accountLocal.read();
+    Log.debug(
+      '_initLocalSubscription() -> `_accountLocal.read()` is `$id`',
+      '$runtimeType($hashCode)',
+    );
+
     if (id == null) {
       Log.debug(
         'Unexpected `null` when getting `_accountLocal.userId` for `_initLocalSubscription`',
-        '$runtimeType',
+        '$runtimeType($hashCode)',
       );
 
       _localSubscriptionRetry = Timer(
@@ -842,38 +893,78 @@ class MyUserRepository extends DisposableInterface
       return;
     }
 
-    _localSubscription = _driftMyUser
-        .watchSingle(id)
-        .listen((e) => _applyMyUser(id, e));
+    _localSubscription = _driftMyUser.watchSingle(id).listen((e) {
+      Log.debug(
+        '_initLocalSubscription() -> _applyMyUser(${e?.value.toJson()})',
+        '$runtimeType($hashCode)',
+      );
+      _applyMyUser(id, e);
+    });
   }
 
   /// Initializes [_myUserRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
-    if (_disposed) {
-      return;
-    }
-
     Log.debug('_initRemoteSubscription()', '$runtimeType');
 
     _remoteSubscription?.close(immediate: true);
 
+    if (_disposed || isClosed || me.isLocal) {
+      Log.debug(
+        '_initRemoteSubscription() -> exiting cuz $_disposed || $isClosed || ${me.isLocal}',
+        '$runtimeType',
+      );
+
+      return;
+    }
+
+    Log.debug(
+      '_initRemoteSubscription() -> await WebUtils.protect(`myUserEvents`)...',
+      '$runtimeType',
+    );
+
     await WebUtils.protect(() async {
-      if (isClosed) {
+      if (_disposed || isClosed || me.isLocal) {
         return;
       }
 
-      _remoteSubscription = StreamQueue(
-        await _myUserRemoteEvents(() async => (await _active)?.ver),
-      );
+      try {
+        Log.debug(
+          '_initRemoteSubscription() -> await WebUtils.protect(`myUserEvents`)... acquired!',
+          '$runtimeType',
+        );
 
-      await _remoteSubscription!.execute(
-        _myUserRemoteEvent,
-        onError: (e) async {
-          if (e is StaleVersionException) {
-            await _blocklistRepository.reset();
-          }
-        },
-      );
+        _remoteSubscription = StreamQueue(
+          await _myUserRemoteEvents(() async => (await _active)?.ver),
+        );
+
+        Log.debug(
+          '_initRemoteSubscription() -> await WebUtils.protect(`myUserEvents`)... acquired! and `_myUserRemoteEvents()`... awaited!',
+          '$runtimeType',
+        );
+
+        if (_disposed || isClosed || me.isLocal) {
+          return _remoteSubscription?.close(immediate: true);
+        }
+
+        Log.debug(
+          '_initRemoteSubscription() -> await WebUtils.protect(`myUserEvents`)... acquired! await _remoteSubscription!.execute()...',
+          '$runtimeType',
+        );
+
+        await _remoteSubscription!.execute(
+          _myUserRemoteEvent,
+          onError: (e) async {
+            if (e is StaleVersionException) {
+              await _blocklistRepository.reset();
+            }
+          },
+        );
+      } finally {
+        Log.debug(
+          '_initRemoteSubscription() -> WebUtils.protect(`myUserEvents`)... acquired! and released!',
+          '$runtimeType',
+        );
+      }
     }, tag: 'myUserEvents');
   }
 
@@ -881,7 +972,11 @@ class MyUserRepository extends DisposableInterface
   Future<void> _initKeepOnlineSubscription() async {
     Log.debug('_initKeepOnlineSubscription()', '$runtimeType');
 
-    _keepOnlineSubscription?.cancel(immediate: true);
+    _keepOnlineSubscription?.close(immediate: true);
+
+    if (me.isLocal) {
+      return;
+    }
 
     await WebUtils.protect(() async {
       if (isClosed) {
@@ -911,6 +1006,11 @@ class MyUserRepository extends DisposableInterface
         (e?.id ?? id) == (myUser.value?.id ?? _accountLocal.userId);
 
     if (e == null) {
+      Log.debug(
+        '_applyMyUser() -> `e` is `null`, and `isCurrent` -> $isCurrent',
+        '$runtimeType($hashCode)',
+      );
+
       if (isCurrent) {
         myUser.value = null;
       }
@@ -956,10 +1056,20 @@ class MyUserRepository extends DisposableInterface
 
         myUser.value = value;
         profiles[e.id]?.value = value;
+
+        Log.debug(
+          '_applyMyUser() -> `e` is `isCurrent` -> $isCurrent, thus applying -> ${myUser.value}',
+          '$runtimeType($hashCode)',
+        );
       }
       // This event is not of the currently active [MyUser], so just update the
       // [profiles].
       else {
+        Log.debug(
+          '_applyMyUser() -> `e` is NOT `isCurrent` -> $isCurrent, thus applying to existing',
+          '$runtimeType($hashCode)',
+        );
+
         final Rx<MyUser>? existing = profiles[e.id];
         if (existing == null) {
           profiles[e.id] = Rx(user);

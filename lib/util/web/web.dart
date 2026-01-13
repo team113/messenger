@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -32,8 +34,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:http/http.dart' show Client;
-import 'package:mutex/mutex.dart';
 import 'package:platform_detect/platform_detect.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:uuid/uuid.dart';
 import 'package:video_player_web/video_player_web.dart';
 import 'package:web/web.dart' as web;
@@ -152,8 +154,8 @@ class WebUtils {
   /// Indicator whether this device has a PWA installed.
   static bool hasPwa = false;
 
-  /// [Mutex]es guarding the [protect] method.
-  static final Map<String, Mutex> _guards = {};
+  /// [Lock]es guarding the [protect] method.
+  static final Map<String, Lock> _guards = {};
 
   /// Handlers for [HotKey]s intended to be manipulated via [bindKey] and
   /// [unbindKey] to invoke [_handleBindKeys].
@@ -351,7 +353,7 @@ class WebUtils {
       held = false;
     }
 
-    return _guards['mutex']?.isLocked == true || held;
+    return _guards['mutex']?.locked == true || held;
   }
 
   /// Returns custom [Client] to use for HTTP requests.
@@ -403,13 +405,13 @@ class WebUtils {
     bool exclusive = true,
     String tag = 'mutex',
   }) async {
-    Mutex? mutex = exclusive ? _guards[tag] : Mutex();
+    Lock? mutex = exclusive ? _guards[tag] : Lock();
     if (mutex == null) {
-      mutex = Mutex();
+      mutex = Lock();
       _guards[tag] = mutex;
     }
 
-    return await mutex.protect(() async {
+    return await mutex.synchronized(() async {
       // Web Locks API is unavailable for some reason, so proceed without it.
       if (!_locksAvailable()) {
         return await callback();
@@ -957,6 +959,8 @@ class WebUtils {
   /// Deletes the loader element.
   static void deleteLoader() {
     web.document.getElementById('loader')?.remove();
+    web.document.getElementById('page-loader')?.remove();
+    web.document.getElementById('call-loader')?.remove();
   }
 
   /// Registers the custom [Config.scheme].

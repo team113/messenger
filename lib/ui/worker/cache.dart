@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -42,7 +44,7 @@ import '/util/platform_utils.dart';
 /// Worker maintaining [File]s cache and downloads.
 ///
 /// Uses [File]-system cache.
-class CacheWorker extends DisposableService {
+class CacheWorker extends Dependency {
   CacheWorker(this._cacheLocal, this._downloadLocal) {
     instance = this;
   }

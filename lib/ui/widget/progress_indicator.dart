@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,6 +22,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../config.dart';
 import '/themes.dart';
 
 /// Circular progress indicator, which spins to indicate that the application is
@@ -315,6 +318,10 @@ class _CircularProgressIndicatorState
 
   @override
   Widget build(BuildContext context) {
+    if (Config.disableInfiniteAnimations) {
+      return const SizedBox();
+    }
+
     if (widget.value != null) {
       return _buildMaterialIndicator(context, 0.0, 0.0, 0, 0.0);
     }

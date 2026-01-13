@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,6 +30,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
+import '/domain/service/disposable_service.dart';
 import '/provider/drift/background.dart';
 import '/provider/drift/call_rect.dart';
 import '/provider/drift/settings.dart';
@@ -35,17 +38,14 @@ import '/util/log.dart';
 import 'model/background.dart';
 
 /// Application settings repository.
-class SettingsRepository extends DisposableInterface
+class SettingsRepository extends IdentityDependency
     implements AbstractSettingsRepository {
   SettingsRepository(
-    this.userId,
     this._settingsLocal,
     this._backgroundLocal,
-    this._callRectLocal,
-  );
-
-  /// [UserId] to track [ApplicationSettings] of.
-  final UserId userId;
+    this._callRectLocal, {
+    required super.me,
+  });
 
   @override
   final Rx<MediaSettings?> mediaSettings = Rx(null);
@@ -78,20 +78,6 @@ class SettingsRepository extends DisposableInterface
   @override
   Future<void> init() async {
     Log.debug('onInit()', '$runtimeType');
-
-    await _guard.protect(() async {
-      final DtoSettings? settings = await _settingsLocal.read(userId);
-      mediaSettings.value = settings?.media ?? MediaSettings();
-      applicationSettings.value =
-          settings?.application ?? ApplicationSettings();
-
-      final DtoBackground? bytes = await _backgroundLocal.read(userId);
-      background.value = bytes?.bytes;
-    });
-
-    _initSettingsSubscription();
-    _initBackgroundSubscription();
-
     super.onInit();
   }
 
@@ -101,7 +87,31 @@ class SettingsRepository extends DisposableInterface
 
     _settingsSubscription?.cancel();
     _backgroundSubscription?.cancel();
+
     super.onClose();
+  }
+
+  @override
+  void onIdentityChanged(UserId me) async {
+    super.onIdentityChanged(me);
+
+    Log.debug('onIdentityChanged($me)', '$runtimeType');
+
+    _settingsSubscription?.cancel();
+    _backgroundSubscription?.cancel();
+
+    await _guard.protect(() async {
+      final DtoSettings? settings = await _settingsLocal.read(me);
+      mediaSettings.value = settings?.media ?? MediaSettings();
+      applicationSettings.value =
+          settings?.application ?? ApplicationSettings();
+
+      final DtoBackground? bytes = await _backgroundLocal.read(me);
+      background.value = bytes?.bytes;
+    });
+
+    _initSettingsSubscription();
+    _initBackgroundSubscription();
   }
 
   @override
@@ -192,8 +202,8 @@ class SettingsRepository extends DisposableInterface
     Log.debug('setBackground(${bytes?.length})', '$runtimeType');
 
     bytes == null
-        ? await _backgroundLocal.delete(userId)
-        : await _backgroundLocal.upsert(userId, DtoBackground(bytes));
+        ? await _backgroundLocal.delete(me)
+        : await _backgroundLocal.upsert(me, DtoBackground(bytes));
   }
 
   @override
@@ -253,7 +263,7 @@ class SettingsRepository extends DisposableInterface
     mediaSettings.refresh();
 
     await _settingsLocal.upsert(
-      userId,
+      me,
       DtoSettings(
         application: applicationSettings.value ?? ApplicationSettings(),
         media: mediaSettings.value ?? MediaSettings(),
@@ -265,7 +275,7 @@ class SettingsRepository extends DisposableInterface
   Future<void> _initSettingsSubscription() async {
     Log.debug('_initSettingsSubscription()', '$runtimeType');
 
-    _settingsSubscription = _settingsLocal.watch(userId).listen((e) {
+    _settingsSubscription = _settingsLocal.watch(me).listen((e) {
       applicationSettings.value = e?.application ?? applicationSettings.value;
       mediaSettings.value = e?.media ?? mediaSettings.value;
     });
@@ -275,7 +285,7 @@ class SettingsRepository extends DisposableInterface
   Future<void> _initBackgroundSubscription() async {
     Log.debug('_initBackgroundSubscription()', '$runtimeType');
 
-    _settingsSubscription = _backgroundLocal.watch(userId).listen((e) {
+    _settingsSubscription = _backgroundLocal.watch(me).listen((e) {
       background.value = e?.bytes;
     });
   }

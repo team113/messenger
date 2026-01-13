@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -184,7 +186,10 @@ class ConfirmLogoutView extends StatelessWidget {
                 ],
                 PrimaryButton(
                   key: const Key('ConfirmLogoutButton'),
-                  onPressed: c.logout,
+                  onPressed: () {
+                    c.logout();
+                    Navigator.of(context).pop();
+                  },
                   danger: true,
                   title: 'btn_logout'.l10n,
                   leading: SvgIcon(SvgIcons.logoutWhite),

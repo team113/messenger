@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,6 +25,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
+import 'package:synchronized/synchronized.dart';
 
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
@@ -47,6 +50,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/disposable_service.dart';
 import '/provider/drift/chat.dart';
 import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
@@ -93,6 +97,7 @@ import 'event/chat.dart';
 import 'event/favorite_chat.dart';
 import 'model/chat.dart';
 import 'model/chat_member.dart';
+import 'model/page_info.dart';
 import 'paginated.dart';
 import 'pagination.dart';
 import 'pagination/drift.dart';
@@ -102,7 +107,7 @@ typedef ArchivedPaginated =
     RxPaginatedImpl<ChatId, RxChatImpl, DtoChat, RecentChatsCursor>;
 
 /// Implementation of an [AbstractChatRepository].
-class ChatRepository extends DisposableInterface
+class ChatRepository extends IdentityDependency
     implements AbstractChatRepository {
   ChatRepository(
     this._graphQlProvider,
@@ -114,15 +119,12 @@ class ChatRepository extends DisposableInterface
     this._userRepo,
     this._sessionLocal,
     this._monologLocal, {
-    required this.me,
+    required super.me,
   });
 
   /// Callback, called when an [User] identified by the provided [UserId] is
   /// removed from the specified [Chat].
   Future<void> Function(ChatId id, UserId userId)? onMemberRemoved;
-
-  /// [UserId] of the currently authenticated [MyUser].
-  final UserId me;
 
   @override
   final Rx<RxStatus> status = Rx(RxStatus.loading());
@@ -278,14 +280,20 @@ class ChatRepository extends DisposableInterface
   /// [Mutex]es guarding synchronized access to the [_putEntry].
   final Map<ChatId, Mutex> _putEntryGuards = {};
 
-  /// [Mutex] guarding synchronized access to the [GraphQlProvider.getMonolog].
-  final Mutex _monologGuard = Mutex();
+  /// [Lock] guarding synchronized access to the [GraphQlProvider.getMonolog].
+  final Lock _monologGuard = Lock();
+
+  /// [Lock] guarding synchronized access to the [_initSupport].
+  final Lock _supportGuard = Lock();
 
   /// [ChatFavoritePosition] of the local [Chat]-monolog.
   ///
   /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
   /// adding a local [Chat]-monolog to favorites.
   ChatFavoritePosition? _localMonologFavoritePosition;
+
+  /// Indicator whether this [ChatRepository] should keep pagination up to date.
+  bool _hasPagination = false;
 
   /// [UserId] of the [support] chat.
   static final UserId _supportId = UserId(Config.supportId);
@@ -310,78 +318,19 @@ class ChatRepository extends DisposableInterface
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callRepo.calls;
 
   @override
-  Future<void> init({
+  void init({
     Future<void> Function(ChatId, UserId)? onMemberRemoved,
     bool? pagination,
-  }) async {
+  }) {
     Log.debug('init(onMemberRemoved) for $me', '$runtimeType');
 
     this.onMemberRemoved = onMemberRemoved ?? this.onMemberRemoved;
 
-    // Popup shouldn't listen to recent chats remote updates, as it's happening
-    // inside single [Chat].
-    if (!WebUtils.isPopup && _remoteSubscription == null) {
-      _initRemoteSubscription();
-      _initFavoriteSubscription();
-      _initArchiveSubscription();
+    final bool hasPagination = pagination ?? !WebUtils.isPopup;
+    if (hasPagination != _hasPagination) {
+      _hasPagination = hasPagination;
+      _ensurePagination();
     }
-
-    if ((pagination ?? !WebUtils.isPopup) && _paginatedSubscription == null) {
-      _initRemotePagination();
-
-      _paginatedSubscription = paginated.changes.listen((e) {
-        switch (e.op) {
-          case OperationKind.added:
-            _subscriptions[e.key!] ??= e.value!.updates.listen((_) {});
-            break;
-
-          case OperationKind.updated:
-            if (e.oldKey != e.key) {
-              final StreamSubscription? subscription = _subscriptions[e.oldKey];
-              if (subscription != null) {
-                _subscriptions[e.key!] = subscription;
-                _subscriptions.remove(e.oldKey);
-              }
-            }
-            break;
-
-          case OperationKind.removed:
-            _subscriptions.remove(e.key!)?.cancel();
-            break;
-        }
-      });
-
-      _initLocalPagination();
-    }
-
-    if ((pagination ?? !WebUtils.isPopup) && _archivedSubscription == null) {
-      _archivedSubscription = archived.items.changes.listen((e) {
-        switch (e.op) {
-          case OperationKind.added:
-            _archiveSubscriptions[e.key!] ??= e.value!.updates.listen((_) {});
-            break;
-
-          case OperationKind.updated:
-            if (e.oldKey != e.key) {
-              final StreamSubscription? subscription =
-                  _archiveSubscriptions[e.oldKey];
-              if (subscription != null) {
-                _archiveSubscriptions[e.key!] = subscription;
-                _archiveSubscriptions.remove(e.oldKey);
-              }
-            }
-            break;
-
-          case OperationKind.removed:
-            _archiveSubscriptions.remove(e.key!)?.cancel();
-            break;
-        }
-      });
-
-      archived.around();
-    }
-
-    _monologLocal.read(MonologKind.notes).then((v) => monolog = v ?? monolog);
   }
 
   @override
@@ -403,8 +352,74 @@ class ChatRepository extends DisposableInterface
     _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
     _paginatedSubscription?.cancel();
+    _archivedSubscription?.cancel();
 
     super.onClose();
+  }
+
+  @override
+  void onIdentityChanged(UserId me) {
+    super.onIdentityChanged(me);
+
+    Log.debug('onIdentityChanged($me) -> ${me.isLocal}', '$runtimeType');
+
+    paginated.clear();
+    archived.clear();
+
+    chats.forEach((_, v) => v.dispose());
+    chats.clear();
+    _subscriptions.forEach((_, v) => v.cancel());
+    _subscriptions.clear();
+    _pagination?.dispose();
+    _pagination = null;
+    _localPagination?.dispose();
+    _localPagination = null;
+    _remoteSubscription?.close(immediate: true);
+    _remoteSubscription = null;
+    _remoteArchiveSubscription?.close(immediate: true);
+    _remoteArchiveSubscription = null;
+    _favoriteChatsSubscription?.close(immediate: true);
+    _favoriteChatsSubscription = null;
+    _paginationSubscription?.cancel();
+    _paginationSubscription = null;
+
+    status.value = RxStatus.loading();
+
+    Log.debug('onIdentityChanged() -> status is `loading`', '$runtimeType');
+
+    // Set the initial values to local ones, however those will be redefined
+    // during `_ensurePagination()` method, which invokes `_initSupport()` and
+    // `_initMonolog()`.
+    monolog = ChatId.local(me);
+    support = ChatId.local(_supportId);
+
+    if (!me.isLocal) {
+      _monologGuard.synchronized(() async {
+        if (isClosed) {
+          return;
+        }
+
+        monolog = (await _graphQlProvider.getMonolog())?.id ?? ChatId.local(me);
+
+        if (isClosed) {
+          return;
+        }
+
+        support =
+            (await _graphQlProvider.getDialog(UserId(Config.supportId)))?.id ??
+            ChatId.local(_supportId);
+      }, timeout: const Duration(minutes: 1));
+    }
+
+    // Popup shouldn't listen to recent chats remote updates, as it's happening
+    // inside single [Chat].
+    if (!WebUtils.isPopup && _remoteSubscription == null && !me.isLocal) {
+      _initRemoteSubscription();
+      _initFavoriteSubscription();
+      _initArchiveSubscription();
+    }
+
+    _ensurePagination();
   }
 
   @override
@@ -526,6 +541,10 @@ class ChatRepository extends DisposableInterface
         final ChatData chat = _chat(
           await _graphQlProvider.createDialogChat(chatId.userId),
         );
+
+        if (chat.chat.value.isSupport) {
+          _monologLocal.upsert(MonologKind.support, support = chat.chat.id);
+        }
 
         return _putEntry(chat);
       } on CreateDialogException catch (e) {
@@ -2213,7 +2232,7 @@ class ChatRepository extends DisposableInterface
     // [pagination] is `true`, if the [chat] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination && !chat.value.isHidden && !chat.value.isArchived) {
-      await _pagination?.put(chat);
+      await (_pagination ?? _localPagination)?.put(chat);
     }
 
     return rxChat;
@@ -2294,7 +2313,7 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_archiveChatsRemoteEvents] subscription.
   Future<void> _initArchiveSubscription() async {
-    if (isClosed) {
+    if (isClosed || me.isLocal) {
       return;
     }
 
@@ -2372,6 +2391,16 @@ class ChatRepository extends DisposableInterface
             }
           }
 
+          if (chat.isSupport) {
+            if (support.isLocal) {
+              // Keep track of the [support]'s [isLocal] status.
+              await _monologLocal.upsert(
+                MonologKind.support,
+                support = chat.id,
+              );
+            }
+          }
+
           _putEntry(data, updateVersion: false);
         }
         break;
@@ -2426,6 +2455,16 @@ class ChatRepository extends DisposableInterface
             if (monolog.isLocal) {
               // Keep track of the [monolog]'s [isLocal] status.
               await _monologLocal.upsert(MonologKind.notes, monolog = chat.id);
+            }
+          }
+
+          if (chat.isSupport) {
+            if (support.isLocal) {
+              // Keep track of the [support]'s [isLocal] status.
+              await _monologLocal.upsert(
+                MonologKind.support,
+                support = chat.id,
+              );
             }
           }
 
@@ -2523,14 +2562,25 @@ class ChatRepository extends DisposableInterface
 
     await Future.delayed(1.milliseconds);
 
+    if (me.isLocal) {
+      await _initSupport();
+      await _initMonolog();
+    }
+
     if (paginated.isNotEmpty && !status.value.isSuccess) {
       status.value = RxStatus.loadingMore();
+
+      Log.debug(
+        '_initLocalPagination() -> status is `loadingMore`',
+        '$runtimeType',
+      );
     }
   }
 
   /// Initializes the [_pagination].
   Future<void> _initRemotePagination() async {
-    if (isClosed) {
+    if (isClosed || me.isLocal) {
+      status.value = RxStatus.success();
       return;
     }
 
@@ -2682,7 +2732,9 @@ class ChatRepository extends DisposableInterface
       ),
     ]);
 
+    Log.debug('_initRemotePagination() -> around()...', '$runtimeType');
     await _pagination!.around();
+    Log.debug('_initRemotePagination() -> around()... done!', '$runtimeType');
 
     await _paginationSubscription?.cancel();
     _paginationSubscription = _pagination!.changes.listen((event) async {
@@ -2738,10 +2790,41 @@ class ChatRepository extends DisposableInterface
       ),
     );
 
-    await _initMonolog();
-    await _initSupport();
+    try {
+      Log.debug(
+        '_initRemotePagination() -> await _initMonolog()...',
+        '$runtimeType',
+      );
+
+      await _initMonolog();
+
+      Log.debug(
+        '_initRemotePagination() -> await _initMonolog()... done!',
+        '$runtimeType',
+      );
+    } catch (_) {
+      // Still proceed with initialization.
+    }
+
+    try {
+      Log.debug(
+        '_initRemotePagination() -> await _initSupport()...',
+        '$runtimeType',
+      );
+
+      await _initSupport();
+
+      Log.debug(
+        '_initRemotePagination() -> await _initSupport()... done!',
+        '$runtimeType',
+      );
+    } catch (_) {
+      // Still proceed with initialization.
+    }
 
     status.value = RxStatus.success();
+
+    Log.debug('_initRemotePagination() -> status is `success`', '$runtimeType');
   }
 
   /// Subscribes to the remote updates of the [chats].
@@ -2839,6 +2922,10 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
+    if (me.isLocal) {
+      return Page([], PageInfo());
+    }
+
     final query = (await _graphQlProvider.recentChats(
       first: first,
       after: after,
@@ -2855,7 +2942,7 @@ class ChatRepository extends DisposableInterface
             .map((e) => _chat(e.node, recentCursor: e.cursor).chat)
             .toList(),
       ),
-      query.pageInfo.toModel((c) => RecentChatsCursor(c)),
+      query.pageInfo.toModel(RecentChatsCursor.new),
     );
   }
 
@@ -3031,7 +3118,7 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes [_favoriteChatsEvents] subscription.
   Future<void> _initFavoriteSubscription() async {
-    if (isClosed) {
+    if (isClosed || me.isLocal) {
       return;
     }
 
@@ -3055,16 +3142,18 @@ class ChatRepository extends DisposableInterface
           if (e is StaleVersionException) {
             status.value = RxStatus.loading();
 
-            await _pagination?.clear();
-            await _sessionLocal.upsert(
-              me,
-              favoriteChatsSynchronized: NewType(false),
-              favoriteChatsListVersion: NewType(null),
-            );
+            try {
+              await _pagination?.clear();
+              await _sessionLocal.upsert(
+                me,
+                favoriteChatsSynchronized: NewType(false),
+                favoriteChatsListVersion: NewType(null),
+              );
 
-            await _pagination?.around();
-
-            status.value = RxStatus.success();
+              await _pagination?.around();
+            } finally {
+              status.value = RxStatus.success();
+            }
           }
         },
       );
@@ -3221,52 +3310,164 @@ class ChatRepository extends DisposableInterface
     return _putEntry(chatData);
   }
 
+  /// Bootstraps [_paginatedSubscription] and [_archivedSubscription].
+  void _ensurePagination() {
+    Log.debug('_ensurePagination() -> $_hasPagination', '$runtimeType');
+
+    _paginatedSubscription?.cancel();
+    _paginatedSubscription = null;
+    _archivedSubscription?.cancel();
+    _archivedSubscription = null;
+
+    if (_hasPagination) {
+      _initRemotePagination();
+
+      if (me.isLocal) {
+        _initSupport();
+        _initMonolog();
+      }
+
+      _paginatedSubscription = paginated.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _subscriptions[e.key!] ??= e.value!.updates.listen((_) {});
+            break;
+
+          case OperationKind.updated:
+            if (e.oldKey != e.key) {
+              final StreamSubscription? subscription = _subscriptions[e.oldKey];
+              if (subscription != null) {
+                _subscriptions[e.key!] = subscription;
+                _subscriptions.remove(e.oldKey);
+              }
+            }
+            break;
+
+          case OperationKind.removed:
+            _subscriptions.remove(e.key!)?.cancel();
+            break;
+        }
+      });
+
+      _initLocalPagination();
+
+      _archivedSubscription = archived.items.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _archiveSubscriptions[e.key!] ??= e.value!.updates.listen((_) {});
+            break;
+
+          case OperationKind.updated:
+            if (e.oldKey != e.key) {
+              final StreamSubscription? subscription =
+                  _archiveSubscriptions[e.oldKey];
+              if (subscription != null) {
+                _archiveSubscriptions[e.key!] = subscription;
+                _archiveSubscriptions.remove(e.oldKey);
+              }
+            }
+            break;
+
+          case OperationKind.removed:
+            _archiveSubscriptions.remove(e.key!)?.cancel();
+            break;
+        }
+      });
+
+      archived.around();
+    }
+  }
+
   /// Initializes the local [monolog] if none is known.
   Future<void> _initMonolog() async {
     Log.debug('_initMonolog()', '$runtimeType');
 
-    await _monologGuard.protect(() async {
-      final bool isLocal = monolog.isLocal;
-      final bool isPaginated = paginated[monolog] != null;
-      final bool canFetchMore = _pagination?.hasNext.value ?? true;
+    if (me.isLocal) {
+      Log.debug('_initMonolog() -> `me.isLocal` is `true`', '$runtimeType');
+      monolog = (await _createLocalDialog(me)).id;
+      return;
+    }
 
-      // If a non-local [monolog] isn't stored and it won't appear from the
-      // [Pagination], then initialize local monolog or get a remote one.
-      if (isLocal && !isPaginated && !canFetchMore) {
-        // Whether [ChatId] of [MyUser]'s monolog is known for the given device.
-        final bool isStored =
-            await _monologLocal.read(MonologKind.notes) != null;
+    try {
+      Log.debug('_initMonolog() -> _monologGuard.protect()...', '$runtimeType');
 
-        if (isStored) {
-          // Initialize local monolog, if its ID was saved. If `isStored`, local
-          // monolog will appear for a moment since it's stored in local
-          // storage, but then disappear, because it's not in the remote
-          // [Pagination]. This line makes [monolog] be present despite it is
-          // not remote.
-          await _createLocalDialog(me);
+      await _monologGuard.synchronized(() async {
+        Log.debug(
+          '_initMonolog() -> _monologGuard.protect()... done!',
+          '$runtimeType',
+        );
+
+        if (isClosed) {
+          return;
         }
 
-        // Check if there's a remote update (monolog could've been hidden)
-        // before creating a local chat.
-        final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
+        final bool isLocal = monolog.isLocal;
+        final bool isPaginated = paginated[monolog] != null;
+        final bool canFetchMore =
+            !me.isLocal && (_pagination?.hasNext.value ?? true);
 
-        if (maybeMonolog != null) {
-          // If the [monolog] was fetched, then update [_monologLocal].
-          final ChatData monologChatData = _chat(maybeMonolog);
-          final RxChatImpl monolog = await _putEntry(monologChatData);
+        Log.debug(
+          '_initMonolog() -> isLocal($isLocal), isPaginated($isPaginated), canFetchMore($canFetchMore)',
+          '$runtimeType',
+        );
 
-          await _monologLocal.upsert(
-            MonologKind.notes,
-            this.monolog = monolog.id,
+        // If a non-local [monolog] isn't stored and it won't appear from the
+        // [Pagination], then initialize local monolog or get a remote one.
+        if (isLocal && !isPaginated && !canFetchMore) {
+          Log.debug(
+            '_initMonolog() -> await _monologLocal.read()...',
+            '$runtimeType',
           );
-        } else if (!isStored) {
-          // If remote monolog doesn't exist and local one is not stored, then
-          // create it.
-          await _createLocalDialog(me);
-          await _monologLocal.upsert(MonologKind.notes, monolog);
+
+          // Whether [ChatId] of [MyUser]'s monolog is known for the given device.
+          final ChatId? stored = await _monologLocal.read(MonologKind.notes);
+
+          Log.debug('_initMonolog() -> stored($stored)', '$runtimeType');
+
+          if (stored == null) {
+            // If remote chat doesn't exist and local one is not stored, then
+            // create it.
+            await _monologLocal.upsert(
+              MonologKind.notes,
+              monolog = (await _createLocalDialog(me)).id,
+            );
+          } else {
+            // Check if there's a remote update (monolog could've been hidden)
+            // before creating a local chat.
+            final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
+
+            Log.debug(
+              '_initMonolog() -> maybeMonolog($maybeMonolog)',
+              '$runtimeType',
+            );
+
+            if (maybeMonolog != null) {
+              // If the [monolog] was fetched, then update [_monologLocal].
+              // final ChatData monologChatData = _chat(maybeMonolog);
+              // final RxChatImpl monolog = await _putEntry(monologChatData);
+
+              await _monologLocal.upsert(
+                MonologKind.notes,
+                monolog = maybeMonolog.id,
+              );
+            } else {
+              monolog = stored;
+            }
+
+            if (monolog.isLocal) {
+              // If remote monolog doesn't exist and local one is not stored, then
+              // create it.
+              monolog = (await _createLocalDialog(me)).id;
+            }
+          }
         }
-      }
-    });
+
+        Log.debug('_initMonolog()... done!', '$runtimeType');
+      }, timeout: const Duration(minutes: 1));
+    } catch (e) {
+      Log.error('Unable to `_initMonolog()` due to: $e');
+      rethrow;
+    }
   }
 
   /// Initializes the local [support] chat, if none is known.
@@ -3277,26 +3478,93 @@ class ChatRepository extends DisposableInterface
       return;
     }
 
-    await _monologGuard.protect(() async {
-      final bool isLocal = support.isLocal;
-      final bool isPaginated = paginated[support] != null;
-      final bool canFetchMore = _pagination?.hasNext.value ?? true;
+    if (me.isLocal) {
+      Log.debug('_initSupport() -> `me.isLocal` is `true`', '$runtimeType');
+      support = (await _createLocalDialog(_supportId)).id;
+      return;
+    }
 
-      // If a non-local [support] isn't stored and it won't appear from the
-      // [Pagination], then initialize local monolog or get a remote one.
-      if (isLocal && !isPaginated && !canFetchMore) {
-        // Whether [ChatId] of [MyUser]'s support is known for the given device.
-        final bool isStored =
-            await _monologLocal.read(MonologKind.support) != null;
+    try {
+      Log.debug('_initSupport() -> _supportGuard.protect()...', '$runtimeType');
 
-        if (!isStored) {
-          // If remote chat doesn't exist and local one is not stored, then
-          // create it.
-          await _createLocalDialog(_supportId);
-          await _monologLocal.upsert(MonologKind.support, monolog);
+      await _supportGuard.synchronized(() async {
+        Log.debug(
+          '_initSupport() -> _supportGuard.protect()... done!',
+          '$runtimeType',
+        );
+
+        final bool isLocal = support.isLocal;
+        final bool isPaginated = paginated[support] != null;
+        final bool canFetchMore =
+            !me.isLocal && (_pagination?.hasNext.value ?? true);
+
+        Log.debug(
+          '_initSupport() -> isLocal($isLocal), isPaginated($isPaginated), canFetchMore($canFetchMore)',
+          '$runtimeType',
+        );
+
+        // If a non-local [support] isn't stored and it won't appear from the
+        // [Pagination], then initialize local monolog or get a remote one.
+        if (isLocal && !isPaginated && !canFetchMore) {
+          // Whether [ChatId] of [MyUser]'s support is known for the given device.
+          final ChatId? stored = await _monologLocal.read(MonologKind.support);
+
+          if (stored == null) {
+            Log.debug(
+              '_initSupport() -> `stored` is `null`, thus creating new dialog...',
+              '$runtimeType',
+            );
+
+            // If remote chat doesn't exist and local one is not stored, then
+            // create it.
+            //
+            // Doing `await` here might for some reason hang the E2E tests?
+            _monologLocal.upsert(
+              MonologKind.support,
+              support = (await _createLocalDialog(_supportId)).id,
+            );
+
+            Log.debug(
+              '_initSupport() -> `stored` is `null`, thus creating new dialog... done with `$support` ID',
+              '$runtimeType',
+            );
+          } else {
+            // Check if there's a remote update (support could've been hidden)
+            // before creating a local chat.
+            final ChatMixin? maybeSupport = await _graphQlProvider.getDialog(
+              UserId(Config.supportId),
+            );
+
+            Log.debug(
+              '_initSupport() -> `stored` is `$stored`, thus `maybeSupport` queried is: `${maybeSupport?.id}`',
+              '$runtimeType',
+            );
+
+            if (maybeSupport != null) {
+              // Doing `await` here might for some reason hang the E2E tests?
+              _monologLocal.upsert(
+                MonologKind.support,
+                support = maybeSupport.id,
+              );
+            } else {
+              support = stored;
+            }
+
+            if (support.isLocal) {
+              Log.debug(
+                '_initSupport() -> `support` is still local, thus creating new dialog from `$support`',
+                '$runtimeType',
+              );
+
+              await _createLocalDialog(support.userId);
+            }
+          }
         }
-      }
-    });
+      }, timeout: const Duration(minutes: 1));
+    } catch (e) {
+      Log.error('Unable to `_initSupport()` due to: $e');
+      rethrow;
+    }
   }
 }
 

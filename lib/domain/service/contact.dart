@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,7 +30,7 @@ import '/util/obs/obs.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [ChatContact]s related functionality.
-class ContactService extends DisposableService {
+class ContactService extends Dependency {
   ContactService(this._contactRepository);
 
   /// Repository to fetch [ChatContact]s from.

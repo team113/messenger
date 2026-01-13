@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,11 +30,10 @@ Feature: Account switching
     And I tap `AddAccountButton` button
     And I tap `StartButton` button
     Then I wait for app to settle
-    And I wait until `IntroductionView` is present
+    And my account is indeed remote
     And my name is not Alice
 
-    When I tap `ProceedButton` button
-    And I tap `MenuButton` button
+    When I tap `MenuButton` button
     And I tap `AccountsButton` button
     And I tap `AddAccountButton` button
     And I tap `SignInButton` button
@@ -53,11 +54,12 @@ Feature: Account switching
     And I scroll `MenuListView` until `LogoutButton` is present
     And I tap `LogoutButton` button
     And I tap `ConfirmLogoutButton` button
-    Then I wait until `AuthView` is present
+    Then I wait until `IntroductionView` is present
+    And I tap `SignInButton` button
     And I see Alice account in accounts list
 
     When I tap on Alice account in accounts list
-    Then I wait until `LoginView` is present
+    Then I wait until `SignInAsScreen` is present
 
     When I tap `PasswordButton` button
     And I fill `UsernameField` field with Alice's num
@@ -65,6 +67,7 @@ Feature: Account switching
     And I tap `LoginButton` button
     Then I wait for app to settle
     And I wait until `HomeView` is present
+    And my account is indeed remote
     And my name is indeed Alice
 
   Scenario: User can remove added account
@@ -76,9 +79,10 @@ Feature: Account switching
     And I scroll `MenuListView` until `LogoutButton` is present
     And I tap `LogoutButton` button
     And I tap `ConfirmLogoutButton` button
-    Then I wait until `AuthView` is present
+    Then I wait until `IntroductionView` is present
+    And I tap `SignInButton` button
     And I see Alice account in accounts list
 
     When I remove Alice account from accounts list
     And I tap `Proceed` button
-    Then I wait until `StartButton` is present
+    Then I wait until `IntroductionView` is present

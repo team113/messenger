@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -28,6 +30,7 @@ Feature: Drafts
     And I pause for 2 seconds
     And I return to previous page
     Then I see draft "He-he, draft!" in chat with Bob
+    And I pause for 2 seconds
 
     When I am in chat with Bob
     Then I wait until text "He-he, draft!" is present

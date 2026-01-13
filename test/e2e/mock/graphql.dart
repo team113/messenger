@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -26,6 +28,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/base.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/log.dart';
 import 'package:mutex/mutex.dart';
 
 /// Mocked [GraphQlProvider] containing the [MockGraphQlClient].
@@ -211,6 +214,11 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      Log.debug(
+        'query() -> throwing `ConnectionException` for $options',
+        '$runtimeType',
+      );
+
       connected.value = false;
       throw const ConnectionException('Mocked');
     }
@@ -229,6 +237,11 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      Log.debug(
+        'mutate() -> throwing `ConnectionException` for $options',
+        '$runtimeType',
+      );
+
       connected.value = false;
       throw const ConnectionException('Mocked');
     }
@@ -251,6 +264,11 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      Log.debug(
+        'post() -> throwing `ConnectionException` for $data',
+        '$runtimeType',
+      );
+
       connected.value = false;
       throw const ConnectionException('Mocked');
     }

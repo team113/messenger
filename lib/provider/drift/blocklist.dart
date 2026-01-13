@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,6 +22,7 @@ import 'dart:async';
 import 'package:drift/drift.dart';
 
 import '/domain/model/user.dart';
+import '/domain/service/disposable_service.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/my_user.dart';
 import 'common.dart';
@@ -38,12 +41,21 @@ class Blocklist extends Table {
 }
 
 /// [DriftProviderBase] for manipulating the persisted [BlocklistRecord]s.
-class BlocklistDriftProvider extends DriftProviderBaseWithScope {
+class BlocklistDriftProvider extends DriftProviderBaseWithScope
+    with IdentityAware {
   BlocklistDriftProvider(super.common, super.scoped);
 
   /// [DtoBlocklistRecord]s that have started the [upsert]ing, but not yet
   /// finished it.
   final Map<UserId, DtoBlocklistRecord> _cache = {};
+
+  @override
+  int get order => IdentityAware.providerOrder;
+
+  @override
+  void onIdentityChanged(UserId me) {
+    _cache.clear();
+  }
 
   /// Creates or updates the provided [records] in the database.
   Future<Iterable<DtoBlocklistRecord>> upsertBulk(

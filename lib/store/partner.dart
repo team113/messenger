@@ -18,7 +18,10 @@
 import 'package:get/get.dart';
 
 import '/domain/model/operation.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/partner.dart';
+import '/domain/service/disposable_service.dart';
+import '/util/log.dart';
 import 'model/operation.dart';
 import 'model/page_info.dart';
 import 'pagination.dart';
@@ -26,9 +29,9 @@ import 'pagination/graphql.dart';
 import 'wallet.dart';
 
 /// [MyUser] wallet repository interface.
-class PartnerRepository extends DisposableInterface
+class PartnerRepository extends IdentityDependency
     implements AbstractPartnerRepository {
-  PartnerRepository();
+  PartnerRepository({required super.me});
 
   @override
   final RxDouble balance = RxDouble(0);
@@ -50,7 +53,20 @@ class PartnerRepository extends DisposableInterface
 
   @override
   void onInit() {
-    operations.around();
+    Log.debug('onInit()', '$runtimeType');
     super.onInit();
+  }
+
+  @override
+  void onIdentityChanged(UserId me) {
+    super.onIdentityChanged(me);
+
+    Log.debug('onIdentityChanged($me)', '$runtimeType');
+
+    operations.clear();
+
+    if (!me.isLocal) {
+      operations.around();
+    }
   }
 }

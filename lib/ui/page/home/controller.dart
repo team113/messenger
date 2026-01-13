@@ -36,7 +36,6 @@ import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/message_popup.dart';
-import 'introduction/controller.dart';
 
 export 'view.dart';
 
@@ -47,14 +46,9 @@ class HomeController extends GetxController {
     this._myUserService,
     this._settings,
     this._upgradeWorker, {
-    this.signedUp = false,
     this.link,
     this.context,
   });
-
-  /// Indicator whether the [IntroductionView] should be displayed with
-  /// [IntroductionViewStage.signUp] initial stage.
-  final bool signedUp;
 
   /// Maximal percentage of the screen's width which side bar can occupy.
   static const double sideBarMaxWidthPercentage = 0.5;
@@ -164,21 +158,6 @@ class HomeController extends GetxController {
     super.onReady();
     pages.jumpToPage(router.tab.index);
     refresh();
-
-    if (_settings.applicationSettings.value?.showIntroduction ?? true) {
-      if (_myUserService.myUser.value != null) {
-        _displayIntroduction(_myUserService.myUser.value!);
-      } else {
-        Worker? worker;
-        worker = ever(_myUserService.myUser, (MyUser? myUser) {
-          if (myUser != null && worker != null) {
-            _displayIntroduction(myUser);
-            worker?.dispose();
-            worker = null;
-          }
-        });
-      }
-    }
   }
 
   @override
@@ -231,30 +210,6 @@ class HomeController extends GetxController {
         pages.jumpToPage(router.tab.index);
       }
       refresh();
-    }
-  }
-
-  /// Displays an [IntroductionView] if [MyUser.hasPassword] is `false`.
-  void _displayIntroduction(MyUser myUser) {
-    IntroductionViewStage? stage;
-
-    if (link != null) {
-      stage = IntroductionViewStage.link;
-    } else if (signedUp) {
-      stage = IntroductionViewStage.signUp;
-    } else if (!myUser.hasPassword &&
-        myUser.emails.confirmed.isEmpty &&
-        myUser.phones.confirmed.isEmpty) {
-      stage = IntroductionViewStage.oneTime;
-    }
-
-    if (stage != null) {
-      IntroductionView.show(
-        context ?? router.context!,
-        initial: stage,
-      ).then((_) => _settings.setShowIntroduction(false));
-    } else {
-      _settings.setShowIntroduction(false);
     }
   }
 }

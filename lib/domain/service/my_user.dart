@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -37,7 +39,7 @@ import 'auth.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [MyUser] management.
-class MyUserService extends DisposableService {
+class MyUserService extends Dependency {
   MyUserService(this._authService, this._myUserRepository);
 
   /// Authentication service providing the authentication capabilities.
@@ -60,7 +62,6 @@ class MyUserService extends DisposableService {
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
-    assert(_authService.initialized);
     _myUserRepository.init(
       onPasswordUpdated: _onPasswordUpdated,
       onUserDeleted: _onUserDeleted,

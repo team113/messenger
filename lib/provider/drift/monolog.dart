@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,6 +23,8 @@ import 'package:drift/drift.dart';
 import 'package:drift/remote.dart' show DriftRemoteException;
 
 import '/domain/model/chat.dart';
+import '/domain/model/user.dart';
+import '/domain/service/disposable_service.dart';
 import 'drift.dart';
 
 /// [ChatId] being monologs to be stored in a [Table].
@@ -37,11 +41,20 @@ class Monologs extends Table {
 enum MonologKind { support, notes }
 
 /// [DriftProviderBase] for manipulating the persisted [ChatId]s.
-class MonologDriftProvider extends DriftProviderBaseWithScope {
+class MonologDriftProvider extends DriftProviderBaseWithScope
+    with IdentityAware {
   MonologDriftProvider(super.common, super.scoped);
 
   /// [ChatId]s that have started the [upsert]ing, but not yet finished it.
   final Map<String, ChatId> _cache = {};
+
+  @override
+  int get order => IdentityAware.providerOrder;
+
+  @override
+  void onIdentityChanged(UserId me) {
+    _cache.clear();
+  }
 
   /// Creates or updates the provided [chatId] in the database.
   Future<void> upsert(MonologKind kind, ChatId chatId) async {

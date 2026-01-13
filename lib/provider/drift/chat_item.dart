@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -25,6 +27,8 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
+import '/domain/model/user.dart';
+import '/domain/service/disposable_service.dart';
 import '/store/model/chat_item.dart';
 import 'common.dart';
 import 'drift.dart';
@@ -56,11 +60,20 @@ class ChatItemViews extends Table {
 }
 
 /// [DriftProviderBase] for manipulating the persisted [ChatItem]s.
-class ChatItemDriftProvider extends DriftProviderBaseWithScope {
+class ChatItemDriftProvider extends DriftProviderBaseWithScope
+    with IdentityAware {
   ChatItemDriftProvider(super.common, super.scoped);
 
   /// [DtoChatItem]s that have started the [upsert]ing, but not yet finished it.
   final Map<ChatItemId, DtoChatItem> _cache = {};
+
+  @override
+  int get order => IdentityAware.providerOrder;
+
+  @override
+  void onIdentityChanged(UserId me) {
+    _cache.clear();
+  }
 
   /// Creates or updates the a view for the provided [chatItemId] in [chatId].
   Future<void> upsertView(ChatId chatId, ChatItemId chatItemId) async {

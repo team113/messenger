@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -33,14 +35,14 @@ export 'view.dart';
 
 /// [Routes.chatDirectLink] page controller.
 class ChatDirectLinkController extends GetxController {
-  ChatDirectLinkController(String url, this._auth)
+  ChatDirectLinkController(String url, this._authService)
     : slug = Rx(ChatDirectLinkSlug.tryParse(url));
 
   /// [ChatDirectLinkSlug] of this controller.
   final Rx<ChatDirectLinkSlug?> slug;
 
   /// Authorization service used for signing up.
-  final AuthService _auth;
+  final AuthService _authService;
 
   /// [Sentry] transaction monitoring this [ChatDirectLinkController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
@@ -52,11 +54,11 @@ class ChatDirectLinkController extends GetxController {
   @override
   void onReady() async {
     try {
-      if (_auth.status.value.isSuccess) {
+      if (_authService.status.value.isSuccess) {
         await _useChatDirectLink();
-      } else if (_auth.status.value.isEmpty) {
+      } else if (_authService.status.value.isEmpty) {
         await _register();
-        if (_auth.status.value.isSuccess) {
+        if (_authService.status.value.isSuccess) {
           await _useChatDirectLink();
         }
       }
@@ -76,7 +78,7 @@ class ChatDirectLinkController extends GetxController {
     final ISentrySpan span = _ready.startChild('register');
 
     try {
-      await _auth.register();
+      await _authService.register();
     } catch (e) {
       span.throwable = e;
       span.status = const SpanStatus.internalError();
@@ -94,10 +96,10 @@ class ChatDirectLinkController extends GetxController {
     final ISentrySpan span = _ready.startChild('use');
 
     try {
-      final Chat chat = await _auth.useChatDirectLink(slug.value!);
+      final Chat chat = await _authService.useChatDirectLink(slug.value!);
       router.dialog(
         chat,
-        _auth.userId,
+        _authService.userId,
         link: slug.value,
         mode: RouteAs.insteadOfLast,
       );

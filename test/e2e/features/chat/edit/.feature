@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -24,6 +26,7 @@ Feature: Message editing
     And I am in chat with Bob
     And I wait for app to settle
 
+  @internet
   Scenario: User can change text of a failed message by editing it
     Given I do not have Internet
     When I fill `MessageField` field with "Hello"
@@ -33,10 +36,11 @@ Feature: Message editing
     Given I have Internet without delay
     When I long press "Hello" message
     And I tap `EditMessageButton` button
-    And I fill `MessageField` field with "Hi"
+    And I fill `EditMessageField` field with "Hi"
     And I tap `Send` button
     Then I wait until status of "Hi" message is sent
 
+  @internet
   Scenario: User can change attachments of a failed message by editing it
     Given I do not have Internet
     When I attach "test.txt" file

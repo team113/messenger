@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -61,7 +63,7 @@ import '/util/web/web_utils.dart';
 
 /// Worker responsible for showing an incoming call notification and playing an
 /// incoming or outgoing call audio.
-class CallWorker extends DisposableService {
+class CallWorker extends Dependency {
   CallWorker(
     this._callService,
     this._chatService,

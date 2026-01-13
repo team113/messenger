@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -27,9 +29,9 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
@@ -60,6 +62,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/system_info_prompt.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -529,7 +532,14 @@ class ChatView extends StatelessWidget {
 
                           return ObscuredSelectionArea(
                             key: Key('${c.selecting.value}'),
-                            onSelectionChanged: (a) => c.selection.value = a,
+                            onSelectionChanged: (a) {
+                              Log.debug(
+                                'onSelectionChanged(${a?.plainText})',
+                                '$runtimeType',
+                              );
+
+                              c.selection.value = a;
+                            },
                             contextMenuBuilder: (_, _) => const SizedBox(),
                             selectionControls: EmptyTextSelectionControls(),
                             child: ObscuredMenuInterceptor(child: child),
@@ -797,8 +807,21 @@ class ChatView extends StatelessWidget {
                     }
                   },
                   onCopy: (text) {
-                    if (c.selection.value?.plainText.isNotEmpty == true) {
-                      c.copyText(c.selection.value!.plainText);
+                    Log.debug(
+                      'onCopy($text) -> c.selection.value?.plainText(${c.selection.value?.plainText})',
+                      '$runtimeType',
+                    );
+
+                    final String? selected = c.selection.value?.plainText;
+                    if (selected != null && selected.isNotEmpty == true) {
+                      // Heuristic: there's a bug in
+                      // `SelectionArea.onSelectionChanged` callback, which
+                      // duplicates the selected text for some reason.
+                      if (selected == '$text$text') {
+                        c.copyText(text);
+                      } else {
+                        c.copyText(selected);
+                      }
                     } else {
                       c.copyText(text);
                     }
@@ -963,8 +986,21 @@ class ChatView extends StatelessWidget {
                     }
                   },
                   onCopy: (text) {
-                    if (c.selection.value?.plainText.isNotEmpty == true) {
-                      c.copyText(c.selection.value!.plainText);
+                    Log.debug(
+                      'onCopy($text) -> c.selection.value?.plainText(${c.selection.value?.plainText})',
+                      '$runtimeType',
+                    );
+
+                    final String? selected = c.selection.value?.plainText;
+                    if (selected != null && selected.isNotEmpty == true) {
+                      // Heuristic: there's a bug in
+                      // `SelectionArea.onSelectionChanged` callback, which
+                      // duplicates the selected text for some reason.
+                      if (selected == '$text$text') {
+                        c.copyText(text);
+                      } else {
+                        c.copyText(selected);
+                      }
                     } else {
                       c.copyText(text);
                     }
@@ -1260,6 +1296,7 @@ class ChatView extends StatelessWidget {
       if (c.edit.value != null) {
         return MessageFieldView(
           key: const Key('EditField'),
+          fieldKey: const Key('EditMessageField'),
           controller: c.edit.value,
           onChanged: c.chat?.chat.value.isMonolog == true
               ? null

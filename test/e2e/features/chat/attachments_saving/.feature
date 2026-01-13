@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,22 +24,23 @@ Feature: Attachments downloading
     And Bob has dialog with Alice
     And I sign in as Alice
     And I pause for 2 seconds
-    And I wait until `IntroductionView` is present
-    And I scroll `IntroductionScrollable` until `ProceedButton` is present
-    And I tap `ProceedButton` button
     And I am in chat with Bob
+    And I pause for 2 seconds
 
   Scenario: Attachments can be downloaded
     When Bob sends "test.txt" attachment to me
     Then I wait until "test.txt" file is not downloaded
+    And I pause for 2 seconds
 
     When I download "test.txt" file
     Then I wait until "test.txt" file is downloading
     And I wait until "test.txt" file is downloaded
 
+  @internet
   Scenario: Attachment download can be canceled
     When Bob sends "test.txt" attachment to me
     Then I wait until "test.txt" file is not downloaded
+    And I pause for 2 seconds
 
     When I download "test.txt" file
     Then I wait until "test.txt" file is downloading

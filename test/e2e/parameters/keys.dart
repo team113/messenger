@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,6 +22,7 @@ import 'package:gherkin/gherkin.dart';
 
 /// [Key]s available in the [WidgetKeyParameter].
 enum WidgetKey {
+  AccountCreatingScreen,
   AccountsButton,
   AddAccountButton,
   AddEmail,
@@ -79,6 +82,7 @@ enum WidgetKey {
   ContactsMenu,
   ContactsTab,
   CopyButton,
+  CreateAccountButton,
   CreateGroupButton,
   CropAvatarView,
   CurrentPasswordField,
@@ -98,6 +102,7 @@ enum WidgetKey {
   Devices,
   DoneButton,
   EditMessageButton,
+  EditMessageField,
   EditNameButton,
   EditProfileButton,
   Email,
@@ -110,6 +115,8 @@ enum WidgetKey {
   ForgotPassword,
   ForwardButton,
   ForwardField,
+  GuestButton,
+  GuestCreatedScreen,
   HideChatButton,
   HomeView,
   Interface,
@@ -163,8 +170,11 @@ enum WidgetKey {
   Recovery,
   RecoveryCode,
   RecoveryCodeField,
+  RecoveryCodeScreen,
   RecoveryField,
   RecoveryPassword,
+  RecoveryPasswordScreen,
+  RecoveryScreen,
   RegisterButton,
   RemoveAccount,
   RenameChatField,
@@ -198,9 +208,12 @@ enum WidgetKey {
   SettingsButton,
   ShowBlocklist,
   SignIn,
+  SignInAsScreen,
   SignInButton,
   Signing,
+  SignInScreen,
   SignInWithPassword,
+  SignInWithPasswordScreen,
   SkipButton,
   StartButton,
   SuccessStage,

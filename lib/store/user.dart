@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -33,6 +35,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/disposable_service.dart';
 import '/provider/drift/user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
@@ -46,13 +49,14 @@ import '/util/log.dart';
 import '/util/new_type.dart';
 import 'event/blocklist.dart';
 import 'event/changed.dart';
+import 'model/blocklist.dart';
 import 'model/page_info.dart';
 import 'paginated.dart';
 
 /// Implementation of an [AbstractUserRepository].
-class UserRepository extends DisposableInterface
+class UserRepository extends IdentityDependency
     implements AbstractUserRepository {
-  UserRepository(this._graphQlProvider, this._userLocal);
+  UserRepository(this._graphQlProvider, this._userLocal, {required super.me});
 
   @override
   final RxMap<UserId, RxUserImpl> users = RxMap();
@@ -84,6 +88,18 @@ class UserRepository extends DisposableInterface
 
     users.forEach((_, v) => v.dispose());
     super.onClose();
+  }
+
+  @override
+  void onIdentityChanged(UserId me) {
+    super.onIdentityChanged(me);
+
+    Log.debug('onIdentityChanged($me)', '$runtimeType');
+
+    for (var e in users.values) {
+      e.dispose();
+    }
+    users.clear();
   }
 
   @override
@@ -145,6 +161,18 @@ class UserRepository extends DisposableInterface
       return user;
     }
 
+    if (id.isLocal) {
+      return RxUserImpl(
+        this,
+        _userLocal,
+        DtoUser(
+          User(id, UserNum('0000000000000000')),
+          UserVersion('0'),
+          BlocklistVersion('0'),
+        ),
+      );
+    }
+
     // If [user] doesn't exist, we should lock the [mutex] to avoid remote
     // double invoking.
     Mutex? mutex = _locks[id];
@@ -162,7 +190,7 @@ class UserRepository extends DisposableInterface
           final RxUserImpl rxUser = RxUserImpl(this, _userLocal, stored);
           return users[id] = rxUser;
         } else {
-          final response = (await _graphQlProvider.getUser(id)).user;
+          final response = await _graphQlProvider.getUser(id);
           if (response != null) {
             final DtoUser dto = response.toDto();
             put(dto);

@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -22,6 +24,7 @@ Feature: Text messages selection and copying
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
+    And I pause for 10 seconds
 
     When I fill `MessageField` field with "For selection"
     And I tap `Send` button

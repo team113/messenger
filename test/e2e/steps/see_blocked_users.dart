@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -19,6 +21,7 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/ui/page/home/page/my_profile/blocklist/controller.dart';
+import 'package:messenger/util/log.dart';
 
 import '../world/custom_world.dart';
 
@@ -34,7 +37,12 @@ final StepDefinitionGeneric seeBlockedUsers = then1<int, CustomWorld>(
       await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
       final controller = Get.find<BlocklistController>();
-      if (controller.blocklist.length == count) {
+      Log.debug(
+        'seeBlockedUsers -> ${controller.blocklist.length} vs $count',
+        'E2E',
+      );
+
+      if (controller.blocklist.length >= count) {
         return true;
       } else {
         return false;

@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,7 +20,9 @@
 Feature: Introduction
 
   Scenario: Introduction is displayed
-    When I tap `StartButton` button
-    Then I wait until `IntroductionView` is present
+    When I wait until `IntroductionView` is present
+    And I tap `GuestButton` button
     And I pause for 2 seconds
+    Then I wait until `GuestCreatedScreen` is present
+    And my account is indeed remote
 

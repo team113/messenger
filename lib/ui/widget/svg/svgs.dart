@@ -2275,4 +2275,22 @@ class SvgIcons {
     width: 109,
     height: 40,
   );
+
+  static const SvgData newAccount = SvgData(
+    'assets/icons/new_account.svg',
+    width: 26,
+    height: 25,
+  );
+
+  static const SvgData enterWhite = SvgData(
+    'assets/icons/enter_white.svg',
+    width: 20.21,
+    height: 25,
+  );
+
+  static const SvgData enterGrey = SvgData(
+    'assets/icons/enter_grey.svg',
+    width: 20.21,
+    height: 25,
+  );
 }

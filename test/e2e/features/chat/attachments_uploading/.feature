@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -57,7 +59,7 @@ Feature: Attachments uploading
 
     When I long press "Hello" message
     And I tap `EditMessageButton` button
-    And I fill `MessageField` field with "Hi"
+    And I fill `EditMessageField` field with "Hi"
     And I have Internet with delay of 10 seconds
     And I attach "test.txt" file
     And I attach "test2.txt" file
@@ -78,7 +80,7 @@ Feature: Attachments uploading
     When I long press "Hello" message
     And I tap `EditMessageButton` button
     And I pause for 3 seconds
-    And I erase `MessageField` field from text
+    And I erase `EditMessageField` field from text
     And I have Internet with delay of 10 seconds
     And I attach "test.txt" file
     And I attach "test2.txt" file

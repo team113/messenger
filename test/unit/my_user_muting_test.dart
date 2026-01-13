@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -135,7 +137,7 @@ void main() async {
       ),
     );
     UserRepository userRepository = Get.put(
-      UserRepository(graphQlProvider, userProvider),
+      UserRepository(graphQlProvider, userProvider, me: const UserId('me')),
     );
 
     BlocklistRepository blocklistRepository = Get.put(
@@ -154,6 +156,7 @@ void main() async {
       blocklistRepository,
       userRepository,
       accountProvider,
+      me: const UserId('me'),
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
     await Future.delayed(Duration.zero);
@@ -201,7 +204,7 @@ void main() async {
         ),
       );
       UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider),
+        UserRepository(graphQlProvider, userProvider, me: const UserId('me')),
       );
 
       BlocklistRepository blocklistRepository = Get.put(
@@ -220,6 +223,7 @@ void main() async {
         blocklistRepository,
         userRepository,
         accountProvider,
+        me: const UserId('me'),
       );
       myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
       MyUserService myUserService = MyUserService(

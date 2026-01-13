@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,6 +19,7 @@
 
 Feature: Chat item searching
 
+  @internet
   Scenario: Chat item can be searched and jumped to
     Given user Alice
     And Alice has "Thoughts" group
@@ -26,14 +29,13 @@ Feature: Chat item searching
     And Alice reads all messages in "Thoughts" group
 
     When I sign in as Alice
-    And I scroll `IntroductionScrollable` until `ProceedButton` is present
-    And I tap `ProceedButton` button
     And I pause for 5 seconds
     And I am in "Thoughts" group
     And I pause for 5 seconds
     And I tap `MoreButton` button
     And I tap `SearchItemsButton` button
     And I fill `SearchItemsField` field with "vacation"
+    And I submit `SearchItemsField` field
     Then I wait until `NoMessages` is present
 
     When I fill `SearchItemsField` field with "thought"

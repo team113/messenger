@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -42,6 +44,7 @@ Feature: Chat attachments have correct sending status
     Then I wait until status of "test.jpg" attachment is sending
     And I wait until status of "test.jpg" attachment is sent
 
+  @internet
   Scenario: User resends file attachment
     Given I do not have Internet
     When I attach "test.txt" file
@@ -54,6 +57,7 @@ Feature: Chat attachments have correct sending status
     Then I wait until status of "test.txt" attachment is sending
     And I wait until status of "test.txt" attachment is sent
 
+  @internet
   Scenario: User resends image attachment
     Given I do not have Internet
     When I attach "test.jpg" image

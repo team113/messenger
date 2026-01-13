@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -149,6 +151,38 @@ void main() async {
         graphQlProvider.blocklistEvents(any),
       ).thenAnswer((_) => const Stream.empty());
 
+      when(graphQlProvider.signUp()).thenAnswer(
+        (_) => Future.value(
+          SignUp$Mutation$CreateUser$CreateSessionOk.fromJson({
+            'session': {
+              '__typename': 'Session',
+              'id': '1ba588ce-d084-486d-9087-3999c8f56596',
+              'ip': '127.0.0.1',
+              'userAgent':
+                  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+              'isCurrent': true,
+              'lastActivatedAt': DateTime.now().toString(),
+              'ver': '031592915314290362597742826064324903711',
+            },
+            'accessToken': {
+              '__typename': 'AccessToken',
+              'secret': 'token',
+              'expiresAt': DateTime.now()
+                  .add(const Duration(days: 1))
+                  .toString(),
+            },
+            'refreshToken': {
+              '__typename': 'RefreshToken',
+              'secret': 'token',
+              'expiresAt': DateTime.now()
+                  .add(const Duration(days: 1))
+                  .toString(),
+            },
+            'user': myUserData,
+          }),
+        ),
+      );
+
       when(
         graphQlProvider.removeUserEmail(UserEmail('test@dummy.com')),
       ).thenAnswer(
@@ -193,8 +227,10 @@ void main() async {
           secretsProvider,
         ),
       );
+      await authService.init();
+
       UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider),
+        UserRepository(graphQlProvider, userProvider, me: const UserId('me')),
       );
 
       BlocklistRepository blocklistRepository = Get.put(
@@ -213,14 +249,22 @@ void main() async {
         blocklistRepository,
         userRepository,
         accountProvider,
+        me: const UserId('me'),
       );
-      myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+
+      await myUserRepository.init(
+        onUserDeleted: () {},
+        onPasswordUpdated: () {},
+      );
+
       await Future.delayed(Duration.zero);
 
       MyUserService myUserService = MyUserService(
         authService,
         myUserRepository,
       );
+
+      await authService.register();
 
       await myUserService.addUserEmail(UserEmail('test@dummy.com'));
       await myUserService.addUserEmail(
@@ -281,7 +325,7 @@ void main() async {
         ),
       );
       UserRepository userRepository = Get.put(
-        UserRepository(graphQlProvider, userProvider),
+        UserRepository(graphQlProvider, userProvider, me: const UserId('me')),
       );
 
       BlocklistRepository blocklistRepository = Get.put(
@@ -300,6 +344,7 @@ void main() async {
         blocklistRepository,
         userRepository,
         accountProvider,
+        me: const UserId('me'),
       );
       myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
       final MyUserService myUserService = MyUserService(

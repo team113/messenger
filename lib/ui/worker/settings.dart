@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -24,7 +26,7 @@ import '/l10n/l10n.dart';
 
 /// Worker updating the [L10n.chosen] on the [ApplicationSettings.locale]
 /// changes and exposing its [onChanged] callback.
-class SettingsWorker extends DisposableService {
+class SettingsWorker extends Dependency {
   SettingsWorker(this._settingsRepository, {this.onChanged});
 
   /// Callback, called on the [ApplicationSettings.locale] changes.

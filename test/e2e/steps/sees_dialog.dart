@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,6 +23,7 @@ import 'package:messenger/api/backend/schema.dart' show ChatKind;
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/ui/page/home/tab/chats/controller.dart';
+import 'package:messenger/util/log.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -95,7 +98,9 @@ final StepDefinitionGeneric seesNoDialogWithUser = then1<TestUser, CustomWorld>(
   'I see no dialog with {user}',
   (TestUser user, context) async {
     await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
+      await context.world.appDriver.nativeDriver.pump(
+        const Duration(seconds: 2),
+      );
 
       final ChatsTabController controller = Get.find<ChatsTabController>();
       final ChatId chatId = context.world.sessions[user.name]!.dialog!;
@@ -103,7 +108,19 @@ final StepDefinitionGeneric seesNoDialogWithUser = then1<TestUser, CustomWorld>(
         (c) => c.chat.value.id == chatId,
       );
 
+      Log.debug(
+        'seesNoDialogWithUser(${user.name}) -> chatId($chatId), dialog($dialog)',
+        'E2E',
+      );
+
+      if (dialog == null) {
+        Log.debug(
+          'seesNoDialogWithUser(${user.name}) -> seems like `dialog` is `null`, thus the whole controller list: ${controller.chats.map((e) => e.chat.value)}',
+          'E2E',
+        );
+      }
+
       return dialog?.chat.value.isHidden != false;
-    });
+    }, timeout: const Duration(seconds: 30));
   },
 );

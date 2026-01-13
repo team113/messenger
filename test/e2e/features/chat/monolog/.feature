@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -36,12 +38,14 @@ Feature: Monolog
   #   And I tap `SaveNameButton` button
   #   Then monolog is indeed remote
 
+  @internet
   Scenario: User adds local chat monolog to favorites
     When I long press monolog
     And I tap `FavoriteButton` button
     Then monolog is indeed remote
     And I see monolog as favorite
 
+  @internet
   Scenario: User hides local monolog
     When I long press monolog
     And I tap `HideChatButton` button

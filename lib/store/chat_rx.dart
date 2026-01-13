@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -457,7 +459,18 @@ class RxChatImpl extends RxChat {
     Log.debug('setDraft($text, $attachments, $repliesTo)', '$runtimeType($id)');
 
     await _draftGuard.protect(() async {
-      ChatMessage? draft = await _draftLocal.read(id);
+      ChatMessage? draft;
+
+      try {
+        draft = await _draftLocal.read(id);
+      } catch (e) {
+        Log.debug(
+          'setDraft() -> `_draftLocal.read($id)` failed -> $e',
+          '$runtimeType($id)',
+        );
+
+        // No-op?
+      }
 
       if (text == null && attachments.isEmpty && repliesTo.isEmpty) {
         if (draft != null) {
@@ -1234,7 +1247,7 @@ class RxChatImpl extends RxChat {
       compare: (a, b) => a.value.key.compareTo(b.value.key),
     );
 
-    if (id.isLocal) {
+    if (id.isLocal || me?.isLocal == true) {
       _pagination?.hasNext.value = false;
       _pagination?.hasPrevious.value = false;
       status.value = RxStatus.success();
@@ -1311,7 +1324,7 @@ class RxChatImpl extends RxChat {
           graphQlProvider:
               GraphQlPageProvider<DtoChatMember, ChatMembersCursor, UserId>(
                 fetch: ({after, before, first, last}) async {
-                  if (id.isLocal) {
+                  if (id.isLocal || me?.isLocal == true) {
                     return Page([], PageInfo());
                   }
 

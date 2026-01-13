@@ -23,7 +23,7 @@ import '/domain/repository/partner.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [MyUser] partner functionality.
-class PartnerService extends DisposableService {
+class PartnerService extends Dependency {
   PartnerService(this._partnerRepository);
 
   /// [AbstractPartnerRepository] managing the wallet data.

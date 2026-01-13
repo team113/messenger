@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -40,7 +42,7 @@ import 'auth.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [Chat]s related functionality.
-class ChatService extends DisposableService {
+class ChatService extends Dependency {
   ChatService(this._chatRepository, this._authService);
 
   /// Repository to fetch [Chat]s from.
@@ -74,6 +76,10 @@ class ChatService extends DisposableService {
   /// [MyUser], if any.
   ChatId get monolog => _chatRepository.monolog;
 
+  /// Returns [ChatId] of the [Chat]-support of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get support => _chatRepository.support;
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
@@ -83,11 +89,8 @@ class ChatService extends DisposableService {
   }
 
   /// Ensures the [chats] are initialized.
-  Future<void> ensureInitialized() async {
-    await _chatRepository.init(
-      onMemberRemoved: _onMemberRemoved,
-      pagination: true,
-    );
+  void ensureInitialized() {
+    _chatRepository.init(onMemberRemoved: _onMemberRemoved, pagination: true);
   }
 
   /// Creates a group [Chat] with the provided members and the authenticated

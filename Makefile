@@ -343,7 +343,7 @@ ifeq ($(dockerized),yes)
 			              dockerized=no gen=no clean=no start-app=no
 else
 	flutter drive --headless -d $(or $(device),chrome) \
-		--web-port 50000 \
+		--web-port 50000 --profile \
 		--driver=test_driver/integration_test_driver.dart \
 		--target=test/e2e/suite.dart \
 		--no-web-experimental-hot-reload \

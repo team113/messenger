@@ -102,6 +102,7 @@ dependencies:
   stdlibc: ^0.1.4
   super_clipboard: ^0.9.1
   super_drag_and_drop: ^0.9.1
+  synchronized: ^3.4.0
   toml: ^0.18.0
   universal_io: ^2.2.2
   url_launcher: ^6.1.12
@@ -154,16 +155,8 @@ dependency_overrides:
   # TODO: Remove when `super_native_extensions` upgrade:
   #       https://github.com/superlistapp/super_native_extensions/pull/553
   device_info_plus: ^12.3.0
-  # TODO: Remove when `graphql` updates.
-  graphql:
-    git:
-      url: https://github.com/hagen00/graphql-flutter.git
-      path: packages/graphql
-  # TODO: Remove when `graphql_flutter` updates.
-  graphql_flutter:
-    git:
-      url: https://github.com/hagen00/graphql-flutter.git
-      path: packages/graphql_flutter
+  get:
+    git: https://github.com/sleepysquash/getx.git
   image_picker_ios:
     git:
       url: https://github.com/SleepySquash/image_picker.git

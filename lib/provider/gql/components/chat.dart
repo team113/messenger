@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -1673,6 +1675,10 @@ mixin ChatGraphQlMixin {
   Future<ChatMixin?> getMonolog() async {
     Log.debug('getMonolog()', '$runtimeType');
 
+    if (client.token == null) {
+      return null;
+    }
+
     final QueryResult result = await client.query(
       QueryOptions(
         operationName: 'GetMonolog',
@@ -1680,6 +1686,26 @@ mixin ChatGraphQlMixin {
       ),
     );
     return GetMonolog$Query.fromJson(result.data!).monolog;
+  }
+
+  /// Returns the dialog [Chat] of the authenticated [MyUser] with a [User]
+  /// identified by the provided [userId].
+  Future<ChatMixin?> getDialog(UserId userId) async {
+    Log.debug('getDialog($userId)', '$runtimeType');
+
+    if (client.token == null) {
+      return null;
+    }
+
+    final variables = GetDialogArguments(id: userId);
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetDialog',
+        document: GetDialogQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetDialog$Query.fromJson(result.data!).user?.dialog;
   }
 
   /// Fetches the [ChatAvatar]s of a [Chat] identified by the provided [id].
@@ -1733,7 +1759,10 @@ mixin ChatGraphQlMixin {
     int? last,
     ChatMembersCursor? before,
   }) async {
-    Log.debug('chatItems($id, $first, $after, $last, $before)', '$runtimeType');
+    Log.debug(
+      'chatMembers($id, $first, $after, $last, $before)',
+      '$runtimeType',
+    );
 
     final variables = GetMembersArguments(
       id: id,

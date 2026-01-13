@@ -1,5 +1,7 @@
 # Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
+# Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+#                       <https://github.com/tapopa>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License v3.0 as published by the
@@ -24,6 +26,7 @@ Feature: Local chats
     And Bob sees no dialog with me in recent chats
     And I pause for 5 seconds
 
+  @internet
   Scenario: Message can be posted in local dialog
     When I fill `MessageField` field with "Hello, my local friend"
     And I tap `Send` button

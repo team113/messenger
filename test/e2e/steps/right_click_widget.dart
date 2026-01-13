@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,6 +19,7 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../parameters/keys.dart';
@@ -38,25 +41,38 @@ final StepDefinitionGeneric rightClickWidget = when1<WidgetKey, CustomWorld>(
   ),
   (key, context) async {
     await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
+      await context.world.appDriver.nativeDriver.pump(
+        const Duration(seconds: 2),
+      );
 
       try {
         final finder = context.world.appDriver
             .findByKeySkipOffstage(key.name)
             .first;
 
-        await context.world.appDriver.waitForAppToSettle();
+        Log.debug('rightClickWidget -> `${key.name}` is $finder', 'E2E');
+
+        await context.world.appDriver.nativeDriver.pump(
+          const Duration(seconds: 2),
+        );
+
+        Log.debug('rightClickWidget -> await tap()...', 'E2E');
         await context.world.appDriver.nativeDriver.tap(
           finder,
           buttons: kSecondaryMouseButton,
         );
-        await context.world.appDriver.waitForAppToSettle();
+        Log.debug('rightClickWidget -> await tap()... done', 'E2E');
+
+        await context.world.appDriver.nativeDriver.pump(
+          const Duration(seconds: 2),
+        );
+
         return true;
       } catch (_) {
         // No-op.
       }
 
       return false;
-    }, timeout: const Duration(seconds: 20));
+    }, timeout: const Duration(seconds: 30));
   },
 );

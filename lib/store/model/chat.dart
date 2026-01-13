@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -57,7 +59,7 @@ class DtoChat {
 
   @override
   String toString() =>
-      '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor)';
+      '$runtimeType($id, $ver) -> ${value.name} is a ${value.kind.name} with ${value.members.map((e) => '${e.user.name ?? e.user.num}').join(', ')} (total: ${value.membersCount}), muted: ${value.muted}, isHidden: ${value.isHidden}, isArchived: ${value.isArchived}, directLink: ${value.directLink}, createdAt: ${value.createdAt}, updatedAt: ${value.updatedAt}, lastReads: ${value.lastReads}, lastDelivery: ${value.lastDelivery}, firstItem: ${value.firstItem}, lastItem: ${value.lastItem}, unreadCount: ${value.unreadCount}, totalCount: ${value.totalCount}, ongoingCall: ${value.ongoingCall}, favoritePosition: ${value.favoritePosition}';
 
   @override
   bool operator ==(Object other) {

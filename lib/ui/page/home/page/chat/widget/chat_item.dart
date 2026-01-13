@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -58,6 +60,7 @@ import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/fixed_timer.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
@@ -1476,9 +1479,16 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         ),
                         if (copyable != null)
                           CopyContextMenuButton(
-                            onPressed: () => widget.onCopy?.call(
-                              _selection?.plainText ?? copyable!,
-                            ),
+                            onPressed: () {
+                              Log.debug(
+                                'onCopy() -> plainText(${_selection?.plainText}), copyable($copyable)',
+                                '$runtimeType',
+                              );
+
+                              widget.onCopy?.call(
+                                _selection?.plainText ?? copyable!,
+                              );
+                            },
                           ),
                         if (item.status.value == SendingStatus.sent) ...[
                           ReplyContextMenuButton(
