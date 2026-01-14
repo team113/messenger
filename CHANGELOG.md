@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.7.2...v0.8.0) | [Milestone](/../../milestone/62)
 
+### Added
+
+- UI:
+    - Media panel:
+        - Reconnecting notifications when network changes in call. ([#1581])
+
 ### Fixed
 
 - UI:
@@ -18,6 +24,7 @@ All user visible changes to this project will be documented in this file. This p
         - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
 
 [#1580]: /../../pull/1580
+[#1581]: /../../pull/1581
 
 
 
