@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controller.dart';
+import '../widget/animated_rotation_button.dart';
 import '../widget/call_button.dart';
 import '../widget/call_title.dart';
 import '../widget/dock.dart';
@@ -547,6 +548,30 @@ class SwitchButton extends CallButton {
         onPressed: c.switchCamera,
       );
     });
+  }
+}
+
+/// [CallButton] invoking the [MediaUtilsImpl.ensureReconnected].
+class ReconnectButton extends CallButton {
+  const ReconnectButton(super.c);
+
+  @override
+  String get hint => 'btn_reconnect_call'.l10n;
+
+  @override
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
+    return CallButtonWidget(
+      hint: hint,
+      asset: SvgIcons.callReconnect,
+      hinted: hinted,
+      expanded: expanded,
+      big: big,
+      constrained: c.isMobile,
+      onPressed: () => MediaUtils.ensureReconnected(),
+      builder: (_, child) {
+        return AnimatedRotatedButton(child: child);
+      },
+    );
   }
 }
 

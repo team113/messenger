@@ -244,6 +244,13 @@ class MediaUtilsImpl {
     }
   }
 
+  /// Reconnects the current [jason] instance, if any is initialized.
+  Future<void> ensureReconnected() async {
+    Log.debug('ensureReconnected()...', '$runtimeType');
+    await _jason?.networkChanged();
+    Log.debug('ensureReconnected()... done!', '$runtimeType');
+  }
+
   /// Invokes a [MediaManagerHandle.setOutputAudioId] method.
   Future<void> _setOutputDevice() async {
     // If the [_mutex] is locked, the output device is already being set.
@@ -425,11 +432,23 @@ extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
   ///
   /// Only meaningful, if these [MediaDeviceDetails] are of
   /// [MediaDeviceKind.audioOutput].
-  AudioSpeakerKind get speaker => switch (deviceId()) {
-    'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
-    'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
-    (_) => AudioSpeakerKind.headphones,
-  };
+  AudioSpeakerKind get speaker {
+    return switch (audioDeviceKind()) {
+      AudioDeviceKind.earSpeaker => AudioSpeakerKind.earpiece,
+      AudioDeviceKind.speakerphone => AudioSpeakerKind.speaker,
+      AudioDeviceKind.wiredHeadphones => AudioSpeakerKind.headphones,
+      AudioDeviceKind.wiredHeadset => AudioSpeakerKind.headphones,
+      AudioDeviceKind.usbHeadphones => AudioSpeakerKind.headphones,
+      AudioDeviceKind.usbHeadset => AudioSpeakerKind.headphones,
+      AudioDeviceKind.bluetoothHeadphones => AudioSpeakerKind.headphones,
+      AudioDeviceKind.bluetoothHeadset => AudioSpeakerKind.headphones,
+      null => switch (deviceId()) {
+        'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
+        'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
+        (_) => AudioSpeakerKind.headphones,
+      },
+    };
+  }
 }
 
 /// Possible kind of an audio output device.
@@ -491,7 +510,7 @@ class DeviceDetails extends MediaDeviceDetails {
   String id() => _device.deviceId();
 
   @override
-  AudioDeviceKind? audioDeviceKind() => null;
+  AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
 }
 
 /// [DeviceDetails] representing a default device.

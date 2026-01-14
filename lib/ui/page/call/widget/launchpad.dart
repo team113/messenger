@@ -94,7 +94,7 @@ class Launchpad extends StatelessWidget {
                         : null,
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 440),
                     child: Column(
@@ -104,8 +104,8 @@ class Launchpad extends StatelessWidget {
                         Wrap(
                           crossAxisAlignment: WrapCrossAlignment.start,
                           alignment: WrapAlignment.center,
-                          spacing: 4,
-                          runSpacing: 21,
+                          spacing: 14,
+                          runSpacing: 4,
                           children: children,
                         ),
                         const SizedBox(height: 20),

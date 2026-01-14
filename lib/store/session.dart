@@ -67,6 +67,9 @@ class SessionRepository extends IdentityDependency
   @override
   final RxBool connected = RxBool(true);
 
+  @override
+  final RxList<ConnectivityResult> connectivity = RxList();
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -448,6 +451,8 @@ class SessionRepository extends IdentityDependency
     });
 
     void apply(List<ConnectivityResult> result) {
+      connectivity.value = result;
+
       _hasNetwork =
           result.contains(ConnectivityResult.wifi) ||
           result.contains(ConnectivityResult.ethernet) ||

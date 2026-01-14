@@ -146,15 +146,19 @@ enum ProfileTab {
   public,
   signing,
   link,
-  media,
   welcome,
   notifications,
-  storage,
   confidential,
-  interface,
   devices,
+
+  interface,
+  media,
+  storage,
   download,
+
+  support,
   legal,
+
   danger,
   logout,
 }
@@ -697,7 +701,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   );
               deps.put<SessionService>(SessionService(sessionRepository));
 
-              deps.put(MyUserService(Get.find(), myUserRepository));
+              final myUserService = deps.put(
+                MyUserService(Get.find(), myUserRepository),
+              );
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
 
@@ -711,6 +717,20 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callService.onChatRemoved = chatRepository.remove;
 
               deps.put(BlocklistService(blocklistRepository));
+
+              deps.put(
+                CallWorker(
+                  callService,
+                  chatService,
+                  myUserService,
+                  null,
+                  Get.find(),
+                  settingsRepository,
+                  graphQlProvider,
+                  Get.find(),
+                  sessionRepository,
+                ),
+              );
 
               return deps;
             },
@@ -1115,6 +1135,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               settingsRepository,
               graphQlProvider,
               Get.find(),
+              sessionRepository,
             ),
           );
 
@@ -1353,6 +1374,12 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.deposit] page.
   void deposit({bool push = false}) => (push ? this.push : go)(Routes.deposit);
+
+  /// Changes router location to the [Routes.deposit] page.
+  void support({bool push = false}) => chat(
+    ChatId.local(UserId(Config.supportId)),
+    mode: push ? RouteAs.push : RouteAs.replace,
+  );
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

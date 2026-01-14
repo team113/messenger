@@ -189,7 +189,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         if (!hasPassword || !hasEmail) {
           final InputBorder border = OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: style.colors.secondary, width: 0.5),
+            borderSide: BorderSide(color: style.colors.danger, width: 0.5),
           );
 
           animated = Padding(
@@ -227,16 +227,27 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                     const SizedBox(width: 6),
                     Text(
                       'label_warning'.l10n,
-                      style: style.fonts.medium.regular.secondary,
+                      style: style.fonts.medium.regular.danger,
                     ),
                   ],
                 ),
               ),
-              child: Text(
-                hasPassword
-                    ? 'label_introduction_description_email'.l10n
-                    : 'label_introduction_description'.l10n,
-                style: style.fonts.small.regular.secondary,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 4),
+                  Text(
+                    'label_account_may_be_lost'.l10n,
+                    style: style.fonts.small.regular.onBackground,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    hasPassword
+                        ? 'label_introduction_description_email'.l10n
+                        : 'label_introduction_description'.l10n,
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                ],
               ),
             ),
           );
@@ -394,6 +405,9 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
       return const SizedBox();
 
     case ProfileTab.legal:
+      return const SizedBox();
+
+    case ProfileTab.support:
       return const SizedBox();
 
     case ProfileTab.logout:
@@ -560,6 +574,11 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
         const SizedBox(height: 4),
         LineDivider('label_identifiers'.l10n),
         const SizedBox(height: 20),
+        ReactiveTextField.copyable(
+          text: '${c.myUser.value?.num}',
+          label: 'label_num'.l10n,
+        ),
+        const SizedBox(height: 21),
         Obx(() {
           return ReactiveTextField(
             key: Key('LoginField'),
@@ -590,11 +609,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
                   ),
           );
         }),
-        const SizedBox(height: 21),
-        ReactiveTextField.copyable(
-          text: '${c.myUser.value?.num}',
-          label: 'label_num'.l10n,
-        ),
+
         const SizedBox(height: 21),
         ...widgets,
         // Don't display the button when there's already 2 added emails.

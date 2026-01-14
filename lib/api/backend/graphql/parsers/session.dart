@@ -671,3 +671,53 @@ List<IpAddress?> fromGraphQLListIpNullableToDartListIpAddressNullable(
 List<String?> fromDartListIpAddressNullableToGraphQLListIpNullable(
   List<IpAddress?> v,
 ) => v.map((e) => fromDartIpAddressNullableToGraphQLIpNullable(e)).toList();
+
+// SiteDomain
+
+SiteDomain fromGraphQLSiteDomainToDartSiteDomain(String v) => SiteDomain(v);
+String fromDartSiteDomainToGraphQLSiteDomain(SiteDomain v) => v.toString();
+List<SiteDomain> fromGraphQLListSiteDomainToDartListSiteDomain(
+  List<Object?> v,
+) => v.map((e) => fromGraphQLSiteDomainToDartSiteDomain(e as String)).toList();
+List<String> fromDartListSiteDomainToGraphQLListSiteDomain(
+  List<SiteDomain> v,
+) => v.map((e) => fromDartSiteDomainToGraphQLSiteDomain(e)).toList();
+List<SiteDomain>? fromGraphQLListNullableSiteDomainToDartListNullableSiteDomain(
+  List<Object?>? v,
+) => v?.map((e) => fromGraphQLSiteDomainToDartSiteDomain(e as String)).toList();
+List<String>? fromDartListNullableSiteDomainToGraphQLListNullableSiteDomain(
+  List<SiteDomain>? v,
+) => v?.map((e) => fromDartSiteDomainToGraphQLSiteDomain(e)).toList();
+
+SiteDomain? fromGraphQLSiteDomainNullableToDartSiteDomainNullable(String? v) =>
+    v == null ? null : SiteDomain(v);
+String? fromDartSiteDomainNullableToGraphQLSiteDomainNullable(SiteDomain? v) =>
+    v?.toString();
+List<SiteDomain?> fromGraphQLListSiteDomainNullableToDartListSiteDomainNullable(
+  List<Object?> v,
+) => v
+    .map(
+      (e) =>
+          fromGraphQLSiteDomainNullableToDartSiteDomainNullable(e as String?),
+    )
+    .toList();
+List<String?> fromDartListSiteDomainNullableToGraphQLListSiteDomainNullable(
+  List<SiteDomain?> v,
+) => v
+    .map((e) => fromDartSiteDomainNullableToGraphQLSiteDomainNullable(e))
+    .toList();
+List<SiteDomain?>?
+fromGraphQLListNullableSiteDomainNullableToDartListNullableSiteDomainNullable(
+  List<Object?>? v,
+) => v
+    ?.map(
+      (e) =>
+          fromGraphQLSiteDomainNullableToDartSiteDomainNullable(e as String?),
+    )
+    .toList();
+List<String?>?
+fromDartListNullableSiteDomainNullableToGraphQLListNullableSiteDomainNullable(
+  List<SiteDomain?>? v,
+) => v
+    ?.map((e) => fromDartSiteDomainNullableToGraphQLSiteDomainNullable(e))
+    .toList();

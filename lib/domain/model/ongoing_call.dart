@@ -18,12 +18,10 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '/domain/model/media_settings.dart';
 import '/domain/model/my_user.dart';
@@ -1313,25 +1311,13 @@ class OngoingCall {
     Log.debug('setRemoteAudioEnabled($enabled)', '$runtimeType');
 
     try {
-      final List<Future> futures = [];
-
-      if (enabled && isRemoteAudioEnabled.isFalse) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          futures.add(m.setAudioEnabled(true));
-        }
-
-        isRemoteAudioEnabled.toggle();
-      } else if (!enabled && isRemoteAudioEnabled.isTrue) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          if (m.tracks.any((e) => e.kind == MediaKind.audio)) {
-            futures.add(m.setAudioEnabled(false));
-          }
-        }
-
-        isRemoteAudioEnabled.toggle();
+      if (enabled) {
+        await _room?.enableRemoteAudio();
+      } else {
+        await _room?.disableRemoteAudio();
       }
 
-      await Future.wait(futures);
+      isRemoteAudioEnabled.toggle();
     } on MediaStateTransitionException catch (_) {
       // No-op.
     }
@@ -1344,28 +1330,13 @@ class OngoingCall {
     Log.debug('setRemoteVideoEnabled($enabled)', '$runtimeType');
 
     try {
-      final List<Future> futures = [];
-
-      if (enabled && isRemoteVideoEnabled.isFalse) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          futures.addAll([
-            m.setVideoEnabled(true, source: MediaSourceKind.device),
-            m.setVideoEnabled(true, source: MediaSourceKind.display),
-          ]);
-        }
-
-        isRemoteVideoEnabled.toggle();
-      } else if (!enabled && isRemoteVideoEnabled.isTrue) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          m.tracks.where((e) => e.kind == MediaKind.video).forEach((e) {
-            futures.add(m.setVideoEnabled(false, source: e.source));
-          });
-        }
-
-        isRemoteVideoEnabled.toggle();
+      if (enabled) {
+        await _room?.enableRemoteVideo();
+      } else {
+        await _room?.disableRemoteVideo();
       }
 
-      await Future.wait(futures);
+      isRemoteVideoEnabled.toggle();
     } on MediaStateTransitionException catch (_) {
       // No-op.
     }
@@ -1441,11 +1412,7 @@ class OngoingCall {
         return false;
       });
 
-      await _updateTracks(
-        audio: audioState.value.isEnabled,
-        video: videoState.value.isEnabled,
-        screen: screenShareState.value.isEnabled,
-      );
+      await _updateTracks(audio: audioState.value.isEnabled);
 
       await _room?.enableAudio(MediaSourceKind.device);
       return;
@@ -1645,7 +1612,10 @@ class OngoingCall {
     });
 
     _room!.onNewConnection((conn) {
-      Log.debug('onNewConnection', '$runtimeType');
+      Log.debug(
+        'onNewConnection -> getState(${conn.getState()})',
+        '$runtimeType',
+      );
 
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
@@ -1659,7 +1629,7 @@ class OngoingCall {
       if (member != null) {
         member.id = id;
         member._connection = conn;
-        member.isConnected.value = true;
+        member.isConnected.value = conn.getState() != null;
         member.isDialing.value = false;
       } else {
         members[id] = CallMember(
@@ -1670,9 +1640,17 @@ class OngoingCall {
                   .firstWhereOrNull((e) => e.user.id == id.userId)
                   ?.handRaised ??
               false,
-          isConnected: true,
+          isConnected: conn.getState() != null,
         );
       }
+
+      conn.onStateChange((s) {
+        Log.debug('onStateChange($s)', '$runtimeType');
+
+        if (s is MemberConnectionStateP2P) {
+          member?.isConnected.value = true;
+        }
+      });
 
       conn.onClose(() {
         Log.debug('onClose', '$runtimeType');
@@ -1901,18 +1879,6 @@ class OngoingCall {
         'Unable to enable foreground service due to: $e',
         '$runtimeType',
       );
-    }
-
-    try {
-      if (hasAudio || audioState.value.isEnabled) {
-        await Permission.microphone.request();
-      }
-
-      if (videoState.value.isEnabled) {
-        await Permission.camera.request();
-      }
-    } on MissingPluginException {
-      // No-op.
     }
 
     await _mediaSettingsGuard.protect(() async {
@@ -2571,7 +2537,10 @@ class OngoingCall {
   ///
   /// Does nothing if [device] is already the [outputDevice].
   Future<void> _setOutputDevice(DeviceDetails device) async {
-    Log.debug('_setOutputDevice($device)', '$runtimeType');
+    Log.debug(
+      '_setOutputDevice($device) -> ${device.audioDeviceKind()?.name}',
+      '$runtimeType',
+    );
 
     if (device != outputDevice.value) {
       final DeviceDetails? previous = outputDevice.value;

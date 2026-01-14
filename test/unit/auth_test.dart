@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:messenger/api/backend/schema.dart';
@@ -40,6 +41,8 @@ import 'auth_test.mocks.dart';
 
 @GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = false;
+
   final CommonDriftProvider common = Get.put(
     CommonDriftProvider.memory(),
     permanent: true,
@@ -81,6 +84,7 @@ void main() async {
             'isCurrent': true,
             'lastActivatedAt': DateTime.now().toString(),
             'ver': '031592915314290362597742826064324903711',
+            'siteDomain': 'example.com',
           },
           'accessToken': {
             '__typename': 'AccessToken',
@@ -166,6 +170,7 @@ void main() async {
           ip: IpAddress('localhost'),
           userAgent: UserAgent(''),
           lastActivatedAt: PreciseDateTime.now(),
+          siteDomain: SiteDomain(''),
         ),
         const UserId('me'),
       ),

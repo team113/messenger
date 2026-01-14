@@ -183,7 +183,7 @@ class CredentialsDriftProvider extends DriftProviderBase {
 extension _CredentialsDb on Credentials {
   /// Constructs the [Credentials] from the provided [TokenRow].
   static Credentials fromDb(TokenRow e) {
-    return Credentials.fromJson(jsonDecode(e.credentials));
+    return Credentials.fromJson(json.decode(e.credentials));
   }
 
   /// Constructs a [TokenRow] from these [Credentials].

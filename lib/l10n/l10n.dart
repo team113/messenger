@@ -307,6 +307,7 @@ extension L10nProfileTabExtension on ProfileTab {
       ProfileTab.devices => 'label_linked_devices'.l10n,
       ProfileTab.download => 'label_download_and_update'.l10n,
       ProfileTab.danger => 'btn_delete_account'.l10n,
+      ProfileTab.support => 'label_support_service'.l10n,
       ProfileTab.legal => 'label_terms_and_privacy_policy'.l10n,
       ProfileTab.logout => 'btn_logout'.l10n,
     };

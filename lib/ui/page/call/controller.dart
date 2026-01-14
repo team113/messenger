@@ -58,6 +58,7 @@ import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'background_audio/view.dart';
 import 'component/common.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
@@ -443,6 +444,18 @@ class CallController extends GetxController {
   /// [Worker] reacting on [minimizing] changes to invoke [onMinimized].
   Worker? _minimizingWorker;
 
+  /// [Worker] reacting on [RouterState.lifecycle] changes to display popup
+  /// regarding background audio/video being blocked.
+  Worker? _lifecycleWorker;
+
+  /// Indicator whether a popup should be displayed regarding background audio
+  /// and video being blocked.
+  bool _audioBlockedInBackgroundDisplayed = false;
+
+  /// [DateTime] of device transitioning into [AppLifecycleState] that is
+  /// considered as a background.
+  DateTime? _backgroundSince;
+
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
 
@@ -779,6 +792,7 @@ class CallController extends GetxController {
       RemoteAudioButton(this),
       VideoButton(this),
       AudioButton(this),
+      ReconnectButton(this),
     ]);
 
     List<CallButton> previousButtons = buttons.toList();
@@ -856,6 +870,31 @@ class CallController extends GetxController {
       }
     });
 
+    AppLifecycleState previousLifecycle = router.lifecycle.value;
+    _lifecycleWorker = ever(router.lifecycle, (lifecycle) {
+      if (previousLifecycle != lifecycle) {
+        if (PlatformUtils.isWeb && PlatformUtils.isMobile) {
+          if (previousLifecycle.inForeground && !lifecycle.inForeground) {
+            _backgroundSince = DateTime.now();
+          }
+          // If previous state was a background one, and a new one is
+          // foreground, then display the popup.
+          else if (!previousLifecycle.inForeground && lifecycle.inForeground) {
+            final int backgroundSeconds =
+                _backgroundSince?.difference(DateTime.now()).abs().inSeconds ??
+                0;
+
+            if (!_audioBlockedInBackgroundDisplayed && backgroundSeconds >= 5) {
+              BackgroundAudioDisclaimerView.show(router.context!);
+              _audioBlockedInBackgroundDisplayed = true;
+            }
+          }
+        }
+
+        previousLifecycle = lifecycle;
+      }
+    });
+
     SchedulerBinding.instance.addPostFrameCallback((_) {
       onMinimized?.call(minimized.value);
     });
@@ -893,6 +932,7 @@ class CallController extends GetxController {
     _minimizedWorker?.dispose();
     _fullscreenWorker?.dispose();
     _minimizingWorker?.dispose();
+    _lifecycleWorker?.dispose();
 
     secondaryEntry?.remove();
 

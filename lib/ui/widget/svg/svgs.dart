@@ -930,6 +930,12 @@ class SvgIcons {
     height: 32,
   );
 
+  static const SvgData callReconnect = SvgData(
+    'assets/icons/call_reconnect.svg',
+    width: 30,
+    height: 30,
+  );
+
   static const SvgData callParticipants = SvgData(
     'assets/icons/call_participants.svg',
     width: 29.36,

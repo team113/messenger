@@ -53,6 +53,7 @@ part 'themes.g.dart';
       'primary',
       'primaryHighlightLightest',
       'secondary',
+      'danger',
     ],
     'bold': ['onPrimary'],
   },
