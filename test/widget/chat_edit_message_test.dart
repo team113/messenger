@@ -58,6 +58,7 @@ import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/settings.dart';
+import 'package:messenger/provider/drift/slugs.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -366,6 +367,7 @@ void main() async {
   final versionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
   final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
+  final slugProvider = Get.put(SlugDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -385,7 +387,12 @@ void main() async {
     AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(
-          AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+          AuthRepository(
+            Get.find(),
+            myUserProvider,
+            credentialsProvider,
+            slugProvider,
+          ),
         ),
         credentialsProvider,
         accountProvider,
@@ -440,6 +447,7 @@ void main() async {
         userRepository,
         versionProvider,
         monologProvider,
+        slugProvider,
         me: const UserId('me'),
       ),
     );

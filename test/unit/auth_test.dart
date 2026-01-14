@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -30,6 +32,7 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/secret.dart';
+import 'package:messenger/provider/drift/slugs.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/routes.dart';
@@ -41,7 +44,7 @@ import 'auth_test.mocks.dart';
 
 @GenerateNiceMocks([MockSpec<GraphQlProvider>()])
 void main() async {
-  driftRuntimeOptions.dontWarnAboutMultipleDatabases = false;
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
 
   final CommonDriftProvider common = Get.put(
     CommonDriftProvider.memory(),
@@ -55,6 +58,7 @@ void main() async {
   final accountProvider = Get.put(AccountDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
   final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
+  final slugProvider = Get.put(SlugDriftProvider(common));
 
   setUp(() async {
     Get.reset();
@@ -115,7 +119,12 @@ void main() async {
     );
 
     AuthRepository authRepository = Get.put(
-      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credsProvider,
+        slugProvider,
+      ),
     );
     AuthService authService = Get.put(
       AuthService(
@@ -179,7 +188,12 @@ void main() async {
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
     AuthRepository authRepository = Get.put(
-      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credsProvider,
+        slugProvider,
+      ),
     );
     AuthService authService = Get.put(
       AuthService(
@@ -221,7 +235,12 @@ void main() async {
     );
 
     final AuthRepository authRepository = Get.put(
-      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credsProvider,
+        slugProvider,
+      ),
     );
     final AuthService authService = Get.put(
       AuthService(
@@ -256,7 +275,12 @@ void main() async {
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
     AuthRepository authRepository = Get.put(
-      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credsProvider,
+        slugProvider,
+      ),
     );
     AuthService authService = Get.put(
       AuthService(
@@ -306,7 +330,12 @@ void main() async {
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
     AuthRepository authRepository = Get.put(
-      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credsProvider,
+        slugProvider,
+      ),
     );
     AuthService authService = Get.put(
       AuthService(

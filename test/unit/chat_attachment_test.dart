@@ -49,6 +49,7 @@ import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/settings.dart';
+import 'package:messenger/provider/drift/slugs.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -98,6 +99,7 @@ void main() async {
   final sessionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
   final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
+  final slugProvider = Get.put(SlugDriftProvider(common));
 
   when(
     graphQlProvider.recentChatsTopEvents(3),
@@ -128,7 +130,12 @@ void main() async {
   final AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(
-        AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+        AuthRepository(
+          graphQlProvider,
+          myUserProvider,
+          credentialsProvider,
+          slugProvider,
+        ),
       ),
       credentialsProvider,
       accountProvider,
@@ -234,6 +241,7 @@ void main() async {
             userRepository,
             sessionProvider,
             monologProvider,
+            slugProvider,
             me: const UserId('me'),
           ),
         );
@@ -335,6 +343,7 @@ void main() async {
             userRepository,
             sessionProvider,
             monologProvider,
+            slugProvider,
             me: const UserId('me'),
           ),
         );
@@ -450,6 +459,7 @@ void main() async {
               userRepository,
               sessionProvider,
               monologProvider,
+              slugProvider,
               me: const UserId('me'),
             ),
           );

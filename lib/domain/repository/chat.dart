@@ -231,6 +231,10 @@ abstract class AbstractChatRepository {
   /// Clears all [ChatItem]s in the specified [Chat], if [untilId] if not
   /// provided.
   Future<void> clearChat(ChatId id, [ChatItemId? untilId]);
+
+  /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
+  /// a new [Chat]-dialog or joining an existing [Chat]-group.
+  Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug);
 }
 
 /// Unified reactive [Chat] entity with its [ChatItem]s.

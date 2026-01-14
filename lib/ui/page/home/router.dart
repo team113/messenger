@@ -25,7 +25,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
-import '/ui/page/chat_direct_link/view.dart';
 import '/ui/page/erase/view.dart';
 import '/ui/widget/custom_page.dart';
 import 'page/affiliate/view.dart';
@@ -126,18 +125,6 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             key: ValueKey('ErasePage'),
             name: Routes.erase,
             child: EraseView(),
-          ),
-        );
-      } else if (route.startsWith(Routes.chatDirectLink)) {
-        final String slug = _state.route.replaceFirst(
-          Routes.chatDirectLink,
-          '',
-        );
-        pages.add(
-          CustomPage(
-            key: ValueKey('ChatDirectLinkPage$slug'),
-            name: '${Routes.chatDirectLink}$slug',
-            child: ChatDirectLinkView(slug),
           ),
         );
       } else if (route.startsWith(Routes.affiliate)) {

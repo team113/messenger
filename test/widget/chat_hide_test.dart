@@ -57,6 +57,7 @@ import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
+import 'package:messenger/provider/drift/slugs.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -112,6 +113,7 @@ void main() async {
   final geoProvider = Get.put(GeoLocationDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
   final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
+  final slugProvider = Get.put(SlugDriftProvider(common));
 
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.connected).thenReturn(RxBool(true));
@@ -167,7 +169,12 @@ void main() async {
 
   AuthService authService = Get.put(
     AuthService(
-      AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credentialsProvider,
+        slugProvider,
+      ),
       credentialsProvider,
       accountProvider,
       locksProvider,
@@ -409,6 +416,7 @@ void main() async {
         userRepository,
         versionProvider,
         monologProvider,
+        slugProvider,
         me: const UserId('me'),
       ),
     );

@@ -174,6 +174,25 @@ mixin UserGraphQlMixin {
     return SearchUsers$Query.fromJson(res.data!);
   }
 
+  /// Searches [User]s by the provided [link].
+  ///
+  /// ### Authentication
+  ///
+  /// Optional.
+  Future<SearchLink$Query> searchLink(ChatDirectLinkSlug link) async {
+    Log.debug('searchLink($link)', '$runtimeType');
+
+    final variables = SearchLinkArguments(directLink: link);
+    QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'SearchLink',
+        document: SearchLinkQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return SearchLink$Query.fromJson(res.data!);
+  }
+
   /// Updates [MyUser.name] field for the authenticated [MyUser].
   ///
   /// ### Authentication

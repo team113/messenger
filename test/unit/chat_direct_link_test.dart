@@ -47,6 +47,7 @@ import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/settings.dart';
+import 'package:messenger/provider/drift/slugs.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -186,11 +187,17 @@ void main() async {
     final versionProvider = Get.put(VersionDriftProvider(common));
     final locksProvider = Get.put(LockDriftProvider(common));
     final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
+    final slugProvider = Get.put(SlugDriftProvider(common));
 
     final AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(
-          AuthRepository(graphQlProvider, myUserProvider, Get.find()),
+          AuthRepository(
+            graphQlProvider,
+            myUserProvider,
+            Get.find(),
+            slugProvider,
+          ),
         ),
         credentialsProvider,
         accountProvider,
@@ -257,6 +264,7 @@ void main() async {
             userRepository,
             Get.find(),
             monologProvider,
+            slugProvider,
             me: const UserId('me'),
           ),
         );
@@ -365,7 +373,7 @@ void main() async {
 
   test('ChatService successfully uses ChatDirectLink', () async {
     final GraphQlProvider graphQlProvider = Get.find();
-    final AuthService authService = Get.find();
+    final ChatService chatService = Get.find();
 
     when(
       graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')),
@@ -401,7 +409,7 @@ void main() async {
       ),
     );
 
-    await authService.useChatDirectLink(ChatDirectLinkSlug('link'));
+    await chatService.useChatDirectLink(ChatDirectLinkSlug('link'));
 
     verify(graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')));
   });
@@ -486,7 +494,7 @@ void main() async {
     'ChatService throws DeleteChatDirectLinkException on ChatDirectLink deletion',
     () async {
       final GraphQlProvider graphQlProvider = Get.find();
-      final AuthService authService = Get.find();
+      final ChatService chatService = Get.find();
 
       when(
         graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')),
@@ -499,7 +507,7 @@ void main() async {
       dynamic exception;
 
       try {
-        await authService.useChatDirectLink(ChatDirectLinkSlug('link'));
+        await chatService.useChatDirectLink(ChatDirectLinkSlug('link'));
       } catch (e) {
         exception = e;
       }

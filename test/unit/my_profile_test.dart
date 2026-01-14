@@ -32,6 +32,7 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/secret.dart';
+import 'package:messenger/provider/drift/slugs.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/store/auth.dart';
@@ -56,6 +57,7 @@ void main() async {
   final versionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
   final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
+  final slugProvider = Get.put(SlugDriftProvider(common));
 
   test('MyProfile test', () async {
     Get.reset();
@@ -64,7 +66,12 @@ void main() async {
 
     Get.put(
       AuthService(
-        AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+        AuthRepository(
+          graphQlProvider,
+          myUserProvider,
+          credentialsProvider,
+          slugProvider,
+        ),
         credentialsProvider,
         accountProvider,
         locksProvider,

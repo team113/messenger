@@ -1031,13 +1031,30 @@ class IntroductionController extends GetxController with IdentityAware {
 
   /// Schedules [_chatService] to fetch [_slug] to a [chat], if any.
   Future<void> _scheduleChat() async {
+    Log.debug('_scheduleChat() -> $_slug', '$runtimeType');
+
     if (_slug != null) {
       try {
         fetching.value = true;
 
-        final Chat value = await _authService.useChatDirectLink(_slug!);
+        final ChatId chatId = await _chatService.useChatDirectLink(_slug!);
+        router.chat(chatId);
 
-        chat.value = await _chatService.get(value.id);
+        chat.value = await _chatService.get(chatId);
+      } on UseChatDirectLinkException catch (e) {
+        switch (e.code) {
+          case UseChatDirectLinkErrorCode.artemisUnknown:
+            Log.error('Unable to `_scheduleChat()` -> $e', '$runtimeType');
+            break;
+
+          case UseChatDirectLinkErrorCode.blocked:
+            Log.error('Unable to `_scheduleChat()` -> $e', '$runtimeType');
+            break;
+
+          case UseChatDirectLinkErrorCode.unknownDirectLink:
+            await _scheduleSupport();
+            break;
+        }
       } catch (e) {
         Log.error('Unable to `_scheduleChat()` -> $e', '$runtimeType');
       } finally {

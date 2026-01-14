@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -60,10 +62,20 @@ mixin AuthGraphQlMixin {
   Future<SignUp$Mutation$CreateUser> signUp({
     UserLogin? login,
     UserPassword? password,
+    ChatDirectLinkSlug? affiliate,
   }) async {
-    Log.debug('signUp()', '$runtimeType');
+    Log.debug(
+      'signUp(login: $login, password: ${password?.obscured}, affiliate: $affiliate)',
+      '$runtimeType',
+    );
 
-    final variables = SignUpArguments(login: login, password: password);
+    final variables = SignUpArguments(
+      login: login,
+      password: password,
+      affiliate: affiliate == null
+          ? null
+          : UserAffiliationInput(slug: affiliate),
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'SignUp',

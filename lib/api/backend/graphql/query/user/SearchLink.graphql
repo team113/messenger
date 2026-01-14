@@ -1,5 +1,3 @@
-# Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
-#                       <https://github.com/team113>
 # Copyright © 2025-2026 Ideas Networks Solutions S.A.,
 #                       <https://github.com/tapopa>
 #
@@ -17,37 +15,18 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation SignUp(
-    $login: UserLogin
-    $password: UserPassword
-    $affiliate: UserAffiliationInput
-) {
-    createUser(
-        login: $login
-        password: $password
-        affiliate: $affiliate
-    ) {
-        __typename
-        ... on CreateSessionOk {
-            user {
+query SearchLink($directLink: ChatDirectLinkSlug!) {
+    searchUsers(directLink: $directLink) {
+        edges {
+            node {
                 __typename
-                ...MyUser
+                ...AnonymousUser
             }
-            session {
-                __typename
-                ...Session
-            }
-            accessToken {
-                __typename
-                ...AccessToken
-            }
-            refreshToken {
-                __typename
-                ...RefreshToken
-            }
+            cursor
         }
-        ... on CreateUserError {
-            code
+        pageInfo {
+            __typename
+            ...PageInfo
         }
     }
 }

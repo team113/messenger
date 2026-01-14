@@ -707,7 +707,6 @@ label_account_has_been_signed_out_due_to_reasons2 =
     {" "}session has been terminated due to technical issue (cookie / cash deleted; OS / browser / application updated; certificate changed; etc...).
 
     Password or e-mail has not been set for this account. Sign in is impossible.
-label_account_created = Account is created
 label_account_may_be_lost = Account may be lost
 label_account_number_iban = Account number (IBAN)
 label_account_number_iban_monobank = UA0000000000000000000000000
@@ -777,7 +776,6 @@ label_amount_k = {$amount}k
 label_amount_sent_depends_on_crypto_exchange_platform = The exact amount to be sent depends on the exchange rate and the commission of the crypto exchange platform on the payment processing day
 label_amount_to_be_sent_approximate_currency = Amount to be sent (approximate), {$currency}
 label_amount_to_withdraw_currency = Amount to withdraw, {$currency}
-label_application = Application
 label_arbitrum_one = Arbitrum One
 label_attention = Attention
 label_audio_call = Audio call{$by ->

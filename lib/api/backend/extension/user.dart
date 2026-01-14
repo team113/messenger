@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -20,6 +22,7 @@ import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/store/model/blocklist.dart';
 import '/store/model/user.dart';
 import 'file.dart';
 import 'my_user.dart';
@@ -48,6 +51,32 @@ extension UserConversion on UserMixin {
 
   /// Constructs a new [DtoUser] from this [UserMixin].
   DtoUser toDto() => DtoUser(toModel(), ver, isBlocked.ver);
+}
+
+/// Extension adding models construction from an [AnonymousUserMixin].
+extension AnonUserConversion on AnonymousUserMixin {
+  /// Constructs a new [User] from this [AnonymousUserMixin].
+  User toModel() => User(
+    id,
+    this.num,
+    name: name,
+    bio: bio,
+    avatar: avatar?.toModel(),
+    callCover: callCover?.toModel(),
+    online: online?.$$typename == 'UserOnline',
+    lastSeenAt: online?.$$typename == 'UserOffline'
+        ? (online as AnonymousUserMixin$Online$UserOffline).lastSeenAt
+        : null,
+    dialog: null,
+    presenceIndex: presence?.index,
+    status: status,
+    isDeleted: isDeleted,
+    isBlocked: null,
+    welcomeMessage: welcomeMessage?.toModel(),
+  );
+
+  /// Constructs a new [DtoUser] from this [UserMixin].
+  DtoUser toDto() => DtoUser(toModel(), ver, BlocklistVersion(''));
 }
 
 /// Extension adding models construction from a

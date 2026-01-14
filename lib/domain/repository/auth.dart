@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -17,7 +19,6 @@
 
 import 'package:get/get.dart';
 
-import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
@@ -117,10 +118,6 @@ abstract class AbstractAuthRepository {
     UserEmail? email,
     UserPhone? phone,
   });
-
-  /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
-  /// a new [Chat]-dialog or joining an existing [Chat]-group.
-  Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug);
 
   /// Generates and sends a new single-use [ConfirmationCode] for the [MyUser]
   /// identified by the provided [login], [num], [email] and/or [phone].

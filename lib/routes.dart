@@ -649,6 +649,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                       userRepository,
                       Get.find(),
                       Get.find(),
+                      Get.find(),
                       me: me,
                     ),
                   );
@@ -822,6 +823,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                       callRepository,
                       Get.find(),
                       userRepository,
+                      Get.find(),
                       Get.find(),
                       Get.find(),
                       me: me,
@@ -1057,6 +1059,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             userRepository,
             versionProvider,
             monologProvider,
+            Get.find(),
             me: me,
           );
           deps.put<AbstractChatRepository>(chatRepository);

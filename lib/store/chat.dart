@@ -35,12 +35,12 @@ import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart' as model;
+import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat_message_input.dart' as model;
+import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/ongoing_call.dart';
@@ -51,11 +51,12 @@ import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/disposable_service.dart';
-import '/provider/drift/chat.dart';
 import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
+import '/provider/drift/chat.dart';
 import '/provider/drift/draft.dart';
 import '/provider/drift/monolog.dart';
+import '/provider/drift/slugs.dart';
 import '/provider/drift/version.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -118,7 +119,8 @@ class ChatRepository extends IdentityDependency
     this._draftLocal,
     this._userRepo,
     this._sessionLocal,
-    this._monologLocal, {
+    this._monologLocal,
+    this._slugProvider, {
     required super.me,
   });
 
@@ -231,6 +233,9 @@ class ChatRepository extends IdentityDependency
 
   /// [MonologDriftProvider] storing a [ChatId] of the [Chat]-monolog.
   final MonologDriftProvider _monologLocal;
+
+  /// [SlugDriftProvider] for retrieving affiliate [ChatDirectLinkSlug].
+  final SlugDriftProvider _slugProvider;
 
   /// [CombinedPagination] loading [chats] with pagination.
   CombinedPagination<DtoChat, ChatId>? _pagination;
@@ -1988,6 +1993,32 @@ class ChatRepository extends IdentityDependency
       }
       rethrow;
     }
+  }
+
+  @override
+  Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
+    Log.debug('useChatDirectLink($slug)', '$runtimeType');
+
+    // Account the transition.
+    await _slugProvider.upsert(slug);
+
+    if (me.isLocal) {
+      final query = await _graphQlProvider.searchLink(slug);
+      final User? user = query.searchUsers.edges.firstOrNull?.node.toModel();
+      if (user == null) {
+        return support;
+      }
+
+      return ChatId.local(user.id);
+    }
+
+    final response = await Backoff.run(
+      () async => await _graphQlProvider.useChatDirectLink(slug),
+      retryIf: (e) => e.isNetworkRelated,
+      retries: 10,
+    );
+
+    return response.chat.id;
   }
 
   /// Constructs a [ChatEvent] from the [ChatEventsVersionedMixin$Events].

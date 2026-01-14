@@ -55,6 +55,7 @@ import 'secret.dart';
 import 'session.dart';
 import 'settings.dart';
 import 'skipped_version.dart';
+import 'slugs.dart';
 import 'user.dart';
 import 'version.dart';
 import 'window.dart';
@@ -76,6 +77,7 @@ part 'drift.g.dart';
     RefreshSecrets,
     Settings,
     SkippedVersions,
+    Slugs,
     Tokens,
     Versions,
     WindowRectangles,

@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,11 +23,9 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/credentials.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
@@ -33,9 +33,9 @@ import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
 import '/provider/drift/credentials.dart';
 import '/provider/drift/my_user.dart';
+import '/provider/drift/slugs.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 
@@ -48,6 +48,7 @@ class AuthRepository extends DisposableInterface
     this._graphQlProvider,
     this._myUserProvider,
     this._credentialsProvider,
+    this._slugProvider,
   );
 
   @override
@@ -61,6 +62,9 @@ class AuthRepository extends DisposableInterface
 
   /// [CredentialsDriftProvider] for removing [Credentials].
   final CredentialsDriftProvider _credentialsProvider;
+
+  /// [SlugDriftProvider] for retrieving affiliate [ChatDirectLinkSlug].
+  final SlugDriftProvider _slugProvider;
 
   /// [StreamSubscription] for the [MyUserDriftProvider.watch].
   StreamSubscription? _profilesSubscription;
@@ -130,6 +134,7 @@ class AuthRepository extends DisposableInterface
     final response = await _graphQlProvider.signUp(
       login: login,
       password: password,
+      affiliate: await _slugProvider.read(),
     );
     final success = response as SignUp$Mutation$CreateUser$CreateSessionOk;
 
@@ -282,21 +287,6 @@ class AuthRepository extends DisposableInterface
       confirmation: MyUserCredentials(code: code),
       newPassword: newPassword,
     );
-  }
-
-  @override
-  Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('useChatDirectLink($slug)', '$runtimeType');
-
-    final response = await Backoff.run(
-      () async {
-        return await _graphQlProvider.useChatDirectLink(slug);
-      },
-      retryIf: (e) => e.isNetworkRelated,
-      retries: 10,
-    );
-
-    return response.chat.toModel();
   }
 
   @override

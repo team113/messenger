@@ -494,6 +494,11 @@ class ChatService extends Dependency {
     Log.debug('clearChat($id, $untilId)', '$runtimeType');
     await _chatRepository.clearChat(id, untilId);
   }
+
+  Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
+    Log.debug('useChatDirectLink($slug)', '$runtimeType');
+    return await _chatRepository.useChatDirectLink(slug);
+  }
 }
 
 /// Extension adding a route from the [router] comparison with a [Chat].

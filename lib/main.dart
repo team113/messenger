@@ -59,6 +59,7 @@ import 'provider/drift/my_user.dart';
 import 'provider/drift/secret.dart';
 import 'provider/drift/settings.dart';
 import 'provider/drift/skipped_version.dart';
+import 'provider/drift/slugs.dart';
 import 'provider/drift/window.dart';
 import 'provider/file/log.dart';
 import 'provider/geo/geo.dart';
@@ -254,6 +255,7 @@ Future<void> _runApp() async {
   Get.put(LockDriftProvider(Get.find()));
   Get.put(RefreshSecretDriftProvider(Get.find()));
   Get.put(CallKitCallsDriftProvider(Get.find()));
+  Get.put(SlugDriftProvider(Get.find()));
 
   if (!PlatformUtils.isWeb) {
     Get.put(WindowRectDriftProvider(Get.find()));
@@ -296,7 +298,7 @@ Future<void> _runApp() async {
   Get.put(GeoLocationProvider());
 
   final authRepository = Get.put<AbstractAuthRepository>(
-    AuthRepository(graphQlProvider, myUserProvider, Get.find()),
+    AuthRepository(graphQlProvider, myUserProvider, Get.find(), Get.find()),
   );
   final authService = Get.put(
     AuthService(authRepository, Get.find(), Get.find(), Get.find(), Get.find()),
