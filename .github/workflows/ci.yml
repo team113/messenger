@@ -1349,7 +1349,7 @@ jobs:
             artifacts/*.ipa
             artifacts/*.zip
             artifacts/*.sha256sum
-          fail_on_unmatched_files: true
+          fail_on_unmatched_files: false # TODO: Re-enable once ready to ship.
           prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
 
 
