@@ -1999,15 +1999,15 @@ class ChatRepository extends IdentityDependency
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', '$runtimeType');
 
-    // Account the transition.
-    await _slugProvider.upsert(slug);
-
     if (me.isLocal) {
       final query = await _graphQlProvider.searchLink(slug);
       final User? user = query.searchUsers.edges.firstOrNull?.node.toModel();
       if (user == null) {
         return support;
       }
+
+      // Store the transition only if [User] found by [slug] exists.
+      await _slugProvider.upsert(slug);
 
       return ChatId.local(user.id);
     }

@@ -1,8 +1,8 @@
 apiVersion: v2
 name: tapopa-messenger
 description: Messenger by Tapopa.
-version: 0.0.0-edge
-appVersion: 0.7.2
+version: 0.1.0
+appVersion: 0.1.0
 type: application
 sources:
   - https://github.com/tapopa/messenger

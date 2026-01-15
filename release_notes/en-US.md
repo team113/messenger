@@ -1,4 +1,4 @@
-- Added reconnect button to calls.
-- Added popup of microphone and camera being blocked when tab is in background for mobile web devices.
-- Redesigned linked devices to display domains.
-- Redesigned buttons on menu tab to have sections.
+- Added monetization and wallet tabs.
+- Added top up and transactions pages to wallet tab.
+- Added partner programs, your promotion, set your prices and withdraw pages.
+- Added chat with Tapopa.
