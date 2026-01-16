@@ -103,6 +103,8 @@ class ChatView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
+        Get.find(),
         itemId: itemId,
         onContext: () => context,
       ),

@@ -86,6 +86,11 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData chatLogs = SvgData(
+    'assets/icons/chat_logs.svg',
+    height: 24,
+  );
+
   static const SvgData callEnd = SvgData(
     'assets/icons/call_end.svg',
     width: 21.11,

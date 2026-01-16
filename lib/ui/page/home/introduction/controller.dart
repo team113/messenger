@@ -430,7 +430,7 @@ class IntroductionController extends GetxController with IdentityAware {
   UserLogin? _recoveryLogin;
 
   /// Returns the [UserId] of the currently authenticated account.
-  UserId get userId => _authService.userId;
+  UserId get me => _authService.userId;
 
   /// Returns the reactive list of known [MyUser]s.
   RxList<MyUser> get profiles => _authService.profiles;
@@ -1011,6 +1011,11 @@ class IntroductionController extends GetxController with IdentityAware {
   /// Schedules [router] to go to a [Chat]-support.
   Future<void> _scheduleSupport() async {
     Log.debug('_scheduleSupport()', '$runtimeType');
+
+    if (!me.isLocal) {
+      Log.debug('_scheduleSupport() -> `$me` is not local', '$runtimeType');
+      return;
+    }
 
     final ChatId chatId = ChatId.local(UserId(Config.supportId));
 

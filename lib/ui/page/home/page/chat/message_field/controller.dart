@@ -18,6 +18,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
@@ -25,25 +26,35 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
+import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/push_token.dart';
 import '/domain/model/sending_status.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
+import '/domain/service/notification.dart';
+import '/domain/service/session.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/ui/page/support/log/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
@@ -58,7 +69,11 @@ class MessageFieldController extends GetxController {
   MessageFieldController(
     this._chatService,
     this._userService,
-    this._settingsRepository, {
+    this._settingsRepository,
+    this._authService,
+    this._myUserService,
+    this._sessionService,
+    this._notificationService, {
     this.onSubmit,
     this.onChanged,
     this.onCall,
@@ -185,6 +200,18 @@ class MessageFieldController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [buttons] value.
   final AbstractSettingsRepository? _settingsRepository;
 
+  /// [AuthService] used to retrieve the current [sessionId].
+  final AuthService? _authService;
+
+  /// [MyUserService] used to retrieve the current [MyUser].
+  final MyUserService? _myUserService;
+
+  /// [SessionService] maintaining the [Session]s.
+  final SessionService? _sessionService;
+
+  /// [NotificationService] having the [DeviceToken] information.
+  final NotificationService? _notificationService;
+
   /// [Worker] reacting on the [replied] changes.
   Worker? _repliesWorker;
 
@@ -211,6 +238,22 @@ class MessageFieldController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
+
+  /// Returns the currently authenticated [MyUser], if any.
+  Rx<MyUser?>? get _myUser => _myUserService?.myUser;
+
+  /// Returns the [Session]s known to this device, if any.
+  RxList<RxSession>? get _sessions => _sessionService?.sessions;
+
+  /// Returns the currently authenticated [SessionId], if any.
+  SessionId? get _sessionId => _authService?.credentials.value?.session.id;
+
+  /// Returns the [DeviceToken] of this device, if any.
+  DeviceToken? get _token => _notificationService?.token;
+
+  /// Indicates whether the [NotificationService] reports push notifications as
+  /// being active.
+  bool? get _pushNotifications => _notificationService?.pushNotifications;
 
   /// Handles the new lines for the provided [KeyEvent] in the [field].
   static KeyEventResult handleNewLines(KeyEvent e, TextFieldState field) {
@@ -444,6 +487,46 @@ class MessageFieldController extends GetxController {
     }
 
     _pasteItem(await clipboard.read());
+  }
+
+  /// Forms and attaches [LogController.report] log to [attachments].
+  Future<void> attachLogs() async {
+    final DateTime utc = DateTime.now().toUtc();
+    final String app = PlatformUtils.isWeb
+        ? Config.origin.replaceFirst('https://', '').replaceFirst('http://', '')
+        : Config.userAgentProduct;
+
+    final String report = LogController.report(
+      sessions: _sessions,
+      sessionId: _sessionId,
+      userAgent: await PlatformUtils.userAgent,
+      myUser: _myUser?.value,
+      token: _token,
+      pushNotifications: _pushNotifications,
+      notificationSettings: await LogController.getNotificationSettings(),
+    );
+
+    final Utf8Encoder encoder = Utf8Encoder();
+    final Uint8List bytes = encoder.convert(report);
+
+    await _addAttachment(
+      NativeFile(
+        name:
+            '${app.toLowerCase()}_bug_report_${utc.year.toString().padLeft(4, '0')}.${utc.month.toString().padLeft(2, '0')}.${utc.day.toString().padLeft(2, '0')}_${utc.hour.toString().padLeft(2, '0')}.${utc.minute.toString().padLeft(2, '0')}.${utc.second.toString().padLeft(2, '0')}.log',
+        size: bytes.lengthInBytes,
+        bytes: bytes,
+        mime: MediaType('text', 'plain'),
+      ),
+    );
+  }
+
+  /// Adds or removes [LogsButton] from the [panel].
+  void toggleLogs(bool enabled) {
+    if (enabled) {
+      panel.addIf(panel.none((e) => e is LogsButton), LogsButton(attachLogs));
+    } else {
+      panel.removeWhere((e) => e is LogsButton);
+    }
   }
 
   /// Reads the [event] and pastes any content contained in it.

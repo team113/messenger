@@ -314,7 +314,7 @@ class IntroductionView extends StatelessWidget {
                     padding = EdgeInsets.zero;
 
                     final profiles = c.profiles
-                        .where((e) => e.id != c.userId)
+                        .where((e) => e.id != c.me)
                         .toList();
 
                     children = [
@@ -1009,7 +1009,7 @@ class IntroductionView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final profiles = c.profiles.where((e) => e.id != c.userId).toList();
+      final profiles = c.profiles.where((e) => e.id != c.me).toList();
 
       return Container(
         color: Color(0xFFe5ecf2),

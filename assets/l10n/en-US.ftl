@@ -185,6 +185,7 @@ btn_install_ios = .ipa file for iOS
 btn_install_web_app = Install Web App
 btn_invoice = Invoice
 btn_leave_group = Leave group
+btn_log_file = Log file
 btn_login_and_password = Login and password
 btn_logout = Sign out
 btn_message_info = Message information

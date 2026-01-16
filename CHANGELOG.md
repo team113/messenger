@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.2.0] · 2026-??-??
+[0.2.0]: /../../tree/v0.2.0
+
+[Diff](/../../compare/v0.1.0...v0.2.0) | [Milestone](/../../milestone/2)
+
+### Added
+
+- UI:
+    - Chat page:
+        - Logs button in notes and support chats. ([#12])
+
+[#12]: /../../pull/12
+
+
+
+
 ## [0.1.0] · 2026-01-15
 [0.1.0]: /../../tree/v0.1.0
 

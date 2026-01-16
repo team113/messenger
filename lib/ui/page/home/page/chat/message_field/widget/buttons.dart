@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -161,4 +163,15 @@ class VideoCallButton extends ChatButton {
 
   @override
   SvgData get disabled => SvgIcons.chatVideoCallDisabled;
+}
+
+/// [ChatButton] attaching the current logs.
+class LogsButton extends ChatButton {
+  const LogsButton([super.onPressed]);
+
+  @override
+  String get hint => 'btn_log_file'.l10n;
+
+  @override
+  SvgData get asset => SvgIcons.chatLogs;
 }
