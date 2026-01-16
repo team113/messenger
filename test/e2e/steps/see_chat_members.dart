@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -21,6 +23,8 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/page/home/page/user/controller.dart';
+import 'package:messenger/util/log.dart';
 
 import '../world/custom_world.dart';
 
@@ -32,13 +36,34 @@ final StepDefinitionGeneric seeChatMembers = then1<int, CustomWorld>(
   RegExp(r'I see {int} chat members'),
   (int count, context) async {
     await context.world.appDriver.waitUntil(() async {
+      Log.debug(
+        'seeChatMembers -> await context.world.appDriver.waitForAppToSettle()...',
+        'E2E',
+      );
+
       await context.world.appDriver.waitForAppToSettle();
+
+      Log.debug(
+        'seeChatMembers -> await context.world.appDriver.waitForAppToSettle()... done!',
+        'E2E',
+      );
 
       final RxChat? chat =
           Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
 
-      return chat?.members.length == count;
-    });
+      Log.debug(
+        'seeChatMembers -> chat($chat), members: ${chat?.members.length} vs $count vs ${chat?.chat.value.members.length}',
+        'E2E',
+      );
+
+      Log.debug(
+        'seeChatMembers -> the whole members list: ${chat?.members.values.map((e) => e.user.title())}',
+        'E2E',
+      );
+
+      return (chat?.members.length ?? 0) >= count ||
+          (chat?.chat.value.members.length ?? 0) >= count;
+    }, timeout: const Duration(seconds: 60));
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),

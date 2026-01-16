@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -35,19 +37,14 @@ final StepDefinitionGeneric blockedCountUsers =
           ..client.withWebSocket = false
           ..token = context.world.sessions[user.name]?.token;
 
-        final List<Future> futures = [];
-
-        for (int i = 0; i < count; i++) {
-          futures.add(
-            Future(() async {
-              final CustomUser user = await createUser();
-              await provider.blockUser(user.userId, null);
-            }),
-          );
-        }
-
         try {
-          await Future.wait(futures);
+          for (int i = 0; i < count; i++) {
+            final CustomUser user = await createUser();
+            await provider.blockUser(user.userId, null);
+
+            // Reduce possible request spam.
+            await Future.delayed(Duration(milliseconds: 250));
+          }
         } finally {
           provider.disconnect();
         }

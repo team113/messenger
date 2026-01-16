@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -18,12 +20,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
 import 'package:messenger/ui/widget/text_field.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../parameters/credentials.dart';
@@ -159,12 +163,12 @@ StepDefinitionGeneric fillFieldWithRandomLogin = when1<WidgetKey, CustomWorld>(
 StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
   'I copy from {key} field',
   (key, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 2));
     final finder = context.world.appDriver.findBy(key.name, FindType.key);
     final Widget widget = finder.evaluate().single.widget;
 
     await context.world.appDriver.scrollIntoView(finder);
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 2));
 
     final String? text;
 
@@ -231,28 +235,77 @@ Future<void> _fillField(
   await context.world.appDriver.waitUntil(() async {
     final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
-    if (await context.world.appDriver.isPresent(finder) &&
-        finder.tryEvaluate()) {
+    Log.debug('_fillField($key) -> finder is $finder', 'E2E');
+
+    final bool isPresent = await context.world.appDriver.isPresent(finder);
+
+    Log.debug(
+      '_fillField($key) -> isPresent($isPresent), tryEvaluate(${finder.tryEvaluate()})',
+      'E2E',
+    );
+
+    if (isPresent && finder.tryEvaluate()) {
+      final WidgetTester tester =
+          (context.world.appDriver.nativeDriver as WidgetTester);
+
+      final Widget input = await context.world.appDriver.widget(finder);
+      if (input is ReactiveTextField) {
+        Log.debug(
+          '_fillField($key) -> input is `ReactiveTextField`, so just set the `.text`',
+          'E2E',
+        );
+
+        final ReactiveFieldState state = input.state;
+        if (state is TextFieldState) {
+          state.text = text;
+          input.onChanged?.call();
+
+          await context.world.appDriver.waitForAppToSettle();
+
+          return true;
+        }
+      }
+
+      tester.testTextInput.register();
+
       await context.world.appDriver.tap(
         finder,
         timeout: const Duration(seconds: 30),
       );
 
+      Log.debug('_fillField($key) -> tap()... done!', 'E2E');
+
       await context.world.appDriver.waitForAppToSettle();
 
-      await context.world.appDriver.enterText(
-        finder,
+      await Future.delayed(Duration(milliseconds: 400));
 
-        // TODO: Implement more strict way to localize some phrases.
+      Log.debug('_fillField($key) -> waitForAppToSettle()... done!', 'E2E');
+      Log.debug('_fillField($key) -> enterText(`$text`)...', 'E2E');
+
+      await tester.enterText(
+        finder, // TODO: Implement more strict way to localize some phrases.
         switch (text) {
           'Notes' => 'label_chat_monolog'.l10n,
           (_) => text,
         },
       );
 
+      await tester.pump(Duration(milliseconds: 400));
+
+      Log.debug('_fillField($key) -> enterText(`$text`)... done!', 'E2E');
+
       await context.world.appDriver.waitForAppToSettle();
 
+      tester.testTextInput.unregister();
       FocusManager.instance.primaryFocus?.unfocus();
+
+      final result = await context.world.appDriver.widget(finder);
+      if (result is ReactiveTextField) {
+        if (result.state.controller.text != text) {
+          Log.debug('_fillField($key) -> input is `$input` vs `$text`', 'E2E');
+          return false;
+        }
+      }
 
       return true;
     }
