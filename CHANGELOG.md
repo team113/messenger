@@ -22,6 +22,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
+        - Connection not being reconnected on network changes on Web. ([#1581])
 
 [#1580]: /../../pull/1580
 [#1581]: /../../pull/1581
