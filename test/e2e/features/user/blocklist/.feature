@@ -33,4 +33,6 @@ Feature: Blocklist
 
     When I scroll `UserScrollable` to top
     And I tap `Unblock` button
-    Then Bob sends message to me and receives no exception
+    Then Bob is indeed unblocked
+    And Bob sends message to me and receives no exception
+    And I pause for 2 seconds

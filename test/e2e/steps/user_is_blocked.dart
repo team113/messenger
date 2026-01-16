@@ -21,49 +21,55 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/log.dart';
 
+import '../parameters/blocked_status.dart';
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether the [TestUser] is blocked for the current [MyUser].
+/// Indicates whether the [TestUser] is blocked or unblocked for the current
+/// [MyUser].
 ///
 /// Examples:
 /// - Then Bob is indeed blocked
+/// - Then Bob is indeed unblocked
 final StepDefinitionGeneric
-userIsBlocked = then1<TestUser, CustomWorld>('{user} is indeed blocked', (
-  user,
-  context,
-) async {
-  await context.world.appDriver.waitUntil(
-    () async {
-      final GraphQlProvider provider = GraphQlProvider()
-        ..client.withWebSocket = false;
+userIsBlocked = then2<TestUser, BlockedStatus, CustomWorld>(
+  '{user} is indeed {blocked}',
+  (user, blocked, context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        final GraphQlProvider provider = GraphQlProvider()
+          ..client.withWebSocket = false;
 
-      final AuthService authService = Get.find();
-      provider.token = authService.credentials.value!.access.secret;
+        final AuthService authService = Get.find();
+        provider.token = authService.credentials.value!.access.secret;
 
-      Log.debug(
-        'userIsBlocked -> await getUser(${context.world.sessions[user.name]?.userId})...',
-        'E2E',
-      );
+        Log.debug(
+          'userIsBlocked -> await getUser(${context.world.sessions[user.name]?.userId})...',
+          'E2E',
+        );
 
-      final mixin = await provider.getUser(
-        context.world.sessions[user.name]!.userId,
-      );
+        final mixin = await provider.getUser(
+          context.world.sessions[user.name]!.userId,
+        );
 
-      Log.debug(
-        'userIsBlocked -> await getUser(${context.world.sessions[user.name]?.userId})... done -> $mixin',
-        'E2E',
-      );
+        Log.debug(
+          'userIsBlocked -> await getUser(${context.world.sessions[user.name]?.userId})... done -> $mixin',
+          'E2E',
+        );
 
-      final bool isBlocked = mixin.user?.isBlocked != null;
+        final bool isBlocked = mixin.user?.isBlocked != null;
 
-      Log.debug('userIsBlocked -> `isBlocked` is $isBlocked', 'E2E');
+        Log.debug('userIsBlocked -> `isBlocked` is $isBlocked', 'E2E');
 
-      provider.disconnect();
+        provider.disconnect();
 
-      return isBlocked;
-    },
-    timeout: const Duration(seconds: 30),
-    pollInterval: const Duration(seconds: 4),
-  );
-});
+        return switch (blocked) {
+          BlockedStatus.blocked => isBlocked,
+          BlockedStatus.unblocked => !isBlocked,
+        };
+      },
+      timeout: const Duration(seconds: 30),
+      pollInterval: const Duration(seconds: 4),
+    );
+  },
+);
