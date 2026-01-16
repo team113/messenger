@@ -41,6 +41,7 @@ import 'parameters/appcast_version.dart';
 import 'parameters/archived_status.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
+import 'parameters/blocked_status.dart';
 import 'parameters/credentials.dart';
 import 'parameters/download_status.dart';
 import 'parameters/enabled_status.dart';
@@ -369,6 +370,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         ArchivedStatusParameter(),
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
+        BlockedStatusParameter(),
         CredentialsParameter(),
         DownloadStatusParameter(),
         EnabledParameter(),
