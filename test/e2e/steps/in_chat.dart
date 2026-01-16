@@ -19,6 +19,7 @@ import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/util/log.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -51,10 +52,14 @@ final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
     router.chat(context.world.groups[chatName]!);
 
     await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-      return context.world.appDriver.isPresent(
-        context.world.appDriver.findBy('ChatView', FindType.key),
+      await context.world.appDriver.nativeDriver.pump(
+        const Duration(seconds: 2),
       );
+
+      final finder = context.world.appDriver.findBy('ChatView', FindType.key);
+      Log.debug('iAmInChatNamed -> `ChatView` is $finder', 'E2E');
+
+      return finder.evaluate().isNotEmpty;
     }, timeout: const Duration(seconds: 30));
   },
 );

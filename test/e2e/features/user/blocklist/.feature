@@ -28,8 +28,11 @@ Feature: Blocklist
     And I pause for 2 seconds
     And I tap `Block` button
     And I tap `Proceed` button
-    Then Bob sends message to me and receives blocked exception
+    Then Bob is indeed blocked
+    And Bob sends message to me and receives blocked exception
 
     When I scroll `UserScrollable` to top
     And I tap `Unblock` button
-    Then Bob sends message to me and receives no exception
+    Then Bob is indeed unblocked
+    And Bob sends message to me and receives no exception
+    And I pause for 2 seconds

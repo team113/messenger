@@ -41,6 +41,7 @@ import 'parameters/appcast_version.dart';
 import 'parameters/archived_status.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
+import 'parameters/blocked_status.dart';
 import 'parameters/credentials.dart';
 import 'parameters/download_status.dart';
 import 'parameters/enabled_status.dart';
@@ -151,6 +152,7 @@ import 'steps/text_field.dart';
 import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
 import 'steps/updates_name.dart';
+import 'steps/user_is_blocked.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
@@ -333,6 +335,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         updateAvatar,
         updateName,
         user,
+        userIsBlocked,
         userWithPassword,
         waitForAppToSettle,
         waitUntilAttachmentStatus,
@@ -367,6 +370,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         ArchivedStatusParameter(),
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
+        BlockedStatusParameter(),
         CredentialsParameter(),
         DownloadStatusParameter(),
         EnabledParameter(),

@@ -1354,6 +1354,12 @@ class OngoingCall {
     await setRemoteVideoEnabled(!isRemoteVideoEnabled.value);
   }
 
+  /// Notifies this [OngoingCall] about the provided [CallNotification].
+  void notify(CallNotification notification) {
+    Log.debug('notify($notification)', '$runtimeType');
+    _notifications.add(notification);
+  }
+
   /// Adds the provided [message] to the [notifications] stream as
   /// [ErrorNotification].
   ///

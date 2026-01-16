@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/util/get.dart';
+import 'package:messenger/util/log.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -27,15 +28,30 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Then my name is indeed Alice
-final StepDefinitionGeneric myNameIs = given1<TestUser, CustomWorld>(
-  'my name is indeed {user}',
-  (TestUser user, context) async {
-    await context.world.appDriver.waitUntil(() async {
-      final MyUserService? myUserService = Get.findOrNull<MyUserService>();
-      return myUserService?.myUser.value?.name?.val == user.name;
-    });
-  },
-);
+final StepDefinitionGeneric
+myNameIs = given1<TestUser, CustomWorld>('my name is indeed {user}', (
+  TestUser user,
+  context,
+) async {
+  await context.world.appDriver.waitUntil(() async {
+    final MyUserService? myUserService = Get.findOrNull<MyUserService>();
+    final bool equals = myUserService?.myUser.value?.name?.val == user.name;
+
+    Log.debug(
+      'myNameIs -> `${myUserService?.myUser.value?.name?.val}` == `${user.name}` -> ${myUserService?.myUser.value?.name?.val == user.name}',
+      'E2E',
+    );
+
+    if (!equals) {
+      Log.debug(
+        'myNameIs -> ok, so the name isn\'t `${user.name}`. Here\'s the full JSON: ${myUserService?.myUser.value?.toJson()}',
+        'E2E',
+      );
+    }
+
+    return equals;
+  });
+});
 
 /// Ensures the currently active [MyUser]'s name is not the provided [TestUser].
 ///

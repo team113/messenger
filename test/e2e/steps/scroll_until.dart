@@ -37,8 +37,9 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
       RegExp(r'I scroll {key} until {key} is present'),
       (WidgetKey list, WidgetKey key, StepContext<CustomWorld> context) async {
         await context.world.appDriver.waitUntil(() async {
-          await context.world.appDriver.waitForAppToSettle(
-            timeout: const Duration(seconds: 1),
+          await context.world.appDriver.nativeDriver.pump(
+            const Duration(seconds: 2),
+            EnginePhase.sendSemanticsUpdate,
           );
 
           final scrollable = find.descendant(
@@ -67,7 +68,10 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
           return true;
         }, timeout: const Duration(seconds: 30));
 
-        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.nativeDriver.pump(
+          const Duration(seconds: 2),
+          EnginePhase.sendSemanticsUpdate,
+        );
       },
     );
 
