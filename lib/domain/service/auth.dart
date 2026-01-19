@@ -45,7 +45,7 @@ import 'disposable_service.dart';
 ///
 /// It contains all the required methods to do the authentication process and
 /// exposes [credentials] (a session and an user) of the authorized session.
-class AuthService extends DisposableService {
+class AuthService extends Dependency {
   AuthService(
     this._authRepository,
     this._credentialsProvider,

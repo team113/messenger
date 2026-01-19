@@ -37,7 +37,7 @@ import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
 /// Service controlling incoming and outgoing [OngoingCall]s.
-class CallService extends DisposableService {
+class CallService extends Dependency {
   CallService(this._authService, this._chatService, this._callRepository);
 
   /// Callback, called when a [Chat] with provided [ChatId] should be removed.

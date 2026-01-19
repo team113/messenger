@@ -42,7 +42,7 @@ import '/util/platform_utils.dart';
 /// Worker maintaining [File]s cache and downloads.
 ///
 /// Uses [File]-system cache.
-class CacheWorker extends DisposableService {
+class CacheWorker extends Dependency {
   CacheWorker(this._cacheLocal, this._downloadLocal) {
     instance = this;
   }
