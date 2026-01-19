@@ -31,22 +31,43 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
   'I long press {string} (?:chat|group)',
   (name, context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.nativeDriver.pump(
+          const Duration(seconds: 5),
+        );
 
-      try {
-        final finder = context.world.appDriver
-            .findBy('Chat_${context.world.groups[name]}', FindType.key)
-            .first;
+        try {
+          final finder = context.world.appDriver.findBy(
+            'Chat_${context.world.groups[name]}',
+            FindType.key,
+          );
 
-        await context.world.appDriver.nativeDriver.longPress(finder);
-        await context.world.appDriver.waitForAppToSettle();
+          Log.debug(
+            'longPressChat -> finder for `Chat_${context.world.groups['name']}` is `$finder`',
+          );
 
-        return true;
-      } catch (e) {
-        return false;
-      }
-    });
+          if (finder.evaluate().isNotEmpty) {
+            Log.debug('longPressChat -> await longPress()...');
+            await context.world.appDriver.nativeDriver.longPress(finder);
+            Log.debug('longPressChat -> await longPress()... done!');
+
+            await context.world.appDriver.nativeDriver.pump(
+              const Duration(seconds: 5),
+            );
+
+            return true;
+          }
+
+          return false;
+        } catch (e) {
+          Log.debug('longPressChat -> caught $e', 'E2E');
+          return false;
+        }
+      },
+      timeout: const Duration(seconds: 60),
+      pollInterval: const Duration(seconds: 2),
+    );
   },
 );
 
