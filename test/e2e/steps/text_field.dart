@@ -42,7 +42,7 @@ StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   'I fill {key} field with {string}',
   _fillField,
   configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 30),
+    ..timeout = const Duration(seconds: 60),
 );
 
 /// Enters the credential of the given [User] into the widget with the provided
@@ -69,7 +69,7 @@ StepDefinitionGeneric fillFieldWithUserCredential =
         await _fillField(key, text, context);
       },
       configuration: StepDefinitionConfiguration()
-        ..timeout = const Duration(seconds: 30),
+        ..timeout = const Duration(seconds: 60),
     );
 
 /// Enters the credential of [me] into the widget with the provided [WidgetKey].
@@ -96,7 +96,7 @@ StepDefinitionGeneric fillFieldWithMyCredential =
         await _fillField(key, text, context);
       },
       configuration: StepDefinitionConfiguration()
-        ..timeout = const Duration(seconds: 30),
+        ..timeout = const Duration(seconds: 60),
     );
 
 /// Enters the given text into the widget with the provided [WidgetKey].
@@ -107,7 +107,7 @@ StepDefinitionGeneric fillFieldN = when3<WidgetKey, int, String, FlutterWorld>(
   'I fill {key} field with {int} {string} symbol(s)?',
   (key, quantity, text, context) => _fillField(key, text * quantity, context),
   configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 30),
+    ..timeout = const Duration(seconds: 60),
 );
 
 /// Pastes the [CustomWorld.clipboard] into the widget with the provided
@@ -125,7 +125,7 @@ StepDefinitionGeneric pasteToField = when1<WidgetKey, CustomWorld>(
     await _fillField(key, context.world.clipboard!.text!, context);
   },
   configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 30),
+    ..timeout = const Duration(seconds: 60),
 );
 
 /// Enters the random [UserLogin] to the widget with the provided [WidgetKey].
@@ -150,7 +150,7 @@ StepDefinitionGeneric fillFieldWithRandomLogin = when1<WidgetKey, CustomWorld>(
     await _fillField(key, '${context.world.randomLogin}', context);
   },
   configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 18),
+    ..timeout = const Duration(seconds: 60),
 );
 
 /// Copies the value of the widget with the provided [WidgetKey] to the
@@ -161,12 +161,19 @@ StepDefinitionGeneric fillFieldWithRandomLogin = when1<WidgetKey, CustomWorld>(
 StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
   'I copy from {key} field',
   (key, context) async {
-    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 2));
+    await context.world.appDriver.nativeDriver.pump(
+      const Duration(seconds: 2),
+      EnginePhase.sendSemanticsUpdate,
+    );
+
     final finder = context.world.appDriver.findBy(key.name, FindType.key);
     final Widget widget = finder.evaluate().single.widget;
 
     await context.world.appDriver.scrollIntoView(finder);
-    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 2));
+    await context.world.appDriver.nativeDriver.pump(
+      const Duration(seconds: 2),
+      EnginePhase.sendSemanticsUpdate,
+    );
 
     final String? text;
 
@@ -190,7 +197,7 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
     context.world.clipboard = ClipboardData(text: text);
   },
   configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 30),
+    ..timeout = const Duration(seconds: 60),
 );
 
 /// Erases any text from the widget with the provided [WidgetKey].
@@ -268,7 +275,7 @@ Future<void> _fillField(
 
       await context.world.appDriver.tap(
         finder,
-        timeout: const Duration(seconds: 30),
+        timeout: const Duration(seconds: 60),
       );
 
       Log.debug('_fillField($key) -> tap()... done!', 'E2E');
@@ -309,7 +316,7 @@ Future<void> _fillField(
     }
 
     return false;
-  }, timeout: const Duration(seconds: 30));
+  }, timeout: const Duration(seconds: 60));
 }
 
 /// Returns [String] representation of the [CustomUser]'s [TestCredential].

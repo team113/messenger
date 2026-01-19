@@ -137,6 +137,7 @@ import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/set_credential.dart';
+import 'steps/submit_field.dart';
 import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
@@ -308,6 +309,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         setMyCredential,
         signInAs,
         signsOutSession,
+        submitField,
         tapAccountInAccounts,
         tapChat,
         tapContact,

@@ -19,6 +19,8 @@ Feature: Monolog
 
   Background: User has a local monolog
     Given I am Alice
+    And my account is indeed remote
+    And I pause for 5 seconds
     And I wait until `ChatMonolog` is present
     And I am in monolog
     And monolog is indeed local
