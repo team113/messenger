@@ -2713,6 +2713,10 @@ class RtcVideoRenderer extends RtcRenderer {
       );
 
       canPlay.value = true;
+
+      // TODO: Remove when `medea_flutter_webrtc` does that under the hood.
+      // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+      inner.notifyListeners();
     };
 
     // Listen for resizes to update [width] and [height].
@@ -2730,6 +2734,10 @@ class RtcVideoRenderer extends RtcRenderer {
           : _delegate.videoHeight;
 
       canPlay.value = canPlay.value || _delegate.videoHeight != 0;
+
+      // TODO: Remove when `medea_flutter_webrtc` does that under the hood.
+      // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+      inner.notifyListeners();
     };
   }
 

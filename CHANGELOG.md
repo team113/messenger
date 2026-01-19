@@ -16,8 +16,10 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
+        - Own camera or recipient's video sometimes not being rendered. ([#1582])
 
 [#1580]: /../../pull/1580
+[#1582]: /../../pull/1582
 
 
 
