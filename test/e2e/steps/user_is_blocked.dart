@@ -57,7 +57,7 @@ userIsBlocked = then2<TestUser, BlockedStatus, CustomWorld>(
           'E2E',
         );
 
-        final bool isBlocked = mixin.user?.isBlocked != null;
+        final bool isBlocked = mixin.user?.isBlocked.record != null;
 
         Log.debug('userIsBlocked -> `isBlocked` is $isBlocked', 'E2E');
 
