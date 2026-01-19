@@ -399,18 +399,18 @@ Future<void> appInitializationFn(World world) {
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 
-  // FlutterError.onError = (details) {
-  //   final String exception = details.exception.toString();
+  FlutterError.onError = (details) {
+    final String exception = details.exception.toString();
 
-  //   // Silence the `GlobalKey` being duplicated errors:
-  //   // https://github.com/google/flutter.widgets/issues/137
-  //   if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
-  //       exception.contains('Multiple widgets used the same GlobalKey.')) {
-  //     return;
-  //   }
+    // Silence the `GlobalKey` being duplicated errors:
+    // https://github.com/google/flutter.widgets/issues/137
+    if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
+        exception.contains('Multiple widgets used the same GlobalKey.')) {
+      return;
+    }
 
-  //   FlutterError.presentError(details);
-  // };
+    FlutterError.presentError(details);
+  };
 
   return Future.sync(app.main);
 }
