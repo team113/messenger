@@ -624,7 +624,7 @@ jobs:
                           procps
                           cmake
                           gcc-13
-                          gcc++-13
+                          g++-13
                           clang
                           zip
                           xz-utils
