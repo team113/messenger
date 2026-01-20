@@ -597,6 +597,7 @@ jobs:
           # `git describe` to work.
           fetch-depth: 0
 
+      - run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test
       - run: sudo apt-get update -y
       - run: sudo apt-get install -y
                           ninja-build
@@ -621,6 +622,13 @@ jobs:
                           default-jdk
                           lld-19
       - run: |
+          set -ex
+
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key \
+          | sudo tee /etc/apt/trusted.gpg.d/llvm.asc
+          echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" \
+          | sudo tee /etc/apt/sources.list.d/llvm.list
+
           sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           sudo update-alternatives --config lld
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
