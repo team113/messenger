@@ -613,11 +613,22 @@ jobs:
                           make
                           procps
                           cmake
+                          gcc-13
+                          gcc++-13
                           clang
                           zip
                           xz-utils
                           default-jdk
-                          lld-14
+                          lld-19
+      - run: |
+          sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
+          sudo update-alternatives --config lld
+          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
+          sudo update-alternatives --config ld.lld
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
+          sudo update-alternatives --config gcc
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+          sudo update-alternatives --config g++
 
       - run: git config --global --add safe.directory '*'
 
