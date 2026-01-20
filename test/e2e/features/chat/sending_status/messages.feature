@@ -78,4 +78,5 @@ Feature: Chat messages have correct sending status
     When I restart app
     And I pause for 5 seconds
     And I am in chat with Bob
+    And I pause for 1 seconds
     Then I wait until status of "123" message is error

@@ -22,6 +22,7 @@ Feature: Clear dialog
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
+    And I pause for 2 seconds
     And I see some messages in chat
 
     When I go to Bob's page
@@ -31,4 +32,5 @@ Feature: Clear dialog
     And I tap `Proceed` button
     And I pause for 1 seconds
     And I am in chat with Bob
+    And I pause for 1 seconds
     Then I see no messages in chat

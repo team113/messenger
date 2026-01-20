@@ -27,7 +27,13 @@ Feature: Direct links
   Scenario: Direct link can be opened in unauthorized mode
     When I go to Bob's direct link
     Then I wait until `HomeView` is present
-    And I wait until `ChatView` is present
+    And I wait until `IntroductionView` is present
+
+    When I tap `GuestButton` button
+    Then my account is indeed remote
+
+    When I tap `ProceedButton` button
+    Then I wait until `ChatView` is present
 
   Scenario: Direct link can be opened in authorized mode
     Given I am Alice

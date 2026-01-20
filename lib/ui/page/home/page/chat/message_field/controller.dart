@@ -668,7 +668,10 @@ class MessageFieldController extends GetxController {
           attachment,
         );
 
-        int index = attachments.indexWhere((e) => e.value.id == attachment.id);
+        final int index = attachments.indexWhere(
+          (e) => e.value.id == attachment.id,
+        );
+
         if (index != -1) {
           // If `Attachment` returned is `null`, then it was canceled.
           if (uploaded == null) {

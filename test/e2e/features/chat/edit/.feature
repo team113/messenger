@@ -25,6 +25,7 @@ Feature: Message editing
     And Bob has dialog with me
     And I am in chat with Bob
     And I wait for app to settle
+    And I pause for 2 seconds
 
   @internet
   Scenario: User can change text of a failed message by editing it

@@ -51,11 +51,7 @@ import '/provider/drift/chat_member.dart';
 import '/provider/drift/chat.dart';
 import '/provider/drift/draft.dart';
 import '/provider/gql/exceptions.dart'
-    show
-        ConnectionException,
-        PostChatMessageException,
-        StaleVersionException,
-        ReadChatException;
+    show PostChatMessageException, StaleVersionException, ReadChatException;
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
@@ -788,8 +784,8 @@ class RxChatImpl extends RxChat {
       }
 
       if (attachments?.whereType<LocalAttachment>().isNotEmpty == true) {
-        throw const ConnectionException(
-          PostChatMessageException(PostChatMessageErrorCode.unknownAttachment),
+        throw const PostChatMessageException(
+          PostChatMessageErrorCode.unknownAttachment,
         );
       }
 

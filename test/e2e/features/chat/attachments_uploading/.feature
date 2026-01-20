@@ -28,7 +28,7 @@ Feature: Attachments uploading
     And I pause for 5 seconds
 
   Scenario: Canceling upload of one of the files after sending a new message
-    When I have Internet with delay of 10 seconds
+    When I have Internet with delay of 20 seconds
     And I attach "test.txt" file
     And I attach "test2.txt" file
     And I fill `MessageField` field with "Hi"
@@ -41,7 +41,7 @@ Feature: Attachments uploading
     And I wait until status of "Hi" message is sent
 
   Scenario: Canceling upload of all files after sending a new message
-    When I have Internet with delay of 10 seconds
+    When I have Internet with delay of 20 seconds
     And I attach "test.txt" file
     And I attach "test2.txt" file
     And I tap `Send` button

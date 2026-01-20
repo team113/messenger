@@ -54,5 +54,9 @@ final StepDefinitionGeneric seeDraftInDialog =
 
           return false;
         });
+
+        await context.world.appDriver.nativeDriver.pump(
+          const Duration(seconds: 3),
+        );
       },
     );

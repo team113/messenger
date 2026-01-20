@@ -24,6 +24,7 @@ Feature: Drafts
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
+    And I pause for 3 seconds
 
     When I attach "test.txt" file
     And I fill `MessageField` field with "He-he, draft!"
@@ -33,6 +34,7 @@ Feature: Drafts
     And I pause for 2 seconds
 
     When I am in chat with Bob
+    And I pause for 2 seconds
     Then I wait until text "He-he, draft!" is present
 
     When I tap `Send` button

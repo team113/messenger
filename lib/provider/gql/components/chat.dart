@@ -987,6 +987,7 @@ mixin ChatGraphQlMixin {
             'Failed to upload attachment: ${e.response}',
             '$runtimeType',
           );
+          rethrow;
       }
 
       rethrow;

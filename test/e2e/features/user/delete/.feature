@@ -22,6 +22,7 @@ Feature: Delete dialog with user
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
+    And I pause for 1 seconds
 
   Scenario: User deletes dialog
     When I go to Bob's page

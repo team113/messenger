@@ -99,6 +99,7 @@ import 'event/favorite_chat.dart';
 import 'model/chat.dart';
 import 'model/chat_member.dart';
 import 'model/page_info.dart';
+import 'model/user.dart';
 import 'paginated.dart';
 import 'pagination.dart';
 import 'pagination/drift.dart';
@@ -366,7 +367,10 @@ class ChatRepository extends IdentityDependency
   void onIdentityChanged(UserId me) {
     super.onIdentityChanged(me);
 
-    Log.debug('onIdentityChanged($me) -> ${me.isLocal}', '$runtimeType');
+    Log.debug(
+      'onIdentityChanged($me) -> ${me.isLocal}',
+      '$runtimeType($hashCode)',
+    );
 
     paginated.clear();
     archived.clear();
@@ -390,29 +394,42 @@ class ChatRepository extends IdentityDependency
 
     status.value = RxStatus.loading();
 
-    Log.debug('onIdentityChanged() -> status is `loading`', '$runtimeType');
+    Log.debug(
+      'onIdentityChanged() -> status is `loading`',
+      '$runtimeType($hashCode)',
+    );
 
     // Set the initial values to local ones, however those will be redefined
     // during `_ensurePagination()` method, which invokes `_initSupport()` and
     // `_initMonolog()`.
     monolog = ChatId.local(me);
+    Log.debug('5 monolog = $monolog', '$runtimeType-for-E2E');
     support = ChatId.local(_supportId);
 
     if (!me.isLocal) {
       _monologGuard.synchronized(() async {
-        if (isClosed) {
+        if (isClosed || this.me != me) {
           return;
         }
 
-        monolog = (await _graphQlProvider.getMonolog())?.id ?? ChatId.local(me);
-
-        if (isClosed) {
+        final monologMixin = await _graphQlProvider.getMonolog();
+        if (isClosed || this.me != me) {
           return;
         }
 
-        support =
-            (await _graphQlProvider.getDialog(UserId(Config.supportId)))?.id ??
-            ChatId.local(_supportId);
+        Log.debug('getMonolog() -> $monologMixin', '$runtimeType');
+        monolog = monologMixin?.id ?? monolog;
+        Log.debug('6 monolog = $monolog', '$runtimeType-for-E2E');
+
+        final supportMixin = await _graphQlProvider.getDialog(
+          UserId(Config.supportId),
+        );
+        if (isClosed || this.me != me) {
+          return;
+        }
+
+        Log.debug('getDialog(supportId) -> $supportMixin', '$runtimeType');
+        support = supportMixin?.id ?? support;
       }, timeout: const Duration(minutes: 1));
     }
 
@@ -590,6 +607,7 @@ class ChatRepository extends IdentityDependency
     final RxChatImpl chat = await _putEntry(chatData);
 
     if (!isClosed) {
+      Log.debug('7 monolog = $monolog', '$runtimeType-for-E2E');
       await _monologLocal.upsert(MonologKind.notes, monolog = chat.id);
     }
 
@@ -886,6 +904,7 @@ class ChatRepository extends IdentityDependency
         await remove(id);
 
         id = monologData.chat.value.id;
+        Log.debug('8 monolog = $monolog', '$runtimeType-for-E2E');
         await _monologLocal.upsert(MonologKind.notes, monolog = id);
       }
 
@@ -944,6 +963,7 @@ class ChatRepository extends IdentityDependency
         await remove(id);
 
         id = monologData.chat.value.id;
+        Log.debug('9 monolog = $monolog', '$runtimeType-for-E2E');
         await _monologLocal.upsert(MonologKind.notes, monolog = id);
       }
 
@@ -1372,13 +1392,13 @@ class ChatRepository extends IdentityDependency
       attachment.read.value?.complete(null);
       attachment.status.refresh();
 
-      var response = await _graphQlProvider.uploadAttachment(
+      final response = await _graphQlProvider.uploadAttachment(
         await attachment.file.toMultipartFile(),
         onSendProgress: (now, max) => attachment.progress.value = now / max,
         cancelToken: attachment.cancelToken,
       );
 
-      var model = response.attachment.toModel();
+      final model = response.attachment.toModel();
       attachment.id = model.id;
       attachment.filename = model.filename;
       attachment.original = model.original;
@@ -1386,12 +1406,18 @@ class ChatRepository extends IdentityDependency
       attachment.status.value = SendingStatus.sent;
       attachment.progress.value = 1;
       return model;
-    } on dio.DioException {
+    } on dio.DioException catch (e) {
       if (attachment.isCanceled) {
         attachment.upload.value?.complete(null);
         return null;
       }
 
+      if (attachment.read.value?.isCompleted == false) {
+        attachment.read.value?.complete(null);
+      }
+      attachment.upload.value?.completeError(e);
+      attachment.status.value = SendingStatus.error;
+      attachment.progress.value = 0;
       rethrow;
     } catch (e) {
       if (attachment.read.value?.isCompleted == false) {
@@ -1872,6 +1898,7 @@ class ChatRepository extends IdentityDependency
           _monologLocal.upsert(MonologKind.notes, this.monolog = id),
           _putEntry(monolog, ignoreVersion: true),
         ]);
+        Log.debug('10 monolog = $monolog', '$runtimeType-for-E2E');
       } else if (id.isLocal) {
         final RxChatImpl? chat = await ensureRemoteDialog(id);
         if (chat != null) {
@@ -2015,10 +2042,12 @@ class ChatRepository extends IdentityDependency
 
     if (me.isLocal) {
       final query = await _graphQlProvider.searchLink(slug);
-      final User? user = query.searchUsers.edges.firstOrNull?.node.toModel();
+      final DtoUser? user = query.searchUsers.edges.firstOrNull?.node.toDto();
       if (user == null) {
         return support;
       }
+
+      _userRepo.put(user);
 
       // Store the transition only if [User] found by [slug] exists.
       await _slugProvider.upsert(slug);
@@ -2030,6 +2059,17 @@ class ChatRepository extends IdentityDependency
       () async => await _graphQlProvider.useChatDirectLink(slug),
       retryIf: (e) => e.isNetworkRelated,
       retries: 10,
+    );
+
+    _add(
+      DtoChat(
+        response.chat.toModel(),
+        response.chat.ver,
+        null,
+        null,
+        null,
+        null,
+      ),
     );
 
     return response.chat.id;
@@ -2433,6 +2473,7 @@ class ChatRepository extends IdentityDependency
             if (monolog.isLocal) {
               // Keep track of the [monolog]'s [isLocal] status.
               await _monologLocal.upsert(MonologKind.notes, monolog = chat.id);
+              Log.debug('11 monolog = $monolog', '$runtimeType-for-E2E');
             }
           }
 
@@ -2500,6 +2541,7 @@ class ChatRepository extends IdentityDependency
             if (monolog.isLocal) {
               // Keep track of the [monolog]'s [isLocal] status.
               await _monologLocal.upsert(MonologKind.notes, monolog = chat.id);
+              Log.debug('12 monolog = $monolog', '$runtimeType-for-E2E');
             }
           }
 
@@ -2847,8 +2889,12 @@ class ChatRepository extends IdentityDependency
         '_initRemotePagination() -> await _initMonolog()... done!',
         '$runtimeType',
       );
-    } catch (_) {
+    } catch (e) {
       // Still proceed with initialization.
+      Log.debug(
+        '_initRemotePagination() -> await _initMonolog()... failed with: $e',
+        '$runtimeType',
+      );
     }
 
     try {
@@ -2863,8 +2909,12 @@ class ChatRepository extends IdentityDependency
         '_initRemotePagination() -> await _initSupport()... done!',
         '$runtimeType',
       );
-    } catch (_) {
+    } catch (e) {
       // Still proceed with initialization.
+      Log.debug(
+        '_initRemotePagination() -> await _initSupport()... failed with: $e',
+        '$runtimeType',
+      );
     }
 
     status.value = RxStatus.success();
@@ -3429,7 +3479,27 @@ class ChatRepository extends IdentityDependency
 
     if (me.isLocal) {
       Log.debug('_initMonolog() -> `me.isLocal` is `true`', '$runtimeType');
-      monolog = (await _createLocalDialog(me)).id;
+
+      final RxChatImpl entry = _add(
+        DtoChat(
+          Chat(
+            ChatId.local(me),
+            kindIndex: ChatKind.monolog.index,
+            updatedAt: PreciseDateTime.fromMicrosecondsSinceEpoch(0),
+          ),
+          ChatVersion('0'),
+          null,
+          null,
+          null,
+          null,
+        ),
+      );
+
+      if (me.isLocal) {
+        monolog = entry.id;
+        paginated[monolog] = entry;
+        Log.debug('0 monolog = $monolog', '$runtimeType-for-E2E');
+      }
       return;
     }
 
@@ -3476,6 +3546,7 @@ class ChatRepository extends IdentityDependency
               MonologKind.notes,
               monolog = (await _createLocalDialog(me)).id,
             );
+            Log.debug('1 monolog = $monolog', '$runtimeType-for-E2E');
           } else {
             // Check if there's a remote update (monolog could've been hidden)
             // before creating a local chat.
@@ -3495,14 +3566,17 @@ class ChatRepository extends IdentityDependency
                 MonologKind.notes,
                 monolog = maybeMonolog.id,
               );
+              Log.debug('2 monolog = $monolog', '$runtimeType-for-E2E');
             } else {
               monolog = stored;
+              Log.debug('3 monolog = $monolog', '$runtimeType-for-E2E');
             }
 
             if (monolog.isLocal) {
               // If remote monolog doesn't exist and local one is not stored, then
               // create it.
               monolog = (await _createLocalDialog(me)).id;
+              Log.debug('4 monolog = $monolog', '$runtimeType-for-E2E');
             }
           }
         }

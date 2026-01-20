@@ -22,6 +22,7 @@ Feature: Messages selection
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
+    And I pause for 5 seconds
 
   Scenario: User selects and forwards messages
     Given I have "Forwards" group
