@@ -24,7 +24,7 @@ import '/l10n/l10n.dart';
 
 /// Worker updating the [L10n.chosen] on the [ApplicationSettings.locale]
 /// changes and exposing its [onChanged] callback.
-class SettingsWorker extends DisposableService {
+class SettingsWorker extends Dependency {
   SettingsWorker(this._settingsRepository, {this.onChanged});
 
   /// Callback, called on the [ApplicationSettings.locale] changes.

@@ -1260,6 +1260,7 @@ class ChatView extends StatelessWidget {
       if (c.edit.value != null) {
         return MessageFieldView(
           key: const Key('EditField'),
+          fieldKey: const Key('EditMessageField'),
           controller: c.edit.value,
           onChanged: c.chat?.chat.value.isMonolog == true
               ? null

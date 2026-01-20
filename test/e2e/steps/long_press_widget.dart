@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../parameters/keys.dart';
@@ -36,10 +37,13 @@ final StepDefinitionGeneric longPressWidget = when1<WidgetKey, CustomWorld>(
     r'I long press {key} (?:button|element|label|icon|field|text|widget)$',
   ),
   (key, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 4));
+
     final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+    Log.debug('longPressWidget($key) -> finder is `$finder`', 'E2E');
 
     await context.world.appDriver.nativeDriver.longPress(finder);
-    await context.world.appDriver.waitForAppToSettle();
+
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 4));
   },
 );

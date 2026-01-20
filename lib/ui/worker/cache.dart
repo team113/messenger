@@ -1,5 +1,7 @@
 // Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -42,7 +44,7 @@ import '/util/platform_utils.dart';
 /// Worker maintaining [File]s cache and downloads.
 ///
 /// Uses [File]-system cache.
-class CacheWorker extends DisposableService {
+class CacheWorker extends Dependency {
   CacheWorker(this._cacheLocal, this._downloadLocal) {
     instance = this;
   }
@@ -258,6 +260,8 @@ class CacheWorker extends DisposableService {
     String? checksum,
     String? to,
   }) {
+    Log.debug('download($filename, $size)', '$runtimeType');
+
     Downloading? downloading = downloads[checksum]?..start(url, to: to);
 
     if (downloading == null) {
@@ -543,9 +547,12 @@ class Downloading {
 
   /// Starts the [file] downloading.
   Future<void> start(String url, {String? to}) async {
+    Log.debug('start($filename, $size)', '$runtimeType');
+
     progress.value = 0;
     status.value = DownloadStatus.inProgress;
     _completer = Completer<File?>();
+    _completer?.future.catchError((_) => null);
 
     try {
       file = await PlatformUtils.download(
@@ -558,6 +565,8 @@ class Downloading {
         cancelToken: _token,
       );
       _completer?.complete(file);
+
+      Log.debug('start($filename, $size)... completed!', '$runtimeType');
 
       if (file != null) {
         status.value = DownloadStatus.isFinished;
@@ -573,6 +582,8 @@ class Downloading {
 
   /// Cancels the [file] downloading.
   void cancel() {
+    Log.debug('cancel($filename, $size)', '$runtimeType');
+
     status.value = DownloadStatus.notStarted;
     if (_completer?.isCompleted == false) {
       _completer?.complete(null);
@@ -584,6 +595,8 @@ class Downloading {
 
   /// Marks this [Downloading] as not started.
   void markAsNotStarted() {
+    Log.debug('markAsNotStarted()', '$runtimeType');
+
     if (status.value == DownloadStatus.isFinished) {
       status.value = DownloadStatus.notStarted;
       file = null;

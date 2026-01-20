@@ -41,7 +41,7 @@ import '/util/web/web_utils.dart';
 
 /// Worker fetching [Config.appcast] file and prompting [UpgradePopupView] on
 /// new [Release]s available.
-class UpgradeWorker extends DisposableService {
+class UpgradeWorker extends Dependency {
   UpgradeWorker(this._skippedLocal);
 
   /// Latest [Release] fetched during the [fetchUpdates].

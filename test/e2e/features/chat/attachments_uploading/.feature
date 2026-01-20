@@ -23,6 +23,7 @@ Feature: Attachments uploading
     And Bob has dialog with me
     And I am in chat with Bob
     And I wait for app to settle
+    And I pause for 5 seconds
 
   Scenario: Canceling upload of one of the files after sending a new message
     When I have Internet with delay of 10 seconds
@@ -56,7 +57,7 @@ Feature: Attachments uploading
 
     When I long press "Hello" message
     And I tap `EditMessageButton` button
-    And I fill `MessageField` field with "Hi"
+    And I fill `EditMessageField` field with "Hi"
     And I have Internet with delay of 10 seconds
     And I attach "test.txt" file
     And I attach "test2.txt" file
@@ -77,7 +78,7 @@ Feature: Attachments uploading
     When I long press "Hello" message
     And I tap `EditMessageButton` button
     And I pause for 3 seconds
-    And I erase `MessageField` field from text
+    And I erase `EditMessageField` field from text
     And I have Internet with delay of 10 seconds
     And I attach "test.txt" file
     And I attach "test2.txt" file

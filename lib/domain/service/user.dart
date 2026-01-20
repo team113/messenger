@@ -26,7 +26,7 @@ import '/util/log.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [User]s related functionality.
-class UserService extends DisposableService {
+class UserService extends Dependency {
   UserService(this._userRepository);
 
   /// Repository to fetch [User]s from.

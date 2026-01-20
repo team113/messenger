@@ -37,7 +37,7 @@ import 'auth.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [MyUser] management.
-class MyUserService extends DisposableService {
+class MyUserService extends Dependency {
   MyUserService(this._authService, this._myUserRepository);
 
   /// Authentication service providing the authentication capabilities.

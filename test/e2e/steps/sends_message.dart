@@ -22,6 +22,7 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/log.dart';
 
 import '../parameters/exception.dart';
 import '../parameters/users.dart';
@@ -83,43 +84,58 @@ final StepDefinitionGeneric sendsMessageToGroup =
 /// Examples:
 /// - Bob sends message to me and receives blocked exception
 /// - Charlie sends message to me and receives no exception
-final StepDefinitionGeneric sendsMessageWithException =
-    and2<TestUser, ExceptionType, CustomWorld>(
-      '{user} sends message to me and receives {exception} exception',
-      (TestUser user, ExceptionType type, context) async {
-        final GraphQlProvider provider = GraphQlProvider()
-          ..client.withWebSocket = false
-          ..token = context.world.sessions[user.name]?.token;
+final StepDefinitionGeneric
+sendsMessageWithException = and2<TestUser, ExceptionType, CustomWorld>(
+  '{user} sends message to me and receives {exception} exception',
+  (TestUser user, ExceptionType type, context) async {
+    final GraphQlProvider provider = GraphQlProvider()
+      ..client.withWebSocket = false
+      ..token = context.world.sessions[user.name]?.token;
 
-        Object? exception;
+    Object? exception;
 
-        try {
-          await provider.postChatMessage(
-            context.world.sessions[user.name]!.dialog!,
-            text: const ChatMessageText('111'),
-          );
-        } catch (e) {
-          exception = e;
-        }
+    try {
+      Log.debug(
+        'sendsMessageWithException -> await postChatMessage()...',
+        'E2E',
+      );
 
-        switch (type) {
-          case ExceptionType.blocked:
-            assert(
-              exception is PostChatMessageException &&
-                  exception.code == PostChatMessageErrorCode.blocked,
-            );
-            break;
+      final events = await provider.postChatMessage(
+        context.world.sessions[user.name]!.dialog!,
+        text: const ChatMessageText('111'),
+      );
 
-          case ExceptionType.no:
-            assert(exception == null);
-            break;
-        }
+      Log.debug(
+        'sendsMessageWithException -> await postChatMessage()... done with $events',
+        'E2E',
+      );
+    } catch (e) {
+      Log.debug(
+        'sendsMessageWithException -> await postChatMessage()... caught $e',
+        'E2E',
+      );
 
-        provider.disconnect();
-      },
-      configuration: StepDefinitionConfiguration()
-        ..timeout = const Duration(minutes: 5),
-    );
+      exception = e;
+    }
+
+    switch (type) {
+      case ExceptionType.blocked:
+        assert(
+          exception is PostChatMessageException &&
+              exception.code == PostChatMessageErrorCode.blocked,
+        );
+        break;
+
+      case ExceptionType.no:
+        assert(exception == null);
+        break;
+    }
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
 
 /// Sends the provided count of messages from the specified [TestUser] to the
 /// [Chat]-group with the provided name.

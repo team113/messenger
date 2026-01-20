@@ -22,6 +22,7 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
@@ -31,23 +32,38 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then I wait until "Dummy" chat is absent
 /// - Then I wait until "Dummy" chat is present
-final StepDefinitionGeneric untilChatExists =
-    then2<String, Existence, CustomWorld>(
-      'I wait until {string} chat is {existence}',
-      (name, existence, context) async {
-        await context.world.appDriver.waitUntil(() async {
-          await context.world.appDriver.waitForAppToSettle();
+final StepDefinitionGeneric
+untilChatExists = then2<String, Existence, CustomWorld>(
+  'I wait until {string} chat is {existence}',
+  (name, existence, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      Log.debug(
+        'untilChatExists -> await context.world.appDriver.waitForAppToSettle()...',
+        'E2E',
+      );
 
-          final RxChat? chat =
-              Get.find<ChatService>().chats[context.world.groups[name]];
+      await context.world.appDriver.waitForAppToSettle();
 
-          final Finder finder = context.world.appDriver.findByKeySkipOffstage(
-            'Chat_${chat?.id}',
-          );
+      Log.debug(
+        'untilChatExists -> await context.world.appDriver.waitForAppToSettle()... done!',
+        'E2E',
+      );
 
-          return existence == Existence.absent
-              ? context.world.appDriver.isAbsent(finder)
-              : context.world.appDriver.isPresent(finder);
-        }, timeout: const Duration(seconds: 30));
-      },
-    );
+      final RxChat? chat =
+          Get.find<ChatService>().chats[context.world.groups[name]];
+
+      final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+        'Chat_${chat?.id}',
+      );
+
+      Log.debug(
+        'untilChatExists -> chat is $chat, looking for `Chat_${chat?.id}` and found: $finder',
+        'E2E',
+      );
+
+      return existence == Existence.absent
+          ? context.world.appDriver.isAbsent(finder)
+          : context.world.appDriver.isPresent(finder);
+    }, timeout: const Duration(seconds: 30));
+  },
+);
