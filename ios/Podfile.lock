@@ -120,7 +120,7 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - instrumentisto-libwebrtc-bin (143.0.7499.192)
+  - instrumentisto-libwebrtc-bin (143.0.7499.169)
   - integration_test (0.0.1):
     - Flutter
   - irondash_engine_context (0.0.1):
@@ -128,10 +128,10 @@ PODS:
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
-  - medea_flutter_webrtc (0.17.0):
+  - medea_flutter_webrtc (0.16.1):
     - Flutter
-    - instrumentisto-libwebrtc-bin (= 143.0.7499.192)
-  - medea_jason (0.13.0):
+    - instrumentisto-libwebrtc-bin (= 143.0.7499.169)
+  - medea_jason (0.12.0):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
     - Flutter
@@ -373,12 +373,12 @@ SPEC CHECKSUMS:
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
   image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
-  instrumentisto-libwebrtc-bin: ff0b3dd8b21daaa123e3ac6ac504cf6e10c4961e
+  instrumentisto-libwebrtc-bin: bd275aa9a0b142dda3b660e8bf41e8448165ea6e
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   irondash_engine_context: 8e58ca8e0212ee9d1c7dc6a42121849986c88486
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
-  medea_flutter_webrtc: 92ea55593c1839f8dd605327706f8b5afcd7fbeb
-  medea_jason: a194408812130a4596fd423210fed2932c213735
+  medea_flutter_webrtc: b16d1c26c469e51bd0969381e7f99ba48c61839b
+  medea_jason: d9cd7d53aa34c7ea7a6e8a69cc5a41f795b104b5
   media_kit_libs_ios_video: 5a18affdb97d1f5d466dc79988b13eff6c5e2854
   media_kit_video: 1746e198cb697d1ffb734b1d05ec429d1fcd1474
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275

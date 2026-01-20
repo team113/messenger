@@ -191,7 +191,7 @@ else
 endif
 else
 	flutter build $(or $(platform),apk) \
-		--build-number=$(flutter-build-number) --verbose \
+		--build-number=$(flutter-build-number) \
 		$(if $(call eq,$(profile),yes),--profile,--release) \
 		$(if $(call eq,$(platform),web),--wasm --source-maps,) \
 		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
