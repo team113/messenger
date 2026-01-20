@@ -15,7 +15,20 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
+import 'package:gherkin/gherkin.dart';
 
-/// Base class for services with a scoped lifetime.
-abstract class Dependency extends DisposableInterface {}
+/// Resource blocked status.
+enum BlockedStatus { blocked, unblocked }
+
+/// [CustomParameter] representing a [BlockedStatus].
+class BlockedStatusParameter extends CustomParameter<BlockedStatus> {
+  BlockedStatusParameter()
+    : super(
+        'blocked',
+        RegExp(
+          '(${BlockedStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => BlockedStatus.values.firstWhere((e) => e.name == c),
+      );
+}

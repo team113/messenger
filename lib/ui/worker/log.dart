@@ -30,7 +30,7 @@ import '/util/log.dart';
 import '/util/obs/obs.dart';
 
 /// Worker opening [LogView] modal.
-class LogWorker extends DisposableService {
+class LogWorker extends Dependency {
   LogWorker(this._logProvider);
 
   /// Optional [LogFileProvider] to write [Log]s to a [File].

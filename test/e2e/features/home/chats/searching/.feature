@@ -20,7 +20,6 @@ Feature: Chats searching
   Scenario: User and chat can be found
     Given I am Alice
     And users Bob and Charlie
-    # And contact Charlie
     And I have "Example" group with Bob
 
     When I fill `SearchField` field with "Example"
@@ -28,22 +27,6 @@ Feature: Chats searching
 
     When I fill `SearchField` field with "Bob"
     Then I see user Bob in search results
-
-  # When I fill `SearchField` field with "Charlie"
-  # Then I see contact Charlie in search results
-
-  # Scenario: Search paginates its results
-  #   Given I am Alice
-  #   And 31 users Dave
-  #   And I wait until `HomeView` is present
-
-  #   When I tap `SearchButton` button
-  #   And I fill `SearchField` field with "Dave"
-  #   Then I wait until `Search` is present
-
-  #   Given I have Internet with delay of 4 seconds
-  #   When I scroll `SearchScrollable` until `SearchLoading` is present
-  #   And I wait until `SearchLoading` is absent
 
   Scenario: Dialog can be found by direct link
     Given I am Alice

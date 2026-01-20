@@ -486,7 +486,10 @@ void main() async {
     await tester.tap(find.byKey(const Key('EditMessageButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.enterText(find.byKey(const Key('MessageField')), 'new text');
+    await tester.enterText(
+      find.byKey(const Key('EditMessageField')),
+      'new text',
+    );
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.testTextInput.receiveAction(TextInputAction.done);

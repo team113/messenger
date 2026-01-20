@@ -18,10 +18,12 @@ Feature: Chat members pagination
     And I sign in as Alice
     And I pause for 2 seconds
     And I am in "Members" group
+    And I pause for 5 seconds
 
     When I scroll `IntroductionScrollable` until `ProceedButton` is present
     And I tap `ProceedButton` button
     And I open chat's info
+    And I pause for 10 seconds
     Then I see 15 chat members
 
     Given I have Internet with delay of 3 seconds

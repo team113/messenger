@@ -18,6 +18,7 @@
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_gherkin/src/flutter/parameters/existence_parameter.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../parameters/keys.dart';
@@ -27,18 +28,19 @@ import '../parameters/keys.dart';
 /// Examples:
 /// - Then I wait until `WidgetKey` is absent
 /// - Then I wait until `WidgetKey` is present
-final StepDefinitionGeneric waitUntilKeyExists =
-    then2<WidgetKey, Existence, FlutterWorld>(
-      'I wait until {key} is {existence}',
-      (key, existence, context) async {
-        await context.world.appDriver.waitUntil(() async {
-          return existence == Existence.absent
-              ? context.world.appDriver.isAbsent(
-                  context.world.appDriver.findByKeySkipOffstage(key.name),
-                )
-              : context.world.appDriver.isPresent(
-                  context.world.appDriver.findByKeySkipOffstage(key.name),
-                );
-        }, timeout: const Duration(seconds: 30));
-      },
-    );
+final StepDefinitionGeneric
+waitUntilKeyExists = then2<WidgetKey, Existence, FlutterWorld>(
+  'I wait until {key} is {existence}',
+  (key, existence, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+
+      Log.debug('waitUntilKeyExists -> finder for `$key` is $finder', 'E2E');
+
+      return switch (existence) {
+        Existence.absent => finder.evaluate().isEmpty,
+        Existence.present => finder.evaluate().isNotEmpty,
+      };
+    }, timeout: const Duration(seconds: 30));
+  },
+);
