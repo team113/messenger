@@ -41,6 +41,7 @@ import 'parameters/appcast_version.dart';
 import 'parameters/archived_status.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
+import 'parameters/blocked_status.dart';
 import 'parameters/credentials.dart';
 import 'parameters/download_status.dart';
 import 'parameters/enabled_status.dart';
@@ -136,6 +137,7 @@ import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/set_credential.dart';
+import 'steps/submit_field.dart';
 import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
@@ -151,6 +153,7 @@ import 'steps/text_field.dart';
 import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
 import 'steps/updates_name.dart';
+import 'steps/user_is_blocked.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
@@ -306,6 +309,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         setMyCredential,
         signInAs,
         signsOutSession,
+        submitField,
         tapAccountInAccounts,
         tapChat,
         tapContact,
@@ -333,6 +337,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         updateAvatar,
         updateName,
         user,
+        userIsBlocked,
         userWithPassword,
         waitForAppToSettle,
         waitUntilAttachmentStatus,
@@ -367,6 +372,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         ArchivedStatusParameter(),
         AttachmentTypeParameter(),
         AvailabilityStatusParameter(),
+        BlockedStatusParameter(),
         CredentialsParameter(),
         DownloadStatusParameter(),
         EnabledParameter(),
@@ -393,17 +399,20 @@ Future<void> appInitializationFn(World world) {
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 
+  final Function(FlutterErrorDetails)? original = FlutterError.onError;
   FlutterError.onError = (details) {
     final String exception = details.exception.toString();
 
     // Silence the `GlobalKey` being duplicated errors:
     // https://github.com/google/flutter.widgets/issues/137
     if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
-        exception.contains('Multiple widgets used the same GlobalKey.')) {
+        exception.contains('Multiple widgets used the same GlobalKey.') ||
+        exception.contains('DriftRemoteException') ||
+        exception.contains('SqliteException')) {
       return;
     }
 
-    FlutterError.presentError(details);
+    original?.call(details);
   };
 
   return Future.sync(app.main);

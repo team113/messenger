@@ -28,7 +28,7 @@ import '/util/obs/obs.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [ChatContact]s related functionality.
-class ContactService extends DisposableService {
+class ContactService extends Dependency {
   ContactService(this._contactRepository);
 
   /// Repository to fetch [ChatContact]s from.

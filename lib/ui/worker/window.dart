@@ -23,7 +23,7 @@ import '/store/model/window_preferences.dart';
 import '/util/platform_utils.dart';
 
 /// Worker updating the [WindowPreferences] on the [WindowListener] changes.
-class WindowWorker extends DisposableService {
+class WindowWorker extends Dependency {
   WindowWorker(this._windowProvider);
 
   /// [WindowRectDriftProvider] maintaining the [WindowPreferences].

@@ -42,7 +42,7 @@ import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
 /// Worker responsible for showing a new [Chat] message notification.
-class ChatWorker extends DisposableService {
+class ChatWorker extends Dependency {
   ChatWorker(this._chatService, this._myUserService, this._notificationService);
 
   /// [ChatService], used to get the [Chat]s list.

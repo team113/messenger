@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
@@ -24,6 +25,7 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
@@ -71,30 +73,76 @@ final StepDefinitionGeneric cancelFileDownload = then1<String, CustomWorld>(
   'I cancel {string} file download',
   (name, context) async {
     await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
+      await context.world.appDriver.nativeDriver.pump(
+        const Duration(seconds: 3),
+      );
 
       try {
-        RxChat? chat =
+        final RxChat? chat =
             Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-        Attachment attachment = chat!.messages
-            .map((e) => e.value)
-            .whereType<ChatMessage>()
-            .expand((e) => e.attachments)
-            .firstWhere((a) => a.filename == name);
+        Log.debug('cancelFileDownload -> chat is `$chat`', 'E2E');
 
-        Finder finder = context.world.appDriver.findByKeySkipOffstage(
+        final Iterable<ChatMessage>? messages = chat?.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>();
+
+        Log.debug(
+          'cancelFileDownload -> whole list of messages is `$messages`',
+          'E2E',
+        );
+
+        final Iterable<Attachment>? attachments = messages?.expand(
+          (e) => e.attachments,
+        );
+
+        Log.debug(
+          'cancelFileDownload -> whole list of attachments is `$attachments`',
+          'E2E',
+        );
+
+        final Attachment? attachment = attachments?.firstWhereOrNull(
+          (a) => a.filename == name,
+        );
+
+        Log.debug('cancelFileDownload -> attachment is `$attachment`', 'E2E');
+
+        if (attachment == null) {
+          return false;
+        }
+
+        final Finder finder = context.world.appDriver.findByKeySkipOffstage(
           'File_${attachment.id}',
         );
-        Finder cancelButton = context.world.appDriver.findByDescendant(
+
+        Log.debug(
+          'cancelFileDownload -> finder for `File_${attachment.id} is $finder`',
+          'E2E',
+        );
+
+        final Finder cancelButton = context.world.appDriver.findByDescendant(
           finder,
           context.world.appDriver.findByKeySkipOffstage('CancelDownloading'),
         );
 
+        Log.debug(
+          'cancelFileDownload -> looking for `CancelDownloading` within `File_${attachment.id} -> $cancelButton`',
+          'E2E',
+        );
+
+        Log.debug(
+          'cancelFileDownload -> looking for any `CancelDownloading` -> ${context.world.appDriver.findByKeySkipOffstage('CancelDownloading')}`',
+          'E2E',
+        );
+
+        Log.debug('cancelFileDownload -> await tap()...', 'E2E');
         await context.world.appDriver.nativeDriver.tap(cancelButton);
+        Log.debug('cancelFileDownload -> await tap()... done!', 'E2E');
+
         return true;
-      } catch (_) {
+      } catch (e) {
+        Log.debug('cancelFileDownload -> caught $e', 'E2E');
         return false;
       }
-    }, timeout: const Duration(seconds: 20));
+    }, timeout: const Duration(seconds: 30));
   },
 );

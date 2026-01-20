@@ -48,7 +48,7 @@ import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for notifications management.
-class NotificationService extends DisposableService {
+class NotificationService extends Dependency {
   NotificationService(this._graphQlProvider);
 
   /// GraphQL API provider for registering and un-registering current device for

@@ -26,7 +26,7 @@ import '/util/web/web_utils.dart';
 
 /// Worker responsible for updating the [RouterState.prefix] with the
 /// [MyUser.unreadChatsCount].
-class MyUserWorker extends DisposableService {
+class MyUserWorker extends Dependency {
   MyUserWorker(this._myUser);
 
   /// [MyUserService], used to listen to the [MyUser] changes.

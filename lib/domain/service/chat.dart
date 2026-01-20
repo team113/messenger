@@ -40,7 +40,7 @@ import 'auth.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [Chat]s related functionality.
-class ChatService extends DisposableService {
+class ChatService extends Dependency {
   ChatService(this._chatRepository, this._authService);
 
   /// Repository to fetch [Chat]s from.
@@ -83,11 +83,8 @@ class ChatService extends DisposableService {
   }
 
   /// Ensures the [chats] are initialized.
-  Future<void> ensureInitialized() async {
-    await _chatRepository.init(
-      onMemberRemoved: _onMemberRemoved,
-      pagination: true,
-    );
+  void ensureInitialized() {
+    _chatRepository.init(onMemberRemoved: _onMemberRemoved, pagination: true);
   }
 
   /// Creates a group [Chat] with the provided members and the authenticated
