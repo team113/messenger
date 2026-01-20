@@ -206,6 +206,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         goToUserPage,
         hasContacts,
         hasDialogWithMe,
+        hasDialogWithUser,
         hasFavoriteContacts,
         hasFavoriteGroups,
         hasGroupNamed,
