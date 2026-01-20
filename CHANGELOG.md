@@ -16,8 +16,10 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
+        - Raised hand appearing on display demonstrations. ([#1584])
 
 [#1580]: /../../pull/1580
+[#1584]: /../../pull/1584
 
 
 
