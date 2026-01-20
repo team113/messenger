@@ -35,15 +35,19 @@ final StepDefinitionGeneric seesAs =
           ..client.withWebSocket = false
           ..token = context.world.sessions[user1.name]?.token;
 
-        await context.world.appDriver.waitUntil(() async {
-          var response = await provider.getUser(
-            context.world.sessions[user2.name]!.userId,
-          );
-          var user = response?.toModel();
+        await context.world.appDriver.waitUntil(
+          () async {
+            final response = await provider.getUser(
+              context.world.sessions[user2.name]!.userId,
+            );
+            final user = response?.toModel();
 
-          return (status == OnlineStatus.online && user?.online == true) ||
-              (status == OnlineStatus.offline && user?.online == false);
-        }, pollInterval: const Duration(seconds: 1));
+            return (status == OnlineStatus.online && user?.online == true) ||
+                (status == OnlineStatus.offline && user?.online == false);
+          },
+          timeout: const Duration(seconds: 30),
+          pollInterval: const Duration(seconds: 1),
+        );
 
         provider.disconnect();
       },

@@ -59,7 +59,9 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
             'E2E',
           );
 
-          controller.send.addPlatformAttachment(file);
+          controller.send
+              .addPlatformAttachment(file)
+              .catchError((e) => Log.debug('attachFile -> `$e`', 'E2E'));
         } else {
           final controller = Get.find<ChatController>(
             tag: router.route.split('/').last,
@@ -70,9 +72,9 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
             'E2E',
           );
 
-          (controller.edit.value ?? controller.send).addPlatformAttachment(
-            file,
-          );
+          (controller.edit.value ?? controller.send)
+              .addPlatformAttachment(file)
+              .catchError((e) => Log.debug('attachFile -> `$e`', 'E2E'));
         }
         break;
 
@@ -87,15 +89,18 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
 
         if (Get.isRegistered<ChatForwardController>()) {
           final controller = Get.find<ChatForwardController>();
-          controller.send.addPlatformAttachment(image);
+
+          controller.send
+              .addPlatformAttachment(image)
+              .catchError((e) => Log.debug('attachFile -> `$e`', 'E2E'));
         } else {
           final controller = Get.find<ChatController>(
             tag: router.route.split('/').last,
           );
 
-          (controller.edit.value ?? controller.send).addPlatformAttachment(
-            image,
-          );
+          (controller.edit.value ?? controller.send)
+              .addPlatformAttachment(image)
+              .catchError((e) => Log.debug('attachFile -> `$e`', 'E2E'));
         }
         break;
     }

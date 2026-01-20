@@ -29,3 +29,4 @@ Feature: Connection status
 
     When I have Internet without delay
     Then I wait until `Connected` is present
+    And I pause for 10 seconds

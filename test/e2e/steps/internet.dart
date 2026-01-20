@@ -41,7 +41,7 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
     }
 
     PlatformUtils.client?.interceptors.removeWhere(
-      (e) => e is DelayedInterceptor,
+      (e) => e is DelayedInterceptor || e is DisabledInterceptor,
     );
 
     (await PlatformUtils.dio).interceptors.add(
@@ -63,8 +63,8 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.throwException = false;
     }
 
-    (await PlatformUtils.dio).interceptors.removeWhere(
-      (e) => e is DelayedInterceptor,
+    PlatformUtils.client?.interceptors.removeWhere(
+      (e) => e is DelayedInterceptor || e is DisabledInterceptor,
     );
   },
 );
@@ -75,18 +75,21 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
 /// - I do not have Internet
 final StepDefinitionGeneric noInternetConnection = given<CustomWorld>(
   'I do not have Internet',
-  (context) => Future.sync(() {
+  (context) async {
     final GraphQlProvider provider = Get.find();
     if (provider is MockGraphQlProvider) {
-      provider.client.delay = 2.seconds;
       provider.client.throwException = true;
     }
-  }),
+
+    PlatformUtils.client?.interceptors.removeWhere(
+      (e) => e is DelayedInterceptor || e is DisabledInterceptor,
+    );
+  },
 );
 
 /// [Interceptor] for [Dio] requests adding the provided [delay].
 class DelayedInterceptor extends Interceptor {
-  DelayedInterceptor(this.delay);
+  const DelayedInterceptor(this.delay);
 
   /// [Duration] to delay the requests for.
   final Duration delay;
@@ -98,5 +101,22 @@ class DelayedInterceptor extends Interceptor {
   ) async {
     await Future.delayed(delay);
     handler.next(options);
+  }
+}
+
+/// [Interceptor] for [Dio] requests adding the provided [delay].
+class DisabledInterceptor extends Interceptor {
+  const DisabledInterceptor();
+
+  @override
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    handler.reject(
+      DioException.connectionError(requestOptions: options, reason: 'Mocked'),
+    );
   }
 }

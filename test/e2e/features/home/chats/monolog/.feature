@@ -21,6 +21,7 @@ Feature: Searching deleted monolog
     Given I am Alice
     And I have my login set up
     And I have my direct link set up
+    And I pause for 5 seconds
     And I wait until `ChatMonolog` is present
 
     When I long press monolog

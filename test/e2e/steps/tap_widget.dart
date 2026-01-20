@@ -50,7 +50,7 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, CustomWorld>(
 
       await context.world.appDriver.nativeDriver.pump(
         const Duration(seconds: 2),
-        EnginePhase.composite,
+        EnginePhase.sendSemanticsUpdate,
       );
 
       Log.debug(

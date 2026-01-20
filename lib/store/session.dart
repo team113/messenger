@@ -104,6 +104,9 @@ class SessionRepository extends IdentityDependency
   /// [connected] changes.
   StreamSubscription? _connectivitySubscription;
 
+  /// Subscription for [WebUtils.onNetworkChange] to change [connected].
+  StreamSubscription? _networkSubscription;
+
   /// [IpAddress] of this device.
   IpAddress? _ip;
 
@@ -144,6 +147,7 @@ class SessionRepository extends IdentityDependency
     _remoteSubscription?.close(immediate: true);
     _connectivitySubscription?.cancel();
     _graphQlSubscription?.cancel();
+    _networkSubscription?.cancel();
 
     super.onClose();
   }
@@ -467,6 +471,8 @@ class SessionRepository extends IdentityDependency
         '$runtimeType',
       );
     }
+
+    _networkSubscription = WebUtils.onNetworkChange.listen((e) => apply([e]));
 
     try {
       apply(await Connectivity().checkConnectivity());

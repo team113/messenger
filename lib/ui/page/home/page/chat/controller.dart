@@ -521,6 +521,11 @@ class ChatController extends GetxController with IdentityAware {
                 ),
               )
               .onError<PostChatMessageException>(
+                (_, _) {},
+                test: (e) =>
+                    e.code == PostChatMessageErrorCode.unknownAttachment,
+              )
+              .onError<PostChatMessageException>(
                 (_, _) => _showBlockedPopup(),
                 test: (e) => e.code == PostChatMessageErrorCode.blocked,
               )

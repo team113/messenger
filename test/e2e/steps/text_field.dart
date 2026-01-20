@@ -165,7 +165,7 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
   (key, context) async {
     await context.world.appDriver.nativeDriver.pump(
       const Duration(seconds: 2),
-      EnginePhase.composite,
+      EnginePhase.sendSemanticsUpdate,
     );
 
     final finder = context.world.appDriver.findBy(key.name, FindType.key);
@@ -174,7 +174,7 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
     await context.world.appDriver.scrollIntoView(finder);
     await context.world.appDriver.nativeDriver.pump(
       const Duration(seconds: 2),
-      EnginePhase.composite,
+      EnginePhase.sendSemanticsUpdate,
     );
 
     final String? text;

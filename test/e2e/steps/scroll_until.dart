@@ -41,7 +41,7 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
         await context.world.appDriver.waitUntil(() async {
           await context.world.appDriver.nativeDriver.pump(
             const Duration(seconds: 2),
-            EnginePhase.composite,
+            EnginePhase.sendSemanticsUpdate,
           );
 
           final scrollable = find.descendant(
@@ -72,7 +72,7 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
 
         await context.world.appDriver.nativeDriver.pump(
           const Duration(seconds: 2),
-          EnginePhase.composite,
+          EnginePhase.sendSemanticsUpdate,
         );
       },
     );

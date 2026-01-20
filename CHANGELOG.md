@@ -14,10 +14,21 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
+    - Media panel:
+        - Reconnecting notifications when network changes in call. ([team113/messenger#1581])
     - Chat page:
         - Logs button in notes and support chats. ([#12])
 
+### Fixed
+
+- UI:
+    - Media panel:
+        - Infinite vibration when ringing pending calls on iOS and Android. ([team113/messenger#1580])
+        - Connection not being reconnected on network changes on Web. ([team113/messenger#1581])
+
 [#12]: /../../pull/12
+[team113/messenger#1580]: https://github.com/team113/messenger/pull/1580
+[team113/messenger#1581]: https://github.com/team113/messenger/pull/1581
 
 
 

@@ -657,7 +657,16 @@ class CallWorker extends Dependency {
 
           if (_lastConnectedAt == null || seconds >= 5) {
             _lastConnectedAt = DateTime.now();
+
+            for (var e in _callService.calls.values) {
+              e.value.notify(ConnectionLostNotification());
+            }
+
             await MediaUtils.ensureReconnected();
+
+            for (var e in _callService.calls.values) {
+              e.value.notify(ConnectionRestoredNotification());
+            }
           }
         }
       }

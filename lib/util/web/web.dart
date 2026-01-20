@@ -26,6 +26,7 @@ import 'dart:js_interop_unsafe';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
@@ -325,6 +326,37 @@ class WebUtils {
         channel.onmessage = fn.toJS;
       },
       onCancel: () => channel.onmessage = null,
+    );
+
+    return controller.stream;
+  }
+
+  /// Returns a stream broadcasting the [ConnectivityResult] of the browser.
+  static Stream<ConnectivityResult> get onNetworkChange {
+    StreamController<ConnectivityResult>? controller;
+
+    // Event listener reacting on window focus events.
+    void changeListener(web.Event event) =>
+        // TODO: Rely on `NetworkInformation.type` when it's available:
+        //       https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation/type
+        controller!.add(switch (web.window.navigator.onLine) {
+          false => ConnectivityResult.none,
+          true => ConnectivityResult.wifi,
+        });
+
+    controller = StreamController(
+      onListen: () {
+        web.window.navigator.connection.addEventListener(
+          'change',
+          changeListener.toJS,
+        );
+      },
+      onCancel: () {
+        web.window.navigator.connection.removeEventListener(
+          'change',
+          changeListener.toJS,
+        );
+      },
     );
 
     return controller.stream;

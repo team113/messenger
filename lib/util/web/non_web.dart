@@ -22,6 +22,7 @@ import 'dart:ffi' hide Size;
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cupertino_http/cupertino_http.dart'
     show CupertinoClient, URLSessionConfiguration;
 import 'package:device_info_plus/device_info_plus.dart';
@@ -102,6 +103,9 @@ class WebUtils {
   /// Returns a stream broadcasting the browser's broadcast channel changes.
   static Stream<dynamic> onBroadcastMessage({String name = 'fcm'}) =>
       const Stream.empty();
+
+  /// Returns a stream broadcasting the [ConnectivityResult] of the browser.
+  static Stream<ConnectivityResult> get onNetworkChange => const Stream.empty();
 
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;

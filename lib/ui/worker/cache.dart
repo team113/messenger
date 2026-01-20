@@ -260,6 +260,8 @@ class CacheWorker extends Dependency {
     String? checksum,
     String? to,
   }) {
+    Log.debug('download($filename, $size)', '$runtimeType');
+
     Downloading? downloading = downloads[checksum]?..start(url, to: to);
 
     if (downloading == null) {
@@ -545,9 +547,12 @@ class Downloading {
 
   /// Starts the [file] downloading.
   Future<void> start(String url, {String? to}) async {
+    Log.debug('start($filename, $size)', '$runtimeType');
+
     progress.value = 0;
     status.value = DownloadStatus.inProgress;
     _completer = Completer<File?>();
+    _completer?.future.catchError((_) => null);
 
     try {
       file = await PlatformUtils.download(
@@ -560,6 +565,8 @@ class Downloading {
         cancelToken: _token,
       );
       _completer?.complete(file);
+
+      Log.debug('start($filename, $size)... completed!', '$runtimeType');
 
       if (file != null) {
         status.value = DownloadStatus.isFinished;
@@ -575,6 +582,8 @@ class Downloading {
 
   /// Cancels the [file] downloading.
   void cancel() {
+    Log.debug('cancel($filename, $size)', '$runtimeType');
+
     status.value = DownloadStatus.notStarted;
     if (_completer?.isCompleted == false) {
       _completer?.complete(null);
@@ -586,6 +595,8 @@ class Downloading {
 
   /// Marks this [Downloading] as not started.
   void markAsNotStarted() {
+    Log.debug('markAsNotStarted()', '$runtimeType');
+
     if (status.value == DownloadStatus.isFinished) {
       status.value = DownloadStatus.notStarted;
       file = null;

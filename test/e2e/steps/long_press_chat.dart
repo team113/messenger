@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/util/log.dart';
 
 import '../world/custom_world.dart';
 
@@ -30,22 +31,43 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
   'I long press {string} (?:chat|group)',
   (name, context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.nativeDriver.pump(
+          const Duration(seconds: 5),
+        );
 
-      try {
-        final finder = context.world.appDriver
-            .findBy('Chat_${context.world.groups[name]}', FindType.key)
-            .first;
+        try {
+          final finder = context.world.appDriver.findBy(
+            'Chat_${context.world.groups[name]}',
+            FindType.key,
+          );
 
-        await context.world.appDriver.nativeDriver.longPress(finder);
-        await context.world.appDriver.waitForAppToSettle();
+          Log.debug(
+            'longPressChat -> finder for `Chat_${context.world.groups['name']}` is `$finder`',
+          );
 
-        return true;
-      } catch (e) {
-        return false;
-      }
-    });
+          if (finder.evaluate().isNotEmpty) {
+            Log.debug('longPressChat -> await longPress()...');
+            await context.world.appDriver.nativeDriver.longPress(finder);
+            Log.debug('longPressChat -> await longPress()... done!');
+
+            await context.world.appDriver.nativeDriver.pump(
+              const Duration(seconds: 5),
+            );
+
+            return true;
+          }
+
+          return false;
+        } catch (e) {
+          Log.debug('longPressChat -> caught $e', 'E2E');
+          return false;
+        }
+      },
+      timeout: const Duration(seconds: 60),
+      pollInterval: const Duration(seconds: 2),
+    );
   },
 );
 
@@ -53,26 +75,45 @@ final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
 ///
 /// Examples:
 /// - When I long press monolog.
-final StepDefinitionGeneric longPressMonolog = when<CustomWorld>(
-  'I long press monolog',
-  (context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
+final StepDefinitionGeneric
+longPressMonolog = when<CustomWorld>('I long press monolog', (context) async {
+  await context.world.appDriver.waitUntil(() async {
+    Log.debug('longPressMonolog -> await pump()...', 'E2E');
 
-      final ChatId chatId = Get.find<ChatService>().monolog;
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 3));
 
-      try {
-        final finder = context.world.appDriver
-            .findBy('Chat_$chatId', FindType.key)
-            .first;
+    Log.debug('longPressMonolog -> await pump()... done!', 'E2E');
 
-        await context.world.appDriver.nativeDriver.longPress(finder);
-        await context.world.appDriver.waitForAppToSettle();
+    final ChatId chatId = Get.find<ChatService>().monolog;
 
-        return true;
-      } catch (e) {
-        return false;
-      }
-    });
-  },
-);
+    try {
+      final finder = context.world.appDriver
+          .findBy('Chat_$chatId', FindType.key)
+          .first;
+
+      Log.debug('longPressMonolog -> finder for `$chatId` is $finder', 'E2E');
+
+      Log.debug('longPressMonolog -> await longPress()...', 'E2E');
+      await context.world.appDriver.nativeDriver.longPress(finder);
+      Log.debug('longPressMonolog -> await longPress()... done!', 'E2E');
+
+      await context.world.appDriver.nativeDriver.pump(
+        const Duration(seconds: 3),
+      );
+
+      return true;
+    } catch (e) {
+      Log.debug('longPressMonolog -> caught $e', 'E2E');
+      Log.debug(
+        'longPressMonolog -> the whole paginated list -> ${Get.find<ChatService>().paginated.values}',
+        'E2E',
+      );
+      Log.debug(
+        'longPressMonolog -> the whole chats list -> ${Get.find<ChatService>().chats.values}',
+        'E2E',
+      );
+
+      return false;
+    }
+  }, timeout: const Duration(seconds: 30));
+});

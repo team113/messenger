@@ -539,8 +539,32 @@ class ChatDirectLinkSlug extends NewType<String> {
   ///
   /// If [val] starts with [Config.link], then that part is omitted.
   static ChatDirectLinkSlug? tryParse(String val) {
-    if (val.startsWith('${Config.link}/')) {
-      val = val.substring(Config.link.length + 1);
+    if (val.startsWith(Config.link)) {
+      val = val.substring(Config.link.length);
+    }
+
+    if (val.startsWith(Config.origin)) {
+      val = val.substring(Config.origin.length);
+    }
+
+    if (val.startsWith('https://')) {
+      val = val.substring('https://'.length);
+    }
+
+    if (val.startsWith('http://')) {
+      val = val.substring('http://'.length);
+    }
+
+    if (val.startsWith(Config.link)) {
+      val = val.substring(Config.link.length);
+    }
+
+    if (val.startsWith(Config.origin)) {
+      val = val.substring(Config.origin.length);
+    }
+
+    if (val.startsWith('/')) {
+      val = val.substring(1);
     }
 
     try {

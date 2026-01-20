@@ -1344,10 +1344,24 @@ class ChatRepository extends IdentityDependency
 
     if (attachment.upload.value?.isCompleted != false) {
       attachment.upload.value = Completer();
+      attachment.upload.value?.future.catchError((e) {
+        Log.debug(
+          'uploadAttachment($attachment) -> upload -> catchError($e)',
+          '$runtimeType',
+        );
+        return null;
+      });
     }
 
     if (attachment.read.value?.isCompleted != false) {
       attachment.read.value = Completer();
+      attachment.read.value?.future.catchError((e) {
+        Log.debug(
+          'uploadAttachment($attachment) -> read -> catchError($e)',
+          '$runtimeType',
+        );
+        return null;
+      });
     }
 
     attachment.status.value = SendingStatus.sending;

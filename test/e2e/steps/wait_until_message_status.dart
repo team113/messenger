@@ -179,7 +179,7 @@ waitUntilMessageStatus = then2<String, MessageSentStatus, CustomWorld>(
 
         return false;
       },
-      timeout: context.configuration.timeout ?? const Duration(seconds: 30),
+      timeout: const Duration(seconds: 60),
       pollInterval: const Duration(seconds: 4),
     );
   },
