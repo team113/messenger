@@ -33,7 +33,7 @@ Feature: Message editing
     Given I have Internet without delay
     When I long press "Hello" message
     And I tap `EditMessageButton` button
-    And I fill `MessageField` field with "Hi"
+    And I fill `EditMessageField` field with "Hi"
     And I tap `Send` button
     Then I wait until status of "Hi" message is sent
 

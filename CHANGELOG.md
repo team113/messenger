@@ -11,16 +11,24 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.7.2...v0.8.0) | [Milestone](/../../milestone/62)
 
-### Fixed
+### Added
 
 - UI:
     - Media panel:
-        - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
+        - Reconnecting notifications when network changes in call. ([#1581])
+
+### Fixed
+
+- UI:
     - Chat info page:
         - Leave group button in members list not working. ([#1578])
+    - Media panel:
+        - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
+        - Connection not being reconnected on network changes on Web. ([#1581])
 
 [#1578]: /../../pull/1578
 [#1580]: /../../pull/1580
+[#1581]: /../../pull/1581
 
 
 

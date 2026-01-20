@@ -33,3 +33,4 @@ Feature: Localization
     And I tap `Language_en` button
     And I tap `CloseButton` button
     Then I wait until text "Language" is present
+    And I pause for 10 seconds

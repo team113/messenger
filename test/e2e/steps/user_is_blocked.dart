@@ -21,54 +21,52 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/log.dart';
 
-import '../parameters/availability_status.dart';
+import '../parameters/blocked_status.dart';
+import '../parameters/users.dart';
 import '../world/custom_world.dart';
 
-/// Indicates whether a [Chat]-monolog has the specified [AvailabilityStatus].
+/// Indicates whether the [TestUser] is blocked or unblocked for the current
+/// [MyUser].
 ///
 /// Examples:
-/// - Then monolog is indeed local
-/// - Then monolog is indeed remote
+/// - Then Bob is indeed blocked
+/// - Then Bob is indeed unblocked
 final StepDefinitionGeneric
-monologAvailability = then1<AvailabilityStatus, CustomWorld>(
-  'monolog is indeed {availability}',
-  (status, context) async {
+userIsBlocked = then2<TestUser, BlockedStatus, CustomWorld>(
+  '{user} is indeed {blocked}',
+  (user, blocked, context) async {
     await context.world.appDriver.waitUntil(
       () async {
-        Log.debug(
-          'monologAvailability -> await waitForAppToSettle()...',
-          'E2E',
-        );
-
-        Log.debug(
-          'monologAvailability -> await waitForAppToSettle()... done!',
-          'E2E',
-        );
-
         final GraphQlProvider provider = GraphQlProvider()
           ..client.withWebSocket = false;
 
         final AuthService authService = Get.find();
         provider.token = authService.credentials.value!.access.secret;
 
-        final mixin = await provider.getMonolog();
-
-        final bool isLocal = mixin == null;
-
         Log.debug(
-          'monologAvailability -> isLocal($isLocal), `getMonolog()` -> $mixin',
+          'userIsBlocked -> await getUser(${context.world.sessions[user.name]?.userId})...',
           'E2E',
         );
 
+        final mixin = await provider.getUser(
+          context.world.sessions[user.name]!.userId,
+        );
+
+        Log.debug(
+          'userIsBlocked -> await getUser(${context.world.sessions[user.name]?.userId})... done -> $mixin',
+          'E2E',
+        );
+
+        final bool isBlocked = mixin.user?.isBlocked.record != null;
+
+        Log.debug('userIsBlocked -> `isBlocked` is $isBlocked', 'E2E');
+
         provider.disconnect();
 
-        switch (status) {
-          case AvailabilityStatus.local:
-            return isLocal;
-
-          case AvailabilityStatus.remote:
-            return !isLocal;
-        }
+        return switch (blocked) {
+          BlockedStatus.blocked => isBlocked,
+          BlockedStatus.unblocked => !isBlocked,
+        };
       },
       timeout: const Duration(seconds: 30),
       pollInterval: const Duration(seconds: 4),

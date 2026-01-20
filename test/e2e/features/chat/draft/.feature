@@ -28,6 +28,7 @@ Feature: Drafts
     And I pause for 2 seconds
     And I return to previous page
     Then I see draft "He-he, draft!" in chat with Bob
+    And I pause for 2 seconds
 
     When I am in chat with Bob
     Then I wait until text "He-he, draft!" is present

@@ -24,6 +24,7 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/drift/connection/connection.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/util/get.dart';
+import 'package:messenger/util/log.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import '../steps/internet.dart';
@@ -35,8 +36,12 @@ class ResetAppHook extends Hook {
 
   @override
   Future<void> onBeforeRun(TestConfiguration config) async {
+    Log.debug('onBeforeRun($config)...', 'E2E.$runtimeType');
+
     await clearDb();
     await super.onBeforeRun(config);
+
+    Log.debug('onBeforeRun($config)... done!', 'E2E.$runtimeType');
   }
 
   @override
@@ -45,6 +50,8 @@ class ResetAppHook extends Hook {
     String scenario,
     Iterable<Tag> tags,
   ) async {
+    Log.debug('onBeforeScenario($config, $scenario)...', 'E2E.$runtimeType');
+
     // Ensure any ongoing `drift` connections are indeed closed and cleared.
     await Future.delayed(const Duration(seconds: 1));
 
@@ -63,6 +70,11 @@ class ResetAppHook extends Hook {
 
     // Ensure any ongoing `drift` connections are indeed closed and cleared.
     await Future.delayed(const Duration(seconds: 1));
+
+    Log.debug(
+      'onBeforeScenario($config, $scenario)... done!',
+      'E2E.$runtimeType',
+    );
   }
 
   @override
@@ -70,13 +82,43 @@ class ResetAppHook extends Hook {
     TestConfiguration config,
     String scenario,
     Iterable<Tag> tags,
-  ) => onBeforeScenario(config, scenario, tags);
+  ) async {
+    Log.debug('onAfterScenario($config, $scenario)...', 'E2E.$runtimeType');
+
+    // Ensure any ongoing `drift` connections are indeed closed and cleared.
+    await Future.delayed(const Duration(seconds: 1));
+
+    FocusManager.instance.primaryFocus?.unfocus();
+
+    final drift = Get.findOrNull<CommonDriftProvider>();
+    await drift?.reset();
+
+    await Get.deleteAll();
+
+    PlatformUtils.client?.interceptors.removeWhere(
+      (e) => e is DelayedInterceptor,
+    );
+
+    svg.cache.clear();
+
+    // Ensure any ongoing `drift` connections are indeed closed and cleared.
+    await Future.delayed(const Duration(seconds: 1));
+
+    Log.debug(
+      'onAfterScenario($config, $scenario)... done!',
+      'E2E.$runtimeType',
+    );
+  }
 
   @override
   Future<void> onAfterRun(TestConfiguration config) async {
+    Log.debug('onAfterRun($config)...', 'E2E.$runtimeType');
+
     await Get.deleteAll(force: true);
 
     await clearDb();
     await super.onAfterRun(config);
+
+    Log.debug('onAfterScenario($config)... done!', 'E2E.$runtimeType');
   }
 }

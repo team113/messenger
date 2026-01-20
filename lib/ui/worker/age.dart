@@ -23,7 +23,7 @@ import '/util/platform_utils.dart';
 import '/util/log.dart';
 
 /// Worker responsible for [AgeRangeSignals] related age verification.
-class AgeWorker extends DisposableService {
+class AgeWorker extends Dependency {
   AgeWorker();
 
   @override
