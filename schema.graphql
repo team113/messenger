@@ -336,10 +336,10 @@ enum CreateOperationDepositErrorCode {
     Status code: 503 Service Unavailable.
   """ UNAVAILABLE
   """
-    Provided `DepositKind` is unavailable.
+    Provided `OperationDepositMethod` is unavailable.
 
     Status code: 451 Unavailable For Legal Reasons.
-  """ UNAVAILABLE_DEPOSIT_KIND
+  """ UNAVAILABLE_METHOD
 }
 
 "Possible error codes of performing `Mutation.createSession`."
@@ -597,6 +597,11 @@ enum ForwardChatItemsErrorCode {
     Status code: 403 Forbidden.
   """ BLOCKED
   """
+    `Donation`s are disabled by responder's `MonetizationSettings`.
+
+    Status code: 403 Forbidden.
+  """ DISABLED_DONATION
+  """
     All of the `ChatItemQuoteInput`s should quote either a `ChatMessageText` or at least a single `Attachment` or `Donation`.
 
     Status code: 400 Bad Request.
@@ -606,6 +611,11 @@ enum ForwardChatItemsErrorCode {
 
     Status code: 402 Payment Required.
   """ NOT_ENOUGH_FUNDS
+  """
+    Specified `Donation`'s `Sum` is less than responder's `MonetizationSettings.min` `Price`.
+
+    Status code: 403 Forbidden.
+  """ TOO_SMALL_DONATION
   """
     Posting `donation` in this `Chat` is not allowed.
 
@@ -732,6 +742,19 @@ enum OperationOrigin {
   "`Operation` happened in the `User`'s purse." PURSE
 }
 
+"Possible causes of an `OperationReward`."
+enum OperationRewardCause {
+  """
+    `OperationReward` is caused by an affiliated `User` earning money from
+    a purchase.
+  """ EARN
+  """
+    `OperationReward` is caused by an affiliated `User` performing a
+    purchase.
+  """ PURCHASE
+  "`OperationReward` is caused by an affiliated `User` being rewarded." REWARD
+}
+
 "Possible statuses of an `Operation`."
 enum OperationStatus {
   "`Operation` is canceled." CANCELED
@@ -739,6 +762,15 @@ enum OperationStatus {
   "`Operation` is declined." DECLINED
   "`Operation` is in progress." IN_PROGRESS
   "`Operation` failed." FAILED
+}
+
+"Possible kinds of an `OperationWithdraw`."
+enum OperationWithdrawKind {
+  """
+    `OperationWithdraw` via [SWIFT].
+
+    [SWIFT]: https://www.swift.com
+  """ SWIFT
 }
 
 "Filter of `Operation`s by their `Operation.holdUntil` field."
@@ -757,6 +789,11 @@ enum PostChatMessageErrorCode {
     Status code: 403 Forbidden.
   """ BLOCKED
   """
+    `Donation`s are disabled by responder's `MonetizationSettings`.
+
+    Status code: 403 Forbidden.
+  """ DISABLED_DONATION
+  """
     Either `text` argument, or at least one ID in `attachments` argument, or a `donation` argument should be specified.
 
     Status code: 400 Bad Request.
@@ -767,7 +804,12 @@ enum PostChatMessageErrorCode {
     Status code: 402 Payment Required.
   """ NOT_ENOUGH_FUNDS
   """
-    Posting `donation` in this `Chat` is not allowed.
+    Specified `Donation`'s `Sum` is less than responder's `MonetizationSettings.min` `Price`.
+
+    Status code: 403 Forbidden.
+  """ TOO_SMALL_DONATION
+  """
+    Posting `Donation` in this `Chat` is not allowed.
 
     This error can happen only if the `Chat` doesn't represent a dialog (doesn't consist only of two `User`s).
 
@@ -1170,6 +1212,25 @@ enum UpdateChatContactNameErrorCode {
   """ UNKNOWN_CHAT_CONTACT
 }
 
+"Possible error codes of performing `Mutation.updateMonetizationSettings`."
+enum UpdateMonetizationSettingsErrorCode {
+  """
+    Individual `MonetizationSettings` cannot be set for the the authenticated `MyUser`.
+
+    Status code: 403 Forbidden.
+  """ SAME_USER
+  """
+    Common `MonetizationSettings` cannot be deleted.
+
+    Status code: 403 Forbidden.
+  """ UNDELETABLE
+  """
+    `User` with the provided ID doesn't exist.
+
+    Status code: 404 Not Found.
+  """ UNKNOWN_USER
+}
+
 "Possible error codes of performing `Mutation.updateUserAvatar`."
 enum UpdateUserAvatarErrorCode {
   """
@@ -1488,6 +1549,81 @@ input ForwardChatItemsMessageInput {
   """ donation: DonationInput
 }
 
+"Input for updating or deleting `MonetizationSettingsDonation`."
+input MonetizationSettingsDonationInput {
+  """
+    New `MonetizationSettingsDonation`.
+
+    `null` means that the previous `MonetizationSettingsDonation` should be
+    deleted.
+  """ new: MonetizationSettingsDonationSettingsInput
+}
+
+"Input for creating or updating `MonetizationSettingsDonation`."
+input MonetizationSettingsDonationSettingsInput {
+  "Indicator whether the `Vendor` accepts `Donation`s or not." enabled: Boolean!
+  "Minimal `Sum` of `Donation`s allowed in the `Chat` with the `Vendor`." min: Sum!
+}
+
+"Filter of the `Subscription.monetizationSettings`."
+input MonetizationSettingsFilter {
+  """
+    Indicator whether to return only `MonetizationSettingsEvent`s related to
+    `MonetizationSettingsDonation`.
+
+    If no `MonetizationSettingsFilter` is provided, then this field defaults
+    to `true`.
+  """ donation: Boolean!
+}
+
+"Input for updating `MonetizationSettings`."
+input MonetizationSettingsInput {
+  """
+    New `MonetizationSettingsDonation`.
+
+    `null` means that the previous `MonetizationSettingsDonation` remain
+    unchanged.
+  """ donation: MonetizationSettingsDonationInput
+}
+
+"""
+  [Arguments] for pagination over `MonetizationSettingsEdge`s.
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` `MonetizationSettingsCursor`s are equal.
+  In such case, the returned page will include the `MonetizationSettings`
+  pointed by that `MonetizationSettingsCursor` and the requested counts of
+  `MonetizationSettings` preceding and following it.
+
+  If it's desired to receive the `MonetizationSettings`, pointed by the
+  `MonetizationSettingsCursor`, without querying in both directions, one can
+  specify `first` or `last` count as `0`.
+
+  If no parameters are provided, then `first` parameter will be considered as
+  `50`.
+
+  `after` and `before` `MonetizationSettingsCursor`s are only meaningful once
+  other non-`MonetizationSettingsPagination` arguments remain the same between
+  queries. Trying to query a page of some filtered `MonetizationSettings` with
+  a `MonetizationSettingsCursor` pointing to a page of totally different
+  filtered `MonetizationSettings` is nonsense and will produce an invalid
+  result (usually, returning nothing).
+
+  [Arguments]: https://tinyurl.com/gql-relay#sec-Arguments
+"""
+input MonetizationSettingsPagination {
+  "Number of next `MonetizationSettingsEdge`s to return." first: Int
+  """
+    `MonetizationSettingsCursor` indicating the `MonetizationSettingsEdge`
+    position to return next `MonetizationSettings` after.
+  """ after: MonetizationSettingsCursor
+  "Number of prior `MonetizationSettingsEdge`s to return." last: Int
+  """
+    `MonetizationSettingsCursor` indicating the `MonetizationSettingsEdge`
+    position to return prior `MonetizationSettings` before.
+  """ before: MonetizationSettingsCursor
+}
+
 """
   Muting input argument for `Mutation.toggleChatMute` and
   `Mutation.toggleMyUserMute`.
@@ -1498,6 +1634,32 @@ input Muting {
 
     `null` means indefinite muting.
   """ duration: DateTime
+}
+
+"Filter of the `Query.myMonetizationSettings`."
+input MyMonetizationSettingsFilter {
+  """
+    Unique ID of a `User` the `MonetizationSettings` are specified
+    individually for.
+
+    Searching by `MyMonetizationSettingsFilter.userId` is exact, always
+    returning a single `MonetizationSettingsEdge`.
+
+    If the provided `UserId` is the same as `MyUser.id`, then a single
+    `MonetizationSettingsEdge` will be returned, containing common
+    `MonetizationSettings` of the authenticated `MyUser` (applied to all
+    `User`s).
+
+    If absent or `null` then individual `MonetizationSettings` for all
+    `User`s will be returned, also including the common ones.
+  """ userId: UserId
+  """
+    Indicator whether to return only `MonetizationSettings` which have
+    `MonetizationSettings.donation` field specified.
+
+    If no `MyMonetizationSettingsFilter` is provided, then this field
+    defaults to `true`.
+  """ donation: Boolean!
 }
 
 """
@@ -1960,6 +2122,21 @@ interface File {
   size: Int
 }
 
+"Event happening with `MonetizationSettings`."
+interface MonetizationSettingsEvent {
+  """
+    State of the `MonetizationSettings` after this
+    `MonetizationSettingsEvent` being applied.
+
+    `null` if the `MonetizationSettings` no longer exist.
+  """
+  monetizationSettings: MonetizationSettingsEdge
+  "`User` the `MonetizationSettings` are specified individually for."
+  user: User
+  "`DateTime` when this `MonetizationSettingsEvent` happened."
+  at: DateTime!
+}
+
 "Billing operation."
 interface Operation {
   "ID of this `Operation`."
@@ -1981,7 +2158,7 @@ interface Operation {
   """
   holdUntil: DateTime
   "`OperationsEdge`s of the `Operation`s this `Operation` is linked to."
-  linkedOperations: [OperationsEdge!]!
+  linked: [OperationsEdge!]!
   "`DateTime` when this `Operation` was created."
   createdAt: DateTime!
   "Information about why this `Operation` was canceled, if it was."
@@ -2005,6 +2182,29 @@ interface OperationEvent {
   operation: OperationsEdge!
   "`DateTime` when this `OperationEvent` happened."
   at: DateTime!
+}
+
+"Description of some method for performing an `OperationWithdraw`."
+interface OperationWithdrawMethod {
+  "Unique ID of this `OperationWithdrawKind`."
+  id: OperationWithdrawMethodId!
+  "`OperationWithdrawKind` of this `OperationWithdrawMethod`."
+  kind: OperationWithdrawKind!
+  """
+    Criteria filtering this `OperationWithdrawMethod` availability for
+    specific `CountryCode`s.
+
+    `null` means that this `OperationWithdrawMethod` is available for all
+    `CountryCode`s.
+  """
+  countries: CriteriaCountry
+  """
+    `OperationWithdrawPricing` of this `OperationWithdrawMethod`.
+
+    `null` in case this `OperationWithdrawMethod` is unavailable for the
+    provided `CountryCode`.
+  """
+  pricing("`CountryCode` to return the `OperationWithdrawPricing` for." country: CountryCode!): OperationWithdrawPricing
 }
 
 "Events happening in a `Session`."
@@ -2326,6 +2526,17 @@ scalar IncomingChatCallsCursor
 """
 scalar InvoiceFile
 
+"Cursor over `MonetizationSettings`."
+scalar MonetizationSettingsCursor
+
+"""
+  Version of `MonetizationSettings`' state.
+
+  It increases monotonically, so may be used (and is intended to) for tracking
+  state's actuality.
+"""
+scalar MonetizationSettingsVersion
+
 """
   Version of `MyUser`'s state.
 
@@ -2336,6 +2547,9 @@ scalar MyUserVersion
 
 "Arbitrary additional reason of an `OperationCancellation`."
 scalar OperationCancellationReason
+
+"ID of an `OperationDepositMethod`."
+scalar OperationDepositMethodId
 
 """
   Secret authenticating client operations on an `OperationDeposit`.
@@ -2367,10 +2581,13 @@ scalar OperationReason
 """
 scalar OperationVersion
 
+"ID of an `OperationWithdrawMethod`."
+scalar OperationWithdrawMethodId
+
 "Cursor of `Operation`s."
 scalar OperationsCursor
 
-"Percentage value in range between `1` and `100` inclusively."
+"Percentage value in range between `0` (exclusively) and `100` (inclusively)."
 scalar Percentage
 
 "Cursor of `PromoShare`s in a historical order."
@@ -2473,6 +2690,9 @@ scalar URL
   [1]: https://github.com/jaydenseric/graphql-multipart-request-spec
 """
 scalar Upload
+
+"Sequential number of an affiliated `User`."
+scalar UserAffiliatedNum
 
 """
   Type of `MyUser`'s [user agent].
@@ -3741,6 +3961,18 @@ type CreateUserError {
   code: CreateUserErrorCode!
 }
 
+"`CountryCode`s being excluded from entities' match."
+type CriteriaCountryExcept {
+  "`CountryCode`s excluded from the match."
+  except: [CountryCode!]!
+}
+
+"`CountryCode`s being included into entities' match."
+type CriteriaCountryOnly {
+  "`CountryCode`s included into the match."
+  only: [CountryCode!]!
+}
+
 """
   Area for an image cropping.
 
@@ -4591,6 +4823,109 @@ type EventIncomingChatCallsTopChatCallRemoved {
   call: ChatCall!
 }
 
+"Event of `MonetizationSettingsDonation` being deleted."
+type EventMonetizationSettingsDonationDeleted implements MonetizationSettingsEvent {
+  """
+    `User` the `MonetizationSettings` are specified individually for.
+
+    ## Versioning
+
+    Returned `EventMonetizationSettingsDonationDeleted.user` field is
+    versioned by its own `UserVersion` and not by the
+    `MonetizationSettingsVersion` of this `MonetizationSettingsEvent`.
+  """
+  user: User!
+  """
+    `MonetizationSettingsEdge` of the changed `MonetizationSettings` the
+    deleted `MonetizationSettingsDonation` were part of.
+
+    # Result
+
+    `null` if the `MonetizationSettings` no longer exist.
+  """
+  monetizationSettings: MonetizationSettingsEdge
+  "`DateTime` when the `MonetizationSettingsDonation` were deleted."
+  at: DateTime!
+}
+
+"Event of a `MonetizationSettingsDonation.min` `Price` being updated."
+type EventMonetizationSettingsDonationMinPriceUpdated implements MonetizationSettingsEvent {
+  """
+    `User` the updated `MonetizationSettingsDonation` are specified
+    individually for.
+
+    ## Result
+
+    `null` if:
+    - The updated `MonetizationSettingsDonation` are common (applied to all
+      `User`s);
+    - The authenticated `MyUser` is not owner of the updated
+      `MonetizationSettingsDonation`.
+
+    ## Versioning
+
+    Returned `EventMonetizationSettingsDonationMinPriceUpdated.user` field
+    is versioned by its own `UserVersion` and not by the
+    `MonetizationSettingsVersion` of this `MonetizationSettingsEvent`.
+  """
+  user: User
+  "Updated `MonetizationSettingsDonation.min` `Price`."
+  min: Price!
+  """
+    `MonetizationSettingsEdge` of the changed `MonetizationSettings` the
+    updated `MonetizationSettingsDonation` are part of.
+
+    # Result
+
+    `null` if the `MonetizationSettings` no longer exist.
+  """
+  monetizationSettings: MonetizationSettingsEdge
+  """
+    `DateTime` when the `MonetizationSettingsDonation.min` `Price` was
+    updated.
+  """
+  at: DateTime!
+}
+
+"Event of a `MonetizationSettingsDonation.enabled` state being updated."
+type EventMonetizationSettingsDonationToggled implements MonetizationSettingsEvent {
+  """
+    `User` the updated `MonetizationSettingsDonation` are specified
+    individually for.
+
+    ## Result
+
+    `null` if:
+    - The updated `MonetizationSettingsDonation` are common (applied to all
+      `User`s);
+    - The authenticated `MyUser` is not owner of the updated
+      `MonetizationSettingsDonation`.
+
+    ## Versioning
+
+    Returned `EventMonetizationSettingsDonationToggled.user` field
+    is versioned by its own `UserVersion` and not by the
+    `MonetizationSettingsVersion` of this `MonetizationSettingsEvent`.
+  """
+  user: User
+  "Updated `MonetizationSettingsDonation.enabled` state."
+  enabled: Boolean!
+  """
+    `MonetizationSettingsEdge` of the changed `MonetizationSettings` the
+    updated `MonetizationSettingsDonation` are part of.
+
+    # Result
+
+    `null` if the `MonetizationSettings` no longer exist.
+  """
+  monetizationSettings: MonetizationSettingsEdge
+  """
+    `DateTime` when the `MonetizationSettingsDonation.enabled` state was
+    updated.
+  """
+  at: DateTime!
+}
+
 "Event of an `Operation` being canceled."
 type EventOperationCanceled implements OperationEvent {
   "ID of the canceled `Operation`."
@@ -4623,7 +4958,11 @@ type EventOperationChargeCreated implements OperationEvent {
   origin: OperationOrigin!
   "`OperationsEdge` of the created `OperationCharge`."
   operation: OperationsEdge!
-  "Money `Sum` and `Currency` of the created `OperationCharge`."
+  """
+    Money `Sum` and `Currency` of the created `OperationCharge`.
+
+    `Currency` is always `XXX`.
+  """
   amount: Price!
   "Reason of the `OperationCharge` creation."
   reason: OperationReason!
@@ -4631,7 +4970,7 @@ type EventOperationChargeCreated implements OperationEvent {
     `OperationsEdge`s of the `Operation`s the created `OperationCharge` is
     linked to.
   """
-  linkedOperations: [OperationsEdge!]!
+  linked: [OperationsEdge!]!
   "`DateTime` when the `OperationCharge` was created."
   at: DateTime!
 }
@@ -4650,15 +4989,27 @@ type EventOperationDepositBonusCreated implements OperationEvent {
   origin: OperationOrigin!
   "`OperationsEdge` of the created `OperationDepositBonus`."
   operation: OperationsEdge!
-  "`OperationDeposit` the created `OperationDepositBonus` is linked to."
-  deposit: OperationDeposit!
-  "Money `Sum` and `Currency` of the created `OperationDepositBonus`."
+  """
+    `OperationsEdge` of the `OperationDeposit` the created
+    `OperationDepositBonus` is linked to.
+
+    Guaranteed to contain the `OperationDeposit` inside.
+  """
+  deposit: OperationsEdge!
+  """
+    Money `Sum` and `Currency` of the created `OperationDepositBonus`.
+
+    `Currency` is always `XXX`.
+  """
   amount: Price!
   """
-    `OperationsEdge` of the `OperationDeposit` this `OperationDepositBonus`
-    is linked to.
+    `OperationsEdge` of the `OperationDeposit` the created
+    `OperationDepositBonus` is linked to.
+
+    Guaranteed to return exactly a single `OperationsEdge` with the
+    `OperationDeposit` inside.
   """
-  linkedOperation: OperationsEdge!
+  linked: [OperationsEdge!]!
   "`DateTime` when the `OperationDepositBonus` was created."
   at: DateTime!
 }
@@ -4797,7 +5148,11 @@ type EventOperationGrantCreated implements OperationEvent {
   origin: OperationOrigin!
   "`OperationsEdge` of the created `OperationGrant`."
   operation: OperationsEdge!
-  "Money `Sum` and `Currency` of the created `OperationGrant`."
+  """
+    Money `Sum` and `Currency` of the created `OperationGrant`.
+
+    `Currency` is always `XXX`.
+  """
   amount: Price!
   "Reason of the `OperationGrant` creation."
   reason: OperationReason!
@@ -4805,7 +5160,7 @@ type EventOperationGrantCreated implements OperationEvent {
     `OperationsEdge`s of the `Operation`s the created `OperationGrant` is
     linked to.
   """
-  linkedOperations: [OperationsEdge!]!
+  linked: [OperationsEdge!]!
   "`DateTime` when the `OperationGrant` was created."
   at: DateTime!
 }
@@ -4856,6 +5211,37 @@ type EventOperationPurchaseDonationCreated implements OperationEvent {
   at: DateTime!
 }
 
+"Event of a new `OperationReward` being created."
+type EventOperationRewardCreated implements OperationEvent {
+  "Unique ID of the created `OperationReward`."
+  id: OperationId!
+  "Sequential number of the created `OperationReward`."
+  num: OperationNum!
+  """
+    `OperationOrigin` of the created `OperationReward`.
+
+    Always an `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the created `OperationReward`."
+  operation: OperationsEdge!
+  """
+    Money `Sum` and `Currency` of the created `OperationReward`.
+
+    `Currency` is always `XXX`.
+  """
+  amount: Price!
+  "Cause of the created `OperationReward`."
+  cause: OperationRewardCause!
+  """
+    Sequential number of the affiliated `User` causing the created
+    `OperationReward`.
+  """
+  affiliatedNum: UserAffiliatedNum!
+  "`DateTime` when the `OperationReward` was created."
+  at: DateTime!
+}
+
 "Event of a `PromoShare` being removed."
 type EventPromoShareRemoved {
   "ID of the `User` whose `PromoShare` was removed."
@@ -4894,6 +5280,8 @@ type EventRecentChatsTopChatUpdated {
 type EventSessionCreated implements SessionEvent {
   "ID of the created `Session`."
   id: SessionId!
+  "`SiteDomain` of the `Site` the `Session` was created on."
+  siteDomain: SiteDomain!
   "`UserAgent` the `Session` was created by."
   userAgent: UserAgent!
   "`IP` of the device the `Session` was created from."
@@ -5620,6 +6008,174 @@ type LeaveChatCallError {
   code: LeaveChatCallErrorCode!
 }
 
+"Monetization settings of a `Vendor`."
+type MonetizationSettings {
+  """
+    Monetization settings of `Donation`s.
+
+    `null` if no settings are specified.
+  """
+  donation: MonetizationSettingsDonation
+  """
+    `User` these `MonetizationSettings` are specified individually for.
+
+    ## Result
+
+    `null` if:
+    - these `MonetizationSettings` are common (applied to all `User`s);
+    - the authenticated `MyUser` is not owner of these
+      `MonetizationSettings`.
+
+    ## Versioning
+
+    Returned `MonetizationSettings.user` field is versioned by its own
+    `UserVersion` and not by the `MonetizationSettingsVersion` of these
+    `MonetizationSettings`.
+  """
+  user: User
+  "`DateTime` when these `MonetizationSettings` were created."
+  createdAt: DateTime!
+  """
+    `Version` of these `MonetizationSettings`' state.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  ver: MonetizationSettingsVersion!
+}
+
+"""
+  [Connection] with `MonetizationSettings`.
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+"""
+type MonetizationSettingsConnection {
+  """
+    List of `MonetizationSettings` [Edges] in this [Connection].
+
+    [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+    [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
+  """
+  edges: [MonetizationSettingsEdge!]!
+  """
+    List of `MonetizationSettings` in this [Connection].
+
+    [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  """
+  nodes: [MonetizationSettings!]!
+  """
+    [PageInfo] of this [Connection].
+
+    [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+    [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+  "Total count of `MonetizationSettings` in this list."
+  totalCount: Int!
+  """
+    Version of this `MonetizationSettings` list.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  ver: MonetizationSettingsVersion!
+}
+
+"Monetization settings of `Donation`s."
+type MonetizationSettingsDonation {
+  "Indicator whether the `Vendor` accepts `Donation`s or not."
+  enabled: Boolean!
+  "Minimal `Price` of `Donation`s allowed in the `Chat` with the `Vendor`."
+  min: Price!
+}
+
+"""
+  [Edge] with `MonetizationSettings`.
+
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+"""
+type MonetizationSettingsEdge {
+  """
+    `MonetizationSettings` [Node] at the end of this [Edge].
+
+    [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+    [Node]: https://tinyurl.com/gql-relay#sec-Node
+  """
+  node: MonetizationSettings!
+  """
+    [Cursor] of this [Edge].
+
+    [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
+    [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  """
+  cursor: MonetizationSettingsCursor!
+}
+
+"""
+  `MonetizationSettingsEvent`s along with the corresponding
+  `MonetizationSettingsVersion`.
+"""
+type MonetizationSettingsEventsVersioned {
+  "`MonetizationSettingsEvent`s themselves."
+  events: [MonetizationSettingsEvent!]!
+  """
+    Version of the `MonetizationSettings`' state updated by these
+    `MonetizationSettingsEvent`s.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  ver: MonetizationSettingsVersion!
+  """
+    Version of the `MonetizationSettingsList`'s state updated by these
+    `MonetizationSettingsEvent`s.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  listVer: MonetizationSettingsVersion!
+}
+
+"List of `MonetizationSettings`."
+type MonetizationSettingsList {
+  """
+    Returns `MonetizationSettings` set by the `User` specified via
+    `MonetizationSettingsFilter.userId` of this `MonetizationSettingsList`
+    for the authenticated `MyUser`.
+
+    If the `User` specified via `MonetizationSettingsFilter.userId` is the
+    authenticated `MyUser`, then effectively returns common
+    `MonetizationSettings` of the authenticated `MyUser` (applied to all
+    `User`s).
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Result
+
+    Query returns `null` when no `User` specified via
+    `MonetizationSettingsFilter.userId` exists.
+  """
+  monetizationSettings: MonetizationSettings
+  """
+    Returns `MonetizationSettings` set by the authenticated `MyUser`, and
+    filtered by the `MonetizationSettingsFilter` of this
+    `MonetizationSettingsList`.
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Sorting
+
+    Returned `MonetizationSettings` are sorted primarily by their
+    `MonetizationSettings.createdAt` field, and secondary by IDs of the
+    `User`s they are specified for, in descending order.
+  """
+  myMonetizationSettings("Arguments for pagination over returned `MonetizationSettings`." pagination: MonetizationSettingsPagination): MonetizationSettingsConnection!
+}
+
 type Mutation {
   """
     Creates a new `MyUser` having only `id` and unique `num` fields, along
@@ -6253,6 +6809,38 @@ type Mutation {
 
     Exactly one should be specified.
   """ ident: MyUserIdentifier!, "`ConfirmationCode` to be validated." code: ConfirmationCode!): ValidateConfirmationCodeErrorCode
+  """
+    Updates `MonetizationSettings` of the authenticated `MyUser`.
+
+    If the `userId` argument is specified, then `MonetizationSettings` will
+    be updated individually for that `User`. Otherwise, common
+    `MonetizationSettings` are updated, affecting all `User`s. Naturally,
+    individual `MonetizationSettings` take precedence over common
+    `MonetizationSettings`.
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Result
+
+    One of the following `MonetizationSettingsEvent`s may be produced on
+    success:
+    - `EventMonetizationSettingsDonationDeleted`;
+    - `EventMonetizationSettingsDonationMinPriceUpdated`;
+    - `EventMonetizationSettingsDonationToggled`.
+
+    ## Idempotent
+
+    Succeeds as no-op (and returns no `MonetizationSettingsEvent`) if the
+    specified `MonetizationSettings`' fields are set already to the provided
+    values.
+  """
+  updateMonetizationSettings("""
+    Optional ID of the `User` to update individual `MonetizationSettings` for.
+
+    If absent or `null` then common `MonetizationSettings` will be updated (affecting all `User`s).
+  """ userId: UserId, "`MonetizationSettings` to be set." settings: MonetizationSettingsInput!): UpdateMonetizationSettingsResult
   """
     Creates a new `Session` for the `MyUser` identified by the provided
     `MyUserIdentifier`.
@@ -7719,7 +8307,7 @@ type Mutation {
 
     Each time creates a new unique `OperationDeposit`.
   """
-  createOperationDeposit("Kind of the created `OperationDeposit`." kind: OperationDepositInput!, "Billing `CountryCode` of the created `OperationDeposit`." billingCountry: CountryCode!): CreateOperationDepositResult!
+  createOperationDeposit("ID of the `OperationDepositMethod` to create the `OperationDeposit` with." methodId: OperationDepositMethodId!, "Kind of the created `OperationDeposit`." kind: OperationDepositInput!, "Billing `CountryCode` of the created `OperationDeposit`." billingCountry: CountryCode!): CreateOperationDepositResult!
   """
     Completes an `OperationDeposit`.
 
@@ -7951,6 +8539,24 @@ type MyUser {
   """
   balance("Origin to return the `Balance` of." origin: BalanceOrigin!): Balance!
   """
+    Common monetization settings of the authenticated `MyUser` (applied to
+    all `User`s).
+
+    Alias of the `Query.myMonetizationSettings` with the `by.userId`
+    argument specified as `MyUser.id`.
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Versioning
+
+    Returned `MyUser.monetizationSettings` field is versioned by its own
+    `MonetizationSettingsVersion` and not by the `MyUserVersion` of this
+    `MyUser`.
+  """
+  monetizationSettings: MonetizationSettingsEdge!
+  """
     Version of this `MyUser`'s state.
 
     It increases monotonically, so may be used (and is intended to) for
@@ -8008,7 +8614,11 @@ type OperationCharge implements Operation {
     Always an `OperationDirection.OUTGOING`.
   """
   direction: OperationDirection!
-  "Money `Sum` and `Currency` of this `OperationCharge`."
+  """
+    Money `Sum` and `Currency` of this `OperationCharge`.
+
+    `Currency` is always `XXX`.
+  """
   amount: Price!
   "Reason of this `OperationCharge`."
   reason: OperationReason!
@@ -8016,7 +8626,7 @@ type OperationCharge implements Operation {
     `OperationsEdge`s of the `Operation`s this `OperationCharge` is linked
     to.
   """
-  linkedOperations: [OperationsEdge!]!
+  linked: [OperationsEdge!]!
   """
     `DateTime` until which this `OperationCharge` is on hold.
 
@@ -8092,7 +8702,7 @@ type OperationDeposit implements Operation {
     Always empty as an `OperationDeposit` cannot be linked to other
     `Operation`s.
   """
-  linkedOperations: [OperationsEdge!]!
+  linked: [OperationsEdge!]!
   """
     `DateTime` until which this `OperationDeposit` is on hold.
 
@@ -8139,15 +8749,27 @@ type OperationDepositBonus implements Operation {
     Always an `OperationDirection.INCOMING`.
   """
   direction: OperationDirection!
-  "`OperationDeposit` this `OperationDepositBonus` is linked to."
-  deposit: OperationDeposit!
-  "Money `Sum` and `Currency` of this `OperationDepositBonus`."
+  """
+    `OperationsEdge` of the `OperationDeposit` this `OperationDepositBonus`
+    is linked to.
+
+    Guaranteed to contain the `OperationDeposit` inside.
+  """
+  deposit: OperationsEdge!
+  """
+    Money `Sum` and `Currency` of this `OperationDepositBonus`.
+
+    `Currency` is always `XXX`.
+  """
   amount: Price!
   """
     `OperationsEdge` of the `OperationDeposit` this `OperationDepositBonus`
     is linked to.
+
+    Guaranteed to return exactly a single `OperationsEdge` with the
+    `OperationDeposit` inside.
   """
-  linkedOperations: [OperationsEdge!]!
+  linked: [OperationsEdge!]!
   """
     `DateTime` until which this `OperationDepositBonus` is on hold.
 
@@ -8171,40 +8793,32 @@ type OperationDepositBonus implements Operation {
   ver: OperationVersion!
 }
 
-"`CountryCode`s not available for an `OperationDepositKind`."
-type OperationDepositKindCriteriaCountryExcept {
-  "Not available `CountryCode`s."
-  except: [CountryCode!]!
-}
-
-"`CountryCode`s exclusively available for an `OperationDepositKind`."
-type OperationDepositKindCriteriaCountryOnly {
-  "Available `CountryCode`s only."
-  only: [CountryCode!]!
-}
-
-"Information about an `OperationDepositKind`."
-type OperationDepositKindInfo {
-  "`OperationDepositKind` this information is about."
+"Description of some method for performing an `OperationDeposit`."
+type OperationDepositMethod {
+  "Unique ID of this `OperationDepositMethod`."
+  id: OperationDepositMethodId!
+  "`OperationDepositKind` of this `OperationDepositMethod`."
   kind: OperationDepositKind!
   """
-    Criteria filtering the `OperationDepositKind` availability for specific
-    `CountryCode`s.
+    Criteria filtering this `OperationDepositMethod` availability for
+    specific `CountryCode`s.
 
-    `null` means that the `OperationDepositKind` is available for all
+    `null` means that this `OperationDepositMethod` is available for all
     `CountryCode`s.
   """
-  countries: OperationDepositKindCriteriaCountry
+  countries: CriteriaCountry
   """
-    List of available nominal `Price`s the `OperationDepositKind` accepts.
+    List of available nominal `Price`s this `OperationDepositMethod`
+    accepts.
 
-    `null` means that the `OperationDepositKind` accepts arbitrary `Price`s.
+    `null` means that this `OperationDepositMethod` accepts arbitrary
+    `Price`s.
   """
   nominals: [Price!]
   """
-    `DepositPricing` of this `OperationDepositKind`.
+    `OperationDepositPricing` of this `OperationDepositMethod`.
 
-    `null` in case this `OperationDepositKind` is unavailable for the
+    `null` in case this `OperationDepositMethod` is unavailable for the
     provided `CountryCode`.
   """
   pricing("`CountryCode` to return the `OperationDepositPricing` for." country: CountryCode!): OperationDepositPricing
@@ -8319,7 +8933,7 @@ type OperationEarnDonation implements Operation {
     Always empty as an `OperationEarnDonation` cannot be linked to other
     `Operation`s.
   """
-  linkedOperations: [OperationsEdge!]!
+  linked: [OperationsEdge!]!
   """
     `DateTime` until which this `OperationEarnDonation` is on hold.
 
@@ -8387,7 +9001,11 @@ type OperationGrant implements Operation {
     Always an `OperationDirection.INCOMING`.
   """
   direction: OperationDirection!
-  "Money `Sum` and `Currency` of this `OperationGrant`."
+  """
+    Money `Sum` and `Currency` of this `OperationGrant`.
+
+    `Currency` is always `XXX`.
+  """
   amount: Price!
   "Reason of this `OperationGrant`."
   reason: OperationReason!
@@ -8395,7 +9013,7 @@ type OperationGrant implements Operation {
     `OperationsEdge`s of the `Operation`s this `OperationGrant` is linked
     to.
   """
-  linkedOperations: [OperationsEdge!]!
+  linked: [OperationsEdge!]!
   """
     `DateTime` until which this `OperationGrant` is on hold.
 
@@ -8477,7 +9095,7 @@ type OperationPurchaseDonation implements Operation {
     Always empty as an `OperationPurchaseDonation` cannot be linked to other
     `Operation`s.
   """
-  linkedOperations: [OperationsEdge!]!
+  linked: [OperationsEdge!]!
   """
     `DateTime` until which this `OperationPurchaseDonation` is on hold.
 
@@ -8498,6 +9116,176 @@ type OperationPurchaseDonation implements Operation {
     tracking state's actuality.
   """
   ver: OperationVersion!
+}
+
+"`Operation` of rewarding `MyUser` due to affiliation program."
+type OperationReward implements Operation {
+  "ID of this `OperationReward`."
+  id: OperationId!
+  "Sequential number of this `OperationReward`."
+  num: OperationNum!
+  "Status of this `OperationReward`."
+  status: OperationStatus!
+  """
+    `OperationOrigin` of this `OperationReward`.
+
+    Always an `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  """
+    `OperationDirection` of this `OperationReward`.
+
+    Always an `OperationDirection.INCOMING`.
+  """
+  direction: OperationDirection!
+  """
+    Money `Sum` and `Currency` of this `OperationReward`.
+
+    `Currency` is always `XXX`.
+  """
+  amount: Price!
+  "Cause of this `OperationReward`."
+  cause: OperationRewardCause!
+  """
+    Sequential number of the affiliated `User` causing this
+    `OperationReward`.
+  """
+  affiliatedNum: UserAffiliatedNum!
+  """
+    `OperationsEdge`s of the `Operation`s this `OperationReward` is linked
+    to.
+
+    Always empty as an `OperationReward` cannot be linked to other
+    `Operation`s.
+  """
+  linked: [OperationsEdge!]!
+  """
+    `DateTime` until which this `OperationReward` is on hold.
+
+    If it's less than now, it means that the hold is in process of being
+    lifted yet.
+
+    `null` if this `OperationReward` is not on hold.
+  """
+  holdUntil: DateTime
+  "`DateTime` when this `OperationReward` was created."
+  createdAt: DateTime!
+  """
+    Information about why this `OperationReward` was canceled.
+
+    Always `null` as an `OperationReward` could never be canceled.
+  """
+  canceled: OperationCancellation
+  """
+    Version of the `OperationReward`'s state.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  ver: OperationVersion!
+}
+
+"""
+  Description of some method for performing an `OperationWithdraw` via
+  [SWIFT].
+
+  [SWIFT]: https://www.swift.com
+"""
+type OperationWithdrawMethodSwift implements OperationWithdrawMethod {
+  "Unique ID of this `OperationWithdrawMethodSwift`."
+  id: OperationWithdrawMethodId!
+  """
+    `OperationWithdrawKind` of this `OperationWithdrawMethodSwift`.
+
+    Always `OperationWithdrawKind.SWIFT`.
+  """
+  kind: OperationWithdrawKind!
+  """
+    Criteria filtering this `OperationWithdrawMethodSwift` availability for
+    specific `CountryCode`s.
+
+    `null` means that this `OperationWithdrawMethodSwift` is available for
+    all `CountryCode`s.
+  """
+  countries: CriteriaCountry
+  "`Currency` of this `OperationWithdrawMethodSwift`."
+  currency: Currency!
+  """
+    `OperationWithdrawPricing` of this `OperationWithdrawMethodSwift`.
+
+    `null` in case this `OperationWithdrawMethodSwift` is unavailable for
+    the provided `CountryCode`.
+  """
+  pricing("`CountryCode` to return the `OperationWithdrawPricing` for." country: CountryCode!): OperationWithdrawPricing
+}
+
+"Pricing of an `OperationWithdraw`."
+type OperationWithdrawPricing {
+  "Nominal `Price` of the `OperationWithdraw`."
+  nominal: Price!
+  """
+    Commission details of the `OperationWithdraw`, in the provided
+    `Currency`.
+
+    `null` if the provided `Currency` is not supported by the
+    `OperationWithdraw` or commission details are unavailable for the
+    provided `Currency`.
+  """
+  commission("""
+    `Currency` to return the calculated commission in.
+
+    If absent or `null` then the commission is returned in the actual paying `Currency` of the
+                              `OperationWithdraw`.
+  """ currency: Currency): OperationWithdrawPricingCommission
+  """
+    Approximate `Price` of the `OperationWithdraw`, in the provided
+    `Currency`, before the commission deduction.
+
+    `null` if the provided `Currency` is not supported by the
+    `OperationWithdraw`.
+  """
+  withoutCommission("""
+    `Currency` to return the calculated `Price` in.
+
+    If absent or `null` then the `Price` is returned in the actual paying `Currency` of the
+                              `OperationWithdraw`.
+  """ currency: Currency): Price
+  """
+    Minimum nominal `Price` allowed to withdraw.
+
+    `null` means no limit.
+  """
+  min: Price
+  """
+    Maximum nominal `Price` allowed to withdraw.
+
+    `null` means no limit.
+  """
+  max: Price
+}
+
+"Commission details of an `OperationWithdraw`."
+type OperationWithdrawPricingCommission {
+  """
+    Minimum possible commission.
+
+    `null` means no limit.
+  """
+  min: PriceModifier
+  """
+    Maximum possible commission.
+
+    `null` means no limit.
+  """
+  max: PriceModifier
+  "Fixed part of the commission."
+  fixed: PriceModifier
+  """
+    Additional part of the commission.
+
+    Guaranteed to be `null` if the `fixed` part is also `null`.
+  """
+  additional: PriceModifier
 }
 
 """
@@ -8746,8 +9534,7 @@ type PriceModifier {
   """
     `Percentage` to apply to the `Price`.
 
-    `null` means this `PriceModifier` modifies the `Price` by a fixed
-    `Sum`.
+    `null` means this `PriceModifier` modifies the `Price` by a fixed `Sum`.
   """
   percentage: Percentage
   """
@@ -8764,7 +9551,7 @@ type PriceModifier {
   promoter `User`s.
 """
 type PromoShare {
-  "Percentage of this `PromoShare`."
+  "`Percentage` of this `PromoShare`."
   percentage: Percentage!
   "`DateTime` when this `PromoShare` was added."
   addedAt: DateTime!
@@ -9422,6 +10209,55 @@ type Query {
     If absent or `null` then the `PromoShare`s of the authenticated `MyUser` will be returned.
   """ ownerId: UserId, "Pagination arguments to return the `PromoShare`s by." pagination: PromoShareHistoryPagination): PromoShareHistoryConnection
   """
+    Returns `MonetizationSettings` of the authenticated `MyUser` filtered by
+    the provided criteria.
+
+    Searching `by.userId` is exact, returning:
+    - Individual `MonetizationSettings` (if the `by.userId` is different
+      from the `MyUser.id`).
+    - Common `MonetizationSettings` (if `by.userId` is the `MyUser.id`).
+
+    If no `by` (or `by.userId`) argument is provided, then individual
+    `MonetizationSettings` for all `User`s will be returned, also including
+    the common ones.
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Sorting
+
+    Returned `MonetizationSettings` are sorted depending on the provided
+    arguments:
+    - If the `by.userId` argument is specified, then exact
+      `MonetizationSettings` are returned.
+    - Otherwise, the returned `MonetizationSettings` are sorted primarily by
+      their `MonetizationSettings.createdAt` field, and secondary by IDs of
+      the `User`s they are specified for, in descending order.
+  """
+  myMonetizationSettings("Filter to search `MonetizationSettings` by." by: MyMonetizationSettingsFilter, """
+    Arguments for pagination over returned `MonetizationSettings`.
+
+    Does nothing if the `by.userId` argument is specified.
+  """ pagination: MonetizationSettingsPagination): MonetizationSettingsConnection!
+  """
+    Returns `MonetizationSettings` set by the specified `User` for the
+    authenticated `MyUser`.
+
+    If the specified `User` is the authenticated `MyUser`, then effectively
+    returns common `MonetizationSettings` of the authenticated `MyUser`
+    (applied to all `User`s).
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Result
+
+    Query returns `null` when no `User` exists with the specified `userId`.
+  """
+  monetizationSettings("ID of the `User` to return `MonetizationSettings` of." userId: UserId!): MonetizationSettings
+  """
     Returns an `OperationsEdge` of an `Operation` by its
     `OperationIdentifier`.
 
@@ -9459,26 +10295,46 @@ type Query {
     Does nothing if the `by.id` or `by.num` argument is specified.
   """ pagination: OperationsPagination): OperationsConnection!
   """
-    Returns information about `OperationDepositKind`s available for the
+    Returns information about available `OperationDepositMethod`s for the
     authenticated `MyUser`.
 
     ## Authentication
 
     Mandatory.
   """
-  operationDepositKinds: [OperationDepositKindInfo!]!
+  operationDepositMethods: [OperationDepositMethod!]!
   """
-    Returns `OperationDepositPricing` of the provided
-    `OperationDepositKind`.
+    Returns `OperationDepositPricing` of the `OperationDepositMethod` by its
+    ID.
 
-    `null` in case the provided `OperationDepositKind` is unavailable for
+    `null` in case the provided `OperationDepositMethod` is unavailable for
     the provided `CountryCode` or for the authenticated `MyUser`.
 
     ## Authentication
 
     Mandatory.
   """
-  operationDepositPricing("Kind of the `OperationDeposit` to return the `OperationDepositPricing` for." kind: OperationDepositKind!, "`CountryCode` to return the `OperationDepositPricing` for." country: CountryCode!): OperationDepositPricing
+  operationDepositPricing("ID of the `OperationDepositMethod` to return the `OperationDepositPricing` for." methodId: OperationDepositMethodId!, "`CountryCode` to return the `OperationDepositPricing` for." country: CountryCode!): OperationDepositPricing
+  """
+    Returns information about available `OperationWithdrawMethod`s for the
+    authenticated `MyUser`.
+
+    ## Authentication
+
+    Mandatory.
+  """
+  operationWithdrawMethods: [OperationWithdrawMethod!]!
+  """
+    Returns `OperationWithdrawPricing` of an `OperationWithdrawMethod`.
+
+    `null` in case the provided `OperationWithdrawMethod` is unavailable for
+    the provided `CountryCode` or for the authenticated `MyUser`.
+
+    ## Authentication
+
+    Mandatory.
+  """
+  operationWithdrawPricing("ID of the `OperationWithdrawMethod` to return the `OperationWithdrawPricing` for." methodId: OperationWithdrawMethodId!, "`CountryCode` to return the `OperationWithdrawPricing` for." country: CountryCode!): OperationWithdrawPricing
   """
     Returns the current `Balance` of the authenticated `MyUser` in the
     provided `BalanceOrigin`.
@@ -10490,6 +11346,107 @@ type Subscription {
     If omitted (or is `null`) then an initial state of the `Operations` will be emitted after `SubscriptionInitialized` and before any other `OperationEvent`s.
   """ ver: OperationVersion): OperationsEvents!
   """
+    Subscribes to `MonetizationSettingEvent`s set by/for the authenticated
+    `MyUser`.
+
+    If the `userId` argument is absent or `null`, or equals to the
+    `MyUser.id`, then events for `MonetizationSettings` set **by** the
+    authenticated `MyUser` are emitted (both common and individual).
+
+    If the `userId` argument  specified, and differs from the `MyUser.id`,
+    then only events for `MonetizationSettings` set **for** the
+    authenticated `MyUser` by that `User` are emitted.
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Initialization
+
+    Once this subscription is initialized completely, it immediately emits
+    `SubscriptionInitialized`.
+
+    If nothing has been emitted for a long period of time after establishing
+    this subscription (while not being completed), it should be considered
+    as an unexpected server error. This fact can be used on a client side to
+    decide whether this subscription has been initialized successfully.
+
+    ## Result
+
+    An initial state of the `MonetizationSettingsList` will be emitted after
+    `SubscriptionInitialized` and before any other
+    `MonetizationSettingsEvent`s (and won't be emitted ever again until this
+    subscription completes). This allows to skip calling
+    `Query.monetizationSettings` (or `Query.myMonetizationSettings`) before
+    establishing this subscription.
+
+    ## Completion
+
+    Infinite.
+
+    Completes requiring a re-subscription when:
+    - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
+    - An error occurs on the server (error is emitted).
+    - The server is shutting down or becoming unreachable (unexpectedly
+      completes after initialization).
+
+    ## Idempotency
+
+    It's possible that in rare scenarios this subscription could emit an
+    event which have already been applied to the state of some
+    `MonetizationSettings`, so a client side is expected to handle all the
+    events idempotently considering the `MonetizationSettings.ver`.
+  """
+  monetizationSettingsEvents("""
+    ID of the `User` to subscribe `MonetizationSettingsEvent`s of.
+
+    If absent or `null` then `MyUser.id` is assumed.
+  """ userId: UserId, "Filter for subscribing to `MonetizationSettingsEvent`s." by: MonetizationSettingsFilter): MonetizationSettingsEvents!
+  """
+    Subscribes to `MonetizationSettingEvent`s of the `MonetizationSettings`
+    set by the authenticated `MyUser` (both common and individual ones).
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Initialization
+
+    Once this subscription is initialized completely, it immediately emits
+    `SubscriptionInitialized`.
+
+    If nothing has been emitted for a long period of time after establishing
+    this subscription (while not being completed), it should be considered
+    as an unexpected server error. This fact can be used on a client side to
+    decide whether this subscription has been initialized successfully.
+
+    ## Result
+
+    An initial state of the `MonetizationSettingsList` will be emitted after
+    `SubscriptionInitialized` and before any other
+    `MonetizationSettingsEvent`s (and won't be emitted ever again until this
+    subscription completes). This allows to skip calling
+    `Query.myMonetizationSettings` before establishing this subscription.
+
+    ## Completion
+
+    Infinite.
+
+    Completes requiring a re-subscription when:
+    - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
+    - An error occurs on the server (error is emitted).
+    - The server is shutting down or becoming unreachable (unexpectedly
+      completes after initialization).
+
+    ## Idempotency
+
+    It's possible that in rare scenarios this subscription could emit an
+    event which have already been applied to the state of some
+    `MonetizationSettings`, so a client side is expected to handle all the
+    events idempotently considering the `MonetizationSettings.ver`.
+  """
+  myMonetizationSettingsEvents("Filter for subscribing to `MonetizationSettingsEvent`s." by: MonetizationSettingsFilter): MonetizationSettingsEvents!
+  """
     Subscribes to `Balance` updates of the authenticated `MyUser` in the
     provided `BalanceOrigin`.
 
@@ -10599,6 +11556,12 @@ type UpdateChatAvatarError {
 type UpdateChatContactNameError {
   "Code indicating why this error has happened."
   code: UpdateChatContactNameErrorCode!
+}
+
+"Error of performing `Mutation.updateMonetizationSettings`."
+type UpdateMonetizationSettingsError {
+  "Code indicating why this error has happened."
+  code: UpdateMonetizationSettingsErrorCode!
 }
 
 "Error of performing `Mutation.updateUserAvatar`."
@@ -10773,6 +11736,49 @@ type User {
     `PromoShareVersion` and not by the `UserVersion` of this `User`.
   """
   promo: UserPromo
+  """
+    `MonetizationSettingsEdge` of `MonetizationSettings` the authenticated
+    `MyUser` set for this `User` individually.
+
+    Alias of the `Query.myMonetizationSettings` with the `by.userId`
+    argument specified.
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Result
+
+    Returns `null` when no `MonetizationSettings` are set individually for
+    this `User`.
+
+    ## Versioning
+
+    Returned `User.myMonetizationSettings` field is versioned by its own
+    `MonetizationSettingsVersion` and not by the `UserVersion` of this
+    `User`.
+  """
+  myMonetizationSettings: MonetizationSettingsEdge
+  """
+    Monetization settings set by this `User` for the authenticated `MyUser`.
+
+    If this `User` is the authenticated `MyUser`, then effectively returns
+    common `MonetizationSettings` of the authenticated `MyUser` (applied to
+    all `User`s).
+
+    Alias of the `Query.monetizationSettings`.
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Versioning
+
+    Returned `User.monetizationSettings` field is versioned by its own
+    `MonetizationSettingsVersion` and not by the `UserVersion` of this
+    `User`.
+  """
+  monetizationSettings: MonetizationSettings!
   """
     Version of this `User`'s state.
 
@@ -11148,6 +12154,9 @@ union CreateSessionResult = CreateSessionOk | CreateSessionError
 "Result of performing `Mutation.createUser`."
 union CreateUserResult = CreateSessionOk | CreateUserError
 
+"Entities' criteria matching `CountryCode`s."
+union CriteriaCountry = CriteriaCountryExcept | CriteriaCountryOnly
+
 "Result of performing `Mutation.declineChatCall`."
 union DeclineChatCallResult = ChatEventsVersioned | DeclineChatCallError
 
@@ -11202,6 +12211,9 @@ union JoinChatCallResult = JoinChatCallOk | JoinChatCallError
 "Result of performing `Mutation.leaveChatCall`."
 union LeaveChatCallResult = ChatEventsVersioned | LeaveChatCallError
 
+"Events emitted by the `Subscription.monetizationSettings`."
+union MonetizationSettingsEvents = SubscriptionInitialized | MonetizationSettingsList | MonetizationSettingsEventsVersioned
+
 "Mute duration of a `Chat` or the authenticated `MyUser`."
 union MuteDuration = MuteUntilDuration | MuteForeverDuration
 
@@ -11210,9 +12222,6 @@ union MyUserEvent = EventUserAvatarRemoved | EventUserAvatarUpdated | EventUserB
 
 "Events emitted by `Subscription.myUserEvents`."
 union MyUserEvents = SubscriptionInitialized | MyUser | MyUserEventsVersioned
-
-"Criterion of `OperationDepositKind` availability for `CountryCode`s."
-union OperationDepositKindCriteriaCountry = OperationDepositKindCriteriaCountryExcept | OperationDepositKindCriteriaCountryOnly
 
 "Events emitted by `Subscription.operationsEvents`."
 union OperationsEvents = SubscriptionInitialized | OperationsList | OperationEventsVersioned
@@ -11291,6 +12300,9 @@ union UpdateChatAvatarResult = ChatEventsVersioned | UpdateChatAvatarError
 
 "Result of performing `Mutation.updateChatContactName`."
 union UpdateChatContactNameResult = ChatContactEventsVersioned | UpdateChatContactNameError
+
+"Result of performing `Mutation.updateMonetizationSettings`."
+union UpdateMonetizationSettingsResult = MonetizationSettingsEventsVersioned | UpdateMonetizationSettingsError
 
 "Result of performing `Mutation.updateUserAvatar`."
 union UpdateUserAvatarResult = MyUserEventsVersioned | UpdateUserAvatarError
