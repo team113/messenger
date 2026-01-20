@@ -591,14 +591,6 @@ jobs:
     name: build (linux)
     runs-on: ubuntu-22.04  # pin `glibc` to 2.35 for better compatibility
     steps:
-      # `debian:bookworm` doesn't include Git in its `PATH`, which is required
-      # by `PubspecBuilder`.
-      - name: Install Git
-        run: |
-          set -ex
-          apt-get update
-          apt-get install -y git
-
       - uses: actions/checkout@v6
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
