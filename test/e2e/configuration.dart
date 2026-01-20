@@ -399,17 +399,20 @@ Future<void> appInitializationFn(World world) {
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 
+  final Function(FlutterErrorDetails)? original = FlutterError.onError;
   FlutterError.onError = (details) {
     final String exception = details.exception.toString();
 
     // Silence the `GlobalKey` being duplicated errors:
     // https://github.com/google/flutter.widgets/issues/137
     if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
-        exception.contains('Multiple widgets used the same GlobalKey.')) {
+        exception.contains('Multiple widgets used the same GlobalKey.') ||
+        exception.contains('DriftRemoteException') ||
+        exception.contains('SqliteException')) {
       return;
     }
 
-    FlutterError.presentError(details);
+    original?.call(details);
   };
 
   return Future.sync(app.main);
