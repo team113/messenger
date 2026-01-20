@@ -66,7 +66,7 @@ import '/util/web/web_utils.dart';
 
 /// Worker responsible for showing an incoming call notification and playing an
 /// incoming or outgoing call audio.
-class CallWorker extends DisposableService {
+class CallWorker extends Dependency {
   CallWorker(
     this._callService,
     this._chatService,
@@ -655,7 +655,16 @@ class CallWorker extends DisposableService {
 
           if (_lastConnectedAt == null || seconds >= 5) {
             _lastConnectedAt = DateTime.now();
+
+            for (var e in _callService.calls.values) {
+              e.value.notify(ConnectionLostNotification());
+            }
+
             await MediaUtils.ensureReconnected();
+
+            for (var e in _callService.calls.values) {
+              e.value.notify(ConnectionRestoredNotification());
+            }
           }
         }
       }

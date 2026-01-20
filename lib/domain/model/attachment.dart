@@ -181,7 +181,7 @@ class FileAttachment extends Attachment {
 
   @override
   String toString() =>
-      'FileAttachment(id: $id, size: ${original.size}, filename: $filename)';
+      'FileAttachment(id: $id, size: ${original.size}, filename: $filename, downloading: $downloading)';
 }
 
 /// Unique ID of an [Attachment].

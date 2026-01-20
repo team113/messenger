@@ -28,7 +28,7 @@ import '/util/log.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [MyUser]'s blocklist.
-class BlocklistService extends DisposableService {
+class BlocklistService extends Dependency {
   BlocklistService(this._blocklistRepo);
 
   /// Repository responsible for storing blocked [RxUser]s.

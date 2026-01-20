@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
@@ -23,6 +24,7 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
@@ -35,21 +37,64 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
   'I long press {string} message',
   (text, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 4));
+    await context.world.appDriver.waitUntil(
+      () async {
+        try {
+          final RxChat? chat = Get.find<ChatService>()
+              .chats[ChatId(router.route.split('/').last)];
 
-    RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    ChatMessage message = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .firstWhere((e) => e.text?.val == text);
+          final Iterable<ChatMessage> messages = chat!.messages
+              .map((e) => e.value)
+              .whereType<ChatMessage>();
 
-    Finder finder = context.world.appDriver.findByKeySkipOffstage(
-      'Message_${message.id}',
+          final ChatMessage? message = messages.firstWhereOrNull(
+            (e) => e.text?.val == text,
+          );
+
+          Log.debug(
+            'longPressMessageByText -> chat is `$chat`, message is `$message`',
+            'E2E',
+          );
+
+          if (message == null) {
+            Log.debug(
+              'longPressMessageByText -> message is `null`, thus the whole list of messages -> $messages',
+              'E2E',
+            );
+
+            return false;
+          }
+
+          final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+            'Message_${message.id}',
+          );
+
+          Log.debug(
+            'longPressMessageByText -> finder for `Message_${message.id}` is $finder',
+            'E2E',
+          );
+
+          if (finder.evaluate().isEmpty) {
+            return false;
+          }
+
+          Log.debug('longPressMessageByText -> longPress()...', 'E2E');
+          await context.world.appDriver.nativeDriver.longPress(finder);
+          Log.debug('longPressMessageByText -> longPress()... done!', 'E2E');
+
+          await context.world.appDriver.nativeDriver.pump(
+            const Duration(seconds: 4),
+          );
+
+          return true;
+        } catch (e) {
+          return false;
+        }
+      },
+      timeout: const Duration(seconds: 30),
+      pollInterval: const Duration(seconds: 4),
     );
-
-    await context.world.appDriver.nativeDriver.longPress(finder);
-    await context.world.appDriver.waitForAppToSettle();
   },
 );
 

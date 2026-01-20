@@ -1008,13 +1008,16 @@ class ChatRepository extends DisposableInterface
     ChatMessageText? previousText;
     List<Attachment>? previousAttachments;
     List<ChatItemQuote>? previousReplies;
+
     if (item?.value is ChatMessage) {
       previousText = (item?.value as ChatMessage).text;
       previousAttachments = (item?.value as ChatMessage).attachments;
       previousReplies = (item?.value as ChatMessage).repliesTo;
 
       item?.update((c) {
-        (c as ChatMessage).text = text != null ? text.changed : previousText;
+        c as ChatMessage;
+
+        c.text = text != null ? text.changed : previousText;
         c.attachments = attachments?.changed ?? previousAttachments!;
         c.repliesTo =
             repliesTo?.changed
@@ -1309,10 +1312,24 @@ class ChatRepository extends DisposableInterface
 
     if (attachment.upload.value?.isCompleted != false) {
       attachment.upload.value = Completer();
+      attachment.upload.value?.future.catchError((e) {
+        Log.debug(
+          'uploadAttachment($attachment) -> upload -> catchError($e)',
+          '$runtimeType',
+        );
+        return null;
+      });
     }
 
     if (attachment.read.value?.isCompleted != false) {
       attachment.read.value = Completer();
+      attachment.read.value?.future.catchError((e) {
+        Log.debug(
+          'uploadAttachment($attachment) -> read -> catchError($e)',
+          '$runtimeType',
+        );
+        return null;
+      });
     }
 
     attachment.status.value = SendingStatus.sending;

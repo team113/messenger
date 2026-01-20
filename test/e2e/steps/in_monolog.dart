@@ -20,6 +20,7 @@ import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/util/log.dart';
 
 import '../world/custom_world.dart';
 
@@ -31,6 +32,11 @@ final StepDefinitionGeneric iAmInMonolog = given<CustomWorld>(
   'I am in monolog',
   (context) async {
     final ChatService chatService = Get.find<ChatService>();
+
+    Log.debug('iAmInMonolog -> monolog is ${chatService.monolog}', 'E2E');
+    Log.debug('iAmInMonolog -> me is ${chatService.me}', 'E2E');
+    Log.debug('iAmInMonolog -> hash is ${chatService.hashCode}', 'E2E');
+
     router.chat(chatService.monolog);
 
     await context.world.appDriver.waitUntil(() async {
