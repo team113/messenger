@@ -25,10 +25,12 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
         - Connection not being reconnected on network changes on Web. ([#1581])
+        - Own camera or recipient's video sometimes not being rendered. ([#1582])
 
 [#1578]: /../../pull/1578
 [#1580]: /../../pull/1580
 [#1581]: /../../pull/1581
+[#1582]: /../../pull/1582
 
 
 
