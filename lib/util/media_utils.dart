@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 
+import '/config.dart';
 import '/l10n/l10n.dart';
 import 'log.dart';
 import 'platform_utils.dart';
@@ -71,6 +72,19 @@ class MediaUtilsImpl {
 
         try {
           _jason = await Jason.init();
+
+          if (Config.redirectStdOut) {
+            if (PlatformUtils.isMacOS) {
+              try {
+                await Logging.setLogLevel(LogLevel.debug);
+              } catch (e) {
+                Log.warning(
+                  'Unable to enable `Logging.setLogLevel()` -> $e',
+                  '$runtimeType',
+                );
+              }
+            }
+          }
         } catch (e) {
           Log.debug(
             'Unable to invoke `Jason.init()` due to: $e',

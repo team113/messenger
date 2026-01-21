@@ -30,7 +30,7 @@ class MacosUtils {
   }
 
   /// Redirects `stdout` and `stderr` streams to a `app.log` file.
-  static Future<bool> redirectStdOut() async {
-    return await _platform.invokeMethod('redirectStdOut');
+  static Future<void> redirectStdOut() async {
+    await _platform.invokeMethod('redirectStdOut');
   }
 }
