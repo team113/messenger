@@ -6,6 +6,13 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## main
+
+[Diff](/../../compare/v0.8.0...main) | [Milestone](/../../milestone/63)
+
+
+
+
 ## [0.8.0] · 2026-01-21
 [0.8.0]: /../../tree/v0.8.0
 
