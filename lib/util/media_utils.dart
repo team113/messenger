@@ -74,15 +74,13 @@ class MediaUtilsImpl {
           _jason = await Jason.init();
 
           if (Config.redirectStdOut) {
-            if (PlatformUtils.isMacOS) {
-              try {
-                await Logging.setLogLevel(LogLevel.debug);
-              } catch (e) {
-                Log.warning(
-                  'Unable to enable `Logging.setLogLevel()` -> $e',
-                  '$runtimeType',
-                );
-              }
+            try {
+              await Logging.setLogLevel(LogLevel.debug);
+            } catch (e) {
+              Log.warning(
+                'Unable to enable `Logging.setLogLevel()` -> $e',
+                '$runtimeType',
+              );
             }
           }
         } catch (e) {
