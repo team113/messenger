@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <upower.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
 #endif
