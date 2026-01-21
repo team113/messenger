@@ -623,6 +623,8 @@ class PostChatMessageException
       case PostChatMessageErrorCode.wrongReplyingChatItemsCount:
       case PostChatMessageErrorCode.unknownChat:
       case PostChatMessageErrorCode.unknownUser:
+      case PostChatMessageErrorCode.disabledDonation:
+      case PostChatMessageErrorCode.tooSmallDonation:
         return toString();
 
       case PostChatMessageErrorCode.artemisUnknown:
@@ -1183,6 +1185,8 @@ class ForwardChatItemsException
       case ForwardChatItemsErrorCode.unsupportedForwardedItem:
       case ForwardChatItemsErrorCode.unknownAttachment:
       case ForwardChatItemsErrorCode.unknownForwardedItem:
+      case ForwardChatItemsErrorCode.disabledDonation:
+      case ForwardChatItemsErrorCode.tooSmallDonation:
         return toString();
 
       case ForwardChatItemsErrorCode.artemisUnknown:
