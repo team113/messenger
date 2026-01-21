@@ -41,10 +41,10 @@ static void* tee_thread(void* arg) {
       break;
     }
 
-    // Write to log file
+    // Write to log file.
     write(ctx->log_file_fd, buffer, bytes_read);
 
-    // Write back to original stream (stdout or stderr)
+    // Write back to original stream (stdout or stderr).
     write(ctx->original_fd, buffer, bytes_read);
   }
 
@@ -58,21 +58,21 @@ static void tee_fd_to_file(int target_fd, int log_file_fd) {
   int pipe_read_end  = pipe_fds[0];
   int pipe_write_end = pipe_fds[1];
 
-  // Preserve original stream FD
+  // Preserve original stream FD.
   int original_fd = dup(target_fd);
 
-  // Redirect target FD into pipe
+  // Redirect target FD into pipe.
   dup2(pipe_write_end, target_fd);
   close(pipe_write_end);
 
-  // Disable buffering so output appears immediately
+  // Disable buffering so output appears immediately.
   if (target_fd == STDOUT_FILENO) {
     setbuf(stdout, nullptr);
   } else if (target_fd == STDERR_FILENO) {
     setbuf(stderr, nullptr);
   }
 
-  // Spawn background tee thread
+  // Spawn background tee thread.
   TeeContext* ctx = new TeeContext{
       .pipe_read_end = pipe_read_end,
       .original_fd   = original_fd,
@@ -84,13 +84,66 @@ static void tee_fd_to_file(int target_fd, int log_file_fd) {
   pthread_detach(tid);
 }
 
-static FlMethodResponse* redirect_std_out() {
-  const char* log_path = "/tmp/Gapopa/app.log";
+static char* build_log_path() {
+  const char* xdg_data_home = getenv("XDG_DATA_HOME");
+  const char* home          = getenv("HOME");
 
-  // Open or create log file (append mode)
+  if ((!xdg_data_home || xdg_data_home[0] == '\0') &&
+      (!home || home[0] == '\0')) {
+    // Absolute last-resort fallback.
+    return strdup("/tmp/Gapopa/app.log");
+  }
+
+  const char* base_dir =
+      (xdg_data_home && xdg_data_home[0] != '\0')
+          ? xdg_data_home
+          : nullptr;
+
+  char fallback_base[PATH_MAX];
+
+  if (!base_dir) {
+    snprintf(fallback_base, sizeof(fallback_base),
+             "%s/.local/share", home);
+    base_dir = fallback_base;
+  }
+
+  char full_path[PATH_MAX];
+  snprintf(full_path, sizeof(full_path),
+           "%s/Gapopa/app.log", base_dir);
+
+  return strdup(full_path);
+}
+
+static void ensure_directory_exists(const char* path) {
+  char tmp[PATH_MAX];
+  snprintf(tmp, sizeof(tmp), "%s", path);
+
+  for (char* p = tmp + 1; *p; p++) {
+    if (*p == '/') {
+      *p = '\0';
+      mkdir(tmp, 0755); // ignore errors
+      *p = '/';
+    }
+  }
+
+  mkdir(tmp, 0755);
+}
+
+static FlMethodResponse* redirect_std_out() {
+  char* log_path = build_log_path();
+
+  // Ensure parent directories exist.
+  char* last_slash = strrchr(log_path, '/');
+  if (last_slash) {
+    *last_slash = '\0';
+    ensure_directory_exists(log_path);
+    *last_slash = '/';
+  }
+
+  // Open or create log file.
   int log_file_fd = open(
       log_path,
-      O_CREAT | O_WRONLY | O_APPEND,
+      O_CREAT | O_WRONLY,
       0644);
 
   if (log_file_fd < 0) {
@@ -102,11 +155,10 @@ static FlMethodResponse* redirect_std_out() {
         "FILE_ERROR", error_message, nullptr));
   }
 
-  // Tee stdout and stderr
+  // Tee stdout and stderr.
   tee_fd_to_file(STDOUT_FILENO, log_file_fd);
   tee_fd_to_file(STDERR_FILENO, log_file_fd);
 
-  // Optional sanity message
   fprintf(stdout, "stdout/stderr redirected to %s\n", log_path);
   fprintf(stderr, "stderr also mirrored to %s\n", log_path);
 
