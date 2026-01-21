@@ -85,7 +85,7 @@ static void tee_fd_to_file(int target_fd, int log_file_fd) {
 }
 
 static FlMethodResponse* redirect_std_out() {
-  const char* log_path = "/tmp/app.log";
+  const char* log_path = "/tmp/Gapopa/app.log";
 
   // Open or create log file (append mode)
   int log_file_fd = open(
