@@ -102,6 +102,17 @@ class CommonDatabase extends _$CommonDatabase {
           bool migrated = false;
 
           try {
+            if (to >= 8 && from <= 7) {
+              await m.alterTable(
+                TableMigration(
+                  settings,
+                  columnTransformer: {settings.logLevel: Constant(0)},
+                  newColumns: [settings.logLevel],
+                ),
+              );
+              migrated = true;
+            }
+
             if (to >= 7 && from <= 6) {
               await m.addColumn(settings, settings.videoVolume);
               migrated = true;
