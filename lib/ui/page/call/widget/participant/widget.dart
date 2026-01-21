@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart';
 
 import '../../controller.dart';
 import '../call_cover.dart';
@@ -159,7 +160,12 @@ class ParticipantWidget extends StatelessWidget {
                   child: child,
                 );
               }),
-              RaisedHand(participant.member.isHandRaised.value),
+              ?switch (participant.source) {
+                MediaSourceKind.device => RaisedHand(
+                  participant.member.isHandRaised.value,
+                ),
+                MediaSourceKind.display => null,
+              },
             ],
           ),
         ),
