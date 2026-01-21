@@ -52,7 +52,7 @@ class WalletRepository extends IdentityDependency
       {
         OperationId('aaaaaaaaaa'): OperationDeposit(
           id: OperationId('aaaaaaaaaa'),
-          num: OperationNum('1'),
+          num: OperationNum(BigInt.from(1)),
           status: OperationStatus.inProgress,
           amount: Price(sum: Sum(10), currency: Currency('G')),
           createdAt: PreciseDateTime.now().subtract(
@@ -62,7 +62,7 @@ class WalletRepository extends IdentityDependency
         ),
         OperationId('bbbbbbbbbb'): OperationDeposit(
           id: OperationId('bbbbbbbbbb'),
-          num: OperationNum('2'),
+          num: OperationNum(BigInt.from(2)),
           status: OperationStatus.failed,
           amount: Price(sum: Sum(50), currency: Currency('G')),
           createdAt: PreciseDateTime.now().subtract(
@@ -72,7 +72,7 @@ class WalletRepository extends IdentityDependency
         ),
         OperationId('cccccccccc'): OperationDeposit(
           id: OperationId('cccccccccc'),
-          num: OperationNum('3'),
+          num: OperationNum(BigInt.from(3)),
           status: OperationStatus.completed,
           invoice: InvoiceFile('example.com'),
           amount: Price(sum: Sum(1000), currency: Currency('G')),
@@ -81,7 +81,7 @@ class WalletRepository extends IdentityDependency
         ),
         OperationId('dddddddddd'): OperationDepositBonus(
           id: OperationId('dddddddddd'),
-          num: OperationNum('3'),
+          num: OperationNum(BigInt.from(4)),
           status: OperationStatus.completed,
           amount: Price(sum: Sum(5), currency: Currency('G')),
           createdAt: PreciseDateTime.now(),

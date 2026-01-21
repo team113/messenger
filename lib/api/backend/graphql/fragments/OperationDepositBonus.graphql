@@ -26,6 +26,8 @@ fragment OperationDepositBonus on OperationDepositBonus {
     createdAt
     ver
     deposit {
-        id
+        node {
+            id
+        }
     }
 }

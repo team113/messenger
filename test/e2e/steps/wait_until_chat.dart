@@ -64,8 +64,8 @@ untilChatExists = then2<String, Existence, CustomWorld>(
       );
 
       return existence == Existence.absent
-          ? context.world.appDriver.isAbsent(finder)
-          : context.world.appDriver.isPresent(finder);
+          ? finder.evaluate().isEmpty
+          : finder.evaluate().isNotEmpty;
     }, timeout: const Duration(seconds: 30));
   },
 );

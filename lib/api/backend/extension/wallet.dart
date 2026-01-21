@@ -55,7 +55,7 @@ extension OperationDepositBonusConversion on OperationDepositBonusMixin {
     status: status,
     amount: amount.toModel(),
     createdAt: createdAt,
-    depositId: deposit.id,
+    depositId: deposit.node.id,
   );
 
   /// Constructs a new [DtoOperation] from this [OperationDepositBonusMixin].

@@ -159,8 +159,9 @@ fromDartListNullableOperationIdNullableToGraphQLListNullableOperationIdNullable(
 // OperationNum
 
 OperationNum fromGraphQLOperationNumToDartOperationNum(String v) =>
-    OperationNum(v);
-String fromDartOperationNumToGraphQLOperationNum(OperationNum v) => v.val;
+    OperationNum.parse(v);
+String fromDartOperationNumToGraphQLOperationNum(OperationNum v) =>
+    v.val.toString();
 List<OperationNum> fromGraphQLListOperationNumToDartListOperationNum(
   List<Object?> v,
 ) => v
@@ -181,10 +182,10 @@ List<String>? fromDartListNullableOperationNumToGraphQLListNullableOperationNum(
 
 OperationNum? fromGraphQLOperationNumNullableToDartOperationNumNullable(
   String? v,
-) => v == null ? null : OperationNum(v);
+) => v == null ? null : OperationNum.parse(v);
 String? fromDartOperationNumNullableToGraphQLOperationNumNullable(
   OperationNum? v,
-) => v?.val;
+) => v?.val.toString();
 List<OperationNum?>
 fromGraphQLListOperationNumNullableToDartListOperationNumNullable(
   List<Object?> v,

@@ -95,8 +95,14 @@ class OperationId extends NewType<String> {
 }
 
 /// Sequential number of an [Operation].
-class OperationNum extends NewType<String> {
+class OperationNum extends NewType<BigInt> implements Comparable<OperationNum> {
   const OperationNum(super.val);
+
+  /// Constructs an [OperationNum] from the provided [String].
+  OperationNum.parse(String val) : super(BigInt.parse(val));
+
+  @override
+  int compareTo(OperationNum other) => val.compareTo(other.val);
 }
 
 /// Base64-encoded PDF invoice of an [Operation].

@@ -603,45 +603,58 @@ jobs:
 
   build-linux:
     name: build (linux)
-    runs-on: ubuntu-latest
-    # Pin glibc to 2.34 version for better compatibility.
-    container: debian:bookworm
+    runs-on: ubuntu-22.04  # pin `glibc` to 2.35 for better compatibility
     steps:
-      # `debian:bookworm` doesn't include Git in its `PATH`, which is required
-      # by `PubspecBuilder`.
-      - name: Install Git
-        run: |
-          set -ex
-          apt-get update
-          apt-get install -y git
-
       - uses: actions/checkout@v6
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
           fetch-depth: 0
 
-      - run: apt-get update -y
-      - run: apt-get install -y
-                     ninja-build
-                     libunwind-dev
-                     libgtk-3-dev
-                     libpulse-dev
-                     libmpv-dev
-                     libcurl4-openssl-dev
-                     keybinder-3.0
-                     mpv
-                     jq
-                     curl
-                     git
-                     make
-                     procps
-                     cmake
-                     clang
-                     zip
-                     xz-utils
-                     default-jdk
-                     lld-14
+      - run: |
+          set -ex
+
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key \
+          | sudo tee /etc/apt/trusted.gpg.d/llvm.asc
+          echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" \
+          | sudo tee /etc/apt/sources.list.d/llvm.list
+
+      - run: sudo apt-get update -y
+      - run: sudo apt-get install -y
+                          ninja-build
+                          libunwind-dev
+                          libgtk-3-dev
+                          libpulse-dev
+                          libmpv-dev
+                          libcurl4-openssl-dev
+                          keybinder-3.0
+                          mpv
+                          jq
+                          curl
+                          git
+                          make
+                          procps
+                          cmake
+                          gcc-13
+                          g++-13
+                          clang
+                          zip
+                          xz-utils
+                          default-jdk
+                          lld-19
+      - run: |
+          set -ex
+
+          sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
+          sudo update-alternatives --config lld
+          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
+          sudo update-alternatives --config ld.lld
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
+          sudo update-alternatives --config gcc
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
+          sudo update-alternatives --config g++
 
       - run: git config --global --add safe.directory '*'
 

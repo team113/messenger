@@ -1560,6 +1560,8 @@ class ChatRepository extends IdentityDependency
         case ForwardChatItemsErrorCode.unknownForwardedItem:
         case ForwardChatItemsErrorCode.unknownAttachment:
         case ForwardChatItemsErrorCode.artemisUnknown:
+        case ForwardChatItemsErrorCode.disabledDonation:
+        case ForwardChatItemsErrorCode.tooSmallDonation:
           rethrow;
 
         case ForwardChatItemsErrorCode.unknownChat:
