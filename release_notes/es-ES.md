@@ -1,4 +1,3 @@
-- Se añadieron las pestañas de monetización y billetera.
-- Se añadieron páginas de recarga y transacciones a la pestaña de billetera.
-- Se añadieron programas de socios, promociones, configuración de precios y páginas de retiro.
-- Se añadió el chat con Tapopa.
+- Se agregó una notificación de reconexión cuando la red cambia durante una llamada.
+- Se agregó el botón de recopilar registros a las notas y al chat de soporte.
+- Se corrigieron errores y se mejoraron el rendimiento.

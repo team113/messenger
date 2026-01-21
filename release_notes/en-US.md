@@ -1,4 +1,3 @@
-- Added monetization and wallet tabs.
-- Added top up and transactions pages to wallet tab.
-- Added partner programs, your promotion, set your prices and withdraw pages.
-- Added chat with Tapopa.
+- Added reconnecting notification when network changes during a call.
+- Added collect logs button to notes and support chat.
+- Bug fixes and performance improvements.
