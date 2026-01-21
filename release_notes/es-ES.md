@@ -1,4 +1,2 @@
-- Se añadió un botón de reconexión a las llamadas.
-- Se añadió una ventana emergente que indica el bloqueo del micrófono y la cámara cuando la pestaña está en segundo plano en dispositivos web móviles.
-- Se rediseñaron los dispositivos vinculados para mostrar los dominios.
-- Se rediseñaron los botones de la pestaña del menú para que tengan secciones.
+- Se agregó una notificación de reconexión cuando la red cambia durante una llamada.
+- Se corrigieron errores y se mejoraron el rendimiento.
