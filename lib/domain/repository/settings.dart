@@ -104,4 +104,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.videoVolume] value.
   Future<void> setVideoVolume(double volume);
+
+  /// Sets the [ApplicationSettings.logLevel] value.
+  Future<void> setLogLevel(int level);
 }

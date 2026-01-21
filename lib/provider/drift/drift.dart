@@ -106,7 +106,7 @@ class CommonDatabase extends _$CommonDatabase {
               await m.alterTable(
                 TableMigration(
                   settings,
-                  columnTransformer: {settings.logLevel: Constant(0)},
+                  columnTransformer: {settings.logLevel: Constant(1)},
                   newColumns: [settings.logLevel],
                 ),
               );

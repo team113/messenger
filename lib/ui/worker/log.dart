@@ -74,7 +74,8 @@ class LogWorker extends Dependency {
   /// Opens the [LogView] modal on tilde key presses.
   bool _consoleListener(KeyEvent event) {
     if (event is KeyDownEvent) {
-      if (event.logicalKey == LogicalKeyboardKey.tilde) {
+      if (event.logicalKey == LogicalKeyboardKey.tilde ||
+          event.physicalKey == PhysicalKeyboardKey.backquote) {
         if (TextFieldState.focuses.isEmpty) {
           if (router.obscuring.any((e) => e.settings.name == 'LogView')) {
             Navigator.of(router.context!).pop();

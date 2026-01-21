@@ -27,7 +27,7 @@ class ApplicationSettings {
     this.workWithUsTabEnabled = true,
     this.muteKeys,
     this.videoVolume = 1,
-    this.logLevel = 0,
+    this.logLevel = 1,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the

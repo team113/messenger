@@ -25,10 +25,12 @@ import 'package:share_plus/share_plus.dart';
 import 'package:universal_io/io.dart';
 
 import '/config.dart';
+import '/domain/model/application_settings.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/repository/session.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
@@ -48,6 +50,7 @@ class LogController extends GetxController {
     this._sessionService,
     this._notificationService,
     this._logProvider,
+    this._settingsRepository,
   );
 
   /// [ScrollController] to use in a [ListView].
@@ -77,6 +80,10 @@ class LogController extends GetxController {
   /// [NotificationService] having the [DeviceToken] information.
   final NotificationService? _notificationService;
 
+  /// [AbstractSettingsRepository] for changing the
+  /// [ApplicationSettings.logLevel].
+  final AbstractSettingsRepository? _settingsRepository;
+
   /// [LogFileProvider] to read a [File] of the [LogEntry] from.
   final LogFileProvider? _logProvider;
 
@@ -96,6 +103,10 @@ class LogController extends GetxController {
   /// being active.
   bool? get pushNotifications => _notificationService?.pushNotifications;
 
+  /// Returns the currently applied [ApplicationSettings], if any.
+  ApplicationSettings? get settings =>
+      _settingsRepository?.applicationSettings.value;
+
   @override
   void onInit() {
     PlatformUtils.userAgent.then((e) => userAgent.value = e);
@@ -103,6 +114,11 @@ class LogController extends GetxController {
     _tryFile();
     _tryAppLogs();
     super.onInit();
+  }
+
+  /// Sets the [ApplicationSettings.logLevel] to the provided [value].
+  Future<void> setLogLevel(int value) async {
+    await _settingsRepository?.setLogLevel(value);
   }
 
   /// Creates and downloads the [report] as a `.txt` file.

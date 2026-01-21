@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:log_me/log_me.dart' as me;
 
 import '/config.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/domain/service/session.dart';
@@ -28,6 +29,7 @@ import '/provider/file/log.dart';
 import '/pubspec.g.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/safe_area/safe_area.dart';
@@ -75,6 +77,7 @@ class LogView extends StatelessWidget {
         Get.findOrNull<SessionService>(),
         Get.findOrNull<NotificationService>(),
         Get.findOrNull<LogFileProvider>(),
+        Get.findOrNull<AbstractSettingsRepository>(),
       ),
       builder: (LogController c) {
         return Scaffold(
@@ -244,6 +247,9 @@ class LogView extends StatelessWidget {
           ),
         ),
 
+        if (Config.logWrite || Config.redirectStdOut)
+          ListTile(title: Text('Advanced logging')),
+
         if (Config.logWrite)
           Obx(() {
             final stat = c.stat.value;
@@ -252,16 +258,15 @@ class LogView extends StatelessWidget {
               return const SizedBox();
             }
 
-            return Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: SelectionContainer.disabled(
-                child: PrimaryButton(
-                  onPressed: () async => await c.downloadArchive(),
-                  title: 'Download whole ${stat.size ~/ 1024} KB dump',
-                ),
+            return SelectionContainer.disabled(
+              child: PrimaryButton(
+                onPressed: () async => await c.downloadArchive(),
+                title: 'Previous launches (${stat.size ~/ 1024} KB)',
               ),
             );
           }),
+
+        if (Config.logWrite && Config.redirectStdOut) const SizedBox(height: 4),
 
         if (Config.redirectStdOut)
           Obx(() {
@@ -271,16 +276,20 @@ class LogView extends StatelessWidget {
               return const SizedBox();
             }
 
-            return Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: SelectionContainer.disabled(
-                child: PrimaryButton(
-                  onPressed: () async => await c.downloadAppLogs(),
-                  title: 'Download ${stat.size ~/ 1024} KB `stdout`',
-                ),
+            return SelectionContainer.disabled(
+              child: PrimaryButton(
+                onPressed: () async => await c.downloadAppLogs(),
+                title: 'STDOUT/STDERR (${stat.size ~/ 1024} KB)',
               ),
             );
           }),
+
+        ListTile(title: Text('Settings')),
+        SwitchField(
+          text: 'Detailed `medea_jason` logs',
+          value: (c.settings?.logLevel ?? 3) == 3,
+          onChanged: (b) => c.setLogLevel(b ? 3 : 0),
+        ),
       ],
     );
   }

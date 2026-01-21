@@ -74,6 +74,7 @@ import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
 import 'util/backoff.dart';
 import 'util/get.dart';
+import 'util/linux_utils.dart';
 import 'util/log.dart';
 import 'util/macos_utils.dart';
 import 'util/platform_utils.dart';
@@ -97,11 +98,16 @@ Future<void> main() async {
 
       Log.maxLogs = Config.logAmount;
 
-      if (Config.redirectStdOut) {
+      if (Config.redirectStdOut && !PlatformUtils.isWeb) {
         if (PlatformUtils.isMacOS) {
           MacosUtils.redirectStdOut().onError(
             (e, _) =>
                 Log.warning('Unable to `MacosUtils.redirectStdOut()` -> $e'),
+          );
+        } else if (PlatformUtils.isLinux) {
+          LinuxUtils.redirectStdOut().onError(
+            (e, _) =>
+                Log.warning('Unable to `LinuxUtils.redirectStdOut()` -> $e'),
           );
         }
       }
