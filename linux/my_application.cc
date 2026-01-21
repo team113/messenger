@@ -8,9 +8,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
-#endif
 
 #include "flutter/generated_plugin_registrant.h"
 
@@ -121,7 +122,7 @@ static void ensure_directory_exists(const char* path) {
   for (char* p = tmp + 1; *p; p++) {
     if (*p == '/') {
       *p = '\0';
-      mkdir(tmp, 0755); // ignore errors
+      mkdir(tmp, 0755);
       *p = '/';
     }
   }
