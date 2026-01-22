@@ -224,6 +224,12 @@ Future<void> main() async {
         Zone.root.handleUncaughtError(error, stackTrace);
       }
     },
+    zoneSpecification: ZoneSpecification(
+      print: (self, parent, zone, message) {
+        logToNative("DART: $message");
+        parent.print(zone, message); // keep console output
+      },
+    ),
   );
 }
 
