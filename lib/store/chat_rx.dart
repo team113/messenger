@@ -816,6 +816,8 @@ class RxChatImpl extends RxChat {
           case PostChatMessageErrorCode.unknownReplyingChatItem:
           case PostChatMessageErrorCode.unknownUser:
           case PostChatMessageErrorCode.artemisUnknown:
+          case PostChatMessageErrorCode.disabledDonation:
+          case PostChatMessageErrorCode.tooSmallDonation:
             rethrow;
 
           case PostChatMessageErrorCode.unknownChat:

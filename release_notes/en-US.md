@@ -1,4 +1,2 @@
-- Added reconnect button to calls.
-- Added popup of microphone and camera being blocked when tab is in background for mobile web devices.
-- Redesigned linked devices to display domains.
-- Redesigned buttons on menu tab to have sections.
+- Added reconnecting notification when network changes during a call.
+- Bug fixes and performance improvements.
