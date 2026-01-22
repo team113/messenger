@@ -79,6 +79,7 @@ import 'util/log.dart';
 import 'util/macos_utils.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
+import 'util/windows_utils.dart';
 
 /// Entry point of this application.
 Future<void> main() async {
@@ -108,6 +109,11 @@ Future<void> main() async {
           LinuxUtils.redirectStdOut().onError(
             (e, _) =>
                 Log.warning('Unable to `LinuxUtils.redirectStdOut()` -> $e'),
+          );
+        } else if (PlatformUtils.isWindows) {
+          WindowsUtils.redirectStdOut().onError(
+            (e, _) =>
+                Log.warning('Unable to `WindowsUtils.redirectStdOut()` -> $e'),
           );
         }
       }
