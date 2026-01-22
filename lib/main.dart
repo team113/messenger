@@ -20,11 +20,11 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 import 'package:log_me/log_me.dart' as me;
@@ -74,9 +74,12 @@ import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
 import 'util/backoff.dart';
 import 'util/get.dart';
+import 'util/linux_utils.dart';
 import 'util/log.dart';
+import 'util/macos_utils.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
+import 'util/windows_utils.dart';
 
 /// Entry point of this application.
 Future<void> main() async {
@@ -95,6 +98,25 @@ Future<void> main() async {
       );
 
       Log.maxLogs = Config.logAmount;
+
+      if (Config.redirectStdOut && !PlatformUtils.isWeb) {
+        if (PlatformUtils.isMacOS) {
+          MacosUtils.redirectStdOut().onError(
+            (e, _) =>
+                Log.warning('Unable to `MacosUtils.redirectStdOut()` -> $e'),
+          );
+        } else if (PlatformUtils.isLinux) {
+          LinuxUtils.redirectStdOut().onError(
+            (e, _) =>
+                Log.warning('Unable to `LinuxUtils.redirectStdOut()` -> $e'),
+          );
+        } else if (PlatformUtils.isWindows) {
+          WindowsUtils.redirectStdOut().onError(
+            (e, _) =>
+                Log.warning('Unable to `WindowsUtils.redirectStdOut()` -> $e'),
+          );
+        }
+      }
 
       // No need to initialize the Sentry if no DSN is provided, otherwise
       // useless messages are printed to the console every time the application

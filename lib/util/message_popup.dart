@@ -67,7 +67,6 @@ class MessagePopup {
             children: [
               const SizedBox(height: 4),
               ModalPopupHeader(text: title),
-              const SizedBox(height: 13),
               if (description.isNotEmpty || additional.isNotEmpty) ...[
                 Flexible(
                   child: ListView(
@@ -80,7 +79,7 @@ class MessagePopup {
                             child: RichText(
                               text: TextSpan(
                                 children: description,
-                                style: style.fonts.normal.regular.secondary,
+                                style: style.fonts.small.regular.secondary,
                               ),
                             ),
                           ),

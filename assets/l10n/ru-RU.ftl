@@ -181,6 +181,7 @@ btn_info = Информация
 btn_install_android = .apk файл для Android
 btn_install_ios = .ipa файл для iOS
 btn_install_web_app = Установить Веб приложение
+btn_leave = Покинуть
 btn_leave_group = Покинуть группу
 btn_login_and_password = Логин и пароль
 btn_logout = Выйти

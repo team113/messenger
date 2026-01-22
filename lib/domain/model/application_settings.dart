@@ -27,6 +27,7 @@ class ApplicationSettings {
     this.workWithUsTabEnabled = true,
     this.muteKeys,
     this.videoVolume = 1,
+    this.logLevel = 1,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -59,6 +60,9 @@ class ApplicationSettings {
   /// Volume that should be applied a video being played.
   double videoVolume;
 
+  /// Level of [Log]s that should be printed to the console.
+  int logLevel;
+
   @override
   bool operator ==(Object other) {
     return other is ApplicationSettings &&
@@ -70,7 +74,8 @@ class ApplicationSettings {
         pinnedActions.toString() == other.pinnedActions.toString() &&
         workWithUsTabEnabled == other.workWithUsTabEnabled &&
         muteKeys?.toString() == other.muteKeys?.toString() &&
-        videoVolume == other.videoVolume;
+        videoVolume == other.videoVolume &&
+        logLevel == other.logLevel;
   }
 
   @override
@@ -84,5 +89,6 @@ class ApplicationSettings {
     workWithUsTabEnabled,
     muteKeys.toString(),
     videoVolume,
+    logLevel,
   );
 }

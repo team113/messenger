@@ -304,6 +304,22 @@ class MediaUtilsImpl {
     // await WebUtils.setupForegroundService();
   }
 
+  /// Changes the log level of the `medea_jason` package.
+  Future<void> setLogLevel(LogLevel level) async {
+    Log.debug('setLogLevel(${level.name})', '$runtimeType');
+
+    try {
+      // Initialize [jason] first.
+      await jason;
+      await Logging.setLogLevel(level);
+    } catch (e) {
+      Log.warning(
+        'Unable to enable `Logging.setLogLevel(${level.name})` -> $e',
+        '$runtimeType',
+      );
+    }
+  }
+
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   MediaStreamSettings _mediaStreamSettings({

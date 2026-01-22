@@ -17,17 +17,10 @@
 
 import 'package:flutter/services.dart';
 
-/// Helper providing direct access to macOS-only features.
-class MacosUtils {
-  /// [MethodChannel] to communicate with macOS via.
-  static const _platform = MethodChannel('team113.flutter.dev/macos_utils');
-
-  /// Removes the delivered notifications containing the provided [thread].
-  static Future<bool> cancelNotificationsContaining(String thread) async {
-    return await _platform.invokeMethod('cancelNotificationsContaining', {
-      'thread': thread,
-    });
-  }
+/// Helper providing direct access to Windows-only features.
+class WindowsUtils {
+  /// [MethodChannel] to communicate with Windows via.
+  static const _platform = MethodChannel('team113.flutter.dev/windows_utils');
 
   /// Redirects `stdout` and `stderr` streams to a `app.log` file.
   static Future<void> redirectStdOut() async {

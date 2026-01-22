@@ -1967,7 +1967,7 @@ class RxChatImpl extends RxChat {
                 );
               }
             }
-          });
+          }, time: const Duration(seconds: 3));
         }
 
         _remoteSubscription = StreamQueue(

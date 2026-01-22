@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:log_me/log_me.dart' as me;
 
 import '/config.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/domain/service/session.dart';
@@ -28,6 +29,7 @@ import '/provider/file/log.dart';
 import '/pubspec.g.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/safe_area/safe_area.dart';
@@ -75,6 +77,7 @@ class LogView extends StatelessWidget {
         Get.findOrNull<SessionService>(),
         Get.findOrNull<NotificationService>(),
         Get.findOrNull<LogFileProvider>(),
+        Get.findOrNull<AbstractSettingsRepository>(),
       ),
       builder: (LogController c) {
         return Scaffold(
@@ -96,76 +99,7 @@ class LogView extends StatelessWidget {
                         padding: EdgeInsets.all(8),
                         shrinkWrap: true,
                         children: [
-                          SelectionContainer.disabled(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: PrimaryButton(
-                                    onPressed: () async {
-                                      try {
-                                        await PlatformUtils.copy(
-                                          text: LogController.report(
-                                            sessions: c.sessions,
-                                            sessionId: c.sessionId,
-                                            userAgent: c.userAgent.value,
-                                            myUser: c.myUser?.value,
-                                            token: c.token,
-                                            pushNotifications:
-                                                c.pushNotifications,
-                                          ),
-                                        );
-
-                                        MessagePopup.success(
-                                          'label_copied'.l10n,
-                                        );
-                                      } catch (e) {
-                                        MessagePopup.error(e);
-                                      }
-                                    },
-                                    title: 'Copy as text',
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: PrimaryButton(
-                                    onPressed: () async {
-                                      await LogController.download(
-                                        sessions: c.sessions,
-                                        sessionId: c.sessionId,
-                                        userAgent: c.userAgent.value,
-                                        myUser: c.myUser?.value,
-                                        token: c.token,
-                                        pushNotifications: c.pushNotifications,
-                                      );
-                                    },
-                                    title: 'Download as file',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          if (Config.logWrite)
-                            Obx(() {
-                              final stat = c.stat.value;
-
-                              if (stat == null) {
-                                return const SizedBox();
-                              }
-
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: SelectionContainer.disabled(
-                                  child: PrimaryButton(
-                                    onPressed: () async =>
-                                        await c.downloadArchive(),
-                                    title:
-                                        'Download whole ${stat.size ~/ 1024} KB dump',
-                                  ),
-                                ),
-                              );
-                            }),
-
+                          _controls(context, c),
                           _application(context, c),
                           _myUser(context, c),
                           _session(context, c),
@@ -259,6 +193,104 @@ class LogView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  /// Builds the control buttons for the log behaviour.
+  Widget _controls(BuildContext context, LogController c) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SelectionContainer.disabled(
+          child: Row(
+            children: [
+              Expanded(
+                child: PrimaryButton(
+                  onPressed: () async {
+                    try {
+                      await PlatformUtils.copy(
+                        text: LogController.report(
+                          sessions: c.sessions,
+                          sessionId: c.sessionId,
+                          userAgent: c.userAgent.value,
+                          myUser: c.myUser?.value,
+                          token: c.token,
+                          pushNotifications: c.pushNotifications,
+                        ),
+                      );
+
+                      MessagePopup.success('label_copied'.l10n);
+                    } catch (e) {
+                      MessagePopup.error(e);
+                    }
+                  },
+                  title: 'Copy as text',
+                ),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: PrimaryButton(
+                  onPressed: () async {
+                    await LogController.download(
+                      sessions: c.sessions,
+                      sessionId: c.sessionId,
+                      userAgent: c.userAgent.value,
+                      myUser: c.myUser?.value,
+                      token: c.token,
+                      pushNotifications: c.pushNotifications,
+                    );
+                  },
+                  title: 'Download as file',
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        if (Config.logWrite || Config.redirectStdOut)
+          ListTile(title: Text('Advanced logging')),
+
+        if (Config.logWrite)
+          Obx(() {
+            final stat = c.stat.value;
+
+            if (stat == null) {
+              return const SizedBox();
+            }
+
+            return SelectionContainer.disabled(
+              child: PrimaryButton(
+                onPressed: () async => await c.downloadArchive(),
+                title: 'Previous launches (${stat.size ~/ 1024} KB)',
+              ),
+            );
+          }),
+
+        if (Config.logWrite && Config.redirectStdOut) const SizedBox(height: 4),
+
+        if (Config.redirectStdOut)
+          Obx(() {
+            final stat = c.appLogs.value;
+
+            if (stat == null) {
+              return const SizedBox();
+            }
+
+            return SelectionContainer.disabled(
+              child: PrimaryButton(
+                onPressed: () async => await c.downloadAppLogs(),
+                title: 'STDOUT/STDERR (${stat.size ~/ 1024} KB)',
+              ),
+            );
+          }),
+
+        ListTile(title: Text('Settings')),
+        SwitchField(
+          text: 'Detailed `medea_jason` logs',
+          value: (c.settings?.logLevel ?? 3) == 3,
+          onChanged: (b) => c.setLogLevel(b ? 3 : 0),
+        ),
+      ],
     );
   }
 

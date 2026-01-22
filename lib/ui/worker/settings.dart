@@ -16,11 +16,13 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart' show LogLevel;
 
 import '/domain/model/application_settings.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/disposable_service.dart';
 import '/l10n/l10n.dart';
+import '/util/media_utils.dart';
 
 /// Worker updating the [L10n.chosen] on the [ApplicationSettings.locale]
 /// changes and exposing its [onChanged] callback.
@@ -47,15 +49,28 @@ class SettingsWorker extends Dependency {
       await L10n.set(Language.fromTag(locale));
     }
 
+    int? logLevel = _settingsRepository.applicationSettings.value?.logLevel;
     _worker = ever(_settingsRepository.applicationSettings, (
       ApplicationSettings? settings,
-    ) {
+    ) async {
       if (locale != settings?.locale) {
         locale = settings?.locale;
         L10n.set(Language.fromTag(locale) ?? L10n.languages.first);
         onChanged?.call(locale);
       }
+
+      if (logLevel != settings?.logLevel) {
+        logLevel = settings?.logLevel;
+
+        if (logLevel != null) {
+          await MediaUtils.setLogLevel(logLevel!.asLogLevel());
+        }
+      }
     });
+
+    if (logLevel != null) {
+      await MediaUtils.setLogLevel(logLevel!.asLogLevel());
+    }
   }
 
   @override
@@ -63,4 +78,15 @@ class SettingsWorker extends Dependency {
     _worker?.dispose();
     super.onClose();
   }
+}
+
+/// Extension mapping [int]s to [LogLevel].
+extension on int {
+  /// Returns a [LogLevel] corresponding to this [int].
+  LogLevel asLogLevel() => switch (this) {
+    1 => LogLevel.warn,
+    2 => LogLevel.info,
+    3 => LogLevel.debug,
+    (_) => LogLevel.error,
+  };
 }

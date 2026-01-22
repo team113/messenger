@@ -128,15 +128,16 @@
   <!-- Initialize `medea_jason` JS code -->
   <script type="module">
     import init, {
-      Jason,
-      MediaStreamSettings,
       DeviceAudioTrackConstraints,
-      DisplayAudioTrackConstraints,
       DeviceVideoTrackConstraints,
+      DisplayAudioTrackConstraints,
       DisplayVideoTrackConstraints,
       FacingMode,
+      Jason,
       MediaKind,
-      MediaSourceKind
+      MediaSourceKind,
+      MediaStreamSettings,
+      set_log_level
     } from '/assets/packages/medea_jason/assets/pkg/medea_jason.js?v={{flutter_service_worker_version}}';
 
     window.jasonLoaded = (async () => {
@@ -150,6 +151,7 @@
       window.FacingMode = FacingMode;
       window.MediaKind = MediaKind;
       window.MediaSourceKind = MediaSourceKind;
+      window.set_log_level = set_log_level;
     })();
   </script>
 

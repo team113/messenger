@@ -3139,7 +3139,7 @@ class MediaFailedNotification extends CallNotification {
   MediaFailedNotification(this.exception);
 
   @override
-  CallNotificationKind get kind => CallNotificationKind.screenDeviceFailed;
+  CallNotificationKind get kind => CallNotificationKind.mediaFailed;
 
   /// [LocalMediaInitException] blocked the request.
   final LocalMediaInitException? exception;

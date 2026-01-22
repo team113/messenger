@@ -25,10 +25,12 @@ import 'package:share_plus/share_plus.dart';
 import 'package:universal_io/io.dart';
 
 import '/config.dart';
+import '/domain/model/application_settings.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/repository/session.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
@@ -48,6 +50,7 @@ class LogController extends GetxController {
     this._sessionService,
     this._notificationService,
     this._logProvider,
+    this._settingsRepository,
   );
 
   /// [ScrollController] to use in a [ListView].
@@ -62,6 +65,9 @@ class LogController extends GetxController {
   /// [FileStat] of the written [File] of the [LogEntry]ies.
   final Rx<FileStat?> stat = Rx(null);
 
+  /// [FileStat] of a application logs forwarded from stdout/stderr, if any.
+  final Rx<FileStat?> appLogs = Rx(null);
+
   /// [AuthService] used to retrieve the current [sessionId].
   final AuthService _authService;
 
@@ -73,6 +79,10 @@ class LogController extends GetxController {
 
   /// [NotificationService] having the [DeviceToken] information.
   final NotificationService? _notificationService;
+
+  /// [AbstractSettingsRepository] for changing the
+  /// [ApplicationSettings.logLevel].
+  final AbstractSettingsRepository? _settingsRepository;
 
   /// [LogFileProvider] to read a [File] of the [LogEntry] from.
   final LogFileProvider? _logProvider;
@@ -93,12 +103,22 @@ class LogController extends GetxController {
   /// being active.
   bool? get pushNotifications => _notificationService?.pushNotifications;
 
+  /// Returns the currently applied [ApplicationSettings], if any.
+  ApplicationSettings? get settings =>
+      _settingsRepository?.applicationSettings.value;
+
   @override
   void onInit() {
     PlatformUtils.userAgent.then((e) => userAgent.value = e);
     getNotificationSettings().then((e) => notificationSettings.value = e);
     _tryFile();
+    _tryAppLogs();
     super.onInit();
+  }
+
+  /// Sets the [ApplicationSettings.logLevel] to the provided [value].
+  Future<void> setLogLevel(int value) async {
+    await _settingsRepository?.setLogLevel(value);
   }
 
   /// Creates and downloads the [report] as a `.txt` file.
@@ -225,14 +245,27 @@ ${Log.logs.map((e) => e.toString()).join('\n')}
   }
 
   /// Downloads the [File] with the whole dump of logs, if any.
-  Future<void> downloadArchive() async {
+  Future<void> downloadArchive() async => _download(_logProvider?.file);
+
+  /// Downloads the [File] with the `stdout` and `stderr` streams, if any.
+  Future<void> downloadAppLogs() async {
+    // [File]s aren't available for Web platform.
+    if (PlatformUtils.isWeb) {
+      return;
+    }
+
+    final Directory library = await PlatformUtils.libraryDirectory;
+    await _download(File('${library.path}/app.log'));
+  }
+
+  /// Downloads the provided [File], if any.
+  Future<void> _download(File? file) async {
     // [File]s aren't available for Web platform.
     if (PlatformUtils.isWeb) {
       return;
     }
 
     try {
-      final File? file = _logProvider?.file;
       if (file == null) {
         return;
       }
@@ -271,5 +304,17 @@ ${Log.logs.map((e) => e.toString()).join('\n')}
     }
 
     stat.value = await _logProvider?.stat();
+  }
+
+  /// Retrieves the [FileStat] for `stdout` and `stderr` streams.
+  Future<void> _tryAppLogs() async {
+    // [File]s aren't available for Web platform.
+    if (PlatformUtils.isWeb) {
+      return;
+    }
+
+    final Directory library = await PlatformUtils.libraryDirectory;
+    final File file = File('${library.path}/app.log');
+    appLogs.value = await file.stat();
   }
 }
