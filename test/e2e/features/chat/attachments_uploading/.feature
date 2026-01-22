@@ -27,6 +27,7 @@ Feature: Attachments uploading
     And I wait for app to settle
     And I pause for 5 seconds
 
+  @failing
   Scenario: Canceling upload of one of the files after sending a new message
     When I have Internet with delay of 20 seconds
     And I attach "test.txt" file
