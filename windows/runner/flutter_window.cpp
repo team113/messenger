@@ -108,7 +108,7 @@ static void RedirectStdOutErrToLogFile() {
     return;
 
   // STDIN
-  TeePipe stdinPipe = CreateTeeForStdHandle(STD_STDIN_HANDLE, stdin);
+  TeePipe stdinPipe = CreateTeeForStdHandle(STD_INPUT_HANDLE, stdin);
   StartForwardingThread(stdinPipe.readEnd, logFile, stdinPipe.originalHandle);
 
   // STDOUT
