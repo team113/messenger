@@ -15,6 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Incoming call sometimes being stuck ringing infinitely. ([#1589])
+        - Text below accept and decline buttons being unreadable. ([#1589])
 
 [#1589]: /../../pull/1589
 

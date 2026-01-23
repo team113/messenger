@@ -39,6 +39,7 @@ class CallButtonWidget extends StatelessWidget {
     this.constrained = false,
     bool big = false,
     this.builder = _defaultBuilder,
+    this.shadows = false,
   }) : size = constrained
            ? null
            : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
@@ -80,6 +81,9 @@ class CallButtonWidget extends StatelessWidget {
   /// Builder building the [asset] and the rounded button around it.
   final Widget Function(BuildContext context, Widget child) builder;
 
+  /// Indicator whether the [hint] should be displayed with shadows or not.
+  final bool shadows;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -103,6 +107,7 @@ class CallButtonWidget extends StatelessWidget {
         border: border,
         onPressed: onPressed,
         builder: builder,
+        shadows: shadows,
       ),
     );
   }
