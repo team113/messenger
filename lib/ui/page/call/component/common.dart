@@ -354,10 +354,17 @@ class RemoteAudioButton extends CallButton {
 
 /// [CallButton] accepting a call without video.
 class AcceptAudioButton extends CallButton {
-  const AcceptAudioButton(super.c, {this.highlight = false});
+  const AcceptAudioButton(
+    super.c, {
+    this.highlight = false,
+    this.shadows = false,
+  });
 
   /// Indicator whether this [AcceptAudioButton] should be highlighted.
   final bool highlight;
+
+  /// Indicator whether the [hint] should have shadows or not.
+  final bool shadows;
 
   @override
   String get hint => 'btn_call_answer_with_audio'.l10n;
@@ -379,6 +386,7 @@ class AcceptAudioButton extends CallButton {
       border: highlight
           ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
           : null,
+      shadows: shadows,
       onPressed: () => c.join(withVideo: false),
     );
   }
@@ -386,10 +394,17 @@ class AcceptAudioButton extends CallButton {
 
 /// [CallButton] accepting a call with video.
 class AcceptVideoButton extends CallButton {
-  const AcceptVideoButton(super.c, {this.highlight = false});
+  const AcceptVideoButton(
+    super.c, {
+    this.highlight = false,
+    this.shadows = false,
+  });
 
   /// Indicator whether this [AcceptVideoButton] should be highlighted.
   final bool highlight;
+
+  /// Indicator whether the [hint] should have shadows or not.
+  final bool shadows;
 
   @override
   String get hint => 'btn_call_answer_with_video'.l10n;
@@ -409,6 +424,7 @@ class AcceptVideoButton extends CallButton {
       border: highlight
           ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
           : null,
+      shadows: shadows,
       onPressed: () => c.join(withVideo: true),
     );
   }
@@ -416,10 +432,13 @@ class AcceptVideoButton extends CallButton {
 
 /// [CallButton] declining a call.
 class DeclineButton extends CallButton {
-  const DeclineButton(super.c);
+  const DeclineButton(super.c, {this.shadows = false});
 
   @override
   String get hint => 'btn_call_decline'.l10n;
+
+  /// Indicator whether the [hint] should have shadows or not.
+  final bool shadows;
 
   @override
   Widget build({bool hinted = true, bool expanded = false, bool big = false}) {
@@ -433,6 +452,7 @@ class DeclineButton extends CallButton {
       expanded: expanded,
       big: big,
       constrained: c.isMobile,
+      shadows: shadows,
       onPressed: c.decline,
     );
   }

@@ -775,8 +775,6 @@ class CallRepository extends DisposableInterface
 
   /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
   ChatCallEvent _callEvent(ChatCallEventsVersionedMixin$Events e) {
-    Log.trace('_callEvent($e)', '$runtimeType');
-
     if (e.$$typename == 'EventChatCallFinished') {
       final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
@@ -990,16 +988,28 @@ class CallRepository extends DisposableInterface
   Future<void> _incomingChatCallsTopEvent(IncomingChatCallsTopEvent e) async {
     switch (e.kind) {
       case IncomingChatCallsTopEventKind.initialized:
-        // No-op.
+        Log.debug('_incomingChatCallsTopEvent(${e.kind.name})', '$runtimeType');
         break;
 
       case IncomingChatCallsTopEventKind.list:
         e as IncomingChatCallsTop;
+
+        Log.debug(
+          '_incomingChatCallsTopEvent(${e.kind.name}) -> ${e.list}',
+          '$runtimeType',
+        );
+
         e.list.forEach(add);
         break;
 
       case IncomingChatCallsTopEventKind.added:
         e as EventIncomingChatCallsTopChatCallAdded;
+
+        Log.debug(
+          '_incomingChatCallsTopEvent(${e.kind.name}) -> ${e.call}',
+          '$runtimeType',
+        );
+
         if (!_accountedCalls.containsKey(e.call.id)) {
           add(e.call);
         }
@@ -1007,6 +1017,12 @@ class CallRepository extends DisposableInterface
 
       case IncomingChatCallsTopEventKind.removed:
         e as EventIncomingChatCallsTopChatCallRemoved;
+
+        Log.debug(
+          '_incomingChatCallsTopEvent(${e.kind.name}) -> ${e.call}',
+          '$runtimeType',
+        );
+
         final Rx<OngoingCall>? call = calls[e.call.chatId];
         // If call is not yet connected to remote updates, then it's still
         // just a notification and it should be removed.

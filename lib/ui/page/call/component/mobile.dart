@@ -618,15 +618,17 @@ Widget mobileCall(CallController c, BuildContext context) {
                   AcceptAudioButton(
                     c,
                     highlight: !c.withVideo,
+                    shadows: true,
                   ).build(expanded: true),
                 ),
                 padding(
                   AcceptVideoButton(
                     c,
                     highlight: c.withVideo,
+                    shadows: true,
                   ).build(expanded: true),
                 ),
-                padding(DeclineButton(c).build(expanded: true)),
+                padding(DeclineButton(c, shadows: true).build(expanded: true)),
               ];
             }
 
