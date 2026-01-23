@@ -24,12 +24,14 @@ Feature: Monolog
     And I am in monolog
     And monolog is indeed local
 
+  @chat
   Scenario: Message can be posted in local monolog
     When I fill `MessageField` field with "Hello, my monolog"
     And I tap `Send` button
     Then I wait until status of "Hello, my monolog" message is read
     And monolog is indeed remote
 
+  # @chat
   # Scenario: User renames local monolog
   #   When I open chat's info
   #   And I tap `EditNameButton` button
@@ -37,12 +39,14 @@ Feature: Monolog
   #   And I tap `SaveNameButton` button
   #   Then monolog is indeed remote
 
+  @chat
   Scenario: User adds local chat monolog to favorites
     When I long press monolog
     And I tap `FavoriteButton` button
     Then monolog is indeed remote
     And I see monolog as favorite
 
+  @chat
   Scenario: User hides local monolog
     When I long press monolog
     And I tap `HideChatButton` button

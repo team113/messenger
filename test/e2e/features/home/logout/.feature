@@ -17,6 +17,7 @@
 
 Feature: Logout confirmation
 
+  @home
   Scenario: Confirmation is displayed when password isn't set
     When I tap `StartButton` button
     Then I wait until `IntroductionView` is present

@@ -17,6 +17,7 @@
 
 Feature: Drafts
 
+  @chat
   Scenario: Draft is persisted
     Given I am Alice
     And user Bob

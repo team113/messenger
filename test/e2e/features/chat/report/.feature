@@ -25,6 +25,7 @@ Feature: Report chat
     And I see some messages in chat
     And I open chat's info
 
+  @chat
   Scenario: User sends report
     When I wait until `ChatInfoScrollable` is present
     And I scroll `ChatInfoScrollable` until `ReportChatButton` is present

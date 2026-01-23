@@ -25,6 +25,7 @@ Feature: Favorite chats
     And I wait until "Alice and Bob" chat is present
     And I wait until "Alice and Charlie" chat is present
 
+  @chat
   Scenario: User adds and removes chat to/from favorites
     Given I am in "Alice and Bob" group
     And I open chat's info
@@ -38,6 +39,7 @@ Feature: Favorite chats
     When I tap `UnfavoriteButton` button
     Then I see "Alice and Bob" chat as unfavorited
 
+  @chat
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat
     And I tap `FavoriteButton` button
@@ -49,6 +51,7 @@ Feature: Favorite chats
     Then I see "Alice and Charlie" chat as favorite
     And I see "Alice and Charlie" chat first in favorites list
 
+  @chat
   Scenario: User removes chat from favorites
     Given "Alice and Bob" chat is favorite
     And I see "Alice and Bob" chat as favorite
@@ -57,6 +60,7 @@ Feature: Favorite chats
     And I tap `UnfavoriteButton` button
     Then I see "Alice and Bob" chat as unfavorited
 
+  @chat
   Scenario: User reorders favorite chats
     Given "Alice and Bob" chat is favorite
     And I see "Alice and Bob" chat as favorite

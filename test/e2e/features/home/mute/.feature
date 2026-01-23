@@ -17,6 +17,7 @@
 
 Feature: Application muting and unmuting
 
+  @home
   Scenario: User mutes and unmutes application
     Given I am Alice
     And I pause for 1 second

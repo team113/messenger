@@ -17,6 +17,7 @@
 
 Feature: Text messages selection and copying
 
+  @chat
   Scenario: User copies text of a message
     Given I am Alice
     And user Bob

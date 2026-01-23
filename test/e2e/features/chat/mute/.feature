@@ -23,6 +23,7 @@ Feature: Chat muting and unmuting
     And I have "Alice and Bob" group with Bob
     And I wait until text "Alice and Bob" is present
 
+  @chat
   Scenario: User mutes and unmutes chat on `ChatInfo` page
     Given I am in "Alice and Bob" group
     And I open chat's info
@@ -35,6 +36,7 @@ Feature: Chat muting and unmuting
     When I tap `UnmuteButton` button
     Then I see "Alice and Bob" chat as unmuted
 
+  @chat
   Scenario: User mutes and unmutes chat
     When I long press "Alice and Bob" chat
     And I tap `MuteButton` button

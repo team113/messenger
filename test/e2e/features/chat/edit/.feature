@@ -17,6 +17,7 @@
 
 Feature: Message editing
 
+  @chat
   Background: User is in dialog with Bob
     Given I am Alice
     And user Bob

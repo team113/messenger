@@ -24,6 +24,7 @@ Feature: Chat items are deleted correctly
     And I am in chat with Bob
     And I pause for 10 seconds
 
+  @chat
   Scenario: User deletes message
     When I fill `MessageField` field with "For deletion"
     And I tap `Send` button
@@ -35,6 +36,7 @@ Feature: Chat items are deleted correctly
     And I tap `Proceed` button
     Then I wait until "For deletion" message is absent
 
+  @chat
   Scenario: User hides message
     When I fill `MessageField` field with "For hiding"
     And I tap `Send` button

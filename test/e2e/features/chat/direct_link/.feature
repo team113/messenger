@@ -22,11 +22,13 @@ Feature: Direct links
     And Bob has his direct link set up
     And I wait until `AuthView` is present
 
+  @chat
   Scenario: Direct link can be opened in unauthorized mode
     When I go to Bob's direct link
     Then I wait until `HomeView` is present
     And I wait until `ChatView` is present
 
+  @chat
   Scenario: Direct link can be opened in authorized mode
     Given I am Alice
     And I wait until `HomeView` is present

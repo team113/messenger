@@ -24,12 +24,14 @@ Feature: Local chats
     And Bob sees no dialog with me in recent chats
     And I pause for 5 seconds
 
+  @chat
   Scenario: Message can be posted in local dialog
     When I fill `MessageField` field with "Hello, my local friend"
     And I tap `Send` button
     Then I wait until status of "Hello, my local friend" message is sent
     And Bob sees dialog with me in recent chats
 
+  @chat
   Scenario: Call can be made in local dialog
     Given popup windows are disabled
     When I tap `AudioCall` button

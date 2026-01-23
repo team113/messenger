@@ -25,6 +25,7 @@ Feature: Attachments uploading
     And I wait for app to settle
     And I pause for 5 seconds
 
+  @chat
   Scenario: Canceling upload of one of the files after sending a new message
     When I have Internet with delay of 10 seconds
     And I attach "test.txt" file
@@ -38,6 +39,7 @@ Feature: Attachments uploading
     Then I wait until attachment "test.txt" is absent
     And I wait until status of "Hi" message is sent
 
+  @chat
   Scenario: Canceling upload of all files after sending a new message
     When I have Internet with delay of 10 seconds
     And I attach "test.txt" file
@@ -50,6 +52,7 @@ Feature: Attachments uploading
     When I cancel "test2.txt" file upload
     Then I see no messages in chat
 
+  @chat
   Scenario: Canceling upload of one of the files after editing a message
     When I fill `MessageField` field with "Hello"
     And I tap `Send` button

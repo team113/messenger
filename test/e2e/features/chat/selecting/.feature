@@ -23,6 +23,7 @@ Feature: Messages selection
     And Bob has dialog with me
     And I am in chat with Bob
 
+  @chat
   Scenario: User selects and forwards messages
     Given I have "Forwards" group
 
@@ -50,6 +51,7 @@ Feature: Messages selection
     And I wait until status of "02" message is read
     And I wait until status of "03" message is read
 
+  @chat
   Scenario: User selects and deletes messages
     When I fill `MessageField` field with "01"
     And I tap `Send` button

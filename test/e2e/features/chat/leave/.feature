@@ -25,6 +25,7 @@ Feature: Leave chat
     And I see some messages in chat
     And I open chat's info
 
+  @chat
   Scenario: User leaves group
     When I wait until `ChatInfoScrollable` is present
     And I scroll `ChatInfoScrollable` until `LeaveChatButton` is present

@@ -25,11 +25,13 @@ Feature: Chat messages have correct sending status
     And I wait for app to settle
     And I pause for 5 seconds
 
+  @chat
   Scenario: User sends message
     When I fill `MessageField` field with "123"
     And I tap `Send` button
     Then I wait until status of "123" message is sent
 
+  @chat
   Scenario: Message status changes from `sending` to `sent`
     Given I have Internet with delay of 6 seconds
 
@@ -39,6 +41,7 @@ Feature: Chat messages have correct sending status
     Then I wait until status of "123" message is sending
     And I wait until status of "123" message is sent
 
+  @chat
   Scenario: User deletes non-sent message
     Given I do not have Internet
     When I fill `MessageField` field with "123"
@@ -50,6 +53,7 @@ Feature: Chat messages have correct sending status
     And I tap `Proceed` button
     Then I wait until "123" message is absent
 
+  @chat
   Scenario: User resends message
     Given I do not have Internet
     When I fill `MessageField` field with "123"
@@ -62,6 +66,7 @@ Feature: Chat messages have correct sending status
     Then I wait until status of "123" message is sending
     And I wait until status of "123" message is sent
 
+  @chat
   Scenario: Non-sent messages are persisted
     Given I do not have Internet
     When I fill `MessageField` field with "123"

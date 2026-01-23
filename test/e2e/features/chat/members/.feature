@@ -25,6 +25,7 @@ Feature: Chat members
     And I am in "Alice and Bob" group
     And I open chat's info
 
+  @chat
   Scenario: User removes a member
     When I wait until text "Bob" is present
     And I scroll `ChatInfoScrollable` until `DeleteMemberButton` is present
@@ -32,6 +33,7 @@ Feature: Chat members
     And I tap `Proceed` button
     Then I wait until text "Bob" is absent
 
+  @chat
   Scenario: User adds a member
     Given Charlie has dialog with me
     When I scroll `ChatInfoScrollable` until `AddMemberButton` is present
@@ -43,6 +45,7 @@ Feature: Chat members
     And I tap `SearchSubmitButton` button
     Then I wait until text "Charlie" is present
 
+  @chat
   Scenario: User gets removed
     When I wait until text "Alice and Bob" is present
     And Bob removes Alice from "Alice and Bob" group

@@ -24,6 +24,7 @@ Feature: Chat attachments have correct sending status
     And I am in chat with Bob
     And I wait for app to settle
 
+  @chat
   Scenario: File attachment status changes from `sending` to `sent`
     Given I have Internet with delay of 4 seconds
 
@@ -33,6 +34,7 @@ Feature: Chat attachments have correct sending status
     Then I wait until status of "test.txt" attachment is sending
     And I wait until status of "test.txt" attachment is sent
 
+  @chat
   Scenario: Image attachment status changes from `sending` to `sent`
     Given I have Internet with delay of 4 seconds
 
@@ -42,6 +44,7 @@ Feature: Chat attachments have correct sending status
     Then I wait until status of "test.jpg" attachment is sending
     And I wait until status of "test.jpg" attachment is sent
 
+  @chat
   Scenario: User resends file attachment
     Given I do not have Internet
     When I attach "test.txt" file
@@ -54,6 +57,7 @@ Feature: Chat attachments have correct sending status
     Then I wait until status of "test.txt" attachment is sending
     And I wait until status of "test.txt" attachment is sent
 
+  @chat
   Scenario: User resends image attachment
     Given I do not have Internet
     When I attach "test.jpg" image

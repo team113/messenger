@@ -17,6 +17,7 @@
 
 Feature: Attachments refetching
 
+  @chat
   Scenario: User sees image refetched in chat
     Given I am Alice
     And user Bob

@@ -17,6 +17,7 @@
 
 Feature: Introduction
 
+  @home
   Scenario: Introduction is displayed
     When I tap `StartButton` button
     Then I wait until `IntroductionView` is present

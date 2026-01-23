@@ -24,6 +24,7 @@ Feature: Chat avatar
     And I am in "Alice and Bob" group
     And I open chat's info
 
+  @chat
   Scenario: User uploads and deletes chat avatar
     When I update chat avatar with "test.jpg"
     Then I see chat avatar as "test.jpg"
@@ -31,6 +32,7 @@ Feature: Chat avatar
     When I tap `DeleteAvatar` button
     Then I see chat avatar as none
 
+  @chat
   Scenario: SVG image can be uploaded as a chat avatar
     When I tap `UploadAvatar` button
     And I pick "test.svg" file in file picker

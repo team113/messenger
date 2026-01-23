@@ -23,6 +23,7 @@ Feature: Half read status of messages in group chats
     And I have "Group" group with Bob and Charlie
     And I am in "Group" group
 
+  @chat
   Scenario: User sees messages half read
     When I fill `MessageField` field with "123"
     And I tap `Send` button

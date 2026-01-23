@@ -17,6 +17,7 @@
 
 Feature: Upgrade popup
 
+  @home
   Scenario: New versions are prompted in upgrade alerts
     Given appcast with newer version is available
 
@@ -24,6 +25,7 @@ Feature: Upgrade popup
     And I pause for 5 seconds
     Then I wait until `UpgradeAlert` is present
 
+  @home
   Scenario: Upgrade alerts aren't displayed for current version
     Given appcast with current version is available
 
@@ -32,6 +34,7 @@ Feature: Upgrade popup
     Then I wait until `UpgradePopup` is absent
     And I wait until `UpgradeAlert` is absent
 
+  @home
   Scenario: Critical upgrade popup can't be skipped
     Given appcast with critical version is available
 

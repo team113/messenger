@@ -25,6 +25,7 @@ Feature: Attachments downloading
     And I am in chat with Bob
     And I pause for 2 seconds
 
+  @chat
   Scenario: Attachments can be downloaded
     When Bob sends "test.txt" attachment to me
     Then I wait until "test.txt" file is not downloaded
@@ -34,6 +35,7 @@ Feature: Attachments downloading
     Then I wait until "test.txt" file is downloading
     And I wait until "test.txt" file is downloaded
 
+  @chat
   Scenario: Attachment download can be canceled
     When Bob sends "test.txt" attachment to me
     Then I wait until "test.txt" file is not downloaded

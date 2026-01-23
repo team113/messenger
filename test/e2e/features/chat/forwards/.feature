@@ -26,6 +26,7 @@ Feature: Chat items are forwarded correctly
     And I am in chat with Bob
     And I pause for 5 seconds
 
+  @chat
   Scenario: User forwards message
     When I fill `MessageField` field with "Wow!"
     And I tap `Send` button
@@ -41,6 +42,7 @@ Feature: Chat items are forwarded correctly
     And I am in chat with Charlie
     Then I wait until text "Check this :)" is present
 
+  @chat
   Scenario: User forwards message with attachment
     When I fill `MessageField` field with "You saved me, why?"
     And I tap `Send` button
@@ -57,6 +59,7 @@ Feature: Chat items are forwarded correctly
     And I am in chat with Charlie
     Then I wait until attachment "test.jpg" is present
 
+  @chat
   Scenario: User forwards message to multiple chats
     Given user Dave
     And Dave has dialog with me

@@ -17,6 +17,7 @@
 
 Feature: Chat transitions
 
+  @chat
   Scenario: Chats transitions works correctly
     Given user Alice
     And Alice has "Thoughts" group
