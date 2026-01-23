@@ -891,7 +891,7 @@ jobs:
                        2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
           make test.e2e start-app=yes device=web-server pull=yes no-cache=yes \
                dart-env='SOCAPP_LOG_LEVEL=${{ steps.log.outputs.level }}
-                         SOCAPP_E2E_TAG=${{ matrix.tag }}'
+                         E2E_TAG=${{ matrix.tag }}'
         env:
           OMIT: |
             [

@@ -394,8 +394,8 @@ FlutterTestConfiguration gherkinTestConfiguration() {
   configuration.createWorld = (config) => Future.sync(() => CustomWorld());
 
   configuration.tagExpression = 'not @disabled';
-  if (const bool.hasEnvironment('SOCAPP_E2E_TAG')) {
-    final String tags = const String.fromEnvironment('SOCAPP_E2E_TAG');
+  if (const bool.hasEnvironment('E2E_TAG')) {
+    final String tags = const String.fromEnvironment('E2E_TAG');
     configuration.tagExpression = '$tags and not @disabled';
   }
 
