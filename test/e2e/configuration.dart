@@ -395,9 +395,8 @@ FlutterTestConfiguration gherkinTestConfiguration() {
 
   configuration.tagExpression = 'not @disabled';
   if (const bool.hasEnvironment('SOCAPP_E2E_TAG')) {
-    configuration.tagExpression = const String.fromEnvironment(
-      'SOCAPP_E2E_TAG',
-    );
+    final String tags = const String.fromEnvironment('SOCAPP_E2E_TAG');
+    configuration.tagExpression = '$tags and not @disabled';
   }
 
   return configuration;
