@@ -808,6 +808,7 @@ jobs:
     name: test (E2E)
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         tag:
           - "@auth"
