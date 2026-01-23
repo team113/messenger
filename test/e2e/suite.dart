@@ -28,8 +28,8 @@ part 'suite.g.dart';
   featurePaths: ['test/e2e/features/**.feature'],
   executionOrder: ExecutionOrder.alphabetical,
 )
-void main() async {
+void main() {
   Config.disableInfiniteAnimations = true;
   Config.allowDetachedActivity = true;
-  executeTestSuite(gherkinTestConfiguration, appInitializationFn);
+  executeTestSuite(gherkinTestConfiguration(), appInitializationFn);
 }
