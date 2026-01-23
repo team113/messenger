@@ -810,8 +810,17 @@ jobs:
     strategy:
       matrix:
         tag:
-          - "@chat"
+          - "@auth"
+          - "@chats"
+          - "@common"
+          - "@dialog"
+          - "@group"
           - "@home"
+          - "@messaging"
+          - "@monolog"
+          - "@profile"
+          - "@settings"
+          - "@system"
     steps:
       - uses: actions/checkout@v6
         with:
