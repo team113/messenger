@@ -1,2 +1,1 @@
-- Se agregó una notificación de reconexión cuando la red cambia durante una llamada.
 - Se corrigieron errores y se mejoraron el rendimiento.
