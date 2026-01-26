@@ -68,7 +68,7 @@ dependencies:
   log_me: ^0.1.2
   macos_haptic_feedback: ^1.0.0
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: ^0.17.0
+  medea_flutter_webrtc: ^0.17.1
   medea_jason: ^0.13.0
   media_kit_libs_ios_video: ^1.1.3
   media_kit_libs_linux: ^1.1.1

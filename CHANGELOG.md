@@ -16,8 +16,10 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Incoming call sometimes being stuck ringing infinitely. ([#1589])
         - Text below accept and decline buttons being unreadable. ([#1589])
+        - Remote video not being disabled on slow Internet connection. ([#1591])
 
 [#1589]: /../../pull/1589
+[#1591]: /../../pull/1591
 
 
 
