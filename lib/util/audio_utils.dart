@@ -76,20 +76,34 @@ class AudioUtilsImpl {
   }
 
   /// Plays the provided [sound] once.
-  Future<void> once(AudioSource sound) async {
+  Future<void> once(
+    AudioSource sound, {
+    AudioMode? mode = AudioMode.sound,
+  }) async {
     Log.debug('once($sound)', '$runtimeType');
 
     ensureInitialized();
 
-    if (PlatformUtils.isWeb) {
-      final String url = sound.direct;
+    StreamSubscription<void>? handle = switch (mode) {
+      null => null,
+      (_) => acquire(mode).listen((_) {}),
+    };
 
-      if (url.isNotEmpty) {
-        await (WebUtils.play('$url?${Pubspec.ref}')).listen((_) {}).asFuture();
+    try {
+      if (PlatformUtils.isWeb) {
+        final String url = sound.direct;
+
+        if (url.isNotEmpty) {
+          await (WebUtils.play(
+            '$url?${Pubspec.ref}',
+          )).listen((_) {}).asFuture();
+        }
+      } else {
+        await _jaPlayer?.setAudioSource(sound.source);
+        await _jaPlayer?.play();
       }
-    } else {
-      await _jaPlayer?.setAudioSource(sound.source);
-      await _jaPlayer?.play();
+    } finally {
+      handle?.cancel();
     }
   }
 
@@ -107,12 +121,18 @@ class AudioUtilsImpl {
     StreamSubscription? playback;
 
     if (controller == null) {
+      Stream<void>? handle = acquire(mode);
+      StreamSubscription<void>? listening;
+
       ja.AudioPlayer? jaPlayer;
       Timer? timer;
 
       controller = StreamController.broadcast(
         onListen: () async {
           if (PlatformUtils.isWeb) {
+            listening?.cancel();
+            listening = handle.listen((_) {});
+
             playback?.cancel();
             playback = WebUtils.play(
               '${music.direct}?${Pubspec.ref}',
@@ -137,6 +157,10 @@ class AudioUtilsImpl {
 
           await jaPlayer?.setAudioSource(music.source);
           await jaPlayer?.setLoopMode(ja.LoopMode.all);
+
+          listening?.cancel();
+          listening = handle.listen((_) {});
+
           await jaPlayer?.play();
 
           if (fade != Duration.zero) {
@@ -155,6 +179,8 @@ class AudioUtilsImpl {
           }
         },
         onCancel: () async {
+          listening?.cancel();
+
           if (PlatformUtils.isWeb) {
             playback?.cancel();
             return;
