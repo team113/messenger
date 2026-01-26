@@ -76,7 +76,9 @@ class ParticipantWidget extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      bool hasVideo = participant.video.value?.renderer.value != null;
+      bool hasVideo =
+          participant.video.value?.renderer.value != null &&
+          participant.member.hasVideo.value;
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {

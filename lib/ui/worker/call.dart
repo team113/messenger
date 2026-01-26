@@ -307,6 +307,11 @@ class CallWorker extends Dependency {
             }
 
             if (_isCallKit && callId != null) {
+              Log.debug(
+                'c.state($state) -> invoking `FlutterCallkitIncoming.endCall($callId)` due to state being `ended`',
+                '$runtimeType',
+              );
+
               await FlutterCallkitIncoming.endCall(callId.val.base62ToUuid());
             }
             break;
@@ -492,6 +497,11 @@ class CallWorker extends Dependency {
 
               if (_isCallKit) {
                 final ChatItemId? callId = call.call.value?.id;
+
+                Log.debug(
+                  '_callService.calls.changes($event) -> invoking FlutterCallkitIncoming.endCall() due to call being `removed` from `calls`',
+                  '$runtimeType',
+                );
 
                 if (callId != null) {
                   final String base62 = callId.val.base62ToUuid();
@@ -869,87 +879,118 @@ class CallWorker extends Dependency {
     }
 
     _eventsSubscriptions[chatId]?.cancel();
-    _eventsSubscriptions[chatId] = _graphQlProvider
-        .chatEvents(chatId, null, () => null)
-        .listen((e) async {
-          Log.debug('_eventsSubscriptions[$chatId] -> $e', '$runtimeType');
+    _eventsSubscriptions[chatId] = _graphQlProvider.chatEvents(chatId, null, () => null).listen((
+      e,
+    ) async {
+      Log.debug('_eventsSubscriptions[$chatId] -> $e', '$runtimeType');
 
-          final events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
+      final events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
 
-          if (events.$$typename == 'Chat') {
-            final mixin = events as ChatEvents$Subscription$ChatEvents$Chat;
-            final call = mixin.ongoingCall;
+      if (events.$$typename == 'Chat') {
+        final mixin = events as ChatEvents$Subscription$ChatEvents$Chat;
+        final call = mixin.ongoingCall;
 
-            if (call != null) {
-              if (call.members.any((e) => e.user.id == credentials.userId)) {
-                _eventsSubscriptions.remove(chatId)?.cancel();
-                await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
-              }
-            } else {
+        if (call != null) {
+          if (call.members.any((e) => e.user.id == credentials.userId)) {
+            Log.debug(
+              '_eventsSubscriptions($chatId) -> Chat -> invoking `FlutterCallkitIncoming.endCall()` due to members already containing our user(`${credentials.userId}`) -> ${call.members}',
+              '$runtimeType',
+            );
+
+            _eventsSubscriptions.remove(chatId)?.cancel();
+            await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+          }
+        } else {
+          Log.debug(
+            '_eventsSubscriptions($chatId) -> Chat -> invoking `FlutterCallkitIncoming.endCall()` due to `call` being `null` -> $mixin',
+            '$runtimeType',
+          );
+
+          _eventsSubscriptions.remove(chatId)?.cancel();
+          await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+        }
+      } else if (events.$$typename == 'ChatEventsVersioned') {
+        var mixin =
+            events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+
+        for (var e in mixin.events) {
+          if (e.$$typename == 'EventChatCallFinished') {
+            final node =
+                e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
+
+            Log.debug(
+              '_eventsSubscriptions($chatId) -> EventChatCallFinished -> invoking `FlutterCallkitIncoming.endCall()`',
+              '$runtimeType',
+            );
+
+            _eventsSubscriptions.remove(chatId)?.cancel();
+            await FlutterCallkitIncoming.endCall(
+              node.call.id.val.base62ToUuid(),
+            );
+          } else if (e.$$typename == 'EventChatCallMemberJoined') {
+            final node =
+                e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+            final call = _callService.calls[chatId];
+
+            if (node.user.id == credentials.userId &&
+                call?.value.connected != true) {
+              Log.debug(
+                '_eventsSubscriptions($chatId) -> EventChatCallMemberJoined -> invoking `FlutterCallkitIncoming.endCall()` due to connected(`${call?.value.connected}` and node match(`${node.user.id}` vs ${credentials.userId}))',
+                '$runtimeType',
+              );
+
+              _eventsSubscriptions.remove(chatId)?.cancel();
+              await FlutterCallkitIncoming.endCall(
+                node.call.id.val.base62ToUuid(),
+              );
+            }
+          } else if (e.$$typename == 'EventChatCallMemberLeft') {
+            var node =
+                e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
+            final call = _callService.calls[chatId];
+
+            if (node.user.id == credentials.userId &&
+                call?.value.connected != true) {
+              Log.debug(
+                '_eventsSubscriptions($chatId) -> EventChatCallMemberLeft -> invoking `FlutterCallkitIncoming.endCall()` due to connected(`${call?.value.connected}` and node match(`${node.user.id}` vs ${credentials.userId}))',
+                '$runtimeType',
+              );
+
               _eventsSubscriptions.remove(chatId)?.cancel();
               await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
             }
-          } else if (events.$$typename == 'ChatEventsVersioned') {
-            var mixin =
-                events
-                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+          } else if (e.$$typename == 'EventChatCallDeclined') {
+            final node =
+                e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+            if (node.user.id == credentials.userId) {
+              Log.debug(
+                '_eventsSubscriptions($chatId) -> EventChatCallDeclined -> invoking `FlutterCallkitIncoming.endCall()` due to node match(`${node.user.id}` vs ${credentials.userId}))',
+                '$runtimeType',
+              );
 
-            for (var e in mixin.events) {
-              if (e.$$typename == 'EventChatCallFinished') {
-                final node =
-                    e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
+              _eventsSubscriptions.remove(chatId)?.cancel();
+              await FlutterCallkitIncoming.endCall(
+                node.call.id.val.base62ToUuid(),
+              );
+            }
+          } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+            final node =
+                e as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+            if (node.userId == credentials.userId) {
+              Log.debug(
+                '_eventsSubscriptions($chatId) -> EventChatCallAnswerTimeoutPassed -> invoking `FlutterCallkitIncoming.endCall()` due to node match(`${node.userId}` vs ${credentials.userId}))',
+                '$runtimeType',
+              );
 
-                _eventsSubscriptions.remove(chatId)?.cancel();
-                await FlutterCallkitIncoming.endCall(
-                  node.call.id.val.base62ToUuid(),
-                );
-              } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                final node =
-                    e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-                final call = _callService.calls[chatId];
-
-                if (node.user.id == credentials.userId &&
-                    call?.value.connected != true) {
-                  _eventsSubscriptions.remove(chatId)?.cancel();
-                  await FlutterCallkitIncoming.endCall(
-                    node.call.id.val.base62ToUuid(),
-                  );
-                }
-              } else if (e.$$typename == 'EventChatCallMemberLeft') {
-                var node =
-                    e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
-                final call = _callService.calls[chatId];
-
-                if (node.user.id == credentials.userId &&
-                    call?.value.connected != true) {
-                  _eventsSubscriptions.remove(chatId)?.cancel();
-                  await FlutterCallkitIncoming.endCall(
-                    chatId.val.base62ToUuid(),
-                  );
-                }
-              } else if (e.$$typename == 'EventChatCallDeclined') {
-                final node =
-                    e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
-                if (node.user.id == credentials.userId) {
-                  _eventsSubscriptions.remove(chatId)?.cancel();
-                  await FlutterCallkitIncoming.endCall(
-                    node.call.id.val.base62ToUuid(),
-                  );
-                }
-              } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
-                final node =
-                    e
-                        as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
-                if (node.userId == credentials.userId) {
-                  _eventsSubscriptions.remove(chatId)?.cancel();
-                  await FlutterCallkitIncoming.endCall(
-                    node.callId.val.base62ToUuid(),
-                  );
-                }
-              }
+              _eventsSubscriptions.remove(chatId)?.cancel();
+              await FlutterCallkitIncoming.endCall(
+                node.callId.val.base62ToUuid(),
+              );
             }
           }
-        });
+        }
+      }
+    });
 
     // Ensure that we haven't already joined the call.
     final query = await _graphQlProvider.getChat(chatId);
