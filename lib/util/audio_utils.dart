@@ -20,10 +20,12 @@ import 'dart:async';
 import 'package:audio_session/audio_session.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 import 'package:mutex/mutex.dart';
+import 'package:uuid/uuid.dart';
 
 import '/pubspec.g.dart';
 import '/util/media_utils.dart';
 import 'log.dart';
+import 'new_type.dart';
 import 'platform_utils.dart';
 import 'web/web_utils.dart';
 
@@ -47,6 +49,9 @@ class AudioUtilsImpl {
 
   /// [Mutex] guarding synchronized access to the [_setSpeaker].
   final Mutex _mutex = Mutex();
+
+  final Map<_IntentId, StreamController> _controllers = {};
+  final Map<_IntentId, _AudioIntent> _intents = {};
 
   /// Indicates whether the [_jaPlayer] should be used.
   bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
@@ -94,8 +99,9 @@ class AudioUtilsImpl {
   StreamSubscription<void> play(
     AudioSource music, {
     Duration fade = Duration.zero,
+    AudioMode mode = AudioMode.music,
   }) {
-    Log.debug('play($music)', '$runtimeType');
+    Log.debug('play($music, mode: ${mode.name})', '$runtimeType');
 
     StreamController? controller = _players[music];
     StreamSubscription? playback;
@@ -220,6 +226,39 @@ class AudioUtilsImpl {
     }
   }
 
+  /// Acquires and returns the handle for the provided [AudioMode].
+  ///
+  /// The returned [Stream] must be listened to when [mode] is still needed, and
+  /// released when the [mode] is no longer needed.
+  Stream<void> acquire(AudioMode mode) {
+    final _AudioIntent intent = _AudioIntent(mode);
+
+    final StreamController<void> controller = StreamController.broadcast(
+      onListen: () {
+        Log.debug(
+          'acquire($mode) -> onListen for ${intent.id}',
+          '$runtimeType',
+        );
+
+        _intents[intent.id] = intent;
+        _reconfigure();
+      },
+      onCancel: () {
+        Log.debug(
+          'acquire($mode) -> onCancel for ${intent.id}',
+          '$runtimeType',
+        );
+
+        _intents.remove(intent.id);
+        _reconfigure();
+      },
+    );
+
+    _controllers[intent.id] = controller;
+
+    return controller.stream;
+  }
+
   /// Sets the [_speaker] to use for audio output.
   ///
   /// Should only be called via [setSpeaker].
@@ -318,6 +357,10 @@ class AudioUtilsImpl {
       _setSpeaker();
     }
   }
+
+  void _reconfigure() {
+    //
+  }
 }
 
 /// Possible [AudioSource] kind.
@@ -391,6 +434,28 @@ class UrlAudioSource extends AudioSource {
 
   @override
   bool operator ==(Object other) => other is UrlAudioSource && other.url == url;
+}
+
+/// Mode, in which [AudioUtils] should currently operate in.
+enum AudioMode { sound, call, music, ringtone, video }
+
+/// Intent for the [AudioUtils] to operate in the provided [AudioMode].
+class _AudioIntent {
+  _AudioIntent(this.mode);
+
+  /// [_IntentId] of this [_AudioIntent].
+  final _IntentId id = _IntentId.generate();
+
+  /// [AudioMode] itself.
+  final AudioMode mode;
+}
+
+/// Unique ID of an [_AudioIntent].
+class _IntentId extends NewType<String> {
+  const _IntentId(super.val);
+
+  /// Constructs a random [_IntentId].
+  _IntentId.generate() : super(const Uuid().v4());
 }
 
 /// Extension adding conversion from an [AudioSource] to a [Media] or

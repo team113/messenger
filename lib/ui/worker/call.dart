@@ -120,6 +120,9 @@ class CallWorker extends Dependency {
   /// [FlutterCallkitIncoming.muteCall] on iOS devices.
   final Map<ChatId, Worker> _audioWorkers = {};
 
+  /// [StreamSubscription]s to [AudioUtilsImpl.acquire] for [AudioMode.call].
+  final Map<ChatId, StreamSubscription<void>> _intents = {};
+
   /// Subscription to [WebUtils.onStorageChange] [stop]ping the
   /// [_incomingAudio].
   StreamSubscription? _storageSubscription;
@@ -710,6 +713,11 @@ class CallWorker extends Dependency {
       Vibration.cancel();
     }
 
+    for (var e in _intents.values) {
+      e.cancel();
+    }
+    _intents.clear();
+
     _unbindHotKey();
 
     super.onClose();
@@ -723,6 +731,7 @@ class CallWorker extends Dependency {
         _incomingAudio = AudioUtils.play(
           AudioSource.asset('audio/$asset'),
           fade: fade ? 1.seconds : Duration.zero,
+          mode: AudioMode.ringtone,
         );
         previous?.cancel();
         _startVibrating();
