@@ -456,6 +456,9 @@ class CallController extends GetxController {
   /// considered as a background.
   DateTime? _backgroundSince;
 
+  /// [AudioUtilsImpl.acquire] intent kept for [AudioMode.call].
+  StreamSubscription<void>? _intent;
+
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
 
@@ -652,6 +655,13 @@ class CallController extends GetxController {
     });
 
     _stateWorker = ever(state, (OngoingCallState state) {
+      _ensureAudioIntent(switch (state) {
+        OngoingCallState.active ||
+        OngoingCallState.joining ||
+        OngoingCallState.local => true,
+        OngoingCallState.pending || OngoingCallState.ended => false,
+      });
+
       switch (state) {
         case OngoingCallState.active:
           if (_durationTimer == null) {
@@ -964,6 +974,8 @@ class CallController extends GetxController {
     for (var e in _usersSubscriptions.values.expand((e) => e)) {
       e.cancel();
     }
+
+    _intent?.cancel();
   }
 
   /// Drops the call.
@@ -2422,6 +2434,16 @@ class CallController extends GetxController {
       if (existing.isEmpty) {
         _usersSubscriptions.remove(userId);
       }
+    }
+  }
+
+  /// Ensures this [OngoingCall] has the [_intent] active or not.
+  void _ensureAudioIntent(bool has) {
+    if (has) {
+      _intent ??= AudioUtils.acquire(AudioMode.call).listen((_) {});
+    } else {
+      _intent?.cancel();
+      _intent = null;
     }
   }
 }

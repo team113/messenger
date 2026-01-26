@@ -53,6 +53,10 @@ class AudioUtilsImpl {
   final Map<_IntentId, StreamController> _controllers = {};
   final Map<_IntentId, _AudioIntent> _intents = {};
 
+  /// Returns [Stream] of [AVAudioSessionRouteChange]s.
+  Stream<AVAudioSessionRouteChange> get routeChangeStream =>
+      AVAudioSession().routeChangeStream;
+
   /// Indicates whether the [_jaPlayer] should be used.
   bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
 
@@ -240,15 +244,15 @@ class AudioUtilsImpl {
         await setSpeaker(AudioSpeakerKind.speaker);
       }
 
-      if (PlatformUtils.isAndroid) {
-        await AndroidAudioManager().setMode(AndroidAudioHardwareMode.normal);
-      } else if (PlatformUtils.isIOS) {
-        await AVAudioSession().setCategory(
-          AVAudioSessionCategory.playAndRecord,
-          AVAudioSessionCategoryOptions.allowBluetooth,
-          AVAudioSessionMode.defaultMode,
-        );
-      }
+      // if (PlatformUtils.isAndroid) {
+      //   await AndroidAudioManager().setMode(AndroidAudioHardwareMode.normal);
+      // } else if (PlatformUtils.isIOS) {
+      //   await AVAudioSession().setCategory(
+      //     AVAudioSessionCategory.playAndRecord,
+      //     AVAudioSessionCategoryOptions.allowBluetooth,
+      //     AVAudioSessionMode.defaultMode,
+      //   );
+      // }
     }
   }
 
@@ -260,23 +264,23 @@ class AudioUtilsImpl {
     final _AudioIntent intent = _AudioIntent(mode);
 
     final StreamController<void> controller = StreamController.broadcast(
-      onListen: () {
+      onListen: () async {
         Log.debug(
           'acquire($mode) -> onListen for ${intent.id}',
           '$runtimeType',
         );
 
         _intents[intent.id] = intent;
-        _reconfigure();
+        await reconfigure();
       },
-      onCancel: () {
+      onCancel: () async {
         Log.debug(
           'acquire($mode) -> onCancel for ${intent.id}',
           '$runtimeType',
         );
 
         _intents.remove(intent.id);
-        _reconfigure();
+        await reconfigure();
       },
     );
 
@@ -302,15 +306,16 @@ class AudioUtilsImpl {
     await _mutex.protect(() async {
       await MediaUtils.outputGuard.protect(() async {
         if (PlatformUtils.isIOS) {
-          await AVAudioSession().setCategory(
-            AVAudioSessionCategory.playAndRecord,
-            AVAudioSessionCategoryOptions.allowBluetooth,
-            AVAudioSessionMode.voiceChat,
-          );
+          // await AVAudioSession().setCategory(
+          //   AVAudioSessionCategory.playAndRecord,
+          //   AVAudioSessionCategoryOptions.allowBluetooth,
+          //   AVAudioSessionMode.voiceChat,
+          // );
 
           switch (speaker) {
             case AudioSpeakerKind.headphones:
             case AudioSpeakerKind.earpiece:
+              // await AVAudioSession().setMicrophone();
               await AVAudioSession().overrideOutputAudioPort(
                 AVAudioSessionPortOverride.none,
               );
@@ -326,49 +331,49 @@ class AudioUtilsImpl {
           return;
         }
 
-        final session = await AudioSession.instance;
+        // final session = await AudioSession.instance;
 
-        await session.configure(
-          const AudioSessionConfiguration(
-            androidAudioAttributes: AndroidAudioAttributes(
-              usage: AndroidAudioUsage.voiceCommunication,
-              flags: AndroidAudioFlags.none,
-              contentType: AndroidAudioContentType.speech,
-            ),
-          ),
-        );
+        // await session.configure(
+        //   const AudioSessionConfiguration(
+        //     androidAudioAttributes: AndroidAudioAttributes(
+        //       usage: AndroidAudioUsage.voiceCommunication,
+        //       flags: AndroidAudioFlags.none,
+        //       contentType: AndroidAudioContentType.speech,
+        //     ),
+        //   ),
+        // );
 
         switch (speaker) {
           case AudioSpeakerKind.headphones:
-            await AndroidAudioManager().setMode(
-              AndroidAudioHardwareMode.inCommunication,
-            );
+            // await AndroidAudioManager().setMode(
+            //   AndroidAudioHardwareMode.inCommunication,
+            // );
             await AndroidAudioManager().startBluetoothSco();
             await AndroidAudioManager().setBluetoothScoOn(true);
             break;
 
           case AudioSpeakerKind.speaker:
-            await AndroidAudioManager().requestAudioFocus(
-              const AndroidAudioFocusRequest(
-                gainType: AndroidAudioFocusGainType.gain,
-                audioAttributes: AndroidAudioAttributes(
-                  contentType: AndroidAudioContentType.music,
-                  usage: AndroidAudioUsage.media,
-                ),
-              ),
-            );
-            await AndroidAudioManager().setMode(
-              AndroidAudioHardwareMode.inCall,
-            );
+            // await AndroidAudioManager().requestAudioFocus(
+            //   const AndroidAudioFocusRequest(
+            //     gainType: AndroidAudioFocusGainType.gain,
+            //     audioAttributes: AndroidAudioAttributes(
+            //       contentType: AndroidAudioContentType.music,
+            //       usage: AndroidAudioUsage.media,
+            //     ),
+            //   ),
+            // );
+            // await AndroidAudioManager().setMode(
+            //   AndroidAudioHardwareMode.inCall,
+            // );
             await AndroidAudioManager().stopBluetoothSco();
             await AndroidAudioManager().setBluetoothScoOn(false);
             await AndroidAudioManager().setSpeakerphoneOn(true);
             break;
 
           case AudioSpeakerKind.earpiece:
-            await AndroidAudioManager().setMode(
-              AndroidAudioHardwareMode.inCommunication,
-            );
+            // await AndroidAudioManager().setMode(
+            //   AndroidAudioHardwareMode.inCommunication,
+            // );
             await AndroidAudioManager().stopBluetoothSco();
             await AndroidAudioManager().setBluetoothScoOn(false);
             await AndroidAudioManager().setSpeakerphoneOn(false);
@@ -384,8 +389,45 @@ class AudioUtilsImpl {
     }
   }
 
-  void _reconfigure() {
-    //
+  Future<void> reconfigure() async {
+    Log.debug(
+      'reconfigure() -> intents are ${_intents.values.map((e) => e.mode.name).join(', ')}',
+      '$runtimeType',
+    );
+
+    if (_intents.isEmpty) {
+      await AVAudioSession().setActive(false);
+    } else {
+      final session = await AudioSession.instance;
+
+      final bool needsMic = _intents.values.any((e) => e.mode.needsMic);
+
+      final configuration = AudioSessionConfiguration(
+        avAudioSessionCategory: needsMic
+            ? AVAudioSessionCategory.playAndRecord
+            : AVAudioSessionCategory.playback,
+        avAudioSessionMode: needsMic
+            ? AVAudioSessionMode.voiceChat
+            : AVAudioSessionMode.defaultMode,
+        avAudioSessionCategoryOptions:
+            AVAudioSessionCategoryOptions.mixWithOthers |
+            AVAudioSessionCategoryOptions.allowBluetooth |
+            AVAudioSessionCategoryOptions.allowBluetoothA2dp,
+        androidAudioAttributes: AndroidAudioAttributes(
+          contentType: needsMic
+              ? AndroidAudioContentType.speech
+              : AndroidAudioContentType.music,
+          usage: needsMic
+              ? AndroidAudioUsage.voiceCommunication
+              : AndroidAudioUsage.media,
+        ),
+        androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransient,
+      );
+
+      await session.configure(configuration);
+
+      await session.setActive(true, fallbackConfiguration: configuration);
+    }
   }
 }
 
@@ -463,7 +505,21 @@ class UrlAudioSource extends AudioSource {
 }
 
 /// Mode, in which [AudioUtils] should currently operate in.
-enum AudioMode { sound, call, music, ringtone, video }
+enum AudioMode {
+  sound,
+  call,
+  music,
+  ringtone,
+  video;
+
+  bool get needsMic => switch (this) {
+    AudioMode.sound ||
+    AudioMode.music ||
+    AudioMode.ringtone ||
+    AudioMode.video => false,
+    AudioMode.call => true,
+  };
+}
 
 /// Intent for the [AudioUtils] to operate in the provided [AudioMode].
 class _AudioIntent {

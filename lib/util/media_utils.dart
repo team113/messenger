@@ -17,8 +17,8 @@
 
 import 'dart:async';
 
-import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
+import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
 
@@ -80,6 +80,15 @@ class MediaUtilsImpl {
           // TODO: So the test would run. Jason currently only supports Web and
           //       Android, and unit tests run on a host machine.
           _jason = null;
+        }
+
+        try {
+          await webrtc.setupAudioSessionManagement(false);
+        } catch (e) {
+          Log.debug(
+            'Unable to invoke `setupAudioSessionManagement(false)` due to: $e',
+            '$runtimeType',
+          );
         }
 
         WebUtils.onPanic((e) {
@@ -261,14 +270,6 @@ class MediaUtilsImpl {
     final String deviceId = outputDeviceId.value!;
     await outputGuard.protect(() async {
       await _mutex.protect(() async {
-        if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
-          await AVAudioSession().setCategory(
-            AVAudioSessionCategory.playAndRecord,
-            AVAudioSessionCategoryOptions.allowBluetooth,
-            AVAudioSessionMode.voiceChat,
-          );
-        }
-
         await (await _mediaManager)?.setOutputAudioId(deviceId);
       });
     });

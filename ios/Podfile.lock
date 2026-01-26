@@ -89,6 +89,10 @@ PODS:
     - Flutter
   - flutter_local_notifications (0.0.1):
     - Flutter
+  - fvp (0.35.2):
+    - Flutter
+    - FlutterMacOS
+    - mdk (~> 0.35.1)
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
@@ -128,6 +132,7 @@ PODS:
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
+  - mdk (0.35.1)
   - medea_flutter_webrtc (0.17.1):
     - Flutter
     - instrumentisto-libwebrtc-bin (= 144.0.7559.59)
@@ -224,6 +229,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_callkit_incoming (from `.symlinks/plugins/flutter_callkit_incoming/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
+  - fvp (from `.symlinks/plugins/fvp/darwin`)
   - image_gallery_saver (from `.symlinks/plugins/image_gallery_saver/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
@@ -262,6 +268,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - instrumentisto-libwebrtc-bin
+    - mdk
     - nanopb
     - PromisesObjC
     - SDWebImage
@@ -299,6 +306,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_callkit_incoming/ios"
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
+  fvp:
+    :path: ".symlinks/plugins/fvp/darwin"
   image_gallery_saver:
     :path: ".symlinks/plugins/image_gallery_saver/ios"
   image_picker_ios:
@@ -369,6 +378,7 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_callkit_incoming: cb8138af67cda6dd981f7101a5d709003af21502
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
+  fvp: 4fe77c2b30122233a57f425dafd219ed35565809
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
@@ -377,6 +387,7 @@ SPEC CHECKSUMS:
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   irondash_engine_context: 8e58ca8e0212ee9d1c7dc6a42121849986c88486
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
+  mdk: 59bbe9e2ac2a052455ab1b076c245680d66cf6c0
   medea_flutter_webrtc: eab4050bb9908dae4721e648ad079e3e78b5bb5c
   medea_jason: a194408812130a4596fd423210fed2932c213735
   media_kit_libs_ios_video: 5a18affdb97d1f5d466dc79988b13eff6c5e2854

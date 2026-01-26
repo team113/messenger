@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_linux
   flutter_custom_cursor
+  fvp
   gtk
   hotkey_manager_linux
   irondash_engine_context

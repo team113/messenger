@@ -23,6 +23,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -428,6 +429,7 @@ class CallWorker extends Dependency {
             id: id,
             handle: c.chatId.value.val,
             extra: {'chatId': c.chatId.value.val},
+            ios: IOSParams(configureAudioSession: false),
           );
 
           switch (c.state.value) {
@@ -887,6 +889,16 @@ class CallWorker extends Dependency {
       return;
     }
 
+    final OngoingCall? existing = _callService.calls[chatId]?.value;
+    if (existing?.state.value == OngoingCallState.local) {
+      Log.debug(
+        '_resubscribeTo($chatId) -> call is `local`, boys, let\'s ignore this request to do `_eventsSubscriptions`',
+        '$runtimeType',
+      );
+
+      return;
+    }
+
     _eventsSubscriptions[chatId]?.cancel();
     _eventsSubscriptions[chatId] = _graphQlProvider.chatEvents(chatId, null, () => null).listen((
       e,
@@ -1003,7 +1015,10 @@ class CallWorker extends Dependency {
 
     // Ensure that we haven't already joined the call.
     final query = await _graphQlProvider.getChat(chatId);
-    Log.debug('_resubscribeTo($chatId) -> query is $query', '$runtimeType');
+    Log.debug(
+      '_resubscribeTo($chatId) -> query is ${query.toJson()}',
+      '$runtimeType',
+    );
 
     final call = query.chat?.ongoingCall;
     if (call != null) {
