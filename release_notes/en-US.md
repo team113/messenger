@@ -1,2 +1,1 @@
-- Added reconnecting notification when network changes during a call.
 - Bug fixes and performance improvements.
