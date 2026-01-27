@@ -10,6 +10,16 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.8.1...main) | [Milestone](/../../milestone/64)
 
+### Fixed
+
+- UI:
+    - Media panel:
+        - Camera disabling for remote peers when disable screen sharing. ([#1594])
+- iOS:
+    - Dialogue calls not being connected sometimes. ([#1594])
+
+[#1594]: /../../pull/1594
+
 
 
 
