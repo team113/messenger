@@ -17,7 +17,7 @@
 
 Feature: Cache
 
-  @profile
+  @settings
   Scenario: Cache is cleaned when application version updates
     Given I am Alice
     Then I wait until `HomeView` is present

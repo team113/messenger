@@ -17,7 +17,7 @@
 
 Feature: Welcome message
 
-  @profile
+  @settings
   Scenario: User creates and deletes welcome message
     Given I am Alice
 

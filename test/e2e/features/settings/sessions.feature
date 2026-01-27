@@ -17,7 +17,7 @@
 
 Feature: Sessions
 
-  @profile
+  @settings
   Scenario: I delete session
     Given I am Alice
     And Alice has another active session
@@ -35,7 +35,7 @@ Feature: Sessions
     And I tap `ProceedButton` button
     Then I see 1 active session
 
-  @profile
+  @settings
   Scenario: I see sessions being created and deleted
     Given I am Alice
 

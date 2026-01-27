@@ -17,7 +17,7 @@
 
 Feature: Account deletion
 
-  @profile
+  @settings
   Scenario: User creates and deletes account without confirmation
     When I tap `StartButton` button
     And I wait until `IntroductionView` is present
