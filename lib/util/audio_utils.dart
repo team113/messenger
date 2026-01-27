@@ -50,8 +50,14 @@ class AudioUtilsImpl {
   /// [Mutex] guarding synchronized access to the [_setSpeaker].
   final Mutex _mutex = Mutex();
 
+  /// [StreamController] to related [_intents] in [acquire].
   final Map<_IntentId, StreamController> _controllers = {};
+
+  /// [_AudioIntent] applied via [acquire].
   final Map<_IntentId, _AudioIntent> _intents = {};
+
+  /// [AudioSessionConfiguration] previously applied during [reconfigure].
+  AudioSessionConfiguration? _previousConfiguration;
 
   /// Returns [Stream] of [AVAudioSessionRouteChange]s.
   Stream<AVAudioSessionRouteChange> get routeChangeStream =>
@@ -243,16 +249,6 @@ class AudioUtilsImpl {
       } else {
         await setSpeaker(AudioSpeakerKind.speaker);
       }
-
-      // if (PlatformUtils.isAndroid) {
-      //   await AndroidAudioManager().setMode(AndroidAudioHardwareMode.normal);
-      // } else if (PlatformUtils.isIOS) {
-      //   await AVAudioSession().setCategory(
-      //     AVAudioSessionCategory.playAndRecord,
-      //     AVAudioSessionCategoryOptions.allowBluetooth,
-      //     AVAudioSessionMode.defaultMode,
-      //   );
-      // }
     }
   }
 
@@ -289,107 +285,8 @@ class AudioUtilsImpl {
     return controller.stream;
   }
 
-  /// Sets the [_speaker] to use for audio output.
-  ///
-  /// Should only be called via [setSpeaker].
-  Future<void> _setSpeaker() async {
-    Log.debug('_setSpeaker()', '$runtimeType');
-
-    // If the [_mutex] is locked, the output device is already being set.
-    if (_mutex.isLocked) {
-      return;
-    }
-
-    // [_speaker] is guaranteed to be non-`null` in [setSpeaker].
-    final AudioSpeakerKind speaker = _speaker!;
-
-    await _mutex.protect(() async {
-      await MediaUtils.outputGuard.protect(() async {
-        if (PlatformUtils.isIOS) {
-          // await AVAudioSession().setCategory(
-          //   AVAudioSessionCategory.playAndRecord,
-          //   AVAudioSessionCategoryOptions.allowBluetooth,
-          //   AVAudioSessionMode.voiceChat,
-          // );
-
-          switch (speaker) {
-            case AudioSpeakerKind.headphones:
-            case AudioSpeakerKind.earpiece:
-              // await AVAudioSession().setMicrophone();
-              await AVAudioSession().overrideOutputAudioPort(
-                AVAudioSessionPortOverride.none,
-              );
-              break;
-
-            case AudioSpeakerKind.speaker:
-              await AVAudioSession().overrideOutputAudioPort(
-                AVAudioSessionPortOverride.speaker,
-              );
-              break;
-          }
-
-          return;
-        }
-
-        // final session = await AudioSession.instance;
-
-        // await session.configure(
-        //   const AudioSessionConfiguration(
-        //     androidAudioAttributes: AndroidAudioAttributes(
-        //       usage: AndroidAudioUsage.voiceCommunication,
-        //       flags: AndroidAudioFlags.none,
-        //       contentType: AndroidAudioContentType.speech,
-        //     ),
-        //   ),
-        // );
-
-        switch (speaker) {
-          case AudioSpeakerKind.headphones:
-            // await AndroidAudioManager().setMode(
-            //   AndroidAudioHardwareMode.inCommunication,
-            // );
-            await AndroidAudioManager().startBluetoothSco();
-            await AndroidAudioManager().setBluetoothScoOn(true);
-            break;
-
-          case AudioSpeakerKind.speaker:
-            // await AndroidAudioManager().requestAudioFocus(
-            //   const AndroidAudioFocusRequest(
-            //     gainType: AndroidAudioFocusGainType.gain,
-            //     audioAttributes: AndroidAudioAttributes(
-            //       contentType: AndroidAudioContentType.music,
-            //       usage: AndroidAudioUsage.media,
-            //     ),
-            //   ),
-            // );
-            // await AndroidAudioManager().setMode(
-            //   AndroidAudioHardwareMode.inCall,
-            // );
-            await AndroidAudioManager().stopBluetoothSco();
-            await AndroidAudioManager().setBluetoothScoOn(false);
-            await AndroidAudioManager().setSpeakerphoneOn(true);
-            break;
-
-          case AudioSpeakerKind.earpiece:
-            // await AndroidAudioManager().setMode(
-            //   AndroidAudioHardwareMode.inCommunication,
-            // );
-            await AndroidAudioManager().stopBluetoothSco();
-            await AndroidAudioManager().setBluetoothScoOn(false);
-            await AndroidAudioManager().setSpeakerphoneOn(false);
-            break;
-        }
-      });
-    });
-
-    // If the [_speaker] was changed while setting the output device then
-    // call [_setSpeaker] again.
-    if (speaker != _speaker) {
-      _setSpeaker();
-    }
-  }
-
-  Future<void> reconfigure() async {
+  /// Configures the current [AudioSession] to reflect the [AudioMode]s applied.
+  Future<void> reconfigure({bool force = false}) async {
     Log.debug(
       'reconfigure() -> intents are ${_intents.values.map((e) => e.mode.name).join(', ')}',
       '$runtimeType',
@@ -402,11 +299,9 @@ class AudioUtilsImpl {
         }
       }
     } else {
-      final session = await AudioSession.instance;
-
       final bool needsMic = _intents.values.any((e) => e.mode.needsMic);
 
-      final configuration = AudioSessionConfiguration(
+      final AudioSessionConfiguration configuration = AudioSessionConfiguration(
         avAudioSessionCategory: needsMic
             ? AVAudioSessionCategory.playAndRecord
             : AVAudioSessionCategory.playback,
@@ -428,9 +323,83 @@ class AudioUtilsImpl {
         androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransient,
       );
 
-      await session.configure(configuration);
+      if (configuration.toJson() == _previousConfiguration?.toJson()) {
+        Log.debug(
+          'reconfigure() -> ignoring ${_intents.values.map((e) => e.mode.name).join(', ')}',
+          '$runtimeType',
+        );
 
+        return;
+      }
+
+      _previousConfiguration = configuration;
+
+      final AudioSession session = await AudioSession.instance;
+      await session.configure(configuration);
       await session.setActive(true, fallbackConfiguration: configuration);
+    }
+  }
+
+  /// Sets the [_speaker] to use for audio output.
+  ///
+  /// Should only be called via [setSpeaker].
+  Future<void> _setSpeaker() async {
+    Log.debug('_setSpeaker()', '$runtimeType');
+
+    // If the [_mutex] is locked, the output device is already being set.
+    if (_mutex.isLocked) {
+      return;
+    }
+
+    // [_speaker] is guaranteed to be non-`null` in [setSpeaker].
+    final AudioSpeakerKind speaker = _speaker!;
+
+    await _mutex.protect(() async {
+      await MediaUtils.outputGuard.protect(() async {
+        if (PlatformUtils.isIOS) {
+          switch (speaker) {
+            case AudioSpeakerKind.headphones:
+            case AudioSpeakerKind.earpiece:
+              await AVAudioSession().overrideOutputAudioPort(
+                AVAudioSessionPortOverride.none,
+              );
+              break;
+
+            case AudioSpeakerKind.speaker:
+              await AVAudioSession().overrideOutputAudioPort(
+                AVAudioSessionPortOverride.speaker,
+              );
+              break;
+          }
+
+          return;
+        }
+
+        switch (speaker) {
+          case AudioSpeakerKind.headphones:
+            await AndroidAudioManager().startBluetoothSco();
+            await AndroidAudioManager().setBluetoothScoOn(true);
+            break;
+
+          case AudioSpeakerKind.speaker:
+            await AndroidAudioManager().stopBluetoothSco();
+            await AndroidAudioManager().setBluetoothScoOn(false);
+            await AndroidAudioManager().setSpeakerphoneOn(true);
+            break;
+
+          case AudioSpeakerKind.earpiece:
+            await AndroidAudioManager().stopBluetoothSco();
+            await AndroidAudioManager().setBluetoothScoOn(false);
+            await AndroidAudioManager().setSpeakerphoneOn(false);
+            break;
+        }
+      });
+    });
+
+    // If the [_speaker] was changed while setting the output device then
+    // call [_setSpeaker] again.
+    if (speaker != _speaker) {
+      _setSpeaker();
     }
   }
 }

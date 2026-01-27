@@ -27,6 +27,7 @@ import '/util/log.dart';
 class AudioWorker extends Dependency {
   AudioWorker();
 
+  /// [StreamSubscription] to [AudioUtilsImpl.routeChangeStream].
   StreamSubscription? _routeSubscription;
 
   @override
@@ -65,7 +66,7 @@ class AudioWorker extends Dependency {
         case AVAudioSessionRouteChangeReason.unknown:
           // This may happen due to `media_kit` overriding the category, which
           // we shouldn't allow to happen.
-          await AudioUtils.reconfigure();
+          await AudioUtils.reconfigure(force: true);
           break;
       }
     });
