@@ -396,7 +396,11 @@ class AudioUtilsImpl {
     );
 
     if (_intents.isEmpty) {
-      await AVAudioSession().setActive(false);
+      if (!PlatformUtils.isWeb) {
+        if (PlatformUtils.isIOS) {
+          await AVAudioSession().setActive(false);
+        }
+      }
     } else {
       final session = await AudioSession.instance;
 

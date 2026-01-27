@@ -1147,6 +1147,10 @@ class WebUtils {
     VideoPlayerPlugin.registerWith(webPluginRegistrar);
   }
 
+  /// Configures whether `medea_flutter_webrtc` should automatically manage the
+  /// iOS `AVAudioSession`.
+  static Future<void> setupAudioSessionManagement(bool value) => Future.value();
+
   /// Handles the [key] event to invoke [_keyHandlers] related to it.
   static bool _handleBindKeys(KeyEvent key) {
     if (key is KeyUpEvent) {

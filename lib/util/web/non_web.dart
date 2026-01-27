@@ -579,4 +579,9 @@ class WebUtils {
   static void registerWith() {
     // No-op.
   }
+
+  /// Configures whether `medea_flutter_webrtc` should automatically manage the
+  /// iOS `AVAudioSession`.
+  static Future<void> setupAudioSessionManagement(bool value) =>
+      webrtc.setupAudioSessionManagement(false);
 }
