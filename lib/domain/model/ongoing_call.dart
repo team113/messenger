@@ -1748,34 +1748,12 @@ class OngoingCall {
 
             case TrackMediaDirection.sendOnly:
               members[id]?.tracks.addIf(!members[id]!.tracks.contains(t), t);
-
-              switch (kind) {
-                case MediaKind.audio:
-                  // No-op.
-                  break;
-
-                case MediaKind.video:
-                  members[id]?.hasVideo.value = false;
-                  break;
-              }
-
               await t.removeRenderer();
               break;
 
             case TrackMediaDirection.recvOnly:
             case TrackMediaDirection.inactive:
               members[id]?.tracks.remove(t);
-
-              switch (kind) {
-                case MediaKind.audio:
-                  // No-op.
-                  break;
-
-                case MediaKind.video:
-                  members[id]?.hasVideo.value = false;
-                  break;
-              }
-
               await t.removeRenderer();
               break;
           }

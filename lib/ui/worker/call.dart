@@ -878,6 +878,16 @@ class CallWorker extends Dependency {
       return;
     }
 
+    final OngoingCall? existing = _callService.calls[chatId]?.value;
+    if (existing?.state.value == OngoingCallState.local) {
+      Log.debug(
+        '_resubscribeTo($chatId) -> call is `local`, boys, let\'s ignore this request to do `_eventsSubscriptions`',
+        '$runtimeType',
+      );
+
+      return;
+    }
+
     _eventsSubscriptions[chatId]?.cancel();
     _eventsSubscriptions[chatId] = _graphQlProvider.chatEvents(chatId, null, () => null).listen((
       e,
@@ -994,7 +1004,10 @@ class CallWorker extends Dependency {
 
     // Ensure that we haven't already joined the call.
     final query = await _graphQlProvider.getChat(chatId);
-    Log.debug('_resubscribeTo($chatId) -> query is $query', '$runtimeType');
+    Log.debug(
+      '_resubscribeTo($chatId) -> query is ${query.toJson()}',
+      '$runtimeType',
+    );
 
     final call = query.chat?.ongoingCall;
     if (call != null) {
