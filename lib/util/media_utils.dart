@@ -193,6 +193,7 @@ class MediaUtilsImpl {
     final List<DeviceDetails> devices =
         (await (await _mediaManager)?.enumerateDevices() ?? [])
             .where((e) => e.deviceId().isNotEmpty)
+            .where((e) => !e.isFailed())
             .where((e) => kind == null || e.kind() == kind)
             .whereType<MediaDeviceDetails>()
             .map((e) => DeviceDetails(e))
@@ -208,11 +209,13 @@ class MediaUtilsImpl {
       );
 
       if (hasDefault == null) {
-        final DeviceDetails? device = devices.firstWhereOrNull(
-          (e) => e.kind() == MediaDeviceKind.audioInput,
-        );
-        if (device != null) {
-          devices.insert(0, DefaultDeviceDetails(device));
+        if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
+          final DeviceDetails? device = devices.firstWhereOrNull(
+            (e) => e.kind() == MediaDeviceKind.audioInput,
+          );
+          if (device != null) {
+            devices.insert(0, DefaultDeviceDetails(device));
+          }
         }
       } else {
         // Audio input on mobile devices is handled by `medea_jason`, and we
@@ -232,11 +235,13 @@ class MediaUtilsImpl {
       );
 
       if (!hasDefault) {
-        final DeviceDetails? device = devices.firstWhereOrNull(
-          (e) => e.kind() == MediaDeviceKind.audioOutput,
-        );
-        if (device != null) {
-          devices.insert(0, DefaultDeviceDetails(device));
+        if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
+          final DeviceDetails? device = devices.firstWhereOrNull(
+            (e) => e.kind() == MediaDeviceKind.audioOutput,
+          );
+          if (device != null) {
+            devices.insert(0, DefaultDeviceDetails(device));
+          }
         }
       }
     }
@@ -246,6 +251,8 @@ class MediaUtilsImpl {
 
   /// Sets device with [deviceId] as a currently used output device.
   Future<void> setOutputDevice(String deviceId) async {
+    Log.debug('setOutputDevice($deviceId)', '$runtimeType');
+
     if (outputDeviceId.value != deviceId) {
       outputDeviceId.value = deviceId;
       await _setOutputDevice();

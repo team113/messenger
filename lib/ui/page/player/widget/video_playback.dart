@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../../util/media_utils.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/audio_utils.dart';
@@ -99,7 +100,11 @@ class _VideoPlaybackState extends State<VideoPlayback> {
     _initVideo();
     _ensureReachable();
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
-    _intent = AudioUtils.acquire(AudioMode.video).listen((_) {});
+
+    _intent = AudioUtils.acquire(
+      AudioMode.video,
+      speaker: AudioSpeakerKind.speaker,
+    ).listen((_) {});
 
     super.initState();
   }

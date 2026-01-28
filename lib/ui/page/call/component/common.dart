@@ -29,6 +29,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/widget/svg/svg.dart';
+import '/util/audio_utils.dart';
 import '/util/media_utils.dart';
 import '/util/platform_utils.dart';
 
@@ -526,8 +527,12 @@ class SpeakerButton extends CallButton {
       return button(SvgIcons.callIncomingAudioOn, null);
     } else {
       return Obx(() {
+        final speaker = PlatformUtils.isMobile
+            ? AudioUtils.speaker.value
+            : c.speaker;
+
         final SvgData asset = switch (c.speaker) {
-          AudioSpeakerKind.earpiece => SvgIcons.callAudioEarpiece,
+          AudioSpeakerKind.earpiece || null => SvgIcons.callAudioEarpiece,
           AudioSpeakerKind.speaker => SvgIcons.callSpeakerOn,
           AudioSpeakerKind.headphones => SvgIcons.callHeadphones,
         };

@@ -452,7 +452,10 @@ class OngoingCall {
       _background = false;
 
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
-        Log.debug('onDeviceChange(${e.map((e) => e.label())})', '$runtimeType');
+        Log.debug(
+          'onDeviceChange(${e.map((e) => e.label()).join(', ')})',
+          '$runtimeType',
+        );
 
         await _devicesGuard.protect(() async {
           if (devices.isEmpty) {
@@ -2494,9 +2497,28 @@ class OngoingCall {
 
     // TODO: For Android and iOS, default device is __NOT__ the first one.
     final Iterable<DeviceDetails> output = devices.output();
-    final DeviceDetails? device =
-        output.firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-        output.firstOrNull;
+
+    DeviceDetails? device = output.firstWhereOrNull(
+      (e) => e.id() == _preferredOutputDevice,
+    );
+
+    if (device == null && (PlatformUtils.isIOS || PlatformUtils.isAndroid)) {
+      final headphones = output.where(
+        (e) => e.speaker == AudioSpeakerKind.headphones,
+      );
+
+      final speakerphones = output.where(
+        (e) => e.speaker == AudioSpeakerKind.speaker,
+      );
+
+      final earpieces = output.where(
+        (e) => e.speaker == AudioSpeakerKind.earpiece,
+      );
+
+      device ??= headphones.firstOrNull;
+      device ??= speakerphones.firstOrNull;
+      device ??= earpieces.firstOrNull;
+    }
 
     if (device != null && outputDevice.value != device) {
       _notifications.add(DeviceChangedNotification(device: device));
@@ -2581,7 +2603,7 @@ class OngoingCall {
         // [MediaUtils.setOutputDevice] seems to switch the speaker in
         // [AudioUtils] as well, when [hasRemote] is `true`.
         await Future.wait([
-          if (!hasRemote) AudioUtils.setSpeaker(device.speaker),
+          /*if (!hasRemote)*/ AudioUtils.setSpeaker(device.speaker),
           MediaUtils.setOutputDevice(device.deviceId()),
         ]);
       } catch (e) {

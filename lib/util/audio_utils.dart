@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 import 'package:mutex/mutex.dart';
 import 'package:uuid/uuid.dart';
@@ -37,15 +38,18 @@ AudioUtilsImpl AudioUtils = AudioUtilsImpl();
 
 /// Helper providing direct access to audio playback related resources.
 class AudioUtilsImpl {
+  /// [AudioSpeakerKind] currently used for audio output.
+  ///
+  /// Only meaningful for mobile devices, since under desktop and Web the
+  /// [MediaUtils] work much better with handling everything.
+  final Rx<AudioSpeakerKind?> speaker = Rx(null);
+
   /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
   /// platforms.
   ja.AudioPlayer? _jaPlayer;
 
   /// [StreamController]s of [AudioSource]s added in [play].
   final Map<AudioSource, StreamController<void>> _players = {};
-
-  /// [AudioSpeakerKind] currently used for audio output.
-  AudioSpeakerKind? _speaker;
 
   /// [Mutex] guarding synchronized access to the [_setSpeaker].
   final Mutex _mutex = Mutex();
@@ -214,11 +218,14 @@ class AudioUtilsImpl {
   /// Sets the [speaker] to use for audio output.
   ///
   /// Only meaningful on mobile devices.
-  Future<void> setSpeaker(AudioSpeakerKind speaker) async {
-    Log.debug('setSpeaker($speaker)', '$runtimeType');
+  Future<void> setSpeaker(
+    AudioSpeakerKind speaker, {
+    bool force = false,
+  }) async {
+    Log.debug('setSpeaker($speaker, force: $force)', '$runtimeType');
 
-    if (_isMobile && _speaker != speaker) {
-      _speaker = speaker;
+    if (_isMobile && (this.speaker.value != speaker || force)) {
+      this.speaker.value = speaker;
       await _setSpeaker();
     }
   }
@@ -256,8 +263,11 @@ class AudioUtilsImpl {
   ///
   /// The returned [Stream] must be listened to when [mode] is still needed, and
   /// released when the [mode] is no longer needed.
-  Stream<void> acquire(AudioMode mode) {
-    final _AudioIntent intent = _AudioIntent(mode);
+  ///
+  /// [speaker] can be set to transition the currently selected one into that
+  /// when intent is acquire for the first time.
+  Stream<void> acquire(AudioMode mode, {AudioSpeakerKind? speaker}) {
+    final _AudioIntent intent = _AudioIntent(mode, speaker: speaker);
 
     final StreamController<void> controller = StreamController.broadcast(
       onListen: () async {
@@ -267,7 +277,7 @@ class AudioUtilsImpl {
         );
 
         _intents[intent.id] = intent;
-        await reconfigure();
+        await reconfigure(preferredSpeaker: speaker);
       },
       onCancel: () async {
         Log.debug(
@@ -286,7 +296,10 @@ class AudioUtilsImpl {
   }
 
   /// Configures the current [AudioSession] to reflect the [AudioMode]s applied.
-  Future<void> reconfigure({bool force = false}) async {
+  Future<void> reconfigure({
+    bool force = false,
+    AudioSpeakerKind? preferredSpeaker,
+  }) async {
     Log.debug(
       'reconfigure() -> intents are ${_intents.values.map((e) => e.mode.name).join(', ')}',
       '$runtimeType',
@@ -294,6 +307,8 @@ class AudioUtilsImpl {
 
     if (_intents.isEmpty) {
       if (!PlatformUtils.isWeb) {
+        await setSpeaker(AudioSpeakerKind.speaker);
+
         if (PlatformUtils.isIOS) {
           await AVAudioSession().setActive(false);
         }
@@ -337,6 +352,14 @@ class AudioUtilsImpl {
       final AudioSession session = await AudioSession.instance;
       await session.configure(configuration);
       await session.setActive(true, fallbackConfiguration: configuration);
+
+      if (preferredSpeaker != null) {
+        await setSpeaker(preferredSpeaker);
+      } else if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+        if (speaker.value != null) {
+          await setSpeaker(speaker.value!, force: force);
+        }
+      }
     }
   }
 
@@ -352,7 +375,7 @@ class AudioUtilsImpl {
     }
 
     // [_speaker] is guaranteed to be non-`null` in [setSpeaker].
-    final AudioSpeakerKind speaker = _speaker!;
+    final AudioSpeakerKind speaker = this.speaker.value!;
 
     await _mutex.protect(() async {
       await MediaUtils.outputGuard.protect(() async {
@@ -398,7 +421,7 @@ class AudioUtilsImpl {
 
     // If the [_speaker] was changed while setting the output device then
     // call [_setSpeaker] again.
-    if (speaker != _speaker) {
+    if (speaker != this.speaker.value) {
       _setSpeaker();
     }
   }
@@ -496,13 +519,16 @@ enum AudioMode {
 
 /// Intent for the [AudioUtils] to operate in the provided [AudioMode].
 class _AudioIntent {
-  _AudioIntent(this.mode);
+  _AudioIntent(this.mode, {this.speaker});
 
   /// [_IntentId] of this [_AudioIntent].
   final _IntentId id = _IntentId.generate();
 
   /// [AudioMode] itself.
   final AudioMode mode;
+
+  /// [AudioSpeakerKind] to prefer when this [_AudioIntent] is active.
+  final AudioSpeakerKind? speaker;
 }
 
 /// Unique ID of an [_AudioIntent].

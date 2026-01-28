@@ -2440,7 +2440,12 @@ class CallController extends GetxController {
   /// Ensures this [OngoingCall] has the [_intent] active or not.
   void _ensureAudioIntent(bool has) {
     if (has) {
-      _intent ??= AudioUtils.acquire(AudioMode.call).listen((_) {});
+      _intent ??= AudioUtils.acquire(
+        AudioMode.call,
+        speaker: withVideo || videoState.value.isEnabled
+            ? AudioSpeakerKind.speaker
+            : AudioSpeakerKind.earpiece,
+      ).listen((_) {});
     } else {
       _intent?.cancel();
       _intent = null;
