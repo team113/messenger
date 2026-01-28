@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:all_sensors/all_sensors.dart';
+import 'package:audio_router/audio_router.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -458,6 +459,9 @@ class CallController extends GetxController {
 
   /// [AudioUtilsImpl.acquire] intent kept for [AudioMode.call].
   StreamSubscription<void>? _intent;
+
+  final AudioRouter _audioRouter = AudioRouter();
+  StreamSubscription? _audioRouterSubscription;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -905,6 +909,40 @@ class CallController extends GetxController {
       }
     });
 
+    _audioRouterSubscription = _audioRouter.currentDeviceStream.listen((
+      device,
+    ) async {
+      Log.debug(
+        '_audioRouter.currentDeviceStream -> ${device?.type.name} | ${device?.id}',
+        '$runtimeType',
+      );
+
+      final AudioSpeakerKind speaker = switch (device?.type) {
+        AudioSourceType.builtinSpeaker => AudioSpeakerKind.speaker,
+        AudioSourceType.builtinReceiver => AudioSpeakerKind.earpiece,
+        AudioSourceType.bluetooth => AudioSpeakerKind.headphones,
+        AudioSourceType.wiredHeadset => AudioSpeakerKind.headphones,
+        AudioSourceType.carAudio => AudioSpeakerKind.headphones,
+        AudioSourceType.airplay => AudioSpeakerKind.headphones,
+        AudioSourceType.unknown => AudioSpeakerKind.headphones,
+        null => AudioSpeakerKind.headphones,
+      };
+
+      final List<DeviceDetails> devices = _currentCall.value.devices
+          .output()
+          .toList();
+
+      final DeviceDetails? output = devices.firstWhereOrNull(
+        (e) => e.speaker == speaker,
+      );
+
+      if (output != null) {
+        _currentCall.value.outputDevice.value = output;
+        AudioUtils.outputDevice.value = output;
+        // await _currentCall.value.setOutputDevice(output);
+      }
+    });
+
     SchedulerBinding.instance.addPostFrameCallback((_) {
       onMinimized?.call(minimized.value);
     });
@@ -943,6 +981,7 @@ class CallController extends GetxController {
     _fullscreenWorker?.dispose();
     _minimizingWorker?.dispose();
     _lifecycleWorker?.dispose();
+    _audioRouterSubscription?.cancel();
 
     secondaryEntry?.remove();
 
@@ -1088,6 +1127,24 @@ class CallController extends GetxController {
         .output()
         .where((e) => e.id() != 'default' && e.deviceId() != 'default')
         .toList();
+
+    // If there are more than 2 outputs (earpiece and speakerphone), then show
+    // the AirPlay output iOS native picker.
+    if ((PlatformUtils.isIOS || PlatformUtils.isAndroid) &&
+        !PlatformUtils.isWeb) {
+      // if (outputs.length > 2) {
+
+      await _audioRouter.showAudioRoutePicker(router.context!);
+      return;
+      // }
+    }
+
+    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+      outputs.clear();
+      outputs.addAll(
+        await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput),
+      );
+    }
 
     if (outputs.length > 1) {
       int index = outputs.indexWhere(

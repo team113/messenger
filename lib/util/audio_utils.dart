@@ -44,6 +44,9 @@ class AudioUtilsImpl {
   /// [MediaUtils] work much better with handling everything.
   final Rx<AudioSpeakerKind?> speaker = Rx(null);
 
+  /// [DeviceDetails] of the currently used output device.
+  final Rx<DeviceDetails?> outputDevice = Rx(null);
+
   /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
   /// platforms.
   ja.AudioPlayer? _jaPlayer;
@@ -53,6 +56,9 @@ class AudioUtilsImpl {
 
   /// [Mutex] guarding synchronized access to the [_setSpeaker].
   final Mutex _mutex = Mutex();
+
+  /// [Mutex] guarding synchronized output device updating.
+  final Mutex _outputGuard = Mutex();
 
   /// [StreamController] to related [_intents] in [acquire].
   final Map<_IntentId, StreamController> _controllers = {};
@@ -222,11 +228,44 @@ class AudioUtilsImpl {
     AudioSpeakerKind speaker, {
     bool force = false,
   }) async {
-    Log.debug('setSpeaker($speaker, force: $force)', '$runtimeType');
+    Log.debug('setSpeaker(${speaker.name}, force: $force)', '$runtimeType');
 
     if (_isMobile && (this.speaker.value != speaker || force)) {
       this.speaker.value = speaker;
-      await _setSpeaker();
+
+      try {
+        await _setSpeaker();
+      } catch (e) {
+        Log.warning(
+          'Unable to `_setSpeaker(${speaker.name})` due to $e',
+          '$runtimeType',
+        );
+      }
+    }
+  }
+
+  /// Sets device with [device] as a currently used output device.
+  Future<void> setOutputDevice(DeviceDetails device) async {
+    Log.debug(
+      'setOutputDevice(${device.id()}, ${device.label()}, ${device.speaker.name})',
+      '$runtimeType',
+    );
+
+    // On mobile platforms there's no need to do `medea_jason` or `MediaUtils`
+    // way of changing the output, since we're doing the same in `_setSpeaker()`
+    // method, which does `AVAudioSession` and `AndroidAudioManager` stuff.
+    if (_isMobile) {
+      if (_isMobile && speaker.value != device.speaker) {
+        speaker.value = device.speaker;
+        await _setSpeaker();
+      }
+
+      return;
+    }
+
+    if (outputDevice.value?.deviceId() != device.deviceId()) {
+      outputDevice.value = device;
+      await _setOutputDevice();
     }
   }
 
@@ -301,7 +340,7 @@ class AudioUtilsImpl {
     AudioSpeakerKind? preferredSpeaker,
   }) async {
     Log.debug(
-      'reconfigure() -> intents are ${_intents.values.map((e) => e.mode.name).join(', ')}',
+      'reconfigure($force, $preferredSpeaker) -> intents are [${_intents.values.map((e) => e.mode.name).join(', ')}]',
       '$runtimeType',
     );
 
@@ -350,12 +389,20 @@ class AudioUtilsImpl {
       _previousConfiguration = configuration;
 
       final AudioSession session = await AudioSession.instance;
-      await session.configure(configuration);
-      await session.setActive(true, fallbackConfiguration: configuration);
+
+      try {
+        await session.configure(configuration);
+        await session.setActive(true, fallbackConfiguration: configuration);
+      } catch (e) {
+        Log.warning(
+          'Failed to `session.configure()` due to: $e',
+          '$runtimeType',
+        );
+      }
 
       if (preferredSpeaker != null) {
         await setSpeaker(preferredSpeaker);
-      } else if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      } else if (_isMobile) {
         if (speaker.value != null) {
           await setSpeaker(speaker.value!, force: force);
         }
@@ -363,14 +410,19 @@ class AudioUtilsImpl {
     }
   }
 
-  /// Sets the [_speaker] to use for audio output.
+  /// Sets the [speaker] to use for audio output.
   ///
   /// Should only be called via [setSpeaker].
   Future<void> _setSpeaker() async {
-    Log.debug('_setSpeaker()', '$runtimeType');
+    Log.debug('_setSpeaker(${this.speaker.value?.name})', '$runtimeType');
 
     // If the [_mutex] is locked, the output device is already being set.
     if (_mutex.isLocked) {
+      Log.debug(
+        '_setSpeaker(${this.speaker.value?.name}) -> locked, ignoring',
+        '$runtimeType',
+      );
+
       return;
     }
 
@@ -378,7 +430,7 @@ class AudioUtilsImpl {
     final AudioSpeakerKind speaker = this.speaker.value!;
 
     await _mutex.protect(() async {
-      await MediaUtils.outputGuard.protect(() async {
+      await _outputGuard.protect(() async {
         if (PlatformUtils.isIOS) {
           switch (speaker) {
             case AudioSpeakerKind.headphones:
@@ -421,8 +473,33 @@ class AudioUtilsImpl {
 
     // If the [_speaker] was changed while setting the output device then
     // call [_setSpeaker] again.
-    if (speaker != this.speaker.value) {
-      _setSpeaker();
+    // if (speaker != this.speaker.value) {
+    //   _setSpeaker();
+    // }
+  }
+
+  /// Invokes a [MediaUtilsImpl.setOutputDevice] method.
+  Future<void> _setOutputDevice() async {
+    // If the [_mutex] is locked, the output device is already being set.
+    if (_mutex.isLocked) {
+      return;
+    }
+
+    final String? deviceId = outputDevice.value?.deviceId();
+    if (deviceId == null) {
+      return;
+    }
+
+    await _outputGuard.protect(() async {
+      await _mutex.protect(() async {
+        await MediaUtils.setOutputDevice(deviceId);
+      });
+    });
+
+    // If the [outputDeviceId] was changed while setting the output device
+    // then call [_setOutputDevice] again.
+    if (deviceId != outputDevice.value?.deviceId()) {
+      _setOutputDevice();
     }
   }
 }

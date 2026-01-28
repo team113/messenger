@@ -7,6 +7,8 @@ PODS:
     - Flutter
   - app_links (7.0.0):
     - Flutter
+  - audio_router (1.1.1):
+    - Flutter
   - audio_session (0.0.1):
     - Flutter
   - connectivity_plus (0.0.1):
@@ -218,6 +220,7 @@ DEPENDENCIES:
   - all_sensors (from `.symlinks/plugins/all_sensors/ios`)
   - app_badge_plus (from `.symlinks/plugins/app_badge_plus/ios`)
   - app_links (from `.symlinks/plugins/app_links/ios`)
+  - audio_router (from `.symlinks/plugins/audio_router/ios`)
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - cupertino_http (from `.symlinks/plugins/cupertino_http/darwin`)
@@ -286,6 +289,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/app_badge_plus/ios"
   app_links:
     :path: ".symlinks/plugins/app_links/ios"
+  audio_router:
+    :path: ".symlinks/plugins/audio_router/ios"
   audio_session:
     :path: ".symlinks/plugins/audio_session/ios"
   connectivity_plus:
@@ -360,6 +365,7 @@ SPEC CHECKSUMS:
   all_sensors: 8b8131f5d3d1b833d8c7b689b2df5e8b2c688615
   app_badge_plus: 32b6022e2a8585454d6c2a99aa65f8f31f06752a
   app_links: a754cbec3c255bd4bbb4d236ecc06f28cd9a7ce8
+  audio_router: ab44b34ec1da33105ff9dc3ee1ba029f7733a4cc
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   connectivity_plus: cb623214f4e1f6ef8fe7403d580fdad517d2f7dd
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90

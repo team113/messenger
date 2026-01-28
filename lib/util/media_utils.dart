@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
@@ -36,10 +37,10 @@ MediaUtilsImpl MediaUtils = MediaUtilsImpl();
 /// devices, media tracks, etc.
 class MediaUtilsImpl {
   /// ID of the currently used output device.
-  final RxnString outputDeviceId = RxnString();
+  String? _outputDeviceId;
 
   /// [Mutex] guarding synchronized output device updating.
-  final Mutex outputGuard = Mutex();
+  final Mutex _outputGuard = Mutex();
 
   /// [Jason] communicating with the media resources.
   Jason? _jason;
@@ -130,11 +131,7 @@ class MediaUtilsImpl {
 
       Future(() async {
         (await _mediaManager)?.onDeviceChange(() async {
-          _devicesController?.add(
-            (await enumerateDevices())
-                .where((e) => e.deviceId().isNotEmpty)
-                .toList(),
-          );
+          _devicesController?.add(await enumerateDevices());
         });
       });
     }
@@ -196,8 +193,18 @@ class MediaUtilsImpl {
             .where((e) => !e.isFailed())
             .where((e) => kind == null || e.kind() == kind)
             .whereType<MediaDeviceDetails>()
-            .map((e) => DeviceDetails(e))
+            .map(DeviceDetails.new)
             .toList();
+
+    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+      final Set<AVAudioSessionPortDescription> routes =
+          await AVAudioSession().availableInputs;
+
+      Log.debug(
+        'enumerateDevices() -> ${routes.map((e) => '{id: ${e.uid}, name: ${e.portName}, type: ${e.portType.name}}').join(', ')}',
+        '$runtimeType',
+      );
+    }
 
     // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.
     //
@@ -253,8 +260,8 @@ class MediaUtilsImpl {
   Future<void> setOutputDevice(String deviceId) async {
     Log.debug('setOutputDevice($deviceId)', '$runtimeType');
 
-    if (outputDeviceId.value != deviceId) {
-      outputDeviceId.value = deviceId;
+    if (_outputDeviceId != deviceId) {
+      _outputDeviceId = deviceId;
       await _setOutputDevice();
     }
   }
@@ -273,8 +280,8 @@ class MediaUtilsImpl {
       return;
     }
 
-    final String deviceId = outputDeviceId.value!;
-    await outputGuard.protect(() async {
+    final String deviceId = _outputDeviceId!;
+    await _outputGuard.protect(() async {
       await _mutex.protect(() async {
         await (await _mediaManager)?.setOutputAudioId(deviceId);
       });
@@ -282,7 +289,7 @@ class MediaUtilsImpl {
 
     // If the [outputDeviceId] was changed while setting the output device
     // then call [_setOutputDevice] again.
-    if (deviceId != outputDeviceId.value) {
+    if (deviceId != _outputDeviceId) {
       _setOutputDevice();
     }
   }
@@ -481,29 +488,54 @@ enum AudioSpeakerKind { headphones, earpiece, speaker }
 ///
 /// [id] may be overridden to represent a different device.
 class DeviceDetails extends MediaDeviceDetails {
-  DeviceDetails(this._device);
+  DeviceDetails(MediaDeviceDetails this._device);
+
+  DeviceDetails.custom({
+    required String deviceId,
+    required String groupId,
+    required bool isFailed,
+    required MediaDeviceKind kind,
+    required String label,
+    required AudioDeviceKind? audioDeviceKind,
+  }) : _deviceId = deviceId,
+       _groupId = groupId,
+       _isFailed = isFailed,
+       _kind = kind,
+       _label = label,
+       _audioDeviceKind = audioDeviceKind,
+       _device = null;
 
   /// [MediaDeviceDetails] actually used by these [DeviceDetails].
-  final MediaDeviceDetails _device;
+  final MediaDeviceDetails? _device;
+
+  String? _deviceId;
+  String? _groupId;
+  bool? _isFailed;
+  MediaDeviceKind? _kind;
+  String? _label;
+  AudioDeviceKind? _audioDeviceKind;
+
+  /// Returns a unique identifier of this [DeviceDetails].
+  String id() => _deviceId ?? _device!.deviceId();
 
   @override
-  String deviceId() => _device.deviceId();
+  String deviceId() => _deviceId ?? _device!.deviceId();
 
   @override
-  void free() => _device.free();
+  void free() => _device!.free();
 
   @override
-  String? groupId() => _device.groupId();
+  String? groupId() => _groupId ?? _device!.groupId();
 
   @override
-  bool isFailed() => _device.isFailed();
+  bool isFailed() => _isFailed ?? _device!.isFailed();
 
   @override
-  MediaDeviceKind kind() => _device.kind();
+  MediaDeviceKind kind() => _kind ?? _device!.kind();
 
   @override
   String label() {
-    final String description = _device.label();
+    final String description = _label ?? _device!.label();
 
     // Firefox in its private mode, for example, leaves the labels empty.
     if (description.isEmpty) {
@@ -512,6 +544,10 @@ class DeviceDetails extends MediaDeviceDetails {
 
     return description;
   }
+
+  @override
+  AudioDeviceKind? audioDeviceKind() =>
+      _audioDeviceKind ?? _device?.audioDeviceKind();
 
   @override
   String toString() => id();
@@ -528,12 +564,6 @@ class DeviceDetails extends MediaDeviceDetails {
         // On Web `default` devices aren't equal.
         (!PlatformUtils.isWeb || deviceId() != 'default');
   }
-
-  /// Returns a unique identifier of this [DeviceDetails].
-  String id() => _device.deviceId();
-
-  @override
-  AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
 }
 
 /// [DeviceDetails] representing a default device.
@@ -546,8 +576,7 @@ class DefaultDeviceDetails extends DeviceDetails {
   }
 
   @override
-  String label() =>
-      'label_device_by_default'.l10nfmt({'device': _device.label()});
+  String label() => 'label_device_by_default'.l10nfmt({'device': label()});
 
   @override
   String id() => 'default';
