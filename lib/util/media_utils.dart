@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
@@ -196,16 +195,6 @@ class MediaUtilsImpl {
             .map(DeviceDetails.new)
             .toList();
 
-    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
-      final Set<AVAudioSessionPortDescription> routes =
-          await AVAudioSession().availableInputs;
-
-      Log.debug(
-        'enumerateDevices() -> ${routes.map((e) => '{id: ${e.uid}, name: ${e.portName}, type: ${e.portType.name}}').join(', ')}',
-        '$runtimeType',
-      );
-    }
-
     // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.
     //
     // Browsers and mobiles already may include their own default devices.
@@ -216,10 +205,11 @@ class MediaUtilsImpl {
       );
 
       if (hasDefault == null) {
-        if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
+        if (PlatformUtils.isDesktop || PlatformUtils.isWeb) {
           final DeviceDetails? device = devices.firstWhereOrNull(
             (e) => e.kind() == MediaDeviceKind.audioInput,
           );
+
           if (device != null) {
             devices.insert(0, DefaultDeviceDetails(device));
           }
@@ -246,6 +236,7 @@ class MediaUtilsImpl {
           final DeviceDetails? device = devices.firstWhereOrNull(
             (e) => e.kind() == MediaDeviceKind.audioOutput,
           );
+
           if (device != null) {
             devices.insert(0, DefaultDeviceDetails(device));
           }
@@ -558,6 +549,12 @@ class DefaultDeviceDetails extends DeviceDetails {
 
   @override
   String id() => 'default';
+
+  @override
+  AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
+
+  @override
+  bool isFailed() => _device.isFailed();
 }
 
 /// Audio processing noise suppression aggressiveness.

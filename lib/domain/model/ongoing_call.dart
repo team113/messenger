@@ -2517,16 +2517,16 @@ class OngoingCall {
       '$runtimeType',
     );
 
-    if (PlatformUtils.isIOS || PlatformUtils.isAndroid) {
-      final headphones = output.where(
+    if (PlatformUtils.isMobile) {
+      final Iterable<DeviceDetails> headphones = output.where(
         (e) => e.speaker == AudioSpeakerKind.headphones,
       );
 
-      final speakerphones = output.where(
+      final Iterable<DeviceDetails> speakerphones = output.where(
         (e) => e.speaker == AudioSpeakerKind.speaker,
       );
 
-      final earpieces = output.where(
+      final Iterable<DeviceDetails> earpieces = output.where(
         (e) => e.speaker == AudioSpeakerKind.earpiece,
       );
 
@@ -2556,6 +2556,9 @@ class OngoingCall {
         '$runtimeType',
       );
     }
+
+    // Best effort if none was found.
+    device ??= output.firstOrNull;
 
     Log.debug(
       '_pickOutputDevice() -> ${device?.id()} (${device?.label()}), current device is `${outputDevice.value}`',

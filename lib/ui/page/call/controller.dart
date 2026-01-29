@@ -460,7 +460,11 @@ class CallController extends GetxController {
   /// [AudioUtilsImpl.acquire] intent kept for [AudioMode.call].
   StreamSubscription<void>? _intent;
 
+  /// [AudioRouter] to listen for [AudioDevice] changes and displaying output
+  /// switcher for mobile platforms.
   final AudioRouter _audioRouter = AudioRouter();
+
+  /// [StreamSubscription] for [AudioDevice] changes.
   StreamSubscription? _audioRouterSubscription;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
@@ -909,50 +913,53 @@ class CallController extends GetxController {
       }
     });
 
-    _audioRouterSubscription = _audioRouter.currentDeviceStream.listen((
-      device,
-    ) async {
-      Log.debug(
-        '_audioRouter.currentDeviceStream -> ${device?.type.name} | ${device?.id}',
-        '$runtimeType',
-      );
+    // [AudioRouter] is available for mobile platforms only.
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+      _audioRouterSubscription = _audioRouter.currentDeviceStream.listen((
+        device,
+      ) async {
+        Log.debug(
+          '_audioRouter.currentDeviceStream -> ${device?.type.name} | ${device?.id}',
+          '$runtimeType',
+        );
 
-      final AudioSpeakerKind speaker = switch (device?.type) {
-        AudioSourceType.builtinSpeaker => AudioSpeakerKind.speaker,
-        AudioSourceType.builtinReceiver => AudioSpeakerKind.earpiece,
-        AudioSourceType.bluetooth => AudioSpeakerKind.headphones,
-        AudioSourceType.wiredHeadset => AudioSpeakerKind.headphones,
-        AudioSourceType.carAudio => AudioSpeakerKind.headphones,
-        AudioSourceType.airplay => AudioSpeakerKind.headphones,
-        AudioSourceType.unknown => AudioSpeakerKind.headphones,
-        null => AudioSpeakerKind.headphones,
-      };
+        final AudioSpeakerKind speaker = switch (device?.type) {
+          AudioSourceType.builtinSpeaker => AudioSpeakerKind.speaker,
+          AudioSourceType.builtinReceiver => AudioSpeakerKind.earpiece,
+          AudioSourceType.bluetooth => AudioSpeakerKind.headphones,
+          AudioSourceType.wiredHeadset => AudioSpeakerKind.headphones,
+          AudioSourceType.carAudio => AudioSpeakerKind.headphones,
+          AudioSourceType.airplay => AudioSpeakerKind.headphones,
+          AudioSourceType.unknown => AudioSpeakerKind.headphones,
+          null => AudioSpeakerKind.headphones,
+        };
 
-      final List<DeviceDetails> devices = _currentCall.value.devices
-          .output()
-          .toList();
+        final List<DeviceDetails> devices = _currentCall.value.devices
+            .output()
+            .toList();
 
-      final DeviceDetails? output = devices.firstWhereOrNull(
-        (e) => e.speaker == speaker,
-      );
+        final DeviceDetails? output = devices.firstWhereOrNull(
+          (e) => e.speaker == speaker,
+        );
 
-      if (output != null) {
-        _currentCall.value.outputDevice.value = output;
-        AudioUtils.outputDevice.value = output;
-      }
-
-      await AudioUtils.setSpeaker(speaker);
-
-      // Enumerate the devices after ~5 seconds delay, since iOS might not fire
-      // any `onDeviceChange` notifications, yet disconnect some devices.
-      Future.delayed(Duration(seconds: 5)).then((_) async {
-        if (isClosed || state.value == OngoingCallState.ended) {
-          return;
+        if (output != null) {
+          _currentCall.value.outputDevice.value = output;
+          AudioUtils.outputDevice.value = output;
         }
 
-        await _currentCall.value.enumerateDevices(screen: false);
+        await AudioUtils.setSpeaker(speaker);
+
+        // Enumerate the devices after ~5 seconds delay, since iOS might not fire
+        // any `onDeviceChange` notifications, yet disconnect some devices.
+        Future.delayed(Duration(seconds: 5)).then((_) async {
+          if (isClosed || state.value == OngoingCallState.ended) {
+            return;
+          }
+
+          await _currentCall.value.enumerateDevices(screen: false);
+        });
       });
-    });
+    }
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       onMinimized?.call(minimized.value);
@@ -1140,7 +1147,7 @@ class CallController extends GetxController {
         .toList();
 
     // If there are more than 2 outputs (earpiece and speakerphone), then show
-    // the AirPlay output iOS native picker.
+    // the audio output picker for iOS and Android.
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       if (outputs.length > 2) {
         await _audioRouter.showAudioRoutePicker(router.context!);
