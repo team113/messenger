@@ -939,8 +939,19 @@ class CallController extends GetxController {
       if (output != null) {
         _currentCall.value.outputDevice.value = output;
         AudioUtils.outputDevice.value = output;
-        // await _currentCall.value.setOutputDevice(output);
       }
+
+      await AudioUtils.setSpeaker(speaker);
+
+      // Enumerate the devices after ~5 seconds delay, since iOS might not fire
+      // any `onDeviceChange` notifications, yet disconnect some devices.
+      Future.delayed(Duration(seconds: 5)).then((_) async {
+        if (isClosed || state.value == OngoingCallState.ended) {
+          return;
+        }
+
+        await _currentCall.value.enumerateDevices(screen: false);
+      });
     });
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -1132,18 +1143,10 @@ class CallController extends GetxController {
     // the AirPlay output iOS native picker.
     if ((PlatformUtils.isIOS || PlatformUtils.isAndroid) &&
         !PlatformUtils.isWeb) {
-      // if (outputs.length > 2) {
-
-      await _audioRouter.showAudioRoutePicker(router.context!);
-      return;
-      // }
-    }
-
-    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
-      outputs.clear();
-      outputs.addAll(
-        await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput),
-      );
+      if (outputs.length > 2) {
+        await _audioRouter.showAudioRoutePicker(router.context!);
+        return;
+      }
     }
 
     if (outputs.length > 1) {

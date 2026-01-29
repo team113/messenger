@@ -435,14 +435,34 @@ class AudioUtilsImpl {
           switch (speaker) {
             case AudioSpeakerKind.headphones:
             case AudioSpeakerKind.earpiece:
+              Log.debug(
+                '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(none)...',
+                '$runtimeType',
+              );
+
               await AVAudioSession().overrideOutputAudioPort(
                 AVAudioSessionPortOverride.none,
+              );
+
+              Log.debug(
+                '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(none)... done!',
+                '$runtimeType',
               );
               break;
 
             case AudioSpeakerKind.speaker:
+              Log.debug(
+                '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(speaker)...',
+                '$runtimeType',
+              );
+
               await AVAudioSession().overrideOutputAudioPort(
                 AVAudioSessionPortOverride.speaker,
+              );
+
+              Log.debug(
+                '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(speaker)... done!',
+                '$runtimeType',
               );
               break;
           }
