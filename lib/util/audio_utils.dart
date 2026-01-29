@@ -423,16 +423,6 @@ class AudioUtilsImpl {
   Future<void> _setSpeaker() async {
     Log.debug('_setSpeaker(${this.speaker.value?.name})', '$runtimeType');
 
-    // If the [_mutex] is locked, the output device is already being set.
-    if (_mutex.isLocked) {
-      Log.debug(
-        '_setSpeaker(${this.speaker.value?.name}) -> locked, ignoring',
-        '$runtimeType',
-      );
-
-      return;
-    }
-
     // [_speaker] is guaranteed to be non-`null` in [setSpeaker].
     final AudioSpeakerKind speaker = this.speaker.value!;
 

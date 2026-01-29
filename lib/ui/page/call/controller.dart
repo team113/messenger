@@ -1141,8 +1141,7 @@ class CallController extends GetxController {
 
     // If there are more than 2 outputs (earpiece and speakerphone), then show
     // the AirPlay output iOS native picker.
-    if ((PlatformUtils.isIOS || PlatformUtils.isAndroid) &&
-        !PlatformUtils.isWeb) {
+    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       if (outputs.length > 2) {
         await _audioRouter.showAudioRoutePicker(router.context!);
         return;
