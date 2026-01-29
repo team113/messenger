@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/util/log.dart';
 
 import '../world/custom_world.dart';
 
@@ -26,16 +27,16 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Then I open chat's info
-final StepDefinitionGeneric openChatInfo = then<CustomWorld>(
-  'I open chat\'s info',
-  (context) async {
-    router.chatInfo(ChatId(router.route.split('/').last));
+final StepDefinitionGeneric
+openChatInfo = then<CustomWorld>('I open chat\'s info', (context) async {
+  router.chatInfo(ChatId(router.route.split('/').last));
 
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-      return context.world.appDriver.isPresent(
-        context.world.appDriver.findBy('ChatInfoView', FindType.key),
-      );
-    });
-  },
-);
+  await context.world.appDriver.waitUntil(() async {
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 5));
+
+    final finder = context.world.appDriver.findBy('ChatInfoView', FindType.key);
+    Log.debug('openChatInfo -> `finder` is $finder', 'E2E');
+
+    return finder.evaluate().isNotEmpty;
+  }, timeout: const Duration(seconds: 30));
+});

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,6 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:ui_web' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:web/web.dart' as web;
 
@@ -59,7 +58,7 @@ class ContextMenuInterceptor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!forceEnabled && (!enabled || kIsWasm)) {
+    if (!forceEnabled && !enabled) {
       return child;
     }
 

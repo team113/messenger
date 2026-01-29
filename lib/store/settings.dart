@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -236,6 +236,12 @@ class SettingsRepository extends DisposableInterface
   Future<void> setVideoVolume(double volume) async {
     Log.debug('setVideoVolume($volume)', '$runtimeType');
     await _set(settings: (e) => e..videoVolume = volume);
+  }
+
+  @override
+  Future<void> setLogLevel(int level) async {
+    Log.debug('setLogLevel($level)', '$runtimeType');
+    await _set(settings: (e) => e..logLevel = level);
   }
 
   /// Stores the provided [ApplicationSettings] and [MediaSettings] to the local

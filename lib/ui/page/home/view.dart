@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,6 +30,7 @@ import '/themes.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/page/link/view.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
@@ -314,49 +315,51 @@ class _HomeViewState extends State<HomeView> {
             isOpen: router.navigation.value,
             beginOffset: const Offset(0.0, 5),
             translate: false,
-            child: CustomNavigationBar(
-              key: c.panelKey,
-              items: tabs.map((e) {
-                switch (e) {
-                  case HomeTab.link:
-                    return const CustomNavigationBarItem.link();
+            child: ContextMenuInterceptor(
+              child: CustomNavigationBar(
+                key: c.panelKey,
+                items: tabs.map((e) {
+                  switch (e) {
+                    case HomeTab.link:
+                      return const CustomNavigationBarItem.link();
 
-                  case HomeTab.chats:
-                    return Obx(() {
-                      return CustomNavigationBarItem.chats(
-                        unread: c.unreadChats.value.toString(),
-                        danger: c.myUser.value?.muted == null,
-                        selector: c.chatsKey,
-                        onMute: c.toggleMute,
-                      );
-                    });
+                    case HomeTab.chats:
+                      return Obx(() {
+                        return CustomNavigationBarItem.chats(
+                          unread: c.unreadChats.value.toString(),
+                          danger: c.myUser.value?.muted == null,
+                          selector: c.chatsKey,
+                          onMute: c.toggleMute,
+                        );
+                      });
 
-                  case HomeTab.menu:
-                    return Obx(() {
-                      return CustomNavigationBarItem.menu(
-                        avatarKey: c.avatarKey,
-                        onAvatar: c.updateAvatar,
-                        myUser: c.myUser.value,
-                        onSecondary: () async {
-                          PlatformUtils.haptic(kind: HapticKind.light);
-                          await AccountsSwitcherView.show(
-                            context,
-                            avatarKey: c.avatarKey,
-                            panelKey: c.panelKey,
-                          );
-                        },
-                      );
-                    });
-                }
-              }).toList(),
-              currentIndex: tabs.indexOf(router.tab),
-              onTap: (i) {
-                if (i == 0) {
-                  return LinkView.show(context);
-                }
+                    case HomeTab.menu:
+                      return Obx(() {
+                        return CustomNavigationBarItem.menu(
+                          avatarKey: c.avatarKey,
+                          onAvatar: c.updateAvatar,
+                          myUser: c.myUser.value,
+                          onSecondary: () async {
+                            PlatformUtils.haptic(kind: HapticKind.light);
+                            await AccountsSwitcherView.show(
+                              context,
+                              avatarKey: c.avatarKey,
+                              panelKey: c.panelKey,
+                            );
+                          },
+                        );
+                      });
+                  }
+                }).toList(),
+                currentIndex: tabs.indexOf(router.tab),
+                onTap: (i) {
+                  if (i == 0) {
+                    return LinkView.show(context);
+                  }
 
-                c.pages.jumpToPage(tabs[i].index);
-              },
+                  c.pages.jumpToPage(tabs[i].index);
+                },
+              ),
             ),
           ),
           ?router.navigator.value?.call(context),

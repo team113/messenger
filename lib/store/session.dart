@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -63,6 +63,9 @@ class SessionRepository extends DisposableInterface
   @override
   final RxBool connected = RxBool(true);
 
+  @override
+  final RxList<ConnectivityResult> connectivity = RxList();
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -96,6 +99,9 @@ class SessionRepository extends DisposableInterface
   /// [Connectivity.onConnectivityChanged] subscription for listening to
   /// [connected] changes.
   StreamSubscription? _connectivitySubscription;
+
+  /// Subscription for [WebUtils.onNetworkChange] to change [connected].
+  StreamSubscription? _networkSubscription;
 
   /// [IpAddress] of this device.
   IpAddress? _ip;
@@ -137,6 +143,7 @@ class SessionRepository extends DisposableInterface
     _remoteSubscription?.close(immediate: true);
     _connectivitySubscription?.cancel();
     _graphQlSubscription?.cancel();
+    _networkSubscription?.cancel();
 
     super.onClose();
   }
@@ -242,6 +249,10 @@ class SessionRepository extends DisposableInterface
     _remoteSubscription?.cancel(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(
         await _sessionRemoteEvents(
           () => _versionLocal.data[_accountLocal.userId]?.sessionsListVersion,
@@ -424,6 +435,8 @@ class SessionRepository extends DisposableInterface
     });
 
     void apply(List<ConnectivityResult> result) {
+      connectivity.value = result;
+
       _hasNetwork =
           result.contains(ConnectivityResult.wifi) ||
           result.contains(ConnectivityResult.ethernet) ||
@@ -438,6 +451,8 @@ class SessionRepository extends DisposableInterface
         '$runtimeType',
       );
     }
+
+    _networkSubscription = WebUtils.onNetworkChange.listen((e) => apply([e]));
 
     try {
       apply(await Connectivity().checkConnectivity());

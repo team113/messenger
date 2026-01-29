@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -922,6 +922,12 @@ class SvgIcons {
     height: 32,
   );
 
+  static const SvgData callReconnect = SvgData(
+    'assets/icons/call_reconnect.svg',
+    width: 30,
+    height: 30,
+  );
+
   static const SvgData callParticipants = SvgData(
     'assets/icons/call_participants.svg',
     width: 29.36,
@@ -1520,6 +1526,12 @@ class SvgIcons {
 
   static const SvgData leaveGroup = SvgData(
     'assets/icons/leave_group.svg',
+    width: 20,
+    height: 20,
+  );
+
+  static const SvgData leaveGroupWhite = SvgData(
+    'assets/icons/leave_group_white.svg',
     width: 20,
     height: 20,
   );

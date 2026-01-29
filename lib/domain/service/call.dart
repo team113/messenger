@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -37,7 +37,7 @@ import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
 /// Service controlling incoming and outgoing [OngoingCall]s.
-class CallService extends DisposableService {
+class CallService extends Dependency {
   CallService(this._authService, this._chatService, this._callRepository);
 
   /// Callback, called when a [Chat] with provided [ChatId] should be removed.

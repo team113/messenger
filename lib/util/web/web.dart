@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@ import 'dart:js_interop_unsafe';
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
@@ -328,6 +329,37 @@ class WebUtils {
     return controller.stream;
   }
 
+  /// Returns a stream broadcasting the [ConnectivityResult] of the browser.
+  static Stream<ConnectivityResult> get onNetworkChange {
+    StreamController<ConnectivityResult>? controller;
+
+    // Event listener reacting on window focus events.
+    void changeListener(web.Event event) =>
+        // TODO: Rely on `NetworkInformation.type` when it's available:
+        //       https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation/type
+        controller!.add(switch (web.window.navigator.onLine) {
+          false => ConnectivityResult.none,
+          true => ConnectivityResult.wifi,
+        });
+
+    controller = StreamController(
+      onListen: () {
+        web.window.navigator.connection.addEventListener(
+          'change',
+          changeListener.toJS,
+        );
+      },
+      onCancel: () {
+        web.window.navigator.connection.removeEventListener(
+          'change',
+          changeListener.toJS,
+        );
+      },
+    );
+
+    return controller.stream;
+  }
+
   /// Indicates whether the current window is a popup.
   static bool get isPopup => _isPopup;
 
@@ -364,6 +396,11 @@ class WebUtils {
       web.window.navigator.onLine &&
       (Config.allowDetachedActivity ||
           router.lifecycle.value != AppLifecycleState.detached);
+
+  /// Indicates whether this platform supports system audio capture.
+  static FutureOr<bool> get canShareAudio {
+    return false;
+  }
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
@@ -1109,6 +1146,10 @@ class WebUtils {
   static void registerWith() {
     VideoPlayerPlugin.registerWith(webPluginRegistrar);
   }
+
+  /// Configures whether `medea_flutter_webrtc` should automatically manage the
+  /// iOS `AVAudioSession`.
+  static Future<void> setupAudioSessionManagement(bool value) => Future.value();
 
   /// Handles the [key] event to invoke [_keyHandlers] related to it.
   static bool _handleBindKeys(KeyEvent key) {

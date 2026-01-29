@@ -8,7 +8,112 @@ All user visible changes to this project will be documented in this file. This p
 
 ## main
 
-[Diff](/../../compare/v0.7.0...main) | [Milestone](/../../milestone/60)
+[Diff](/../../compare/v0.8.1...main) | [Milestone](/../../milestone/64)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Camera disabling for remote peers when disable screen sharing. ([#1594])
+- iOS:
+    - Dialogue calls not being connected sometimes. ([#1594])
+    - Output device not switching to headphones or not displaying being switched. ([#1593])
+
+[#1593]: /../../pull/1593
+[#1594]: /../../pull/1594
+
+
+
+
+## [0.8.1] · 2026-01-26
+[0.8.1]: /../../tree/v0.8.1
+
+[Diff](/../../compare/v0.8.0...v0.8.1) | [Milestone](/../../milestone/63)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Incoming call sometimes being stuck ringing infinitely. ([#1589])
+        - Text below accept and decline buttons being unreadable. ([#1589])
+        - Remote video not being disabled on slow Internet connection. ([#1591])
+
+[#1589]: /../../pull/1589
+[#1591]: /../../pull/1591
+
+
+
+
+## [0.8.0] · 2026-01-21
+[0.8.0]: /../../tree/v0.8.0
+
+[Diff](/../../compare/v0.7.2...v0.8.0) | [Milestone](/../../milestone/62)
+
+### Added
+
+- UI:
+    - Media panel:
+        - Reconnecting notifications when network changes in call. ([#1581])
+
+### Fixed
+
+- UI:
+    - Chat info page:
+        - Leave group button in members list not working. ([#1578])
+    - Media panel:
+        - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
+        - Connection not being reconnected on network changes on Web. ([#1581])
+        - Own camera or recipient's video sometimes not being rendered. ([#1582])
+        - Raised hand appearing on display demonstrations. ([#1584])
+
+[#1578]: /../../pull/1578
+[#1580]: /../../pull/1580
+[#1581]: /../../pull/1581
+[#1582]: /../../pull/1582
+[#1584]: /../../pull/1584
+
+
+
+
+## [0.7.2] · 2026-01-12
+[0.7.2]: /../../tree/v0.7.2
+
+[Diff](/../../compare/v0.7.1...v0.7.2) | [Milestone](/../../milestone/61)
+
+### Added
+
+- UI:
+    - Media panel:
+        - Reconnect call button. ([#1577], [#1575])
+    - Profile page:
+        - Display domains of linked devices. ([#1576])
+- Mobile:
+    - Media panel:
+        - Disclaimer of microphone and camera being blocked when tab is in background. ([#1575])
+
+### Changed
+
+- UI:
+    - Menu tab:
+        - Buttons grouped into sections. ([#1577])
+
+[#1575]: /../../pull/1575
+[#1576]: /../../pull/1576
+[#1577]: /../../pull/1577
+
+
+
+
+## [0.7.1] · 2026-01-07
+[0.7.1]: /../../tree/v0.7.1
+
+[Diff](/../../compare/v0.7.0...v0.7.1) | [Milestone](/../../milestone/60)
+
+### Added
+
+- UI:
+    - Media panel:
+        - Audio sharing with screen sharing. ([#1570])
 
 ### Fixed
 
@@ -17,10 +122,17 @@ All user visible changes to this project will be documented in this file. This p
         - Empty screen sharing being displayed sometimes. ([#1566])
         - Incoming call window not being displayed in rare cases. ([#1567])
         - Camera device turning off sometimes when microphone device is disconnected. ([#1568])
+    - Autocorrect invalidly enabled for login, passwords and e-mail fields. ([#1571])
+    - New and repeat password fields filling in current password instead of suggesting new. ([#1571])
+- iOS:
+    - Media panel:
+        - Calls not transmitting neither audio nor video to recipients. ([#1571])
 
 [#1566]: /../../pull/1566
 [#1567]: /../../pull/1567
 [#1568]: /../../pull/1568
+[#1570]: /../../pull/1570
+[#1571]: /../../pull/1571
 
 
 

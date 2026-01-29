@@ -247,6 +247,12 @@ targets:
                 name: SessionsListVersion
                 imports:
                   - "package:messenger/store/model/session.dart"
+            - graphql_type: SiteDomain
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
+              dart_type:
+                name: SiteDomain
+                imports:
+                  - "package:messenger/domain/model/session.dart"
             - graphql_type: ThumbHash
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/thumbhash.dart"
               dart_type:
@@ -375,6 +381,14 @@ targets:
             - lib/store/model/**
       messenger|pubspec_builder:
         enabled: true
+      sound_fonts|fonts_generator:
+        generate_for:
+          include:
+            - lib/themes.dart
+      sound_fonts|colors_generator:
+        generate_for:
+          include:
+            - lib/themes.dart
 
 builders:
   pubspec_builder:

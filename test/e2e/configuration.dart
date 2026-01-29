@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -41,6 +41,7 @@ import 'parameters/appcast_version.dart';
 import 'parameters/archived_status.dart';
 import 'parameters/attachment.dart';
 import 'parameters/availability_status.dart';
+import 'parameters/blocked_status.dart';
 import 'parameters/credentials.dart';
 import 'parameters/download_status.dart';
 import 'parameters/enabled_status.dart';
@@ -136,6 +137,7 @@ import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
 import 'steps/sends_message.dart';
 import 'steps/set_credential.dart';
+import 'steps/submit_field.dart';
 import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
@@ -151,6 +153,7 @@ import 'steps/text_field.dart';
 import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
 import 'steps/updates_name.dart';
+import 'steps/user_is_blocked.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
@@ -166,227 +169,238 @@ import 'steps/wait_until_text_within.dart';
 import 'steps/wait_until_widget.dart';
 import 'world/custom_world.dart';
 
-/// Configuration of a Gherkin test suite.
-final FlutterTestConfiguration gherkinTestConfiguration =
-    FlutterTestConfiguration()
-      ..stepDefinitions = [
-        appcastIsAvailable,
-        attachFile,
-        blockedCountUsers,
-        cancelFileDownload,
-        cancelFileUpload,
-        changeChatAvatar,
-        chatIsFavorite,
-        chatIsIndeedHidden,
-        chatIsMuted,
-        chatsAvailability,
-        checkCopyText,
-        contact,
-        contactIsFavorite,
-        contactIsIndeedDeleted,
-        copyFromField,
-        countUsers,
-        deleteUser,
-        dismissChat,
-        dismissContact,
-        downloadFile,
-        dragChatDown,
-        dragContactDown,
-        eraseField,
-        favoriteGroup,
-        fillField,
-        fillFieldN,
-        fillFieldWithMyCredential,
-        fillFieldWithRandomLogin,
-        fillFieldWithUserCredential,
-        goToUserLink,
-        goToUserPage,
-        hasContacts,
-        hasDialogWithMe,
-        hasFavoriteContacts,
-        hasFavoriteGroups,
-        hasGroupNamed,
-        hasGroupNamedInArchive,
-        hasGroupWithMembers,
-        hasGroups,
-        haveGroup1Named,
-        haveGroup2,
-        haveGroup2Named,
-        haveGroupNamed,
-        haveInternetWithDelay,
-        haveInternetWithoutDelay,
-        hasSession,
-        iAm,
-        iAmInChatNamed,
-        iAmInChatWith,
-        iAmInMonolog,
-        iTapChatGroup,
-        iTapChatWith,
-        iTapChatWithWithin,
-        logout,
-        longPressChat,
-        longPressContact,
-        longPressMessageByAttachment,
-        longPressMessageByText,
-        longPressMonolog,
-        longPressWidget,
-        monologAvailability,
-        myNameIs,
-        myNameIsNot,
-        noInternetConnection,
-        openChatInfo,
-        pasteToField,
-        pickFileInPicker,
-        popupWindows,
-        postsNAttachmentsToGroup,
-        readsAllMessages,
-        readsMessage,
-        removeAccountInAccounts,
-        removeGroupMember,
-        removeMessageAttachment,
-        renameContact,
-        repliesToMessage,
-        restartApp,
-        returnToPreviousPage,
-        rightClickMessage,
-        rightClickWidget,
-        scrollAndSee,
-        scrollAndSeeText,
-        scrollToBottom,
-        scrollToTop,
-        scrollUntilPresent,
-        seeAccountInAccounts,
-        seeAvatarTitleForChat,
-        seeAvatarTitleInUserView,
-        seeBlockedUsers,
-        seeChatAsArchived,
-        seeChatAsFavorite,
-        seeChatAsMuted,
-        seeChatAvatarAs,
-        seeChatAvatarAsNone,
-        seeChatInSearchResults,
-        seeChatMembers,
-        seeChatMessage,
-        seeChatMessages,
-        seeChatSelection,
-        seeChatWithUserInSearchResults,
-        seeContactAsDismissed,
-        seeContactAsFavorite,
-        seeContactPosition,
-        seeContactSelection,
-        seeCountChats,
-        seeCountChatsOrMore,
-        seeCountContacts,
-        seeCountFavoriteChats,
-        seeCountSessions,
-        seeDialogAsFavorite,
-        seeDialogAsMuted,
-        seeDraftInDialog,
-        seeFavoriteChatPosition,
-        seeFavoriteDialogPosition,
-        seeFieldHavingAnError,
-        seeFieldHavingNoError,
-        seeMonologAsFavorite,
-        seeMonologInSearchResults,
-        seeNamedChat,
-        seeNoContactsDismissed,
-        seesAs,
-        seesDialogWithMe,
-        seesNoDialogWithMe,
-        seesNoDialogWithUser,
-        seeTitleInUserView,
-        seeUserInSearchResults,
-        selectLanguage,
-        selectMessageText,
-        sendsAttachmentToMe,
-        sendsCountMessages,
-        sendsMessageToGroup,
-        sendsMessageToMe,
-        sendsMessageWithException,
-        setCredential,
-        setMyCredential,
-        signInAs,
-        signsOutSession,
-        tapAccountInAccounts,
-        tapChat,
-        tapContact,
-        tapDropdownItem,
-        tapLastImageInChat,
+/// Returns a configuration of a Gherkin test suite.
+FlutterTestConfiguration gherkinTestConfiguration() {
+  final FlutterTestConfiguration configuration = FlutterTestConfiguration();
 
-        // TODO: Fix `gherkin` matching `tapMessage` instead.
-        tapReply,
+  configuration.stepDefinitions = [
+    appcastIsAvailable,
+    attachFile,
+    blockedCountUsers,
+    cancelFileDownload,
+    cancelFileUpload,
+    changeChatAvatar,
+    chatIsFavorite,
+    chatIsIndeedHidden,
+    chatIsMuted,
+    chatsAvailability,
+    checkCopyText,
+    contact,
+    contactIsFavorite,
+    contactIsIndeedDeleted,
+    copyFromField,
+    countUsers,
+    deleteUser,
+    dismissChat,
+    dismissContact,
+    downloadFile,
+    dragChatDown,
+    dragContactDown,
+    eraseField,
+    favoriteGroup,
+    fillField,
+    fillFieldN,
+    fillFieldWithMyCredential,
+    fillFieldWithRandomLogin,
+    fillFieldWithUserCredential,
+    goToUserLink,
+    goToUserPage,
+    hasContacts,
+    hasDialogWithMe,
+    hasDialogWithUser,
+    hasFavoriteContacts,
+    hasFavoriteGroups,
+    hasGroupNamed,
+    hasGroupNamedInArchive,
+    hasGroupWithMembers,
+    hasGroups,
+    haveGroup1Named,
+    haveGroup2,
+    haveGroup2Named,
+    haveGroupNamed,
+    haveInternetWithDelay,
+    haveInternetWithoutDelay,
+    hasSession,
+    iAm,
+    iAmInChatNamed,
+    iAmInChatWith,
+    iAmInMonolog,
+    iTapChatGroup,
+    iTapChatWith,
+    iTapChatWithWithin,
+    logout,
+    longPressChat,
+    longPressContact,
+    longPressMessageByAttachment,
+    longPressMessageByText,
+    longPressMonolog,
+    longPressWidget,
+    monologAvailability,
+    myNameIs,
+    myNameIsNot,
+    noInternetConnection,
+    openChatInfo,
+    pasteToField,
+    pickFileInPicker,
+    popupWindows,
+    postsNAttachmentsToGroup,
+    readsAllMessages,
+    readsMessage,
+    removeAccountInAccounts,
+    removeGroupMember,
+    removeMessageAttachment,
+    renameContact,
+    repliesToMessage,
+    restartApp,
+    returnToPreviousPage,
+    rightClickMessage,
+    rightClickWidget,
+    scrollAndSee,
+    scrollToBottom,
+    scrollToTop,
+    scrollUntilPresent,
+    seeAccountInAccounts,
+    seeAvatarTitleForChat,
+    seeAvatarTitleInUserView,
+    seeBlockedUsers,
+    seeChatAsArchived,
+    seeChatAsFavorite,
+    seeChatAsMuted,
+    seeChatAvatarAs,
+    seeChatAvatarAsNone,
+    seeChatInSearchResults,
+    seeChatMembers,
+    seeChatMessage,
+    seeChatMessages,
+    seeChatSelection,
+    seeChatWithUserInSearchResults,
+    seeContactAsDismissed,
+    seeContactAsFavorite,
+    seeContactPosition,
+    seeContactSelection,
+    seeCountChats,
+    seeCountChatsOrMore,
+    seeCountContacts,
+    seeCountFavoriteChats,
+    seeCountSessions,
+    seeDialogAsFavorite,
+    seeDialogAsMuted,
+    seeDraftInDialog,
+    seeFavoriteChatPosition,
+    seeFavoriteDialogPosition,
+    seeFieldHavingAnError,
+    seeFieldHavingNoError,
+    seeMonologAsFavorite,
+    seeMonologInSearchResults,
+    seeNamedChat,
+    seeNoContactsDismissed,
+    seesAs,
+    seesDialogWithMe,
+    seesNoDialogWithMe,
+    seesNoDialogWithUser,
+    seeTitleInUserView,
+    seeUserInSearchResults,
+    selectLanguage,
+    selectMessageText,
+    sendsAttachmentToMe,
+    sendsCountMessages,
+    sendsMessageToGroup,
+    sendsMessageToMe,
+    sendsMessageWithException,
+    setCredential,
+    setMyCredential,
+    signInAs,
+    signsOutSession,
+    submitField,
+    tapAccountInAccounts,
+    tapChat,
+    tapContact,
+    tapDropdownItem,
+    tapLastImageInChat,
 
-        tapMessage,
-        tapText,
-        tapUserInSearchResults,
-        tapWidget,
-        tapWidgetNTimes,
-        twoContacts,
-        twoUsers,
-        untilAttachmentExists,
-        untilAttachmentFetched,
-        untilChatExists,
-        untilContactExists,
-        untilMessageExists,
-        untilTextExists,
-        untilTextExistsWithin,
-        updateAppVersion,
-        updateAvatar,
-        updateName,
-        user,
-        userWithPassword,
-        waitForAppToSettle,
-        waitUntilAttachmentStatus,
-        waitUntilFileStatus,
-        waitUntilKeyExists,
-        waitUntilMessageStatus,
-      ]
-      ..hooks = [
-        ResetAppHook(),
+    // TODO: Fix `gherkin` matching `tapMessage` instead.
+    tapReply,
 
-        // [IntegrationTestWidgetsFlutterBinding.traceAction] being used is only
-        // supported on Dart VM platforms.
-        if (!PlatformUtils.isWeb) PerformanceHook(),
-      ]
-      ..reporters = [
-        StdoutReporter(MessageLevel.verbose)
-          ..setWriteLineFn(print)
-          ..setWriteFn(print),
-        ProgressReporter()
-          ..setWriteLineFn(print)
-          ..setWriteFn(print),
-        TestRunSummaryReporter()
-          ..setWriteLineFn(print)
-          ..setWriteFn(print),
-        FlutterDriverReporter(logInfoMessages: true),
-        if (!PlatformUtils.isWeb) JsonReporter(),
-      ]
-      ..semanticsEnabled = false
-      ..defaultTimeout = const Duration(seconds: 30)
-      ..customStepParameterDefinitions = [
-        AppcastVersionParameter(),
-        ArchivedStatusParameter(),
-        AttachmentTypeParameter(),
-        AvailabilityStatusParameter(),
-        CredentialsParameter(),
-        DownloadStatusParameter(),
-        EnabledParameter(),
-        ExceptionParameter(),
-        FavoriteStatusParameter(),
-        ImageFetchStatusParameter(),
-        IterableAmountParameter(),
-        MessageSentStatusParameter(),
-        MutedStatusParameter(),
-        OnlineStatusParameter(),
-        PositionStatusParameter(),
-        SearchCategoryParameter(),
-        SelectionStatusParameter(),
-        UsersParameter(),
-        WidgetKeyParameter(),
-      ]
-      ..tagExpression = 'not @disabled'
-      // ..tagExpression = '@problem'
-      ..createWorld = (config) => Future.sync(() => CustomWorld());
+    tapMessage,
+    tapText,
+    tapUserInSearchResults,
+    tapWidget,
+    tapWidgetNTimes,
+    twoContacts,
+    twoUsers,
+    untilAttachmentExists,
+    untilAttachmentFetched,
+    untilChatExists,
+    untilContactExists,
+    untilMessageExists,
+    untilTextExists,
+    untilTextExistsWithin,
+    updateAppVersion,
+    updateAvatar,
+    updateName,
+    user,
+    userIsBlocked,
+    userWithPassword,
+    waitForAppToSettle,
+    waitUntilAttachmentStatus,
+    waitUntilFileStatus,
+    waitUntilKeyExists,
+    waitUntilMessageStatus,
+  ];
+  configuration.hooks = [
+    ResetAppHook(),
+
+    // [IntegrationTestWidgetsFlutterBinding.traceAction] being used is only
+    // supported on Dart VM platforms.
+    if (!PlatformUtils.isWeb) PerformanceHook(),
+  ];
+  configuration.reporters = [
+    StdoutReporter(MessageLevel.verbose)
+      ..setWriteLineFn(print)
+      ..setWriteFn(print),
+    ProgressReporter()
+      ..setWriteLineFn(print)
+      ..setWriteFn(print),
+    TestRunSummaryReporter()
+      ..setWriteLineFn(print)
+      ..setWriteFn(print),
+    FlutterDriverReporter(logInfoMessages: true),
+    if (!PlatformUtils.isWeb) JsonReporter(),
+  ];
+  configuration.semanticsEnabled = false;
+  configuration.defaultTimeout = const Duration(seconds: 30);
+  configuration.customStepParameterDefinitions = [
+    AppcastVersionParameter(),
+    ArchivedStatusParameter(),
+    AttachmentTypeParameter(),
+    AvailabilityStatusParameter(),
+    BlockedStatusParameter(),
+    CredentialsParameter(),
+    DownloadStatusParameter(),
+    EnabledParameter(),
+    ExceptionParameter(),
+    FavoriteStatusParameter(),
+    ImageFetchStatusParameter(),
+    IterableAmountParameter(),
+    MessageSentStatusParameter(),
+    MutedStatusParameter(),
+    OnlineStatusParameter(),
+    PositionStatusParameter(),
+    SearchCategoryParameter(),
+    SelectionStatusParameter(),
+    UsersParameter(),
+    WidgetKeyParameter(),
+  ];
+  configuration.createWorld = (config) => Future.sync(() => CustomWorld());
+
+  configuration.tagExpression = 'not @disabled';
+  if (const bool.hasEnvironment('E2E_TAG')) {
+    final String tags = const String.fromEnvironment('E2E_TAG');
+    configuration.tagExpression = '$tags and not @disabled';
+  }
+
+  return configuration;
+}
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
@@ -394,17 +408,20 @@ Future<void> appInitializationFn(World world) {
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 
+  final Function(FlutterErrorDetails)? original = FlutterError.onError;
   FlutterError.onError = (details) {
     final String exception = details.exception.toString();
 
     // Silence the `GlobalKey` being duplicated errors:
     // https://github.com/google/flutter.widgets/issues/137
     if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
-        exception.contains('Multiple widgets used the same GlobalKey.')) {
+        exception.contains('Multiple widgets used the same GlobalKey.') ||
+        exception.contains('DriftRemoteException') ||
+        exception.contains('SqliteException')) {
       return;
     }
 
-    FlutterError.presentError(details);
+    original?.call(details);
   };
 
   return Future.sync(app.main);

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -81,6 +81,7 @@ void main() async {
             'isCurrent': true,
             'lastActivatedAt': DateTime.now().toString(),
             'ver': '031592915314290362597742826064324903711',
+            'siteDomain': 'example.com',
           },
           'accessToken': {
             '__typename': 'AccessToken',
@@ -166,6 +167,7 @@ void main() async {
           ip: IpAddress('localhost'),
           userAgent: UserAgent(''),
           lastActivatedAt: PreciseDateTime.now(),
+          siteDomain: SiteDomain(''),
         ),
         const UserId('me'),
       ),

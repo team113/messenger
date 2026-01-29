@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -42,7 +42,7 @@ import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 
 /// Worker responsible for showing a new [Chat] message notification.
-class ChatWorker extends DisposableService {
+class ChatWorker extends Dependency {
   ChatWorker(this._chatService, this._myUserService, this._notificationService);
 
   /// [ChatService], used to get the [Chat]s list.

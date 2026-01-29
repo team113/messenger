@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -819,6 +819,8 @@ class RxChatImpl extends RxChat {
           case PostChatMessageErrorCode.unknownReplyingChatItem:
           case PostChatMessageErrorCode.unknownUser:
           case PostChatMessageErrorCode.artemisUnknown:
+          case PostChatMessageErrorCode.disabledDonation:
+          case PostChatMessageErrorCode.tooSmallDonation:
             rethrow;
 
           case PostChatMessageErrorCode.unknownChat:
@@ -1940,12 +1942,16 @@ class RxChatImpl extends RxChat {
       _remoteSubscription?.close(immediate: true);
 
       await WebUtils.protect(() async {
+        if (_disposed) {
+          return;
+        }
+
         if (ver != null) {
           _justSubscribed = true;
           _eventsDebounce = debounce(_debouncedEvents, (events) {
             if (_eventsDebounce?.disposed == false) {
               Log.debug(
-                '_initRemoteSubscription(): debounced with ${events.expand((e) => e.events).map((e) => e.kind)}',
+                '_initRemoteSubscription(): debounced with ${events.expand((e) => e.events).map((e) => e.kind).join(', ')}',
                 '$runtimeType($id)',
               );
 
@@ -1964,7 +1970,7 @@ class RxChatImpl extends RxChat {
                 );
               }
             }
-          });
+          }, time: const Duration(seconds: 3));
         }
 
         _remoteSubscription = StreamQueue(
@@ -2015,7 +2021,7 @@ class RxChatImpl extends RxChat {
         final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
         if (!subscribed) {
           Log.debug(
-            '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}, because: ${!subscribed}',
+            '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind.name).join(', ')}, because: ${!subscribed}',
             '$runtimeType($id)',
           );
 
@@ -2024,7 +2030,7 @@ class RxChatImpl extends RxChat {
 
         if (_justSubscribed) {
           Log.debug(
-            '_chatEvent(${event.kind}): added to debounced ${versioned.events.map((e) => e.kind)}',
+            '_chatEvent(${event.kind}): added to debounced ${versioned.events.map((e) => e.kind.name).join(', ')}',
             '$runtimeType($id)',
           );
           _debouncedEvents.add(versioned);
@@ -2032,7 +2038,7 @@ class RxChatImpl extends RxChat {
         }
 
         Log.debug(
-          '_chatEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
+          '_chatEvent(${event.kind}): ${versioned.events.map((e) => e.kind.name).join(', ')}',
           '$runtimeType($id)',
         );
 
@@ -2167,7 +2173,7 @@ class RxChatImpl extends RxChat {
               // Call is already finished, no reason to try adding it.
               if (event.call.finishReason == null) {
                 write((chat) => chat.value.ongoingCall = event.call);
-                _chatRepository.addCall(event.call);
+                await _chatRepository.addCall(event.call);
               }
 
               final message = await get(event.call.id);
@@ -2176,6 +2182,22 @@ class RxChatImpl extends RxChat {
                 event.call.at = message.value.at;
                 message.value = event.call;
                 itemsToPut.add(message);
+              }
+              break;
+
+            case ChatEventKind.callDeclined:
+              event as EventChatCallDeclined;
+
+              if (dto.value.ongoingCall?.id == event.call.id) {
+                write((chat) => chat.value.ongoingCall = event.call);
+              }
+
+              if (dto.value.lastItem?.id == event.call.id) {
+                write((chat) => chat.value.lastItem = event.call);
+              }
+
+              if (event.user.id == me) {
+                _chatRepository.endCall(event.call.chatId);
               }
               break;
 
@@ -2346,10 +2368,6 @@ class RxChatImpl extends RxChat {
                     ..value.lastItem = item?.value ?? chat.value.lastItem,
                 );
               }
-              break;
-
-            case ChatEventKind.callDeclined:
-              // TODO: Implement EventChatCallDeclined.
               break;
 
             case ChatEventKind.itemPosted:

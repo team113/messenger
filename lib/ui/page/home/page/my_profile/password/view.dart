@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -105,6 +105,7 @@ class ChangePasswordView extends StatelessWidget {
                       hint: 'label_enter_password'.l10n,
                       obscured: c.obscureNewPassword,
                       treatErrorAsStatus: false,
+                      autocomplete: AutocompleteKind.newPassword,
                     ),
                     const SizedBox(height: 16),
                     ReactiveTextField.password(
@@ -114,6 +115,7 @@ class ChangePasswordView extends StatelessWidget {
                       hint: 'label_repeat_password'.l10n,
                       obscured: c.obscureRepeatPassword,
                       treatErrorAsStatus: false,
+                      autocomplete: AutocompleteKind.newPassword,
                     ),
                     const SizedBox(height: 25),
                     Obx(() {

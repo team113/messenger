@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,8 +28,8 @@ part 'suite.g.dart';
   featurePaths: ['test/e2e/features/**.feature'],
   executionOrder: ExecutionOrder.alphabetical,
 )
-void main() async {
+void main() {
   Config.disableInfiniteAnimations = true;
   Config.allowDetachedActivity = true;
-  executeTestSuite(gherkinTestConfiguration, appInitializationFn);
+  executeTestSuite(gherkinTestConfiguration(), appInitializationFn);
 }

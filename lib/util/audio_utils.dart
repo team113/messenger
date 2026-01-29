@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,12 +18,15 @@
 import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 import 'package:mutex/mutex.dart';
+import 'package:uuid/uuid.dart';
 
 import '/pubspec.g.dart';
 import '/util/media_utils.dart';
 import 'log.dart';
+import 'new_type.dart';
 import 'platform_utils.dart';
 import 'web/web_utils.dart';
 
@@ -35,6 +38,15 @@ AudioUtilsImpl AudioUtils = AudioUtilsImpl();
 
 /// Helper providing direct access to audio playback related resources.
 class AudioUtilsImpl {
+  /// [AudioSpeakerKind] currently used for audio output.
+  ///
+  /// Only meaningful for mobile devices, since under desktop and Web the
+  /// [MediaUtils] work much better with handling everything.
+  final Rx<AudioSpeakerKind?> speaker = Rx(null);
+
+  /// [DeviceDetails] of the currently used output device.
+  final Rx<DeviceDetails?> outputDevice = Rx(null);
+
   /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
   /// platforms.
   ja.AudioPlayer? _jaPlayer;
@@ -42,11 +54,24 @@ class AudioUtilsImpl {
   /// [StreamController]s of [AudioSource]s added in [play].
   final Map<AudioSource, StreamController<void>> _players = {};
 
-  /// [AudioSpeakerKind] currently used for audio output.
-  AudioSpeakerKind? _speaker;
-
   /// [Mutex] guarding synchronized access to the [_setSpeaker].
   final Mutex _mutex = Mutex();
+
+  /// [Mutex] guarding synchronized output device updating.
+  final Mutex _outputGuard = Mutex();
+
+  /// [StreamController] to related [_intents] in [acquire].
+  final Map<_IntentId, StreamController> _controllers = {};
+
+  /// [_AudioIntent] applied via [acquire].
+  final Map<_IntentId, _AudioIntent> _intents = {};
+
+  /// [AudioSessionConfiguration] previously applied during [reconfigure].
+  AudioSessionConfiguration? _previousConfiguration;
+
+  /// Returns [Stream] of [AVAudioSessionRouteChange]s.
+  Stream<AVAudioSessionRouteChange> get routeChangeStream =>
+      AVAudioSession().routeChangeStream;
 
   /// Indicates whether the [_jaPlayer] should be used.
   bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
@@ -71,20 +96,34 @@ class AudioUtilsImpl {
   }
 
   /// Plays the provided [sound] once.
-  Future<void> once(AudioSource sound) async {
+  Future<void> once(
+    AudioSource sound, {
+    AudioMode? mode = AudioMode.sound,
+  }) async {
     Log.debug('once($sound)', '$runtimeType');
 
     ensureInitialized();
 
-    if (PlatformUtils.isWeb) {
-      final String url = sound.direct;
+    StreamSubscription<void>? handle = switch (mode) {
+      null => null,
+      (_) => acquire(mode).listen((_) {}),
+    };
 
-      if (url.isNotEmpty) {
-        await (WebUtils.play('$url?${Pubspec.ref}')).listen((_) {}).asFuture();
+    try {
+      if (PlatformUtils.isWeb) {
+        final String url = sound.direct;
+
+        if (url.isNotEmpty) {
+          await (WebUtils.play(
+            '$url?${Pubspec.ref}',
+          )).listen((_) {}).asFuture();
+        }
+      } else {
+        await _jaPlayer?.setAudioSource(sound.source);
+        await _jaPlayer?.play();
       }
-    } else {
-      await _jaPlayer?.setAudioSource(sound.source);
-      await _jaPlayer?.play();
+    } finally {
+      handle?.cancel();
     }
   }
 
@@ -94,19 +133,26 @@ class AudioUtilsImpl {
   StreamSubscription<void> play(
     AudioSource music, {
     Duration fade = Duration.zero,
+    AudioMode mode = AudioMode.music,
   }) {
-    Log.debug('play($music)', '$runtimeType');
+    Log.debug('play($music, mode: ${mode.name})', '$runtimeType');
 
     StreamController? controller = _players[music];
     StreamSubscription? playback;
 
     if (controller == null) {
+      Stream<void>? handle = acquire(mode);
+      StreamSubscription<void>? listening;
+
       ja.AudioPlayer? jaPlayer;
       Timer? timer;
 
       controller = StreamController.broadcast(
         onListen: () async {
           if (PlatformUtils.isWeb) {
+            listening?.cancel();
+            listening = handle.listen((_) {});
+
             playback?.cancel();
             playback = WebUtils.play(
               '${music.direct}?${Pubspec.ref}',
@@ -131,6 +177,10 @@ class AudioUtilsImpl {
 
           await jaPlayer?.setAudioSource(music.source);
           await jaPlayer?.setLoopMode(ja.LoopMode.all);
+
+          listening?.cancel();
+          listening = handle.listen((_) {});
+
           await jaPlayer?.play();
 
           if (fade != Duration.zero) {
@@ -149,6 +199,8 @@ class AudioUtilsImpl {
           }
         },
         onCancel: () async {
+          listening?.cancel();
+
           if (PlatformUtils.isWeb) {
             playback?.cancel();
             return;
@@ -172,12 +224,48 @@ class AudioUtilsImpl {
   /// Sets the [speaker] to use for audio output.
   ///
   /// Only meaningful on mobile devices.
-  Future<void> setSpeaker(AudioSpeakerKind speaker) async {
-    Log.debug('setSpeaker($speaker)', '$runtimeType');
+  Future<void> setSpeaker(
+    AudioSpeakerKind speaker, {
+    bool force = false,
+  }) async {
+    Log.debug('setSpeaker(${speaker.name}, force: $force)', '$runtimeType');
 
-    if (_isMobile && _speaker != speaker) {
-      _speaker = speaker;
-      await _setSpeaker();
+    if (_isMobile && (this.speaker.value != speaker || force)) {
+      this.speaker.value = speaker;
+
+      try {
+        await _setSpeaker();
+      } catch (e) {
+        Log.warning(
+          'Unable to `_setSpeaker(${speaker.name})` due to $e',
+          '$runtimeType',
+        );
+      }
+    }
+  }
+
+  /// Sets device with [device] as a currently used output device.
+  Future<void> setOutputDevice(DeviceDetails device) async {
+    Log.debug(
+      'setOutputDevice(${device.id()}, ${device.label()}, ${device.speaker.name})',
+      '$runtimeType',
+    );
+
+    // On mobile platforms there's no need to do `medea_jason` or `MediaUtils`
+    // way of changing the output, since we're doing the same in `_setSpeaker()`
+    // method, which does `AVAudioSession` and `AndroidAudioManager` stuff.
+    if (_isMobile) {
+      if (_isMobile && speaker.value != device.speaker) {
+        speaker.value = device.speaker;
+        await _setSpeaker();
+      }
+
+      return;
+    }
+
+    if (outputDevice.value?.deviceId() != device.deviceId()) {
+      outputDevice.value = device;
+      await _setOutputDevice();
     }
   }
 
@@ -207,53 +295,171 @@ class AudioUtilsImpl {
       } else {
         await setSpeaker(AudioSpeakerKind.speaker);
       }
+    }
+  }
 
-      if (PlatformUtils.isAndroid) {
-        await AndroidAudioManager().setMode(AndroidAudioHardwareMode.normal);
-      } else if (PlatformUtils.isIOS) {
-        await AVAudioSession().setCategory(
-          AVAudioSessionCategory.playAndRecord,
-          AVAudioSessionCategoryOptions.allowBluetooth,
-          AVAudioSessionMode.defaultMode,
+  /// Acquires and returns the handle for the provided [AudioMode].
+  ///
+  /// The returned [Stream] must be listened to when [mode] is still needed, and
+  /// released when the [mode] is no longer needed.
+  ///
+  /// [speaker] can be set to transition the currently selected one into that
+  /// when intent is acquire for the first time.
+  Stream<void> acquire(AudioMode mode, {AudioSpeakerKind? speaker}) {
+    final _AudioIntent intent = _AudioIntent(mode, speaker: speaker);
+
+    final StreamController<void> controller = StreamController.broadcast(
+      onListen: () async {
+        Log.debug(
+          'acquire($mode) -> onListen for ${intent.id}',
+          '$runtimeType',
         );
+
+        _intents[intent.id] = intent;
+        await reconfigure(preferredSpeaker: speaker);
+      },
+      onCancel: () async {
+        Log.debug(
+          'acquire($mode) -> onCancel for ${intent.id}',
+          '$runtimeType',
+        );
+
+        _intents.remove(intent.id);
+        await reconfigure();
+      },
+    );
+
+    _controllers[intent.id] = controller;
+
+    return controller.stream;
+  }
+
+  /// Configures the current [AudioSession] to reflect the [AudioMode]s applied.
+  Future<void> reconfigure({
+    bool force = false,
+    AudioSpeakerKind? preferredSpeaker,
+  }) async {
+    Log.debug(
+      'reconfigure($force, $preferredSpeaker) -> intents are [${_intents.values.map((e) => e.mode.name).join(', ')}]',
+      '$runtimeType',
+    );
+
+    if (_intents.isEmpty) {
+      if (!PlatformUtils.isWeb) {
+        await setSpeaker(AudioSpeakerKind.speaker);
+
+        if (PlatformUtils.isIOS) {
+          await AVAudioSession().setActive(false);
+        }
+      }
+    } else {
+      final bool needsMic = _intents.values.any((e) => e.mode.needsMic);
+
+      final AudioSessionConfiguration configuration = AudioSessionConfiguration(
+        avAudioSessionCategory: needsMic
+            ? AVAudioSessionCategory.playAndRecord
+            : AVAudioSessionCategory.playback,
+        avAudioSessionMode: needsMic
+            ? AVAudioSessionMode.voiceChat
+            : AVAudioSessionMode.defaultMode,
+        avAudioSessionCategoryOptions:
+            AVAudioSessionCategoryOptions.mixWithOthers |
+            AVAudioSessionCategoryOptions.allowBluetooth |
+            AVAudioSessionCategoryOptions.allowBluetoothA2dp,
+        androidAudioAttributes: AndroidAudioAttributes(
+          contentType: needsMic
+              ? AndroidAudioContentType.speech
+              : AndroidAudioContentType.music,
+          usage: needsMic
+              ? AndroidAudioUsage.voiceCommunication
+              : AndroidAudioUsage.media,
+        ),
+        androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransient,
+      );
+
+      if (configuration.toJson() == _previousConfiguration?.toJson()) {
+        Log.debug(
+          'reconfigure() -> ignoring ${_intents.values.map((e) => e.mode.name).join(', ')}',
+          '$runtimeType',
+        );
+
+        return;
+      }
+
+      _previousConfiguration = configuration;
+
+      final AudioSession session = await AudioSession.instance;
+
+      try {
+        await session.configure(configuration);
+        await session.setActive(true, fallbackConfiguration: configuration);
+      } catch (e) {
+        Log.warning(
+          'Failed to `session.configure()` due to: $e',
+          '$runtimeType',
+        );
+      }
+
+      if (preferredSpeaker != null) {
+        // If we're using headphones, and the preferred one is speaker, then
+        // shouldn't switch.
+        if (speaker.value == AudioSpeakerKind.headphones &&
+            preferredSpeaker == AudioSpeakerKind.speaker) {
+          // No-op.
+        } else {
+          await setSpeaker(preferredSpeaker);
+        }
+      } else if (_isMobile) {
+        if (speaker.value != null) {
+          await setSpeaker(speaker.value!, force: force);
+        }
       }
     }
   }
 
-  /// Sets the [_speaker] to use for audio output.
+  /// Sets the [speaker] to use for audio output.
   ///
   /// Should only be called via [setSpeaker].
   Future<void> _setSpeaker() async {
-    Log.debug('_setSpeaker()', '$runtimeType');
-
-    // If the [_mutex] is locked, the output device is already being set.
-    if (_mutex.isLocked) {
-      return;
-    }
+    Log.debug('_setSpeaker(${this.speaker.value?.name})', '$runtimeType');
 
     // [_speaker] is guaranteed to be non-`null` in [setSpeaker].
-    final AudioSpeakerKind speaker = _speaker!;
+    final AudioSpeakerKind speaker = this.speaker.value!;
 
     await _mutex.protect(() async {
-      await MediaUtils.outputGuard.protect(() async {
+      await _outputGuard.protect(() async {
         if (PlatformUtils.isIOS) {
-          await AVAudioSession().setCategory(
-            AVAudioSessionCategory.playAndRecord,
-            AVAudioSessionCategoryOptions.allowBluetooth,
-            AVAudioSessionMode.voiceChat,
-          );
-
           switch (speaker) {
             case AudioSpeakerKind.headphones:
             case AudioSpeakerKind.earpiece:
+              Log.debug(
+                '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(none)...',
+                '$runtimeType',
+              );
+
               await AVAudioSession().overrideOutputAudioPort(
                 AVAudioSessionPortOverride.none,
+              );
+
+              Log.debug(
+                '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(none)... done!',
+                '$runtimeType',
               );
               break;
 
             case AudioSpeakerKind.speaker:
+              Log.debug(
+                '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(speaker)...',
+                '$runtimeType',
+              );
+
               await AVAudioSession().overrideOutputAudioPort(
                 AVAudioSessionPortOverride.speaker,
+              );
+
+              Log.debug(
+                '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(speaker)... done!',
+                '$runtimeType',
               );
               break;
           }
@@ -261,49 +467,19 @@ class AudioUtilsImpl {
           return;
         }
 
-        final session = await AudioSession.instance;
-
-        await session.configure(
-          const AudioSessionConfiguration(
-            androidAudioAttributes: AndroidAudioAttributes(
-              usage: AndroidAudioUsage.voiceCommunication,
-              flags: AndroidAudioFlags.none,
-              contentType: AndroidAudioContentType.speech,
-            ),
-          ),
-        );
-
         switch (speaker) {
           case AudioSpeakerKind.headphones:
-            await AndroidAudioManager().setMode(
-              AndroidAudioHardwareMode.inCommunication,
-            );
             await AndroidAudioManager().startBluetoothSco();
             await AndroidAudioManager().setBluetoothScoOn(true);
             break;
 
           case AudioSpeakerKind.speaker:
-            await AndroidAudioManager().requestAudioFocus(
-              const AndroidAudioFocusRequest(
-                gainType: AndroidAudioFocusGainType.gain,
-                audioAttributes: AndroidAudioAttributes(
-                  contentType: AndroidAudioContentType.music,
-                  usage: AndroidAudioUsage.media,
-                ),
-              ),
-            );
-            await AndroidAudioManager().setMode(
-              AndroidAudioHardwareMode.inCall,
-            );
             await AndroidAudioManager().stopBluetoothSco();
             await AndroidAudioManager().setBluetoothScoOn(false);
             await AndroidAudioManager().setSpeakerphoneOn(true);
             break;
 
           case AudioSpeakerKind.earpiece:
-            await AndroidAudioManager().setMode(
-              AndroidAudioHardwareMode.inCommunication,
-            );
             await AndroidAudioManager().stopBluetoothSco();
             await AndroidAudioManager().setBluetoothScoOn(false);
             await AndroidAudioManager().setSpeakerphoneOn(false);
@@ -311,11 +487,30 @@ class AudioUtilsImpl {
         }
       });
     });
+  }
 
-    // If the [_speaker] was changed while setting the output device then
-    // call [_setSpeaker] again.
-    if (speaker != _speaker) {
-      _setSpeaker();
+  /// Invokes a [MediaUtilsImpl.setOutputDevice] method.
+  Future<void> _setOutputDevice() async {
+    // If the [_mutex] is locked, the output device is already being set.
+    if (_mutex.isLocked) {
+      return;
+    }
+
+    final String? deviceId = outputDevice.value?.deviceId();
+    if (deviceId == null) {
+      return;
+    }
+
+    await _outputGuard.protect(() async {
+      await _mutex.protect(() async {
+        await MediaUtils.setOutputDevice(deviceId);
+      });
+    });
+
+    // If the [outputDeviceId] was changed while setting the output device
+    // then call [_setOutputDevice] again.
+    if (deviceId != outputDevice.value?.deviceId()) {
+      _setOutputDevice();
     }
   }
 }
@@ -391,6 +586,45 @@ class UrlAudioSource extends AudioSource {
 
   @override
   bool operator ==(Object other) => other is UrlAudioSource && other.url == url;
+}
+
+/// Mode, in which [AudioUtils] should currently operate in.
+enum AudioMode {
+  sound,
+  call,
+  music,
+  ringtone,
+  video;
+
+  bool get needsMic => switch (this) {
+    AudioMode.sound ||
+    AudioMode.music ||
+    AudioMode.ringtone ||
+    AudioMode.video => false,
+    AudioMode.call => true,
+  };
+}
+
+/// Intent for the [AudioUtils] to operate in the provided [AudioMode].
+class _AudioIntent {
+  _AudioIntent(this.mode, {this.speaker});
+
+  /// [_IntentId] of this [_AudioIntent].
+  final _IntentId id = _IntentId.generate();
+
+  /// [AudioMode] itself.
+  final AudioMode mode;
+
+  /// [AudioSpeakerKind] to prefer when this [_AudioIntent] is active.
+  final AudioSpeakerKind? speaker;
+}
+
+/// Unique ID of an [_AudioIntent].
+class _IntentId extends NewType<String> {
+  const _IntentId(super.val);
+
+  /// Constructs a random [_IntentId].
+  _IntentId.generate() : super(const Uuid().v4());
 }
 
 /// Extension adding conversion from an [AudioSource] to a [Media] or

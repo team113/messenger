@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -102,6 +102,17 @@ class CommonDatabase extends _$CommonDatabase {
           bool migrated = false;
 
           try {
+            if (to >= 8 && from <= 7) {
+              await m.alterTable(
+                TableMigration(
+                  settings,
+                  columnTransformer: {settings.logLevel: Constant(1)},
+                  newColumns: [settings.logLevel],
+                ),
+              );
+              migrated = true;
+            }
+
             if (to >= 7 && from <= 6) {
               await m.addColumn(settings, settings.videoVolume);
               migrated = true;
@@ -306,6 +317,17 @@ class ScopedDatabase extends _$ScopedDatabase {
           bool migrated = false;
 
           try {
+            if (to >= 4 && from <= 3) {
+              await m.alterTable(
+                TableMigration(
+                  sessions,
+                  columnTransformer: {sessions.siteDomain: Constant('')},
+                  newColumns: [sessions.siteDomain],
+                ),
+              );
+              migrated = true;
+            }
+
             if (to >= 3 && from <= 2) {
               await m.addColumn(chats, chats.isArchived);
               migrated = true;

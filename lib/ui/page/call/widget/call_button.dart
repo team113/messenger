@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -38,6 +38,8 @@ class CallButtonWidget extends StatelessWidget {
     this.border,
     this.constrained = false,
     bool big = false,
+    this.builder = _defaultBuilder,
+    this.shadows = false,
   }) : size = constrained
            ? null
            : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
@@ -76,6 +78,12 @@ class CallButtonWidget extends StatelessWidget {
   /// Border style of this [CallButtonWidget].
   final BoxBorder? border;
 
+  /// Builder building the [asset] and the rounded button around it.
+  final Widget Function(BuildContext context, Widget child) builder;
+
+  /// Indicator whether the [hint] should be displayed with shadows or not.
+  final bool shadows;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -98,7 +106,12 @@ class CallButtonWidget extends StatelessWidget {
         showText: expanded,
         border: border,
         onPressed: onPressed,
+        builder: builder,
+        shadows: shadows,
       ),
     );
   }
+
+  /// Returns the [child].
+  static Widget _defaultBuilder(BuildContext context, Widget child) => child;
 }

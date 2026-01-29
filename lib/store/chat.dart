@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -1008,13 +1008,16 @@ class ChatRepository extends DisposableInterface
     ChatMessageText? previousText;
     List<Attachment>? previousAttachments;
     List<ChatItemQuote>? previousReplies;
+
     if (item?.value is ChatMessage) {
       previousText = (item?.value as ChatMessage).text;
       previousAttachments = (item?.value as ChatMessage).attachments;
       previousReplies = (item?.value as ChatMessage).repliesTo;
 
       item?.update((c) {
-        (c as ChatMessage).text = text != null ? text.changed : previousText;
+        c as ChatMessage;
+
+        c.text = text != null ? text.changed : previousText;
         c.attachments = attachments?.changed ?? previousAttachments!;
         c.repliesTo =
             repliesTo?.changed
@@ -1309,10 +1312,24 @@ class ChatRepository extends DisposableInterface
 
     if (attachment.upload.value?.isCompleted != false) {
       attachment.upload.value = Completer();
+      attachment.upload.value?.future.catchError((e) {
+        Log.debug(
+          'uploadAttachment($attachment) -> upload -> catchError($e)',
+          '$runtimeType',
+        );
+        return null;
+      });
     }
 
     if (attachment.read.value?.isCompleted != false) {
       attachment.read.value = Completer();
+      attachment.read.value?.future.catchError((e) {
+        Log.debug(
+          'uploadAttachment($attachment) -> read -> catchError($e)',
+          '$runtimeType',
+        );
+        return null;
+      });
     }
 
     attachment.status.value = SendingStatus.sending;
@@ -1485,6 +1502,8 @@ class ChatRepository extends DisposableInterface
         case ForwardChatItemsErrorCode.unknownForwardedItem:
         case ForwardChatItemsErrorCode.unknownAttachment:
         case ForwardChatItemsErrorCode.artemisUnknown:
+        case ForwardChatItemsErrorCode.disabledDonation:
+        case ForwardChatItemsErrorCode.tooSmallDonation:
           rethrow;
 
         case ForwardChatItemsErrorCode.unknownChat:
@@ -1705,9 +1724,9 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Adds the provided [ChatCall] to the [AbstractCallRepository].
-  void addCall(ChatCall call, {bool dontAddIfAccounted = false}) {
+  Future<void> addCall(ChatCall call, {bool dontAddIfAccounted = false}) async {
     Log.debug('addCall($call, $dontAddIfAccounted)', '$runtimeType');
-    _callRepo.add(call, dontAddIfAccounted: dontAddIfAccounted);
+    await _callRepo.add(call, dontAddIfAccounted: dontAddIfAccounted);
   }
 
   /// Ends an [OngoingCall] happening in the [Chat] identified by the provided
@@ -2294,6 +2313,10 @@ class ChatRepository extends DisposableInterface
     _remoteArchiveSubscription?.close(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteArchiveSubscription = StreamQueue(_archiveChatsRemoteEvents());
       await _remoteArchiveSubscription!.execute(
         _archiveChatsRemoteEvent,
@@ -3024,6 +3047,10 @@ class ChatRepository extends DisposableInterface
     _favoriteChatsSubscription?.cancel();
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _favoriteChatsSubscription = StreamQueue(
         _favoriteChatsEvents(
           () => _sessionLocal.data[me]?.favoriteChatsListVersion,

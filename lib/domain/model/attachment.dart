@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -181,7 +181,7 @@ class FileAttachment extends Attachment {
 
   @override
   String toString() =>
-      'FileAttachment(id: $id, size: ${original.size}, filename: $filename)';
+      'FileAttachment(id: $id, size: ${original.size}, filename: $filename, downloading: $downloading)';
 }
 
 /// Unique ID of an [Attachment].

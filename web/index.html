@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
- Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+ Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
                        <https://github.com/team113>
 
  This program is free software: you can redistribute it and/or modify it under
@@ -118,9 +118,7 @@
   </script>
 </head>
 
-<!-- TODO: Remove `oncontextmenu` when WebAssembly performance is fixed -->
-
-<body oncontextmenu="return false;">
+<body>
   <!-- Initialize HLS plugin required for `video_player_web_hls` -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" type="application/javascript"></script>
 
@@ -130,14 +128,16 @@
   <!-- Initialize `medea_jason` JS code -->
   <script type="module">
     import init, {
-      Jason,
-      MediaStreamSettings,
       DeviceAudioTrackConstraints,
       DeviceVideoTrackConstraints,
+      DisplayAudioTrackConstraints,
       DisplayVideoTrackConstraints,
       FacingMode,
+      Jason,
       MediaKind,
-      MediaSourceKind
+      MediaSourceKind,
+      MediaStreamSettings,
+      set_log_level
     } from '/assets/packages/medea_jason/assets/pkg/medea_jason.js?v={{flutter_service_worker_version}}';
 
     window.jasonLoaded = (async () => {
@@ -145,11 +145,13 @@
       window.Jason = Jason;
       window.MediaStreamSettings = MediaStreamSettings;
       window.DeviceAudioTrackConstraints = DeviceAudioTrackConstraints;
+      window.DisplayAudioTrackConstraints = DisplayAudioTrackConstraints;
       window.DeviceVideoTrackConstraints = DeviceVideoTrackConstraints;
       window.DisplayVideoTrackConstraints = DisplayVideoTrackConstraints;
       window.FacingMode = FacingMode;
       window.MediaKind = MediaKind;
       window.MediaSourceKind = MediaSourceKind;
+      window.set_log_level = set_log_level;
     })();
   </script>
 

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,18 +20,18 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:fvp/fvp.dart' as fvp;
 import 'package:get/get.dart';
 import 'package:just_audio_media_kit/just_audio_media_kit.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:pwa_install/pwa_install.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:video_player_media_kit/video_player_media_kit.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'api/backend/schema.dart';
@@ -67,6 +67,7 @@ import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/age.dart';
+import 'ui/worker/audio.dart';
 import 'ui/worker/cache.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/log.dart';
@@ -74,9 +75,12 @@ import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
 import 'util/backoff.dart';
 import 'util/get.dart';
+import 'util/linux_utils.dart';
 import 'util/log.dart';
+import 'util/macos_utils.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
+import 'util/windows_utils.dart';
 
 /// Entry point of this application.
 Future<void> main() async {
@@ -95,6 +99,25 @@ Future<void> main() async {
       );
 
       Log.maxLogs = Config.logAmount;
+
+      if (Config.redirectStdOut && !PlatformUtils.isWeb) {
+        if (PlatformUtils.isMacOS) {
+          MacosUtils.redirectStdOut().onError(
+            (e, _) =>
+                Log.warning('Unable to `MacosUtils.redirectStdOut()` -> $e'),
+          );
+        } else if (PlatformUtils.isLinux) {
+          LinuxUtils.redirectStdOut().onError(
+            (e, _) =>
+                Log.warning('Unable to `LinuxUtils.redirectStdOut()` -> $e'),
+          );
+        } else if (PlatformUtils.isWindows) {
+          WindowsUtils.redirectStdOut().onError(
+            (e, _) =>
+                Log.warning('Unable to `WindowsUtils.redirectStdOut()` -> $e'),
+          );
+        }
+      }
 
       // No need to initialize the Sentry if no DSN is provided, otherwise
       // useless messages are printed to the console every time the application
@@ -209,18 +232,19 @@ Future<void> main() async {
 Future<void> _runApp() async {
   WebUtils.registerWith();
 
-  VideoPlayerMediaKit.ensureInitialized(
-    android: false,
-    web: false,
+  fvp.registerWith(
+    options: {
+      'platforms': [
+        // `AVPlayer` used by `video_player` does not support parsing URLs
+        // without file extension in it.
+        'ios',
+        'macos',
 
-    // `AVPlayer` used by `video_player` does not support parsing URLs without
-    // file extension in it.
-    iOS: true,
-    macOS: true,
-
-    // `video_player` does not support neither Windows nor Linux.
-    windows: true,
-    linux: true,
+        // `video_player` does not support neither Windows nor Linux.
+        'windows',
+        'linux',
+      ],
+    },
   );
 
   JustAudioMediaKit.ensureInitialized(
@@ -345,6 +369,7 @@ Future<void> _runApp() async {
   Get.put(UpgradeWorker(Get.findOrNull<SkippedVersionDriftProvider>()));
   Get.put(LogWorker(Get.findOrNull<LogFileProvider>()));
   Get.put(AgeWorker());
+  Get.put(AudioWorker());
 
   WebUtils.deleteLoader();
 

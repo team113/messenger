@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/user.dart';
@@ -623,6 +623,8 @@ class PostChatMessageException
       case PostChatMessageErrorCode.wrongReplyingChatItemsCount:
       case PostChatMessageErrorCode.unknownChat:
       case PostChatMessageErrorCode.unknownUser:
+      case PostChatMessageErrorCode.disabledDonation:
+      case PostChatMessageErrorCode.tooSmallDonation:
         return toString();
 
       case PostChatMessageErrorCode.artemisUnknown:
@@ -1183,6 +1185,8 @@ class ForwardChatItemsException
       case ForwardChatItemsErrorCode.unsupportedForwardedItem:
       case ForwardChatItemsErrorCode.unknownAttachment:
       case ForwardChatItemsErrorCode.unknownForwardedItem:
+      case ForwardChatItemsErrorCode.disabledDonation:
+      case ForwardChatItemsErrorCode.tooSmallDonation:
         return toString();
 
       case ForwardChatItemsErrorCode.artemisUnknown:

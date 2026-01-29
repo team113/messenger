@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -138,17 +138,20 @@ enum ProfileTab {
   public,
   signing,
   link,
-  media,
   welcome,
   notifications,
-  storage,
   confidential,
-  interface,
   devices,
+
+  interface,
+  media,
+  storage,
   download,
-  legal,
-  danger,
+
   support,
+  legal,
+
+  danger,
   logout,
 }
 
@@ -668,7 +671,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   );
               deps.put<SessionService>(SessionService(sessionRepository));
 
-              deps.put(MyUserService(Get.find(), myUserRepository));
+              final myUserService = deps.put(
+                MyUserService(Get.find(), myUserRepository),
+              );
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
 
@@ -682,6 +687,20 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callService.onChatRemoved = chatRepository.remove;
 
               deps.put(BlocklistService(blocklistRepository));
+
+              deps.put(
+                CallWorker(
+                  callService,
+                  chatService,
+                  myUserService,
+                  null,
+                  Get.find(),
+                  settingsRepository,
+                  graphQlProvider,
+                  Get.find(),
+                  sessionRepository,
+                ),
+              );
 
               return deps;
             },
@@ -1074,11 +1093,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   callService,
                   chatService,
                   myUserService,
-                  Get.find(),
+                  notificationService,
                   Get.find(),
                   settingsRepository,
                   graphQlProvider,
                   Get.find(),
+                  sessionRepository,
                 ),
               );
 

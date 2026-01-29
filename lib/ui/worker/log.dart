@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,7 +30,7 @@ import '/util/log.dart';
 import '/util/obs/obs.dart';
 
 /// Worker opening [LogView] modal.
-class LogWorker extends DisposableService {
+class LogWorker extends Dependency {
   LogWorker(this._logProvider);
 
   /// Optional [LogFileProvider] to write [Log]s to a [File].
@@ -74,7 +74,8 @@ class LogWorker extends DisposableService {
   /// Opens the [LogView] modal on tilde key presses.
   bool _consoleListener(KeyEvent event) {
     if (event is KeyDownEvent) {
-      if (event.logicalKey == LogicalKeyboardKey.tilde) {
+      if (event.logicalKey == LogicalKeyboardKey.tilde ||
+          event.physicalKey == PhysicalKeyboardKey.backquote) {
         if (TextFieldState.focuses.isEmpty) {
           if (router.obscuring.any((e) => e.settings.name == 'LogView')) {
             Navigator.of(router.context!).pop();

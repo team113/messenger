@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -134,6 +134,9 @@ class RxUserImpl extends RxUser {
   /// [Worker] reacting on [User] changes.
   Worker? _worker;
 
+  /// Indicator whether this [RxUserImpl] has invoked [dispose] or not.
+  bool _disposed = false;
+
   @override
   Rx<RxChat?> get dialog {
     final ChatId dialogId = user.value.dialog;
@@ -160,6 +163,7 @@ class RxUserImpl extends RxUser {
   void dispose() {
     Log.debug('dispose()', '$runtimeType($id)');
 
+    _disposed = true;
     _lastSeenTimer?.cancel();
     _worker?.dispose();
     _localSubscription?.cancel();
@@ -172,6 +176,10 @@ class RxUserImpl extends RxUser {
     _remoteSubscription?.close(immediate: true);
 
     await WebUtils.protect(() async {
+      if (_disposed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(
         await _userRepository.userEvents(
           id,

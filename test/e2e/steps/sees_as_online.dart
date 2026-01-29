@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,15 +33,19 @@ final StepDefinitionGeneric seesAs =
           ..client.withWebSocket = false
           ..token = context.world.sessions[user1.name]?.token;
 
-        await context.world.appDriver.waitUntil(() async {
-          var response = await provider.getUser(
-            context.world.sessions[user2.name]!.userId,
-          );
-          var user = response.user?.toModel();
+        await context.world.appDriver.waitUntil(
+          () async {
+            final response = await provider.getUser(
+              context.world.sessions[user2.name]!.userId,
+            );
+            final user = response.user?.toModel();
 
-          return (status == OnlineStatus.online && user?.online == true) ||
-              (status == OnlineStatus.offline && user?.online == false);
-        }, pollInterval: const Duration(seconds: 1));
+            return (status == OnlineStatus.online && user?.online == true) ||
+                (status == OnlineStatus.offline && user?.online == false);
+          },
+          timeout: const Duration(seconds: 30),
+          pollInterval: const Duration(seconds: 1),
+        );
 
         provider.disconnect();
       },

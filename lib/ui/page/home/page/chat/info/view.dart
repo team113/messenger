@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -512,6 +512,11 @@ class ChatInfoView extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_leave_group'.l10n,
       description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
+      button: (context) => MessagePopup.deleteButton(
+        context,
+        icon: SvgIcons.leaveGroupWhite,
+        label: 'btn_leave'.l10n,
+      ),
     );
 
     if (result == true) {

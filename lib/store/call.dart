@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -775,8 +775,6 @@ class CallRepository extends DisposableInterface
 
   /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
   ChatCallEvent _callEvent(ChatCallEventsVersionedMixin$Events e) {
-    Log.trace('_callEvent($e)', '$runtimeType');
-
     if (e.$$typename == 'EventChatCallFinished') {
       final node =
           e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
@@ -977,6 +975,10 @@ class CallRepository extends DisposableInterface
     _remoteSubscription?.cancel(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(_incomingEvents(count));
       await _remoteSubscription!.execute(_incomingChatCallsTopEvent);
     }, tag: 'incomingCalls');
@@ -986,16 +988,28 @@ class CallRepository extends DisposableInterface
   Future<void> _incomingChatCallsTopEvent(IncomingChatCallsTopEvent e) async {
     switch (e.kind) {
       case IncomingChatCallsTopEventKind.initialized:
-        // No-op.
+        Log.debug('_incomingChatCallsTopEvent(${e.kind.name})', '$runtimeType');
         break;
 
       case IncomingChatCallsTopEventKind.list:
         e as IncomingChatCallsTop;
+
+        Log.debug(
+          '_incomingChatCallsTopEvent(${e.kind.name}) -> ${e.list}',
+          '$runtimeType',
+        );
+
         e.list.forEach(add);
         break;
 
       case IncomingChatCallsTopEventKind.added:
         e as EventIncomingChatCallsTopChatCallAdded;
+
+        Log.debug(
+          '_incomingChatCallsTopEvent(${e.kind.name}) -> ${e.call}',
+          '$runtimeType',
+        );
+
         if (!_accountedCalls.containsKey(e.call.id)) {
           add(e.call);
         }
@@ -1003,6 +1017,12 @@ class CallRepository extends DisposableInterface
 
       case IncomingChatCallsTopEventKind.removed:
         e as EventIncomingChatCallsTopChatCallRemoved;
+
+        Log.debug(
+          '_incomingChatCallsTopEvent(${e.kind.name}) -> ${e.call}',
+          '$runtimeType',
+        );
+
         final Rx<OngoingCall>? call = calls[e.call.chatId];
         // If call is not yet connected to remote updates, then it's still
         // just a notification and it should be removed.

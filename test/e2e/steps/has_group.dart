@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -220,9 +220,14 @@ final StepDefinitionGeneric hasGroupWithMembers =
           ..client.withWebSocket = false
           ..token = context.world.sessions[user.name]?.token;
 
-        final List<CustomUser> users = await Future.wait(
-          List.generate(count - 1, (_) => createUser()),
-        );
+        final List<CustomUser> users = [];
+
+        for (int i = 0; i < count; ++i) {
+          users.add(await createUser());
+
+          // Reduce possible request spam.
+          await Future.delayed(Duration(milliseconds: 250));
+        }
 
         final chat = await provider.createGroupChat(
           users.map((e) => e.userId).toList(),

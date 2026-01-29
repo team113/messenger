@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart';
 
 import '../../controller.dart';
 import '../call_cover.dart';
@@ -75,7 +76,9 @@ class ParticipantWidget extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      bool hasVideo = participant.video.value?.renderer.value != null;
+      bool hasVideo =
+          participant.video.value?.renderer.value != null &&
+          participant.member.hasVideo.value;
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
@@ -159,7 +162,12 @@ class ParticipantWidget extends StatelessWidget {
                   child: child,
                 );
               }),
-              RaisedHand(participant.member.isHandRaised.value),
+              ?switch (participant.source) {
+                MediaSourceKind.device => RaisedHand(
+                  participant.member.isHandRaised.value,
+                ),
+                MediaSourceKind.display => null,
+              },
             ],
           ),
         ),

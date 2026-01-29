@@ -1,4 +1,4 @@
-# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -181,6 +181,7 @@ btn_info = Información
 btn_install_android = Archivo .apk para Android
 btn_install_ios = Archivo .ipa para iOS
 btn_install_web_app = Instalar la aplicación web
+btn_leave = Salir
 btn_leave_group = Salir del grupo
 btn_login_and_password = Usuario y contraseña
 btn_logout = Salir
@@ -201,6 +202,7 @@ btn_paste = Pegar
 btn_proceed = Continuar
 btn_previous = Previo
 btn_read_all = Leer todo
+btn_reconnect_call = Reconectar llamada
 btn_refresh_page = Actualizar la página
 btn_remove_account = Eliminar cuenta de la lista
 btn_reply = Responder
@@ -223,6 +225,7 @@ btn_send_application = Enviar solicitud
 btn_send_one_time_code = Enviar código desechable
 btn_set_password = Configurar contraseña
 btn_share = Compartir
+btn_share_audio = Compartir audio
 btn_show_chat = Mostrar el chat
 btn_sign_in = Ingresar
 btn_sign_up = Crear una cuenta
@@ -444,7 +447,10 @@ label_account_has_been_signed_out_due_to_reasons2 =
 
     No se ha configurado la contraseña ni el e-mail para esta cuenta. No es posible ingresar.
 label_accounts = Sus cuentas
+label_actions = Acciones
 label_account_created = La cuenta ha sido creada
+label_account_may_be_lost = La cuenta puede perderse
+label_account_settings = Configuración de la cuenta
 label_active_account = Online
 label_active_devices = Dispositivos activos
 label_active_sessions = Sesiones activas
@@ -503,6 +509,7 @@ label_also_delete_for_everyone = También eliminar para todas
 label_always_muted = Siempre silenciados
 label_amount_k = {$amount}k
 label_application = Aplicación
+label_attention = Atención
 label_audio_call =
     Llamada de audio{$by ->
         [x]{""}
@@ -608,6 +615,7 @@ label_delete_messages = ¿Eliminar los mensajes?
 label_deleted_account = Cuenta Eliminada
 label_desktop_apps = Aplicaciones para computadora
 label_device_by_default = Por defecto - {$device}
+label_device_settings = Configuración del dispositivo
 label_dialog_created = Diálogo creado
 label_dialog_created_by_link = Diálogo creado mediante enlace directo
 label_direct_chat_link = Invitar al grupo
@@ -757,6 +765,7 @@ label_num = Gapopa ID
 label_occupied_space = Ocupado
 label_offline = fuera de línea
 label_one_time_password = Código desechable
+label_ongoing_audio_and_video_may_be_blocked = El sistema operativo de su dispositivo puede bloquear el audio y el video salientes cuando la aplicación está en segundo plano
 label_online = en línea
 label_open_calls_in_app = En la misma ventana
 label_open_calls_in_window = En una ventana separada
@@ -932,6 +941,7 @@ label_user_added_user = {$author} agregó {$user}
 label_user_added_user1 = {$author}{" "}
 label_user_added_user2 = agregó
 label_user_added_user3 = {" "}{$user}
+label_user_agent_dot_site = {$application} • {$site}
 label_user_is_blocked = Usuario bloqueado
 label_user_removed_user = {$author} eliminó {$user}
 label_user_removed_user1 = {$author}{" "}

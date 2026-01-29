@@ -1,4 +1,4 @@
-# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -181,6 +181,7 @@ btn_info = Информация
 btn_install_android = .apk файл для Android
 btn_install_ios = .ipa файл для iOS
 btn_install_web_app = Установить Веб приложение
+btn_leave = Покинуть
 btn_leave_group = Покинуть группу
 btn_login_and_password = Логин и пароль
 btn_logout = Выйти
@@ -201,6 +202,7 @@ btn_paste = Вставить
 btn_proceed = Продолжить
 btn_previous = Предыдущее
 btn_read_all = Прочитать все
+btn_reconnect_call = Переподключить звонок
 btn_refresh_page = Обновить страницу
 btn_remove_account = Удалить аккаунт из списка
 btn_reply = Ответить
@@ -223,6 +225,7 @@ btn_send_application = Отправить заявку
 btn_send_one_time_code = Отправить одноразовый код
 btn_set_password = Установить пароль
 btn_share = Поделиться
+btn_share_audio = Транслировать звук
 btn_show_chat = Показать чат
 btn_sign_in = Войти
 btn_sign_up = Создать аккаунт
@@ -447,7 +450,10 @@ label_account_has_been_signed_out_due_to_reasons2 =
 
     Пароль или e-mail не были установлены для этого аккаунта. Вход невозможен.
 label_accounts = Ваши аккаунты
+label_actions = Действия
 label_account_created = Аккаунт создан
+label_account_may_be_lost = Аккаунт может быть утерян
+label_account_settings = Настройки аккаунта
 label_active_account = Онлайн
 label_active_devices = Активные устройства
 label_active_sessions = Активные сессии
@@ -516,6 +522,7 @@ label_also_delete_for_everyone = Также удалить для всех
 label_always_muted = Всегда беззвучные
 label_amount_k = {$amount}k
 label_application = Приложение
+label_attention = Внимание
 label_audio_call = Аудиозвонок{$by ->
         [x]{""}
         *[other] {" "}от {$by}
@@ -620,6 +627,7 @@ label_deleted_account = Удалённый Aккаунт
 label_delete_messages = Удалить сообщения?
 label_desktop_apps = Приложения для компьютера
 label_device_by_default = По умолчанию - {$device}
+label_device_settings = Device settings
 label_dialog_created = Диалог создан
 label_dialog_created_by_link = Диалог создан по прямой ссылке
 label_direct_chat_link = Пригласить в группу
@@ -768,6 +776,7 @@ label_num = Gapopa ID
 label_occupied_space = Занято
 label_offline = офлайн
 label_one_time_password = Одноразовый код
+label_ongoing_audio_and_video_may_be_blocked = Микрофон и камера могут блокироваться операционной системой Вашего устройства при переходе приложения в фоновый режим.
 label_online = онлайн
 label_open_calls_in_app = В том же окне
 label_open_calls_in_window = В отдельном окне
@@ -946,6 +955,7 @@ label_user_added_user = {$author} добавил(а) {$user}
 label_user_added_user1 = {$author}{" "}
 label_user_added_user2 = добавил(а)
 label_user_added_user3 = {" "}{$user}
+label_user_agent_dot_site = {$application} • {$site}
 label_user_is_blocked = Пользователь заблокирован
 label_user_removed_user = {$author} удалил(а) {$user}
 label_user_removed_user1 = {$author}{" "}

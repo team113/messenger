@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -87,7 +87,12 @@ class SessionTileWidget extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    session.userAgent.application,
+                    session.siteDomain.val.isEmpty
+                        ? session.userAgent.application
+                        : 'label_user_agent_dot_site'.l10nfmt({
+                            'application': session.userAgent.application,
+                            'site': session.siteDomain.val,
+                          }),
                     style: style.fonts.small.regular.onBackground,
                   ),
                   SizedBox(height: 4),

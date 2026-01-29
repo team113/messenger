@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart' hide ChatMessageTextInput;
 import 'package:messenger/api/backend/schema.dart' as api;
 import 'package:messenger/config.dart';
@@ -338,6 +338,7 @@ void main() async {
         ip: IpAddress('localhost'),
         userAgent: UserAgent(''),
         lastActivatedAt: PreciseDateTime.now(),
+        siteDomain: SiteDomain(''),
       ),
       const UserId('me'),
     ),
@@ -485,7 +486,10 @@ void main() async {
     await tester.tap(find.byKey(const Key('EditMessageButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.enterText(find.byKey(const Key('MessageField')), 'new text');
+    await tester.enterText(
+      find.byKey(const Key('EditMessageField')),
+      'new text',
+    );
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.testTextInput.receiveAction(TextInputAction.done);

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,7 +26,7 @@ import '/util/web/web_utils.dart';
 
 /// Worker responsible for updating the [RouterState.prefix] with the
 /// [MyUser.unreadChatsCount].
-class MyUserWorker extends DisposableService {
+class MyUserWorker extends Dependency {
   MyUserWorker(this._myUser);
 
   /// [MyUserService], used to listen to the [MyUser] changes.

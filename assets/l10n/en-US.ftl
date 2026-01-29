@@ -1,4 +1,4 @@
-# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -181,6 +181,7 @@ btn_info = Information
 btn_install_android = .apk file for Android
 btn_install_ios = .ipa file for iOS
 btn_install_web_app = Install Web App
+btn_leave = Leave
 btn_leave_group = Leave group
 btn_login_and_password = Login and password
 btn_logout = Sign out
@@ -201,6 +202,7 @@ btn_paste = Paste
 btn_proceed = Proceed
 btn_previous = Previous
 btn_read_all = Read all
+btn_reconnect_call = Reconnect call
 btn_refresh_page = Refresh page
 btn_remove_account = Remove account from the list
 btn_reply = Reply
@@ -223,6 +225,7 @@ btn_send_application = Send an application
 btn_send_one_time_code = Send one-time code
 btn_set_password = Set password
 btn_share = Share
+btn_share_audio = Share audio
 btn_show_chat = Unhide chat
 btn_sign_in = Sign in
 btn_sign_up = Create an account
@@ -443,7 +446,10 @@ label_account_has_been_signed_out_due_to_reasons2 =
 
     Password or e-mail has not been set for this account. Sign in is impossible.
 label_account_created = Account is created
+label_account_may_be_lost = Account may be lost
+label_account_settings = Account settings
 label_accounts = Your accounts
+label_actions = Actions
 label_active_account = Online
 label_active_devices = Active devices
 label_active_sessions = Active sessions
@@ -500,6 +506,7 @@ label_also_delete_for_everyone = Also delete for everyone
 label_always_muted = Always muted
 label_amount_k = {$amount}k
 label_application = Application
+label_attention = Attention
 label_audio_call = Audio call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
@@ -603,6 +610,7 @@ label_delete_messages = Delete messages?
 label_deleted_account = Deleted Account
 label_desktop_apps = Desktop apps
 label_device_by_default = By default - {$device}
+label_device_settings = Device settings
 label_dialog_created = Dialog created
 label_dialog_created_by_link = Dialog created via direct link
 label_direct_chat_link = Invite to the group
@@ -751,6 +759,7 @@ label_num = Gapopa ID
 label_occupied_space = Occupied
 label_offline = offline
 label_one_time_password = One-time code
+label_ongoing_audio_and_video_may_be_blocked = Outgoing audio and video may be blocked by your device's operating system when the app is in the background
 label_online = online
 label_open_calls_in_app = In the same window
 label_open_calls_in_window = In a separate window
@@ -926,6 +935,7 @@ label_user_added_user = {$author} added {$user}
 label_user_added_user1 = {$author}{" "}
 label_user_added_user2 = added
 label_user_added_user3 = {" "}{$user}
+label_user_agent_dot_site = {$application} • {$site}
 label_user_is_blocked = User is blocked
 label_user_removed_user = {$author} removed {$user}
 label_user_removed_user1 = {$author}{" "}

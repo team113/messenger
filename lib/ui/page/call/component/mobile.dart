@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -618,15 +618,17 @@ Widget mobileCall(CallController c, BuildContext context) {
                   AcceptAudioButton(
                     c,
                     highlight: !c.withVideo,
+                    shadows: true,
                   ).build(expanded: true),
                 ),
                 padding(
                   AcceptVideoButton(
                     c,
                     highlight: c.withVideo,
+                    shadows: true,
                   ).build(expanded: true),
                 ),
-                padding(DeclineButton(c).build(expanded: true)),
+                padding(DeclineButton(c, shadows: true).build(expanded: true)),
               ];
             }
 

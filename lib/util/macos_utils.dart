@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,5 +27,10 @@ class MacosUtils {
     return await _platform.invokeMethod('cancelNotificationsContaining', {
       'thread': thread,
     });
+  }
+
+  /// Redirects `stdout` and `stderr` streams to a `app.log` file.
+  static Future<void> redirectStdOut() async {
+    await _platform.invokeMethod('redirectStdOut');
   }
 }
