@@ -25,11 +25,16 @@ class AudioUtilsMock extends AudioUtilsImpl {
   void ensureInitialized() {}
 
   @override
-  Future<void> once(AudioSource sound, {double? volume}) async {}
+  Future<void> once(
+    AudioSource sound, {
+    double? volume,
+    AudioMode? mode = AudioMode.sound,
+  }) async {}
 
   @override
   StreamSubscription<void> play(
     AudioSource music, {
     Duration fade = Duration.zero,
+    AudioMode mode = AudioMode.music,
   }) => StreamController().stream.listen((_) {});
 }

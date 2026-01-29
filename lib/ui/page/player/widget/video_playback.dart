@@ -24,8 +24,10 @@ import 'package:video_player/video_player.dart';
 
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/util/audio_utils.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
+import '/util/media_utils.dart';
 import '/util/platform_utils.dart';
 
 /// Video player with controls.
@@ -90,11 +92,19 @@ class _VideoPlaybackState extends State<VideoPlayback> {
   /// Current volume of a video.
   double? _volume;
 
+  /// [StreamSubscription] to [AudioUtilsImpl.acquire] with [AudioMode.video].
+  StreamSubscription? _intent;
+
   @override
   void initState() {
     _initVideo();
     _ensureReachable();
     _loading = Timer(1.seconds, () => setState(() => _loading = null));
+
+    _intent = AudioUtils.acquire(
+      AudioMode.video,
+      speaker: AudioSpeakerKind.speaker,
+    ).listen((_) {});
 
     super.initState();
   }
@@ -107,6 +117,7 @@ class _VideoPlaybackState extends State<VideoPlayback> {
     _controller?.dispose();
     _cancelToken?.cancel();
     _headerToken?.cancel();
+    _intent?.cancel();
     super.dispose();
   }
 
@@ -178,6 +189,8 @@ class _VideoPlaybackState extends State<VideoPlayback> {
     _controller = VideoPlayerController.networkUrl(
       Uri.parse(widget.url),
       videoPlayerOptions: VideoPlayerOptions(
+        mixWithOthers: true,
+        allowBackgroundPlayback: true,
         webOptions: VideoPlayerWebOptions(
           allowContextMenu: false,
           allowRemotePlayback: false,

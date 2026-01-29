@@ -23,6 +23,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -119,6 +120,9 @@ class CallWorker extends Dependency {
   /// Workers of [OngoingCall.audioState] toggling the
   /// [FlutterCallkitIncoming.muteCall] on iOS devices.
   final Map<ChatId, Worker> _audioWorkers = {};
+
+  /// [StreamSubscription]s to [AudioUtilsImpl.acquire] for [AudioMode.call].
+  final Map<ChatId, StreamSubscription<void>> _intents = {};
 
   /// Subscription to [WebUtils.onStorageChange] [stop]ping the
   /// [_incomingAudio].
@@ -425,6 +429,7 @@ class CallWorker extends Dependency {
             id: id,
             handle: c.chatId.value.val,
             extra: {'chatId': c.chatId.value.val},
+            ios: IOSParams(configureAudioSession: false),
           );
 
           switch (c.state.value) {
@@ -710,6 +715,11 @@ class CallWorker extends Dependency {
       Vibration.cancel();
     }
 
+    for (var e in _intents.values) {
+      e.cancel();
+    }
+    _intents.clear();
+
     _unbindHotKey();
 
     super.onClose();
@@ -723,6 +733,7 @@ class CallWorker extends Dependency {
         _incomingAudio = AudioUtils.play(
           AudioSource.asset('audio/$asset'),
           fade: fade ? 1.seconds : Duration.zero,
+          mode: AudioMode.ringtone,
         );
         previous?.cancel();
         _startVibrating();

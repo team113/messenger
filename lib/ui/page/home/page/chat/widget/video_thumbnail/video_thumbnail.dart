@@ -319,6 +319,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
     try {
       final VideoPlayerOptions options = VideoPlayerOptions(
+        mixWithOthers: true,
+        allowBackgroundPlayback: true,
         webOptions: VideoPlayerWebOptions(
           allowContextMenu: false,
           allowRemotePlayback: false,

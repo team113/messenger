@@ -17,7 +17,7 @@
 
 Feature: Language
 
-  @profile
+  @settings
   Scenario: I can change language of app
     Given I am Alice
     And I wait until `HomeView` is present

@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
   firebase_core
   flutter_custom_cursor
+  fvp
   hotkey_manager_windows
   irondash_engine_context
   medea_flutter_webrtc

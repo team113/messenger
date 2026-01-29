@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
@@ -37,10 +36,10 @@ MediaUtilsImpl MediaUtils = MediaUtilsImpl();
 /// devices, media tracks, etc.
 class MediaUtilsImpl {
   /// ID of the currently used output device.
-  final RxnString outputDeviceId = RxnString();
+  String? _outputDeviceId;
 
   /// [Mutex] guarding synchronized output device updating.
-  final Mutex outputGuard = Mutex();
+  final Mutex _outputGuard = Mutex();
 
   /// [Jason] communicating with the media resources.
   Jason? _jason;
@@ -80,6 +79,15 @@ class MediaUtilsImpl {
           // TODO: So the test would run. Jason currently only supports Web and
           //       Android, and unit tests run on a host machine.
           _jason = null;
+        }
+
+        try {
+          await WebUtils.setupAudioSessionManagement(false);
+        } catch (e) {
+          Log.debug(
+            'Unable to invoke `setupAudioSessionManagement(false)` due to: $e',
+            '$runtimeType',
+          );
         }
 
         WebUtils.onPanic((e) {
@@ -122,11 +130,7 @@ class MediaUtilsImpl {
 
       Future(() async {
         (await _mediaManager)?.onDeviceChange(() async {
-          _devicesController?.add(
-            (await enumerateDevices())
-                .where((e) => e.deviceId().isNotEmpty)
-                .toList(),
-          );
+          _devicesController?.add(await enumerateDevices());
         });
       });
     }
@@ -185,9 +189,10 @@ class MediaUtilsImpl {
     final List<DeviceDetails> devices =
         (await (await _mediaManager)?.enumerateDevices() ?? [])
             .where((e) => e.deviceId().isNotEmpty)
+            .where((e) => !e.isFailed())
             .where((e) => kind == null || e.kind() == kind)
             .whereType<MediaDeviceDetails>()
-            .map((e) => DeviceDetails(e))
+            .map(DeviceDetails.new)
             .toList();
 
     // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.
@@ -200,11 +205,14 @@ class MediaUtilsImpl {
       );
 
       if (hasDefault == null) {
-        final DeviceDetails? device = devices.firstWhereOrNull(
-          (e) => e.kind() == MediaDeviceKind.audioInput,
-        );
-        if (device != null) {
-          devices.insert(0, DefaultDeviceDetails(device));
+        if (PlatformUtils.isDesktop || PlatformUtils.isWeb) {
+          final DeviceDetails? device = devices.firstWhereOrNull(
+            (e) => e.kind() == MediaDeviceKind.audioInput,
+          );
+
+          if (device != null) {
+            devices.insert(0, DefaultDeviceDetails(device));
+          }
         }
       } else {
         // Audio input on mobile devices is handled by `medea_jason`, and we
@@ -224,11 +232,14 @@ class MediaUtilsImpl {
       );
 
       if (!hasDefault) {
-        final DeviceDetails? device = devices.firstWhereOrNull(
-          (e) => e.kind() == MediaDeviceKind.audioOutput,
-        );
-        if (device != null) {
-          devices.insert(0, DefaultDeviceDetails(device));
+        if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
+          final DeviceDetails? device = devices.firstWhereOrNull(
+            (e) => e.kind() == MediaDeviceKind.audioOutput,
+          );
+
+          if (device != null) {
+            devices.insert(0, DefaultDeviceDetails(device));
+          }
         }
       }
     }
@@ -238,8 +249,10 @@ class MediaUtilsImpl {
 
   /// Sets device with [deviceId] as a currently used output device.
   Future<void> setOutputDevice(String deviceId) async {
-    if (outputDeviceId.value != deviceId) {
-      outputDeviceId.value = deviceId;
+    Log.debug('setOutputDevice($deviceId)', '$runtimeType');
+
+    if (_outputDeviceId != deviceId) {
+      _outputDeviceId = deviceId;
       await _setOutputDevice();
     }
   }
@@ -258,24 +271,16 @@ class MediaUtilsImpl {
       return;
     }
 
-    final String deviceId = outputDeviceId.value!;
-    await outputGuard.protect(() async {
+    final String deviceId = _outputDeviceId!;
+    await _outputGuard.protect(() async {
       await _mutex.protect(() async {
-        if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
-          await AVAudioSession().setCategory(
-            AVAudioSessionCategory.playAndRecord,
-            AVAudioSessionCategoryOptions.allowBluetooth,
-            AVAudioSessionMode.voiceChat,
-          );
-        }
-
         await (await _mediaManager)?.setOutputAudioId(deviceId);
       });
     });
 
     // If the [outputDeviceId] was changed while setting the output device
     // then call [_setOutputDevice] again.
-    if (deviceId != outputDeviceId.value) {
+    if (deviceId != _outputDeviceId) {
       _setOutputDevice();
     }
   }
@@ -479,6 +484,9 @@ class DeviceDetails extends MediaDeviceDetails {
   /// [MediaDeviceDetails] actually used by these [DeviceDetails].
   final MediaDeviceDetails _device;
 
+  /// Returns a unique identifier of this [DeviceDetails].
+  String id() => _device.deviceId();
+
   @override
   String deviceId() => _device.deviceId();
 
@@ -507,6 +515,9 @@ class DeviceDetails extends MediaDeviceDetails {
   }
 
   @override
+  AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
+
+  @override
   String toString() => id();
 
   @override
@@ -521,12 +532,6 @@ class DeviceDetails extends MediaDeviceDetails {
         // On Web `default` devices aren't equal.
         (!PlatformUtils.isWeb || deviceId() != 'default');
   }
-
-  /// Returns a unique identifier of this [DeviceDetails].
-  String id() => _device.deviceId();
-
-  @override
-  AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
 }
 
 /// [DeviceDetails] representing a default device.
@@ -544,6 +549,12 @@ class DefaultDeviceDetails extends DeviceDetails {
 
   @override
   String id() => 'default';
+
+  @override
+  AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
+
+  @override
+  bool isFailed() => _device.isFailed();
 }
 
 /// Audio processing noise suppression aggressiveness.

@@ -17,7 +17,7 @@
 
 Feature: User email
 
-  @profile
+  @settings
   Scenario: I can add, confirm and delete email
     Given I am Alice
     And I wait until `HomeView` is present

@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
@@ -452,7 +453,10 @@ class OngoingCall {
       _background = false;
 
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
-        Log.debug('onDeviceChange(${e.map((e) => e.label())})', '$runtimeType');
+        Log.debug(
+          'onDeviceChange(${e.map((e) => e.label()).join(', ')})',
+          '$runtimeType',
+        );
 
         await _devicesGuard.protect(() async {
           if (devices.isEmpty) {
@@ -499,6 +503,33 @@ class OngoingCall {
 
           if (videoChanged) {
             _pickVideoDevice(previous, removed);
+          }
+
+          if (!outputChanged) {
+            if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+              if (outputDevice.value?.speaker == AudioSpeakerKind.headphones) {
+                final AVAudioSessionRouteDescription route =
+                    await AVAudioSession().currentRoute;
+
+                Log.debug(
+                  'onDeviceChange() -> route is ${route.outputs.map((e) => '{id: ${e.uid}, name: ${e.portName}, type: ${e.portType.name}}').join(', ')}',
+                  '$runtimeType',
+                );
+
+                if (route.outputs.none(
+                  (e) => outputDevice.value?.label() == e.portName,
+                )) {
+                  Log.debug(
+                    'onDeviceChange() -> no device with `${outputDevice.value?.label()}` is within `route.outputs`',
+                    '$runtimeType',
+                  );
+
+                  await _pickOutputDevice(
+                    without: [?outputDevice.value?.label()],
+                  );
+                }
+              }
+            }
           }
         });
       });
@@ -1924,33 +1955,13 @@ class OngoingCall {
         // - earpiece (if [videoState] is disabled);
         // - speaker (if [videoState] is enabled).
         if (PlatformUtils.isMobile) {
-          _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
-            outputDevice.value =
-                devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
-                outputDevice.value;
-          });
+          _outputWorker = ever(
+            AudioUtils.outputDevice,
+            (device) => outputDevice.value = device,
+          );
 
           if (outputDevice.value == null) {
-            final Iterable<DeviceDetails> output = devices.output();
-            outputDevice.value = output.firstWhereOrNull(
-              (e) => e.speaker == AudioSpeakerKind.headphones,
-            );
-
-            if (outputDevice.value == null) {
-              final bool speaker = PlatformUtils.isWeb
-                  ? true
-                  : videoState.value.isEnabled;
-
-              if (speaker) {
-                outputDevice.value = output.firstWhereOrNull(
-                  (e) => e.speaker == AudioSpeakerKind.speaker,
-                );
-              }
-
-              outputDevice.value ??= output.firstWhereOrNull(
-                (e) => e.speaker == AudioSpeakerKind.earpiece,
-              );
-            }
+            await _pickOutputDevice();
           }
         } else {
           // On any other platform the output device is the preferred one.
@@ -1959,6 +1970,10 @@ class OngoingCall {
                 (e) => e.id() == _preferredOutputDevice,
               ) ??
               devices.output().firstOrNull;
+
+          if (outputDevice.value != null) {
+            await AudioUtils.setOutputDevice(outputDevice.value!);
+          }
         }
 
         audioDevice.value ??=
@@ -1974,10 +1989,6 @@ class OngoingCall {
         screenDevice.value ??= displays.firstWhereOrNull(
           (e) => e.deviceId() == _preferredScreenDevice,
         );
-
-        if (outputDevice.value != null) {
-          MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
-        }
       });
 
       // First, try to init the local tracks with [_mediaStreamSettings].
@@ -2489,18 +2500,110 @@ class OngoingCall {
   }
 
   /// Picks the [outputDevice] based on the [devices] list.
-  Future<void> _pickOutputDevice() async {
-    Log.debug('_pickOutputDevice()', '$runtimeType');
+  Future<void> _pickOutputDevice({List<String> without = const []}) async {
+    Log.debug('_pickOutputDevice(without: $without)', '$runtimeType');
 
     // TODO: For Android and iOS, default device is __NOT__ the first one.
-    final Iterable<DeviceDetails> output = devices.output();
-    final DeviceDetails? device =
-        output.firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-        output.firstOrNull;
+    final Iterable<DeviceDetails> output = devices.output().whereNot(
+      (e) => without.contains(e.label()),
+    );
 
-    if (device != null && outputDevice.value != device) {
+    DeviceDetails? device = output.firstWhereOrNull(
+      (e) => e.id() == _preferredOutputDevice,
+    );
+
+    Log.debug(
+      '_pickOutputDevice() -> preferred device is `$_preferredOutputDevice`, found -> $device',
+      '$runtimeType',
+    );
+
+    if (PlatformUtils.isMobile) {
+      final Iterable<DeviceDetails> headphones = output.where(
+        (e) => e.speaker == AudioSpeakerKind.headphones,
+      );
+
+      final Iterable<DeviceDetails> speakerphones = output.where(
+        (e) => e.speaker == AudioSpeakerKind.speaker,
+      );
+
+      final Iterable<DeviceDetails> earpieces = output.where(
+        (e) => e.speaker == AudioSpeakerKind.earpiece,
+      );
+
+      device = null;
+      device ??= headphones.firstOrNull;
+
+      final bool anyVideo = members.values.any(
+        (e) => e.tracks.any(
+          (a) => a.kind == MediaKind.video && a.direction.value.isEnabled,
+        ),
+      );
+
+      Log.debug(
+        '_pickOutputDevice() -> videoState(${videoState.value.isEnabled}), anyVideo($anyVideo), withVideo($withVideo)',
+        '$runtimeType',
+      );
+
+      if (videoState.value.isEnabled || anyVideo || withVideo == true) {
+        device ??= speakerphones.firstOrNull;
+      }
+
+      device ??= earpieces.firstOrNull;
+      device ??= output.firstOrNull;
+
+      Log.debug(
+        '_pickOutputDevice() -> ignoring preferred(`$_preferredOutputDevice`), found headphones($headphones), found speakerphones($speakerphones), found earpieces($earpieces) -> result is $device',
+        '$runtimeType',
+      );
+    }
+
+    // Best effort if none was found.
+    device ??= output.firstOrNull;
+
+    Log.debug(
+      '_pickOutputDevice() -> ${device?.id()} (${device?.label()}), current device is `${outputDevice.value}`',
+      '$runtimeType',
+    );
+
+    if (device != null &&
+        (outputDevice.value != device ||
+            device.speaker == AudioSpeakerKind.headphones)) {
       _notifications.add(DeviceChangedNotification(device: device));
+
       await _setOutputDevice(device);
+
+      // On iOS, headphones may still be displayed as "connected" in
+      // `availableInputs` list despite being disconnected. In order to fix
+      // that, we should try to do `setPreferredInput()` with that device, and
+      // if it fails, then we shouldn't consider the device active.
+      if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+        switch (device.speaker) {
+          case AudioSpeakerKind.headphones:
+            try {
+              final Set<AVAudioSessionPortDescription> routes =
+                  await AVAudioSession().availableInputs;
+
+              final AVAudioSessionPortDescription? input = routes
+                  .firstWhereOrNull((e) => device?.label() == e.portName);
+
+              Log.debug('', '$runtimeType');
+              if (input != null) {
+                await AVAudioSession().setPreferredInput(input);
+              }
+            } catch (e) {
+              Log.error(
+                '_pickOutputDevice() -> `_setAudioDevice(${device.label()})` failed with $e',
+                '$runtimeType',
+              );
+            }
+            break;
+
+          case AudioSpeakerKind.earpiece:
+          case AudioSpeakerKind.speaker:
+            // No-op.
+            break;
+        }
+      }
     }
   }
 
@@ -2578,12 +2681,7 @@ class OngoingCall {
       outputDevice.value = device;
 
       try {
-        // [MediaUtils.setOutputDevice] seems to switch the speaker in
-        // [AudioUtils] as well, when [hasRemote] is `true`.
-        await Future.wait([
-          if (!hasRemote) AudioUtils.setSpeaker(device.speaker),
-          MediaUtils.setOutputDevice(device.deviceId()),
-        ]);
+        await AudioUtils.setOutputDevice(device);
       } catch (e) {
         addError(e.toString());
         outputDevice.value = previous;

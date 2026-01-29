@@ -8,6 +8,7 @@
 
 #include <file_selector_linux/file_selector_plugin.h>
 #include <flutter_custom_cursor/flutter_custom_cursor_plugin.h>
+#include <fvp/fvp_plugin.h>
 #include <gtk/gtk_plugin.h>
 #include <hotkey_manager_linux/hotkey_manager_linux_plugin.h>
 #include <irondash_engine_context/irondash_engine_context_plugin.h>
@@ -30,6 +31,9 @@ void fl_register_plugins(FlPluginRegistry* registry) {
   g_autoptr(FlPluginRegistrar) flutter_custom_cursor_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "FlutterCustomCursorPlugin");
   flutter_custom_cursor_plugin_register_with_registrar(flutter_custom_cursor_registrar);
+  g_autoptr(FlPluginRegistrar) fvp_registrar =
+      fl_plugin_registry_get_registrar_for_plugin(registry, "FvpPlugin");
+  fvp_plugin_register_with_registrar(fvp_registrar);
   g_autoptr(FlPluginRegistrar) gtk_registrar =
       fl_plugin_registry_get_registrar_for_plugin(registry, "GtkPlugin");
   gtk_plugin_register_with_registrar(gtk_registrar);

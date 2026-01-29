@@ -54,6 +54,10 @@ PODS:
   - flutter_local_notifications (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
+  - fvp (0.35.2):
+    - Flutter
+    - FlutterMacOS
+    - mdk (~> 0.35.1)
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
@@ -92,6 +96,7 @@ PODS:
     - FlutterMacOS
   - macos_haptic_feedback (1.0.0):
     - FlutterMacOS
+  - mdk (0.35.1)
   - medea_flutter_webrtc (0.17.1):
     - FlutterMacOS
   - medea_jason (0.13.0):
@@ -178,6 +183,7 @@ DEPENDENCIES:
   - flutter_custom_cursor (from `Flutter/ephemeral/.symlinks/plugins/flutter_custom_cursor/macos`)
   - flutter_local_notifications (from `Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - fvp (from `Flutter/ephemeral/.symlinks/plugins/fvp/darwin`)
   - hotkey_manager_macos (from `Flutter/ephemeral/.symlinks/plugins/hotkey_manager_macos/macos`)
   - irondash_engine_context (from `Flutter/ephemeral/.symlinks/plugins/irondash_engine_context/macos`)
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/darwin`)
@@ -211,6 +217,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - HotKey
+    - mdk
     - nanopb
     - PromisesObjC
     - Sentry
@@ -243,6 +250,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/flutter_local_notifications/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
+  fvp:
+    :path: Flutter/ephemeral/.symlinks/plugins/fvp/darwin
   hotkey_manager_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/hotkey_manager_macos/macos
   irondash_engine_context:
@@ -307,6 +316,7 @@ SPEC CHECKSUMS:
   flutter_custom_cursor: 37e588711a2746f5cf48adb58b582cacff11c0c6
   flutter_local_notifications: 4bf37a31afde695b56091b4ae3e4d9c7a7e6cda0
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
+  fvp: 4fe77c2b30122233a57f425dafd219ed35565809
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   HotKey: 400beb7caa29054ea8d864c96f5ba7e5b4852277
@@ -314,6 +324,7 @@ SPEC CHECKSUMS:
   irondash_engine_context: 893c7d96d20ce361d7e996f39d360c4c2f9869ba
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   macos_haptic_feedback: 298e5c06ffc3838e80c557b24a74937a060798e6
+  mdk: 59bbe9e2ac2a052455ab1b076c245680d66cf6c0
   medea_flutter_webrtc: 1941a65b6c93ba892e3120e0596cd18f44c676bd
   medea_jason: bbd2864169370e039dfac444dec226779d32080a
   media_kit_libs_macos_video: 85a23e549b5f480e72cae3e5634b5514bc692f65
