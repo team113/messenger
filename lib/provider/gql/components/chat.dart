@@ -1682,6 +1682,26 @@ mixin ChatGraphQlMixin {
     return GetMonolog$Query.fromJson(result.data!).monolog;
   }
 
+  /// Returns the dialog [Chat] of the authenticated [MyUser] with a [User]
+  /// identified by the provided [userId].
+  Future<ChatMixin?> getDialog(UserId userId) async {
+    Log.debug('getDialog($userId)', '$runtimeType');
+
+    if (client.token == null) {
+      return null;
+    }
+
+    final variables = GetDialogArguments(id: userId);
+    final QueryResult result = await client.query(
+      QueryOptions(
+        operationName: 'GetDialog',
+        document: GetDialogQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+    return GetDialog$Query.fromJson(result.data!).user?.dialog;
+  }
+
   /// Fetches the [ChatAvatar]s of a [Chat] identified by the provided [id].
   ///
   /// The authenticated [MyUser] should be a member of the [Chat].

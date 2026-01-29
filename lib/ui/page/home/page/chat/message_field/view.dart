@@ -150,7 +150,15 @@ class MessageFieldView extends StatelessWidget {
     return GetBuilder(
       init:
           controller ??
-          MessageFieldController(Get.find(), Get.find(), Get.find()),
+          MessageFieldController(
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
+          ),
       global: false,
       builder: (MessageFieldController c) {
         return CallbackShortcuts(

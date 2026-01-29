@@ -273,6 +273,15 @@ class UserView extends StatelessWidget {
             ),
           ],
         ),
+
+        if (c.isSupport) ...[
+          const SizedBox(height: 12),
+          Text(
+            'label_support_service'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+        ],
+
         if (bio != null) ...[
           const SizedBox(height: 12),
           ExpandableText(
@@ -377,24 +386,27 @@ class UserView extends StatelessWidget {
           onPressed: () => _hideChat(c, context),
           trailing: SvgIcon(SvgIcons.delete19),
         ),
-        ActionButton(
-          text: 'btn_report'.l10n,
-          trailing: const SvgIcon(SvgIcons.report19),
-          onPressed: () => _reportUser(c, context),
-        ),
-        Obx(() {
-          if (c.isBlocked != null) {
-            return const SizedBox();
-          }
 
-          return ActionButton(
-            key: const Key('Block'),
-            text: 'btn_block'.l10n,
-            onPressed: () => _blockUser(c, context),
-            trailing: const SvgIcon(SvgIcons.blockRed19),
-            danger: true,
-          );
-        }),
+        if (!c.isSupport) ...[
+          ActionButton(
+            text: 'btn_report'.l10n,
+            trailing: const SvgIcon(SvgIcons.report19),
+            onPressed: () => _reportUser(c, context),
+          ),
+          Obx(() {
+            if (c.isBlocked != null) {
+              return const SizedBox();
+            }
+
+            return ActionButton(
+              key: const Key('Block'),
+              text: 'btn_block'.l10n,
+              onPressed: () => _blockUser(c, context),
+              trailing: const SvgIcon(SvgIcons.blockRed19),
+              danger: true,
+            );
+          }),
+        ],
       ],
     );
   }

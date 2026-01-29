@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
 
+import '../../util/platform_utils.dart';
 import '/domain/service/disposable_service.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
@@ -33,7 +34,11 @@ class AudioWorker extends Dependency {
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
-    _initialize();
+
+    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+      _initialize();
+    }
+
     super.onInit();
   }
 

@@ -124,7 +124,15 @@ class FieldsSection {
       ),
       Headline(
         child: MessageFieldView(
-          controller: MessageFieldController(null, null, null),
+          controller: MessageFieldController(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+          ),
         ),
       ),
       Headline(

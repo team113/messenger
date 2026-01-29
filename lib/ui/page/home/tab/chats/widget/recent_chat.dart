@@ -759,11 +759,19 @@ class RecentChatTile extends StatelessWidget {
 
           subtitle = [Flexible(child: content)];
         } else {
-          subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
+          if (chat.isMonolog) {
+            subtitle = [Flexible(child: Text('label_no_notes'.l10n))];
+          } else if (chat.isSupport) {
+            subtitle = [Flexible(child: Text('label_support_service'.l10n))];
+          } else {
+            subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
+          }
         }
       } else {
         if (chat.isMonolog) {
           subtitle = [Flexible(child: Text('label_no_notes'.l10n))];
+        } else if (chat.isSupport) {
+          subtitle = [Flexible(child: Text('label_support_service'.l10n))];
         } else {
           subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
         }
