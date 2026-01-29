@@ -488,54 +488,32 @@ enum AudioSpeakerKind { headphones, earpiece, speaker }
 ///
 /// [id] may be overridden to represent a different device.
 class DeviceDetails extends MediaDeviceDetails {
-  DeviceDetails(MediaDeviceDetails this._device);
-
-  DeviceDetails.custom({
-    required String deviceId,
-    required String groupId,
-    required bool isFailed,
-    required MediaDeviceKind kind,
-    required String label,
-    required AudioDeviceKind? audioDeviceKind,
-  }) : _deviceId = deviceId,
-       _groupId = groupId,
-       _isFailed = isFailed,
-       _kind = kind,
-       _label = label,
-       _audioDeviceKind = audioDeviceKind,
-       _device = null;
+  DeviceDetails(this._device);
 
   /// [MediaDeviceDetails] actually used by these [DeviceDetails].
-  final MediaDeviceDetails? _device;
-
-  String? _deviceId;
-  String? _groupId;
-  bool? _isFailed;
-  MediaDeviceKind? _kind;
-  String? _label;
-  AudioDeviceKind? _audioDeviceKind;
+  final MediaDeviceDetails _device;
 
   /// Returns a unique identifier of this [DeviceDetails].
-  String id() => _deviceId ?? _device!.deviceId();
+  String id() => _device.deviceId();
 
   @override
-  String deviceId() => _deviceId ?? _device!.deviceId();
+  String deviceId() => _device.deviceId();
 
   @override
-  void free() => _device!.free();
+  void free() => _device.free();
 
   @override
-  String? groupId() => _groupId ?? _device!.groupId();
+  String? groupId() => _device.groupId();
 
   @override
-  bool isFailed() => _isFailed ?? _device!.isFailed();
+  bool isFailed() => _device.isFailed();
 
   @override
-  MediaDeviceKind kind() => _kind ?? _device!.kind();
+  MediaDeviceKind kind() => _device.kind();
 
   @override
   String label() {
-    final String description = _label ?? _device!.label();
+    final String description = _device.label();
 
     // Firefox in its private mode, for example, leaves the labels empty.
     if (description.isEmpty) {
@@ -546,8 +524,7 @@ class DeviceDetails extends MediaDeviceDetails {
   }
 
   @override
-  AudioDeviceKind? audioDeviceKind() =>
-      _audioDeviceKind ?? _device?.audioDeviceKind();
+  AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
 
   @override
   String toString() => id();
@@ -576,7 +553,8 @@ class DefaultDeviceDetails extends DeviceDetails {
   }
 
   @override
-  String label() => 'label_device_by_default'.l10nfmt({'device': label()});
+  String label() =>
+      'label_device_by_default'.l10nfmt({'device': _device.label()});
 
   @override
   String id() => 'default';

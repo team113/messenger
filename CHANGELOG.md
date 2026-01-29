@@ -17,7 +17,9 @@ All user visible changes to this project will be documented in this file. This p
         - Camera disabling for remote peers when disable screen sharing. ([#1594])
 - iOS:
     - Dialogue calls not being connected sometimes. ([#1594])
+    - Output device not switching to headphones or not displaying being switched. ([#1593])
 
+[#1593]: /../../pull/1593
 [#1594]: /../../pull/1594
 
 

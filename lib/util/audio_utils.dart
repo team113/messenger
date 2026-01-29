@@ -490,12 +490,6 @@ class AudioUtilsImpl {
         }
       });
     });
-
-    // If the [_speaker] was changed while setting the output device then
-    // call [_setSpeaker] again.
-    // if (speaker != this.speaker.value) {
-    //   _setSpeaker();
-    // }
   }
 
   /// Invokes a [MediaUtilsImpl.setOutputDevice] method.

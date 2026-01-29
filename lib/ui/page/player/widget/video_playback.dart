@@ -22,12 +22,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
-import '../../../../util/media_utils.dart';
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/audio_utils.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
+import '/util/media_utils.dart';
 import '/util/platform_utils.dart';
 
 /// Video player with controls.
@@ -189,6 +189,8 @@ class _VideoPlaybackState extends State<VideoPlayback> {
     _controller = VideoPlayerController.networkUrl(
       Uri.parse(widget.url),
       videoPlayerOptions: VideoPlayerOptions(
+        mixWithOthers: true,
+        allowBackgroundPlayback: true,
         webOptions: VideoPlayerWebOptions(
           allowContextMenu: false,
           allowRemotePlayback: false,
