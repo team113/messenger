@@ -401,7 +401,14 @@ class AudioUtilsImpl {
       }
 
       if (preferredSpeaker != null) {
-        await setSpeaker(preferredSpeaker);
+        // If we're using headphones, and the preferred one is speaker, then
+        // shouldn't switch.
+        if (speaker.value == AudioSpeakerKind.headphones &&
+            preferredSpeaker == AudioSpeakerKind.speaker) {
+          // No-op.
+        } else {
+          await setSpeaker(preferredSpeaker);
+        }
       } else if (_isMobile) {
         if (speaker.value != null) {
           await setSpeaker(speaker.value!, force: force);
