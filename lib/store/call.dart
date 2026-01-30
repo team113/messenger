@@ -263,8 +263,6 @@ class CallRepository extends DisposableInterface
     call?.value.state.value = OngoingCallState.ended;
     call?.value.dispose();
 
-    Log.info('remove($chatId) -> $calls', '$runtimeType');
-
     return call;
   }
 
