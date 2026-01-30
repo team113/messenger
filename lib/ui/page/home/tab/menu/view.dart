@@ -19,6 +19,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show UserPresence;
+import '/config.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -210,7 +213,9 @@ class MenuTabView extends StatelessWidget {
           key: key,
           inverted: switch (tab) {
             ProfileTab.danger => router.route == Routes.erase,
-            ProfileTab.support => router.route == Routes.support,
+            ProfileTab.support =>
+              router.route ==
+                  '${Routes.chats}/${ChatId.local(UserId(Config.supportId))}',
             (_) => inverted,
           },
           onPressed: switch (tab) {
