@@ -69,7 +69,6 @@ part 'drift.g.dart';
     Downloads,
     GeoLocations,
     Locks,
-
     MyUsers,
     RefreshSecrets,
     Settings,
