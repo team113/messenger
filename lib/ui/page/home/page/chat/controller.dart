@@ -957,6 +957,8 @@ class ChatController extends GetxController {
           '$runtimeType',
         );
 
+        id = user?.user.value.dialog ?? id;
+
         if (user != null) {
           if (user.id == me) {
             id = _chatService.monolog;

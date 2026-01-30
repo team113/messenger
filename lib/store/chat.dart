@@ -550,7 +550,23 @@ class ChatRepository extends DisposableInterface
 
     if (chatId.isLocal) {
       if (chatId.isLocalWith(me)) {
+        if (!monolog.isLocal) {
+          return chats[monolog] ?? await ensureRemoteMonolog();
+        }
+
         return await ensureRemoteMonolog();
+      }
+
+      final UserId userId = chatId.userId;
+      final RxUser? user = _userRepo.users[userId];
+      if (user != null) {
+        final ChatId dialogId = user.user.value.dialog;
+        if (!dialogId.isLocal) {
+          final RxChatImpl? existing = chats[dialogId];
+          if (existing != null) {
+            return existing;
+          }
+        }
       }
 
       try {

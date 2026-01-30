@@ -35,6 +35,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
+import '/domain/repository/user.dart';
 import '/provider/drift/call_credentials.dart';
 import '/provider/drift/chat_credentials.dart';
 import '/provider/gql/exceptions.dart'
@@ -252,9 +253,17 @@ class CallRepository extends DisposableInterface
   Rx<OngoingCall>? remove(ChatId chatId) {
     Log.debug('remove($chatId)', '$runtimeType');
 
+    if (chatId.isLocal) {
+      final UserId userId = chatId.userId;
+      final RxUser? user = _userRepo.users[userId];
+      chatId = user?.user.value.dialog ?? chatId;
+    }
+
     final Rx<OngoingCall>? call = calls.remove(chatId);
     call?.value.state.value = OngoingCallState.ended;
     call?.value.dispose();
+
+    Log.info('remove($chatId) -> $calls', '$runtimeType');
 
     return call;
   }

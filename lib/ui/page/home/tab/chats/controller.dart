@@ -689,6 +689,7 @@ class ChatsTabController extends GetxController {
       SearchCategory.contact,
       SearchCategory.user,
     ];
+    search.value?.excludeSupports = true;
     router.navigation.value = false;
     router.navigator.value = (context) =>
         ChatsTabView.createGroupBuilder(context, this);
@@ -706,6 +707,7 @@ class ChatsTabController extends GetxController {
       SearchCategory.contact,
       SearchCategory.user,
     ];
+    search.value?.excludeSupports = false;
     router.navigation.value = true;
     router.navigator.value = null;
   }
