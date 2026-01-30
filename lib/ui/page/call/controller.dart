@@ -914,8 +914,8 @@ class CallController extends GetxController {
       }
     });
 
-    // [AudioRouter] is available for mobile platforms only.
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+    // [AudioRouter] should be enabled for iOS platform only.
+    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
       _audioRouterSubscription = _audioRouter.currentDeviceStream.listen((
         device,
       ) async {
@@ -2516,11 +2516,17 @@ class CallController extends GetxController {
   /// Ensures this [OngoingCall] has the [_intent] active or not.
   void _ensureAudioIntent(bool has) {
     if (has) {
+      final AudioSpeakerKind? preferred = switch (AudioUtils.speaker.value) {
+        AudioSpeakerKind.headphones => null,
+        (_) =>
+          withVideo || videoState.value.isEnabled
+              ? AudioSpeakerKind.speaker
+              : AudioSpeakerKind.earpiece,
+      };
+
       _intent ??= AudioUtils.acquire(
         AudioMode.call,
-        speaker: withVideo || videoState.value.isEnabled
-            ? AudioSpeakerKind.speaker
-            : AudioSpeakerKind.earpiece,
+        speaker: preferred,
       ).listen((_) {});
     } else {
       _intent?.cancel();

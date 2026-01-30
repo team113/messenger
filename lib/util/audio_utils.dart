@@ -311,7 +311,7 @@ class AudioUtilsImpl {
     final StreamController<void> controller = StreamController.broadcast(
       onListen: () async {
         Log.debug(
-          'acquire($mode) -> onListen for ${intent.id}',
+          'acquire($mode) -> onListen for ${intent.id} with `${speaker?.name}`',
           '$runtimeType',
         );
 
@@ -346,7 +346,10 @@ class AudioUtilsImpl {
 
     if (_intents.isEmpty) {
       if (!PlatformUtils.isWeb) {
-        await setSpeaker(AudioSpeakerKind.speaker);
+        // Reset back to speaker, but only if headphones are disconnected.
+        if (speaker.value != AudioSpeakerKind.headphones) {
+          await setSpeaker(AudioSpeakerKind.speaker);
+        }
 
         if (PlatformUtils.isIOS) {
           await AVAudioSession().setActive(false);
