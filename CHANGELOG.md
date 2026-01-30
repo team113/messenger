@@ -13,7 +13,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
-    - Support chat. ([#1597], [#1595])
+    - Support chat. ([#1598], [#1597], [#1595])
     - Chat page:
         - Logs button in notes and support chats. ([#1595])
 - Mobile:
@@ -40,6 +40,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1595]: /../../pull/1595
 [#1596]: /../../pull/1596
 [#1597]: /../../pull/1597
+[#1598]: /../../pull/1598
 
 
 

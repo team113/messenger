@@ -285,9 +285,7 @@ class ParticipantsButton extends CallButton {
       expanded: expanded,
       big: big,
       constrained: c.isMobile,
-      onPressed: c.isMonolog || c.isSupport
-          ? null
-          : () => c.openAddMember(router.context!),
+      onPressed: c.isMonolog ? null : () => c.openAddMember(router.context!),
     );
   }
 }

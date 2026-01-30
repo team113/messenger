@@ -3349,6 +3349,10 @@ class ChatRepository extends DisposableInterface
   Future<void> _initMonolog() async {
     Log.debug('_initMonolog()', '$runtimeType');
 
+    if (me.isSupport) {
+      return;
+    }
+
     try {
       Log.debug('_initMonolog() -> _monologGuard.protect()...', '$runtimeType');
 
@@ -3431,6 +3435,10 @@ class ChatRepository extends DisposableInterface
     Log.debug('_initSupport()', '$runtimeType');
 
     if (_supportId.val.isEmpty) {
+      return;
+    }
+
+    if (me.isSupport) {
       return;
     }
 

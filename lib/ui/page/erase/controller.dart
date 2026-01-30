@@ -57,6 +57,9 @@ class EraseController extends GetxController {
   /// Returns the authenticated [MyUser].
   Rx<MyUser?>? get myUser => _myUserService?.myUser;
 
+  /// Indicates whether currently authenticated [MyUser] is a support.
+  bool get isSupport => _authService.userId?.isSupport == true;
+
   /// Signs in and redirects to the [Routes.erase] page.
   ///
   /// Username is [login]'s text and the password is [password]'s text.

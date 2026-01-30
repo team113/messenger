@@ -158,7 +158,7 @@ class EraseView extends StatelessWidget {
             PrimaryButton(
               key: const Key('ConfirmDelete'),
               title: 'btn_delete_account'.l10n,
-              onPressed: () => _deleteAccount(context, c),
+              onPressed: c.isSupport ? null : () => _deleteAccount(context, c),
               danger: true,
             ),
           ),

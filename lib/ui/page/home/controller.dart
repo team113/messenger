@@ -133,6 +133,9 @@ class HomeController extends GetxController {
   /// Returns the [ReleaseDownload] being active, if any.
   Rx<ReleaseDownload?> get activeDownload => _upgradeWorker.activeDownload;
 
+  /// Indicates whether currently authenticated [MyUser] is a support.
+  bool get isSupport => _auth.userId?.isSupport == true;
+
   @override
   void onInit() {
     super.onInit();

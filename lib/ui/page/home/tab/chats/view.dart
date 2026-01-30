@@ -326,13 +326,14 @@ class ChatsTabView extends StatelessWidget {
             trailing: const SvgIcon(SvgIcons.select),
             inverted: const SvgIcon(SvgIcons.selectWhite),
           ),
-          ContextMenuButton(
-            key: const Key('CreateGroupButton'),
-            label: 'btn_create_group'.l10n,
-            onPressed: c.startGroupCreating,
-            trailing: const SvgIcon(SvgIcons.group),
-            inverted: const SvgIcon(SvgIcons.groupWhite),
-          ),
+          if (!c.isSupport)
+            ContextMenuButton(
+              key: const Key('CreateGroupButton'),
+              label: 'btn_create_group'.l10n,
+              onPressed: c.startGroupCreating,
+              trailing: const SvgIcon(SvgIcons.group),
+              inverted: const SvgIcon(SvgIcons.groupWhite),
+            ),
           ContextMenuDivider(),
           ContextMenuButton(
             key: const Key('ArchiveChatsButton'),
@@ -353,14 +354,16 @@ class ChatsTabView extends StatelessWidget {
                   )
                 : null,
           ),
-          ContextMenuDivider(),
-          ContextMenuButton(
-            key: const Key('MonologChatButton'),
-            label: 'label_chat_monolog'.l10n,
-            onPressed: () => router.chat(c.monolog),
-            trailing: const SvgIcon(SvgIcons.notesSmall),
-            inverted: const SvgIcon(SvgIcons.notesSmallWhite),
-          ),
+          if (!c.isSupport) ...[
+            ContextMenuDivider(),
+            ContextMenuButton(
+              key: const Key('MonologChatButton'),
+              label: 'label_chat_monolog'.l10n,
+              onPressed: () => router.chat(c.monolog),
+              trailing: const SvgIcon(SvgIcons.notesSmall),
+              inverted: const SvgIcon(SvgIcons.notesSmallWhite),
+            ),
+          ],
         ],
         child: AnimatedButton(
           decorator: (child) {
