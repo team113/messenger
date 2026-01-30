@@ -51,6 +51,7 @@ class SearchView extends StatelessWidget {
     this.onPressed,
     this.onSubmit,
     this.onSelected,
+    this.excludeSupports = false,
   });
 
   /// [SearchCategory]ies to search through.
@@ -80,6 +81,9 @@ class SearchView extends StatelessWidget {
   /// Callback, called on the selected items changes.
   final void Function(SearchViewResults? results)? onSelected;
 
+  /// Indicator whether [Config.supportIds] should be excluded from the list.
+  final bool excludeSupports;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -95,6 +99,7 @@ class SearchView extends StatelessWidget {
         chat: chat,
         categories: categories,
         onSelected: onSelected,
+        excludeSupports: excludeSupports,
       ),
       builder: (SearchController c) {
         return Container(

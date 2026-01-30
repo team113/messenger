@@ -13,12 +13,18 @@ All user visible changes to this project will be documented in this file. This p
 ### Added
 
 - UI:
-    - Support chat. ([#1595])
+    - Support chat. ([#1597], [#1595])
     - Chat page:
         - Logs button in notes and support chats. ([#1595])
 - Mobile:
     - Media panel:
         - Output device modal being displayed when any external device is connected. ([#1596], [#1593])
+
+### Changed
+
+- UI:
+    - User page:
+        - Join and decline call buttons. ([#1597])
 
 ### Fixed
 
@@ -33,6 +39,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1594]: /../../pull/1594
 [#1595]: /../../pull/1595
 [#1596]: /../../pull/1596
+[#1597]: /../../pull/1597
 
 
 

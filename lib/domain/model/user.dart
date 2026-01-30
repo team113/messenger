@@ -159,6 +159,9 @@ class UserId extends NewType<String> implements Comparable<UserId> {
   /// Constructs a [UserId] from the provided [val].
   factory UserId.fromJson(String val) = UserId;
 
+  /// Indicates whether this [UserId] is considered a support ID.
+  bool get isSupport => Config.isSupport(this);
+
   /// Returns a [String] representing this [UserId].
   String toJson() => val;
 

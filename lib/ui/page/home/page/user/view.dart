@@ -25,6 +25,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -36,6 +37,7 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/line_divider.dart';
 import '/ui/widget/obscured_selection_area.dart';
 import '/ui/widget/primary_button.dart';
@@ -313,6 +315,8 @@ class UserView extends StatelessWidget {
   /// Returns information about the [User] and related to it action buttons in
   /// the [CustomAppBar].
   Widget _bar(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
     final Widget title = Row(
       children: [StyledBackButton(withLabel: true), SizedBox(width: 10)],
     );
@@ -325,17 +329,73 @@ class UserView extends StatelessWidget {
           onPressed: () => router.chat(ChatId.local(c.user!.user.value.id)),
           child: const SvgIcon(SvgIcons.chat),
         ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          onPressed: () => c.call(true),
-          child: const SvgIcon(SvgIcons.chatVideoCall),
-        ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          key: const Key('AudioCall'),
-          onPressed: () => c.call(false),
-          child: const SvgIcon(SvgIcons.chatAudioCall),
-        ),
+
+        Obx(() {
+          final List<Widget> children;
+
+          final RxChat? chat = c.user!.dialog.value;
+
+          if (chat?.chat.value.ongoingCall != null) {
+            final Widget child;
+
+            final bool inCall = chat?.inCall.value ?? false;
+
+            if (inCall) {
+              child = Container(
+                key: const Key('Drop'),
+                height: 32,
+                width: 32,
+                decoration: BoxDecoration(
+                  color: style.colors.danger,
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(child: SvgIcon(SvgIcons.callEnd)),
+              );
+            } else {
+              child = Container(
+                key: const Key('Join'),
+                height: 32,
+                width: 32,
+                decoration: BoxDecoration(
+                  color: style.colors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(child: SvgIcon(SvgIcons.callStart)),
+              );
+            }
+
+            children = [
+              const SizedBox(width: 21),
+              AnimatedButton(
+                key: const Key('ActiveCallButton'),
+                onPressed: inCall ? c.dropCall : c.joinCall,
+                child: SafeAnimatedSwitcher(
+                  duration: 300.milliseconds,
+                  child: child,
+                ),
+              ),
+            ];
+          } else if (c.isSupport) {
+            children = [];
+          } else {
+            children = [
+              const SizedBox(width: 28),
+              AnimatedButton(
+                onPressed: () => c.call(true),
+                child: const SvgIcon(SvgIcons.chatVideoCall),
+              ),
+              const SizedBox(width: 28),
+              AnimatedButton(
+                key: const Key('AudioCall'),
+                onPressed: () => c.call(false),
+                child: const SvgIcon(SvgIcons.chatAudioCall),
+              ),
+            ];
+          }
+
+          return Row(mainAxisSize: MainAxisSize.min, children: children);
+        }),
+
         const SizedBox(width: 20),
       ],
     );

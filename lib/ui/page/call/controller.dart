@@ -533,6 +533,10 @@ class CallController extends GetxController {
   /// Indicates whether the [chat] is a monolog.
   bool get isMonolog => chat.value?.chat.value.isMonolog ?? false;
 
+  /// Indicates whether the [chat] is a support.
+  bool get isSupport =>
+      !me.id.userId.isSupport && (chat.value?.chat.value.isSupport ?? false);
+
   /// Reactive map of the current call [CallMember]s.
   RxObsMap<CallMemberId, CallMember> get members => _currentCall.value.members;
 

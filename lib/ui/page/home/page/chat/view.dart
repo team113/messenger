@@ -319,6 +319,9 @@ class ChatView extends StatelessWidget {
                           final bool inCall = c.chat?.inCall.value ?? false;
                           final bool isMonolog =
                               c.chat?.chat.value.isMonolog == true;
+                          final bool isSupport =
+                              c.me?.isSupport == false &&
+                              c.chat?.chat.value.isSupport == true;
 
                           final List<Widget> children;
 
@@ -365,7 +368,7 @@ class ChatView extends StatelessWidget {
                                 ),
                               ),
                             ];
-                          } else if (!blocked && !isMonolog) {
+                          } else if (!blocked && !isMonolog && !isSupport) {
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
