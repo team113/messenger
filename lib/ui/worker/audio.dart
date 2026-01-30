@@ -19,10 +19,10 @@ import 'dart:async';
 
 import 'package:audio_session/audio_session.dart';
 
-import '../../util/platform_utils.dart';
 import '/domain/service/disposable_service.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
+import '/util/platform_utils.dart';
 
 /// Worker responsible for [AudioUtils] related scoped functionality.
 class AudioWorker extends Dependency {

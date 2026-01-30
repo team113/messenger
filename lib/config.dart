@@ -350,7 +350,7 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_SUPPORT_IDS')
         : document['support']?['ids'];
 
-    supportIds = ids == null ? [supportId, 'gapopa', 'tapopa'] : ids.split(',');
+    supportIds = ids == null ? [supportId] : ids.split(',');
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {

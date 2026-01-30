@@ -61,6 +61,7 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'background_audio/view.dart';
 import 'component/common.dart';
+import 'output/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
 import 'widget/dock.dart';
@@ -913,8 +914,8 @@ class CallController extends GetxController {
       }
     });
 
-    // [AudioRouter] is available for mobile platforms only.
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+    // [AudioRouter] should be enabled for iOS platform only.
+    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
       _audioRouterSubscription = _audioRouter.currentDeviceStream.listen((
         device,
       ) async {
@@ -934,30 +935,25 @@ class CallController extends GetxController {
           null => AudioSpeakerKind.headphones,
         };
 
+        await _currentCall.value.enumerateDevices(screen: false);
+
         final List<DeviceDetails> devices = _currentCall.value.devices
             .output()
             .toList();
 
-        final DeviceDetails? output = devices.firstWhereOrNull(
-          (e) => e.speaker == speaker,
+        // First, try to find device by its ID.
+        DeviceDetails? output = devices.firstWhereOrNull(
+          (e) => e.id() == device?.id,
         );
+
+        // If not found, try to look device by its speaker type.
+        output ??= devices.firstWhereOrNull((e) => e.speaker == speaker);
 
         if (output != null) {
           _currentCall.value.outputDevice.value = output;
           AudioUtils.outputDevice.value = output;
+          await AudioUtils.setSpeaker(speaker);
         }
-
-        await AudioUtils.setSpeaker(speaker);
-
-        // Enumerate the devices after ~5 seconds delay, since iOS might not fire
-        // any `onDeviceChange` notifications, yet disconnect some devices.
-        Future.delayed(Duration(seconds: 5)).then((_) async {
-          if (isClosed || state.value == OngoingCallState.ended) {
-            return;
-          }
-
-          await _currentCall.value.enumerateDevices(screen: false);
-        });
       });
     }
 
@@ -1148,10 +1144,24 @@ class CallController extends GetxController {
 
     // If there are more than 2 outputs (earpiece and speakerphone), then show
     // the audio output picker for iOS and Android.
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
+    if (!PlatformUtils.isWeb) {
       if (outputs.length > 2) {
-        await _audioRouter.showAudioRoutePicker(router.context!);
-        return;
+        if (PlatformUtils.isIOS) {
+          await _audioRouter.showAudioRoutePicker(router.context!);
+          return;
+        }
+
+        if (PlatformUtils.isAndroid) {
+          await OutputRouteView.show(
+            router.context!,
+            initial: _currentCall.value.outputDevice.value,
+            onSelected: (d) async {
+              await _currentCall.value.setOutputDevice(d);
+            },
+          );
+
+          return;
+        }
       }
     }
 
@@ -2506,11 +2516,17 @@ class CallController extends GetxController {
   /// Ensures this [OngoingCall] has the [_intent] active or not.
   void _ensureAudioIntent(bool has) {
     if (has) {
+      final AudioSpeakerKind? preferred = switch (AudioUtils.speaker.value) {
+        AudioSpeakerKind.headphones => null,
+        (_) =>
+          withVideo || videoState.value.isEnabled
+              ? AudioSpeakerKind.speaker
+              : AudioSpeakerKind.earpiece,
+      };
+
       _intent ??= AudioUtils.acquire(
         AudioMode.call,
-        speaker: withVideo || videoState.value.isEnabled
-            ? AudioSpeakerKind.speaker
-            : AudioSpeakerKind.earpiece,
+        speaker: preferred,
       ).listen((_) {});
     } else {
       _intent?.cancel();
