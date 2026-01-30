@@ -162,3 +162,14 @@ class VideoCallButton extends ChatButton {
   @override
   SvgData get disabled => SvgIcons.chatVideoCallDisabled;
 }
+
+/// [ChatButton] attaching the current logs.
+class LogsButton extends ChatButton {
+  const LogsButton([super.onPressed]);
+
+  @override
+  String get hint => 'btn_log_file'.l10n;
+
+  @override
+  SvgData get asset => SvgIcons.chatLogs;
+}

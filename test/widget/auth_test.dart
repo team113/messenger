@@ -91,7 +91,7 @@ void main() async {
   );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
-  final monologProvider = Get.put(MonologDriftProvider(common));
+  final monologProvider = Get.put(MonologDriftProvider(common, scoped));
   final locksProvider = Get.put(LockDriftProvider(common));
   final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
   final skippedProvider = Get.put(SkippedVersionDriftProvider(common));

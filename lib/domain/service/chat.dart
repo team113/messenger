@@ -74,6 +74,10 @@ class ChatService extends Dependency {
   /// [MyUser], if any.
   ChatId get monolog => _chatRepository.monolog;
 
+  /// Returns [ChatId] of the [Chat]-support of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get support => _chatRepository.support;
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');

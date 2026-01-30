@@ -30,6 +30,7 @@ import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart'
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/repository/session.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
@@ -37,6 +38,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/notification.dart';
+import 'package:messenger/domain/service/session.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
@@ -50,10 +52,12 @@ import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/geolocation.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/secret.dart';
+import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -65,6 +69,7 @@ import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/session.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -75,6 +80,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/audio_utils.dart';
+import '../mock/geo_provider.dart';
 import '../mock/platform_utils.dart';
 import 'chat_reply_message_test.mocks.dart';
 import 'extension/rich_text.dart';
@@ -94,10 +100,14 @@ void main() async {
   Config.disableDragArea = true;
 
   var graphQlProvider = MockGraphQlProvider();
+  when(graphQlProvider.connected).thenReturn(RxBool(true));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(
     graphQlProvider.getUser(const UserId('me')),
   ).thenAnswer((_) => Future.value(GetUser$Query.fromJson(userData)));
+  when(
+    graphQlProvider.getUser(UserId(Config.supportId)),
+  ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({})));
   when(
     graphQlProvider.onStart,
   ).thenReturn(InternalFinalCallback(callback: () {}));
@@ -395,10 +405,12 @@ void main() async {
   );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
-  final monologProvider = Get.put(MonologDriftProvider(common));
+  final monologProvider = Get.put(MonologDriftProvider(common, scoped));
   final versionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
   final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
+  final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
+  final geoProvider = Get.put(GeoLocationDriftProvider(common));
 
   await accountProvider.upsert(const UserId('me'));
   await credentialsProvider.upsert(
@@ -517,6 +529,19 @@ void main() async {
       accountProvider,
     );
     Get.put(MyUserService(authService, myUserRepository));
+
+    final AbstractSessionRepository sessionRepository =
+        Get.put<AbstractSessionRepository>(
+          SessionRepository(
+            graphQlProvider,
+            accountProvider,
+            versionProvider,
+            sessionProvider,
+            geoProvider,
+            MockedGeoLocationProvider(),
+          ),
+        );
+    Get.put(SessionService(sessionRepository));
 
     Get.put(UserService(userRepository));
     ChatService chatService = Get.put(ChatService(chatRepository, authService));

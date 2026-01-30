@@ -209,3 +209,16 @@
 #
 # Default:
 #   es-ES = ""
+
+[support]
+# User ID of the support user.
+#
+# Default:
+#   id = "7GgdGcrEEuLRWMDJakuDkI"
+
+# User IDs of the users that should be considered supports.
+#
+# IDs should be separated by commas.
+#
+# Default:
+#   ids = ""

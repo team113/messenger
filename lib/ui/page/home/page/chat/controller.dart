@@ -38,14 +38,15 @@ import '/api/backend/schema.dart'
         ChatMessageTextInput,
         ChatMessageAttachmentsInput,
         ChatMessageRepliesInput;
+import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat_message_input.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -60,7 +61,9 @@ import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
+import '/domain/service/session.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -108,7 +111,9 @@ class ChatController extends GetxController {
     this._userService,
     this._settingsRepository,
     this._contactService,
-    this._notificationService, {
+    this._notificationService,
+    this._myUserService,
+    this._sessionService, {
     this.itemId,
     this.onContext,
   });
@@ -323,6 +328,12 @@ class ChatController extends GetxController {
   /// [ContactService] maintaining [ChatContact]s of this [me].
   final ContactService _contactService;
 
+  /// [MyUserService] to pass to a [MessageFieldController].
+  final MyUserService _myUserService;
+
+  /// [SessionService] to pass to a [MessageFieldController].
+  final SessionService _sessionService;
+
   /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
 
@@ -404,8 +415,14 @@ class ChatController extends GetxController {
   /// Indicates whether a next page of the [elements] is loading.
   RxBool get nextLoading => _fragment?.nextLoading ?? chat!.nextLoading;
 
-  /// Indicates whether the [chat] this [ChatController] is about is a dialog.
+  /// Indicates whether the [chat] this [ChatController] is a dialog.
   bool get isDialog => chat?.chat.value.isDialog == true;
+
+  /// Indicates whether the [chat] this [ChatController] is a monolog.
+  bool get isMonolog => chat?.chat.value.isMonolog == true;
+
+  /// Indicates whether the [chat] this [ChatController] is a support-[Chat].
+  bool get isSupport => chat?.chat.value.isSupport == true;
 
   /// Returns [RxUser] being recipient of this [chat].
   ///
@@ -447,6 +464,10 @@ class ChatController extends GetxController {
       _chatService,
       _userService,
       _settingsRepository,
+      _authService,
+      _myUserService,
+      _sessionService,
+      _notificationService,
       onChanged: _updateDraft,
       onCall: call,
       onKeyUp: (key) {
@@ -760,6 +781,10 @@ class ChatController extends GetxController {
         _chatService,
         _userService,
         _settingsRepository,
+        _authService,
+        _myUserService,
+        _sessionService,
+        _notificationService,
         text: item.text?.val,
         onKeyUp: (key) {
           if (key == LogicalKeyboardKey.escape) {
@@ -856,6 +881,7 @@ class ChatController extends GetxController {
         },
       );
 
+      edit.value?.toggleLogs(isMonolog || isSupport);
       edit.value?.edited.value = item;
       edit.value?.field.focus.requestFocus();
 
@@ -931,9 +957,12 @@ class ChatController extends GetxController {
           '$runtimeType',
         );
 
-        id = user?.user.value.dialog ?? id;
-        if (user != null && user.id == me) {
-          id = _chatService.monolog;
+        if (user != null) {
+          if (user.id == me) {
+            id = _chatService.monolog;
+          } else if (user.id.val == Config.supportId) {
+            id = _chatService.support;
+          }
         }
       }
 
@@ -957,6 +986,8 @@ class ChatController extends GetxController {
         _chatSubscription = chat!.updates.listen((_) {});
 
         unreadMessages = chat!.chat.value.unreadCount;
+
+        send.toggleLogs(isMonolog || isSupport);
 
         await chat!.ensureDraft();
         final ChatMessage? draft = chat!.draft.value;

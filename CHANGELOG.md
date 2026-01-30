@@ -10,6 +10,13 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.8.1...main) | [Milestone](/../../milestone/64)
 
+### Added
+
+- UI:
+    - Support chat. ([#1595])
+    - Chat page:
+        - Logs button in notes and support chats. ([#1595])
+
 ### Fixed
 
 - UI:
@@ -21,6 +28,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1593]: /../../pull/1593
 [#1594]: /../../pull/1594
+[#1595]: /../../pull/1595
 
 
 

@@ -21,40 +21,43 @@ import 'package:drift/drift.dart';
 import 'package:drift/remote.dart' show DriftRemoteException;
 
 import '/domain/model/chat.dart';
-import '/domain/model/user.dart';
 import 'drift.dart';
 
 /// [ChatId] being monologs to be stored in a [Table].
 @DataClassName('MonologRow')
 class Monologs extends Table {
   @override
-  Set<Column> get primaryKey => {userId};
+  Set<Column> get primaryKey => {identifier};
 
-  TextColumn get userId => text()();
+  TextColumn get identifier => text()();
   TextColumn get chatId => text()();
 }
 
+/// Possible [MonologDriftProvider] stored [ChatId].
+enum MonologKind { support, notes }
+
 /// [DriftProviderBase] for manipulating the persisted [ChatId]s.
-class MonologDriftProvider extends DriftProviderBase {
-  MonologDriftProvider(super.database);
+class MonologDriftProvider extends DriftProviderBaseWithScope {
+  MonologDriftProvider(super.common, super.scoped);
 
   /// [ChatId]s that have started the [upsert]ing, but not yet finished it.
-  final Map<UserId, ChatId> _cache = {};
+  final Map<String, ChatId> _cache = {};
 
   /// Creates or updates the provided [chatId] in the database.
-  Future<void> upsert(UserId userId, ChatId chatId) async {
-    _cache[userId] = chatId;
+  Future<void> upsert(MonologKind kind, ChatId chatId) async {
+    _cache[kind.name] = chatId;
 
     await safe((db) async {
       await db
           .into(db.monologs)
-          .insert(chatId.toDb(userId), mode: InsertMode.insertOrReplace);
-    }, tag: 'monolog.upsert($userId, $chatId)');
+          .insert(chatId.toDb(kind), mode: InsertMode.insertOrReplace);
+    }, tag: 'monolog.upsert(${kind.name}, $chatId)');
   }
 
-  /// Returns the [ChatId] stored in the database by the provided [id], if any.
-  Future<ChatId?> read(UserId id) async {
-    final ChatId? existing = _cache[id];
+  /// Returns the [ChatId] stored in the database by the provided [kind], if
+  /// any.
+  Future<ChatId?> read(MonologKind kind) async {
+    final ChatId? existing = _cache[kind.name];
     if (existing != null) {
       return existing;
     }
@@ -62,7 +65,7 @@ class MonologDriftProvider extends DriftProviderBase {
     return await safe<ChatId?>((db) async {
       try {
         final stmt = db.select(db.monologs)
-          ..where((u) => u.userId.equals(id.val));
+          ..where((u) => u.identifier.equals(kind.name));
         final MonologRow? row = await stmt.getSingleOrNull();
 
         if (row == null) {
@@ -75,18 +78,18 @@ class MonologDriftProvider extends DriftProviderBase {
         // creating.
         return null;
       }
-    }, tag: 'monolog.read($id)');
+    }, tag: 'monolog.read(${kind.name})');
   }
 
-  /// Deletes the [ChatId] identified by the provided [id] from the database.
-  Future<void> delete(UserId id) async {
-    _cache.remove(id);
+  /// Deletes the [ChatId] identified by the provided [kind] from the database.
+  Future<void> delete(MonologKind kind) async {
+    _cache.remove(kind.name);
 
     await safe((db) async {
       final stmt = db.delete(db.monologs)
-        ..where((e) => e.userId.equals(id.val));
+        ..where((e) => e.identifier.equals(kind.name));
       await stmt.go();
-    }, tag: 'monolog.delete($id)');
+    }, tag: 'monolog.delete(${kind.name})');
   }
 
   /// Deletes all the [ChatId]s stored in the database.
@@ -105,7 +108,7 @@ extension _MonologDb on ChatId {
   static ChatId fromDb(MonologRow e) => ChatId(e.chatId);
 
   /// Constructs a [MonologRow] from this [ChatId].
-  MonologRow toDb(UserId userId) {
-    return MonologRow(userId: userId.val, chatId: val);
+  MonologRow toDb(MonologKind kind) {
+    return MonologRow(identifier: kind.name, chatId: val);
   }
 }

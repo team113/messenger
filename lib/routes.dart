@@ -574,7 +574,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
               deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
               deps.put(CallRectDriftProvider(Get.find(), scoped));
-              deps.put(MonologDriftProvider(Get.find()));
+              deps.put(MonologDriftProvider(Get.find(), Get.find()));
               deps.put(DraftDriftProvider(Get.find(), scoped));
               deps.put(SessionDriftProvider(Get.find(), scoped));
               await deps.put(VersionDriftProvider(Get.find())).init();
@@ -740,7 +740,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
               deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
               deps.put(CallRectDriftProvider(Get.find(), scoped));
-              deps.put(MonologDriftProvider(Get.find()));
+              deps.put(MonologDriftProvider(Get.find(), Get.find()));
               deps.put(DraftDriftProvider(Get.find(), scoped));
               deps.put(SessionDriftProvider(Get.find(), scoped));
               await deps.put(VersionDriftProvider(Get.find())).init();
@@ -880,7 +880,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               final callRectProvider = deps.put(
                 CallRectDriftProvider(common, scoped),
               );
-              final monologProvider = deps.put(MonologDriftProvider(common));
+              final monologProvider = deps.put(
+                MonologDriftProvider(common, scoped),
+              );
               final draftProvider = deps.put(
                 DraftDriftProvider(common, scoped),
               );
@@ -925,8 +927,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                         Get.findOrNull<BackgroundDriftProvider>();
                     final credentialsProvider =
                         Get.findOrNull<CredentialsDriftProvider>();
-                    final monologProvider =
-                        Get.findOrNull<MonologDriftProvider>();
                     final myUserProvider =
                         Get.findOrNull<MyUserDriftProvider>();
                     final settingsProvider =
@@ -936,7 +936,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
                     await backgroundProvider?.delete(me);
                     await credentialsProvider?.delete(me);
-                    await monologProvider?.delete(me);
                     await myUserProvider?.delete(me);
                     await settingsProvider?.delete(me);
                     await versionProvider?.delete(me);
@@ -1325,9 +1324,6 @@ extension RouteLinks on RouterState {
     '${Routes.work}${tab == null ? '' : '/${tab.name}'}',
   );
 
-  /// Changes router location to the [Routes.support] page.
-  void support({bool push = false}) => (push ? this.push : go)(Routes.support);
-
   /// Changes router location to the [Routes.style] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
@@ -1341,6 +1337,13 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.erase] page.
   void erase({bool push = false}) => (push ? this.push : go)(Routes.erase);
+
+  /// Changes router location to the [Config.supportId] page.
+  // void support({bool push = false}) => (push ? this.push : go)(Routes.support);
+  void support({bool push = false}) => chat(
+    ChatId.local(UserId(Config.supportId)),
+    mode: push ? RouteAs.push : RouteAs.replace,
+  );
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

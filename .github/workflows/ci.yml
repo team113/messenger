@@ -630,6 +630,7 @@ jobs:
                           xz-utils
                           default-jdk
                           lld-19
+                          tar
       - run: |
           set -ex
 
