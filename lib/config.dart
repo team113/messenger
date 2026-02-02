@@ -342,13 +342,13 @@ class Config {
       Log.warning('init() -> announcements failed: $e', 'Config');
     }
 
-    supportId = const bool.hasEnvironment('SOCAPP_SUPPORT_ID')
-        ? const String.fromEnvironment('SOCAPP_SUPPORT_ID')
-        : (document['support']?['id'] ?? supportId);
+    supportId = const bool.hasEnvironment('SOCAPP_SUPPORT_PRIMARY')
+        ? const String.fromEnvironment('SOCAPP_SUPPORT_PRIMARY')
+        : (document['support']?['primary'] ?? supportId);
 
-    final String? ids = const bool.hasEnvironment('SOCAPP_SUPPORT_IDS')
-        ? const String.fromEnvironment('SOCAPP_SUPPORT_IDS')
-        : document['support']?['ids'];
+    final String? ids = const bool.hasEnvironment('SOCAPP_SUPPORT_SECONDARY')
+        ? const String.fromEnvironment('SOCAPP_SUPPORT_SECONDARY')
+        : document['support']?['secondary'];
 
     supportIds = ids == null ? [supportId] : ids.split(',');
 
@@ -450,8 +450,8 @@ class Config {
               Log.warning('init() -> announcements failed: $e', 'Config');
             }
 
-            supportId = remote['support']?['id'] ?? supportId;
-            final String? ids = remote['support']?['ids'];
+            supportId = remote['support']?['primary'] ?? supportId;
+            final String? ids = remote['support']?['secondary'];
             if (ids != null) {
               supportIds = ids.split(',');
             }

@@ -143,6 +143,7 @@ class MyProfileController extends GetxController {
   /// [MyUser.name] field state.
   late final TextFieldState name = TextFieldState(
     text: myUser.value?.name?.val,
+    editable: !isSupport,
     onFocus: (s) async {
       s.error.value = null;
 
@@ -168,6 +169,7 @@ class MyProfileController extends GetxController {
   /// [MyUser.login] field state.
   late final TextFieldState login = TextFieldState(
     text: myUser.value?.login?.val,
+    editable: !isSupport,
     onFocus: (s) async {
       s.error.value = null;
 
@@ -333,6 +335,9 @@ class MyProfileController extends GetxController {
   int get mutedChatsCount => _chatService.paginated.values
       .where((e) => e.chat.value.muted != null)
       .length;
+
+  /// Indicates whether currently authenticated [MyUser] is a support.
+  bool get isSupport => _authService.userId?.isSupport == true;
 
   @override
   void onInit() {

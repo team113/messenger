@@ -211,14 +211,14 @@
 #   es-ES = ""
 
 [support]
-# User ID of the support user.
+# Primary user ID of the support user that is always present in chats list.
 #
 # Default:
-#   id = "7GgdGcrEEuLRWMDJakuDkI"
+#   primary = "7GgdGcrEEuLRWMDJakuDkI"
 
 # User IDs of the users that should be considered supports.
 #
 # IDs should be separated by commas.
 #
 # Default:
-#   ids = ""
+#   secondary = ""

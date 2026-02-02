@@ -588,9 +588,7 @@ class SearchController extends GetxController {
       );
       bool localDialog(RxChat c) => c.id.isLocal && !c.id.isLocalWith(me);
       bool excludeSupports(RxChat c) =>
-          !this.excludeSupports ||
-          me?.isSupport != false ||
-          !c.chat.value.isSupport;
+          !this.excludeSupports || !c.chat.value.isSupport;
 
       final List<RxChat> filtered = allChats
           .whereNot(hidden)
@@ -621,9 +619,7 @@ class SearchController extends GetxController {
       bool isMember(RxUser u) => chat?.members.items.containsKey(u.id) ?? false;
       bool matchesQuery(RxUser user) => _matchesQuery(user: user);
       bool excludeSupports(RxChat c) =>
-          !this.excludeSupports ||
-          me?.isSupport != false ||
-          !c.chat.value.isSupport;
+          !this.excludeSupports || !c.chat.value.isSupport;
 
       Iterable<RxUser> filtered = allChats
           .where(remoteDialog)
@@ -702,9 +698,7 @@ class SearchController extends GetxController {
       bool remoteDialog(RxChat c) => c.chat.value.isDialog && !c.id.isLocal;
       bool hidden(RxChat c) => c.chat.value.isHidden;
       bool excludeSupports(RxChat c) =>
-          !this.excludeSupports ||
-          me?.isSupport != false ||
-          !c.chat.value.isSupport;
+          !this.excludeSupports || !c.chat.value.isSupport;
 
       // Predicates to filter [User]s by.
       bool matchesQuery(RxUser user) => _matchesQuery(user: user);
@@ -715,8 +709,7 @@ class SearchController extends GetxController {
         (c) => c.chat.value.isDialog && c.members.items.containsKey(u.id),
       );
       bool hasRemoteDialog(RxUser u) => !u.user.value.dialog.isLocal;
-      bool notSupport(RxUser u) =>
-          !this.excludeSupports || me?.isSupport != false || !u.id.isSupport;
+      bool notSupport(RxUser u) => !this.excludeSupports || !u.id.isSupport;
 
       RxUser? toUser(RxChat c) =>
           c.members.values.firstWhereOrNull((u) => u.user.id != me)?.user;

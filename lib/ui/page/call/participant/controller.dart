@@ -124,6 +124,9 @@ class ParticipantController extends GetxController {
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  /// Indicates whether currently authenticated [MyUser] is a [User]-support.
+  bool get isSupport => me?.isSupport == true;
+
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);

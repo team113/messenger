@@ -270,20 +270,27 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
       });
 
     case ProfileTab.link:
+      if (c.isSupport) {
+        return const SizedBox();
+      }
+
       return block(
         title: 'label_your_direct_link'.l10n,
         children: [
           Obx(() {
-            return DirectLinkField(
-              c.myUser.value?.chatDirectLink,
-              onSubmit: (s) async {
-                if (s == null) {
-                  await c.deleteChatDirectLink();
-                } else {
-                  await c.createChatDirectLink(s);
-                }
-              },
-              background: c.background.value,
+            return IgnorePointer(
+              ignoring: c.isSupport,
+              child: DirectLinkField(
+                c.myUser.value?.chatDirectLink,
+                onSubmit: (s) async {
+                  if (s == null) {
+                    await c.deleteChatDirectLink();
+                  } else {
+                    await c.createChatDirectLink(s);
+                  }
+                },
+                background: c.background.value,
+              ),
             );
           }),
         ],
@@ -431,9 +438,13 @@ Widget _profile(BuildContext context, MyProfileController c) {
             c.myUser.value,
             loading: c.avatarUpload.value.isLoading,
             error: c.avatarUpload.value.errorMessage,
-            onUpload: c.uploadAvatar,
-            onEdit: c.myUser.value?.avatar != null ? c.editAvatar : null,
-            onDelete: c.myUser.value?.avatar != null ? c.deleteAvatar : null,
+            onUpload: c.isSupport ? null : c.uploadAvatar,
+            onEdit: c.myUser.value?.avatar != null && !c.isSupport
+                ? c.editAvatar
+                : null,
+            onDelete: c.myUser.value?.avatar != null && !c.isSupport
+                ? c.deleteAvatar
+                : null,
           );
         }),
       ),
@@ -534,7 +545,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           label: 'label_email'.l10n,
           trailing: WidgetButton(
             key: Key('DeleteEmail_$i'),
-            onPressed: () => _deleteEmail(c, context, e),
+            onPressed: c.isSupport ? null : () => _deleteEmail(c, context, e),
             child: Center(child: SvgIcon(SvgIcons.delete)),
           ),
           spellCheck: false,
@@ -556,8 +567,9 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             color: style.colors.danger,
           ),
           trailing: WidgetButton(
-            onPressed: () =>
-                _deleteEmail(c, context, unconfirmed, confirmed: false),
+            onPressed: c.isSupport
+                ? null
+                : () => _deleteEmail(c, context, unconfirmed, confirmed: false),
             child: Center(child: SvgIcon(SvgIcons.delete)),
           ),
           spellCheck: false,
@@ -592,7 +604,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             floatingLabelBehavior: FloatingLabelBehavior.always,
             formatters: [LengthLimitingTextInputFormatter(100)],
             spellCheck: false,
-            trailing: c.myUser.value?.login == null
+            trailing: c.myUser.value?.login == null || c.isSupport
                 ? null
                 : WidgetButton(
                     onPressed: () {},
@@ -608,10 +620,11 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           );
         }),
 
-        const SizedBox(height: 21),
+        if (widgets.isNotEmpty || !c.isSupport) const SizedBox(height: 21),
         ...widgets,
+
         // Don't display the button when there's already 2 added emails.
-        if (unconfirmed != null || emails.length < 2)
+        if (!c.isSupport && (unconfirmed != null || emails.length < 2))
           FieldButton(
             key: Key(
               unconfirmed == null ? 'AddEmailButton' : 'VerifyEmailButton',

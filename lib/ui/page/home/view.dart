@@ -354,6 +354,10 @@ class _HomeViewState extends State<HomeView> {
                 currentIndex: tabs.indexOf(router.tab),
                 onTap: (i) {
                   if (i == 0) {
+                    if (c.isSupport) {
+                      return Future.value();
+                    }
+
                     return LinkView.show(context);
                   }
 
