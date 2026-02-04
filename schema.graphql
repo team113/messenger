@@ -97,7 +97,7 @@ enum AddUserPhoneErrorCode {
 enum Angle {
   "0 degrees." DEG0
   "90 degrees." DEG90
-  "180 degrees" DEG180
+  "180 degrees." DEG180
   "270 degrees." DEG270
 }
 
@@ -337,6 +337,25 @@ enum CreateOperationDepositErrorCode {
   """ UNAVAILABLE
   """
     Provided `OperationDepositMethod` is unavailable.
+
+    Status code: 451 Unavailable For Legal Reasons.
+  """ UNAVAILABLE_METHOD
+}
+
+"Possible error codes of performing `Mutation.createOperationWithdraw`."
+enum CreateOperationWithdrawErrorCode {
+  """
+    Not enough funds in `MyUser`'s income.
+
+    Status code: 402 Payment Required.
+  """ NOT_ENOUGH_FUNDS
+  """
+    `OperationWithdraw` creation is unavailable at the moment. Try again later.
+
+    Status code: 503 Service Unavailable.
+  """ UNAVAILABLE
+  """
+    Provided `OperationWithdrawMethod` is unavailable.
 
     Status code: 451 Unavailable For Legal Reasons.
   """ UNAVAILABLE_METHOD
@@ -1409,6 +1428,19 @@ enum ValidateConfirmationCodeErrorCode {
   """ WRONG_CODE
 }
 
+"Input of `BankAccountRequisites`."
+input BankAccountRequisitesInput {
+  "`IBAN` of the account." iban: IBAN!
+  "Requisites of the bank the account belongs to." bank: BankRequisitesInput!
+}
+
+"Input of `BankRequisites`."
+input BankRequisitesInput {
+  "`BIC` of the bank." bic: BIC!
+  "Name of the bank." name: BankName!
+  "Address of the bank." address: BankAddress!
+}
+
 """
   Input type representing a record of a `ChatContact`.
 
@@ -1562,7 +1594,11 @@ input MonetizationSettingsDonationInput {
 "Input for creating or updating `MonetizationSettingsDonation`."
 input MonetizationSettingsDonationSettingsInput {
   "Indicator whether the `Vendor` accepts `Donation`s or not." enabled: Boolean!
-  "Minimal `Sum` of `Donation`s allowed in the `Chat` with the `Vendor`." min: Sum!
+  """
+    Minimal `Sum` of `Donation`s allowed in the `Chat` with the `Vendor`.
+
+    Integer-only, meaning that its fractional part should be zero.
+  """ min: Sum!
 }
 
 "Filter of the `Subscription.monetizationSettings`."
@@ -1700,7 +1736,11 @@ input OperationDepositInput {
 
 "Input of an `OperationDepositKind.PAYPAL`."
 input OperationDepositPayPalInput {
-  "Nominal `Sum` to be deposited in XXX." nominal: Sum!
+  """
+    Nominal `Sum` to be deposited in XXX.
+
+    Integer-only, meaning that its fractional part should be zero.
+  """ nominal: Sum!
   """
     Secret for authenticating later client operations on the created
     `OperationDeposit`.
@@ -1715,6 +1755,22 @@ input OperationDepositPayPalInput {
 input OperationIdentifier {
   "Unique `OperationId` identifying the `Operation`." id: OperationId
   "Unique `OperationNum` identifying the `Operation`." num: OperationNum
+}
+
+"""
+  Input for creating an `OperationWithdraw` of a specific
+  `OperationWithdrawKind`.
+
+  Exactly one should be specified.
+"""
+input OperationWithdrawInput {
+  "Input of an `OperationWithdrawKind.SWIFT`." swift: OperationWithdrawSwiftInput
+}
+
+"Input of an `OperationWithdrawKind.SWIFT`."
+input OperationWithdrawSwiftInput {
+  "Information about the beneficiary bank account." beneficiary: BankAccountRequisitesInput!
+  "Information about the intermediary bank account." intermediary: BankAccountRequisitesInput
 }
 
 "Filter of the `Query.operations`."
@@ -2154,7 +2210,7 @@ interface Operation {
   """
     `DateTime` until which this `Operation` is on hold.
 
-    `null` if this `Operation` is not on hold
+    `null` if this `Operation` is not on hold.
   """
   holdUntil: DateTime
   "`OperationsEdge`s of the `Operation`s this `Operation` is linked to."
@@ -2164,7 +2220,7 @@ interface Operation {
   "Information about why this `Operation` was canceled, if it was."
   canceled: OperationCancellation
   """
-    Version of the `Operation`'s state.
+    Version of this `Operation`'s state.
 
     It increases monotonically, so may be used (and is intended to) for
     tracking state's actuality.
@@ -2199,12 +2255,16 @@ interface OperationWithdrawMethod {
   """
   countries: CriteriaCountry
   """
-    `OperationWithdrawPricing` of this `OperationWithdrawMethod`.
+    `OperationWithdrawMethodPricing` of this `OperationWithdrawMethod`.
 
     `null` in case this `OperationWithdrawMethod` is unavailable for the
     provided `CountryCode`.
   """
-  pricing("`CountryCode` to return the `OperationWithdrawPricing` for." country: CountryCode!): OperationWithdrawPricing
+  pricing("""
+    Nominal to calculate the returned `OperationWithdrawMethodPricing` for.
+
+    If absent or `null` then the nominal `1` is assumed.
+  """ nominal: Sum, "`CountryCode` to return the `OperationWithdrawMethodPricing` for." country: CountryCode!): OperationWithdrawMethodPricing
 }
 
 "Events happening in a `Session`."
@@ -2277,6 +2337,19 @@ scalar ApnsVoipDeviceToken
 
 "ID of an `Attachment`."
 scalar AttachmentId
+
+"""
+  Business Identifier Code (BIC) of a bank in [ISO 9362:2022] format.
+
+  [ISO 9362:2022]: https://iso.org/standard/84108.html
+"""
+scalar BIC
+
+"Address of a bank."
+scalar BankAddress
+
+"Name of a bank."
+scalar BankName
 
 "Cursor of `BlocklistRecord`s."
 scalar BlocklistCursor
@@ -2506,6 +2579,13 @@ scalar FavoriteChatsListVersion
   [2]: https://firebase.google.com/docs/cloud-messaging/js/client
 """
 scalar FcmRegistrationToken
+
+"""
+  International Bank Account Number (IBAN) in [ISO 13616-1:2020] format.
+
+  [ISO 13616-1:2020]: https://iso.org/standard/81090.html
+"""
+scalar IBAN
 
 """
   Either an [IPv4] or [IPv6] address.
@@ -2748,7 +2828,7 @@ scalar UserLogin
   requirements:
   - not start and end with space-like characters;
   - not contain line breaks;
-  - be at least 2 and maximum 100 characters long.
+  - be at least 1 and maximum 100 characters long.
 """
 scalar UserName
 
@@ -2848,6 +2928,24 @@ type Balance {
   sum: Sum!
   "Currency of this `Balance`."
   currency: Currency!
+}
+
+"Requisites of a bank account."
+type BankAccountRequisites {
+  "`IBAN` of the account."
+  iban: IBAN!
+  "Requisites of the bank the account belongs to."
+  bank: BankRequisites!
+}
+
+"Requisites of a bank."
+type BankRequisites {
+  "`BIC` of the bank."
+  bic: BIC!
+  "Name of the bank."
+  name: BankName!
+  "Address of the bank."
+  address: BankAddress!
 }
 
 "Error of performing `Mutation.blockUser`."
@@ -3924,6 +4022,12 @@ type CreateOperationDepositError {
   code: CreateOperationDepositErrorCode!
 }
 
+"Error of performing `Mutation.createOperationWithdraw`."
+type CreateOperationWithdrawError {
+  "Code indicating why this error has happened."
+  code: CreateOperationWithdrawErrorCode!
+}
+
 "Error of performing `Mutation.createSession`."
 type CreateSessionError {
   "Code indicating why this error has happened."
@@ -4460,7 +4564,7 @@ type EventChatCleared implements ChatEvent {
 type EventChatContactCreated implements ChatContactEvent {
   "ID of the created `ChatContact`."
   contactId: ChatContactId!
-  "Name of the created `ChatContact`"
+  "Name of the created `ChatContact`."
   name: UserName!
   "`DateTime` when the `ChatContact` was created."
   at: DateTime!
@@ -5090,6 +5194,32 @@ type EventOperationDepositFailed implements OperationEvent {
   at: DateTime!
 }
 
+"Event of a new `OperationDividend` being created."
+type EventOperationDividendCreated implements OperationEvent {
+  "Unique ID of the created `OperationDividend`."
+  id: OperationId!
+  "Sequential number of the created `OperationDividend`."
+  num: OperationNum!
+  """
+    Money `Sum` and `Currency` of the created `OperationDividend`.
+
+    `Currency` is always `XXX`.
+  """
+  amount: Price!
+  """
+    `OperationOrigin` of the created `OperationDividend`.
+
+    Always an `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the created `OperationDividend`."
+  operation: OperationsEdge!
+  "ID of the source `Operation` the `OperationDividend` was created for."
+  sourceId: OperationId!
+  "`DateTime` when the `OperationDividend` was created."
+  at: DateTime!
+}
+
 "Event of a new `OperationEarnDonation` being created."
 type EventOperationEarnDonationCreated implements OperationEvent {
   "Unique ID of the created `OperationEarnDonation`."
@@ -5239,6 +5369,34 @@ type EventOperationRewardCreated implements OperationEvent {
   """
   affiliatedNum: UserAffiliatedNum!
   "`DateTime` when the `OperationReward` was created."
+  at: DateTime!
+}
+
+"Event of a new `OperationWithdraw` being created."
+type EventOperationWithdrawCreated implements OperationEvent {
+  "Unique ID of the created `OperationWithdraw`."
+  id: OperationId!
+  "Sequential number of the created `OperationWithdraw`."
+  num: OperationNum!
+  """
+    `OperationOrigin` of the created `OperationWithdraw`.
+
+    Always an `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  "`OperationsEdge` of the created `OperationWithdraw`."
+  operation: OperationsEdge!
+  "Kind of the created `OperationWithdraw`."
+  kind: OperationWithdrawKind!
+  "Pricing of the created `OperationWithdraw`."
+  price: OperationWithdrawPricing!
+  "Billing country of the created `OperationWithdraw`."
+  billingCountry: CountryCode!
+  "Beneficiary `BankAccountRequisites` of the created `OperationWithdraw`."
+  beneficiary: BankAccountRequisites!
+  "Intermediary `BankAccountRequisites` of the created `OperationWithdraw`."
+  intermediary: BankAccountRequisites
+  "`DateTime` when the `OperationWithdraw` was created."
   at: DateTime!
 }
 
@@ -8354,6 +8512,21 @@ type Mutation {
 
     If absent or `null` then authentication is mandatory.
   """ secret: OperationDepositSecret): DeclineOperationDepositResult
+  """
+    Creates a new `OperationWithdraw`.
+
+    Exactly one of `kind` argument's fields must be specified (be
+    non-`null`).
+
+    ## Authentication
+
+    Mandatory.
+
+    ## Non-idempotent
+
+    Each time creates a new unique `OperationWithdraw`.
+  """
+  createOperationWithdraw("ID of the `OperationWithdrawMethod` to create the `OperationWithdraw` with." methodId: OperationWithdrawMethodId!, "Nominal to be withdrawn in XXX." nominal: Sum!, "Kind of the created `OperationWithdraw`." kind: OperationWithdrawInput!, "Billing `CountryCode` of the created `OperationWithdraw`." billingCountry: CountryCode!): CreateOperationWithdrawResult!
 }
 
 "Forever mute duration."
@@ -8642,7 +8815,7 @@ type OperationCharge implements Operation {
   """
   canceled: OperationCancellation
   """
-    Version of the `OperationCharge`'s state.
+    Version of this `OperationCharge`'s state.
 
     It increases monotonically, so may be used (and is intended to) for
     tracking state's actuality.
@@ -8718,7 +8891,7 @@ type OperationDeposit implements Operation {
   """
   canceled: OperationCancellation
   """
-    Version of the `OperationDeposit`'s state.
+    Version of this `OperationDeposit`'s state.
 
     It increases monotonically, so may be used (and is intended to) for
     tracking state's actuality.
@@ -8785,7 +8958,7 @@ type OperationDepositBonus implements Operation {
   """
   canceled: OperationCancellation
   """
-    Version of the `OperationDepositBonus`'s state.
+    Version of this `OperationDepositBonus`'s state.
 
     It increases monotonically, so may be used (and is intended to) for
     tracking state's actuality.
@@ -8816,12 +8989,78 @@ type OperationDepositMethod {
   """
   nominals: [Price!]
   """
-    `OperationDepositPricing` of this `OperationDepositMethod`.
+    `OperationDepositMethodPricing` of this `OperationDepositMethod`.
 
     `null` in case this `OperationDepositMethod` is unavailable for the
     provided `CountryCode`.
   """
-  pricing("`CountryCode` to return the `OperationDepositPricing` for." country: CountryCode!): OperationDepositPricing
+  pricing("""
+    Nominal to calculate the returned `OperationDepositMethodPricing` for.
+
+    If absent or `null` then the nominal `1` is assumed.
+
+    Integer-only, meaning that its fractional part should be zero.
+  """ nominal: Sum, "`CountryCode` to return the `OperationDepositMethodPricing` for." country: CountryCode!): OperationDepositMethodPricing
+}
+
+"Pricing of an `OperationDepositMethod`."
+type OperationDepositMethodPricing {
+  "Nominal `Price` of the `OperationDepositMethod`."
+  nominal: Price!
+  """
+    Bonus of the `nominal` `Price` to be granted as a separate
+    `OperationDepositBonus` once the original `OperationDeposit` is
+    completed successfully.
+
+    `null` if no bonus is granted.
+  """
+  bonus: PriceModifier
+  """
+    Calculated `Price` of the `OperationDepositMethod` to be paid, before
+    the `tax` being applied, in the provided `Currency`.
+
+    `null` if the provided `Currency` is not supported by the
+    `OperationDepositMethod`.
+
+    Doesn't include `bonus`.
+  """
+  withoutTax("""
+    `Currency` to return the calculated `Price` in.
+
+    If absent or `null` then the `Price` is returned in the actual paying `Currency` of the
+                              `OperationDepositMethod`.
+  """ currency: Currency): Price
+  """
+    Tax applied to the `withoutTax` `Price`, according to the billing
+    `CountryCode` of the `OperationDepositMethod`, in the provided
+    `Currency`.
+
+    `null` if the provided `Currency` is not supported by the
+    `OperationDepositMethod`.
+  """
+  tax("""
+    `Currency` to return the `tax` in.
+
+    If absent or `null` then the `tax` is returned in the actual paying `Currency` of the
+                              `OperationDepositMethod`.
+  """ currency: Currency): PriceModifier
+  """
+    Calculated total `Price` of the `OperationDepositMethod` to be paid,
+    after the `tax` being applied, in the provided `Currency`.
+
+    It's calculated as: `total = withoutTax + tax`.
+
+    `null` if the provided `Currency` is not supported by the
+    `OperationDepositMethod`.
+
+    Doesn't include `bonus`.
+  """
+  total("""
+    `Currency` to return the calculated `Price` in.
+
+    If absent or `null` then the `Price` is returned in the actual paying `Currency` of the
+                              `OperationDepositMethod`.
+  """ currency: Currency): Price
 }
 
 "Pricing of an `OperationDeposit`."
@@ -8881,6 +9120,68 @@ type OperationDepositPricing {
     If absent or `null` then the `Price` is returned in the actual paying `Currency` of the
                               `OperationDeposit`.
   """ currency: Currency): Price
+}
+
+"`Operation` of receiving dividend money."
+type OperationDividend implements Operation {
+  "ID of this `OperationDividend`."
+  id: OperationId!
+  "Sequential number of this `OperationDividend`."
+  num: OperationNum!
+  "Status of this `OperationDividend`."
+  status: OperationStatus!
+  """
+    `OperationOrigin` of this `OperationDividend`.
+
+    Always an `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  """
+    `OperationDirection` of this `OperationDividend`.
+
+    Always an `OperationDirection.INCOMING`.
+  """
+  direction: OperationDirection!
+  "ID of the source `Operation` this `OperationDividend` is created for."
+  sourceId: OperationId!
+  """
+    Money `Sum` and `Currency` of this `OperationDividend`.
+
+    `Currency` is always `XXX`.
+  """
+  amount: Price!
+  """
+    `OperationsEdge`s of the `Operation`s this `OperationDividend` is linked
+    to.
+
+    Always empty as an `OperationDividend` cannot be linked to other
+    `Operation`s.
+  """
+  linked: [OperationsEdge!]!
+  """
+    `DateTime` until which this `OperationDividend` is on hold.
+
+    If it's less than now, it means that the hold is in process of being
+    lifted yet.
+
+    `null` if this `OperationDividend` is not on hold.
+  """
+  holdUntil: DateTime
+  "`DateTime` when this `OperationDividend` was created."
+  createdAt: DateTime!
+  """
+    Information about why this `OperationDividend` was canceled.
+
+    Always `null` as an `OperationDividend` could never be canceled.
+  """
+  canceled: OperationCancellation
+  """
+    Version of this `OperationDividend`'s state.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  ver: OperationVersion!
 }
 
 "`Operation` of earning money as a `Vendor` from a made `Donation`."
@@ -9032,7 +9333,7 @@ type OperationGrant implements Operation {
   """
   canceled: OperationCancellation
   """
-    Version of the `OperationGrant`'s state.
+    Version of this `OperationGrant`'s state.
 
     It increases monotonically, so may be used (and is intended to) for
     tracking state's actuality.
@@ -9110,7 +9411,7 @@ type OperationPurchaseDonation implements Operation {
   """
   canceled: OperationCancellation
   """
-    Version of the `OperationPurchaseDonation`'s state.
+    Version of this `OperationPurchaseDonation`'s state.
 
     It increases monotonically, so may be used (and is intended to) for
     tracking state's actuality.
@@ -9177,12 +9478,120 @@ type OperationReward implements Operation {
   """
   canceled: OperationCancellation
   """
-    Version of the `OperationReward`'s state.
+    Version of this `OperationReward`'s state.
 
     It increases monotonically, so may be used (and is intended to) for
     tracking state's actuality.
   """
   ver: OperationVersion!
+}
+
+"`Operation` of withdrawing money by `MyUser`."
+type OperationWithdraw implements Operation {
+  "ID of this `OperationWithdraw`."
+  id: OperationId!
+  "Sequential number of this `OperationWithdraw`."
+  num: OperationNum!
+  "Kind of this `OperationWithdraw`."
+  kind: OperationWithdrawKind!
+  "Status of this `OperationWithdraw`."
+  status: OperationStatus!
+  """
+    `OperationOrigin` of this `OperationWithdraw`.
+
+    Always an `OperationOrigin.INCOME`.
+  """
+  origin: OperationOrigin!
+  """
+    `OperationDirection` of this `OperationWithdraw`.
+
+    Always an `OperationDirection.OUTGOING`.
+  """
+  direction: OperationDirection!
+  "Country of the billing address of this `OperationWithdraw`."
+  billingCountry: CountryCode!
+  "Beneficiary `BankAccountRequisites` of this `OperationWithdraw`."
+  beneficiary: BankAccountRequisites!
+  "Intermediary `BankAccountRequisites` of this `OperationWithdraw`."
+  intermediary: BankAccountRequisites
+  "Nominal `Price` of this `OperationWithdraw`."
+  amount: Price!
+  "Pricing of this `OperationWithdraw`."
+  price: OperationWithdrawPricing!
+  """
+    `OperationsEdge`s of the `Operation`s this `OperationWithdraw` is linked
+    to.
+
+    Always empty as an `OperationWithdraw` cannot be linked to other
+    `Operation`s.
+  """
+  linked: [OperationsEdge!]!
+  """
+    `DateTime` until which this `OperationWithdraw` is on hold.
+
+    Always `null` as an `OperationWithdraw` could never be on hold.
+  """
+  holdUntil: DateTime
+  "`DateTime` when this `OperationWithdraw` was created."
+  createdAt: DateTime!
+  """
+    Information about why this `OperationWithdraw` was canceled.
+
+    Always `null` as an `OperationWithdraw` could never be canceled.
+  """
+  canceled: OperationCancellation
+  """
+    Version of this `OperationWithdraw`'s state.
+
+    It increases monotonically, so may be used (and is intended to) for
+    tracking state's actuality.
+  """
+  ver: OperationVersion!
+}
+
+"Pricing of an `OperationWithdrawMethod`."
+type OperationWithdrawMethodPricing {
+  "Nominal `Price` of the `OperationWithdrawMethod`."
+  nominal: Price!
+  """
+    Commission details of the `OperationWithdrawMethod`, in the provided
+    `Currency`.
+
+    `null` if the provided `Currency` is not supported by the
+    `OperationWithdrawMethod` or commission details are unavailable for the
+    provided `Currency`.
+  """
+  commission("""
+    `Currency` to return the calculated commission in.
+
+    If absent or `null` then the commission is returned in the actual paying `Currency` of the
+                              `OperationWithdraw`.
+  """ currency: Currency): OperationWithdrawPricingCommission
+  """
+    Approximate `Price` of the `OperationWithdrawMethod`, in the provided
+    `Currency`, before the commission deduction.
+
+    `null` if the provided `Currency` is not supported by the
+    `OperationWithdraw`.
+  """
+  withoutCommission("""
+    `Currency` to return the calculated `Price` in.
+
+    If absent or `null` then the `Price` is returned in the actual paying `Currency` of the
+                              `OperationWithdraw`.
+  """ currency: Currency): Price
+  """
+    Minimum nominal `Price` allowed to withdraw.
+
+    `null` means no limit.
+  """
+  min: Price
+  """
+    Maximum nominal `Price` allowed to withdraw.
+
+    `null` means no limit.
+  """
+  max: Price
 }
 
 """
@@ -9211,12 +9620,16 @@ type OperationWithdrawMethodSwift implements OperationWithdrawMethod {
   "`Currency` of this `OperationWithdrawMethodSwift`."
   currency: Currency!
   """
-    `OperationWithdrawPricing` of this `OperationWithdrawMethodSwift`.
+    `OperationWithdrawMethodPricing` of this `OperationWithdrawMethodSwift`.
 
     `null` in case this `OperationWithdrawMethodSwift` is unavailable for
     the provided `CountryCode`.
   """
-  pricing("`CountryCode` to return the `OperationWithdrawPricing` for." country: CountryCode!): OperationWithdrawPricing
+  pricing("""
+    Nominal to calculate the returned `OperationWithdrawMethodPricing` for.
+
+    If absent or `null` then the nominal `1` is assumed.
+  """ nominal: Sum, "`CountryCode` to return the `OperationWithdrawMethodPricing` for." country: CountryCode!): OperationWithdrawMethodPricing
 }
 
 "Pricing of an `OperationWithdraw`."
@@ -9250,18 +9663,6 @@ type OperationWithdrawPricing {
     If absent or `null` then the `Price` is returned in the actual paying `Currency` of the
                               `OperationWithdraw`.
   """ currency: Currency): Price
-  """
-    Minimum nominal `Price` allowed to withdraw.
-
-    `null` means no limit.
-  """
-  min: Price
-  """
-    Maximum nominal `Price` allowed to withdraw.
-
-    `null` means no limit.
-  """
-  max: Price
 }
 
 "Commission details of an `OperationWithdraw`."
@@ -10304,8 +10705,8 @@ type Query {
   """
   operationDepositMethods: [OperationDepositMethod!]!
   """
-    Returns `OperationDepositPricing` of the `OperationDepositMethod` by its
-    ID.
+    Returns `OperationDepositMethodPricing` of the `OperationDepositMethod`
+    by its ID.
 
     `null` in case the provided `OperationDepositMethod` is unavailable for
     the provided `CountryCode` or for the authenticated `MyUser`.
@@ -10314,7 +10715,13 @@ type Query {
 
     Mandatory.
   """
-  operationDepositPricing("ID of the `OperationDepositMethod` to return the `OperationDepositPricing` for." methodId: OperationDepositMethodId!, "`CountryCode` to return the `OperationDepositPricing` for." country: CountryCode!): OperationDepositPricing
+  operationDepositMethodPricing("ID of the `OperationDepositMethod` to return the `OperationDepositMethodPricing` for." methodId: OperationDepositMethodId!, """
+    Nominal to calculate the returned `OperationDepositMethodPricing` for.
+
+    If absent or `null` then the nominal `1` is assumed.
+
+    Integer-only, meaning that its fractional part should be zero.
+  """ nominal: Sum, "`CountryCode` to return the `OperationDepositMethodPricing` for." country: CountryCode!): OperationDepositMethodPricing
   """
     Returns information about available `OperationWithdrawMethod`s for the
     authenticated `MyUser`.
@@ -10325,7 +10732,8 @@ type Query {
   """
   operationWithdrawMethods: [OperationWithdrawMethod!]!
   """
-    Returns `OperationWithdrawPricing` of an `OperationWithdrawMethod`.
+    Returns `OperationWithdrawMethodPricing` of an
+    `OperationWithdrawMethod`.
 
     `null` in case the provided `OperationWithdrawMethod` is unavailable for
     the provided `CountryCode` or for the authenticated `MyUser`.
@@ -10334,7 +10742,11 @@ type Query {
 
     Mandatory.
   """
-  operationWithdrawPricing("ID of the `OperationWithdrawMethod` to return the `OperationWithdrawPricing` for." methodId: OperationWithdrawMethodId!, "`CountryCode` to return the `OperationWithdrawPricing` for." country: CountryCode!): OperationWithdrawPricing
+  operationWithdrawMethodPricing("ID of the `OperationWithdrawMethod` to return the `OperationWithdrawMethodPricing` for." methodId: OperationWithdrawMethodId!, """
+    Nominal to calculate the returned `OperationWithdrawMethodPricing` for.
+
+    If absent or `null` then the nominal `1` is assumed.
+  """ nominal: Sum, "`CountryCode` to return the `OperationWithdrawMethodPricing` for." country: CountryCode!): OperationWithdrawMethodPricing
   """
     Returns the current `Balance` of the authenticated `MyUser` in the
     provided `BalanceOrigin`.
@@ -12147,6 +12559,9 @@ union CreateGroupChatResult = Chat | CreateGroupChatError
 
 "Result of performing `Mutation.createOperationDeposit`."
 union CreateOperationDepositResult = OperationEventsVersioned | CreateOperationDepositError
+
+"Result of performing `Mutation.createOperationWithdraw`."
+union CreateOperationWithdrawResult = OperationEventsVersioned | CreateOperationWithdrawError
 
 "Result of performing `Mutation.createSession`."
 union CreateSessionResult = CreateSessionOk | CreateSessionError
