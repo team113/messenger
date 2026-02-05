@@ -1,5 +1,1 @@
-- Se añadió el chat de soporte.
-- Se añadió el botón de registros a las notas y los chats de soporte.
-- Se añadió un selector modal de dispositivo de salida al pulsar el botón de cambio en una llamada con dispositivos externos conectados en dispositivos móviles.
-- Se añadieron botones para unirse y rechazar llamadas a la página de perfil del usuario.
-- Corrección de errores y mejoras de rendimiento.
+- Permitir que el nombre de usuario tenga 1 símbolo de longitud.
