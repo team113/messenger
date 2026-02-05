@@ -283,7 +283,7 @@ class UserName extends NewType<String> {
   factory UserName.fromJson(String val) = UserName.unchecked;
 
   /// Regular expression for basic [UserName] validation.
-  static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
+  static final RegExp _regExp = RegExp(r'^.{0,99}[^\s]$');
 
   /// Parses the provided [val] as a [UserName], if [val] meets the validation,
   /// or returns `null` otherwise.
