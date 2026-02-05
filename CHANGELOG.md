@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.9.0] · 2026-02-05
+[0.9.0]: /../../tree/v0.9.0
+
+[Diff](/../../compare/v0.8.2...v0.9.0) | [Milestone](/../../milestone/65)
+
+### Changed
+
+- UI:
+    - Profile page:
+        - Allow name to be 1 symbols long. ([#1600])
+
+[#1600]: /../../pull/1600
+
+
+
+
 ## [0.8.2] · 2026-02-02
 [0.8.2]: /../../tree/v0.8.2
 
