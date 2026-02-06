@@ -1215,6 +1215,8 @@ class OngoingCall {
         if (enabled) {
           videoState.value = LocalTrackState.enabling;
           try {
+            await _updateSettings(video: true);
+
             await _room?.enableVideo(MediaSourceKind.device);
             videoState.value = LocalTrackState.enabled;
 
