@@ -85,6 +85,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
         final Alignment alignment = Alignment(qx, qy);
 
         return Listener(
+          behavior: HitTestBehavior.deferToChild,
           onPointerUp: (_) async {
             await _controller?.reverse();
             widget.onDismissed?.call();
