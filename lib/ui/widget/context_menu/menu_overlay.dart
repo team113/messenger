@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
@@ -83,12 +84,25 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
         if (widget.position.dx > (constraints.maxWidth) / 2) qx = -1;
         if (widget.position.dy > (constraints.maxHeight) / 2) qy = -1;
         final Alignment alignment = Alignment(qx, qy);
-
+        Offset position = Offset.zero;
+        int buttons = 0;
         return Listener(
-          behavior: HitTestBehavior.deferToChild,
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (e) {
+            position = e.position;
+            buttons = e.buttons;
+          },
           onPointerUp: (_) async {
             await _controller?.reverse();
             widget.onDismissed?.call();
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              GestureBinding.instance.handlePointerEvent(
+                PointerDownEvent(position: position, buttons: buttons),
+              );
+              GestureBinding.instance.handlePointerEvent(
+                PointerUpEvent(position: position),
+              );
+            });
           },
           child: FadeTransition(
             opacity: _animation,
