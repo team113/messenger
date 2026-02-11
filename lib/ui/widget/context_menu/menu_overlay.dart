@@ -86,23 +86,27 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
         final Alignment alignment = Alignment(qx, qy);
         Offset position = Offset.zero;
         int buttons = 0;
+        bool isSecondaryClick = false;
         return Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (e) {
             position = e.position;
             buttons = e.buttons;
+            isSecondaryClick = e.buttons & kSecondaryMouseButton != 0;
           },
           onPointerUp: (_) async {
             await _controller?.reverse();
             widget.onDismissed?.call();
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              GestureBinding.instance.handlePointerEvent(
-                PointerDownEvent(position: position, buttons: buttons),
-              );
-              GestureBinding.instance.handlePointerEvent(
-                PointerUpEvent(position: position),
-              );
-            });
+            if (isSecondaryClick) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                GestureBinding.instance.handlePointerEvent(
+                  PointerDownEvent(position: position, buttons: buttons),
+                );
+                GestureBinding.instance.handlePointerEvent(
+                  PointerUpEvent(position: position),
+                );
+              });
+            }
           },
           child: FadeTransition(
             opacity: _animation,
