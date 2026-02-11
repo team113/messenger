@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -165,7 +166,12 @@ class CallOverlayController extends GetxController {
             '$runtimeType',
           );
 
-          return _callService.remove(value.chatId.value);
+          // Remove the call after a tick due to this event already being a
+          // change in the list of calls.
+          return Future.delayed(
+            Duration.zero,
+            () => _callService.remove(value.chatId.value),
+          );
         }
 
         bool redialed = false;
@@ -176,10 +182,10 @@ class CallOverlayController extends GetxController {
         }
 
         final bool alreadyJoined =
-            value.call.value?.members.any(
+            value.call.value?.members.none(
               (e) => e.user.id == _chatService.me,
-            ) !=
-            null;
+            ) ==
+            false;
 
         // If this call is already joined by our user, then ignore it.
         if (alreadyJoined) {
@@ -188,7 +194,12 @@ class CallOverlayController extends GetxController {
             '$runtimeType',
           );
 
-          return _callService.remove(value.chatId.value);
+          // Remove the call after a tick due to this event already being a
+          // change in the list of calls.
+          return Future.delayed(
+            Duration.zero,
+            () => _callService.remove(value.chatId.value),
+          );
         }
 
         // If redialed, then show the notification anyway.
@@ -198,7 +209,12 @@ class CallOverlayController extends GetxController {
             final RxChat? chat = await _chatService.get(value.chatId.value);
             final MuteDuration? chatMuted = chat?.chat.value.muted;
             if (chatMuted != null) {
-              return _callService.remove(value.chatId.value);
+              // Remove the call after a tick due to this event already being a
+              // change in the list of calls.
+              return Future.delayed(
+                Duration.zero,
+                () => _callService.remove(value.chatId.value),
+              );
             }
           } catch (_) {
             // No-op, as it's ok to fail.
