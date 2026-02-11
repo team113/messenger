@@ -306,6 +306,11 @@ class AudioUtilsImpl {
   /// [speaker] can be set to transition the currently selected one into that
   /// when intent is acquire for the first time.
   Stream<void> acquire(AudioMode mode, {AudioSpeakerKind? speaker}) {
+    Log.debug(
+      'acquire(${mode.name}, speaker: ${speaker?.name})',
+      '$runtimeType',
+    );
+
     final _AudioIntent intent = _AudioIntent(mode, speaker: speaker);
 
     final StreamController<void> controller = StreamController.broadcast(
@@ -404,10 +409,8 @@ class AudioUtilsImpl {
       }
 
       if (preferredSpeaker != null) {
-        // If we're using headphones, and the preferred one is speaker, then
-        // shouldn't switch.
-        if (speaker.value == AudioSpeakerKind.headphones &&
-            preferredSpeaker == AudioSpeakerKind.speaker) {
+        // If we're using headphones, then shouldn't switch.
+        if (speaker.value == AudioSpeakerKind.headphones) {
           // No-op.
         } else {
           await setSpeaker(preferredSpeaker);

@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Enabled video sometimes not being seen by participants. ([#1602])
+        - Call buttons dragged from dock to panel are being left hanging on screen. ([#1602])
 
 [#1602]: /../../pull/1602
 

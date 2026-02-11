@@ -138,7 +138,7 @@ PODS:
   - medea_flutter_webrtc (0.17.1):
     - Flutter
     - instrumentisto-libwebrtc-bin (= 144.0.7559.59)
-  - medea_jason (0.13.0):
+  - medea_jason (0.13.1):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
     - Flutter
@@ -161,9 +161,9 @@ PODS:
   - PromisesObjC (2.4.0)
   - screen_brightness_ios (0.1.0):
     - Flutter
-  - SDWebImage (5.21.5):
-    - SDWebImage/Core (= 5.21.5)
-  - SDWebImage/Core (5.21.5)
+  - SDWebImage (5.21.6):
+    - SDWebImage/Core (= 5.21.6)
+  - SDWebImage/Core (5.21.6)
   - Sentry/HybridSDK (8.56.2)
   - sentry_flutter (9.9.1):
     - Flutter
@@ -395,7 +395,7 @@ SPEC CHECKSUMS:
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   mdk: 59bbe9e2ac2a052455ab1b076c245680d66cf6c0
   medea_flutter_webrtc: eab4050bb9908dae4721e648ad079e3e78b5bb5c
-  medea_jason: a194408812130a4596fd423210fed2932c213735
+  medea_jason: 5197f19b7081faee25e9bb29d165dcf60039d1fb
   media_kit_libs_ios_video: 5a18affdb97d1f5d466dc79988b13eff6c5e2854
   media_kit_video: 1746e198cb697d1ffb734b1d05ec429d1fcd1474
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
@@ -405,7 +405,7 @@ SPEC CHECKSUMS:
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   screen_brightness_ios: 9953fd7da5bd480f1a93990daeec2eb42d4f3b52
-  SDWebImage: e9c98383c7572d713c1a0d7dd2783b10599b9838
+  SDWebImage: 1bb6a1b84b6fe87b972a102bdc77dd589df33477
   Sentry: b53951377b78e21a734f5dc8318e333dbfc682d7
   sentry_flutter: 580133c878f86698e23bb5dd7217a3387c4b79b5
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
