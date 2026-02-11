@@ -518,7 +518,7 @@ class DeviceDetails extends MediaDeviceDetails {
   AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
 
   @override
-  String toString() => id();
+  String toString() => 'DeviceDetails(id: ${id()}, label: ${label()})';
 
   @override
   int get hashCode => (id() + deviceId()).hashCode;

@@ -371,6 +371,9 @@ class OngoingCall {
   /// [Mutex] guarding access to [setRemoteVideoEnabled].
   final Mutex _videoGuard = Mutex();
 
+  /// Currently applied [MediaStreamSettings].
+  MediaStreamSettings? _settings;
+
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -1150,19 +1153,12 @@ class OngoingCall {
           try {
             if (!hasAudio) {
               await _room?.enableAudio(MediaSourceKind.device);
-
-              final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-                audio: AudioPreferences(
-                  device: audioDevice.value?.deviceId(),
-                  noiseSuppression: _noiseSuppression.value,
-                  noiseSuppressionLevel: _noiseSuppressionLevel.value,
-                  echoCancellation: _echoCancellation.value,
-                  autoGainControl: _autoGainControl.value,
-                  highPassFilter: _highPassFilter.value,
-                ),
+              await _updateSettings(
+                audio: true,
+                audioDevice: audioDevice.value,
               );
-              tracks.forEach(_addLocalTrack);
             }
+
             await _room?.unmuteAudio(MediaSourceKind.device);
             audioState.value = LocalTrackState.enabled;
           } on MediaStateTransitionException catch (_) {
@@ -1215,8 +1211,10 @@ class OngoingCall {
         if (enabled) {
           videoState.value = LocalTrackState.enabling;
           try {
-            await _room?.enableVideo(MediaSourceKind.device);
             videoState.value = LocalTrackState.enabled;
+
+            await _ensureMediaSettings();
+            await _room?.enableVideo(MediaSourceKind.device);
 
             final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
               video: VideoPreferences(
@@ -2121,7 +2119,7 @@ class OngoingCall {
         // Second, set all constraints to `true` (disabled tracks will not be
         // sent).
         await _room?.setLocalMediaSettings(
-          _mediaStreamSettings(
+          _settings = _mediaStreamSettings(
             audioDevice: audioDevice.value,
             videoDevice: videoDevice.value,
             screenDevice: screenDevice.value,
@@ -2165,7 +2163,7 @@ class OngoingCall {
       // Set all the constraints to ensure no disabled track is sent while
       // initializing the local media.
       await _room?.setLocalMediaSettings(
-        _mediaStreamSettings(
+        _settings = _mediaStreamSettings(
           audio: hasAudio || audioState.value.isEnabled,
           video: videoState.value.isEnabled,
           screen: screenShareState.value.isEnabled,
@@ -2301,13 +2299,13 @@ class OngoingCall {
           // should reset settings first.
           if (PlatformUtils.isWeb && audioDevice != this.audioDevice.value) {
             await _room?.setLocalMediaSettings(
-              _mediaStreamSettings(),
+              _settings = _mediaStreamSettings(),
               true,
-              true,
+              false,
             );
           }
 
-          final MediaStreamSettings settings = _mediaStreamSettings(
+          _settings = _mediaStreamSettings(
             audio: audio ?? hasAudio,
             video: video ?? videoState.value.isEnabled,
             screen: screen ?? screenShareState.value.isEnabled,
@@ -2317,7 +2315,7 @@ class OngoingCall {
             screenAudio: screenAudio ?? this.screenAudio.value,
           );
 
-          await _room?.setLocalMediaSettings(settings, true, true);
+          await _room?.setLocalMediaSettings(_settings!, true, false);
           this.audioDevice.value = audioDevice ?? this.audioDevice.value;
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
           this.screenDevice.value = screenDevice ?? this.screenDevice.value;
@@ -2327,6 +2325,11 @@ class OngoingCall {
             audio: audio == true || audioDevice != null,
             video: video == true || videoDevice != null,
             screen: screen == true || screenDevice != null,
+          );
+        } on MediaSettingsUpdateException catch (e) {
+          Log.warning(
+            '_updateSettings(audioDevice: $audioDevice, videoDevice: $videoDevice, screenDevice: $screenDevice) failed: $e',
+            '$runtimeType',
           );
         } on LocalMediaInitException catch (e) {
           await _handleFailedLocalMedia(e);
@@ -2342,6 +2345,21 @@ class OngoingCall {
         _mediaSettingsGuard.release();
       }
     }
+  }
+
+  /// Ensures the [MediaStreamSettings] reflect the current states.
+  Future<void> _ensureMediaSettings() async {
+    _settings = _mediaStreamSettings(
+      audio: hasAudio || audioState.value.isEnabled,
+      video: hasCamera || videoState.value.isEnabled,
+      screen: hasScreen || screenShareState.value.isEnabled,
+      audioDevice: audioDevice.value,
+      videoDevice: videoDevice.value,
+      screenDevice: screenDevice.value,
+      screenAudio: screenAudio.value,
+    );
+
+    await _room?.setLocalMediaSettings(_settings!, true, false);
   }
 
   /// Updates the local tracks corresponding to the current media
@@ -2401,7 +2419,8 @@ class OngoingCall {
               // Currently used [MediaKind.audio] track has ended, try picking a
               // new one.
               audioDevice.value = null;
-              _pickAudioDevice();
+              _preferredAudioDevice = null;
+              _pickAudioDevice([track.getTrack().deviceId()]);
               break;
 
             case MediaSourceKind.display:
@@ -2608,11 +2627,14 @@ class OngoingCall {
   }
 
   /// Picks the [audioDevice] based on the [devices] list.
-  Future<void> _pickAudioDevice() async {
-    Log.debug('_pickAudioDevice()', '$runtimeType');
+  Future<void> _pickAudioDevice([List<String> without = const []]) async {
+    Log.debug('_pickAudioDevice(without: $without)', '$runtimeType');
 
     // TODO: For Android and iOS, default device is __NOT__ the first one.
-    final Iterable<DeviceDetails> audio = devices.audio();
+    final Iterable<DeviceDetails> audio = devices.audio().whereNot(
+      (e) => without.contains(e.id()),
+    );
+
     final DeviceDetails? device =
         audio.firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
         audio.firstOrNull;
