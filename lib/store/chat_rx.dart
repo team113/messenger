@@ -2296,6 +2296,25 @@ class RxChatImpl extends RxChat {
                   }
                 }
               }
+
+              // If it's us who joined the call, the remote the pending call
+              // notification, if any.
+              if (event.user.id == me) {
+                final Rx<OngoingCall>? call =
+                    _chatRepository.calls[event.call.chatId];
+
+                // If call is not yet connected to remote updates, then it's
+                // still just a notification and it should be removed.
+                if (call?.value.connected == false &&
+                    call?.value.isActive == false) {
+                  Log.debug(
+                    '_chatEvent(${event.kind}) -> doing `_chatRepository.endCall()` due to it being considered a notification with our user already in its members',
+                    '$runtimeType',
+                  );
+
+                  _chatRepository.endCall(event.call.chatId);
+                }
+              }
               break;
 
             case ChatEventKind.lastItemUpdated:

@@ -160,6 +160,11 @@ class CallOverlayController extends GetxController {
         // If global `MyUser` mute is applied, then ignore the call.
         final MuteDuration? meMuted = _myUserService.myUser.value?.muted;
         if (meMuted != null) {
+          Log.debug(
+            '_handleAddedCall($key) -> ignoring due to `meMuted` being: $meMuted',
+            '$runtimeType',
+          );
+
           return _callService.remove(value.chatId.value);
         }
 
@@ -168,6 +173,22 @@ class CallOverlayController extends GetxController {
         final ChatMembersDialed? dialed = value.call.value?.dialed;
         if (dialed is ChatMembersDialedConcrete) {
           redialed = dialed.members.any((e) => e.user.id == _chatService.me);
+        }
+
+        final bool alreadyJoined =
+            value.call.value?.members.any(
+              (e) => e.user.id == _chatService.me,
+            ) !=
+            null;
+
+        // If this call is already joined by our user, then ignore it.
+        if (alreadyJoined) {
+          Log.debug(
+            '_handleAddedCall($key) -> ignoring due to `alreadyJoined`: ${value.call.value?.members.map((e) => '${e.user.id} (${e.user.name ?? e.user.num})').join(', ')} already contains me(${_chatService.me})',
+            '$runtimeType',
+          );
+
+          return _callService.remove(value.chatId.value);
         }
 
         // If redialed, then show the notification anyway.
@@ -182,6 +203,11 @@ class CallOverlayController extends GetxController {
           } catch (_) {
             // No-op, as it's ok to fail.
           }
+        } else {
+          Log.debug(
+            '_handleAddedCall($key) -> ignoring due to `redialed`: ${value.call.value?.dialed})',
+            '$runtimeType',
+          );
         }
         break;
 
