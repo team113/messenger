@@ -87,6 +87,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
         Offset position = Offset.zero;
         int buttons = 0;
         bool isSecondaryClick = false;
+
         return Listener(
           behavior: HitTestBehavior.translucent,
           onPointerDown: (e) {
