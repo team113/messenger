@@ -99,6 +99,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
                   ),
                   child: TapRegion(
                     onTapInside: (e) async {
+                      widget.onClose?.call();
                       await _controller?.reverse();
                       widget.onDismissed?.call();
                     },
