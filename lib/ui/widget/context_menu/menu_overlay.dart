@@ -57,7 +57,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
   /// Animation of [FadeTransition].
   late final Animation<double> _animation;
 
-  /// Closes the menu by reversing the animation and calling callbacks.
+  /// Closes the [ContextMenu].
   Future<void> _dismiss() async {
     widget.onClose?.call();
     await _controller.reverse();
