@@ -52,27 +52,33 @@ class ContextMenuOverlay extends StatefulWidget {
 class _ContextMenuOverlayState extends State<ContextMenuOverlay>
     with TickerProviderStateMixin {
   /// Controller animating [FadeTransition].
-  AnimationController? _controller;
+  late final AnimationController _controller;
 
   /// Animation of [FadeTransition].
-  late Animation<double> _animation;
+  late final Animation<double> _animation;
+
+  /// Closes the menu by reversing the animation and calling callbacks.
+  Future<void> _dismiss() async {
+    widget.onClose?.call();
+    await _controller.reverse();
+    widget.onDismissed?.call();
+  }
 
   @override
   void initState() {
+    super.initState();
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
     )..forward();
 
-    _animation = CurvedAnimation(parent: _controller!, curve: Curves.easeIn);
-
-    super.initState();
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
-    _controller = null;
+    _controller.dispose();
     super.dispose();
   }
 
@@ -98,16 +104,8 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
                     alignment.y > 0 ? 0 : -1,
                   ),
                   child: TapRegion(
-                    onTapInside: (e) async {
-                      widget.onClose?.call();
-                      await _controller?.reverse();
-                      widget.onDismissed?.call();
-                    },
-                    onTapOutside: (e) async {
-                      widget.onClose?.call();
-                      await _controller?.reverse();
-                      widget.onDismissed?.call();
-                    },
+                    onTapInside: (_) => _dismiss(),
+                    onTapOutside: (_) => _dismiss(),
                     child: ContextMenu(actions: widget.actions),
                   ),
                 ),
