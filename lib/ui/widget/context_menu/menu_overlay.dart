@@ -15,10 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
 import 'menu.dart';
 
 /// [ContextMenu] with [FadeTransition].
@@ -30,6 +28,7 @@ class ContextMenuOverlay extends StatefulWidget {
     required this.position,
     required this.actions,
     this.onDismissed,
+    this.onClosing,
   });
 
   /// Position of [ContextMenu].
@@ -41,6 +40,9 @@ class ContextMenuOverlay extends StatefulWidget {
   /// Callback, called when animation of this [ContextMenuOverlay] is
   /// [AnimationStatus.dismissed].
   final void Function()? onDismissed;
+
+  /// Callback, called when this [ContextMenuOverlay] starts closing.
+  final void Function()? onClosing;
 
   @override
   State<ContextMenuOverlay> createState() => _ContextMenuOverlayState();
@@ -76,60 +78,40 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return LayoutBuilder(
       builder: (_, constraints) {
         double qx = 1, qy = 1;
         if (widget.position.dx > (constraints.maxWidth) / 2) qx = -1;
         if (widget.position.dy > (constraints.maxHeight) / 2) qy = -1;
         final Alignment alignment = Alignment(qx, qy);
-        Offset position = Offset.zero;
-        int buttons = 0;
-        bool isSecondaryClick = false;
 
-        return Listener(
-          behavior: HitTestBehavior.translucent,
-          onPointerDown: (e) {
-            position = e.position;
-            buttons = e.buttons;
-            isSecondaryClick = e.buttons & kSecondaryMouseButton != 0;
-          },
-          onPointerUp: (_) async {
-            await _controller?.reverse();
-            widget.onDismissed?.call();
-            if (isSecondaryClick) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                GestureBinding.instance.handlePointerEvent(
-                  PointerDownEvent(position: position, buttons: buttons),
-                );
-                GestureBinding.instance.handlePointerEvent(
-                  PointerUpEvent(position: position),
-                );
-              });
-            }
-          },
-          child: FadeTransition(
-            opacity: _animation,
-            child: Container(
-              color: style.colors.transparent,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned(
-                    left: widget.position.dx,
-                    top: widget.position.dy,
-                    child: FractionalTranslation(
-                      translation: Offset(
-                        alignment.x > 0 ? 0 : -1,
-                        alignment.y > 0 ? 0 : -1,
-                      ),
-                      child: ContextMenu(actions: widget.actions),
-                    ),
+        return FadeTransition(
+          opacity: _animation,
+          child: Stack(
+            children: [
+              Positioned(
+                left: widget.position.dx,
+                top: widget.position.dy,
+                child: FractionalTranslation(
+                  translation: Offset(
+                    alignment.x > 0 ? 0 : -1,
+                    alignment.y > 0 ? 0 : -1,
                   ),
-                ],
+                  child: TapRegion(
+                    onTapInside: (e) async {
+                      await _controller?.reverse();
+                      widget.onDismissed?.call();
+                    },
+                    onTapOutside: (e) async {
+                      widget.onClosing?.call();
+                      await _controller?.reverse();
+                      widget.onDismissed?.call();
+                    },
+                    child: ContextMenu(actions: widget.actions),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         );
       },

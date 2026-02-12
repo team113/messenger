@@ -250,8 +250,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   Future<void> _show(BuildContext context, Offset position) async {
     final style = Theme.of(context).style;
 
-    if (_displayed || widget.actions.isEmpty) {
-      return;
+    if (widget.actions.isEmpty) return;
+
+    if (_displayed) {
+      _entry?.remove();
+      _entry = null;
+      _displayed = false;
+      await Future.microtask(() {});
     }
 
     HapticFeedback.lightImpact();
@@ -317,8 +322,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     } else {
       _entry = OverlayEntry(
         builder: (_) {
-          return Listener(
-            onPointerUp: (d) {
+          return ContextMenuOverlay(
+            position: position,
+            actions: widget.actions,
+            onClosing: () {
+              _darkened = false;
+            },
+            onDismissed: () {
               _displayed = false;
               if (widget.indicateOpenedMenu) {
                 _darkened = false;
@@ -326,12 +336,9 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
               if (mounted) {
                 setState(() {});
               }
+              _entry?.remove();
+              _entry = null;
             },
-            child: ContextMenuOverlay(
-              position: position,
-              actions: widget.actions,
-              onDismissed: _entry?.remove,
-            ),
           );
         },
       );
