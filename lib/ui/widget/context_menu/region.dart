@@ -330,9 +330,6 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
             },
             onDismissed: () {
               _displayed = false;
-              if (widget.indicateOpenedMenu) {
-                _darkened = false;
-              }
               if (mounted) {
                 setState(() {});
               }
