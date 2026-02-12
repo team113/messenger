@@ -325,7 +325,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           return ContextMenuOverlay(
             position: position,
             actions: widget.actions,
-            onClosing: () {
+            onClose: () {
               _darkened = false;
             },
             onDismissed: () {

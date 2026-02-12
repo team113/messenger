@@ -28,7 +28,7 @@ class ContextMenuOverlay extends StatefulWidget {
     required this.position,
     required this.actions,
     this.onDismissed,
-    this.onClosing,
+    this.onClose,
   });
 
   /// Position of [ContextMenu].
@@ -42,7 +42,7 @@ class ContextMenuOverlay extends StatefulWidget {
   final void Function()? onDismissed;
 
   /// Callback, called when this [ContextMenuOverlay] starts closing.
-  final void Function()? onClosing;
+  final void Function()? onClose;
 
   @override
   State<ContextMenuOverlay> createState() => _ContextMenuOverlayState();
@@ -103,7 +103,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
                       widget.onDismissed?.call();
                     },
                     onTapOutside: (e) async {
-                      widget.onClosing?.call();
+                      widget.onClose?.call();
                       await _controller?.reverse();
                       widget.onDismissed?.call();
                     },
