@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.10.0] · 2026-??-??
+[0.10.0]: /../../tree/v0.10.0
+
+[Diff](/../../compare/v0.9.1...v0.10.0) | [Milestone](/../../milestone/67)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Pending call notification being displayed when already joined on another device. ([#1605])
+
+[#1605]: /../../pull/1605
+
+
+
+
 ## [0.9.1] · 2026-02-11
 [0.9.1]: /../../tree/v0.9.1
 
