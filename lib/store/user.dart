@@ -124,7 +124,10 @@ class UserRepository extends DisposableInterface
         )
         .toList();
 
-    Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
+    Map<UserId, RxUser> toMap(RxUser? u) {
+      if (u == null) return {};
+      return {u.id: u};
+    }
 
     return PaginatedImpl(
       pagination: pagination,

@@ -737,7 +737,7 @@ class SearchController extends GetxController {
         // Display users found globally in [chats] as [_matchesQuery] cannot
         // filter by [ChatDirectLink] and [UserLogin].
         chats.value = {
-          if (monolog != null) _chatService.monolog: monolog,
+          _chatService.monolog: ?monolog,
           for (final c in sorted) c.chat.value.id: c,
         };
       }
