@@ -379,6 +379,7 @@ class MediaUtilsImpl {
           DisplayVideoTrackConstraints();
       if (screen.device != null) constraints.deviceId(screen.device!);
       constraints.idealFrameRate(screen.framerate ?? 30);
+      constraints.idealWidth(1920);
       constraints.idealHeight(1080);
       settings.displayVideo(constraints);
 
