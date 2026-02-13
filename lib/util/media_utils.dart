@@ -200,8 +200,7 @@ class MediaUtilsImpl {
     // Browsers and mobiles already may include their own default devices.
     if (kind == null || kind == MediaDeviceKind.audioInput) {
       final DeviceDetails? hasDefault = devices.firstWhereOrNull(
-        (d) =>
-            d.kind() == MediaDeviceKind.audioInput && d.deviceId() == 'default',
+        (d) => d.kind() == MediaDeviceKind.audioInput && d.id() == 'default',
       );
 
       if (hasDefault == null) {
@@ -215,23 +214,27 @@ class MediaUtilsImpl {
           }
         }
       } else {
+        // Sort the default device to the top, as it might be somewhere else.
+        if (PlatformUtils.isWeb) {
+          devices.removeWhere((e) => e.id() == hasDefault.id());
+          devices.insert(0, hasDefault);
+        }
+
         // Audio input on mobile devices is handled by `medea_jason`, and we
         // should not interfere, as otherwise we may run into
         // [MediaSettingsUpdateException].
         if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-          devices.remove(hasDefault);
+          devices.removeWhere((e) => e.id() == hasDefault.id());
         }
       }
     }
 
     if (kind == null || kind == MediaDeviceKind.audioOutput) {
-      final bool hasDefault = devices.any(
-        (d) =>
-            d.kind() == MediaDeviceKind.audioOutput &&
-            d.deviceId() == 'default',
+      final DeviceDetails? hasDefault = devices.firstWhereOrNull(
+        (d) => d.kind() == MediaDeviceKind.audioOutput && d.id() == 'default',
       );
 
-      if (!hasDefault) {
+      if (hasDefault == null) {
         if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
           final DeviceDetails? device = devices.firstWhereOrNull(
             (e) => e.kind() == MediaDeviceKind.audioOutput,
@@ -240,6 +243,12 @@ class MediaUtilsImpl {
           if (device != null) {
             devices.insert(0, DefaultDeviceDetails(device));
           }
+        }
+      } else {
+        // Sort the default device to the top, as it might be somewhere else.
+        if (PlatformUtils.isWeb) {
+          devices.removeWhere((e) => e.id() == hasDefault.id());
+          devices.insert(0, hasDefault);
         }
       }
     }
