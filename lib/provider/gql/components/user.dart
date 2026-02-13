@@ -769,9 +769,7 @@ mixin UserGraphQlMixin {
         'map': '{ "token": ["variables.token"] }',
         'token': raw?.token ?? token,
       }),
-      options: dio.Options(
-        headers: {if (locale != null) 'Accept-Language': locale},
-      ),
+      options: dio.Options(headers: {'Accept-Language': ?locale}),
       operationName: query.operationName,
       onException: (data) => AddUserEmailException(
         (AddUserEmail$Mutation.fromJson(data).addUserEmail
@@ -1340,9 +1338,7 @@ mixin UserGraphQlMixin {
         'map': '{ "token": ["variables.token"] }',
         'token': token,
       }),
-      options: dio.Options(
-        headers: {if (locale != null) 'Accept-Language': locale},
-      ),
+      options: dio.Options(headers: {'Accept-Language': ?locale}),
       operationName: query.operationName,
       onException: (data) => RegisterPushDeviceException(
         data['registerPushDevice'] == null

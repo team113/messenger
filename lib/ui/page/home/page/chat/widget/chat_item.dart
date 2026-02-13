@@ -937,7 +937,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: SelectionText.rich(
                       TextSpan(
                         children: [
-                          if (_text != null) _text!,
+                          ?_text,
                           if (!timeInBubble) ...[
                             const WidgetSpan(child: SizedBox(width: 4)),
                             WidgetSpan(
@@ -1408,10 +1408,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             return Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.center,
-              children: <Widget>[
-                ...previousChildren,
-                if (currentChild != null) currentChild,
-              ],
+              children: <Widget>[...previousChildren, ?currentChild],
             );
           },
           transitionBuilder: (child, animation) {

@@ -144,7 +144,7 @@ class MenuButton extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(width: 6.5),
-                  if (leading != null) leading!,
+                  ?leading,
                   if (icon != null)
                     Icon(
                       icon,

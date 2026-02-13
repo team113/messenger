@@ -35,10 +35,7 @@ class SafeAnimatedSwitcher extends StatelessWidget {
       duration: duration,
       layoutBuilder: (current, previous) => Stack(
         alignment: Alignment.center,
-        children: [
-          if (previous.isNotEmpty) previous.first,
-          if (current != null) current,
-        ],
+        children: [if (previous.isNotEmpty) previous.first, ?current],
       ),
       child: child,
     );
