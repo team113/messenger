@@ -16,8 +16,10 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Pending call notification being displayed when already joined on another device. ([#1605])
+        - Invalid microphone or output being used by default when joining call on Web. ([#1606])
 
 [#1605]: /../../pull/1605
+[#1606]: /../../pull/1606
 
 
 
