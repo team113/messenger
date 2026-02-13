@@ -250,12 +250,16 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   Future<void> _show(BuildContext context, Offset position) async {
     final style = Theme.of(context).style;
 
-    if (widget.actions.isEmpty) return;
+    if (widget.actions.isEmpty) {
+      return;
+    }
 
     if (_displayed) {
       _entry?.remove();
       _entry = null;
       _displayed = false;
+
+      // TODO(review): leave a comment, please
       await Future.microtask(() {});
     }
 
@@ -325,14 +329,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           return ContextMenuOverlay(
             position: position,
             actions: widget.actions,
-            onClose: () {
-              _darkened = false;
-            },
+            onClose: () => _darkened = false,
             onDismissed: () {
               _displayed = false;
               if (mounted) {
                 setState(() {});
               }
+
               _entry?.remove();
               _entry = null;
             },
