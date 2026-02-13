@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -160,7 +161,17 @@ class CallOverlayController extends GetxController {
         // If global `MyUser` mute is applied, then ignore the call.
         final MuteDuration? meMuted = _myUserService.myUser.value?.muted;
         if (meMuted != null) {
-          return _callService.remove(value.chatId.value);
+          Log.debug(
+            '_handleAddedCall($key) -> ignoring due to `meMuted` being: $meMuted',
+            '$runtimeType',
+          );
+
+          // Remove the call after a tick due to this event already being a
+          // change in the list of calls.
+          return Future.delayed(
+            Duration.zero,
+            () => _callService.remove(value.chatId.value),
+          );
         }
 
         bool redialed = false;
@@ -170,6 +181,27 @@ class CallOverlayController extends GetxController {
           redialed = dialed.members.any((e) => e.user.id == _chatService.me);
         }
 
+        final bool alreadyJoined =
+            value.call.value?.members.none(
+              (e) => e.user.id == _chatService.me,
+            ) ==
+            false;
+
+        // If this call is already joined by our user, then ignore it.
+        if (alreadyJoined) {
+          Log.debug(
+            '_handleAddedCall($key) -> ignoring due to `alreadyJoined`: ${value.call.value?.members.map((e) => '${e.user.id} (${e.user.name ?? e.user.num})').join(', ')} already contains me(${_chatService.me})',
+            '$runtimeType',
+          );
+
+          // Remove the call after a tick due to this event already being a
+          // change in the list of calls.
+          return Future.delayed(
+            Duration.zero,
+            () => _callService.remove(value.chatId.value),
+          );
+        }
+
         // If redialed, then show the notification anyway.
         if (!redialed) {
           try {
@@ -177,11 +209,21 @@ class CallOverlayController extends GetxController {
             final RxChat? chat = await _chatService.get(value.chatId.value);
             final MuteDuration? chatMuted = chat?.chat.value.muted;
             if (chatMuted != null) {
-              return _callService.remove(value.chatId.value);
+              // Remove the call after a tick due to this event already being a
+              // change in the list of calls.
+              return Future.delayed(
+                Duration.zero,
+                () => _callService.remove(value.chatId.value),
+              );
             }
           } catch (_) {
             // No-op, as it's ok to fail.
           }
+        } else {
+          Log.debug(
+            '_handleAddedCall($key) -> ignoring due to `redialed`: ${value.call.value?.dialed})',
+            '$runtimeType',
+          );
         }
         break;
 

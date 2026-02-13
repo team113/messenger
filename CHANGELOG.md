@@ -6,6 +6,43 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.10.0] · 2026-??-??
+[0.10.0]: /../../tree/v0.10.0
+
+[Diff](/../../compare/v0.9.1...v0.10.0) | [Milestone](/../../milestone/67)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Pending call notification being displayed when already joined on another device. ([#1605])
+        - Invalid microphone or output being used by default when joining call on Web. ([#1606])
+        - Invalid screen sharing resolution under desktop platforms. ([#1609])
+
+[#1605]: /../../pull/1605
+[#1606]: /../../pull/1606
+[#1609]: /../../pull/1609
+
+
+
+
+## [0.9.1] · 2026-02-11
+[0.9.1]: /../../tree/v0.9.1
+
+[Diff](/../../compare/v0.9.0...v0.9.1) | [Milestone](/../../milestone/66)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Enabled video sometimes not being seen by participants. ([#1602])
+        - Call buttons dragged from dock to panel are being left hanging on screen. ([#1602])
+
+[#1602]: /../../pull/1602
+
+
+
+
 ## [0.9.0] · 2026-02-05
 [0.9.0]: /../../tree/v0.9.0
 

@@ -379,6 +379,7 @@ class MediaUtilsImpl {
           DisplayVideoTrackConstraints();
       if (screen.device != null) constraints.deviceId(screen.device!);
       constraints.idealFrameRate(screen.framerate ?? 30);
+      constraints.idealWidth(1920);
       constraints.idealHeight(1080);
       settings.displayVideo(constraints);
 
@@ -518,7 +519,7 @@ class DeviceDetails extends MediaDeviceDetails {
   AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
 
   @override
-  String toString() => id();
+  String toString() => 'DeviceDetails(id: ${id()}, label: ${label()})';
 
   @override
   int get hashCode => (id() + deviceId()).hashCode;
