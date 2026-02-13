@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/util/platform_utils.dart';
 import 'menu.dart';
 
 /// [ContextMenu] with [FadeTransition].
@@ -104,6 +105,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
                     alignment.y > 0 ? 0 : -1,
                   ),
                   child: TapRegion(
+                    consumeOutsideTaps: PlatformUtils.isMacOS,
                     onTapInside: (_) => _dismiss(),
                     onTapOutside: (_) => _dismiss(),
                     child: ContextMenu(actions: widget.actions),
