@@ -3,8 +3,8 @@ version: 0.9.2
 publish_to: none
 
 environment:
-  flutter: ">=3.38.0"
-  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.41.0"
+  sdk: ">=3.11.0 <4.0.0"
 
 dependencies:
   age_range_signals: ^0.5.0
@@ -42,8 +42,8 @@ dependencies:
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
-  flutter_local_notifications: ^19.4.0
-  flutter_markdown: ^0.7.1
+  flutter_local_notifications: ^20.1.0
+  flutter_markdown_plus: ^1.0.7
   flutter_slidable: ^4.0.0
   flutter_spinkit: ^5.2.1
   flutter_svg: ^2.0.10+1
