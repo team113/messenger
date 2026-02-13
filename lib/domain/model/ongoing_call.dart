@@ -1967,6 +1967,7 @@ class OngoingCall {
               devices.output().firstWhereOrNull(
                 (e) => e.id() == _preferredOutputDevice,
               ) ??
+              devices.output().firstWhereOrNull((e) => e.id() == 'default') ??
               devices.output().firstOrNull;
 
           if (outputDevice.value != null) {
@@ -1978,6 +1979,7 @@ class OngoingCall {
             devices.audio().firstWhereOrNull(
               (e) => e.id() == _preferredAudioDevice,
             ) ??
+            devices.audio().firstWhereOrNull((e) => e.id() == 'default') ??
             devices.audio().firstOrNull;
 
         videoDevice.value ??= devices.video().firstWhereOrNull(
