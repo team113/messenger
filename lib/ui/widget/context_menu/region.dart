@@ -213,7 +213,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         menu = GestureDetector(
           behavior: HitTestBehavior.translucent,
           onLongPressStart: widget.enableLongTap
-              ? (d) => _show(context, d.globalPosition)
+              ? (d) => _show(d.globalPosition)
               : null,
           child: widget.builder == null ? child : widget.builder!(_displayed),
         );
@@ -235,7 +235,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
             if ((widget.enableSecondaryTap &&
                     d.buttons & kSecondaryButton != 0) ||
                 (widget.enablePrimaryTap && d.buttons & kPrimaryButton != 0)) {
-              _show(context, d.position);
+              _show(d.position);
             }
           },
           child: menu,
@@ -247,7 +247,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   }
 
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
-  Future<void> _show(BuildContext context, Offset position) async {
+  Future<void> _show(Offset position) async {
     final style = Theme.of(context).style;
 
     if (widget.actions.isEmpty) {
@@ -259,9 +259,12 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       _entry = null;
       _displayed = false;
 
-      // TODO(review): leave a comment, please
+      // Ensure that the old [ContextMenu]'s closing callbacks
+      // are processed before opening a new one.
       await Future.microtask(() {});
     }
+
+    if (!mounted) return;
 
     HapticFeedback.lightImpact();
 
@@ -270,9 +273,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       _darkened = true;
     }
 
-    if (mounted) {
-      setState(() {});
-    }
+    setState(() {});
 
     if (widget.selector != null) {
       await Selector.show<ContextMenuItem>(
@@ -329,7 +330,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           return ContextMenuOverlay(
             position: position,
             actions: widget.actions,
-            onClose: () => _darkened = false,
+            onClosed: () => _darkened = false,
             onDismissed: () {
               _displayed = false;
               if (mounted) {
