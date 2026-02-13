@@ -886,8 +886,6 @@ jobs:
       #
       # Use `grep` to remove the meaningless logs from the output.
       - uses: nanasess/setup-chromedriver@v2
-        with:
-          chromedriver-version: '144.0.7559.133'
       - run: |
           chromedriver --port=4444 --enable-chrome-logs \
                        --disable-dev-shm-usage \

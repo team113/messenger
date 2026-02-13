@@ -342,8 +342,8 @@ ifeq ($(dockerized),yes)
 			make test.e2e device=$(device) \
 			              dockerized=no gen=no clean=no start-app=no
 else
-	flutter drive --headless -d $(or $(device),chrome) \
-		--web-port 50000 \
+	flutter drive --headless -d $(or $(device),chrome) --profile \
+		--web-port 50000  \
 		--driver=test_driver/integration_test_driver.dart \
 		--target=test/e2e/suite.dart \
 		--no-web-experimental-hot-reload \
