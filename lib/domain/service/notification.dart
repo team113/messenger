@@ -295,10 +295,10 @@ class NotificationService extends Dependency {
       // TODO: `flutter_local_notifications` should support Windows:
       //       https://github.com/MaikuB/flutter_local_notifications/issues/746
       await _plugin?.show(
-        tag?.asHash ?? Random().nextInt(1 << 31),
-        title,
-        body,
-        NotificationDetails(
+        id: tag?.asHash ?? Random().nextInt(1 << 31),
+        title: title,
+        body: body,
+        notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
             'default',
             'Default',
@@ -386,7 +386,7 @@ class NotificationService extends Dependency {
         final int? id = notification.id;
 
         if (id != null) {
-          await plugin.cancel(id, tag: notification.tag);
+          await plugin.cancel(id: id, tag: notification.tag);
         }
       }
     }
@@ -441,7 +441,7 @@ class NotificationService extends Dependency {
 
         try {
           await _plugin!.initialize(
-            const InitializationSettings(
+            settings: const InitializationSettings(
               android: AndroidInitializationSettings('@mipmap/ic_launcher'),
               iOS: DarwinInitializationSettings(),
               macOS: DarwinInitializationSettings(),
