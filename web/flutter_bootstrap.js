@@ -21,12 +21,9 @@
 // Add `?v=` tag to `main.dart.js` file with service worker version to ensure
 // the file is re-fetched from the network on the changes.
 _flutter.buildConfig.builds[0].mainJsPath +=
-    "?v=" + '{{flutter_service_worker_version}}';
+    "?v=" + _flutter.buildConfig.engineRevision;
 
 _flutter.loader.load({
-    serviceWorker: {
-        serviceWorkerVersion: '{{flutter_service_worker_version}}'
-    },
     onEntrypointLoaded: async function (engineInitializer) {
         try {
             await window.jasonLoaded;
