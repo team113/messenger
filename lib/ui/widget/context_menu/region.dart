@@ -259,12 +259,14 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       _entry = null;
       _displayed = false;
 
-      // Ensure that the old [ContextMenu]'s closing callbacks
-      // are processed before opening a new one.
+      // Ensure that the old [ContextMenu]'s closing callbacks are processed
+      // before opening a new one.
       await Future.microtask(() {});
     }
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     HapticFeedback.lightImpact();
 

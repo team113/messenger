@@ -85,6 +85,9 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
 
   @override
   Widget build(BuildContext context) {
+    // macOS users are used to behaviour different from Windows.
+    final bool consumeOutsideTaps = PlatformUtils.isMacOS;
+
     return LayoutBuilder(
       builder: (_, constraints) {
         double qx = 1, qy = 1;
@@ -96,6 +99,8 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
           opacity: _animation,
           child: Stack(
             children: [
+              if (consumeOutsideTaps)
+                MouseRegion(cursor: SystemMouseCursors.basic, opaque: false),
               Positioned(
                 left: widget.position.dx,
                 top: widget.position.dy,
@@ -105,7 +110,7 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
                     alignment.y > 0 ? 0 : -1,
                   ),
                   child: TapRegion(
-                    consumeOutsideTaps: PlatformUtils.isMacOS,
+                    consumeOutsideTaps: consumeOutsideTaps,
                     onTapInside: (_) => _dismiss(),
                     onTapOutside: (_) => _dismiss(),
                     child: ContextMenu(actions: widget.actions),
