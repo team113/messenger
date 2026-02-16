@@ -19,7 +19,9 @@ All user visible changes to this project will be documented in this file. This p
         - Invalid microphone or output being used by default when joining call on Web. ([#1606])
         - Invalid screen sharing resolution under desktop platforms. ([#1609])
         - Default device not being first in devices list. ([#1610])
+    - Context menu closing when clicking RMB instead of reopening on desktops. ([#1603])
 
+[#1603]: /../../pull/1603
 [#1605]: /../../pull/1605
 [#1606]: /../../pull/1606
 [#1609]: /../../pull/1609
