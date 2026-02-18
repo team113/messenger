@@ -17,8 +17,10 @@ All user visible changes to this project will be documented in this file. This p
         - Draft not being updated when removing attachments or replies. ([#1613])
     - Profile page:
         - Invalid microphone and output device displayed as selected by default. ([#1613])
+        - Invalid icon being used for devices with unknown OS. ([#1615])
 
 [#1613]: /../../pull/1613
+[#1615]: /../../pull/1615
 
 
 
