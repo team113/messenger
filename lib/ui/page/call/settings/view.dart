@@ -78,6 +78,9 @@ class CallSettingsView extends StatelessWidget {
                               c.devices.audio().firstWhereOrNull(
                                 (e) => e.id() == c.mic.value?.id(),
                               ) ??
+                              c.devices.audio().firstWhereOrNull(
+                                (e) => e.id() == 'default',
+                              ) ??
                               c.devices.audio().firstOrNull;
 
                           return FieldButton(
@@ -113,6 +116,9 @@ class CallSettingsView extends StatelessWidget {
                             final selected =
                                 c.devices.output().firstWhereOrNull(
                                   (e) => e.id() == c.output.value?.id(),
+                                ) ??
+                                c.devices.output().firstWhereOrNull(
+                                  (e) => e.id() == 'default',
                                 ) ??
                                 c.devices.output().firstOrNull;
 
