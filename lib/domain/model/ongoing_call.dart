@@ -2009,6 +2009,10 @@ class OngoingCall {
                 ? AudioPreferences(
                     device:
                         audioDevice.value?.deviceId() ??
+                        devices
+                            .audio()
+                            .firstWhereOrNull((e) => e.id() == 'default')
+                            ?.deviceId() ??
                         devices.audio().firstOrNull?.deviceId(),
                     noiseSuppression: _noiseSuppression.value,
                     noiseSuppressionLevel: _noiseSuppressionLevel.value,
@@ -2570,7 +2574,6 @@ class OngoingCall {
       }
 
       device ??= earpieces.firstOrNull;
-      device ??= output.firstOrNull;
 
       Log.debug(
         '_pickOutputDevice() -> ignoring preferred(`$_preferredOutputDevice`), found headphones($headphones), found speakerphones($speakerphones), found earpieces($earpieces) -> result is $device',
@@ -2579,6 +2582,7 @@ class OngoingCall {
     }
 
     // Best effort if none was found.
+    device ??= output.firstWhereOrNull((e) => e.id() == 'default');
     device ??= output.firstOrNull;
 
     Log.debug(
@@ -2639,6 +2643,7 @@ class OngoingCall {
 
     final DeviceDetails? device =
         audio.firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
+        devices.audio().firstWhereOrNull((e) => e.id() == 'default') ??
         audio.firstOrNull;
 
     if (device != null && audioDevice.value != device) {
@@ -2686,7 +2691,7 @@ class OngoingCall {
     Log.debug('_setAudioDevice($device)', '$runtimeType');
 
     if (device != audioDevice.value) {
-      await _updateSettings(audioDevice: device);
+      await _updateSettings(audio: true, audioDevice: device);
     }
   }
 

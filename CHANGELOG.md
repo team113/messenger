@@ -10,6 +10,16 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.9.2...main) | [Milestone](/../../milestone/68)
 
+### Fixed
+
+- UI:
+    - Chat page:
+        - Draft not being updated when removing attachments or replies. ([#1613])
+    - Profile page:
+        - Invalid microphone and output device displayed as selected by default. ([#1613])
+
+[#1613]: /../../pull/1613
+
 
 
 

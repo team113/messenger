@@ -704,6 +704,7 @@ Widget _media(BuildContext context, MyProfileController c) {
             c.devices.audio().firstWhereOrNull(
               (e) => e.id() == c.media.value?.audioDevice,
             ) ??
+            c.devices.audio().firstWhereOrNull((e) => e.id() == 'default') ??
             c.devices.audio().firstOrNull;
 
         return FieldButton(
@@ -735,6 +736,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               c.devices.output().firstWhereOrNull(
                 (e) => e.id() == c.media.value?.outputDevice,
               ) ??
+              c.devices.output().firstWhereOrNull((e) => e.id() == 'default') ??
               c.devices.output().firstOrNull;
 
           return FieldButton(
