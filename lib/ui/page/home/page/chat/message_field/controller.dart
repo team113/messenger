@@ -471,13 +471,13 @@ class MessageFieldController extends GetxController {
   /// Constructs a [NativeFile] from the specified [PlatformFile] and adds it
   /// to the [attachments].
   Future<void> addPlatformAttachment(PlatformFile platformFile) async {
-    NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
+    final NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
     await _addAttachment(nativeFile);
   }
 
   /// Reads the [SystemClipboard] and pastes any content contained in it.
   Future<void> handlePaste() async {
-    final clipboard = SystemClipboard.instance;
+    final SystemClipboard? clipboard = SystemClipboard.instance;
     if (clipboard == null) {
       return;
     }
@@ -591,7 +591,7 @@ class MessageFieldController extends GetxController {
             .firstOrNull;
 
         if (text != null) {
-          final text = await reader.readValue(Formats.plainText);
+          final String? text = await reader.readValue(Formats.plainText);
 
           if (field.focus.hasFocus) {
             int cursor;
@@ -624,7 +624,7 @@ class MessageFieldController extends GetxController {
   /// Opens a file choose popup of the specified [type] and adds the selected
   /// files to the [attachments].
   Future<void> _pickAttachment(FileType type) async {
-    FilePickerResult? result = await PlatformUtils.pickFiles(
+    final FilePickerResult? result = await PlatformUtils.pickFiles(
       type: type,
       allowMultiple: true,
       withReadStream: true,
@@ -641,7 +641,10 @@ class MessageFieldController extends GetxController {
   /// Constructs a [NativeFile] from the specified [XFile] and adds it to the
   /// [attachments].
   Future<void> _addXFileAttachment(XFile xFile) async {
-    NativeFile nativeFile = NativeFile.fromXFile(xFile, await xFile.length());
+    final NativeFile nativeFile = NativeFile.fromXFile(
+      xFile,
+      await xFile.length(),
+    );
     await _addAttachment(nativeFile);
   }
 
@@ -657,14 +660,41 @@ class MessageFieldController extends GetxController {
 
     if (file.size < maxAttachmentSize && _chatService != null) {
       try {
-        var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        attachments.add(MapEntry(GlobalKey(), attachment));
+        final LocalAttachment attachment = LocalAttachment(
+          file,
+          status: SendingStatus.sending,
+        );
+
+        // If attachment is video or image insert it to end of img/video list
+        // and before documents, overwise simply add to end of attachments.
+        if (file.isImage || file.isVideo) {
+          final int lastIndex = attachments.indexWhere((a) {
+            final Attachment e = a.value;
+            final bool isImage =
+                (e is ImageAttachment ||
+                (e is LocalAttachment && e.file.isImage));
+            final bool isVideo =
+                (e is FileAttachment && e.isVideo) ||
+                (e is LocalAttachment && e.file.isVideo);
+            return !isImage && !isVideo;
+          });
+
+          if (lastIndex == -1) {
+            attachments.add(MapEntry(GlobalKey(), attachment));
+          } else {
+            attachments.insert(lastIndex, MapEntry(GlobalKey(), attachment));
+          }
+        } else {
+          attachments.add(MapEntry(GlobalKey(), attachment));
+        }
 
         final Attachment? uploaded = await _chatService.uploadAttachment(
           attachment,
         );
 
-        int index = attachments.indexWhere((e) => e.value.id == attachment.id);
+        final int index = attachments.indexWhere(
+          (e) => e.value.id == attachment.id,
+        );
         if (index != -1) {
           // If `Attachment` returned is `null`, then it was canceled.
           if (uploaded == null) {
@@ -754,5 +784,16 @@ class MessageFieldController extends GetxController {
         );
       }
     }
+  }
+
+  /// Updates the [attachments] list by reordering items from [mediaAttachments]
+  /// and [filesAttachments].
+  void reorderAttachments(
+    List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
+    mediaAttachments,
+    List<MapEntry<GlobalKey<State<StatefulWidget>>, Attachment>>
+    filesAttachments,
+  ) {
+    attachments.value = mediaAttachments + filesAttachments;
   }
 }
