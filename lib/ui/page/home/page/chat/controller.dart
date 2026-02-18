@@ -528,12 +528,12 @@ class ChatController extends GetxController {
               )
               .onError<ConnectionException>((e, _) {});
 
-          send.clear(unfocus: false);
-
           chat?.setDraft();
         }
       },
     );
+
+    send.onInit();
 
     PlatformUtils.isActive.then((value) => active.value = value);
     _onActivityChanged = PlatformUtils.onActivityChanged.listen((v) {
@@ -618,7 +618,9 @@ class ChatController extends GetxController {
     AudioUtils.ensureInitialized();
     _fetchChat();
 
-    if (!PlatformUtils.isMobile) {
+    send.onReady();
+
+    if (!PlatformUtils.isMobile && router.obscuring.isEmpty) {
       send.field.focus.requestFocus();
     }
 
@@ -771,12 +773,17 @@ class ChatController extends GetxController {
 
   /// Starts the editing of the specified [item], if allowed.
   void editMessage(ChatItem item) {
+    Log.debug('editMessage($item)', '$runtimeType');
+
     if (!item.isEditable(chat!.chat.value, me!)) {
+      Log.warning('editMessage($item) -> not editable', '$runtimeType');
       MessagePopup.error('err_uneditable_message'.l10n);
       return;
     }
 
     if (item is ChatMessage) {
+      final bool wasNull = edit.value == null;
+
       edit.value ??= MessageFieldController(
         _chatService,
         _userService,
@@ -881,6 +888,11 @@ class ChatController extends GetxController {
         },
       );
 
+      if (wasNull) {
+        edit.value?.onInit();
+        edit.value?.onReady();
+      }
+
       edit.value?.toggleLogs(isMonolog || isSupport);
       edit.value?.edited.value = item;
       edit.value?.field.focus.requestFocus();
@@ -905,6 +917,8 @@ class ChatController extends GetxController {
 
   /// Updates [RxChat.draft] with the current values of the [send] field.
   void _updateDraft() {
+    Log.debug('_updateDraft()', '$runtimeType');
+
     // [Attachment]s to persist in a [RxChat.draft].
     final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
 
@@ -2608,6 +2622,9 @@ class ChatMessageElement extends ListElement {
 
   /// [ChatItem] of this [ChatMessageElement].
   final Rx<ChatItem> item;
+
+  @override
+  String toString() => 'ChatMessageElement($id, ${item.value})';
 }
 
 /// [ListElement] representing a [ChatCall].
@@ -2617,6 +2634,9 @@ class ChatCallElement extends ListElement {
 
   /// [ChatItem] of this [ChatCallElement].
   final Rx<ChatItem> item;
+
+  @override
+  String toString() => 'ChatCallElement($id, ${item.value})';
 }
 
 /// [ListElement] representing a [ChatInfo].
@@ -2626,6 +2646,9 @@ class ChatInfoElement extends ListElement {
 
   /// [ChatItem] of this [ChatInfoElement].
   final Rx<ChatItem> item;
+
+  @override
+  String toString() => 'ChatInfoElement($id, ${item.value})';
 }
 
 /// [ListElement] representing a [ChatForward].
@@ -2647,18 +2670,28 @@ class ChatForwardElement extends ListElement {
 
   /// [UserId] being an author of the [forwards].
   final UserId authorId;
+
+  @override
+  String toString() =>
+      'ChatForwardElement($id, note(${note.value?.value}) -> ${forwards.map((e) => e.value)})';
 }
 
 /// [ListElement] representing a [DateTime] label.
 class DateTimeElement extends ListElement {
   DateTimeElement(PreciseDateTime at)
     : super(ListElementId(at, const ChatItemId('0')));
+
+  @override
+  String toString() => 'DateTimeElement($id)';
 }
 
 /// [ListElement] indicating unread [ChatItem]s below.
 class UnreadMessagesElement extends ListElement {
   UnreadMessagesElement(PreciseDateTime at)
     : super(ListElementId(at, const ChatItemId('1')));
+
+  @override
+  String toString() => 'UnreadMessagesElement($id)';
 }
 
 /// [ListElement] representing a [CustomProgressIndicator].
@@ -2678,6 +2711,9 @@ class LoaderElement extends ListElement {
           const ChatItemId('0'),
         ),
       );
+
+  @override
+  String toString() => 'LoaderElement($id)';
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
