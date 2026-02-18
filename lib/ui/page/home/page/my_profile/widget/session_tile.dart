@@ -72,7 +72,7 @@ class SessionTileWidget extends StatelessWidget {
                   'Android' => SvgIcons.userAgentAndroid,
                   'Linux' => SvgIcons.userAgentLinux,
                   'Windows' => SvgIcons.userAgentWindows,
-                  (_) => SvgIcons.menuSupport,
+                  (_) => SvgIcons.userAgentUnknown,
                 }),
               ),
             ),
