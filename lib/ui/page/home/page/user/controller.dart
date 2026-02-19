@@ -50,6 +50,7 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatContactException,
         UnfavoriteChatException;
 import '/routes.dart';
+import '/ui/page/home/page/chat/gallery/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -503,6 +504,22 @@ class UserController extends GetxController {
       await MessagePopup.error(e);
       router.pop();
       rethrow;
+    }
+  }
+
+  /// Shows [GalleryView] page with media [Attachment]s from current [Chat].
+  void showMedia() {
+    final ChatId? chatId = user?.user.value.dialog;
+    if (chatId != null) {
+      router.gallery(chatId, GalleryViewMode.media, push: true);
+    }
+  }
+
+  /// Shows [GalleryView] page with files [Attachment]s from current [Chat].
+  void showFiles() {
+    final ChatId? chatId = user?.user.value.dialog;
+    if (chatId != null) {
+      router.gallery(chatId, GalleryViewMode.files, push: true);
     }
   }
 }
