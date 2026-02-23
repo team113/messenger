@@ -548,7 +548,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     child: SelectionText.rich(
                       TextSpan(
                         children: [
-                          if (text != null) text,
+                          ?text,
+
                           // TODO: Use transparent [MessageTimestamp]:
                           //       https://github.com/flutter/flutter/issues/124787
                           const WidgetSpan(child: SizedBox(width: 95)),
@@ -953,10 +954,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             return Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.center,
-              children: <Widget>[
-                ...previousChildren,
-                if (currentChild != null) currentChild,
-              ],
+              children: <Widget>[...previousChildren, ?currentChild],
             );
           },
           transitionBuilder: (child, animation) {

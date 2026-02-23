@@ -6,6 +6,66 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## main
+
+[Diff](/../../compare/v0.9.2...main) | [Milestone](/../../milestone/68)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Draft not being updated when removing attachments or replies. ([#1613])
+    - Profile page:
+        - Invalid microphone and output device displayed as selected by default. ([#1613])
+        - Invalid icon being used for devices with unknown OS. ([#1615])
+
+[#1613]: /../../pull/1613
+[#1615]: /../../pull/1615
+
+
+
+
+## [0.9.2] · 2026-02-16
+[0.9.2]: /../../tree/v0.9.2
+
+[Diff](/../../compare/v0.9.1...v0.9.2) | [Milestone](/../../milestone/67)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Pending call notification being displayed when already joined on another device. ([#1605])
+        - Invalid microphone or output being used by default when joining call on Web. ([#1606])
+        - Invalid screen sharing resolution under desktop platforms. ([#1609])
+        - Default device not being first in devices list. ([#1610])
+    - Context menu closing when clicking RMB instead of reopening on desktops. ([#1603])
+
+[#1603]: /../../pull/1603
+[#1605]: /../../pull/1605
+[#1606]: /../../pull/1606
+[#1609]: /../../pull/1609
+[#1610]: /../../pull/1610
+
+
+
+
+## [0.9.1] · 2026-02-11
+[0.9.1]: /../../tree/v0.9.1
+
+[Diff](/../../compare/v0.9.0...v0.9.1) | [Milestone](/../../milestone/66)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Enabled video sometimes not being seen by participants. ([#1602])
+        - Call buttons dragged from dock to panel are being left hanging on screen. ([#1602])
+
+[#1602]: /../../pull/1602
+
+
+
+
 ## [0.9.0] · 2026-02-05
 [0.9.0]: /../../tree/v0.9.0
 

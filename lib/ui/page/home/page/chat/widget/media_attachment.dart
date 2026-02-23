@@ -249,7 +249,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       fit: StackFit.passthrough,
       children: [
         if (preview != null) Positioned.fill(child: preview),
-        if (child != null) child,
+        ?child,
         Obx(() {
           if (attachment.isDownloading) {
             return Positioned(

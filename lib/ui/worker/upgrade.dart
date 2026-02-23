@@ -62,8 +62,8 @@ class UpgradeWorker extends Dependency {
   /// [Timer] to periodically fetch updates over time.
   Timer? _timer;
 
-  /// Latest [String] representing `flutter_bootstrap.js` file fetched.
-  String? _lastBootstrapJs;
+  /// Latest [String] representing `.last_build_id` file fetched.
+  String? _lastBuildId;
 
   /// Indicator whether [_schedulePopup] was invoked and there's a
   /// [MessagePopup.success] invoke being active.
@@ -151,13 +151,13 @@ class UpgradeWorker extends Dependency {
     }
   }
 
-  /// Invokes [_fetchBootstrapJs] over [PlatformUtilsImpl.isWeb] and
+  /// Invokes [_fetchLastBuildId] over [PlatformUtilsImpl.isWeb] and
   /// [_fetchAppcast] otherwise to check against any updates being available.
   Future<bool> fetchUpdates({bool force = false}) async {
     if (Config.appcast.isNotEmpty) {
       return await _fetchAppcast(force: force);
     } else if (PlatformUtils.isWeb) {
-      return await _fetchBootstrapJs();
+      return await _fetchLastBuildId();
     }
 
     return false;
@@ -265,16 +265,16 @@ class UpgradeWorker extends Dependency {
     return false;
   }
 
-  /// Fetches the `flutter_bootstrap.js` file hosted over [Config.origin] with
-  /// every Flutter Web build to check whether there's any new build available.
+  /// Fetches the `.last_build_id` file hosted over [Config.origin] with every
+  /// Flutter Web build to check whether there's any new build available.
   ///
   /// Returns `true`, if new update is detected.
-  Future<bool> _fetchBootstrapJs() async {
-    Log.debug('_fetchBootstrapJs()', '$runtimeType');
+  Future<bool> _fetchLastBuildId() async {
+    Log.debug('_fetchLastBuildId()', '$runtimeType');
 
     try {
       final response = await (await PlatformUtils.dio).get(
-        '${Config.origin}/flutter_bootstrap.js?${const Uuid().v4()}',
+        '${Config.origin}/.last_build_id?${const Uuid().v4()}',
       );
 
       if (response.statusCode != 200 || response.data == null) {
@@ -284,9 +284,9 @@ class UpgradeWorker extends Dependency {
         );
       }
 
-      final String bootstrapJs = response.data as String;
+      final String lastBuildId = response.data as String;
 
-      if (_lastBootstrapJs != null && _lastBootstrapJs != bootstrapJs) {
+      if (_lastBuildId != null && _lastBuildId != lastBuildId) {
         _schedulePopup(
           Release(
             name: 'label_update_available'.l10n,
@@ -300,9 +300,9 @@ class UpgradeWorker extends Dependency {
         );
       }
 
-      _lastBootstrapJs = bootstrapJs;
+      _lastBuildId = lastBuildId;
     } catch (e) {
-      Log.info('Failed to fetch `flutter_bootstrap.js`: $e', '$runtimeType');
+      Log.info('Failed to fetch `.last_build_id`: $e', '$runtimeType');
     }
 
     return false;

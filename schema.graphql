@@ -166,7 +166,7 @@ enum CompleteOperationDepositErrorCode {
     Status code: 202 Accepted.
   """ IN_PROGRESS
   """
-    `OperationDeposit` approval is unavailable at the moment. Try again later.
+    `OperationDeposit` completion is unavailable at the moment. Try again later.
 
     Status code: 503 Service Unavailable.
   """ UNAVAILABLE
@@ -740,6 +740,17 @@ enum OperationCancellationCode {
   """ DELETED_MESSAGE
 }
 
+"Possible codes of an `OperationDepositFailure`."
+enum OperationDepositFailureCode {
+  "`OperationDeposit` was denied by its payment provider." DENIED
+  "`OperationDeposit` expired." EXPIRED
+  "Internal error occurred." INTERNAL_ERROR
+  """
+    `OperationDeposit` was paid with a different billing `CountryCode` than
+    it had been initialized with.
+  """ WRONG_BILLING_COUNTRY
+}
+
 "Possible kinds of an `OperationDeposit`."
 enum OperationDepositKind {
   """
@@ -781,6 +792,15 @@ enum OperationStatus {
   "`Operation` is declined." DECLINED
   "`Operation` is in progress." IN_PROGRESS
   "`Operation` failed." FAILED
+}
+
+"Possible codes of an `OperationWithdrawFailure`."
+enum OperationWithdrawFailureCode {
+  "`OperationWithdraw` was refused by its processor." REFUSED
+  """
+    Not enough funds in `MyUser`'s income to cover the
+    `OperationWithdraw.amount`.
+  """ NOT_ENOUGH_FUNDS
 }
 
 "Possible kinds of an `OperationWithdraw`."
@@ -2643,6 +2663,9 @@ scalar OperationDepositMethodId
   [2]: https://tinyurl.com/a958u37d
 """
 scalar OperationDepositSecret
+
+"Reason of `Operation`'s failure."
+scalar OperationFailureReason
 
 "ID of an `Operation`."
 scalar OperationId
@@ -8890,6 +8913,8 @@ type OperationDeposit implements Operation {
     Always `null` as an `OperationDeposit` could never be canceled.
   """
   canceled: OperationCancellation
+  "Information about why this `OperationDeposit` failed, if it did."
+  failed: OperationDepositFailure
   """
     Version of this `OperationDeposit`'s state.
 
@@ -8964,6 +8989,14 @@ type OperationDepositBonus implements Operation {
     tracking state's actuality.
   """
   ver: OperationVersion!
+}
+
+"Information about `OperationDeposit`'s failure."
+type OperationDepositFailure {
+  "Code explaining why the `OperationDeposit` failed."
+  code: OperationDepositFailureCode!
+  "`DateTime` when the `OperationDeposit` failed."
+  at: DateTime!
 }
 
 "Description of some method for performing an `OperationDeposit`."
@@ -9540,6 +9573,8 @@ type OperationWithdraw implements Operation {
     Always `null` as an `OperationWithdraw` could never be canceled.
   """
   canceled: OperationCancellation
+  "Information about why this `OperationWithdraw` failed, if it did."
+  failed: OperationWithdrawFailure
   """
     Version of this `OperationWithdraw`'s state.
 
@@ -9547,6 +9582,19 @@ type OperationWithdraw implements Operation {
     tracking state's actuality.
   """
   ver: OperationVersion!
+}
+
+"Information about `OperationWithdraw`'s failure."
+type OperationWithdrawFailure {
+  "Code explaining why the `OperationWithdraw` failed."
+  code: OperationWithdrawFailureCode!
+  """
+    Additional reason explaining why the `OperationWithdraw` failed, if
+    provided.
+  """
+  reason: OperationFailureReason
+  "`DateTime` when the `OperationWithdraw` failed."
+  at: DateTime!
 }
 
 "Pricing of an `OperationWithdrawMethod`."

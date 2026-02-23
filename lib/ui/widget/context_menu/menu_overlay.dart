@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '/themes.dart';
+import '/util/platform_utils.dart';
 import 'menu.dart';
 
 /// [ContextMenu] with [FadeTransition].
@@ -29,6 +29,7 @@ class ContextMenuOverlay extends StatefulWidget {
     required this.position,
     required this.actions,
     this.onDismissed,
+    this.onClosed,
   });
 
   /// Position of [ContextMenu].
@@ -41,6 +42,9 @@ class ContextMenuOverlay extends StatefulWidget {
   /// [AnimationStatus.dismissed].
   final void Function()? onDismissed;
 
+  /// Callback, called when this [ContextMenuOverlay] starts closing.
+  final void Function()? onClosed;
+
   @override
   State<ContextMenuOverlay> createState() => _ContextMenuOverlayState();
 }
@@ -49,33 +53,40 @@ class ContextMenuOverlay extends StatefulWidget {
 class _ContextMenuOverlayState extends State<ContextMenuOverlay>
     with TickerProviderStateMixin {
   /// Controller animating [FadeTransition].
-  AnimationController? _controller;
+  late final AnimationController _controller;
 
   /// Animation of [FadeTransition].
-  late Animation<double> _animation;
+  late final Animation<double> _animation;
+
+  /// Closes the [ContextMenu].
+  Future<void> _dismiss() async {
+    widget.onClosed?.call();
+    await _controller.reverse();
+    widget.onDismissed?.call();
+  }
 
   @override
   void initState() {
+    super.initState();
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 150),
       vsync: this,
     )..forward();
 
-    _animation = CurvedAnimation(parent: _controller!, curve: Curves.easeIn);
-
-    super.initState();
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
   }
 
   @override
   void dispose() {
-    _controller?.dispose();
-    _controller = null;
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    // macOS users are used to behaviour different from Windows.
+    final bool consumeOutsideTaps = PlatformUtils.isMacOS;
 
     return LayoutBuilder(
       builder: (_, constraints) {
@@ -84,32 +95,29 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
         if (widget.position.dy > (constraints.maxHeight) / 2) qy = -1;
         final Alignment alignment = Alignment(qx, qy);
 
-        return Listener(
-          onPointerUp: (_) async {
-            await _controller?.reverse();
-            widget.onDismissed?.call();
-          },
-          child: FadeTransition(
-            opacity: _animation,
-            child: Container(
-              color: style.colors.transparent,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned(
-                    left: widget.position.dx,
-                    top: widget.position.dy,
-                    child: FractionalTranslation(
-                      translation: Offset(
-                        alignment.x > 0 ? 0 : -1,
-                        alignment.y > 0 ? 0 : -1,
-                      ),
-                      child: ContextMenu(actions: widget.actions),
-                    ),
+        return FadeTransition(
+          opacity: _animation,
+          child: Stack(
+            children: [
+              if (consumeOutsideTaps)
+                MouseRegion(cursor: SystemMouseCursors.basic, opaque: false),
+              Positioned(
+                left: widget.position.dx,
+                top: widget.position.dy,
+                child: FractionalTranslation(
+                  translation: Offset(
+                    alignment.x > 0 ? 0 : -1,
+                    alignment.y > 0 ? 0 : -1,
                   ),
-                ],
+                  child: TapRegion(
+                    consumeOutsideTaps: consumeOutsideTaps,
+                    onTapInside: (_) => _dismiss(),
+                    onTapOutside: (_) => _dismiss(),
+                    child: ContextMenu(actions: widget.actions),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         );
       },

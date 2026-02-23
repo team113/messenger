@@ -602,7 +602,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
     // displaying this new one.
     final plugin = FlutterLocalNotificationsPlugin();
     try {
-      await plugin.cancel(tag.asHash, tag: tag);
+      await plugin.cancel(id: tag.asHash, tag: tag);
     } catch (_) {
       // It's ok to fail.
     }
@@ -620,13 +620,13 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       if (thread != null) {
         for (var e in await plugin.getActiveNotifications()) {
           if (e.id != null && e.tag?.contains(thread) == true) {
-            await plugin.cancel(e.id!, tag: e.tag);
+            await plugin.cancel(id: e.id!, tag: e.tag);
           }
         }
       } else if (tag != null) {
         for (var e in await plugin.getActiveNotifications()) {
           if (e.id != null && e.tag == tag) {
-            await plugin.cancel(e.id!, tag: e.tag);
+            await plugin.cancel(id: e.id!, tag: e.tag);
           }
         }
       }
