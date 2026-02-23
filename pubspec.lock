@@ -688,14 +688,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.3"
-  flutter_markdown_plus:
-    dependency: "direct main"
-    description:
-      name: flutter_markdown_plus
-      sha256: "039177906850278e8fb1cd364115ee0a46281135932fa8ecea8455522166d2de"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.7"
   flutter_math_fork:
     dependency: transitive
     description:
@@ -2196,14 +2188,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
-  strip_markdown:
-    dependency: "direct main"
-    description:
-      name: strip_markdown
-      sha256: bbb6eb80a28cfc346457611c55cf0e24a855b07404f95b2b67f238fa84914051
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   super_clipboard:
     dependency: "direct main"
     description:
