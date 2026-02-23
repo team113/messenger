@@ -528,6 +528,7 @@ class ChatController extends GetxController {
               )
               .onError<ConnectionException>((e, _) {});
 
+          send.clear(unfocus: false);
           chat?.setDraft();
         }
       },
