@@ -18,12 +18,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:get/get_utils/src/extensions/dynamic_extensions.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../page/work/page/freelance/helper_function/markdown_selected_text_from_full_text.dart';
 import '/themes.dart';
+import '../page/work/page/freelance/helper_function/markdown_selected_text_from_full_text.dart';
 
 /// [MarkdownBody] stylized with the [Style].
 class MarkdownWidget extends StatefulWidget {
@@ -37,9 +37,20 @@ class MarkdownWidget extends StatefulWidget {
 }
 
 class _MarkdownWidgetState extends State<MarkdownWidget> {
+  /// Stores the most recently reconstructed selected text.
+  ///
+  /// The reconstruction is necessary because Flutter selection returns
+  /// flattened plain text without original newline characters.
   String selectedText = '';
-  late SelectionListenerNotifier selectionListenerNotifier;
 
+  /// Disables the default browser context menu on web.
+  ///
+  /// This ensures that Flutter's selection system is used instead of
+  /// the native browser context menu, providing consistent cross-platform
+  /// selection behavior.
+  ///
+  /// Returns `1` when context menu is successfully disabled or when
+  /// running on non-web platforms. Returns `0` if disabling fails.
   Future<int> _disableContextMenu() async {
     if (kIsWeb) {
       return await BrowserContextMenu.disableContextMenu().then(
@@ -52,17 +63,12 @@ class _MarkdownWidgetState extends State<MarkdownWidget> {
   }
 
   @override
-  void initState() {
-    selectionListenerNotifier = SelectionListenerNotifier();
-    super.initState();
-  }
-
-  @override
   void dispose() {
+    // Re-enables browser context menu when widget is disposed
+    // to avoid affecting other parts of the application.
     if (kIsWeb && BrowserContextMenu.enabled) {
       BrowserContextMenu.enableContextMenu();
     }
-    selectionListenerNotifier.dispose();
     super.dispose();
   }
 
@@ -75,6 +81,13 @@ class _MarkdownWidgetState extends State<MarkdownWidget> {
       builder: (context, snapshot) {
         if (snapshot.data == 1) {
           return SelectableRegion(
+            /// Triggered whenever the selection changes.
+            ///
+            /// When text is selected, the selected content is reconstructed
+            /// to preserve original formatting and stored locally.
+            ///
+            /// When selection is copied,
+            /// the previously selected text is copied to clipboard.
             onSelectionChanged: (selectedContent) {
               if (!(selectedContent?.isBlank ?? true)) {
                 setState(() {
@@ -88,34 +101,27 @@ class _MarkdownWidgetState extends State<MarkdownWidget> {
               }
             },
             selectionControls: MaterialTextSelectionControls(),
-            child: SelectionListener(
-              selectionNotifier: selectionListenerNotifier,
-              child: MarkdownBody(
+            child: GptMarkdownTheme(
+              gptThemeData: GptMarkdownThemeData(
+                brightness: Theme.of(context).brightness,
 
-                selectable: false,
-                data: widget.body,
-                onTapLink: (_, href, _) async => await launchUrlString(href!),
-                styleSheet: MarkdownStyleSheet(
-                  h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
+               highlightColor: style.colors.secondaryHighlight,
 
-                  // TODO: Exception.
-                  h2: style.fonts.largest.bold.onBackground.copyWith(
-                    fontSize: 20,
-                  ),
-
-                  p: style.fonts.normal.regular.onBackground,
-                  code: style.fonts.small.regular.onBackground.copyWith(
-                    letterSpacing: 1.2,
-                    backgroundColor: style.colors.secondaryHighlight,
-                  ),
-                  codeblockDecoration: BoxDecoration(
-                    color: style.colors.secondaryHighlight,
-                  ),
-                  codeblockPadding: const EdgeInsets.all(16),
-                  blockquoteDecoration: BoxDecoration(
-                    color: style.colors.secondaryHighlight,
-                  ),
+                h2: style.fonts.largest.bold.onBackground.copyWith(
+                  fontSize: 20,
                 ),
+              ),
+              child: GptMarkdown(
+                widget.body,
+                maxLines: 1000,
+                linkBuilder: (context, span, link, textStyle) {
+                  return Text(
+                    span.toPlainText(),
+                    style: textStyle.copyWith(color: style.colors.primary),
+                  );
+                },
+                style: style.fonts.normal.regular.onBackground,
+                onLinkTap: (link, href) async => await launchUrlString(link),
               ),
             ),
           );
