@@ -186,7 +186,7 @@
 # URL address of IP geolocation API server.
 #
 # Default:
-#   endpoint = "http://ip-api.com/json"
+#   endpoint = "/geo-ip"
 
 [ip]
 # URL address of IP address discovering API server.

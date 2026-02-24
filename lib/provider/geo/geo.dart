@@ -35,8 +35,16 @@ class GeoLocationProvider {
   /// Returns the [IpGeoLocation] associated with the provided [IpAddress].
   Future<IpGeoLocation> get(IpAddress ip, {String? language}) async {
     final Dio dio = await _dio;
+
+    final String endpoint;
+    if (Config.geoEndpoint.startsWith('/')) {
+      endpoint = '${Config.origin}${Config.geoEndpoint}';
+    } else {
+      endpoint = Config.geoEndpoint;
+    }
+
     final Response response = await dio.get(
-      '${Config.geoEndpoint}/$ip${language == null ? '' : '?lang=$language'}',
+      '$endpoint/$ip${language == null ? '' : '?lang=$language'}',
     );
 
     if (response.statusCode != 200 ||
