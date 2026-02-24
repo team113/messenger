@@ -269,6 +269,7 @@ err_dimensions_too_big = El tamaño de la imagen excede el límite de 32767 x 32
 err_email_occupied = Este e-mail ya pertenece a otra cuenta
 err_incorrect_email = E-mail incorrecto
 err_incorrect_input = Formato incorrecto
+err_incorrect_link_too_long = Enlace no puede exceder 100 caracteres
 err_incorrect_login_input = El nombre del usuario solo debe contener caracteres alfanuméricos, "-" y "_". Debe empezar con una letra o número y tener de 3 a 20 caracteres.
 err_incorrect_login_or_password = Identificador de cuenta o contraseña inválidos
 err_input_empty = Campo no debe estar vacío
