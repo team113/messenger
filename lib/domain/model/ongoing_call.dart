@@ -2643,7 +2643,7 @@ class OngoingCall {
 
     final DeviceDetails? device =
         audio.firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
-        devices.audio().firstWhereOrNull((e) => e.id() == 'default') ??
+        audio.firstWhereOrNull((e) => e.id() == 'default') ??
         audio.firstOrNull;
 
     if (device != null && audioDevice.value != device) {
