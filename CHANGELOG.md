@@ -6,7 +6,18 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-[Diff](/../../compare/v0.9.3...main) | [Milestone](/../../milestone/69)
+## [0.10.0] · 2026-??-??
+[0.10.0]: /../../tree/v0.10.0
+
+[Diff](/../../compare/v0.9.3...v0.10.0) | [Milestone](/../../milestone/69)
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Country and city missing from linked Web devices. ([#1620])
+
+[#1620]: /../../pull/1620
 
 
 

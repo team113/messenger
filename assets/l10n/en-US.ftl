@@ -269,6 +269,7 @@ err_dimensions_too_big = File dimensions exceed 32767 x 32767 pixels
 err_email_occupied = Specified e-mail is added to another account
 err_incorrect_email = Incorrect e-mail
 err_incorrect_input = Incorrect input
+err_incorrect_link_too_long = Link cannot exceed 100 characters
 err_incorrect_login_input = Login should contain only alphanumeric characters, "-" and "_". It must start with a letter or number and be at least 3 and max 20 characters long.
 err_incorrect_login_or_password = Incorrect account identifier or password.
 err_input_empty = Field must not be empty
