@@ -27,10 +27,8 @@ import '/domain/model/file.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/retry_image.dart';
-import '/ui/widget/audio_player/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/worker/cache.dart';
-import '/util/audio_utils.dart';
 
 /// Visual representation of a media [Attachment].
 class MediaAttachment extends StatefulWidget {
@@ -93,10 +91,6 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     final bool isImage =
         (attachment is ImageAttachment ||
         (attachment is LocalAttachment && attachment.file.isImage));
-
-    final bool isAudio =
-        (attachment is FileAttachment && attachment.isAudio) ||
-        (attachment is LocalAttachment && attachment.file.isAudio);
 
     Widget? preview;
     Widget? child;
@@ -204,42 +198,6 @@ class _MediaAttachmentState extends State<MediaAttachment> {
               max(100, min(file.height?.toDouble() ?? 300, 300)),
           onForbidden: widget.onError,
           cancelable: true,
-        );
-      }
-    } else if (isAudio) {
-      if (attachment is LocalAttachment) {
-        if (attachment.file.path == null) {
-          child = Obx(() {
-            if (attachment.file.bytes.value == null) {
-              return const Center(
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            } else {
-              return SizedBox();
-              // return AudioPlayer(
-              //   checksum: attachment.original.hashCode.toString(),
-              //   source: AudioSource.url(attachment.original.url),
-              //   filename: attachment.filename,
-              // );
-            }
-          });
-        } else {
-          child = AudioPlayer(
-              id: attachment.file.hashCode.toString(),
-              source: AudioSource.file(attachment.file.path!),
-              filename: attachment.file.name,
-            );
-
-        }
-      } else {
-        child = AudioPlayer(
-            id: attachment.original.hashCode.toString(),
-            source: AudioSource.url(attachment.original.url),
-            filename: attachment.filename,
         );
       }
     } else {

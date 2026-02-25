@@ -24,9 +24,11 @@ import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/audio_player/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
+import '/util/audio_utils.dart';
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -57,6 +59,26 @@ class _DataAttachmentState extends State<DataAttachment> {
   Widget build(BuildContext context) {
     final Attachment e = widget.attachment;
 
+    final bool isAudio = (e is FileAttachment && e.isAudio) ||
+        (e is LocalAttachment && e.file.isAudio);
+
+    if (isAudio) {
+      if (e is LocalAttachment) {
+        if (e.file.path != null) {
+          return AudioPlayer(
+            id: e.file.hashCode.toString(),
+            source: AudioSource.file(e.file.path!),
+            filename: e.file.name,
+          );
+        }
+      } else {
+        return AudioPlayer(
+          id: e.original.hashCode.toString(),
+          source: AudioSource.url(e.original.url),
+          filename: e.filename,
+        );
+      }
+    }
     return Obx(() {
       final style = Theme.of(context).style;
 

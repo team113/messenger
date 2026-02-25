@@ -233,10 +233,6 @@ class ChatItemWidget extends StatefulWidget {
         (attachment is FileAttachment && attachment.isVideo) ||
         (isLocal && attachment.file.isVideo);
 
-    final bool isAudio =
-        (attachment is FileAttachment && attachment.isAudio) ||
-        (isLocal && attachment.file.isAudio);
-
     final Widget child = KeyedSubtree(
       key: !isLocal ? const Key('SentImage') : null,
       child: MediaAttachment(
@@ -252,12 +248,12 @@ class ChatItemWidget extends StatefulWidget {
     return Padding(
       padding: EdgeInsets.zero,
       child: MouseRegion(
-        cursor: isLocal || isAudio
+        cursor: isLocal
             ? MouseCursor.defer
             : SystemMouseCursors.click,
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: isLocal || isAudio
+          onTap: isLocal
               ? null
               : () {
                   if (onGallery == null) {
@@ -768,17 +764,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final List<Attachment> media = msg.attachments.where((e) {
       return ((e is ImageAttachment) ||
-          (e is FileAttachment && (e.isVideo || e.isAudio)) ||
-          (e is LocalAttachment &&
-              (e.file.isImage || e.file.isVideo || e.file.isAudio)));
+          (e is FileAttachment && (e.isVideo)) ||
+          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
     final List<Attachment> files = msg.attachments.where((e) {
-      return ((e is FileAttachment && !e.isVideo && !e.isAudio) ||
-          (e is LocalAttachment &&
-              !e.file.isImage &&
-              !e.file.isVideo &&
-              !e.file.isAudio));
+      return ((e is FileAttachment && !e.isVideo) ||
+          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
     }).toList();
 
     final Color color = _fromMe
@@ -1313,9 +1305,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         item.attachments.where(
           (e) =>
               e is ImageAttachment ||
-              (e is FileAttachment && (e.isVideo || e.isAudio)) ||
+              (e is FileAttachment && (e.isVideo)) ||
               (e is LocalAttachment &&
-                  (e.file.isImage || e.file.isVideo || e.file.isAudio)),
+                  (e.file.isImage || e.file.isVideo)),
         ),
       );
     }
@@ -1716,9 +1708,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           .where(
             (e) =>
                 e is ImageAttachment ||
-                (e is FileAttachment && (e.isVideo || e.isAudio)) ||
+                (e is FileAttachment && (e.isVideo)) ||
                 (e is LocalAttachment &&
-                    (e.file.isImage || e.file.isVideo || e.file.isAudio)),
+                    (e.file.isImage || e.file.isVideo)),
           )
           .map((e) => GlobalKey())
           .toList();

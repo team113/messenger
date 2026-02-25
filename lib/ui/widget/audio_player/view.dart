@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../widget_button.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/worker/audio.dart';
 import '/util/audio_utils.dart';
-import '../widget_button.dart';
 
 class AudioPlayer extends StatefulWidget {
   const AudioPlayer({
