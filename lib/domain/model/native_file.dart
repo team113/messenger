@@ -176,6 +176,23 @@ class NativeFile {
     return mime?.type == 'video';
   }
 
+  /// Indicates whether this file represents an audio or not.
+  bool get isAudio {
+    // Best effort if [mime] is `null`.
+    if (mime == null) {
+      return [
+        'mp3',
+        'wav',
+        'm4a',
+        'ogg',
+        'aac',
+        'flac',
+      ].contains(extension.toLowerCase());
+    }
+
+    return mime?.type == 'audio';
+  }
+
   /// Returns contents of this file as a broadcast [Stream].
   ///
   /// Once read, it cannot be rewinded.

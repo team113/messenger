@@ -229,12 +229,13 @@ class ChatItemWidget extends StatefulWidget {
 
     final bool isLocal = attachment is LocalAttachment;
 
-    final bool isVideo;
-    if (isLocal) {
-      isVideo = attachment.file.isVideo;
-    } else {
-      isVideo = attachment is! ImageAttachment;
-    }
+    final bool isVideo =
+        (attachment is FileAttachment && attachment.isVideo) ||
+        (isLocal && attachment.file.isVideo);
+
+    final bool isAudio =
+        (attachment is FileAttachment && attachment.isAudio) ||
+        (isLocal && attachment.file.isAudio);
 
     final Widget child = KeyedSubtree(
       key: !isLocal ? const Key('SentImage') : null,
@@ -251,10 +252,12 @@ class ChatItemWidget extends StatefulWidget {
     return Padding(
       padding: EdgeInsets.zero,
       child: MouseRegion(
-        cursor: isLocal ? MouseCursor.defer : SystemMouseCursors.click,
+        cursor: isLocal || isAudio
+            ? MouseCursor.defer
+            : SystemMouseCursors.click,
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onTap: isLocal
+          onTap: isLocal || isAudio
               ? null
               : () {
                   if (onGallery == null) {
@@ -765,13 +768,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final List<Attachment> media = msg.attachments.where((e) {
       return ((e is ImageAttachment) ||
-          (e is FileAttachment && e.isVideo) ||
-          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+          (e is FileAttachment && (e.isVideo || e.isAudio)) ||
+          (e is LocalAttachment &&
+              (e.file.isImage || e.file.isVideo || e.file.isAudio)));
     }).toList();
 
     final List<Attachment> files = msg.attachments.where((e) {
-      return ((e is FileAttachment && !e.isVideo) ||
-          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+      return ((e is FileAttachment && !e.isVideo && !e.isAudio) ||
+          (e is LocalAttachment &&
+              !e.file.isImage &&
+              !e.file.isVideo &&
+              !e.file.isAudio));
     }).toList();
 
     final Color color = _fromMe
@@ -1304,7 +1311,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       copyable = item.text?.val;
       media.addAll(
         item.attachments.where(
-          (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+          (e) =>
+              e is ImageAttachment ||
+              (e is FileAttachment && (e.isVideo || e.isAudio)) ||
+              (e is LocalAttachment &&
+                  (e.file.isImage || e.file.isVideo || e.file.isAudio)),
         ),
       );
     }
@@ -1705,8 +1716,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           .where(
             (e) =>
                 e is ImageAttachment ||
-                (e is FileAttachment && e.isVideo) ||
-                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)),
+                (e is FileAttachment && (e.isVideo || e.isAudio)) ||
+                (e is LocalAttachment &&
+                    (e.file.isImage || e.file.isVideo || e.file.isAudio)),
           )
           .map((e) => GlobalKey())
           .toList();
