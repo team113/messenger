@@ -248,9 +248,7 @@ class ChatItemWidget extends StatefulWidget {
     return Padding(
       padding: EdgeInsets.zero,
       child: MouseRegion(
-        cursor: isLocal
-            ? MouseCursor.defer
-            : SystemMouseCursors.click,
+        cursor: isLocal ? MouseCursor.defer : SystemMouseCursors.click,
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: isLocal
@@ -1306,8 +1304,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           (e) =>
               e is ImageAttachment ||
               (e is FileAttachment && (e.isVideo)) ||
-              (e is LocalAttachment &&
-                  (e.file.isImage || e.file.isVideo)),
+              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)),
         ),
       );
     }
@@ -1709,8 +1706,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             (e) =>
                 e is ImageAttachment ||
                 (e is FileAttachment && (e.isVideo)) ||
-                (e is LocalAttachment &&
-                    (e.file.isImage || e.file.isVideo)),
+                (e is LocalAttachment && (e.file.isImage || e.file.isVideo)),
           )
           .map((e) => GlobalKey())
           .toList();

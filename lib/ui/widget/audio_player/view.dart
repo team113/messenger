@@ -7,6 +7,7 @@ import '/themes.dart';
 import '/ui/worker/audio.dart';
 import '/util/audio_utils.dart';
 
+/// Audio player with controls.
 class AudioPlayer extends StatefulWidget {
   const AudioPlayer({
     super.key,
@@ -15,8 +16,13 @@ class AudioPlayer extends StatefulWidget {
     required this.filename,
   });
 
-  final String id;
+  /// Source of the audio to play.
   final AudioSource source;
+
+  /// Unique identifier of the audio.
+  final String id;
+
+  /// Name of the audio file.
   final String filename;
 
   @override
@@ -24,36 +30,44 @@ class AudioPlayer extends StatefulWidget {
 }
 
 class _AudioPlayerState extends State<AudioPlayer> {
-  final AudioWorker w = Get.find();
+  final AudioWorker _worker = Get.find();
 
   bool _hovered = false;
-  bool _isDragging = false;
-  double _dragValue = 0.0;
+
+  double _getSliderValue(Duration position, Duration duration) {
+    final posMs = position.inMilliseconds.toDouble();
+    final durMs = duration.inMilliseconds.toDouble();
+    if (durMs <= 0) return 0.0;
+    return posMs.clamp(0.0, durMs);
+  }
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final bool isActive = w.activeAudioId.value == widget.id;
-      final bool isPlaying = w.isPlaying.value && isActive;
-      final bool isLoading = w.isLoading.value && isActive;
+      final bool isActive = _worker.activeAudioId.value == widget.id;
+      final bool isPlaying = _worker.isPlaying.value && isActive;
+      final bool isLoading = _worker.isLoading.value && isActive;
+      final position = _worker.position.value;
+      final duration = _worker.duration.value;
 
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: SizedBox(
-          height: 53,
+          height: 48,
           child: Row(
             children: [
               MouseRegion(
                 onEnter: (_) => setState(() => _hovered = true),
                 onExit: (_) => setState(() => _hovered = false),
                 child: WidgetButton(
+                  key: const Key('PlayerButton'),
                   onPressed: () {
                     if (isActive && isPlaying) {
-                      w.pause();
+                      _worker.pause();
                     } else {
-                      w.play(widget.id, widget.source);
+                      _worker.play(widget.id, widget.source);
                     }
                   },
                   child: AnimatedContainer(
@@ -68,7 +82,10 @@ class _AudioPlayerState extends State<AudioPlayer> {
                       border: Border.all(width: 2, color: style.colors.primary),
                     ),
                     child: isLoading
-                        ? const CircularProgressIndicator()
+                        ? Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: const CircularProgressIndicator(),
+                          )
                         : Center(
                             child: Icon(
                               isPlaying
@@ -89,79 +106,11 @@ class _AudioPlayerState extends State<AudioPlayer> {
                   children: [
                     Text(
                       widget.filename,
-                      style: style.fonts.medium.regular.onBackground,
+                      style: style.fonts.small.regular.onBackground,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      child: isActive
-                          ? Column(
-                              children: [
-                                SliderTheme(
-                                  data: SliderTheme.of(context).copyWith(
-                                    trackHeight: 2.0,
-                                    activeTrackColor: style.colors.primary,
-                                    inactiveTrackColor:
-                                        style.colors.secondaryHighlightDarkest,
-                                    thumbColor: style.colors.primary,
-                                    thumbShape: const RoundSliderThumbShape(
-                                      enabledThumbRadius: 5.0,
-                                    ),
-                                  ),
-                                  child: SizedBox(
-                                    height: 17,
-                                    child: Slider(
-                                      value: w.position.value.inMilliseconds
-                                          .toDouble()
-                                          .clamp(
-                                            0,
-                                            w.duration.value.inMilliseconds
-                                                        .toDouble() >
-                                                    0
-                                                ? w
-                                                      .duration
-                                                      .value
-                                                      .inMilliseconds
-                                                      .toDouble()
-                                                : 1.0,
-                                          ),
-                                      max: w.duration.value.inMilliseconds
-                                          .toDouble(),
-                                      onChanged: (v) {
-                                        w.seek(
-                                          Duration(milliseconds: v.toInt()),
-                                        );
-                                      },
-                                      onChangeStart: (v) {},
-                                      onChangeEnd: (v) async {},
-                                    ),
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      w.position.value.hhMmSs(),
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                    Text(
-                                      ' / ',
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                    Text(
-                                      w.duration.value.hhMmSs(),
-                                      style:
-                                          style.fonts.smaller.regular.secondary,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            )
-                          : const SizedBox.shrink(),
-                    ),
+                    if (isActive) _buildTimeline(position, duration, style),
                   ],
                 ),
               ),
@@ -170,5 +119,51 @@ class _AudioPlayerState extends State<AudioPlayer> {
         ),
       );
     });
+  }
+
+  Widget _buildTimeline(Duration position, Duration duration, Style style) {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      child: Column(
+        children: [
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 2.0,
+              activeTrackColor: style.colors.primary,
+              inactiveTrackColor: style.colors.secondaryHighlightDarkest,
+              thumbColor: style.colors.primary,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+            ),
+            child: SizedBox(
+              height: 17,
+              child: Slider(
+                onChangeStart: (_) => _worker.pause(),
+                onChangeEnd: (_) => _worker.play(widget.id, widget.source),
+                value: _getSliderValue(position, duration),
+                max: duration.inMilliseconds.toDouble() > 0
+                    ? duration.inMilliseconds.toDouble()
+                    : 1.0,
+                onChanged: (v) =>
+                    _worker.seek(Duration(milliseconds: v.toInt())),
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              Text(
+                position.hhMmSs(),
+                style: style.fonts.smaller.regular.secondary,
+              ),
+              Text(' / ', style: style.fonts.smaller.regular.secondary),
+              Text(
+                duration.hhMmSs(),
+                style: style.fonts.smaller.regular.secondary,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

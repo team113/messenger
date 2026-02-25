@@ -59,7 +59,8 @@ class _DataAttachmentState extends State<DataAttachment> {
   Widget build(BuildContext context) {
     final Attachment e = widget.attachment;
 
-    final bool isAudio = (e is FileAttachment && e.isAudio) ||
+    final bool isAudio =
+        (e is FileAttachment && e.isAudio) ||
         (e is LocalAttachment && e.file.isAudio);
 
     if (isAudio) {

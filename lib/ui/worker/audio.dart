@@ -28,49 +28,62 @@ import '/util/platform_utils.dart';
 
 /// Worker responsible for [AudioUtils] related scoped functionality.
 class AudioWorker extends Dependency {
-  AudioWorker();
-
+  /// Underlying audio player instance.
   final ja.AudioPlayer _player = ja.AudioPlayer();
+
+  /// Subscription to the audio intent (music mode).
   StreamSubscription? _audioIntentSubscription;
 
+  /// Unique identifier of the currently active audio, if any.
   final RxnString activeAudioId = RxnString();
+
+  /// Whether the audio is currently playing.
   final RxBool isPlaying = RxBool(false);
+
+  /// Whether the audio is currently loading or buffering.
   final RxBool isLoading = RxBool(false);
+
+  /// Current playback position of the active audio.
   final Rx<Duration> position = Rx<Duration>(Duration.zero);
+
+  /// Total duration of the active audio.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
 
   /// [StreamSubscription] to [AudioUtilsImpl.routeChangeStream].
   StreamSubscription? _routeSubscription;
 
+  /// List of [_player] subscriptions.
+  final List<StreamSubscription> _subscriptions = [];
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
+
+    super.onInit();
 
     if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
       _initialize();
     }
 
-    super.onInit();
-
-    _player.playerStateStream.listen(
-      (state) {
+    _subscriptions.addAll([
+      _player.playerStateStream.listen((state) {
         isPlaying.value = state.playing;
-        isLoading.value = [
-          ja.ProcessingState.buffering,
-          ja.ProcessingState.loading
-        ].contains(state.processingState);
-      } ,
-    );
-    _player.positionStream.listen((p) => position.value = p);
-    _player.durationStream.listen(
-      (d) => duration.value = d ?? Duration.zero,
-    );
+        isLoading.value =
+            state.processingState == ja.ProcessingState.buffering ||
+            state.processingState == ja.ProcessingState.loading;
+      }),
+      _player.positionStream.listen((p) => position.value = p),
+      _player.durationStream.listen((d) => duration.value = d ?? Duration.zero),
+    ]);
   }
 
   @override
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
     _routeSubscription?.cancel();
+    for (final s in _subscriptions) {
+      s.cancel();
+    }
     _player.dispose();
     _audioIntentSubscription?.cancel();
     super.onClose();
@@ -104,20 +117,33 @@ class AudioWorker extends Dependency {
     });
   }
 
+  /// Plays audio from the given [source] with the specified [id].
+  ///
+  /// If the audio with the same [id] is already active, it resumes playback.
+  /// Otherwise, it sets the new [source] and starts playback.
   Future<void> play(String id, AudioSource source) async {
-    _audioIntentSubscription ??= AudioUtils.acquire(AudioMode.music).listen((_) {});
+    try {
+      _audioIntentSubscription ??= AudioUtils.acquire(
+        AudioMode.music,
+      ).listen((_) {});
 
-    if (activeAudioId.value == id) {
-      await _player.play();
-    } else {
-      activeAudioId.value = id;
-      await _player.setAudioSource(source.source);
-      await _player.play();
+      if (activeAudioId.value == id) {
+        await _player.play();
+      } else {
+        activeAudioId.value = id;
+        await _player.setAudioSource(source.source);
+        await _player.play();
+      }
+    } catch (e) {
+      Log.error('Failed to play audio: $e', '$runtimeType');
+      activeAudioId.value = null;
     }
   }
 
-  Future<void> pause() async => await _player.pause();
+  /// Pauses the current playback.
+  Future<void> pause() => _player.pause();
 
+  /// Stops the current playback and clears [activeAudioId].
   Future<void> stop() async {
     await _player.stop();
     activeAudioId.value = null;
@@ -125,5 +151,7 @@ class AudioWorker extends Dependency {
     await _audioIntentSubscription?.cancel();
     _audioIntentSubscription = null;
   }
-  Future<void> seek(Duration pos) async => await _player.seek(pos);
+
+  /// Seeks to the specified [position] in the active audio.
+  Future<void> seek(Duration position) => _player.seek(position);
 }
