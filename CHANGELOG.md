@@ -16,8 +16,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Profile page:
         - Country and city missing from linked Web devices. ([#1620])
+    - Media panel:
+        - Reconnect button playing animation when dragging. ([#1621])
 
 [#1620]: /../../pull/1620
+[#1621]: /../../pull/1621
 
 
 
