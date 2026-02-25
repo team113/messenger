@@ -31,7 +31,11 @@ class AnimatedRotatedButton extends StatefulWidget {
 /// State of an [AnimatedRotatedButton] maintaining the animation.
 class _AnimatedRotatedButtonState extends State<AnimatedRotatedButton>
     with SingleTickerProviderStateMixin {
+  /// [AnimationController] controlling the animation.
   late AnimationController _controller;
+
+  /// [Offset] of a distance between [PointerDownEvent] and [PointerUpEvent].
+  Offset _offset = Offset.zero;
 
   @override
   void initState() {
@@ -58,7 +62,15 @@ class _AnimatedRotatedButtonState extends State<AnimatedRotatedButton>
           ignoring: _controller.isAnimating,
           child: Listener(
             behavior: HitTestBehavior.translucent,
-            onPointerDown: (_) => _controller.forward(from: 0),
+            onPointerDown: (d) => _offset = d.position,
+            onPointerUp: (d) {
+              final distance =
+                  d.position.dx * d.position.dy - _offset.dx * _offset.dy;
+
+              if (distance.abs() < 2048) {
+                _controller.forward(from: 0);
+              }
+            },
             child: RotationTransition(
               turns: Tween(begin: 0.0, end: 2.0).animate(
                 CurvedAnimation(parent: _controller, curve: Curves.ease),
