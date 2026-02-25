@@ -401,11 +401,6 @@ class AudioUtilsImpl {
       final AudioSession session = await AudioSession.instance;
 
       try {
-        Log.debug(
-          'await session.configure() -> setting AudioSessionConfiguration(avAudioSessionCategory: ${needsMic ? 'playAndRecord' : 'playback'}, avAudioSessionMode: ${needsMic ? 'voiceChat' : 'defaultMode'}, avAudioSessionCategoryOptions: ${needsMic ? 'mixWithOthers | allowBluetooth' : 'mixWithOthers | allowBluetooth | allowBluetoothA2dp'})',
-          '$runtimeType',
-        );
-
         await session.configure(configuration);
 
         Log.debug('await session.configure()... done!', '$runtimeType');
