@@ -455,6 +455,7 @@ class OngoingCall {
     if (_background) {
       _background = false;
 
+      _devicesSubscription?.cancel();
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
         Log.debug(
           'onDeviceChange(${e.map((e) => e.label()).join(', ')})',
@@ -537,6 +538,7 @@ class OngoingCall {
         });
       });
 
+      _displaysSubscription?.cancel();
       _displaysSubscription = MediaUtils.onDisplayChange.listen((e) async {
         Log.debug(
           'onDisplayChange(${e.map((e) => e.title() ?? e.deviceId())})',

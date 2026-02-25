@@ -653,6 +653,8 @@ class CallController extends GetxController {
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
 
+    _ensureAudioIntent(true);
+
     _chatWorker = ever(_currentCall.value.chatId, (ChatId id) {
       final FutureOr<RxChat?> chatOrFuture = _chatService.get(id);
 
@@ -664,13 +666,6 @@ class CallController extends GetxController {
     });
 
     _stateWorker = ever(state, (OngoingCallState state) {
-      _ensureAudioIntent(switch (state) {
-        OngoingCallState.active ||
-        OngoingCallState.joining ||
-        OngoingCallState.local => true,
-        OngoingCallState.pending || OngoingCallState.ended => false,
-      });
-
       switch (state) {
         case OngoingCallState.active:
           if (_durationTimer == null) {
@@ -924,6 +919,20 @@ class CallController extends GetxController {
           '$runtimeType',
         );
 
+        final List<DeviceDetails> outputs = _currentCall.value.devices
+            .output()
+            .where((e) => e.id() != 'default' && e.deviceId() != 'default')
+            .toList();
+
+        if (outputs.length <= 2) {
+          Log.debug(
+            '_audioRouter.currentDeviceStream -> ignoring due to `outputs` containing less than 3 devices -> ${outputs.map((e) => e.label())}',
+            '$runtimeType',
+          );
+
+          return;
+        }
+
         final AudioSpeakerKind speaker = switch (device?.type) {
           AudioSourceType.builtinSpeaker => AudioSpeakerKind.speaker,
           AudioSourceType.builtinReceiver => AudioSpeakerKind.earpiece,
@@ -1029,6 +1038,7 @@ class CallController extends GetxController {
     }
 
     _intent?.cancel();
+    _intent = null;
   }
 
   /// Drops the call.

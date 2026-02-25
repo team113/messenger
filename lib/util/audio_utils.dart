@@ -163,7 +163,11 @@ class AudioUtilsImpl {
           }
 
           try {
-            jaPlayer = ja.AudioPlayer();
+            jaPlayer = ja.AudioPlayer(
+              handleAudioSessionActivation: false,
+              handleInterruptions: false,
+              androidApplyAudioAttributes: false,
+            );
           } catch (e) {
             // If [Player] isn't available on the current platform, this throws
             // a `null check operator used on a null value`.
@@ -371,9 +375,7 @@ class AudioUtilsImpl {
             ? AVAudioSessionMode.voiceChat
             : AVAudioSessionMode.defaultMode,
         avAudioSessionCategoryOptions:
-            AVAudioSessionCategoryOptions.mixWithOthers |
-            AVAudioSessionCategoryOptions.allowBluetooth |
-            AVAudioSessionCategoryOptions.allowBluetoothA2dp,
+            AVAudioSessionCategoryOptions.mixWithOthers,
         androidAudioAttributes: AndroidAudioAttributes(
           contentType: needsMic
               ? AndroidAudioContentType.speech
@@ -400,7 +402,12 @@ class AudioUtilsImpl {
 
       try {
         await session.configure(configuration);
+
+        Log.debug('await session.configure()... done!', '$runtimeType');
+
+        Log.debug('await session.setActive(true)...', '$runtimeType');
         await session.setActive(true, fallbackConfiguration: configuration);
+        Log.debug('await session.setActive(true)... done!', '$runtimeType');
       } catch (e) {
         Log.warning(
           'Failed to `session.configure()` due to: $e',
