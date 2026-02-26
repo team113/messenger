@@ -727,7 +727,10 @@ class WebUtils {
   }
 
   /// Closes the current window.
-  static void closeWindow() => web.window.close();
+  static void closeWindow() {
+    Log.debug('closeWindow()', 'WebUtils');
+    web.window.close();
+  }
 
   /// Returns a call identified by the provided [chatId] from the browser's
   /// storage.
