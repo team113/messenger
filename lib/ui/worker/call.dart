@@ -912,10 +912,24 @@ class CallWorker extends Dependency {
         final mixin = events as ChatEvents$Subscription$ChatEvents$Chat;
         final call = mixin.ongoingCall;
 
-        if (call != null) {
-          if (call.members.any((e) => e.user.id == credentials.userId)) {
+        final Rx<OngoingCall>? existing = _callService.calls[chatId];
+
+        // Only remove the call if it's not connected and not active.
+        if (existing?.value.connected != true &&
+            existing?.value.isActive != true) {
+          if (call != null) {
+            if (call.members.any((e) => e.user.id == credentials.userId)) {
+              Log.debug(
+                '_eventsSubscriptions($chatId) -> Chat -> invoking `FlutterCallkitIncoming.endCall()` due to members already containing our user(`${credentials.userId}`) -> ${call.members}',
+                '$runtimeType',
+              );
+
+              _eventsSubscriptions.remove(chatId)?.cancel();
+              await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+            }
+          } else {
             Log.debug(
-              '_eventsSubscriptions($chatId) -> Chat -> invoking `FlutterCallkitIncoming.endCall()` due to members already containing our user(`${credentials.userId}`) -> ${call.members}',
+              '_eventsSubscriptions($chatId) -> Chat -> invoking `FlutterCallkitIncoming.endCall()` due to `call` being `null` -> $mixin',
               '$runtimeType',
             );
 
@@ -924,12 +938,9 @@ class CallWorker extends Dependency {
           }
         } else {
           Log.debug(
-            '_eventsSubscriptions($chatId) -> Chat -> invoking `FlutterCallkitIncoming.endCall()` due to `call` being `null` -> $mixin',
+            '_eventsSubscriptions($chatId) -> ignoring `Chat` due to call being active(${existing?.value.isActive}) and connected(${existing?.value.connected})',
             '$runtimeType',
           );
-
-          _eventsSubscriptions.remove(chatId)?.cancel();
-          await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
         }
       } else if (events.$$typename == 'ChatEventsVersioned') {
         var mixin =
