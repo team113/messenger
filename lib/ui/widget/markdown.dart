@@ -41,6 +41,7 @@ class MarkdownWidget extends StatefulWidget {
 }
 
 class _MarkdownWidgetState extends State<MarkdownWidget> {
+
   /// Reconstructed selection used to extract text from the markdown source.
   String _selectedText = '';
 
