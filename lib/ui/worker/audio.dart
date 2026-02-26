@@ -67,10 +67,21 @@ class AudioWorker extends Dependency {
           break;
 
         case AVAudioSessionRouteChangeReason.categoryChange:
-        case AVAudioSessionRouteChangeReason.routeConfigurationChange:
-        case AVAudioSessionRouteChangeReason.unknown:
+          final int delta =
+              AudioUtils.reconfiguredAt
+                  ?.difference(DateTime.now())
+                  .abs()
+                  .inMilliseconds ??
+              0;
+
           // This may happen due to `media_kit` overriding the category, which
           // we shouldn't allow to happen.
+          await AudioUtils.reconfigure(force: delta >= 500);
+          break;
+
+        case AVAudioSessionRouteChangeReason.routeConfigurationChange:
+        case AVAudioSessionRouteChangeReason.unknown:
+          // No-op.
           break;
       }
     });

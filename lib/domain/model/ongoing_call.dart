@@ -1331,11 +1331,11 @@ class OngoingCall {
   /// Sets the provided [device] as a currently used [outputDevice].
   ///
   /// Does nothing if [device] is already the [outputDevice].
-  Future<void> setOutputDevice(DeviceDetails device) {
+  Future<void> setOutputDevice(DeviceDetails device, {bool force = false}) {
     Log.debug('setOutputDevice($device)', '$runtimeType');
 
     _preferredOutputDevice = device.id();
-    return _setOutputDevice(device);
+    return _setOutputDevice(device, force: force);
   }
 
   /// Sets inbound audio in this [OngoingCall] as [enabled] or not.
@@ -2700,13 +2700,16 @@ class OngoingCall {
   /// Sets the provided [device] as a currently used [outputDevice].
   ///
   /// Does nothing if [device] is already the [outputDevice].
-  Future<void> _setOutputDevice(DeviceDetails device) async {
+  Future<void> _setOutputDevice(
+    DeviceDetails device, {
+    bool force = false,
+  }) async {
     Log.debug(
       '_setOutputDevice($device) -> ${device.audioDeviceKind()?.name}',
       '$runtimeType',
     );
 
-    if (device != outputDevice.value) {
+    if (device != outputDevice.value || force) {
       final DeviceDetails? previous = outputDevice.value;
 
       outputDevice.value = device;

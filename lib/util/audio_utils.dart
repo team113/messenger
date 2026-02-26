@@ -47,6 +47,12 @@ class AudioUtilsImpl {
   /// [DeviceDetails] of the currently used output device.
   final Rx<DeviceDetails?> outputDevice = Rx(null);
 
+  /// [DateTime] when the last [reconfigure] was invoked.
+  ///
+  /// Intended to be used in order to check whether the category change was
+  /// introduced by this [reconfigure] or not.
+  DateTime? _reconfiguredAt;
+
   /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
   /// platforms.
   ja.AudioPlayer? _jaPlayer;
@@ -60,6 +66,9 @@ class AudioUtilsImpl {
   /// [Mutex] guarding synchronized output device updating.
   final Mutex _outputGuard = Mutex();
 
+  /// [Mutex] guarding synchronized access to [reconfigure].
+  final Mutex _categoryGuard = Mutex();
+
   /// [StreamController] to related [_intents] in [acquire].
   final Map<_IntentId, StreamController> _controllers = {};
 
@@ -72,6 +81,12 @@ class AudioUtilsImpl {
   /// Returns [Stream] of [AVAudioSessionRouteChange]s.
   Stream<AVAudioSessionRouteChange> get routeChangeStream =>
       AVAudioSession().routeChangeStream;
+
+  /// [DateTime] when the last [reconfigure] was invoked.
+  ///
+  /// Intended to be used in order to check whether the category change was
+  /// introduced by this [reconfigure] or not.
+  DateTime? get reconfiguredAt => _reconfiguredAt;
 
   /// Indicates whether the [_jaPlayer] should be used.
   bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
@@ -353,81 +368,95 @@ class AudioUtilsImpl {
       '$runtimeType',
     );
 
-    if (_intents.isEmpty) {
-      if (!PlatformUtils.isWeb) {
-        // Reset back to speaker, but only if headphones are disconnected.
-        if (speaker.value != AudioSpeakerKind.headphones) {
-          await setSpeaker(AudioSpeakerKind.speaker);
+    await _categoryGuard.protect(() async {
+      if (_intents.isEmpty) {
+        if (!PlatformUtils.isWeb) {
+          // Reset back to speaker, but only if headphones are disconnected.
+          if (speaker.value != AudioSpeakerKind.headphones) {
+            await setSpeaker(AudioSpeakerKind.speaker);
+          }
+
+          if (PlatformUtils.isIOS) {
+            _reconfiguredAt = DateTime.now();
+            await AVAudioSession().setActive(false);
+            _reconfiguredAt = DateTime.now();
+          }
+        }
+      } else {
+        final bool needsMic = _intents.values.any((e) => e.mode.needsMic);
+
+        final AudioSessionConfiguration configuration =
+            AudioSessionConfiguration(
+              avAudioSessionCategory: needsMic
+                  ? AVAudioSessionCategory.playAndRecord
+                  : AVAudioSessionCategory.playback,
+              avAudioSessionMode: needsMic
+                  ? AVAudioSessionMode.voiceChat
+                  : AVAudioSessionMode.defaultMode,
+              avAudioSessionCategoryOptions:
+                  AVAudioSessionCategoryOptions.mixWithOthers,
+              androidAudioAttributes: AndroidAudioAttributes(
+                contentType: needsMic
+                    ? AndroidAudioContentType.speech
+                    : AndroidAudioContentType.music,
+                usage: needsMic
+                    ? AndroidAudioUsage.voiceCommunication
+                    : AndroidAudioUsage.media,
+              ),
+              androidAudioFocusGainType:
+                  AndroidAudioFocusGainType.gainTransient,
+            );
+
+        if (configuration.toJson() == _previousConfiguration?.toJson()) {
+          Log.debug(
+            'reconfigure() -> ignoring ${_intents.values.map((e) => e.mode.name).join(', ')}',
+            '$runtimeType',
+          );
+
+          return;
         }
 
-        if (PlatformUtils.isIOS) {
-          await AVAudioSession().setActive(false);
+        _previousConfiguration = configuration;
+
+        final AudioSession session = await AudioSession.instance;
+
+        try {
+          _reconfiguredAt = DateTime.now();
+          await session.configure(configuration);
+          _reconfiguredAt = DateTime.now();
+
+          Log.debug('await session.configure()... done!', '$runtimeType');
+
+          Log.debug('await session.setActive(true)...', '$runtimeType');
+          await session.setActive(true, fallbackConfiguration: configuration);
+          Log.debug('await session.setActive(true)... done!', '$runtimeType');
+        } catch (e) {
+          Log.warning(
+            'Failed to `session.configure()` due to: $e',
+            '$runtimeType',
+          );
+        }
+
+        if (preferredSpeaker != null) {
+          // If we're using headphones, then shouldn't switch.
+          if (speaker.value == AudioSpeakerKind.headphones) {
+            // No-op.
+          } else {
+            await setSpeaker(
+              preferredSpeaker,
+
+              // `Speaker` kind should always be switched always after
+              // `session.configure()` due to that call resetting the setting.
+              force: preferredSpeaker == AudioSpeakerKind.speaker,
+            );
+          }
+        } else if (_isMobile) {
+          if (speaker.value != null) {
+            await setSpeaker(speaker.value!, force: force);
+          }
         }
       }
-    } else {
-      final bool needsMic = _intents.values.any((e) => e.mode.needsMic);
-
-      final AudioSessionConfiguration configuration = AudioSessionConfiguration(
-        avAudioSessionCategory: needsMic
-            ? AVAudioSessionCategory.playAndRecord
-            : AVAudioSessionCategory.playback,
-        avAudioSessionMode: needsMic
-            ? AVAudioSessionMode.voiceChat
-            : AVAudioSessionMode.defaultMode,
-        avAudioSessionCategoryOptions:
-            AVAudioSessionCategoryOptions.mixWithOthers,
-        androidAudioAttributes: AndroidAudioAttributes(
-          contentType: needsMic
-              ? AndroidAudioContentType.speech
-              : AndroidAudioContentType.music,
-          usage: needsMic
-              ? AndroidAudioUsage.voiceCommunication
-              : AndroidAudioUsage.media,
-        ),
-        androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransient,
-      );
-
-      if (configuration.toJson() == _previousConfiguration?.toJson()) {
-        Log.debug(
-          'reconfigure() -> ignoring ${_intents.values.map((e) => e.mode.name).join(', ')}',
-          '$runtimeType',
-        );
-
-        return;
-      }
-
-      _previousConfiguration = configuration;
-
-      final AudioSession session = await AudioSession.instance;
-
-      try {
-        await session.configure(configuration);
-
-        Log.debug('await session.configure()... done!', '$runtimeType');
-
-        Log.debug('await session.setActive(true)...', '$runtimeType');
-        await session.setActive(true, fallbackConfiguration: configuration);
-        Log.debug('await session.setActive(true)... done!', '$runtimeType');
-      } catch (e) {
-        Log.warning(
-          'Failed to `session.configure()` due to: $e',
-          '$runtimeType',
-        );
-      }
-
-      if (preferredSpeaker != null) {
-        // If we're using headphones, then shouldn't switch.
-        if (speaker.value == AudioSpeakerKind.headphones) {
-          // No-op.
-        } else {
-          await setSpeaker(preferredSpeaker);
-        }
-      } else if (_isMobile) {
-        if (speaker.value != null) {
-          await setSpeaker(speaker.value!, force: force);
-        }
-      }
-    }
+    });
   }
 
   /// Sets the [speaker] to use for audio output.
@@ -450,9 +479,11 @@ class AudioUtilsImpl {
                 '$runtimeType',
               );
 
+              _reconfiguredAt = DateTime.now();
               await AVAudioSession().overrideOutputAudioPort(
                 AVAudioSessionPortOverride.none,
               );
+              _reconfiguredAt = DateTime.now();
 
               Log.debug(
                 '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(none)... done!',
@@ -466,9 +497,11 @@ class AudioUtilsImpl {
                 '$runtimeType',
               );
 
+              _reconfiguredAt = DateTime.now();
               await AVAudioSession().overrideOutputAudioPort(
                 AVAudioSessionPortOverride.speaker,
               );
+              _reconfiguredAt = DateTime.now();
 
               Log.debug(
                 '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(speaker)... done!',

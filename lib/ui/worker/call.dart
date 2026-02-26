@@ -572,8 +572,32 @@ class CallWorker extends Dependency {
           case Event.actionCallTimeout:
             final String? chatId = event.body['extra']?['chatId'];
             if (chatId != null) {
-              _eventsSubscriptions.remove(ChatId(chatId))?.cancel();
-              _callService.remove(ChatId(chatId));
+              final ChatId id = ChatId(chatId);
+
+              // Shouldn't fully rely on this event, since it seems like it can
+              // be invoked when no call is really ended for some reason.
+              final Rx<OngoingCall>? existing = _callService.calls[id];
+
+              if (existing?.value.connected != true &&
+                  existing?.value.isActive != true) {
+                Log.debug(
+                  'FlutterCallkitIncoming.onEvent -> ${event.event.name} -> removing `$id` call due to it being not connected(${existing?.value.connected}) or not active(${existing?.value.isActive})',
+                  '$runtimeType',
+                );
+
+                _eventsSubscriptions.remove(id)?.cancel();
+                _callService.remove(id);
+              } else {
+                Log.debug(
+                  'FlutterCallkitIncoming.onEvent -> ${event.event.name} -> ignoring for `$id` due to it being connected(${existing?.value.connected}) and active(${existing?.value.isActive})',
+                  '$runtimeType',
+                );
+
+                Log.debug(
+                  'FlutterCallkitIncoming.onEvent -> $event',
+                  '$runtimeType',
+                );
+              }
             }
             break;
 
