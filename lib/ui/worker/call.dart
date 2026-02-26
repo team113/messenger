@@ -572,8 +572,32 @@ class CallWorker extends Dependency {
           case Event.actionCallTimeout:
             final String? chatId = event.body['extra']?['chatId'];
             if (chatId != null) {
-              _eventsSubscriptions.remove(ChatId(chatId))?.cancel();
-              _callService.remove(ChatId(chatId));
+              final ChatId id = ChatId(chatId);
+
+              // Shouldn't fully rely on this event, since it seems like it can
+              // be invoked when no call is really ended for some reason.
+              final Rx<OngoingCall>? existing = _callService.calls[id];
+
+              if (existing?.value.connected != true &&
+                  existing?.value.isActive != true) {
+                Log.debug(
+                  'FlutterCallkitIncoming.onEvent -> ${event.event.name} -> removing `$id` call due to it being not connected(${existing?.value.connected}) or not active(${existing?.value.isActive})',
+                  '$runtimeType',
+                );
+
+                _eventsSubscriptions.remove(id)?.cancel();
+                _callService.remove(id);
+              } else {
+                Log.debug(
+                  'FlutterCallkitIncoming.onEvent -> ${event.event.name} -> ignoring for `$id` due to it being connected(${existing?.value.connected}) and active(${existing?.value.isActive})',
+                  '$runtimeType',
+                );
+
+                Log.debug(
+                  'FlutterCallkitIncoming.onEvent -> $event',
+                  '$runtimeType',
+                );
+              }
             }
             break;
 
@@ -912,10 +936,24 @@ class CallWorker extends Dependency {
         final mixin = events as ChatEvents$Subscription$ChatEvents$Chat;
         final call = mixin.ongoingCall;
 
-        if (call != null) {
-          if (call.members.any((e) => e.user.id == credentials.userId)) {
+        final Rx<OngoingCall>? existing = _callService.calls[chatId];
+
+        // Only remove the call if it's not connected and not active.
+        if (existing?.value.connected != true &&
+            existing?.value.isActive != true) {
+          if (call != null) {
+            if (call.members.any((e) => e.user.id == credentials.userId)) {
+              Log.debug(
+                '_eventsSubscriptions($chatId) -> Chat -> invoking `FlutterCallkitIncoming.endCall()` due to members already containing our user(`${credentials.userId}`) -> ${call.members}',
+                '$runtimeType',
+              );
+
+              _eventsSubscriptions.remove(chatId)?.cancel();
+              await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
+            }
+          } else {
             Log.debug(
-              '_eventsSubscriptions($chatId) -> Chat -> invoking `FlutterCallkitIncoming.endCall()` due to members already containing our user(`${credentials.userId}`) -> ${call.members}',
+              '_eventsSubscriptions($chatId) -> Chat -> invoking `FlutterCallkitIncoming.endCall()` due to `call` being `null` -> $mixin',
               '$runtimeType',
             );
 
@@ -924,12 +962,9 @@ class CallWorker extends Dependency {
           }
         } else {
           Log.debug(
-            '_eventsSubscriptions($chatId) -> Chat -> invoking `FlutterCallkitIncoming.endCall()` due to `call` being `null` -> $mixin',
+            '_eventsSubscriptions($chatId) -> ignoring `Chat` due to call being active(${existing?.value.isActive}) and connected(${existing?.value.connected})',
             '$runtimeType',
           );
-
-          _eventsSubscriptions.remove(chatId)?.cancel();
-          await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
         }
       } else if (events.$$typename == 'ChatEventsVersioned') {
         var mixin =

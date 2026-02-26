@@ -589,23 +589,13 @@ jobs:
 
   build-linux:
     name: build (linux)
-    runs-on: ubuntu-22.04  # pin `glibc` to 2.35 for better compatibility
+    runs-on: ubuntu-24.04  # pin `glibc` to 2.35 for better compatibility
     steps:
       - uses: actions/checkout@v6
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
           fetch-depth: 0
-
-      - run: |
-          set -ex
-
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key \
-          | sudo tee /etc/apt/trusted.gpg.d/llvm.asc
-          echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" \
-          | sudo tee /etc/apt/sources.list.d/llvm.list
 
       - run: sudo apt-get update -y
       - run: sudo apt-get install -y
@@ -623,8 +613,6 @@ jobs:
                           make
                           procps
                           cmake
-                          gcc-13
-                          g++-13
                           clang
                           zip
                           xz-utils
@@ -638,10 +626,6 @@ jobs:
           sudo update-alternatives --config lld
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
           sudo update-alternatives --config ld.lld
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
-          sudo update-alternatives --config gcc
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
-          sudo update-alternatives --config g++
 
       - run: git config --global --add safe.directory '*'
 

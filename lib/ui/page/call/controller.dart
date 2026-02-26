@@ -546,6 +546,7 @@ class CallController extends GetxController {
 
   /// Returns the [AudioSpeakerKind] of the used output device.
   AudioSpeakerKind get speaker =>
+      AudioUtils.speaker.value ??
       _currentCall.value.outputDevice.value?.speaker ??
       _currentCall.value.devices.output().firstOrNull?.speaker ??
       AudioSpeakerKind.earpiece;
@@ -1180,6 +1181,18 @@ class CallController extends GetxController {
         (e) => e == _currentCall.value.outputDevice.value,
       );
 
+      if (PlatformUtils.isMobile) {
+        final int previous = index;
+
+        index = outputs.indexWhere(
+          (e) => e.speaker == AudioUtils.speaker.value,
+        );
+
+        if (index == -1) {
+          index = previous;
+        }
+      }
+
       if (index == -1) {
         index = 0;
       }
@@ -1202,7 +1215,7 @@ class CallController extends GetxController {
         }
       }
 
-      await _currentCall.value.setOutputDevice(outputs[index]);
+      await _currentCall.value.setOutputDevice(outputs[index], force: true);
     }
   }
 
