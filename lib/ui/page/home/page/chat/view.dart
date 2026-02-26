@@ -1329,10 +1329,7 @@ class ChatView extends StatelessWidget {
                 return Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
-                  children: <Widget>[
-                    ...previousChildren,
-                    if (currentChild != null) currentChild,
-                  ],
+                  children: <Widget>[...previousChildren, ?currentChild],
                 );
               },
               transitionBuilder: (child, animation) {

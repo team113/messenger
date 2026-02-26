@@ -1,1 +1,1 @@
-- Permitir que el nombre de usuario tenga 1 símbolo de longitud.
+- Corrección de errores y mejoras de rendimiento.

@@ -33,6 +33,7 @@ import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
 import '/ui/worker/upgrade.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import 'introduction/controller.dart';
 
@@ -160,6 +161,11 @@ class HomeController extends GetxController {
     pages.jumpToPage(router.tab.index);
     refresh();
 
+    Log.debug(
+      'onReady() -> showIntroduction(${_settings.applicationSettings.value?.showIntroduction})',
+      '$runtimeType',
+    );
+
     if (_settings.applicationSettings.value?.showIntroduction ?? true) {
       if (_myUserService.myUser.value != null) {
         _displayIntroduction(_myUserService.myUser.value!);
@@ -246,6 +252,8 @@ class HomeController extends GetxController {
         myUser.phones.confirmed.isEmpty) {
       stage = IntroductionViewStage.oneTime;
     }
+
+    Log.debug('showIntroduction() -> stage is ${stage?.name}', '$runtimeType');
 
     if (stage != null) {
       IntroductionView.show(

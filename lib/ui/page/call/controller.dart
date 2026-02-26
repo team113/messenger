@@ -819,7 +819,7 @@ class CallController extends GetxController {
       if (!const ListEquality().equals(previousButtons, buttons)) {
         previousButtons = buttons.toList();
         _settingsRepository.setCallButtons(
-          buttons.map((e) => e.runtimeType.toString()).toList(),
+          buttons.map((e) => e.runtimeType.toString()).toSet().toList(),
         );
       }
     });
@@ -2515,6 +2515,8 @@ class CallController extends GetxController {
 
   /// Ensures this [OngoingCall] has the [_intent] active or not.
   void _ensureAudioIntent(bool has) {
+    Log.debug('_ensureAudioIntent($has)', '$runtimeType');
+
     if (has) {
       final AudioSpeakerKind? preferred = switch (AudioUtils.speaker.value) {
         AudioSpeakerKind.headphones => null,

@@ -414,7 +414,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                   onExit: enabled ? (d) => c.keepUi() : null,
                   onAccept: (CallButton data) {
                     if (!c.draggedFromDock) {
-                      c.buttons.remove(data);
+                      Future.delayed(Duration.zero, () {
+                        if (c.buttons.contains(data)) {
+                          c.buttons.remove(data);
+                        }
+                      });
+
                       c.draggedButton.value = null;
                     }
                   },
