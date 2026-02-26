@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../widget_button.dart';
+import '/domain/model/attachment.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/worker/audio.dart';
@@ -20,7 +21,7 @@ class AudioPlayer extends StatefulWidget {
   final AudioSource source;
 
   /// Unique identifier of the audio.
-  final String id;
+  final AttachmentId id;
 
   /// Name of the audio file.
   final String filename;
@@ -33,6 +34,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
   final AudioWorker _worker = Get.find();
 
   bool _hovered = false;
+  bool _wasPlaying = false;
 
   double _getSliderValue(Duration position, Duration duration) {
     final posMs = position.inMilliseconds.toDouble();
@@ -46,7 +48,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final bool isActive = _worker.activeAudioId.value == widget.id;
+      final bool isActive = _worker.activeAudioId.value == widget.id.val;
       final bool isPlaying = _worker.isPlaying.value && isActive;
       final bool isLoading = _worker.isLoading.value && isActive;
       final position = _worker.position.value;
@@ -67,7 +69,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
                     if (isActive && isPlaying) {
                       _worker.pause();
                     } else {
-                      _worker.play(widget.id, widget.source);
+                      _worker.play(widget.id.val, widget.source);
                     }
                   },
                   child: AnimatedContainer(
@@ -102,7 +104,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
                       widget.filename,
@@ -110,7 +112,16 @@ class _AudioPlayerState extends State<AudioPlayer> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (isActive) _buildTimeline(position, duration, style),
+
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: isActive
+                          ? KeyedSubtree(
+                              key: const ValueKey('timeline'),
+                              child: _buildTimeline(position, duration, style),
+                            )
+                          : const SizedBox.shrink(key: ValueKey('empty')),
+                    ),
                   ],
                 ),
               ),
@@ -122,48 +133,50 @@ class _AudioPlayerState extends State<AudioPlayer> {
   }
 
   Widget _buildTimeline(Duration position, Duration duration, Style style) {
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-      child: Column(
-        children: [
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 2.0,
-              activeTrackColor: style.colors.primary,
-              inactiveTrackColor: style.colors.secondaryHighlightDarkest,
-              thumbColor: style.colors.primary,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
-            ),
-            child: SizedBox(
-              height: 17,
-              child: Slider(
-                onChangeStart: (_) => _worker.pause(),
-                onChangeEnd: (_) => _worker.play(widget.id, widget.source),
-                value: _getSliderValue(position, duration),
-                max: duration.inMilliseconds.toDouble() > 0
-                    ? duration.inMilliseconds.toDouble()
-                    : 1.0,
-                onChanged: (v) =>
-                    _worker.seek(Duration(milliseconds: v.toInt())),
-              ),
+    return Column(
+      children: [
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            trackHeight: 2.0,
+            activeTrackColor: style.colors.primary,
+            inactiveTrackColor: style.colors.secondaryHighlightDarkest,
+            thumbColor: style.colors.primary,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+          ),
+          child: SizedBox(
+            height: 17,
+            child: Slider(
+              onChangeStart: (_) {
+                _wasPlaying = _worker.isPlaying.value;
+                _worker.pause();
+              },
+              onChangeEnd: (_) {
+                if (_wasPlaying) {
+                  _worker.play(widget.id.val, widget.source);
+                }
+              },
+              value: _getSliderValue(position, duration),
+              max: duration.inMilliseconds.toDouble() > 0
+                  ? duration.inMilliseconds.toDouble()
+                  : 1.0,
+              onChanged: (v) => _worker.seek(Duration(milliseconds: v.toInt())),
             ),
           ),
-          Row(
-            children: [
-              Text(
-                position.hhMmSs(),
-                style: style.fonts.smaller.regular.secondary,
-              ),
-              Text(' / ', style: style.fonts.smaller.regular.secondary),
-              Text(
-                duration.hhMmSs(),
-                style: style.fonts.smaller.regular.secondary,
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+        Row(
+          children: [
+            Text(
+              position.hhMmSs(),
+              style: style.fonts.smaller.regular.secondary,
+            ),
+            Text(' / ', style: style.fonts.smaller.regular.secondary),
+            Text(
+              duration.hhMmSs(),
+              style: style.fonts.smaller.regular.secondary,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -67,14 +67,14 @@ class _DataAttachmentState extends State<DataAttachment> {
       if (e is LocalAttachment) {
         if (e.file.path != null) {
           return AudioPlayer(
-            id: e.file.hashCode.toString(),
+            id: e.id,
             source: AudioSource.file(e.file.path!),
             filename: e.file.name,
           );
         }
       } else {
         return AudioPlayer(
-          id: e.original.hashCode.toString(),
+          id: e.id,
           source: AudioSource.url(e.original.url),
           filename: e.filename,
         );

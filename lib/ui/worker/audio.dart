@@ -66,11 +66,16 @@ class AudioWorker extends Dependency {
     }
 
     _subscriptions.addAll([
-      _player.playerStateStream.listen((state) {
+      _player.playerStateStream.listen((state) async {
         isPlaying.value = state.playing;
         isLoading.value =
             state.processingState == ja.ProcessingState.buffering ||
             state.processingState == ja.ProcessingState.loading;
+
+        if (state.processingState == ja.ProcessingState.completed) {
+          await _player.seek(Duration.zero);
+          _player.pause();
+        }
       }),
       _player.positionStream.listen((p) => position.value = p),
       _player.durationStream.listen((d) => duration.value = d ?? Duration.zero),
@@ -153,5 +158,5 @@ class AudioWorker extends Dependency {
   }
 
   /// Seeks to the specified [position] in the active audio.
-  Future<void> seek(Duration position) => _player.seek(position);
+  Future<void> seek(Duration position) async => _player.seek(position);
 }
