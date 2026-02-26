@@ -14,199 +14,101 @@
 // You should have received a copy of the GNU Affero General Public License v3.0
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/markdown.dart';
 
 /// Widget tests for [MarkdownWidget].
-///
-/// These tests validate:
-/// - Cross-platform text selection behavior.
-/// - Clipboard copy integration.
-/// - Context menu appearance and dismissal.
-/// - Proper handling of asynchronous initialization.
-///
-/// The widget internally:
-/// - Disables the browser context menu on web.
-/// - Wraps content in a [SelectableRegion].
-/// - Reconstructs selected markdown text before copying.
-///
-/// Clipboard interactions are mocked to verify copied content
-/// without requiring platform-level clipboard access.
 void main() {
-  // Required to handle clipboard and platform channel mocking.
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const testText = '''
-Hello world
-Second line
-Third line
-''';
+  const String testBody = 'Hello - World #Markdown Test';
 
-  /// Builds a test instance of [MarkdownWidget] wrapped
-  /// in a minimal [MaterialApp] + [Scaffold].
   Widget buildTestWidget() {
     return MaterialApp(
       theme: Themes.light(),
-      home: Scaffold(
-        body: MarkdownWidget(testText),
-      ),
+      home: const Scaffold(body: MarkdownWidget(testBody)),
     );
   }
 
   group('MarkdownWidget Selection and Copy Tests', () {
-    const String testBody = 'Hello - World #Markdown Test';
+    L10n.init();
 
-    /// Verifies that text selection triggers reconstruction logic
-    /// and that processed text is copied to the clipboard.
-    ///
-    /// Since simulating real platform-level selection gestures
-    /// in widget tests is complex, the [SelectableRegion.onSelectionChanged]
-    /// callback is triggered manually.
-    testWidgets(
-      'Processes and copies text when selection changes',
-          (WidgetTester tester) async {
-        await tester.runAsync(() async {
-          await tester.pumpWidget(
-            MaterialApp(
-              theme: Themes.light(),
-              home: Scaffold(
-                body: MarkdownWidget(testBody),
-              ),
-            ),
-          );
+    testWidgets('Displays markdown content', (WidgetTester tester) async {
+      await tester.runAsync(() async {
+        await tester.pumpWidget(buildTestWidget());
+        await tester.pumpAndSettle();
 
-          // Mock clipboard storage.
-          final Map<String, dynamic> clipboardData = <String, dynamic>{
-            'text': ''
-          };
+        expect(find.textContaining('Hello'), findsOneWidget);
+      });
+    });
 
-          tester.binding.defaultBinaryMessenger
-              .setMockMethodCallHandler(
-            SystemChannels.platform,
-                (MethodCall methodCall) async {
-              if (methodCall.method == 'Clipboard.setData') {
-                clipboardData['text'] =
-                methodCall.arguments['text'];
-                return null;
-              }
-              if (methodCall.method == 'Clipboard.getData') {
-                return clipboardData;
-              }
-              return null;
-            },
-          );
+    testWidgets('Reconstructs selected text and copies via context menu', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pumpAndSettle();
 
-          // Allow FutureBuilder to complete (_disableContextMenu).
-          await tester.pump(Duration.zero);
-          await tester.pumpAndSettle();
+      String? clipboardText;
 
-          final selectableRegionFinder =
-          find.byType(SelectableRegion);
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (MethodCall methodCall) async {
+          if (methodCall.method == 'Clipboard.setData') {
+            clipboardText = methodCall.arguments['text'];
+          }
+          return null;
+        },
+      );
 
-          expect(selectableRegionFinder, findsOneWidget);
+      final selectionAreaFinder = find.byType(SelectionArea);
+      expect(selectionAreaFinder, findsOneWidget);
 
-          final SelectableRegion selectableRegion =
-          tester.widget(selectableRegionFinder);
+      final SelectionArea selectionArea = tester.widget(selectionAreaFinder);
 
-          // Simulate selecting text containing markdown characters.
-          selectableRegion.onSelectionChanged!(
-            SelectedContent(
-              plainText: 'World #Markdown',
-            ),
-          );
+      final textFinder = find.textContaining('World #Markdown');
+      await tester.longPress(textFinder);
+      await tester.pumpAndSettle();
 
-          // Simulate clearing selection to trigger clipboard copy.
-          selectableRegion.onSelectionChanged!(null);
+      selectionArea.onSelectionChanged?.call(
+        const SelectedContent(plainText: 'World #Markdown'),
+      );
 
-          final ClipboardData? data =
-          await Clipboard.getData('text/plain');
+      final copyButtonFinder = find.text('btn_copy_text'.l10n);
+      expect(copyButtonFinder, findsOneWidget);
 
-          // '#' should be removed during normalization.
-          expect(data?.text, contains('World Markdown'));
-          expect(data?.text, isNot(contains('#')));
-        });
-      },
-    );
+      await tester.tap(copyButtonFinder);
+      await tester.pumpAndSettle();
 
-    /// Ensures that the loading indicator is displayed
-    /// before asynchronous initialization completes.
-    testWidgets(
-      'Displays loading indicator initially',
-          (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            theme: Themes.light(),
-            home: Scaffold(
-              body: MarkdownWidget(testBody),
-            ),
-          ),
-        );
+      expect(clipboardText, isNotNull);
+      expect(clipboardText, contains('World Markdown'));
+      expect(clipboardText, isNot(contains('#')));
+    });
 
-        expect(find.byType(CircularProgressIndicator),
-            findsOneWidget);
-      },
-    );
+    testWidgets('Context menu appears and disappears correctly', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pumpAndSettle();
 
-    /// Verifies that the context menu appears after text selection
-    /// and contains a "Copy" action.
-    ///
-    /// This test simulates tap and long-press gestures to trigger
-    /// Flutter's selection overlay.
-    testWidgets(
-      'Context menu appears and contains Copy button',
-          (WidgetTester tester) async {
-        await tester.runAsync(() async {
-          await tester.pumpWidget(buildTestWidget());
-          await tester.pumpAndSettle();
+      final textFinder = find.textContaining('Hello');
 
-          final textFinder =
-          find.textContaining('Hello');
+      await tester.longPress(textFinder);
+      await tester.pumpAndSettle();
 
-          expect(textFinder, findsOneWidget);
+      final copyButtonFinder = find.byType(AdaptiveTextSelectionToolbar);
+      expect(copyButtonFinder, findsOneWidget);
 
-          await tester.tap(textFinder);
-          await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(5, 5));
+      await tester.pumpAndSettle();
 
-          await tester.longPress(textFinder);
-          await tester.pumpAndSettle();
-
-          expect(find.text('Copy'), findsOneWidget);
-        });
-      },
-    );
-
-    /// Ensures that tapping outside the selected region
-    /// dismisses the context menu.
-    testWidgets(
-      'Context menu disappears after tapping outside',
-          (WidgetTester tester) async {
-        await tester.runAsync(() async {
-          await tester.pumpWidget(buildTestWidget());
-          await tester.pumpAndSettle();
-
-          final textFinder =
-          find.textContaining('Hello');
-
-          expect(textFinder, findsOneWidget);
-
-          await tester.tap(textFinder);
-          await tester.pumpAndSettle();
-
-          await tester.longPress(textFinder);
-          await tester.pumpAndSettle();
-
-          expect(find.text('Copy'), findsOneWidget);
-
-          await tester.tapAt(const Offset(5, 5));
-          await tester.pumpAndSettle();
-
-          expect(find.text('Copy'), findsNothing);
-        });
-      },
-    );
+      final copyButtonFinder1 = find.byType(AdaptiveTextSelectionToolbar);
+      expect(copyButtonFinder1, findsNothing);
+    });
   });
 }
