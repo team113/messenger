@@ -47,12 +47,6 @@ class AudioUtilsImpl {
   /// [DeviceDetails] of the currently used output device.
   final Rx<DeviceDetails?> outputDevice = Rx(null);
 
-  /// [DateTime] when the last [reconfigure] was invoked.
-  ///
-  /// Intended to be used in order to check whether the category change was
-  /// introduced by this [reconfigure] or not.
-  DateTime? _reconfiguredAt;
-
   /// [ja.AudioPlayer] lazily initialized to play sounds [once] on mobile
   /// platforms.
   ja.AudioPlayer? _jaPlayer;
@@ -81,12 +75,6 @@ class AudioUtilsImpl {
   /// Returns [Stream] of [AVAudioSessionRouteChange]s.
   Stream<AVAudioSessionRouteChange> get routeChangeStream =>
       AVAudioSession().routeChangeStream;
-
-  /// [DateTime] when the last [reconfigure] was invoked.
-  ///
-  /// Intended to be used in order to check whether the category change was
-  /// introduced by this [reconfigure] or not.
-  DateTime? get reconfiguredAt => _reconfiguredAt;
 
   /// Indicates whether the [_jaPlayer] should be used.
   bool get _isMobile => PlatformUtils.isMobile && !PlatformUtils.isWeb;
@@ -377,9 +365,7 @@ class AudioUtilsImpl {
           }
 
           if (PlatformUtils.isIOS) {
-            _reconfiguredAt = DateTime.now();
             await AVAudioSession().setActive(false);
-            _reconfiguredAt = DateTime.now();
           }
         }
       } else {
@@ -393,8 +379,10 @@ class AudioUtilsImpl {
               avAudioSessionMode: needsMic
                   ? AVAudioSessionMode.voiceChat
                   : AVAudioSessionMode.defaultMode,
-              avAudioSessionCategoryOptions:
-                  AVAudioSessionCategoryOptions.mixWithOthers,
+              avAudioSessionCategoryOptions: needsMic
+                  ? AVAudioSessionCategoryOptions.allowBluetooth |
+                        AVAudioSessionCategoryOptions.duckOthers
+                  : AVAudioSessionCategoryOptions.mixWithOthers,
               androidAudioAttributes: AndroidAudioAttributes(
                 contentType: needsMic
                     ? AndroidAudioContentType.speech
@@ -421,9 +409,7 @@ class AudioUtilsImpl {
         final AudioSession session = await AudioSession.instance;
 
         try {
-          _reconfiguredAt = DateTime.now();
           await session.configure(configuration);
-          _reconfiguredAt = DateTime.now();
 
           Log.debug('await session.configure()... done!', '$runtimeType');
 
@@ -479,11 +465,9 @@ class AudioUtilsImpl {
                 '$runtimeType',
               );
 
-              _reconfiguredAt = DateTime.now();
               await AVAudioSession().overrideOutputAudioPort(
                 AVAudioSessionPortOverride.none,
               );
-              _reconfiguredAt = DateTime.now();
 
               Log.debug(
                 '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(none)... done!',
@@ -497,11 +481,9 @@ class AudioUtilsImpl {
                 '$runtimeType',
               );
 
-              _reconfiguredAt = DateTime.now();
               await AVAudioSession().overrideOutputAudioPort(
                 AVAudioSessionPortOverride.speaker,
               );
-              _reconfiguredAt = DateTime.now();
 
               Log.debug(
                 '_setSpeaker(${this.speaker.value?.name}) -> await AVAudioSession().overrideOutputAudioPort(speaker)... done!',
