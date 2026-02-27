@@ -77,13 +77,16 @@ import 'widget/with_global_key.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatelessWidget {
-  const ChatView(this.id, {super.key, this.itemId});
+  const ChatView(this.id, {super.key, this.itemId, this.search = false});
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// ID of a [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
+
+  /// Indicator whether searching mode should be enabled by default or not.
+  final bool search;
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +107,7 @@ class ChatView extends StatelessWidget {
         Get.find(),
         itemId: itemId,
         onContext: () => context,
+        search: search,
       ),
       tag: id.val,
       global: !Get.isRegistered<ChatController>(tag: id.val),

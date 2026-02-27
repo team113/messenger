@@ -116,7 +116,12 @@ class ChatController extends GetxController {
     this._sessionService, {
     this.itemId,
     this.onContext,
-  });
+    bool search = false,
+  }) {
+    if (search) {
+      toggleSearch(true);
+    }
+  }
 
   /// ID of this [Chat].
   ChatId id;
@@ -1816,6 +1821,8 @@ class ChatController extends GetxController {
 
   /// Enables or disabled [search]ing of the [ChatItem]s of this [Chat].
   void toggleSearch([bool? value]) {
+    Log.debug('toggleSearch($value)', '$runtimeType($hashCode)');
+
     if (value ?? searching.value) {
       searching.value = false;
       search.clear();

@@ -156,6 +156,9 @@ dependency_overrides:
   # TODO: Remove when `super_native_extensions` upgrade:
   #       https://github.com/superlistapp/super_native_extensions/pull/553
   device_info_plus: ^12.3.0
+  # TODO: Remove when `getx` updates.
+  get:
+    git: https://github.com/sleepysquash/getx.git
   image_picker_ios:
     git:
       url: https://github.com/SleepySquash/image_picker.git

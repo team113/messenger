@@ -77,6 +77,7 @@ import 'themes.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/erase/view.dart';
+import 'ui/page/home/page/chat/controller.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/popup_gallery/view.dart';
@@ -1269,6 +1270,7 @@ extension RouteLinks on RouterState {
     RouteAs mode = RouteAs.replace,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
+    bool search = false,
   }) {
     switch (mode) {
       case RouteAs.insteadOfLast:
@@ -1285,7 +1287,18 @@ extension RouteLinks on RouterState {
         break;
     }
 
-    arguments = {'itemId': itemId, 'link': link};
+    arguments = {'itemId': itemId, 'link': link, 'search': search};
+
+    // TODO: Might not be the best thing to do it.
+    if (search) {
+      final List<ChatController> chats = Get.findAll<ChatController>();
+
+      for (var e in chats) {
+        if (e.id == id || (id.isLocal && e.user?.id == id.userId)) {
+          e.toggleSearch();
+        }
+      }
+    }
   }
 
   /// Changes router location to the [Routes.chats] page respecting the possible
