@@ -668,6 +668,8 @@ class ChatController extends GetxController {
       s.cancel();
     }
 
+    _saveScrollPosition();
+
     super.onClose();
   }
 
@@ -1195,6 +1197,8 @@ class ChatController extends GetxController {
         _ensureScrollable();
       });
 
+      _restoreScrollPosition();
+
       _ignorePositionChanges = false;
 
       span.finish();
@@ -1297,6 +1301,7 @@ class ChatController extends GetxController {
           duration: 200.milliseconds,
           curve: Curves.ease,
         );
+        listController.sliverController.jumpToIndex(index);
       } else {
         initIndex = index;
       }
@@ -1449,10 +1454,11 @@ class ChatController extends GetxController {
         await listController.sliverController.animateToIndex(
           0,
           offset: 0,
-          offsetBasedOnBottom: false,
+          offsetBasedOnBottom: true,
           duration: 300.milliseconds,
           curve: Curves.ease,
         );
+        listController.sliverController.jumpToIndex(0);
         canGoBack.value = _itemToReturnTo != null;
       } finally {
         _ignorePositionChanges = false;
@@ -2226,7 +2232,8 @@ class ChatController extends GetxController {
       if (context != null) {
         isHighEnough =
             listController.position.pixels >
-            MediaQuery.of(context).size.height * 2 + 200;
+                MediaQuery.of(context).size.height * 2 + 200 ||
+            (_lastVisibleItem?.index ?? 0) > 10;
       }
 
       if (_history.isNotEmpty || isHighEnough) {
@@ -2527,6 +2534,68 @@ class ChatController extends GetxController {
     if (search.focus.hasFocus == false && search.text.isEmpty == true) {
       toggleSearch(true);
     }
+  }
+
+  /// Saves the scroll position of the [_lastVisibleItem] to
+  /// [RxChat.scrollPosition].
+  void _saveScrollPosition() {
+    if (_lastVisibleItem == null ||
+        elements.isEmpty ||
+        _lastVisibleItem?.offset == null) {
+      return;
+    }
+
+    final ListElement? element = elements.values.elementAtOrNull(
+      _lastVisibleItem!.index,
+    );
+
+    final ChatItemId? itemId = switch (element) {
+      final ChatMessageElement e => e.item.value.id,
+      final ChatCallElement e => e.item.value.id,
+      final ChatInfoElement e => e.item.value.id,
+      final ChatForwardElement e => e.forwards.firstOrNull?.value.id,
+      _ => null,
+    };
+
+    if (itemId != null) {
+      Log.debug(
+        '_saveScrollPosition() ->'
+            ' save scroll position to ChatItemId($itemId)',
+        '$runtimeType',
+      );
+      chat?.scrollPosition = ChatScrollPosition(
+        itemId: itemId,
+        offset: _lastVisibleItem!.offset,
+      );
+    }
+  }
+
+  /// Restores the [listController] scroll position from
+  /// [RxChat.scrollPosition].
+  Future<void> _restoreScrollPosition() async {
+    if (chat?.scrollPosition == null ||
+        chat!.scrollPosition!.offset == _lastVisibleItem?.offset) {
+      return;
+    }
+
+    Log.debug(
+      '_restoreScrollPosition() -> '
+          'restore scroll position to itemId(${chat!.scrollPosition!.itemId})',
+      '$runtimeType',
+    );
+
+    final ChatItemId itemId = chat!.scrollPosition!.itemId;
+
+    final int index = elements.values.toList().indexWhere((e) {
+      return e.id.id == itemId ||
+          (e is ChatForwardElement &&
+              (e.forwards.any((e1) => e1.value.id == itemId) ||
+                  e.note.value?.value.id == itemId));
+    });
+
+    initIndex = index;
+    initOffset = chat!.scrollPosition!.offset;
+    _updateFabStates();
   }
 
   /// Enables or disables search based on the [event].

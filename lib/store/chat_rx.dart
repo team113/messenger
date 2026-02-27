@@ -137,6 +137,9 @@ class RxChatImpl extends RxChat {
   /// [MessagesPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> fragments = [];
 
+  @override
+  ChatScrollPosition? scrollPosition;
+
   /// [ChatRepository] used to cooperate with the other [RxChatImpl]s.
   final ChatRepository _chatRepository;
 
