@@ -479,7 +479,7 @@ class ChatInfoView extends StatelessWidget {
               if (!c.isMonolog) ...[
                 Text(
                   'label_participants'.l10nfmt({
-                    'count': c.chat!.chat.value.membersCount,
+                    'count': c.chat?.chat.value.membersCount ?? 0,
                   }),
                   style: style.fonts.small.regular.secondary,
                 ),

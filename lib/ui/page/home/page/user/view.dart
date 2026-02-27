@@ -173,6 +173,7 @@ class UserView extends StatelessWidget {
         ],
 
         Text.rich(
+          key: const Key('NumCopyable'),
           TextSpan(
             children: [
               TextSpan(text: 'label_num_semicolon'.l10n),

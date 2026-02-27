@@ -1547,12 +1547,6 @@ class SvgIcons {
     height: 19,
   );
 
-  static const SvgData report = SvgData(
-    'assets/icons/report.svg',
-    width: 18,
-    height: 18,
-  );
-
   static const SvgData report19 = SvgData(
     'assets/icons/report19.svg',
     width: 20,
