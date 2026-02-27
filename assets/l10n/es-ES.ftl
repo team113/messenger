@@ -743,7 +743,6 @@ label_muted = Silenciados
 label_muted_chats = Chats silenciados
 label_muted_until_i_turn_on = Silenciado hasta: que lo encienda
 label_muted_until_period = Silenciado hasta: {$period}
-label_name = Nombre
 label_name_hint = Su nombre público
 label_name_updated = {$author} cambió el nombre del grupo
 label_name_updated1 = {$author}

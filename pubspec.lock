@@ -804,7 +804,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "30a0bb5a81828c3dcf29bbe0bd599529585b35e0"
+      resolved-ref: "4c1c65bb0a919535bd9c60e6d722beabfa21e9b0"
       url: "https://github.com/sleepysquash/getx.git"
     source: git
     version: "4.7.3"

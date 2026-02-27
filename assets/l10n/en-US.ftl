@@ -737,7 +737,6 @@ label_muted = Sound off
 label_muted_chats = Muted chats
 label_muted_until_i_turn_on = Muted until: I turn it on
 label_muted_until_period = Muted until: {$period}
-label_name = Name
 label_name_hint = Your public name
 label_name_updated = {$author} updated group name
 label_name_updated1 = {$author}

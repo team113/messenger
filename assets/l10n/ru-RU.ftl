@@ -754,7 +754,6 @@ label_muted = Звук выключен
 label_muted_chats = Беззвучные чаты
 label_muted_until_i_turn_on = Беззвучный до: пока не включу
 label_muted_until_period = Беззвучный до: {$period}
-label_name = Имя
 label_name_hint = Ваше публичное имя
 label_name_updated = {$author} обновил(а) название группы
 label_name_updated1 = {$author}
