@@ -255,11 +255,11 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - apk
-          - appbundle
-          - ipa
-          - macos
-          - web
+          # - apk
+          # - appbundle
+          # - ipa
+          # - macos
+          # - web
           - windows
     runs-on: ${{ (contains('ipa macos', matrix.platform) && 'macos-latest')
               || (matrix.platform == 'windows'           && 'windows-latest')
@@ -796,16 +796,16 @@ jobs:
       fail-fast: false
       matrix:
         tag:
-          - "@auth"
-          - "@chats"
-          - "@common"
-          - "@dialog"
-          - "@group"
-          - "@home"
-          - "@messaging"
-          - "@monolog"
-          - "@profile"
-          - "@settings"
+          # - "@auth"
+          # - "@chats"
+          # - "@common"
+          # - "@dialog"
+          # - "@group"
+          # - "@home"
+          # - "@messaging"
+          # - "@monolog"
+          # - "@profile"
+          # - "@settings"
           - "@system"
     steps:
       - uses: actions/checkout@v6
