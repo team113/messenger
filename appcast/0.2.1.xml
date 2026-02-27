@@ -1,0 +1,5 @@
+<item><title>0.2.1</title><description xml:lang="en-US"><![CDATA[- Fixed active call's duration not being refreshed on chat's page.
+- Fixed "restore chat" button clipping chats on mobile platforms.
+- Fixed inability to input chat's name during group creation in Firefox.]]></description> <description xml:lang="ru-RU"><![CDATA[- Исправлено отсутствие обновления таймера активного звонка в чате.
+- Исправлено обрезание списка чатов кнопкой "отменить удаление чата" на телефонах.
+- Исправлена невозможность ввести имя группы при её создании в Firefox'е.]]></description><pubDate>Fri, 13 Sep 2024 11:13:28 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>

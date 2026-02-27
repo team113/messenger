@@ -1,0 +1,7 @@
+<item><title>0.3.3</title><description xml:lang="en-US"><![CDATA[- Fixed inability to paste clipboard into search field when chat is open.
+- Fixed context menus on mobile platforms having meaningless dividers.
+- Fixed application becoming unresponsive when drag-n-dropping screenshots to chat on macOS.
+- Fixed blocklist count not being updated in real-time in profile.]]></description> <description xml:lang="ru-RU"><![CDATA[- Исправлена невозможность вставки буфера обмена в поле поиска при открытом чате.
+- Исправлено наличие бесмыссленных полос в контекстном меню на мобильных устройствах.
+- Исправлено зависание приложения при драг-н-дропе скриншотов в чат на macOS.
+- Исправлено отсутствие обновления счётчика заблокированных пользователей в реальном времени.]]></description><pubDate>Fri, 07 Mar 2025 13:52:44 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>

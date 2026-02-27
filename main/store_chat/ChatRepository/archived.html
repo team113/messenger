@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the archived property from the ChatRepository class, for the Dart programming language.">
+  <title>archived property - ChatRepository class - chat library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../store_chat/">store&#47;chat.dart</a></li>
+    <li><a href="../../store_chat/ChatRepository-class.html">ChatRepository</a></li>
+    <li class="self-crumb">archived property</li>
+  </ol>
+  <div class="self-name">archived</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="store_chat&#47;ChatRepository-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">archived</span> property 
+</h1></div>
+
+    
+      <section class="multi-line-signature">
+        
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+        <a href="../../store_chat/ArchivedPaginated.html">ArchivedPaginated</a>
+        <span class="name ">archived</span>
+        <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+      </section>
+      
+<section class="desc markdown">
+  <p>Returns the <a href="../../domain_repository_paginated/Paginated-class.html">Paginated</a> of archived <a href="../../domain_repository_chat/RxChat-class.html">RxChat</a>s.</p>
+</section>
+
+      
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+late final ArchivedPaginated archived = ArchivedPaginated(
+  pagination: Pagination(
+    onKey: (e) =&gt; e.id,
+    perPage: 15,
+    provider: DriftGraphQlPageProvider(
+      alwaysFetch: true,
+      driftProvider: DriftPageProvider(
+        watch: ({int? after, int? before, ChatId? around}) {
+          final int limit = (after ?? 0) + (before ?? 0) + 1;
+          return _chatLocal.watchArchive(limit: limit &gt; 1 ? limit : null);
+        },
+        watchUpdates: (a, b) =&gt; a.value.isArchived != b.value.isArchived,
+        onAdded: (e) async {
+          final ChatVersion? stored = archived.items[e.id]?.ver;
+
+          Log.debug(
+            &#39;archived.onAdded -&gt; $e -&gt; stored == null(${stored == null}) || e.ver &gt; stored(${e.ver &gt; stored})&#39;,
+            &#39;$runtimeType&#39;,
+          );
+
+          if (stored == null || e.ver &gt; stored) {
+            await archived.pagination?.put(
+              e,
+              ignoreBounds: true,
+              store: false,
+            );
+          }
+        },
+        onRemoved: (e) async {
+          Log.debug(&#39;archived.onRemoved -&gt; $e&#39;, &#39;$runtimeType&#39;);
+          await archived.pagination?.remove(e.value.id, store: false);
+        },
+        onKey: (e) =&gt; e.value.id,
+        onCursor: (e) =&gt; e?.recentCursor,
+        add: (e, {bool toView = true}) async {
+          if (toView) {
+            await _chatLocal.upsertBulk(e);
+          }
+        },
+        delete: (e) async =&gt; await _chatLocal.delete(e),
+        reset: () async =&gt; await _chatLocal.clear(),
+        isLast: (_, _) =&gt; false,
+        isFirst: (_, _) =&gt; false,
+        fulfilledWhenNone: true,
+        compare: (a, b) =&gt; a.value.compareTo(b.value),
+      ),
+      graphQlProvider: GraphQlPageProvider(
+        fetch: ({after, before, first, last}) =&gt; _recentChats(
+          after: after,
+          before: before,
+          first: first,
+          last: last,
+          archived: true,
+        ),
+      ),
+    ),
+    compare: (a, b) =&gt; a.value.compareTo(b.value),
+  ),
+  transform: ({required DtoChat data, RxChatImpl? previous}) {
+    return previous ?? get(data.id);
+  },
+);</code></pre>
+</section>
+
+
+    
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../store_chat/">chat</a></li>
+    <li><a href="../../store_chat/ChatRepository-class.html">ChatRepository</a></li>
+    <li class="self-crumb">archived property</li>
+</ol>
+
+  <h5>ChatRepository class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.9.4
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

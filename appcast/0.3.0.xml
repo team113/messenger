@@ -1,0 +1,5 @@
+<item><title>0.3.0</title><description xml:lang="en-US"><![CDATA[- Added avatar cropping to profile page.
+- Added images and files pasting from clipboard in chat.
+- Added images and files drag-n-drop in chats tab.]]></description> <description xml:lang="ru-RU"><![CDATA[- Добавлен кроппинг аватара в профиле.
+- Добавлена возможность вставлять картинки и файлы из буфера обмена в чате.
+- Добавлена возможность перетаскивать картинки и файлы в список чатов для их отправки.]]></description><pubDate>Wed, 25 Dec 2024 15:31:40 +0000</pubDate><enclosure sparkle:os="macos" url="https://gapopa.com/artifacts/messenger-macos.zip" /><enclosure sparkle:os="windows" url="https://gapopa.com/artifacts/messenger-windows.zip" /><enclosure sparkle:os="linux" url="https://gapopa.com/artifacts/messenger-linux.zip" /><enclosure sparkle:os="android" url="https://gapopa.com/artifacts/messenger-android.apk" /><enclosure sparkle:os="ios" url="https://gapopa.com/artifacts/messenger-ios.ipa" /></item>
