@@ -156,7 +156,9 @@ class UserView extends StatelessWidget {
   Widget _name(UserController c, BuildContext context, {required int index}) {
     final style = Theme.of(context).style;
 
-    final UserName? name = c.user?.user.value.name;
+    final String? name = c.user?.user.value.isDeleted == true
+        ? 'label_deleted_account'.l10n
+        : c.user?.user.value.name?.val;
     final UserBio? bio = c.user?.user.value.bio;
 
     return Block(
@@ -165,7 +167,7 @@ class UserView extends StatelessWidget {
         if (name != null) ...[
           Text(
             key: Key('UserViewTitleKey'),
-            '$name',
+            name,
             style: style.fonts.larger.regular.onBackground,
             textAlign: TextAlign.center,
           ),
