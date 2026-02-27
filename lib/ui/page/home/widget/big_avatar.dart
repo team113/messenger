@@ -45,6 +45,7 @@ class BigAvatarWidget extends StatefulWidget {
     this.onEdit,
     this.loading = false,
     this.error,
+    this.shape = AvatarShape.rectangle,
   }) : _mode = _BigAvatarMode.myUser,
        user = null,
        chat = null,
@@ -60,6 +61,7 @@ class BigAvatarWidget extends StatefulWidget {
     this.loading = false,
     this.error,
     this.builder = _defaultBuilder,
+    this.shape = AvatarShape.rectangle,
   }) : _mode = _BigAvatarMode.chat,
        myUser = null,
        user = null;
@@ -73,6 +75,7 @@ class BigAvatarWidget extends StatefulWidget {
     this.onEdit,
     this.loading = false,
     this.error,
+    this.shape = AvatarShape.rectangle,
   }) : _mode = _BigAvatarMode.user,
        myUser = null,
        chat = null,
@@ -86,6 +89,9 @@ class BigAvatarWidget extends StatefulWidget {
 
   /// [RxChat] to display an [Avatar] of.
   final RxChat? chat;
+
+  /// [AvatarShape] to display [Avatar] with.
+  final AvatarShape shape;
 
   /// Indicator whether a [CustomProgressIndicator] should be displayed.
   final bool loading;
@@ -158,7 +164,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           ],
         ),
         if (callbacks.isNotEmpty) ...[
-          const SizedBox(height: 5),
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -233,7 +239,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
               key: _avatarKey,
               radius: AvatarRadius.largest,
               badge: false,
-              shape: BoxShape.rectangle,
+              shape: widget.shape,
             ),
           );
           break;
@@ -246,7 +252,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
               key: _avatarKey,
               radius: AvatarRadius.largest,
               badge: false,
-              shape: BoxShape.rectangle,
+              shape: widget.shape,
             ),
           );
           break;
@@ -258,7 +264,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
               widget.chat,
               key: _avatarKey,
               radius: AvatarRadius.largest,
-              shape: BoxShape.rectangle,
+              shape: widget.shape,
             ),
           );
           break;

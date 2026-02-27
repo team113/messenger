@@ -94,7 +94,7 @@ class Block extends StatelessWidget {
   final bool folded;
 
   /// Default [Block.padding] of its contents.
-  static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
+  static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(16, 16, 16, 16);
 
   /// Default [Block.margin] to apply.
   static const EdgeInsets defaultMargin = EdgeInsets.fromLTRB(8, 4, 8, 4);

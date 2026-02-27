@@ -160,6 +160,11 @@ class OngoingCall {
        _echoCancellation = RxnBool(mediaSettings?.echoCancellation),
        _autoGainControl = RxnBool(mediaSettings?.autoGainControl),
        _highPassFilter = RxnBool(mediaSettings?.highPassFilter) {
+    Log.debug(
+      'OngoingCall($chatId) -> _me($_me), _preferredAudioDevice($_preferredAudioDevice), _preferredOutputDevice($_preferredOutputDevice), _preferredVideoDevice($_preferredVideoDevice), _preferredScreenDevice($_preferredScreenDevice), _noiseSuppression($_noiseSuppression), _noiseSuppressionLevel($_noiseSuppressionLevel), _echoCancellation($_echoCancellation), _autoGainControl($_autoGainControl), _highPassFilter($_highPassFilter)',
+      '$runtimeType',
+    );
+
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 

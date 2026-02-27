@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.9.3...v0.10.0) | [Milestone](/../../milestone/69)
 
+### Changed
+
+- UI:
+    - Redesigned user page. ([#1625])
+    - Redesign chat info page. ([#1625])
+
 ### Fixed
 
 - UI:
@@ -21,6 +27,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1620]: /../../pull/1620
 [#1621]: /../../pull/1621
+[#1625]: /../../pull/1625
 
 
 
