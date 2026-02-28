@@ -41,14 +41,22 @@ class MarkdownWidget extends StatefulWidget {
 }
 
 class _MarkdownWidgetState extends State<MarkdownWidget> {
-
   /// Reconstructed selection used to extract text from the markdown source.
   String _selectedText = '';
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
+    /// Web requires a custom implementation because browsers provide a native
+    /// context menu that overrides Flutter's selection toolbar.
+    ///
+    /// The native browser menu does not respect Flutter's
+    /// [contextMenuBuilder], so we explicitly prevent it and provide
+    /// a custom context menu to ensure reconstructed markdown text
+    /// is copied consistently across platforms.
+    ///
+    /// Mobile and desktop platforms use [SelectionArea] with a custom
+    /// [contextMenuBuilder], since Flutter fully controls the selection
+    /// overlay there.
     if (kIsWeb) {
       return ContextMenuRegion(
         preventContextMenu: kIsWeb,
@@ -81,7 +89,7 @@ class _MarkdownWidgetState extends State<MarkdownWidget> {
           },
           child: ObscuredMenuInterceptor(
             enabled: kIsWeb,
-            child: _Markdown(style: style, widget: widget),
+            child: _Markdown(body: widget.body),
           ),
         ),
       );
@@ -126,20 +134,22 @@ class _MarkdownWidgetState extends State<MarkdownWidget> {
             );
           });
         },
-        child: _Markdown(style: style, widget: widget),
+        child: _Markdown(body: widget.body),
       );
     }
   }
 }
 
+/// Internal widget responsible for rendering markdown content.
 class _Markdown extends StatelessWidget {
-  const _Markdown({required this.style, required this.widget});
+  const _Markdown({required this.body});
 
-  final Style style;
-  final MarkdownWidget widget;
+  /// Raw markdown text to render.
+  final String body;
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
     return GptMarkdownTheme(
       gptThemeData: GptMarkdownThemeData(
         brightness: Theme.of(context).brightness,
@@ -149,7 +159,7 @@ class _Markdown extends StatelessWidget {
         h2: style.fonts.largest.bold.onBackground.copyWith(fontSize: 20),
       ),
       child: GptMarkdown(
-        widget.body,
+        body,
         maxLines: 1000,
         linkBuilder: (context, span, link, textStyle) {
           return Text(
