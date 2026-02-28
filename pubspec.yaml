@@ -43,7 +43,6 @@ dependencies:
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
   flutter_local_notifications: ^20.1.0
-  flutter_markdown_plus: ^1.0.7
   flutter_slidable: ^4.0.0
   flutter_spinkit: ^5.2.1
   flutter_svg: ^2.0.10+1
@@ -54,6 +53,7 @@ dependencies:
   flutter_xlider: ^3.5.0
   fvp: ^0.35.2
   get: ^4.6.5
+  gpt_markdown: ^1.1.5
   graphql: ^5.2.3
   hotkey_manager: ^0.2.3
   http: ">=0.13.6 <2.0.0"
