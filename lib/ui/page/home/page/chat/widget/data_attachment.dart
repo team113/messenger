@@ -63,25 +63,6 @@ class _DataAttachmentState extends State<DataAttachment> {
         (e is FileAttachment && e.isAudio) ||
         (e is LocalAttachment && e.file.isAudio);
 
-    if (isAudio) {
-      if (e is LocalAttachment) {
-        if (e.file.path != null) {
-          return IgnorePointer(
-            child: AudioPlayer(
-              id: e.id,
-              source: AudioSource.file(e.file.path!),
-              filename: e.file.name,
-            ),
-          );
-        }
-      } else {
-        return AudioPlayer(
-          id: e.id,
-          source: AudioSource.url(e.original.url),
-          filename: e.filename,
-        );
-      }
-    }
     return Obx(() {
       final style = Theme.of(context).style;
 
@@ -125,6 +106,33 @@ class _DataAttachmentState extends State<DataAttachment> {
             SvgIcons.downloadFileError,
           ),
         };
+      }
+
+      if (isAudio) {
+        AudioSource? source;
+        Widget? progress;
+        if (e is LocalAttachment && e.file.path != null) {
+          source = AudioSource.file(e.file.path!);
+          progress = WidgetButton(
+            onPressed: e.cancelUpload,
+            child: _Progress(width: 25, height: 25, progress: e.progress.value),
+          );
+        } else if (e is FileAttachment) {
+          source = AudioSource.url(e.original.url);
+        }
+
+        if (source != null) {
+          return Column(
+            children: [
+              AudioPlayer(
+                id: e.id,
+                source: source,
+                filename: e.filename,
+                progress: progress,
+              ),
+            ],
+          );
+        }
       }
 
       return Container(
@@ -171,20 +179,35 @@ class _DataAttachmentState extends State<DataAttachment> {
 
 /// [CircularProgressIndicator] with close icon in the center.
 class _Progress extends StatelessWidget {
-  const _Progress({super.key, required this.progress});
+  const _Progress({
+    super.key,
+    required this.progress,
+    this.width = 13,
+    this.height = 13,
+  });
 
   /// Progress value.
   final double progress;
+
+  /// Width of the [CircularProgressIndicator].
+  final double? width;
+
+  /// Height of the [CircularProgressIndicator].
+  final double? height;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       children: [
-        SvgIcon(SvgIcons.downloadFileCancelProgress),
+        SvgIcon(
+          SvgIcons.downloadFileCancelProgress,
+          width: width,
+          height: height,
+        ),
         SizedBox(
-          width: 13,
-          height: 13,
+          width: width,
+          height: height,
           child: CircularProgressIndicator(value: progress, strokeWidth: 2),
         ),
       ],

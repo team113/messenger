@@ -33,6 +33,7 @@ class AudioPlayer extends StatefulWidget {
     required this.source,
     required this.id,
     required this.filename,
+    this.progress,
   });
 
   /// Source of the audio to play.
@@ -43,6 +44,9 @@ class AudioPlayer extends StatefulWidget {
 
   /// Name of the audio file.
   final String filename;
+
+  /// Indicates uploading progress.
+  final Widget? progress;
 
   @override
   State<AudioPlayer> createState() => _AudioPlayerState();
@@ -72,48 +76,51 @@ class _AudioPlayerState extends State<AudioPlayer> {
                 MouseRegion(
                   onEnter: (_) => setState(() => _hovered = true),
                   onExit: (_) => setState(() => _hovered = false),
-                  child: WidgetButton(
-                    key: Key('PlayerButton${widget.id}'),
-                    onPressed: () {
-                      c.togglePlay();
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      height: 48,
-                      width: 48,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _hovered
-                            ? style.colors.backgroundAuxiliaryLighter
-                            : null,
-                        border: Border.all(
-                          width: 2,
-                          color: style.colors.primary,
+                  child: widget.progress != null
+                      ? widget.progress!
+                      : WidgetButton(
+                          key: Key('PlayerButton${widget.id}'),
+                          onPressed: () {
+                            c.togglePlay();
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            height: 48,
+                            width: 48,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _hovered
+                                  ? style.colors.backgroundAuxiliaryLighter
+                                  : null,
+                              border: Border.all(
+                                width: 2,
+                                color: style.colors.primary,
+                              ),
+                            ),
+                            child: Obx(
+                              () => SafeAnimatedSwitcher(
+                                duration: const Duration(milliseconds: 200),
+                                child: c.isLoading
+                                    ? Padding(
+                                        key: const ValueKey('loader'),
+                                        padding: const EdgeInsets.all(8.0),
+                                        child:
+                                            const CircularProgressIndicator(),
+                                      )
+                                    : Center(
+                                        key: ValueKey('icon_${c.isPlaying}'),
+                                        child: Icon(
+                                          c.isPlaying
+                                              ? Icons.pause_rounded
+                                              : Icons.play_arrow_rounded,
+                                          size: 36,
+                                          color: const Color(0xFF1F3C5D),
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Obx(
-                        () => SafeAnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          child: c.isLoading
-                              ? Padding(
-                                  key: const ValueKey('loader'),
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: const CircularProgressIndicator(),
-                                )
-                              : Center(
-                                  key: ValueKey('icon_${c.isPlaying}'),
-                                  child: Icon(
-                                    c.isPlaying
-                                        ? Icons.pause_rounded
-                                        : Icons.play_arrow_rounded,
-                                    size: 36,
-                                    color: const Color(0xFF1F3C5D),
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
