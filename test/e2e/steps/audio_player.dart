@@ -47,7 +47,9 @@ RxChat? _getChat() {
   if (chat == null && id.startsWith('d_')) {
     final UserId userId = UserId(id.replaceFirst('d_', ''));
     chat = service.chats.values.firstWhereOrNull(
-      (e) => e.chat.value.isDialog && e.chat.value.members.any((m) => m.user.id == userId),
+      (e) =>
+          e.chat.value.isDialog &&
+          e.chat.value.members.any((m) => m.user.id == userId),
     );
   }
 

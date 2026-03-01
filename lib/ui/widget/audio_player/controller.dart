@@ -75,7 +75,7 @@ class AudioPlayerController extends GetxController {
   /// Pauses playback if it was playing to allow smooth seeking.
   void onSliderChangeStart() async {
     _wasPlaying = isPlaying;
-    if(_wasPlaying) {
+    if (_wasPlaying) {
       togglePlay();
     }
   }

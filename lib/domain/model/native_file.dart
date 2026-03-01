@@ -187,7 +187,7 @@ class NativeFile {
         'ogg',
         'aac',
         'aiff',
-        'flac'
+        'flac',
       ].contains(extension.toLowerCase());
     }
 

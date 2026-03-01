@@ -23,7 +23,6 @@ import 'package:messenger/ui/worker/audio.dart';
 import 'package:messenger/util/audio_utils.dart';
 
 class MockAudioWorker extends Dependency implements AudioWorker {
-
   @override
   final RxnString activeAudioId = RxnString(null);
 
@@ -63,7 +62,7 @@ class MockAudioWorker extends Dependency implements AudioWorker {
   }
 
   void _startFakeProgress() async {
-    while(isPlaying.value) {
+    while (isPlaying.value) {
       await Future.delayed(const Duration(seconds: 1));
       if (!isPlaying.value) break;
       position.value = position.value + const Duration(seconds: 1);
@@ -75,5 +74,4 @@ class MockAudioWorker extends Dependency implements AudioWorker {
     // TODO: implement stop
     throw UnimplementedError();
   }
-
 }
