@@ -147,6 +147,7 @@ class FileAttachment extends Attachment {
         file.endsWith('.m4a') ||
         file.endsWith('.ogg') ||
         file.endsWith('.aac') ||
+        file.endsWith('.aiff') ||
         file.endsWith('.flac');
   }
 
