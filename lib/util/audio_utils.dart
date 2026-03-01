@@ -657,7 +657,7 @@ class _IntentId extends NewType<String> {
 
 /// Extension adding conversion from an [AudioSource] to a [Media] or
 /// [ja.AudioSource].
-extension on AudioSource {
+extension AudioSourceX on AudioSource {
   /// Returns a [ja.AudioSource] corresponding to this [AudioSource].
   ja.AudioSource get source => switch (kind) {
     AudioSourceKind.asset => ja.AudioSource.asset(

@@ -229,12 +229,9 @@ class ChatItemWidget extends StatefulWidget {
 
     final bool isLocal = attachment is LocalAttachment;
 
-    final bool isVideo;
-    if (isLocal) {
-      isVideo = attachment.file.isVideo;
-    } else {
-      isVideo = attachment is! ImageAttachment;
-    }
+    final bool isVideo =
+        (attachment is FileAttachment && attachment.isVideo) ||
+        (isLocal && attachment.file.isVideo);
 
     final Widget child = KeyedSubtree(
       key: !isLocal ? const Key('SentImage') : null,
