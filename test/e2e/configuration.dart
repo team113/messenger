@@ -29,11 +29,13 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/ui/worker/audio.dart';
 import 'package:messenger/util/log.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/performance.dart';
 import 'hook/reset_app.dart';
+import 'mock/audio_worker.dart';
 import 'mock/geo.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
@@ -60,6 +62,7 @@ import 'parameters/users.dart';
 import 'steps/accounts.dart';
 import 'steps/appcast.dart';
 import 'steps/attach_file.dart';
+import 'steps/audio_player.dart';
 import 'steps/cancel_uploading.dart';
 import 'steps/change_chat_avatar.dart';
 import 'steps/chat_is_favorite.dart';
@@ -346,6 +349,9 @@ FlutterTestConfiguration gherkinTestConfiguration() {
     waitUntilFileStatus,
     waitUntilKeyExists,
     waitUntilMessageStatus,
+    toggleAudioPlay,
+    audioIsPaused,
+    audioIsPlaying,
   ];
   configuration.hooks = [
     ResetAppHook(),
@@ -396,6 +402,7 @@ FlutterTestConfiguration gherkinTestConfiguration() {
   configuration.tagExpression = 'not @disabled';
   if (const bool.hasEnvironment('E2E_TAG')) {
     final String tags = const String.fromEnvironment('E2E_TAG');
+    print('--- DEBUG: RUNNING WITH TAGS: $tags ---'); // Добавь это
     configuration.tagExpression = '$tags and not @disabled';
   }
 
@@ -407,6 +414,7 @@ Future<void> appInitializationFn(World world) {
   PlatformUtils = PlatformUtilsMock();
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
+  Get.put<AudioWorker>(MockAudioWorker());
 
   final Function(FlutterErrorDetails)? original = FlutterError.onError;
   FlutterError.onError = (details) {

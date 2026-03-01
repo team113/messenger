@@ -34,6 +34,7 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then Bob sends "test.txt" attachment to me
 /// - Then Bob sends "test.jpg" attachment to me
+/// - Then Bob sends "test.mp3" attachment to me
 final StepDefinitionGeneric
 sendsAttachmentToMe = and2<TestUser, String, CustomWorld>(
   '{user} sends {string} attachment to me',
@@ -45,13 +46,19 @@ sendsAttachmentToMe = and2<TestUser, String, CustomWorld>(
     final String? type = MimeResolver.lookup(filename);
     final MediaType? mime = type != null ? MediaType.parse(type) : null;
 
+    final Uint8List bytes = switch (mime?.type) {
+      'image' => base64Decode(
+        '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
+      ),
+      'audio' || _ when filename.endsWith('.mp3') => base64Decode(
+        'SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZTUuMC4xMDAA//uQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+      ),
+      _ => Uint8List.fromList([1, 1]),
+    };
+
     final response = await provider.uploadAttachment(
       dio.MultipartFile.fromBytes(
-        mime?.type == 'image'
-            ? base64Decode(
-                '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
-              )
-            : Uint8List.fromList([1, 1]),
+        bytes,
         filename: filename,
         contentType: type != null ? MediaType.parse(type) : null,
       ),
