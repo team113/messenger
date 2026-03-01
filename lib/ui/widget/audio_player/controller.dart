@@ -22,8 +22,6 @@ import '/util/audio_utils.dart';
 import '/ui/worker/audio.dart';
 
 /// Controller for audio playback that manages state for a specific audio attachment.
-///
-/// Uses [AudioWorker] to handle actual playback and synchronization.
 class AudioPlayerController extends GetxController {
   AudioPlayerController(
     this._audioWorker, {
@@ -31,13 +29,17 @@ class AudioPlayerController extends GetxController {
     required this.source,
   });
 
-  final AudioWorker _audioWorker;
-
   /// Identifier for audio attachment.
   final AttachmentId id;
 
   /// Source of audio data.
   final AudioSource source;
+
+  /// Whether audio was playing before interaction started.
+  bool _wasPlaying = false;
+
+  /// Handles actual playback and synchronization.
+  final AudioWorker _audioWorker;
 
   /// Whether this controller's audio is active in [AudioWorker].
   bool get isActive => _audioWorker.activeAudioId.value == id.val;
@@ -58,8 +60,6 @@ class AudioPlayerController extends GetxController {
 
   /// Sets playback position in [AudioWorker].
   set position(Duration e) => _audioWorker.position.value = e;
-
-  bool _wasPlaying = false;
 
   /// Toggles playback between playing and paused states.
   void togglePlay() {

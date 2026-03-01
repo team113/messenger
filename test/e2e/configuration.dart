@@ -402,7 +402,6 @@ FlutterTestConfiguration gherkinTestConfiguration() {
   configuration.tagExpression = 'not @disabled';
   if (const bool.hasEnvironment('E2E_TAG')) {
     final String tags = const String.fromEnvironment('E2E_TAG');
-    print('--- DEBUG: RUNNING WITH TAGS: $tags ---'); // Добавь это
     configuration.tagExpression = '$tags and not @disabled';
   }
 
