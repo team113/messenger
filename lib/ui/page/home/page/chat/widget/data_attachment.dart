@@ -28,7 +28,7 @@ import '/ui/widget/audio_player/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
-import '/util/audio_utils.dart';
+import '/util/audio_utils.dart' show AudioSource;
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -66,10 +66,12 @@ class _DataAttachmentState extends State<DataAttachment> {
     if (isAudio) {
       if (e is LocalAttachment) {
         if (e.file.path != null) {
-          return AudioPlayer(
-            id: e.id,
-            source: AudioSource.file(e.file.path!),
-            filename: e.file.name,
+          return IgnorePointer(
+            child: AudioPlayer(
+              id: e.id,
+              source: AudioSource.file(e.file.path!),
+              filename: e.file.name,
+            ),
           );
         }
       } else {

@@ -28,6 +28,8 @@ import '/util/platform_utils.dart';
 
 /// Worker responsible for [AudioUtils] related scoped functionality.
 class AudioWorker extends Dependency {
+  AudioWorker();
+
   /// Underlying audio player instance.
   final ja.AudioPlayer _player = ja.AudioPlayer();
 
@@ -73,11 +75,10 @@ class AudioWorker extends Dependency {
             state.processingState == ja.ProcessingState.loading;
 
         if (state.processingState == ja.ProcessingState.completed) {
-          await _player.seek(Duration.zero);
-          _player.pause();
+          _onPlaybackCompleted();
         }
       }),
-      _player.positionStream.listen((p) => position.value = p),
+      _player.positionStream.distinct().listen((p) => position.value = p),
       _player.durationStream.listen((d) => duration.value = d ?? Duration.zero),
     ]);
   }
@@ -122,6 +123,12 @@ class AudioWorker extends Dependency {
     });
   }
 
+  /// Called when the audio playback is completed.
+  Future<void> _onPlaybackCompleted() async {
+    await _player.seek(Duration.zero);
+    await _player.pause();
+  }
+
   /// Plays audio from the given [source] with the specified [id].
   ///
   /// If the audio with the same [id] is already active, it resumes playback.
@@ -141,7 +148,7 @@ class AudioWorker extends Dependency {
       }
     } catch (e) {
       Log.error('Failed to play audio: $e', '$runtimeType');
-      activeAudioId.value = null;
+      stop();
     }
   }
 
