@@ -6,16 +6,16 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.10.0] · 2026-??-??
-[0.10.0]: /../../tree/v0.10.0
+## [0.9.4] · 2026-03-02
+[0.9.4]: /../../tree/v0.9.4
 
-[Diff](/../../compare/v0.9.3...v0.10.0) | [Milestone](/../../milestone/69)
+[Diff](/../../compare/v0.9.3...v0.9.4) | [Milestone](/../../milestone/69)
 
 ### Changed
 
 - UI:
     - Redesigned user page. ([#1625])
-    - Redesign chat info page. ([#1625])
+    - Redesigned chat info page. ([#1625])
 
 ### Fixed
 
