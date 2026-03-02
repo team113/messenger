@@ -27,7 +27,7 @@ import '/util/audio_utils.dart';
 import 'controller.dart';
 
 /// Audio player with controls.
-class AudioPlayer extends StatefulWidget {
+class AudioPlayer extends StatelessWidget {
   const AudioPlayer({
     super.key,
     required this.source,
@@ -49,23 +49,11 @@ class AudioPlayer extends StatefulWidget {
   final Widget? progress;
 
   @override
-  State<AudioPlayer> createState() => _AudioPlayerState();
-}
-
-class _AudioPlayerState extends State<AudioPlayer> {
-  bool _hovered = false;
-
-  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return GetBuilder<AudioPlayerController>(
-      init: AudioPlayerController(
-        Get.find(),
-        id: widget.id,
-        source: widget.source,
-      ),
-      tag: widget.id.val,
+      init: AudioPlayerController(Get.find(), id: id, source: source),
       builder: (c) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
@@ -74,22 +62,21 @@ class _AudioPlayerState extends State<AudioPlayer> {
             child: Row(
               children: [
                 MouseRegion(
-                  onEnter: (_) => setState(() => _hovered = true),
-                  onExit: (_) => setState(() => _hovered = false),
-                  child: widget.progress != null
-                      ? widget.progress!
-                      : WidgetButton(
-                          key: Key('PlayerButton${widget.id}'),
-                          onPressed: () {
-                            c.togglePlay();
-                          },
-                          child: AnimatedContainer(
+                  onEnter: (_) => c.hovered = true,
+                  onExit: (_) => c.hovered = false,
+                  child:
+                      progress ??
+                      WidgetButton(
+                        key: Key('PlayerButton$id'),
+                        onPressed: c.togglePlay,
+                        child: Obx(
+                          () => AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             height: 48,
                             width: 48,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: _hovered
+                              color: c.hovered
                                   ? style.colors.backgroundAuxiliaryLighter
                                   : null,
                               border: Border.all(
@@ -97,30 +84,28 @@ class _AudioPlayerState extends State<AudioPlayer> {
                                 color: style.colors.primary,
                               ),
                             ),
-                            child: Obx(
-                              () => SafeAnimatedSwitcher(
-                                duration: const Duration(milliseconds: 200),
-                                child: c.isLoading
-                                    ? Padding(
-                                        key: const ValueKey('loader'),
-                                        padding: const EdgeInsets.all(8.0),
-                                        child:
-                                            const CircularProgressIndicator(),
-                                      )
-                                    : Center(
-                                        key: ValueKey('icon_${c.isPlaying}'),
-                                        child: Icon(
-                                          c.isPlaying
-                                              ? Icons.pause_rounded
-                                              : Icons.play_arrow_rounded,
-                                          size: 36,
-                                          color: const Color(0xFF1F3C5D),
-                                        ),
+                            child: SafeAnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: c.isLoading
+                                  ? const Padding(
+                                      key: ValueKey('loader'),
+                                      padding: EdgeInsets.all(8.0),
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : Center(
+                                      key: ValueKey('icon_${c.isPlaying}'),
+                                      child: Icon(
+                                        c.isPlaying
+                                            ? Icons.pause_rounded
+                                            : Icons.play_arrow_rounded,
+                                        size: 36,
+                                        color: const Color(0xFF1F3C5D),
                                       ),
-                              ),
+                                    ),
                             ),
                           ),
                         ),
+                      ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -129,19 +114,18 @@ class _AudioPlayerState extends State<AudioPlayer> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        widget.filename,
+                        filename,
                         style: style.fonts.small.regular.onBackground,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-
                       Obx(
                         () => AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           child: c.isActive
                               ? KeyedSubtree(
                                   key: const ValueKey('timeline'),
-                                  child: _buildTimeline(c, style),
+                                  child: _buildTimeline(c, style, context),
                                 )
                               : const SizedBox.shrink(key: ValueKey('empty')),
                         ),
@@ -157,7 +141,11 @@ class _AudioPlayerState extends State<AudioPlayer> {
     );
   }
 
-  Widget _buildTimeline(AudioPlayerController c, Style style) {
+  Widget _buildTimeline(
+    AudioPlayerController c,
+    Style style,
+    BuildContext context,
+  ) {
     return Column(
       children: [
         SliderTheme(
@@ -171,7 +159,7 @@ class _AudioPlayerState extends State<AudioPlayer> {
           child: SizedBox(
             height: 17,
             child: Slider(
-              key: Key('AudioSlider${widget.id}'),
+              key: Key('AudioSlider$id'),
               onChangeStart: (_) => c.onSliderChangeStart(),
               onChangeEnd: (v) => c.onSliderChangeEnd(),
               value: c.getSliderValue(),

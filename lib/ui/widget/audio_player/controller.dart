@@ -35,6 +35,9 @@ class AudioPlayerController extends GetxController {
   /// Source of audio data.
   final AudioSource source;
 
+  /// UI State for hover effect.
+  final RxBool isHovered = RxBool(false);
+
   /// Whether audio was playing before interaction started.
   bool _wasPlaying = false;
 
@@ -58,8 +61,14 @@ class AudioPlayerController extends GetxController {
   Duration get duration =>
       isActive ? _audioWorker.duration.value : Duration.zero;
 
+  /// Returns hover state.
+  bool get hovered => isHovered.value;
+
+  /// Sets hover state.
+  set hovered(bool value) => isHovered.value = value;
+
   /// Sets playback position in [AudioWorker].
-  set position(Duration e) => _audioWorker.position.value = e;
+  set position(Duration v) => _audioWorker.position.value = v;
 
   /// Toggles playback between playing and paused states.
   void togglePlay() {
