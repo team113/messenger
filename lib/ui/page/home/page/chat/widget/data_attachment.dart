@@ -189,10 +189,10 @@ class _Progress extends StatelessWidget {
   /// Progress value.
   final double progress;
 
-  /// Width of the [CircularProgressIndicator].
+  /// Width of the [_Progress].
   final double? width;
 
-  /// Height of the [CircularProgressIndicator].
+  /// Height of the [_Progress].
   final double? height;
 
   @override

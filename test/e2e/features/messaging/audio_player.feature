@@ -28,7 +28,7 @@ Feature: Audio Player functionality
   Scenario: Play and pause audio
     Given Bob sends "test.mp3" attachment to me
     And I wait until attachment "test.mp3" is present
-    And I have Internet with delay of 4 seconds
+
     When I toggle play for "test.mp3" audio
     Then I see "test.mp3" audio is playing
 

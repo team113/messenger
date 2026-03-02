@@ -54,6 +54,7 @@ class AudioPlayer extends StatelessWidget {
 
     return GetBuilder<AudioPlayerController>(
       init: AudioPlayerController(Get.find(), id: id, source: source),
+      tag: id.val,
       builder: (c) {
         return Padding(
           padding: const EdgeInsets.all(8.0),

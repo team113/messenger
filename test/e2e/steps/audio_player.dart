@@ -15,46 +15,19 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
-import 'package:messenger/ui/worker/audio.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/worker/audio.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
-
-/// Returns [RxChat] by the current route.
-RxChat? _getChat() {
-  final String route = router.route;
-  final String? id = route.split('/').lastOrNull;
-
-  if (id == null) {
-    return null;
-  }
-
-  final ChatService service = Get.find<ChatService>();
-
-  RxChat? chat = service.chats[ChatId(id)];
-
-  if (chat == null && id.startsWith('d_')) {
-    final UserId userId = UserId(id.replaceFirst('d_', ''));
-    chat = service.chats.values.firstWhereOrNull(
-      (e) =>
-          e.chat.value.isDialog &&
-          e.chat.value.members.any((m) => m.user.id == userId),
-    );
-  }
-
-  return chat;
-}
 
 /// Toggles the audio player.
 ///
@@ -65,7 +38,8 @@ final StepDefinitionGeneric toggleAudioPlay = when1<String, CustomWorld>(
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat = _getChat();
+    final RxChat? chat = Get.find<ChatService>()
+        .chats[ChatId(router.route.split('/').last)];
 
     final Attachment attachment = chat!.messages
         .map((e) => e.value)
@@ -94,7 +68,8 @@ final StepDefinitionGeneric audioIsPlaying = then1<String, CustomWorld>(
     await context.world.appDriver.waitForAppToSettle();
     await Future.delayed(const Duration(milliseconds: 500));
 
-    final RxChat? chat = _getChat();
+    final RxChat? chat = Get.find<ChatService>()
+        .chats[ChatId(router.route.split('/').last)];
 
     final Attachment attachment = chat!.messages
         .map((e) => e.value)
@@ -126,7 +101,8 @@ final StepDefinitionGeneric audioIsPaused = then1<String, CustomWorld>(
     await context.world.appDriver.waitForAppToSettle();
     await Future.delayed(const Duration(milliseconds: 500));
 
-    final RxChat? chat = _getChat();
+    final RxChat? chat = Get.find<ChatService>()
+        .chats[ChatId(router.route.split('/').last)];
 
     final Attachment attachment = chat!.messages
         .map((e) => e.value)

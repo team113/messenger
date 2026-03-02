@@ -142,6 +142,9 @@ class AudioWorker extends Dependency {
       if (activeAudioId.value == id) {
         await _player.play();
       } else {
+        if(source is UrlAudioSource) {
+
+        }
         activeAudioId.value = id;
         await _player.setAudioSource(source.source);
         await _player.play();
