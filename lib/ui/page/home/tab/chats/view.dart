@@ -257,7 +257,6 @@ class ChatsTabView extends StatelessWidget {
       } else {
         padded = false;
         label = Padding(
-          key: Key('Chats'),
           padding: const EdgeInsets.only(left: 22),
           child: Text('label_chats'.l10n),
         );
@@ -591,6 +590,7 @@ class ChatsTabView extends StatelessWidget {
 
         slivers ??= [
           SliverList.builder(
+            key: const Key('SearchScrollable'),
             itemCount: c.elements.length,
             itemBuilder: (_, i) {
               final ListElement element = c.elements[i];
@@ -724,6 +724,7 @@ class ChatsTabView extends StatelessWidget {
 
         slivers ??= [
           SliverList.builder(
+            key: const Key('Archive'),
             itemCount: chats.length,
             itemBuilder: (_, i) {
               final RxChat chat = chats[i];
@@ -928,6 +929,7 @@ class ChatsTabView extends StatelessWidget {
       }
 
       return CustomScrollView(
+        key: const Key('Chats'),
         controller: c.scrollController,
         slivers: [
           SliverPersistentHeader(
