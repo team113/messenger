@@ -16,14 +16,18 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 
 import '/domain/service/disposable_service.dart';
 import '/util/audio_utils.dart';
+import '/util/backoff.dart';
 import '/util/log.dart';
+import '/util/media_utils.dart';
 import '/util/platform_utils.dart';
 
 /// Worker responsible for [AudioUtils] related scoped functionality.
@@ -56,6 +60,9 @@ class AudioWorker extends Dependency {
 
   /// List of [_player] subscriptions.
   final List<StreamSubscription> _subscriptions = [];
+
+  /// [CancelToken] for cancelling the audio download.
+  CancelToken? _cancelToken;
 
   @override
   void onInit() {
@@ -92,6 +99,7 @@ class AudioWorker extends Dependency {
     }
     _player.dispose();
     _audioIntentSubscription?.cancel();
+    _cancelToken?.cancel();
     super.onClose();
   }
 
@@ -129,29 +137,112 @@ class AudioWorker extends Dependency {
     await _player.pause();
   }
 
+  /// Ensures [source] is reachable and sets it as a local file path in
+  /// [_player].
+  ///
+  /// Tries refreshing the [source] once via [onForbidden] on `403` response.
+  Future<void> _setRemoteAudioSource(
+    String id,
+    UrlAudioSource source, {
+    FutureOr<AudioSource?> Function()? onForbidden,
+  }) async {
+    UrlAudioSource current = source;
+    bool retriedAfterForbidden = false;
+    if (PlatformUtils.isWeb) return;
+    while (true) {
+      _cancelToken?.cancel();
+      _cancelToken = CancelToken();
+
+      try {
+        await Backoff.run(
+          () async {
+            await _ensureReachable(current);
+
+            final response = await (await PlatformUtils.dio).get(
+              current.url,
+              options: Options(responseType: ResponseType.bytes),
+              cancelToken: _cancelToken,
+            );
+
+            final dir = await PlatformUtils.temporaryDirectory;
+            final filePath = '${dir.path}/audio_$id.mp3';
+
+            final file = File(filePath);
+            await file.writeAsBytes(response.data);
+            await _player.setFilePath(filePath);
+          },
+          cancel: _cancelToken,
+          retryIf: (e) =>
+              e is! DioException ||
+              e.response?.statusCode != 403 && e.isNetworkRelated,
+        );
+
+        return;
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 403 && !retriedAfterForbidden) {
+          final AudioSource? refreshed = await onForbidden?.call();
+          if (refreshed is UrlAudioSource) {
+            current = refreshed;
+            retriedAfterForbidden = true;
+            continue;
+          }
+        }
+
+        rethrow;
+      }
+    }
+  }
+
+  /// Fetches the header of [source] to ensure that it is reachable.
+  Future<void> _ensureReachable(UrlAudioSource source) async {
+    await (await PlatformUtils.dio).head(source.url, cancelToken: _cancelToken);
+  }
+
   /// Plays audio from the given [source] with the specified [id].
   ///
   /// If the audio with the same [id] is already active, it resumes playback.
   /// Otherwise, it sets the new [source] and starts playback.
-  Future<void> play(String id, AudioSource source) async {
+  Future<void> play(
+    String id,
+    AudioSource source, {
+    FutureOr<AudioSource?> Function()? onForbidden,
+  }) async {
     try {
       _audioIntentSubscription ??= AudioUtils.acquire(
         AudioMode.music,
+        speaker: AudioSpeakerKind.speaker,
       ).listen((_) {});
 
       if (activeAudioId.value == id) {
         await _player.play();
       } else {
-        if(source is UrlAudioSource) {
-
-        }
+        await stop();
         activeAudioId.value = id;
-        await _player.setAudioSource(source.source);
+
+        if (source is UrlAudioSource &&
+            (PlatformUtils.isIOS || PlatformUtils.isMacOS) &&
+            !PlatformUtils.isWeb) {
+          isLoading.value = true;
+
+          try {
+            await _setRemoteAudioSource(id, source, onForbidden: onForbidden);
+          } on OperationCanceledException {
+            return;
+          } finally {
+            isLoading.value = false;
+          }
+        } else {
+
+          await _player.setAudioSource(source.source);
+        }
+
         await _player.play();
       }
     } catch (e) {
-      Log.error('Failed to play audio: $e', '$runtimeType');
-      stop();
+      if (e is! OperationCanceledException) {
+        Log.error('Failed to play audio: $e', '$runtimeType');
+        await stop();
+      }
     }
   }
 
@@ -160,9 +251,12 @@ class AudioWorker extends Dependency {
 
   /// Stops the current playback and clears [activeAudioId].
   Future<void> stop() async {
+    _cancelToken?.cancel();
+    _cancelToken = null;
     await _player.stop();
     activeAudioId.value = null;
-
+    position.value = Duration.zero;
+    duration.value = Duration.zero;
     await _audioIntentSubscription?.cancel();
     _audioIntentSubscription = null;
   }

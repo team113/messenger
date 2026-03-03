@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -34,6 +36,7 @@ class AudioPlayer extends StatelessWidget {
     required this.id,
     required this.filename,
     this.progress,
+    this.onForbidden,
   });
 
   /// Source of the audio to play.
@@ -48,12 +51,20 @@ class AudioPlayer extends StatelessWidget {
   /// Indicates uploading progress.
   final Widget? progress;
 
+  /// Callback, called when [source] fetch fails with `403` status code.
+  final FutureOr<AudioSource?> Function()? onForbidden;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return GetBuilder<AudioPlayerController>(
-      init: AudioPlayerController(Get.find(), id: id, source: source),
+      init: AudioPlayerController(
+        Get.find(),
+        id: id,
+        source: source,
+        onForbidden: onForbidden,
+      ),
       tag: id.val,
       builder: (c) {
         return Padding(
@@ -65,48 +76,50 @@ class AudioPlayer extends StatelessWidget {
                 MouseRegion(
                   onEnter: (_) => c.hovered = true,
                   onExit: (_) => c.hovered = false,
-                  child:
-                      progress ??
-                      WidgetButton(
-                        key: Key('PlayerButton$id'),
-                        onPressed: c.togglePlay,
-                        child: Obx(
-                          () => AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            height: 48,
-                            width: 48,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: c.hovered
-                                  ? style.colors.backgroundAuxiliaryLighter
-                                  : null,
-                              border: Border.all(
-                                width: 2,
-                                color: style.colors.primary,
+                  child: Obx(
+                    () => IgnorePointer(
+                      ignoring: c.isLoading,
+                      child: progress ??
+                          WidgetButton(
+                            key: Key('PlayerButton$id'),
+                            onPressed: c.togglePlay,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              height: 48,
+                              width: 48,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: c.hovered
+                                    ? style.colors.backgroundAuxiliaryLighter
+                                    : null,
+                                border: Border.all(
+                                  width: 2,
+                                  color: style.colors.primary,
+                                ),
+                              ),
+                              child: SafeAnimatedSwitcher(
+                                duration: const Duration(milliseconds: 200),
+                                child: c.isLoading
+                                    ? const Padding(
+                                        key: ValueKey('loader'),
+                                        padding: EdgeInsets.all(8.0),
+                                        child: CircularProgressIndicator(),
+                                      )
+                                    : Center(
+                                        key: ValueKey('icon_${c.isPlaying}'),
+                                        child: Icon(
+                                          c.isPlaying
+                                              ? Icons.pause_rounded
+                                              : Icons.play_arrow_rounded,
+                                          size: 36,
+                                          color: const Color(0xFF1F3C5D),
+                                        ),
+                                      ),
                               ),
                             ),
-                            child: SafeAnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
-                              child: c.isLoading
-                                  ? const Padding(
-                                      key: ValueKey('loader'),
-                                      padding: EdgeInsets.all(8.0),
-                                      child: CircularProgressIndicator(),
-                                    )
-                                  : Center(
-                                      key: ValueKey('icon_${c.isPlaying}'),
-                                      child: Icon(
-                                        c.isPlaying
-                                            ? Icons.pause_rounded
-                                            : Icons.play_arrow_rounded,
-                                        size: 36,
-                                        color: const Color(0xFF1F3C5D),
-                                      ),
-                                    ),
-                            ),
                           ),
-                        ),
-                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(

@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
@@ -27,6 +29,7 @@ class AudioPlayerController extends GetxController {
     this._audioWorker, {
     required this.id,
     required this.source,
+    this.onForbidden,
   });
 
   /// Identifier for audio attachment.
@@ -70,12 +73,15 @@ class AudioPlayerController extends GetxController {
   /// Sets playback position in [AudioWorker].
   set position(Duration v) => _audioWorker.position.value = v;
 
+  /// Callback, called when [source] fetch fails with `403` status code.
+  final FutureOr<AudioSource?> Function()? onForbidden;
+
   /// Toggles playback between playing and paused states.
   void togglePlay() {
     if (isActive && isPlaying) {
       _audioWorker.pause();
     } else {
-      _audioWorker.play(id.val, source);
+      _audioWorker.play(id.val, source, onForbidden: onForbidden);
     }
   }
 

@@ -39,7 +39,11 @@ class MockAudioWorker extends Dependency implements AudioWorker {
   final Rx<Duration> duration = Rx<Duration>(const Duration(minutes: 2));
 
   @override
-  Future<void> play(String id, AudioSource source) async {
+  Future<void> play(
+    String id,
+    AudioSource source, {
+    FutureOr<AudioSource?> Function()? onForbidden,
+  }) async {
     activeAudioId.value = id;
     isLoading.value = true;
 

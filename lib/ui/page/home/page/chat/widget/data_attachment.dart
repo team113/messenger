@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
@@ -32,13 +34,21 @@ import '/util/audio_utils.dart' show AudioSource;
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
-  const DataAttachment(this.attachment, {super.key, this.onPressed});
+  const DataAttachment(
+    this.attachment, {
+    super.key,
+    this.onPressed,
+    this.onForbidden,
+  });
 
   /// [Attachment] to display.
   final Attachment attachment;
 
   /// Callback, called when this [DataAttachment] is pressed.
   final void Function()? onPressed;
+
+  /// Callback, called when [attachment] fetching fails with `403` status code.
+  final Future<void> Function()? onForbidden;
 
   @override
   State<DataAttachment> createState() => _DataAttachmentState();
@@ -109,28 +119,37 @@ class _DataAttachmentState extends State<DataAttachment> {
       }
 
       if (isAudio) {
-        AudioSource? source;
-        Widget? progress;
-        if (e is LocalAttachment && e.file.path != null) {
-          source = AudioSource.file(e.file.path!);
-          progress = WidgetButton(
-            onPressed: e.cancelUpload,
-            child: _Progress(width: 25, height: 25, progress: e.progress.value),
-          );
-        } else if (e is FileAttachment) {
-          source = AudioSource.url(e.original.url);
-        }
+        final (source, progress) = switch (e) {
+          LocalAttachment e when e.file.path != null => (
+            AudioSource.file(e.file.path!),
+            WidgetButton(
+              onPressed: e.cancelUpload,
+              child: _Progress(
+                width: 25,
+                height: 25,
+                progress: e.progress.value,
+              ),
+            ),
+          ),
+          FileAttachment e => (
+            AudioSource.url(e.original.url),
+            null as Widget?,
+          ),
+          _ => (null, null),
+        };
 
         if (source != null) {
-          return Column(
-            children: [
-              AudioPlayer(
-                id: e.id,
-                source: source,
-                filename: e.filename,
-                progress: progress,
-              ),
-            ],
+          return AudioPlayer(
+            id: e.id,
+            source: source,
+            filename: e.filename,
+            progress: progress,
+            onForbidden: e is FileAttachment
+                ? () async {
+                    await widget.onForbidden?.call();
+                    return AudioSource.url(e.original.url);
+                  }
+                : null,
           );
         }
       }
@@ -190,10 +209,10 @@ class _Progress extends StatelessWidget {
   final double progress;
 
   /// Width of the [_Progress].
-  final double? width;
+  final double width;
 
   /// Height of the [_Progress].
-  final double? height;
+  final double height;
 
   @override
   Widget build(BuildContext context) {

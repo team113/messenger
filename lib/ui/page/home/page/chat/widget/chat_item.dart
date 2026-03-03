@@ -332,9 +332,11 @@ class ChatItemWidget extends StatefulWidget {
   static Widget fileAttachment(
     Attachment e, {
     void Function(FileAttachment)? onFileTap,
+    Future<void> Function()? onAttachmentError,
   }) {
     return DataAttachment(
       e,
+      onForbidden: onAttachmentError,
       onPressed: () {
         if (e is FileAttachment) {
           onFileTap?.call(e);
@@ -910,6 +912,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ChatItemWidget.fileAttachment(
                         e,
                         onFileTap: widget.onFileTap,
+                        onAttachmentError: () async =>
+                            await widget.onAttachmentError?.call(
+                              widget.item.value,
+                            ),
                       ),
                       if (files.last != e) const SizedBox(height: 6),
                     ],
