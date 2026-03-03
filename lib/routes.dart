@@ -475,6 +475,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// Worker to react on the [RouterState.prefix] changes.
   late final Worker _prefixWorker;
 
+  /// [ScrollController] for horizontal [SingleChildScrollView] appearing when
+  /// window's width is less than a certain value.
+  final ScrollController _horizontalController = ScrollController();
+
   @override
   Future<void> setInitialRoutePath(RouteConfiguration configuration) async {
     Future.delayed(Duration.zero, () {
@@ -1175,7 +1179,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Widget build(BuildContext context) {
-    return SentryDisplayWidget(
+    final Widget body = SentryDisplayWidget(
       child: LifecycleObserver(
         onStateChange: (v) {
           Log.debug('onStateChange() -> $v', '$runtimeType');
@@ -1196,6 +1200,45 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   _state.pop(page.name);
                 }
               },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // [MediaQuery] width to switch to horizontal scrolling.
+    const double minimum = 300;
+
+    if (MediaQuery.of(context).size.width >= minimum) {
+      return body;
+    }
+
+    return ScrollConfiguration(
+      behavior: CustomScrollBehavior(),
+      child: Scrollbar(
+        controller: _horizontalController,
+        child: SingleChildScrollView(
+          controller: _horizontalController,
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: minimum,
+              maxWidth: max(MediaQuery.of(context).size.width, minimum),
+            ),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                size: Size(
+                  max(MediaQuery.of(context).size.width, minimum),
+                  MediaQuery.of(context).size.height,
+                ),
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: ScrollConfiguration(
+                  behavior: MaterialScrollBehavior(),
+                  child: body,
+                ),
+              ),
             ),
           ),
         ),

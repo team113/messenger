@@ -10,6 +10,11 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.9.4...main) | [Milestone](/../../milestone/70)
 
+### Changed
+
+- UI:
+    - Horizontal application scroll when window's width is less than 300px. ([#1632])
+
 ### Fixed
 
 - UI:
@@ -17,6 +22,7 @@ All user visible changes to this project will be documented in this file. This p
         - Screen turning dark when double pressing escape. ([#1629])
 
 [#1629]: /../../pull/1629
+[#1632]: /../../pull/1632
 
 
 
