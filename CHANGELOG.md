@@ -14,9 +14,9 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Player:
-        - Screen turning dark when double pressing escape. ([#1627])
+        - Screen turning dark when double pressing escape. ([#1629])
 
-[#1627]: /../../pull/1627
+[#1629]: /../../pull/1629
 
 
 
