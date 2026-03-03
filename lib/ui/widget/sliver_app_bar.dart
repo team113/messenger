@@ -74,7 +74,7 @@ class CustomSliverAppBar extends StatelessWidget {
       floating: false,
       titleSpacing: 0,
       expandedHeight: hasFlexible ? extended : height,
-      toolbarHeight: hasFlexible ? height : extended,
+      toolbarHeight: hasFlexible ? height : height,
       shape: BoxBorder.fromLTRB(right: style.cardBorder.right),
       flexibleSpace: flexible != null && hasFlexible
           ? FlexibleSpaceBar(
