@@ -70,8 +70,9 @@ class MockAudioWorker extends Dependency implements AudioWorker {
   }
 
   @override
-  Future<void> stop() {
-    // TODO: implement stop
-    throw UnimplementedError();
+  Future<void> stop() async {
+    isPlaying.value = false;
+    activeAudioId.value = null;
+    position.value = const Duration();
   }
 }

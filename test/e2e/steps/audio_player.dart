@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/material.dart' show Slider;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
@@ -38,8 +39,8 @@ final StepDefinitionGeneric toggleAudioPlay = when1<String, CustomWorld>(
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat = Get.find<ChatService>()
-        .chats[ChatId(router.route.split('/').last)];
+    final RxChat? chat =
+        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
 
     final Attachment attachment = chat!.messages
         .map((e) => e.value)
@@ -68,8 +69,8 @@ final StepDefinitionGeneric audioIsPlaying = then1<String, CustomWorld>(
     await context.world.appDriver.waitForAppToSettle();
     await Future.delayed(const Duration(milliseconds: 500));
 
-    final RxChat? chat = Get.find<ChatService>()
-        .chats[ChatId(router.route.split('/').last)];
+    final RxChat? chat =
+        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
 
     final Attachment attachment = chat!.messages
         .map((e) => e.value)
@@ -101,8 +102,8 @@ final StepDefinitionGeneric audioIsPaused = then1<String, CustomWorld>(
     await context.world.appDriver.waitForAppToSettle();
     await Future.delayed(const Duration(milliseconds: 500));
 
-    final RxChat? chat = Get.find<ChatService>()
-        .chats[ChatId(router.route.split('/').last)];
+    final RxChat? chat =
+        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
 
     final Attachment attachment = chat!.messages
         .map((e) => e.value)
@@ -117,10 +118,46 @@ final StepDefinitionGeneric audioIsPaused = then1<String, CustomWorld>(
             !worker.isPlaying.value) ||
         (worker.activeAudioId.value != attachment.id.val);
 
-    if (!isPaused) {
-      throw Exception(
-        'Expected audio "$name" to be paused, but it is playing.',
-      );
-    }
+    expect(isPaused, true);
   },
 );
+
+/// Verifies that audio slider position changes while the file is playing.
+///
+/// Examples:
+/// - Then I see "test.mp3" audio slider position changes while playing
+final StepDefinitionGeneric audioSliderPositionChangesWhilePlaying =
+    then1<String, CustomWorld>(
+      'I see {string} audio slider position changes while playing',
+      (name, context) async {
+        await context.world.appDriver.waitForAppToSettle();
+
+        final RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+
+        final Attachment attachment = chat!.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .expand((e) => e.attachments)
+            .firstWhere(
+              (a) => a.filename == name,
+              orElse: () => throw Exception(
+                'Audio file "$name" not found in current chat',
+              ),
+            );
+
+        final Finder slider = context.world.appDriver.findByKeySkipOffstage(
+          'AudioSlider${attachment.id.val}',
+        );
+        expect(slider.evaluate().isNotEmpty, true);
+
+        double sliderValue() {
+          return (slider.evaluate().first.widget as Slider).value;
+        }
+
+        final double initialValue = sliderValue();
+
+        await Future.delayed(const Duration(seconds: 2));
+        expect(sliderValue() > initialValue, true);
+      },
+    );

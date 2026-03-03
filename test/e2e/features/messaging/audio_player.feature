@@ -31,6 +31,7 @@ Feature: Audio Player functionality
 
     When I toggle play for "test.mp3" audio
     Then I see "test.mp3" audio is playing
+    And I see "test.mp3" audio slider position changes while playing
 
     When I toggle play for "test.mp3" audio
     Then I see "test.mp3" audio is paused
