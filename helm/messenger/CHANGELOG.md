@@ -11,7 +11,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Added
 
-- `/geo-ip` nginx proxy forwarding to `ip-api.com` geo IP fetching service. ([#1620])
+- `/geo-ip` [Nginx] proxy forwarding to `ip-api.com` geo IP fetching service. ([#1620])
 
 [#1620]: https://github.com/team113/messenger/pull/1620
 
