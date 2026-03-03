@@ -147,6 +147,10 @@ class PlayerController extends GetxController {
   /// [List] of the currently active [PlayerNotification]s.
   final RxList<PlayerNotification> notifications = RxList();
 
+  /// Indicator whether a closing animation is being fired and soon the
+  /// [isClosed] will become `true`.
+  bool isClosing = false;
+
   /// [AbstractSettingsRepository] for storing the
   /// [ApplicationSettings.videoVolume].
   final AbstractSettingsRepository _settingsRepository;
@@ -766,7 +770,8 @@ class PlayerController extends GetxController {
         case LogicalKeyboardKey.escape:
           if (_isFullscreen) {
             toggleFullscreen();
-          } else {
+          } else if (!isClosing) {
+            isClosing = true;
             shouldClose?.call();
           }
 
