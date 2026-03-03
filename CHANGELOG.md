@@ -10,6 +10,14 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.9.4...main) | [Milestone](/../../milestone/70)
 
+### Fixed
+
+- UI:
+    - Player:
+        - Screen turning dark when double pressing escape. ([#1627])
+
+[#1627]: /../../pull/1627
+
 
 
 
