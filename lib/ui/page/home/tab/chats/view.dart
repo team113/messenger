@@ -228,8 +228,6 @@ class ChatsTabView extends StatelessWidget {
     return CustomSliverAppBar(
       title: _title(context, c),
       actions: [_more(context, c)],
-      hasFlexible: PlatformUtils.isMobile,
-      flexible: SafeArea(top: false, bottom: false, child: _search(context, c)),
     );
   }
 

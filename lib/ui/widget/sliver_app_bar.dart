@@ -29,7 +29,7 @@ class CustomSliverAppBar extends StatelessWidget {
     this.leading = const [],
     this.actions = const [],
     this.flexible,
-    this.hasFlexible = true,
+    this.hasFlexible = false,
     this.height = 60,
     this.extended = 110,
   });
