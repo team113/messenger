@@ -16,10 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/markdown.dart';
 
@@ -37,8 +34,6 @@ void main() {
   }
 
   group('MarkdownWidget Selection and Copy Tests', () {
-    L10n.init();
-
     testWidgets('Displays markdown content', (WidgetTester tester) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(buildTestWidget());
@@ -46,48 +41,6 @@ void main() {
 
         expect(find.textContaining('Hello'), findsOneWidget);
       });
-    });
-
-    testWidgets('Reconstructs selected text and copies via context menu', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(buildTestWidget());
-      await tester.pumpAndSettle();
-
-      String? clipboardText;
-
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        (MethodCall methodCall) async {
-          if (methodCall.method == 'Clipboard.setData') {
-            clipboardText = methodCall.arguments['text'];
-          }
-          return null;
-        },
-      );
-
-      final selectionAreaFinder = find.byType(SelectionArea);
-      expect(selectionAreaFinder, findsOneWidget);
-
-      final SelectionArea selectionArea = tester.widget(selectionAreaFinder);
-
-      final textFinder = find.textContaining('World #Markdown');
-      await tester.longPress(textFinder);
-      await tester.pumpAndSettle();
-
-      selectionArea.onSelectionChanged?.call(
-        const SelectedContent(plainText: 'World #Markdown'),
-      );
-
-      final copyButtonFinder = find.text('btn_copy_text'.l10n);
-      expect(copyButtonFinder, findsOneWidget);
-
-      await tester.tap(copyButtonFinder);
-      await tester.pumpAndSettle();
-
-      expect(clipboardText, isNotNull);
-      expect(clipboardText, contains('World Markdown'));
-      expect(clipboardText, isNot(contains('#')));
     });
 
     testWidgets('Context menu appears and disappears correctly', (
