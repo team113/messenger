@@ -912,10 +912,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       ChatItemWidget.fileAttachment(
                         e,
                         onFileTap: widget.onFileTap,
-                        onAttachmentError: () async =>
-                            await widget.onAttachmentError?.call(
-                              widget.item.value,
-                            ),
+                        onAttachmentError: () async => await widget
+                            .onAttachmentError
+                            ?.call(widget.item.value),
                       ),
                       if (files.last != e) const SizedBox(height: 6),
                     ],
@@ -1307,7 +1306,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       copyable = item.text?.val;
       media.addAll(
         item.attachments.where(
-          (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+          (e) =>
+              e is ImageAttachment ||
+              (e is FileAttachment && (e.isVideo || e.isAudio)),
         ),
       );
     }

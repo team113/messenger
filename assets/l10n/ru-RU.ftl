@@ -528,6 +528,8 @@ label_audio_call = Аудиозвонок{$by ->
         [x]{""}
         *[other] {" "}от {$by}
     }
+label_audio_downloaded = Аудио загружено
+label_audio_saved_to_gallery = Аудио сохранено в галерею
 label_auto_gain_control = Авторегулировка громкости
 label_avatar_removed = {$author} удалил(а) аватар
 label_avatar_removed1 = {$author}

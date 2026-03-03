@@ -111,6 +111,11 @@ class AudioPlayerController extends GetxController {
     await _audioWorker.seek(Duration(milliseconds: ms.toInt()));
   }
 
+  /// Stops playback.
+  Future<void> stop() async {
+    await _audioWorker.stop();
+  }
+
   /// Returns current position in milliseconds, clamped between 0 and [duration].
   double getSliderValue() {
     final durMs = duration.inMilliseconds.toDouble();

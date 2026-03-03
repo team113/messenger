@@ -516,6 +516,8 @@ label_audio_call =
         [x]{""}
         *[other] {" "}de {$by}
     }
+label_video_downloaded = Audio descargado
+label_audio_saved_to_gallery = Audio guardado en la galería
 label_auto_gain_control = Auto gain control
 label_avatar_removed = {$author} eliminó el avatar
 label_avatar_removed1 = {$author}

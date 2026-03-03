@@ -64,6 +64,9 @@ class AudioWorker extends Dependency {
   /// [CancelToken] for cancelling the audio download.
   CancelToken? _cancelToken;
 
+  /// [CancelToken] for cancelling the audio header fetching.
+  CancelToken? _headerToken;
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
@@ -100,6 +103,7 @@ class AudioWorker extends Dependency {
     _player.dispose();
     _audioIntentSubscription?.cancel();
     _cancelToken?.cancel();
+    _headerToken?.cancel();
     super.onClose();
   }
 
@@ -137,47 +141,65 @@ class AudioWorker extends Dependency {
     await _player.pause();
   }
 
-  /// Ensures [source] is reachable and sets it as a local file path in
-  /// [_player].
+  /// Downloads [source] and sets it as a local file path in [_player].
+  Future<void> _setDownloadedAudioSource(
+    String id,
+    UrlAudioSource source,
+  ) async {
+    _cancelToken?.cancel();
+    _cancelToken = CancelToken();
+
+    await Backoff.run(
+      () async {
+        final response = await (await PlatformUtils.dio).get(
+          source.url,
+          options: Options(responseType: ResponseType.bytes),
+          cancelToken: _cancelToken,
+        );
+
+        final dir = await PlatformUtils.temporaryDirectory;
+        final filePath = '${dir.path}/audio_$id.mp3';
+
+        final file = File(filePath);
+        await file.writeAsBytes(response.data);
+        await _player.setFilePath(filePath);
+      },
+      cancel: _cancelToken,
+      retryIf: (e) =>
+          e is! DioException ||
+          e.response?.statusCode != 403 && e.isNetworkRelated,
+    );
+  }
+
+  /// Fetches the header of [source] to ensure that the URL is reachable.
   ///
   /// Tries refreshing the [source] once via [onForbidden] on `403` response.
-  Future<void> _setRemoteAudioSource(
-    String id,
+  Future<UrlAudioSource> _ensureReachable(
     UrlAudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
     UrlAudioSource current = source;
     bool retriedAfterForbidden = false;
-    if (PlatformUtils.isWeb) return;
+
     while (true) {
-      _cancelToken?.cancel();
-      _cancelToken = CancelToken();
+      _headerToken?.cancel();
+      _headerToken = CancelToken();
 
       try {
         await Backoff.run(
           () async {
-            await _ensureReachable(current);
-
-            final response = await (await PlatformUtils.dio).get(
+            await (await PlatformUtils.dio).head(
               current.url,
-              options: Options(responseType: ResponseType.bytes),
-              cancelToken: _cancelToken,
+              cancelToken: _headerToken,
             );
-
-            final dir = await PlatformUtils.temporaryDirectory;
-            final filePath = '${dir.path}/audio_$id.mp3';
-
-            final file = File(filePath);
-            await file.writeAsBytes(response.data);
-            await _player.setFilePath(filePath);
           },
-          cancel: _cancelToken,
+          cancel: _headerToken,
           retryIf: (e) =>
               e is! DioException ||
               e.response?.statusCode != 403 && e.isNetworkRelated,
         );
 
-        return;
+        return current;
       } on DioException catch (e) {
         if (e.response?.statusCode == 403 && !retriedAfterForbidden) {
           final AudioSource? refreshed = await onForbidden?.call();
@@ -187,15 +209,9 @@ class AudioWorker extends Dependency {
             continue;
           }
         }
-
         rethrow;
       }
     }
-  }
-
-  /// Fetches the header of [source] to ensure that it is reachable.
-  Future<void> _ensureReachable(UrlAudioSource source) async {
-    await (await PlatformUtils.dio).head(source.url, cancelToken: _cancelToken);
   }
 
   /// Plays audio from the given [source] with the specified [id].
@@ -219,21 +235,25 @@ class AudioWorker extends Dependency {
         await stop();
         activeAudioId.value = id;
 
-        if (source is UrlAudioSource &&
-            (PlatformUtils.isIOS || PlatformUtils.isMacOS) &&
-            !PlatformUtils.isWeb) {
+        if (source is UrlAudioSource) {
           isLoading.value = true;
 
           try {
-            await _setRemoteAudioSource(id, source, onForbidden: onForbidden);
+            final UrlAudioSource reachable = await _ensureReachable(
+              source,
+              onForbidden: onForbidden,
+            );
+            if ((PlatformUtils.isMacOS || PlatformUtils.isIOS) &&
+                !PlatformUtils.isWeb) {
+              await _setDownloadedAudioSource(id, reachable);
+            } else {
+              await _player.setAudioSource(reachable.source);
+            }
           } on OperationCanceledException {
             return;
           } finally {
             isLoading.value = false;
           }
-        } else {
-
-          await _player.setAudioSource(source.source);
         }
 
         await _player.play();
@@ -252,7 +272,9 @@ class AudioWorker extends Dependency {
   /// Stops the current playback and clears [activeAudioId].
   Future<void> stop() async {
     _cancelToken?.cancel();
+    _headerToken?.cancel();
     _cancelToken = null;
+    _headerToken = null;
     await _player.stop();
     activeAudioId.value = null;
     position.value = Duration.zero;

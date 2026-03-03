@@ -1722,9 +1722,12 @@ class ChatController extends GetxController {
       MessagePopup.success(
         attachments.length > 1
             ? 'label_files_downloaded'.l10n
-            : attachments.first is ImageAttachment
-            ? 'label_image_downloaded'.l10n
-            : 'label_video_downloaded'.l10n,
+            : switch (attachments.first) {
+                ImageAttachment() => 'label_image_downloaded'.l10n,
+                FileAttachment f when f.isAudio =>
+                  'label_audio_downloaded'.l10n,
+                _ => 'label_video_downloaded'.l10n,
+              },
       );
     } catch (e) {
       MessagePopup.error('err_could_not_download'.l10n);
@@ -1765,9 +1768,12 @@ class ChatController extends GetxController {
       MessagePopup.success(
         attachments.length > 1
             ? 'label_files_saved_to_gallery'.l10n
-            : attachments.first is ImageAttachment
-            ? 'label_image_saved_to_gallery'.l10n
-            : 'label_video_saved_to_gallery'.l10n,
+            : switch (attachments.first) {
+                ImageAttachment() => 'label_image_saved_to_gallery'.l10n,
+                FileAttachment f when f.isAudio =>
+                  'label_audio_saved_to_gallery'.l10n,
+                _ => 'label_video_saved_to_gallery'.l10n,
+              },
       );
     }
 

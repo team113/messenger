@@ -77,48 +77,46 @@ class AudioPlayer extends StatelessWidget {
                   onEnter: (_) => c.hovered = true,
                   onExit: (_) => c.hovered = false,
                   child: Obx(
-                    () => IgnorePointer(
-                      ignoring: c.isLoading,
-                      child: progress ??
-                          WidgetButton(
-                            key: Key('PlayerButton$id'),
-                            onPressed: c.togglePlay,
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              height: 48,
-                              width: 48,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: c.hovered
-                                    ? style.colors.backgroundAuxiliaryLighter
-                                    : null,
-                                border: Border.all(
-                                  width: 2,
-                                  color: style.colors.primary,
-                                ),
-                              ),
-                              child: SafeAnimatedSwitcher(
-                                duration: const Duration(milliseconds: 200),
-                                child: c.isLoading
-                                    ? const Padding(
-                                        key: ValueKey('loader'),
-                                        padding: EdgeInsets.all(8.0),
-                                        child: CircularProgressIndicator(),
-                                      )
-                                    : Center(
-                                        key: ValueKey('icon_${c.isPlaying}'),
-                                        child: Icon(
-                                          c.isPlaying
-                                              ? Icons.pause_rounded
-                                              : Icons.play_arrow_rounded,
-                                          size: 36,
-                                          color: const Color(0xFF1F3C5D),
-                                        ),
-                                      ),
+                    () =>
+                        progress ??
+                        WidgetButton(
+                          key: Key('PlayerButton$id'),
+                          onPressed: c.isLoading ? c.stop : c.togglePlay,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            height: 48,
+                            width: 48,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: c.hovered
+                                  ? style.colors.backgroundAuxiliaryLighter
+                                  : null,
+                              border: Border.all(
+                                width: 2,
+                                color: style.colors.primary,
                               ),
                             ),
+                            child: SafeAnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: c.isLoading
+                                  ? const Padding(
+                                      key: ValueKey('loader'),
+                                      padding: EdgeInsets.all(8.0),
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : Center(
+                                      key: ValueKey('icon_${c.isPlaying}'),
+                                      child: Icon(
+                                        c.isPlaying
+                                            ? Icons.pause_rounded
+                                            : Icons.play_arrow_rounded,
+                                        size: 36,
+                                        color: const Color(0xFF1F3C5D),
+                                      ),
+                                    ),
+                            ),
                           ),
-                    ),
+                        ),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -160,44 +158,49 @@ class AudioPlayer extends StatelessWidget {
     Style style,
     BuildContext context,
   ) {
-    return Column(
-      children: [
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 2.0,
-            activeTrackColor: style.colors.primary,
-            inactiveTrackColor: style.colors.secondaryHighlightDarkest,
-            thumbColor: style.colors.primary,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
-          ),
-          child: SizedBox(
-            height: 17,
-            child: Slider(
-              key: Key('AudioSlider$id'),
-              onChangeStart: (_) => c.onSliderChangeStart(),
-              onChangeEnd: (v) => c.onSliderChangeEnd(),
-              value: c.getSliderValue(),
-              max: c.duration.inMilliseconds.toDouble() > 0
-                  ? c.duration.inMilliseconds.toDouble()
-                  : 1.0,
-              onChanged: (v) => c.position = Duration(milliseconds: v.toInt()),
+    return AnimatedOpacity(
+      opacity: c.isLoading ? 0.0 : 1.0,
+      duration: const Duration(milliseconds: 300),
+      child: Column(
+        children: [
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 2.0,
+              activeTrackColor: style.colors.primary,
+              inactiveTrackColor: style.colors.secondaryHighlightDarkest,
+              thumbColor: style.colors.primary,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+            ),
+            child: SizedBox(
+              height: 17,
+              child: Slider(
+                key: Key('AudioSlider$id'),
+                onChangeStart: (_) => c.onSliderChangeStart(),
+                onChangeEnd: (v) => c.onSliderChangeEnd(),
+                value: c.getSliderValue(),
+                max: c.duration.inMilliseconds.toDouble() > 0
+                    ? c.duration.inMilliseconds.toDouble()
+                    : 1.0,
+                onChanged: (v) =>
+                    c.position = Duration(milliseconds: v.toInt()),
+              ),
             ),
           ),
-        ),
-        Row(
-          children: [
-            Text(
-              c.position.hhMmSs(),
-              style: style.fonts.smaller.regular.secondary,
-            ),
-            Text(' / ', style: style.fonts.smaller.regular.secondary),
-            Text(
-              c.duration.hhMmSs(),
-              style: style.fonts.smaller.regular.secondary,
-            ),
-          ],
-        ),
-      ],
+          Row(
+            children: [
+              Text(
+                c.position.hhMmSs(),
+                style: style.fonts.smaller.regular.secondary,
+              ),
+              Text(' / ', style: style.fonts.smaller.regular.secondary),
+              Text(
+                c.duration.hhMmSs(),
+                style: style.fonts.smaller.regular.secondary,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
