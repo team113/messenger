@@ -513,7 +513,6 @@ label_audio_call = Audio call{$by ->
         *[other] {" "}by {$by}
     }
 label_audio_downloaded = Audio downloaded
-label_audio_saved_to_gallery = Audio saved to gallery
 label_auto_gain_control = Auto gain control
 label_avatar_removed = {$author} removed avatar
 label_avatar_removed1 = {$author}

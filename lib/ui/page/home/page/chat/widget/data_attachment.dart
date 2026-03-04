@@ -38,22 +38,22 @@ class DataAttachment extends StatefulWidget {
   const DataAttachment(
     this.attachment, {
     super.key,
+    required this.id,
     this.onPressed,
     this.onForbidden,
-    required this.id,
   });
 
   /// [Attachment] to display.
   final Attachment attachment;
+
+  /// Unique id of the attachment in chat.
+  final ChatItemId id;
 
   /// Callback, called when this [DataAttachment] is pressed.
   final void Function()? onPressed;
 
   /// Callback, called when [attachment] fetching fails with `403` status code.
   final Future<void> Function()? onForbidden;
-
-  /// Unique id of the attachment in chat.
-  final ChatItemId id;
 
   @override
   State<DataAttachment> createState() => _DataAttachmentState();

@@ -23,7 +23,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 
-import '../../domain/model/chat_item.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/service/disposable_service.dart';
 import '/util/audio_utils.dart';
 import '/util/backoff.dart';
@@ -246,8 +246,10 @@ class AudioWorker extends Dependency {
               source,
               onForbidden: onForbidden,
             );
-            if ((PlatformUtils.isMacOS || PlatformUtils.isIOS) &&
-                !PlatformUtils.isWeb) {
+            final needsLocalDownload =
+                (PlatformUtils.isMacOS || PlatformUtils.isIOS) &&
+                !PlatformUtils.isWeb;
+            if (needsLocalDownload) {
               await _setDownloadedAudioSource(id.val, reachable);
             } else {
               await _player.setAudioSource(reachable.source);

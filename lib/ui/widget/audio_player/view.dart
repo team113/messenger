@@ -161,48 +161,52 @@ class AudioPlayer extends StatelessWidget {
     Style style,
     BuildContext context,
   ) {
-    return AnimatedOpacity(
-      opacity: c.isLoading ? 0.0 : 1.0,
-      duration: const Duration(milliseconds: 300),
-      child: Column(
-        children: [
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 2.0,
-              activeTrackColor: style.colors.primary,
-              inactiveTrackColor: style.colors.secondaryHighlightDarkest,
-              thumbColor: style.colors.primary,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
-            ),
-            child: SizedBox(
-              height: 17,
-              child: Slider(
-                key: Key('AudioSlider${id.val}'),
-                onChangeStart: (_) => c.onSliderChangeStart(),
-                onChangeEnd: (v) => c.onSliderChangeEnd(),
-                value: c.getSliderValue(),
-                max: c.duration.inMilliseconds.toDouble() > 0
-                    ? c.duration.inMilliseconds.toDouble()
-                    : 1.0,
-                onChanged: (v) =>
-                    c.position = Duration(milliseconds: v.toInt()),
+    return Obx(
+      () => AnimatedOpacity(
+        opacity: c.isLoading ? 0.0 : 1.0,
+        duration: const Duration(milliseconds: 300),
+        child: Column(
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 2.0,
+                activeTrackColor: style.colors.primary,
+                inactiveTrackColor: style.colors.secondaryHighlightDarkest,
+                thumbColor: style.colors.primary,
+                thumbShape: const RoundSliderThumbShape(
+                  enabledThumbRadius: 5.0,
+                ),
+              ),
+              child: SizedBox(
+                height: 17,
+                child: Slider(
+                  key: Key('AudioSlider${id.val}'),
+                  onChangeStart: (_) => c.onSliderChangeStart(),
+                  onChangeEnd: (v) => c.onSliderChangeEnd(),
+                  value: c.getSliderValue(),
+                  max: c.duration.inMilliseconds.toDouble() > 0
+                      ? c.duration.inMilliseconds.toDouble()
+                      : 1.0,
+                  onChanged: (v) =>
+                      c.position = Duration(milliseconds: v.toInt()),
+                ),
               ),
             ),
-          ),
-          Row(
-            children: [
-              Text(
-                c.position.hhMmSs(),
-                style: style.fonts.smaller.regular.secondary,
-              ),
-              Text(' / ', style: style.fonts.smaller.regular.secondary),
-              Text(
-                c.duration.hhMmSs(),
-                style: style.fonts.smaller.regular.secondary,
-              ),
-            ],
-          ),
-        ],
+            Row(
+              children: [
+                Text(
+                  c.position.hhMmSs(),
+                  style: style.fonts.smaller.regular.secondary,
+                ),
+                Text(' / ', style: style.fonts.smaller.regular.secondary),
+                Text(
+                  c.duration.hhMmSs(),
+                  style: style.fonts.smaller.regular.secondary,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
