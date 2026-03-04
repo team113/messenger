@@ -22,36 +22,34 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '/themes.dart';
 
 /// [MarkdownBody] stylized with the [Style].
-class MarkdownWidget extends StatefulWidget {
+class MarkdownWidget extends StatelessWidget {
   const MarkdownWidget(this.body, {super.key});
 
   /// Text to parse and render as a markdown.
   final String body;
 
   @override
-  State<MarkdownWidget> createState() => _MarkdownWidgetState();
-}
-
-class _MarkdownWidgetState extends State<MarkdownWidget> {
-  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
     return SelectionArea(
       child: GptMarkdownTheme(
         gptThemeData: GptMarkdownThemeData(
           brightness: Theme.of(context).brightness,
           highlightColor: style.colors.secondaryHighlight,
+
+          // TODO: Exception.
           h2: style.fonts.largest.bold.onBackground.copyWith(fontSize: 20),
         ),
         child: GptMarkdown(
-          widget.body,
-          maxLines: 1000,
+          body,
           linkBuilder: (context, span, link, textStyle) {
             return Text(
               span.toPlainText(),
               style: textStyle.copyWith(color: style.colors.primary),
             );
           },
+          maxLines: 1 << 31,
           style: style.fonts.normal.regular.onBackground,
           onLinkTap: (link, href) async => await launchUrlString(link),
         ),

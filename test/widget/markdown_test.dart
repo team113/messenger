@@ -20,21 +20,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/markdown.dart';
 
-/// Widget tests for [MarkdownWidget].
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  const String testBody = 'Hello - World #Markdown Test';
 
   Widget buildTestWidget() {
     return MaterialApp(
       theme: Themes.light(),
-      home: const Scaffold(body: MarkdownWidget(testBody)),
+      home: const Scaffold(
+        body: MarkdownWidget('Hello - World #Markdown Test'),
+      ),
     );
   }
 
-  group('MarkdownWidget Selection and Copy Tests', () {
-    testWidgets('Displays markdown content', (WidgetTester tester) async {
+  group('MarkdownWidget', () {
+    testWidgets('Displays Markdown content', (WidgetTester tester) async {
       await tester.runAsync(() async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pumpAndSettle();

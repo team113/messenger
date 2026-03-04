@@ -22,7 +22,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Player:
         - Screen turning dark when double pressing escape. ([#1629])
+    - Freelance page:
+        - Multiline lines displayed in a single line. ([#1617], [#544])
 
+[#544]: /../../issues/1617
+[#1617]: /../../pull/1617
 [#1629]: /../../pull/1629
 [#1630]: /../../pull/1630
 [#1632]: /../../pull/1632
