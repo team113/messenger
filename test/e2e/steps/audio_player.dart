@@ -61,7 +61,6 @@ final StepDefinitionGeneric audioIsPlaying = then1<String, CustomWorld>(
   'I see {string} audio is playing',
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
-    await Future.delayed(const Duration(milliseconds: 500));
 
     final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
@@ -88,7 +87,6 @@ final StepDefinitionGeneric audioIsPaused = then1<String, CustomWorld>(
   'I see {string} audio is paused',
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
-    await Future.delayed(const Duration(milliseconds: 500));
 
     final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
