@@ -466,7 +466,7 @@ class PlatformUtilsImpl {
     String? to;
 
     if (!isWeb) {
-      to = await FilePicker.platform.saveFile(
+      to = await FilePicker.saveFile(
         fileName: url.split('/').lastOrNull ?? 'file',
         lockParentWindow: true,
       );
@@ -762,7 +762,7 @@ class PlatformUtilsImpl {
         }
       }
 
-      return await FilePicker.platform.pickFiles(
+      return await FilePicker.pickFiles(
         type: accounted,
         compressionQuality: compressionQuality,
         allowMultiple: allowMultiple,
@@ -871,10 +871,7 @@ class PlatformUtilsImpl {
     String? to;
 
     if (PlatformUtils.isDesktop) {
-      to = await FilePicker.platform.saveFile(
-        fileName: name,
-        lockParentWindow: true,
-      );
+      to = await FilePicker.saveFile(fileName: name, lockParentWindow: true);
     } else {
       to = '${(await temporaryDirectory).path}/$name';
     }

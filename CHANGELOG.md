@@ -15,6 +15,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chats tab:
         - Redesigned searching. ([#1630])
+    - Chat page:
+        - Redesigned attachments buttons. ([#1633])
 
 ### Fixed
 
@@ -24,6 +26,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1629]: /../../pull/1629
 [#1630]: /../../pull/1630
+[#1633]: /../../pull/1633
 
 
 

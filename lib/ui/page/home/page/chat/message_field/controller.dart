@@ -150,7 +150,7 @@ class MessageFieldController extends GetxController {
       GalleryButton(pickMedia),
       FileButton(pickFile),
     ] else ...[
-      if (PlatformUtils.isMobile) GalleryButton(pickPhotoOrVideo),
+      GalleryButton(pickPhotoOrVideo),
       AttachmentButton(pickFile),
     ],
   ]);

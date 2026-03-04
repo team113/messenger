@@ -1,1 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22"><path d="M21,18.78V3.22A2.24,2.24,0,0,0,18.78,1H3.22A2.24,2.24,0,0,0,1,3.22V18.78A2.24,2.24,0,0,0,3.22,21H18.78A2.24,2.24,0,0,0,21,18.78ZM2.63,20.32l4.52-5.54,3.51,2.61,4.52-7.46,3.64,10.39" fill="none" stroke="#63b4ff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/><circle cx="6.68" cy="6.62" r="1.9" fill="none" stroke="#63b4ff" stroke-linecap="round" stroke-miterlimit="10" stroke-width="1.5"/></svg>
+<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.6875 3.94697C2.6875 3.25136 3.25136 2.6875 3.94697 2.6875H18.053C18.7486 2.6875 19.3125 3.25136 19.3125 3.94697V18.053C19.3125 18.7486 18.7486 19.3125 18.053 19.3125H3.94697C3.25136 19.3125 2.6875 18.7486 2.6875 18.053V3.94697Z" stroke="#63B4FF" stroke-width="1.57938"/>
+<path d="M2.6875 16.2889L6.96926 12.0071L9.99168 15.0296L15.029 9.99219L19.3108 14.2739" stroke="#63B4FF" stroke-width="1.57938" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="5.04688" y="5.0625" width="3.5625" height="3.5625" rx="1.78125" fill="#63B4FF"/>
+</svg>
