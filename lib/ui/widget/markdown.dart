@@ -21,7 +21,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import '/themes.dart';
 
-/// [MarkdownBody] stylized with the [Style].
+/// [GptMarkdown] stylized with the [Style].
 class MarkdownWidget extends StatelessWidget {
   const MarkdownWidget(this.body, {super.key});
 
