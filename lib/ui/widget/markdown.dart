@@ -16,12 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/themes.dart';
 
-/// [MarkdownBody] stylized with the [Style].
+/// [GptMarkdown] stylized with the [Style].
 class MarkdownWidget extends StatelessWidget {
   const MarkdownWidget(this.body, {super.key});
 
@@ -32,26 +32,26 @@ class MarkdownWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return MarkdownBody(
-      data: body,
-      onTapLink: (_, href, _) async => await launchUrlString(href!),
-      styleSheet: MarkdownStyleSheet(
-        h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
+    return SelectionArea(
+      child: GptMarkdownTheme(
+        gptThemeData: GptMarkdownThemeData(
+          brightness: Theme.of(context).brightness,
+          highlightColor: style.colors.secondaryHighlight,
 
-        // TODO: Exception.
-        h2: style.fonts.largest.bold.onBackground.copyWith(fontSize: 20),
-
-        p: style.fonts.normal.regular.onBackground,
-        code: style.fonts.small.regular.onBackground.copyWith(
-          letterSpacing: 1.2,
-          backgroundColor: style.colors.secondaryHighlight,
+          // TODO: Exception.
+          h2: style.fonts.largest.bold.onBackground.copyWith(fontSize: 20),
         ),
-        codeblockDecoration: BoxDecoration(
-          color: style.colors.secondaryHighlight,
-        ),
-        codeblockPadding: const EdgeInsets.all(16),
-        blockquoteDecoration: BoxDecoration(
-          color: style.colors.secondaryHighlight,
+        child: GptMarkdown(
+          body,
+          linkBuilder: (context, span, link, textStyle) {
+            return Text(
+              span.toPlainText(),
+              style: textStyle.copyWith(color: style.colors.primary),
+            );
+          },
+          maxLines: 1 << 31,
+          style: style.fonts.normal.regular.onBackground,
+          onLinkTap: (link, href) async => await launchUrlString(link),
         ),
       ),
     );
