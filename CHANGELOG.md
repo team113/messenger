@@ -13,6 +13,8 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
+    - Chats tab:
+        - Redesigned searching. ([#1630])
     - Horizontal application scroll when window's width is less than 300px. ([#1632])
 
 ### Fixed
@@ -22,6 +24,7 @@ All user visible changes to this project will be documented in this file. This p
         - Screen turning dark when double pressing escape. ([#1629])
 
 [#1629]: /../../pull/1629
+[#1630]: /../../pull/1630
 [#1632]: /../../pull/1632
 
 
