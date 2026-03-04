@@ -276,8 +276,8 @@ class AudioWorker extends Dependency {
   /// Pauses the current playback.
   Future<void> pause() => _player.pause();
 
-  /// Stops the current playback, clears [activeAudioId] and cancels
-  /// subscriptions.
+  /// Stops the current playback, clears [activeAudioId], cancels
+  /// [_audioIntentSubscription] and tokens.
   Future<void> stop() async {
     _cancelToken?.cancel();
     _headerToken?.cancel();
