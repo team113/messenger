@@ -1805,9 +1805,11 @@ class ChatController extends GetxController {
           ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
           : await FilePicker.platform.saveFile(
               fileName: attachments.first.filename,
-              type: attachments.first is ImageAttachment
-                  ? FileType.image
-                  : FileType.video,
+              type: switch (attachments.first) {
+                ImageAttachment() => FileType.image,
+                FileAttachment f when f.isAudio => FileType.audio,
+                _ => FileType.video,
+              },
               lockParentWindow: true,
             );
 

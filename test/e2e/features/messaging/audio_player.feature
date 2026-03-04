@@ -35,3 +35,29 @@ Feature: Audio Player functionality
 
     When I toggle play for "test.mp3" audio
     Then I see "test.mp3" audio is paused
+
+  @audio
+  Scenario: Exclusive playback - only one audio plays at a time
+    Given Bob sends "first.mp3" attachment to me
+    And Bob sends "second.mp3" attachment to me
+    And I wait until attachment "first.mp3" is present
+    And I wait until attachment "second.mp3" is present
+
+    When I toggle play for "first.mp3" audio
+    Then I see "first.mp3" audio is playing
+
+    When I toggle play for "second.mp3" audio
+    Then I see "second.mp3" audio is playing
+    And I see "first.mp3" audio is paused
+
+  @audio
+  Scenario: Audio continues playing after navigating out and back
+    Given Bob sends "test.mp3" attachment to me
+    And I wait until attachment "test.mp3" is present
+
+    When I toggle play for "test.mp3" audio
+    And I return to previous page
+    And I am in chat with Bob
+
+    Then I see "test.mp3" audio is playing
+    And I see "test.mp3" audio slider position changes while playing

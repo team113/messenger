@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
 import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -39,6 +40,7 @@ class DataAttachment extends StatefulWidget {
     super.key,
     this.onPressed,
     this.onForbidden,
+    required this.id,
   });
 
   /// [Attachment] to display.
@@ -49,6 +51,9 @@ class DataAttachment extends StatefulWidget {
 
   /// Callback, called when [attachment] fetching fails with `403` status code.
   final Future<void> Function()? onForbidden;
+
+  /// Unique id of the attachment in chat.
+  final ChatItemId id;
 
   @override
   State<DataAttachment> createState() => _DataAttachmentState();
@@ -140,7 +145,7 @@ class _DataAttachmentState extends State<DataAttachment> {
 
         if (source != null) {
           return AudioPlayer(
-            id: e.id,
+            id: widget.id,
             source: source,
             filename: e.filename,
             progress: progress,

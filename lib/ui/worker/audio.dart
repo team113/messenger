@@ -23,6 +23,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 
+import '../../domain/model/chat_item.dart';
 import '/domain/service/disposable_service.dart';
 import '/util/audio_utils.dart';
 import '/util/backoff.dart';
@@ -30,7 +31,7 @@ import '/util/log.dart';
 import '/util/media_utils.dart';
 import '/util/platform_utils.dart';
 
-/// Worker responsible for [AudioUtils] related scoped functionality.
+/// Worker responsible for audio playback.
 class AudioWorker extends Dependency {
   AudioWorker();
 
@@ -41,7 +42,7 @@ class AudioWorker extends Dependency {
   StreamSubscription? _audioIntentSubscription;
 
   /// Unique identifier of the currently active audio, if any.
-  final RxnString activeAudioId = RxnString();
+  final Rxn<ChatItemId> activeAudioId = Rxn<ChatItemId>();
 
   /// Whether the audio is currently playing.
   final RxBool isPlaying = RxBool(false);
@@ -159,6 +160,8 @@ class AudioWorker extends Dependency {
 
         final dir = await PlatformUtils.temporaryDirectory;
         final filePath = '${dir.path}/audio_$id.mp3';
+        // TODO: add caching
+        //final exists = await File(filePath).exists();
 
         final file = File(filePath);
         await file.writeAsBytes(response.data);
@@ -219,7 +222,7 @@ class AudioWorker extends Dependency {
   /// If the audio with the same [id] is already active, it resumes playback.
   /// Otherwise, it sets the new [source] and starts playback.
   Future<void> play(
-    String id,
+    ChatItemId id,
     AudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
@@ -239,13 +242,13 @@ class AudioWorker extends Dependency {
           isLoading.value = true;
 
           try {
-            final UrlAudioSource reachable = await _ensureReachable(
+            final reachable = await _ensureReachable(
               source,
               onForbidden: onForbidden,
             );
             if ((PlatformUtils.isMacOS || PlatformUtils.isIOS) &&
                 !PlatformUtils.isWeb) {
-              await _setDownloadedAudioSource(id, reachable);
+              await _setDownloadedAudioSource(id.val, reachable);
             } else {
               await _player.setAudioSource(reachable.source);
             }
@@ -254,6 +257,8 @@ class AudioWorker extends Dependency {
           } finally {
             isLoading.value = false;
           }
+        } else {
+          await _player.setAudioSource(source.source);
         }
 
         await _player.play();
@@ -269,7 +274,8 @@ class AudioWorker extends Dependency {
   /// Pauses the current playback.
   Future<void> pause() => _player.pause();
 
-  /// Stops the current playback and clears [activeAudioId].
+  /// Stops the current playback, clears [activeAudioId] and cancels
+  /// subscriptions.
   Future<void> stop() async {
     _cancelToken?.cancel();
     _headerToken?.cancel();

@@ -519,6 +519,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     (e) => [
                       ChatItemWidget.fileAttachment(
                         e,
+                        id: msg.id,
                         onFileTap: (a) => widget.onFileTap?.call(msg, a),
                         onAttachmentError: () async =>
                             await widget.onAttachmentError?.call(msg),
@@ -807,6 +808,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       (e) => [
                         ChatItemWidget.fileAttachment(
                           e,
+                          id: item.id,
                           onFileTap: (a) => widget.onFileTap?.call(item, a),
                           onAttachmentError: () async =>
                               await widget.onAttachmentError?.call(item),

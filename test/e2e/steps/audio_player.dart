@@ -19,7 +19,6 @@ import 'package:flutter/material.dart' show Slider;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
-import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -42,18 +41,13 @@ final StepDefinitionGeneric toggleAudioPlay = when1<String, CustomWorld>(
     final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
 
-    final Attachment attachment = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .expand((e) => e.attachments)
-        .firstWhere(
-          (a) => a.filename == name,
-          orElse: () =>
-              throw Exception('Audio file "$name" not found in current chat'),
-        );
+    final ChatItem item = chat!.messages.map((e) => e.value).firstWhere((i) {
+      if (i is! ChatMessage) return false;
+      return i.attachments.any((a) => a.filename == name);
+    });
 
     Finder toggleButton = context.world.appDriver.findByKeySkipOffstage(
-      'PlayerButton${attachment.id.val}',
+      'PlayerButton${item.id.val}',
     );
     await context.world.appDriver.nativeDriver.tap(toggleButton);
   },
@@ -72,21 +66,15 @@ final StepDefinitionGeneric audioIsPlaying = then1<String, CustomWorld>(
     final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
 
-    final Attachment attachment = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .expand((e) => e.attachments)
-        .firstWhere(
-          (a) => a.filename == name,
-          orElse: () =>
-              throw Exception('Audio file "$name" not found in current chat'),
-        );
+    final ChatItem item = chat!.messages.map((e) => e.value).firstWhere((i) {
+      if (i is! ChatMessage) return false;
+      return i.attachments.any((a) => a.filename == name);
+    });
 
     final AudioWorker worker = Get.find<AudioWorker>();
 
     bool isPlaying =
-        (worker.activeAudioId.value == attachment.id.val &&
-        worker.isPlaying.value);
+        (worker.activeAudioId.value == item.id && worker.isPlaying.value);
 
     expect(isPlaying, true);
   },
@@ -105,18 +93,16 @@ final StepDefinitionGeneric audioIsPaused = then1<String, CustomWorld>(
     final RxChat? chat =
         Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
 
-    final Attachment attachment = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .expand((e) => e.attachments)
-        .firstWhere((a) => a.filename == name);
+    final ChatItem item = chat!.messages.map((e) => e.value).firstWhere((i) {
+      if (i is! ChatMessage) return false;
+      return i.attachments.any((a) => a.filename == name);
+    });
 
     final AudioWorker worker = Get.find<AudioWorker>();
 
     bool isPaused =
-        (worker.activeAudioId.value == attachment.id.val &&
-            !worker.isPlaying.value) ||
-        (worker.activeAudioId.value != attachment.id.val);
+        (worker.activeAudioId.value == item.id && !worker.isPlaying.value) ||
+        (worker.activeAudioId.value != item.id);
 
     expect(isPaused, true);
   },
@@ -135,19 +121,15 @@ final StepDefinitionGeneric audioSliderPositionChangesWhilePlaying =
         final RxChat? chat =
             Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
 
-        final Attachment attachment = chat!.messages
-            .map((e) => e.value)
-            .whereType<ChatMessage>()
-            .expand((e) => e.attachments)
-            .firstWhere(
-              (a) => a.filename == name,
-              orElse: () => throw Exception(
-                'Audio file "$name" not found in current chat',
-              ),
-            );
+        final ChatItem item = chat!.messages.map((e) => e.value).firstWhere((
+          i,
+        ) {
+          if (i is! ChatMessage) return false;
+          return i.attachments.any((a) => a.filename == name);
+        });
 
         final Finder slider = context.world.appDriver.findByKeySkipOffstage(
-          'AudioSlider${attachment.id.val}',
+          'AudioSlider${item.id.val}',
         );
         expect(slider.evaluate().isNotEmpty, true);
 
@@ -161,3 +143,22 @@ final StepDefinitionGeneric audioSliderPositionChangesWhilePlaying =
         expect(sliderValue() > initialValue, true);
       },
     );
+
+/// Verifies that audio position is at [expectedSeconds].
+///
+/// Examples:
+/// - Then I see "test.mp3" audio position is 0
+final StepDefinitionGeneric audioPositionIs = then2<String, int, CustomWorld>(
+  'I see {string} audio position is {int}',
+  (name, expectedSeconds, context) async {
+    await context.world.appDriver.waitForAppToSettle();
+
+    final audioWorker = Get.find<AudioWorker>();
+
+    expect(
+      audioWorker.position.value,
+      Duration(seconds: expectedSeconds),
+      reason: 'Worker progress is not 0',
+    );
+  },
+);

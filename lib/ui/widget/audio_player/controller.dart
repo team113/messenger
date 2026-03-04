@@ -19,9 +19,9 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/domain/model/attachment.dart';
-import '/util/audio_utils.dart';
+import '/domain/model/chat_item.dart';
 import '/ui/worker/audio.dart';
+import '/util/audio_utils.dart';
 
 /// Controller for audio playback that manages state for a specific audio attachment.
 class AudioPlayerController extends GetxController {
@@ -33,7 +33,7 @@ class AudioPlayerController extends GetxController {
   });
 
   /// Identifier for audio attachment.
-  final AttachmentId id;
+  final ChatItemId id;
 
   /// Source of audio data.
   final AudioSource source;
@@ -48,7 +48,7 @@ class AudioPlayerController extends GetxController {
   final AudioWorker _audioWorker;
 
   /// Whether this controller's audio is active in [AudioWorker].
-  bool get isActive => _audioWorker.activeAudioId.value == id.val;
+  bool get isActive => _audioWorker.activeAudioId.value == id;
 
   /// Whether audio is playing and this controller is active.
   bool get isPlaying => _audioWorker.isPlaying.value && isActive;
@@ -81,7 +81,7 @@ class AudioPlayerController extends GetxController {
     if (isActive && isPlaying) {
       _audioWorker.pause();
     } else {
-      _audioWorker.play(id.val, source, onForbidden: onForbidden);
+      _audioWorker.play(id, source, onForbidden: onForbidden);
     }
   }
 

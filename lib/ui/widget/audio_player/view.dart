@@ -22,7 +22,7 @@ import 'package:get/get.dart';
 
 import '../animated_switcher.dart';
 import '../widget_button.dart';
-import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/util/audio_utils.dart';
@@ -43,7 +43,7 @@ class AudioPlayer extends StatelessWidget {
   final AudioSource source;
 
   /// Unique identifier of the audio.
-  final AttachmentId id;
+  final ChatItemId id;
 
   /// Name of the audio file.
   final String filename;
@@ -76,11 +76,11 @@ class AudioPlayer extends StatelessWidget {
                 MouseRegion(
                   onEnter: (_) => c.hovered = true,
                   onExit: (_) => c.hovered = false,
-                  child: Obx(
-                    () =>
-                        progress ??
-                        WidgetButton(
-                          key: Key('PlayerButton$id'),
+                  child:
+                      progress ??
+                      Obx(
+                        () => WidgetButton(
+                          key: Key('PlayerButton${id.val}'),
                           onPressed: c.isLoading ? c.stop : c.togglePlay,
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
@@ -117,7 +117,7 @@ class AudioPlayer extends StatelessWidget {
                             ),
                           ),
                         ),
-                  ),
+                      ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -174,7 +174,7 @@ class AudioPlayer extends StatelessWidget {
             child: SizedBox(
               height: 17,
               child: Slider(
-                key: Key('AudioSlider$id'),
+                key: Key('AudioSlider${id.val}'),
                 onChangeStart: (_) => c.onSliderChangeStart(),
                 onChangeEnd: (v) => c.onSliderChangeEnd(),
                 value: c.getSliderValue(),

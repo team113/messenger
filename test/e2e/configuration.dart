@@ -353,6 +353,7 @@ FlutterTestConfiguration gherkinTestConfiguration() {
     audioIsPaused,
     audioIsPlaying,
     audioSliderPositionChangesWhilePlaying,
+    audioPositionIs,
   ];
   configuration.hooks = [
     ResetAppHook(),
