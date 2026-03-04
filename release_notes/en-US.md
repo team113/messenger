@@ -1,1 +1,3 @@
+- Redesigned user profile page.
+- Redesigned chat profile page.
 - Bug fixes and performance improvements.

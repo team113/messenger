@@ -506,8 +506,7 @@ class ChatDirectLinkSlug extends NewType<String> {
   /// Creates a random [ChatDirectLinkSlug] of the provided [length].
   factory ChatDirectLinkSlug.generate([int length = 10]) {
     final Random r = Random();
-    const String chars =
-        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890_-';
+    const String chars = 'abcdefghijklmnopqrstuvwxyz1234567890_-';
 
     return ChatDirectLinkSlug(
       List.generate(length, (i) {

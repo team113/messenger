@@ -8,7 +8,58 @@ All user visible changes to this project will be documented in this file. This p
 
 ## main
 
-[Diff](/../../compare/v0.9.2...main) | [Milestone](/../../milestone/68)
+[Diff](/../../compare/v0.9.4...main) | [Milestone](/../../milestone/70)
+
+### Changed
+
+- UI:
+    - Chats tab:
+        - Redesigned searching. ([#1630])
+    - Horizontal application scroll when window's width is less than 300px. ([#1632])
+
+### Fixed
+
+- UI:
+    - Player:
+        - Screen turning dark when double pressing escape. ([#1629])
+
+[#1629]: /../../pull/1629
+[#1630]: /../../pull/1630
+[#1632]: /../../pull/1632
+
+
+
+
+## [0.9.4] · 2026-03-02
+[0.9.4]: /../../tree/v0.9.4
+
+[Diff](/../../compare/v0.9.3...v0.9.4) | [Milestone](/../../milestone/69)
+
+### Changed
+
+- UI:
+    - Redesigned user page. ([#1625])
+    - Redesigned chat info page. ([#1625])
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Country and city missing from linked Web devices. ([#1620])
+    - Media panel:
+        - Reconnect button playing animation when dragging. ([#1621])
+
+[#1620]: /../../pull/1620
+[#1621]: /../../pull/1621
+[#1625]: /../../pull/1625
+
+
+
+
+## [0.9.3] · 2026-02-23
+[0.9.3]: /../../tree/v0.9.3
+
+[Diff](/../../compare/v0.9.2...v0.9.3) | [Milestone](/../../milestone/68)
 
 ### Fixed
 

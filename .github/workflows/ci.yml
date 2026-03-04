@@ -153,7 +153,7 @@ jobs:
                        || contains(steps.commit.outputs.message, '[run ci]') }}"
              >> $GITHUB_OUTPUT
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-${{ (matrix.store == 'App Store' &&   'ipa')
                        || (matrix.store == 'Google Play' && 'appbundle')
@@ -243,7 +243,7 @@ jobs:
                     ||     '' }}
       - run: make appcast.xml
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
@@ -533,7 +533,7 @@ jobs:
               ||     'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: build-${{ matrix.platform }}-${{ github.run_number }}
           path: artifacts/
@@ -558,7 +558,7 @@ jobs:
       #     filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
       #     directory: debug
       #   if: ${{ contains('apk appbundle ipa macos web', matrix.platform) }}
-      # - uses: actions/upload-artifact@v6
+      # - uses: actions/upload-artifact@v7
       #   with:
       #     name: debug-${{ matrix.platform }}-${{ github.run_number }}
       #     path: debug-${{ matrix.platform }}.zip
@@ -589,23 +589,13 @@ jobs:
 
   build-linux:
     name: build (linux)
-    runs-on: ubuntu-22.04  # pin `glibc` to 2.35 for better compatibility
+    runs-on: ubuntu-24.04  # pin `glibc` to 2.35 for better compatibility
     steps:
       - uses: actions/checkout@v6
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
           # `git describe` to work.
           fetch-depth: 0
-
-      - run: |
-          set -ex
-
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key \
-          | sudo tee /etc/apt/trusted.gpg.d/llvm.asc
-          echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" \
-          | sudo tee /etc/apt/sources.list.d/llvm.list
 
       - run: sudo apt-get update -y
       - run: sudo apt-get install -y
@@ -623,8 +613,6 @@ jobs:
                           make
                           procps
                           cmake
-                          gcc-13
-                          g++-13
                           clang
                           zip
                           xz-utils
@@ -638,10 +626,6 @@ jobs:
           sudo update-alternatives --config lld
           sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
           sudo update-alternatives --config ld.lld
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
-          sudo update-alternatives --config gcc
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
-          sudo update-alternatives --config g++
 
       - run: git config --global --add safe.directory '*'
 
@@ -703,7 +687,7 @@ jobs:
         run: ${{ 'cat *.sha256sum' }}
         working-directory: artifacts/
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
@@ -726,7 +710,7 @@ jobs:
 
       - run: make docs.dart clean=yes
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: dartdoc-${{ github.run_number }}
           path: doc/api/
@@ -741,41 +725,41 @@ jobs:
       - uses: actions/checkout@v6
       - uses: docker/setup-buildx-action@v3
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-web-${{ github.run_number }}
       - run: mkdir -p build/web/
       - run: unzip *.zip -d build/web/
 
       - run: mkdir -p build/web/artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-apk-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-appbundle-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-ipa-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-linux-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-macos-${{ github.run_number }}
           path: build/web/artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-windows-${{ github.run_number }}
           path: build/web/artifacts/
 
       # TODO: Refactor when actions/download-artifact#176 is implemented:
       #       https://github.com/actions/download-artifact/issues/176
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
@@ -791,7 +775,7 @@ jobs:
 
       - run: make docker.tar to-file=.cache/image.tar
                   tags=build-${{ github.run_number }}
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: docker-${{ github.run_number }}
           path: .cache/image.tar
@@ -962,7 +946,7 @@ jobs:
       - uses: actions/checkout@v6
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: docker-${{ github.run_number }}
           path: .cache/
@@ -1176,7 +1160,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-${{ (matrix.store == 'App Store' &&   'ipa')
                        || (matrix.store == 'Google Play' && 'appbundle')
@@ -1240,7 +1224,7 @@ jobs:
           regex: '^refs/tags/v(((([0-9]+)\.[0-9]+)\.[0-9]+)(-.+)?)$'
 
       - run: rm -rf appcast/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: appcast-${{ github.run_number }}
           path: appcast/
@@ -1293,36 +1277,36 @@ jobs:
         run: echo "link=${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)"
              >> $GITHUB_OUTPUT
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-apk-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-appbundle-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-ipa-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-linux-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-macos-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-web-${{ github.run_number }}
           path: artifacts/
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: build-windows-${{ github.run_number }}
           path: artifacts/
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: dartdoc-${{ github.run_number }}
           path: .cache/dartdoc/
@@ -1375,7 +1359,7 @@ jobs:
 
       - run: rm -rf ${{ (github.ref_name == 'main' && 'main') || 'release' }}
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: dartdoc-${{ github.run_number }}
           path: ${{ (github.ref_name == 'main' && 'main') || 'release' }}
@@ -1399,19 +1383,19 @@ jobs:
   #   steps:
   #     - uses: actions/checkout@v6
 
-  #     - uses: actions/download-artifact@v7
+  #     - uses: actions/download-artifact@v8
   #       with:
   #         name: debug-apk-${{ github.run_number }}
   #         path: debug/
-  #     - uses: actions/download-artifact@v7
+  #     - uses: actions/download-artifact@v8
   #       with:
   #         name: debug-appbundle-${{ github.run_number }}
   #         path: debug/
-  #     - uses: actions/download-artifact@v7
+  #     - uses: actions/download-artifact@v8
   #       with:
   #         name: debug-ipa-${{ github.run_number }}
   #         path: debug/
-  #     - uses: actions/download-artifact@v7
+  #     - uses: actions/download-artifact@v8
   #       with:
   #         name: debug-macos-${{ github.run_number }}
   #         path: debug/
@@ -1421,7 +1405,7 @@ jobs:
   #         for f in debug/debug-*.zip
   #           do unzip "$f" -d "${f%.zip}/"
   #         done
-  #     - uses: actions/download-artifact@v7
+  #     - uses: actions/download-artifact@v8
   #       with:
   #         name: debug-web-${{ github.run_number }}
   #     # `sentry_dart_plugin` expects source maps to be in `build/web/` dir.

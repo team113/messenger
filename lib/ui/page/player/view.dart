@@ -323,6 +323,12 @@ class PlayerView extends StatelessWidget {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
+                if (c.isClosing) {
+                  return;
+                }
+
+                c.isClosing = true;
+
                 if (WebUtils.isPopup) {
                   WebUtils.closeWindow();
                 } else {
@@ -656,6 +662,12 @@ class PlayerView extends StatelessWidget {
         children: [
           WidgetButton(
             onPressed: () {
+              if (c.isClosing) {
+                return;
+              }
+
+              c.isClosing = true;
+
               if (WebUtils.isPopup) {
                 WebUtils.closeWindow();
               } else {

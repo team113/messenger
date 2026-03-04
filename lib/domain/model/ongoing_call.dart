@@ -160,6 +160,11 @@ class OngoingCall {
        _echoCancellation = RxnBool(mediaSettings?.echoCancellation),
        _autoGainControl = RxnBool(mediaSettings?.autoGainControl),
        _highPassFilter = RxnBool(mediaSettings?.highPassFilter) {
+    Log.debug(
+      'OngoingCall($chatId) -> _me($_me), _preferredAudioDevice($_preferredAudioDevice), _preferredOutputDevice($_preferredOutputDevice), _preferredVideoDevice($_preferredVideoDevice), _preferredScreenDevice($_preferredScreenDevice), _noiseSuppression($_noiseSuppression), _noiseSuppressionLevel($_noiseSuppressionLevel), _echoCancellation($_echoCancellation), _autoGainControl($_autoGainControl), _highPassFilter($_highPassFilter)',
+      '$runtimeType',
+    );
+
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
@@ -455,6 +460,7 @@ class OngoingCall {
     if (_background) {
       _background = false;
 
+      _devicesSubscription?.cancel();
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
         Log.debug(
           'onDeviceChange(${e.map((e) => e.label()).join(', ')})',
@@ -537,6 +543,7 @@ class OngoingCall {
         });
       });
 
+      _displaysSubscription?.cancel();
       _displaysSubscription = MediaUtils.onDisplayChange.listen((e) async {
         Log.debug(
           'onDisplayChange(${e.map((e) => e.title() ?? e.deviceId())})',
@@ -1329,11 +1336,11 @@ class OngoingCall {
   /// Sets the provided [device] as a currently used [outputDevice].
   ///
   /// Does nothing if [device] is already the [outputDevice].
-  Future<void> setOutputDevice(DeviceDetails device) {
+  Future<void> setOutputDevice(DeviceDetails device, {bool force = false}) {
     Log.debug('setOutputDevice($device)', '$runtimeType');
 
     _preferredOutputDevice = device.id();
-    return _setOutputDevice(device);
+    return _setOutputDevice(device, force: force);
   }
 
   /// Sets inbound audio in this [OngoingCall] as [enabled] or not.
@@ -2643,7 +2650,7 @@ class OngoingCall {
 
     final DeviceDetails? device =
         audio.firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
-        devices.audio().firstWhereOrNull((e) => e.id() == 'default') ??
+        audio.firstWhereOrNull((e) => e.id() == 'default') ??
         audio.firstOrNull;
 
     if (device != null && audioDevice.value != device) {
@@ -2698,13 +2705,16 @@ class OngoingCall {
   /// Sets the provided [device] as a currently used [outputDevice].
   ///
   /// Does nothing if [device] is already the [outputDevice].
-  Future<void> _setOutputDevice(DeviceDetails device) async {
+  Future<void> _setOutputDevice(
+    DeviceDetails device, {
+    bool force = false,
+  }) async {
     Log.debug(
       '_setOutputDevice($device) -> ${device.audioDeviceKind()?.name}',
       '$runtimeType',
     );
 
-    if (device != outputDevice.value) {
+    if (device != outputDevice.value || force) {
       final DeviceDetails? previous = outputDevice.value;
 
       outputDevice.value = device;

@@ -489,7 +489,13 @@ void main() async {
       );
       await tester.pumpAndSettle(const Duration(seconds: 2));
       expect(find.byKey(const Key('Present')), findsOneWidget);
-      expect(find.text('5769hyphen2360hyphen9862hyphen1822'), findsOneWidget);
+      expect(
+        find.text(
+          'label_num_semicolon5769hyphen2360hyphen9862hyphen1822',
+          findRichText: true,
+        ),
+        findsOneWidget,
+      );
 
       // TODO: Uncomment, when contacts are implemented.
       // await tester.tap(find.byKey(const Key('MoreButton')));
@@ -569,7 +575,7 @@ final newUserData = {
   'mutualContactsCount': 0,
   'contacts': [],
   'online': {
-    '__typename': 'UserOffline',
+    '__typename': 'UserOnline',
     'lastSeenAt': '2022-03-14T12:55:28.415454+00:00',
   },
   'presence': 'PRESENT',

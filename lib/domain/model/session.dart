@@ -145,7 +145,7 @@ class IpGeoLocation {
   final String country;
 
   /// Country code.
-  @JsonKey(name: 'country_code')
+  @JsonKey(name: 'countryCode')
   final String countryCode;
 
   /// Localized name of the city.

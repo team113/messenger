@@ -216,7 +216,12 @@ class MediaUtilsImpl {
       } else {
         // Sort the default device to the top, as it might be somewhere else.
         if (PlatformUtils.isWeb) {
-          devices.removeWhere((e) => e.id() == hasDefault.id());
+          devices.removeWhere(
+            (e) =>
+                e.kind() == MediaDeviceKind.audioInput &&
+                e.label() == e.label() &&
+                e.id() == hasDefault.id(),
+          );
           devices.insert(0, hasDefault);
         }
 
@@ -224,7 +229,12 @@ class MediaUtilsImpl {
         // should not interfere, as otherwise we may run into
         // [MediaSettingsUpdateException].
         if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-          devices.removeWhere((e) => e.id() == hasDefault.id());
+          devices.removeWhere(
+            (e) =>
+                e.kind() == MediaDeviceKind.audioInput &&
+                e.label() == e.label() &&
+                e.id() == hasDefault.id(),
+          );
         }
       }
     }
@@ -247,7 +257,12 @@ class MediaUtilsImpl {
       } else {
         // Sort the default device to the top, as it might be somewhere else.
         if (PlatformUtils.isWeb) {
-          devices.removeWhere((e) => e.id() == hasDefault.id());
+          devices.removeWhere(
+            (e) =>
+                e.kind() == MediaDeviceKind.audioOutput &&
+                e.label() == e.label() &&
+                e.id() == hasDefault.id(),
+          );
           devices.insert(0, hasDefault);
         }
       }
