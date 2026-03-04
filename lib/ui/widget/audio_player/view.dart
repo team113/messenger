@@ -69,8 +69,8 @@ class AudioPlayer extends StatelessWidget {
       builder: (c) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            height: 48,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: 48, minWidth: 260),
             child: Row(
               children: [
                 MouseRegion(
@@ -139,7 +139,10 @@ class AudioPlayer extends StatelessWidget {
                                   key: const ValueKey('timeline'),
                                   child: _buildTimeline(c, style, context),
                                 )
-                              : const SizedBox.shrink(key: ValueKey('empty')),
+                              : const SizedBox(
+                                  key: ValueKey('empty'),
+                                  height: 31,
+                                ),
                         ),
                       ),
                     ],
