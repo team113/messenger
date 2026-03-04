@@ -127,14 +127,7 @@ class _DataAttachmentState extends State<DataAttachment> {
         final (source, progress) = switch (e) {
           LocalAttachment e when e.file.path != null => (
             AudioSource.file(e.file.path!),
-            WidgetButton(
-              onPressed: e.cancelUpload,
-              child: _Progress(
-                width: 25,
-                height: 25,
-                progress: e.progress.value,
-              ),
-            ),
+            WidgetButton(onPressed: e.cancelUpload, child: leading),
           ),
           FileAttachment e => (
             AudioSource.url(e.original.url),
@@ -203,35 +196,20 @@ class _DataAttachmentState extends State<DataAttachment> {
 
 /// [CircularProgressIndicator] with close icon in the center.
 class _Progress extends StatelessWidget {
-  const _Progress({
-    super.key,
-    required this.progress,
-    this.width = 13,
-    this.height = 13,
-  });
+  const _Progress({super.key, required this.progress});
 
   /// Progress value.
   final double progress;
-
-  /// Width of the [_Progress].
-  final double width;
-
-  /// Height of the [_Progress].
-  final double height;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       children: [
-        SvgIcon(
-          SvgIcons.downloadFileCancelProgress,
-          width: width,
-          height: height,
-        ),
+        SvgIcon(SvgIcons.downloadFileCancelProgress),
         SizedBox(
-          width: width,
-          height: height,
+          width: 13,
+          height: 13,
           child: CircularProgressIndicator(value: progress, strokeWidth: 2),
         ),
       ],
