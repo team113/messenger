@@ -25,7 +25,7 @@ All user visible changes to this project will be documented in this file. This p
     - Freelance page:
         - Multiline lines displayed in a single line. ([#1617], [#544])
 
-[#544]: /../../issues/1617
+[#544]: /../../issues/544
 [#1617]: /../../pull/1617
 [#1629]: /../../pull/1629
 [#1630]: /../../pull/1630
