@@ -32,7 +32,7 @@ class AudioPlayerController extends GetxController {
     this.onForbidden,
   });
 
-  /// Identifier for audio attachment.
+  /// Unique identifier for audio attachment.
   final ChatItemId id;
 
   /// Source of audio data.

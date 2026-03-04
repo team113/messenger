@@ -35,12 +35,6 @@ import '/util/platform_utils.dart';
 class AudioWorker extends Dependency {
   AudioWorker();
 
-  /// Underlying audio player instance.
-  final ja.AudioPlayer _player = ja.AudioPlayer();
-
-  /// Subscription to the audio intent (music mode).
-  StreamSubscription? _audioIntentSubscription;
-
   /// Unique identifier of the currently active audio, if any.
   final Rxn<ChatItemId> activeAudioId = Rxn<ChatItemId>();
 
@@ -55,6 +49,12 @@ class AudioWorker extends Dependency {
 
   /// Total duration of the active audio.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
+
+  /// Underlying audio player instance.
+  final ja.AudioPlayer _player = ja.AudioPlayer();
+
+  /// Subscription to the audio intent (music mode).
+  StreamSubscription? _audioIntentSubscription;
 
   /// [StreamSubscription] to [AudioUtilsImpl.routeChangeStream].
   StreamSubscription? _routeSubscription;
@@ -107,6 +107,83 @@ class AudioWorker extends Dependency {
     _headerToken?.cancel();
     super.onClose();
   }
+
+  /// Plays audio from the given [source] with the specified [id].
+  ///
+  /// If the audio with the same [id] is already active, it resumes playback.
+  /// Otherwise, it sets the new [source] and starts playback.
+  Future<void> play(
+    ChatItemId id,
+    AudioSource source, {
+    FutureOr<AudioSource?> Function()? onForbidden,
+  }) async {
+    try {
+      _audioIntentSubscription ??= AudioUtils.acquire(
+        AudioMode.music,
+        speaker: AudioSpeakerKind.speaker,
+      ).listen((_) {});
+
+      if (activeAudioId.value == id) {
+        await _player.play();
+      } else {
+        await stop();
+        activeAudioId.value = id;
+
+        if (source is UrlAudioSource) {
+          isLoading.value = true;
+
+          try {
+            final reachable = await _ensureReachable(
+              source,
+              onForbidden: onForbidden,
+            );
+            final needsLocalDownload =
+                (PlatformUtils.isMacOS || PlatformUtils.isIOS) &&
+                !PlatformUtils.isWeb;
+            if (needsLocalDownload) {
+              await _setDownloadedAudioSource(id.val, reachable);
+            } else {
+              await _player.setAudioSource(reachable.source);
+            }
+          } on OperationCanceledException {
+            return;
+          } finally {
+            isLoading.value = false;
+          }
+        } else {
+          await _player.setAudioSource(source.source);
+        }
+
+        await _player.play();
+      }
+    } catch (e) {
+      if (e is! OperationCanceledException) {
+        Log.error('Failed to play audio: $e', '$runtimeType');
+        await stop();
+      }
+    }
+  }
+
+  /// Pauses the current playback.
+  Future<void> pause() => _player.pause();
+
+  /// Stops the current playback, clears [activeAudioId], cancels
+  /// [_audioIntentSubscription] and tokens.
+  Future<void> stop() async {
+    _cancelToken?.cancel();
+    _headerToken?.cancel();
+    _cancelToken = null;
+    _headerToken = null;
+    await _player.stop();
+    activeAudioId.value = null;
+    position.value = Duration.zero;
+    duration.value = Duration.zero;
+    await _audioIntentSubscription?.cancel();
+    _audioIntentSubscription = null;
+  }
+
+  /// Seeks to the specified [position] in the active audio.
+  Future<void> seek(Duration position) async => _player.seek(position);
 
   /// Initializes the [_routeSubscription].
   Future<void> _initialize() async {
@@ -216,81 +293,4 @@ class AudioWorker extends Dependency {
       }
     }
   }
-
-  /// Plays audio from the given [source] with the specified [id].
-  ///
-  /// If the audio with the same [id] is already active, it resumes playback.
-  /// Otherwise, it sets the new [source] and starts playback.
-  Future<void> play(
-    ChatItemId id,
-    AudioSource source, {
-    FutureOr<AudioSource?> Function()? onForbidden,
-  }) async {
-    try {
-      _audioIntentSubscription ??= AudioUtils.acquire(
-        AudioMode.music,
-        speaker: AudioSpeakerKind.speaker,
-      ).listen((_) {});
-
-      if (activeAudioId.value == id) {
-        await _player.play();
-      } else {
-        await stop();
-        activeAudioId.value = id;
-
-        if (source is UrlAudioSource) {
-          isLoading.value = true;
-
-          try {
-            final reachable = await _ensureReachable(
-              source,
-              onForbidden: onForbidden,
-            );
-            final needsLocalDownload =
-                (PlatformUtils.isMacOS || PlatformUtils.isIOS) &&
-                !PlatformUtils.isWeb;
-            if (needsLocalDownload) {
-              await _setDownloadedAudioSource(id.val, reachable);
-            } else {
-              await _player.setAudioSource(reachable.source);
-            }
-          } on OperationCanceledException {
-            return;
-          } finally {
-            isLoading.value = false;
-          }
-        } else {
-          await _player.setAudioSource(source.source);
-        }
-
-        await _player.play();
-      }
-    } catch (e) {
-      if (e is! OperationCanceledException) {
-        Log.error('Failed to play audio: $e', '$runtimeType');
-        await stop();
-      }
-    }
-  }
-
-  /// Pauses the current playback.
-  Future<void> pause() => _player.pause();
-
-  /// Stops the current playback, clears [activeAudioId], cancels
-  /// [_audioIntentSubscription] and tokens.
-  Future<void> stop() async {
-    _cancelToken?.cancel();
-    _headerToken?.cancel();
-    _cancelToken = null;
-    _headerToken = null;
-    await _player.stop();
-    activeAudioId.value = null;
-    position.value = Duration.zero;
-    duration.value = Duration.zero;
-    await _audioIntentSubscription?.cancel();
-    _audioIntentSubscription = null;
-  }
-
-  /// Seeks to the specified [position] in the active audio.
-  Future<void> seek(Duration position) async => _player.seek(position);
 }
