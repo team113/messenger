@@ -20,8 +20,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:file_picker/src/file_picker.dart';
-import 'package:file_picker/src/file_picker_result.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:messenger/util/log.dart';
 import 'package:messenger/util/platform_utils.dart';

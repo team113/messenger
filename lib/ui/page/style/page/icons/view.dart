@@ -949,12 +949,7 @@ class IconsView extends StatelessWidget {
                 child: Row(
                   children: [
                     const Spacer(),
-                    ...[
-                      SvgIcons.videoMessageSmall,
-                      SvgIcons.gallerySmall,
-                      SvgIcons.giftSmall,
-                      SvgIcons.smileSmall,
-                    ].map((e) {
+                    ...[SvgIcons.galleryButton, SvgIcons.smileSmall].map((e) {
                       return SizedBox(
                         width: 50,
                         height: 56,
@@ -986,10 +981,9 @@ class IconsView extends StatelessWidget {
                   children: [
                     const Spacer(),
                     ...[
-                      SvgIcons.audioMessageSmall,
-                      SvgIcons.fileOutlinedSmall,
-                      SvgIcons.takePhotoSmall,
-                      SvgIcons.takeVideoSmall,
+                      SvgIcons.fileOutlinedButton,
+                      SvgIcons.takePhotoButton,
+                      SvgIcons.takeVideoButton,
                     ].map((e) {
                       return SizedBox(
                         width: 50,
@@ -1025,11 +1019,8 @@ class IconsView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children:
                         [
-                          SvgIcons.videoMessage,
                           SvgIcons.gallery,
-                          SvgIcons.gift,
                           SvgIcons.smile,
-                          SvgIcons.audioMessage,
                           SvgIcons.fileOutlined,
                           SvgIcons.takePhoto,
                           SvgIcons.takeVideo,

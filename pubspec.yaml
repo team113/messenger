@@ -156,6 +156,9 @@ dependency_overrides:
   # TODO: Remove when `super_native_extensions` upgrade:
   #       https://github.com/superlistapp/super_native_extensions/pull/553
   device_info_plus: ^12.3.0
+  # TODO: Remove when comma is added to MIME types under Web.
+  file_picker:
+    git: https://github.com/SleepySquash/flutter_file_picker
   # TODO: Remove when `getx` updates.
   get:
     git: https://github.com/sleepysquash/getx.git

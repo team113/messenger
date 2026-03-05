@@ -285,7 +285,7 @@ ${Log.logs.map((e) => e.toString()).join('\n')}
           ShareParams(files: [XFile(file.path, name: filename)]),
         );
       } else if (PlatformUtils.isDesktop) {
-        await FilePicker.platform.saveFile(
+        await FilePicker.saveFile(
           fileName: filename,
           lockParentWindow: true,
           bytes: await file.readAsBytes(),
