@@ -26,6 +26,7 @@ import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/util/media_utils.dart';
 import 'controller.dart';
+import 'widget/gradient_button.dart';
 
 /// View for updating the [MediaSettings.audioDevice].
 ///
@@ -97,6 +98,13 @@ class MicrophoneSwitchView extends StatelessWidget {
                             final bool selected =
                                 (c.selected.value == null && i == 0) ||
                                 c.selected.value?.id() == e.id();
+
+                            if (selected) {
+                              return GradientButton(
+                                progress: c.level.value / 100,
+                                label: e.label(),
+                              );
+                            }
 
                             return RectangleButton(
                               selected: selected,
