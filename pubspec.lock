@@ -496,7 +496,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "2038a4593670ee456afd27d7311a3efe814ec326"
+      resolved-ref: "0b189d84f42586ed266f3068b8adc9cf5e4dd94b"
       url: "https://github.com/SleepySquash/flutter_file_picker"
     source: git
     version: "10.3.10"
