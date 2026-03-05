@@ -194,7 +194,11 @@ else
 		--build-number=$(flutter-build-number) \
 		$(if $(call eq,$(profile),yes),--profile,--release) \
 		$(if $(call eq,$(platform),web),--wasm --source-maps \
-			--web-define=build_hash=$(shell date +%s%3),) \
+			--web-define=build_hash=$(shell git ls-files . \
+										    | xargs sha256sum \
+											| cut -d" " -f1 \
+											| sha256sum \
+											| cut -d" " -f1),) \
 		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
 			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
