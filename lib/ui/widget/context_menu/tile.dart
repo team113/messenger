@@ -40,7 +40,7 @@ class ContextMenuTile extends StatefulWidget with ContextMenuItem {
     super.key,
     required this.label,
     this.onPressed,
-    this.asset = SvgIcons.videoMessage,
+    this.asset = SvgIcons.chatLogs,
     this.pinned,
     this.trailing,
   });

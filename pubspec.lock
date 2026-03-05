@@ -494,10 +494,11 @@ packages:
   file_picker:
     dependency: "direct main"
     description:
-      name: file_picker
-      sha256: "57d9a1dd5063f85fa3107fb42d1faffda52fdc948cefd5fe5ea85267a5fc7343"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "0b189d84f42586ed266f3068b8adc9cf5e4dd94b"
+      url: "https://github.com/SleepySquash/flutter_file_picker"
+    source: git
     version: "10.3.10"
   file_selector_linux:
     dependency: transitive
