@@ -619,6 +619,7 @@ label_critical_update_is_available = Текущая версия не подде
 label_create_group = Создание группы
 label_create_link = Создать ссылку
 label_current_account = Текущий аккаунт
+label_current_media = Текущее медиа
 label_current_password = Текущий пароль
 label_days_short = {$days} д
 label_delete_account = Удалить аккаунт

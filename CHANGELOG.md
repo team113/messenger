@@ -24,6 +24,7 @@ All user visible changes to this project will be documented in this file. This p
     - Horizontal application scroll when window's width is less than 300px. ([#1632])
     - Chat page:
         - Redesigned attachments buttons. ([#1633])
+        - Redesigned desktop player. ([#1636])
 
 ### Fixed
 
@@ -40,6 +41,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1632]: /../../pull/1632
 [#1633]: /../../pull/1633
 [#1634]: /../../pull/1634
+[#1636]: /../../pull/1636
 
 
 

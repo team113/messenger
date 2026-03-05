@@ -607,6 +607,7 @@ label_critical_update_is_available = La versión actual ya no es compatible
 label_create_group = Creación de grupo
 label_create_link = Crear enlace
 label_current_account = Cuenta corriente
+label_current_media = Medios actuales
 label_current_password = Contrseña actual
 label_days_short = {$days} d
 label_delete_account = Eliminar la cuenta
