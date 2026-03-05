@@ -10,6 +10,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.9.4...main) | [Milestone](/../../milestone/70)
 
+### Added
+
+- UI:
+    - Profile page:
+        - Display input volume for selected microphone. ([#1634])
+
 ### Changed
 
 - UI:
@@ -33,6 +39,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1630]: /../../pull/1630
 [#1632]: /../../pull/1632
 [#1633]: /../../pull/1633
+[#1634]: /../../pull/1634
 
 
 
