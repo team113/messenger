@@ -168,6 +168,7 @@ endif
 #	                   [split-debug-info=(no|yes)]
 
 flutter-build-number=$(or $(build),$(shell git rev-list HEAD --count))
+flutter-build-medea-ver=$(strip $(shell grep -m1 'medea_jason: ' pubspec.yaml | cut -d'^' -f2))
 
 flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
@@ -194,11 +195,8 @@ else
 		--build-number=$(flutter-build-number) \
 		$(if $(call eq,$(profile),yes),--profile,--release) \
 		$(if $(call eq,$(platform),web),--wasm --source-maps \
-			--web-define=build_hash=$(shell git ls-files . \
-										    | xargs sha256sum \
-											| cut -d" " -f1 \
-											| sha256sum \
-											| cut -d" " -f1),) \
+			--web-define=build_hash=$(VERSION)+$(flutter-build-number) \
+			--web-define=medea_hash=$(flutter-build-medea-ver),) \
 		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
 			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
