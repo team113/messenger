@@ -402,138 +402,140 @@ class ReactiveTextField extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              enableInteractiveSelection: selectable,
-              selectionControls: PlatformUtils.isAndroid
-                  ? MaterialTextSelectionControls()
-                  : PlatformUtils.isIOS
-                  ? CupertinoTextSelectionControls()
-                  : null,
-              controller: state.controller,
-              style: this.style,
-              focusNode: state.focus,
-              onChanged: (s) {
-                state.isEmpty.value = s.isEmpty;
-                onChanged?.call();
-              },
-              textAlign: textAlign,
-              onSubmitted: (s) => state.submit(),
-              inputFormatters: formatters,
-              textAlignVertical: const TextAlignVertical(y: 0.15),
-              readOnly: !enabled || !state.editable.value,
-              enabled: enabled,
-              decoration: InputDecoration(
-                alignLabelWithHint: true,
-                labelStyle:
-                    floatingLabelBehavior == FloatingLabelBehavior.always
-                    ? floatingLabel
+            Flexible(
+              child: TextField(
+                enableInteractiveSelection: selectable,
+                selectionControls: PlatformUtils.isAndroid
+                    ? MaterialTextSelectionControls()
+                    : PlatformUtils.isIOS
+                    ? CupertinoTextSelectionControls()
                     : null,
-                floatingLabelBehavior: floatingLabelBehavior,
-                isDense: dense ?? PlatformUtils.isMobile,
-                focusedBorder: state.editable.value
-                    ? null
-                    : Theme.of(context).inputDecorationTheme.border,
-                prefixText: prefixText,
-                prefixStyle: prefixStyle,
-                prefix: prefix,
-                fillColor:
-                    fillColor ??
-                    (state.editable.value
-                        ? style.colors.onPrimary
-                        : style.colors.onPrimaryLight),
-                filled: filled ?? true,
-                contentPadding: contentPadding,
-                suffixIcon: dense == true ? null : buildSuffix(),
-                suffixIconConstraints: const BoxConstraints(minWidth: 16),
-                icon: icon == null
-                    ? null
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Icon(icon),
-                      ),
-                labelText: label,
-                hintText: hint,
-                hintMaxLines: maxLines,
-                hintStyle: this.style?.copyWith(
-                  color:
-                      hintColor ??
-                      Theme.of(context).inputDecorationTheme.hintStyle?.color,
+                controller: state.controller,
+                style: this.style,
+                focusNode: state.focus,
+                onChanged: (s) {
+                  state.isEmpty.value = s.isEmpty;
+                  onChanged?.call();
+                },
+                textAlign: textAlign,
+                onSubmitted: (s) => state.submit(),
+                inputFormatters: formatters,
+                textAlignVertical: const TextAlignVertical(y: 0.15),
+                readOnly: !enabled || !state.editable.value,
+                enabled: enabled,
+                decoration: InputDecoration(
+                  alignLabelWithHint: true,
+                  labelStyle:
+                      floatingLabelBehavior == FloatingLabelBehavior.always
+                      ? floatingLabel
+                      : null,
+                  floatingLabelBehavior: floatingLabelBehavior,
+                  isDense: dense ?? PlatformUtils.isMobile,
+                  focusedBorder: state.editable.value
+                      ? null
+                      : Theme.of(context).inputDecorationTheme.border,
+                  prefixText: prefixText,
+                  prefixStyle: prefixStyle,
+                  prefix: prefix,
+                  fillColor:
+                      fillColor ??
+                      (state.editable.value
+                          ? style.colors.onPrimary
+                          : style.colors.onPrimaryLight),
+                  filled: filled ?? true,
+                  contentPadding: contentPadding,
+                  suffixIcon: dense == true ? null : buildSuffix(),
+                  suffixIconConstraints: const BoxConstraints(minWidth: 16),
+                  icon: icon == null
+                      ? null
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Icon(icon),
+                        ),
+                  labelText: label,
+                  hintText: hint,
+                  hintMaxLines: maxLines,
+                  hintStyle: this.style?.copyWith(
+                    color:
+                        hintColor ??
+                        Theme.of(context).inputDecorationTheme.hintStyle?.color,
+                  ),
+
+                  // Hide the error's text as the [AnimatedSize] below this
+                  // [TextField] displays it better.
+                  errorStyle: style.fonts.medium.regular.onBackground.copyWith(
+                    fontSize: 0,
+                  ),
+                  errorText: state.error.value,
                 ),
+                obscureText: obscure,
+                keyboardType: type,
+                minLines: minLines,
+                maxLines: maxLines,
+                textInputAction: textInputAction,
+                textCapitalization: textCapitalization,
+                maxLength: maxLength,
+                spellCheckConfiguration: spellCheck
+                    ? null
+                    : SpellCheckConfiguration.disabled(),
+                autocorrect: spellCheck ? null : false,
+                enableSuggestions: spellCheck,
+                autofillHints: [?autocomplete?.value],
+                contextMenuBuilder: (_, field) {
+                  final double dx = field.contextMenuAnchors.primaryAnchor.dx;
+                  final double dy = field.contextMenuAnchors.primaryAnchor.dy;
 
-                // Hide the error's text as the [AnimatedSize] below this
-                // [TextField] displays it better.
-                errorStyle: style.fonts.medium.regular.onBackground.copyWith(
-                  fontSize: 0,
-                ),
-                errorText: state.error.value,
-              ),
-              obscureText: obscure,
-              keyboardType: type,
-              minLines: minLines,
-              maxLines: maxLines,
-              textInputAction: textInputAction,
-              textCapitalization: textCapitalization,
-              maxLength: maxLength,
-              spellCheckConfiguration: spellCheck
-                  ? null
-                  : SpellCheckConfiguration.disabled(),
-              autocorrect: spellCheck ? null : false,
-              enableSuggestions: spellCheck,
-              autofillHints: [?autocomplete?.value],
-              contextMenuBuilder: (_, field) {
-                final double dx = field.contextMenuAnchors.primaryAnchor.dx;
-                final double dy = field.contextMenuAnchors.primaryAnchor.dy;
+                  double qx = 0, qy = 0;
+                  if (dx > (context.mediaQuery.size.width) - 70) qx = -1;
+                  if (dy > (context.mediaQuery.size.height) - 70) qy = -1;
+                  final Offset offset = Offset(qx, qy);
 
-                double qx = 0, qy = 0;
-                if (dx > (context.mediaQuery.size.width) - 70) qx = -1;
-                if (dy > (context.mediaQuery.size.height) - 70) qy = -1;
-                final Offset offset = Offset(qx, qy);
-
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Positioned(
-                      left: field.contextMenuAnchors.primaryAnchor.dx,
-                      top: field.contextMenuAnchors.primaryAnchor.dy,
-                      child: FractionalTranslation(
-                        translation: offset,
-                        child: ContextMenu(
-                          actions: [
-                            ContextMenuButton(
-                              label: 'btn_copy'.l10n,
-                              trailing: const SvgIcon(SvgIcons.copy19),
-                              inverted: const SvgIcon(SvgIcons.copy19White),
-                              onPressed: () {
-                                if (field.copyEnabled) {
-                                  field.copySelection(
-                                    SelectionChangedCause.toolbar,
-                                  );
-                                } else {
-                                  PlatformUtils.copy(
-                                    text: state.controller.text,
-                                  );
-                                  field.hideToolbar();
-                                }
-
-                                MessagePopup.success('label_copied'.l10n);
-                              },
-                            ),
-                            if (field.pasteEnabled)
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Positioned(
+                        left: field.contextMenuAnchors.primaryAnchor.dx,
+                        top: field.contextMenuAnchors.primaryAnchor.dy,
+                        child: FractionalTranslation(
+                          translation: offset,
+                          child: ContextMenu(
+                            actions: [
                               ContextMenuButton(
-                                label: 'btn_paste'.l10n,
+                                label: 'btn_copy'.l10n,
                                 trailing: const SvgIcon(SvgIcons.copy19),
                                 inverted: const SvgIcon(SvgIcons.copy19White),
-                                onPressed: () => field.pasteText(
-                                  SelectionChangedCause.toolbar,
-                                ),
+                                onPressed: () {
+                                  if (field.copyEnabled) {
+                                    field.copySelection(
+                                      SelectionChangedCause.toolbar,
+                                    );
+                                  } else {
+                                    PlatformUtils.copy(
+                                      text: state.controller.text,
+                                    );
+                                    field.hideToolbar();
+                                  }
+
+                                  MessagePopup.success('label_copied'.l10n);
+                                },
                               ),
-                          ],
+                              if (field.pasteEnabled)
+                                ContextMenuButton(
+                                  label: 'btn_paste'.l10n,
+                                  trailing: const SvgIcon(SvgIcons.copy19),
+                                  inverted: const SvgIcon(SvgIcons.copy19White),
+                                  onPressed: () => field.pasteText(
+                                    SelectionChangedCause.toolbar,
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              },
+                    ],
+                  );
+                },
+              ),
             ),
 
             // Displays the [subtitle] or an error, if any.

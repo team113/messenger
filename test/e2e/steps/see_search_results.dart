@@ -26,6 +26,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/ui/page/call/search/controller.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../parameters/users.dart';
@@ -56,20 +57,14 @@ seeUserInSearchResults = then2<SearchCategory, TestUser, CustomWorld>(
         case SearchCategory.user:
           final UserId userId = context.world.sessions[user.name]!.userId;
 
-          final scrollable = find.descendant(
-            of: find.byKey(const Key('SearchScrollable')),
-            matching: find.byWidgetPredicate((widget) {
-              // TODO: Find a proper way to differentiate [Scrollable]s from
-              //       [TextField]s:
-              //       https://github.com/flutter/flutter/issues/76981
-              if (widget is Scrollable) {
-                return widget.restorationId == null;
-              }
-              return false;
-            }),
+          final Finder scrollable = find.byKey(const Key('SearchScrollable'));
+
+          Log.debug(
+            'seeUserInSearchResults -> `scrollable` is $scrollable',
+            'E2E',
           );
 
-          if (!await context.world.appDriver.isPresent(scrollable)) {
+          if (scrollable.evaluate().isEmpty) {
             return false;
           }
 

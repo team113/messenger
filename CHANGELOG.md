@@ -10,13 +10,36 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.9.4...main) | [Milestone](/../../milestone/70)
 
+### Added
+
+- UI:
+    - Profile page:
+        - Display input volume for selected microphone. ([#1634])
+
+### Changed
+
+- UI:
+    - Chats tab:
+        - Redesigned searching. ([#1630])
+    - Horizontal application scroll when window's width is less than 300px. ([#1632])
+    - Chat page:
+        - Redesigned attachments buttons. ([#1633])
+
 ### Fixed
 
 - UI:
     - Player:
         - Screen turning dark when double pressing escape. ([#1629])
+    - Freelance page:
+        - Multiline lines displayed in a single line. ([#1617], [#544])
 
+[#544]: /../../issues/544
+[#1617]: /../../pull/1617
 [#1629]: /../../pull/1629
+[#1630]: /../../pull/1630
+[#1632]: /../../pull/1632
+[#1633]: /../../pull/1633
+[#1634]: /../../pull/1634
 
 
 

@@ -486,7 +486,7 @@ class PlayerController extends GetxController {
     Log.debug('downloadAs($item)', '$runtimeType');
 
     try {
-      final String? to = await FilePicker.platform.saveFile(
+      final String? to = await FilePicker.saveFile(
         fileName: item.attachment.original.name,
         type: item.attachment is ImageAttachment
             ? FileType.image

@@ -1801,8 +1801,8 @@ class ChatController extends GetxController {
   Future<void> downloadMediaAs(List<Attachment> attachments) async {
     try {
       String? to = attachments.length > 1
-          ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
-          : await FilePicker.platform.saveFile(
+          ? await FilePicker.getDirectoryPath(lockParentWindow: true)
+          : await FilePicker.saveFile(
               fileName: attachments.first.filename,
               type: attachments.first is ImageAttachment
                   ? FileType.image
