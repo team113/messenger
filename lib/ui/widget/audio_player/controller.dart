@@ -23,7 +23,7 @@ import '/domain/model/chat_item.dart';
 import '/ui/worker/audio.dart';
 import '/util/audio_utils.dart';
 
-/// Controller for audio playback that manages state for a specific audio attachment.
+/// Controller for [AudioPlayer] managing state for a specific audio [source].
 class AudioPlayerController extends GetxController {
   AudioPlayerController(
     this._audioWorker, {
@@ -35,32 +35,36 @@ class AudioPlayerController extends GetxController {
   /// Unique identifier for audio attachment.
   final ChatItemId id;
 
-  /// Source of audio data.
+  /// [AudioSource] of audio data itself.
   final AudioSource source;
 
-  /// UI State for hover effect.
+  /// Indicator whether the view is being hovered.
   final RxBool isHovered = RxBool(false);
 
-  /// Whether audio was playing before interaction started.
+  /// Indicator whether audio was playing before interaction started.
   bool _wasPlaying = false;
 
-  /// Handles actual playback and synchronization.
+  /// [AudioWorker] handling actual playback and synchronization.
   final AudioWorker _audioWorker;
 
-  /// Whether this controller's audio is active in [AudioWorker].
+  /// Indicates whether this controller's audio is active in [AudioWorker].
   bool get isActive => _audioWorker.activeAudioId.value == id;
 
-  /// Whether audio is playing and this controller is active.
+  /// Indicates whether audio is playing and this controller is active.
   bool get isPlaying => _audioWorker.isPlaying.value && isActive;
 
-  /// Whether audio is loading and this controller is active.
+  /// Indicates whether audio is loading and this controller is active.
   bool get isLoading => _audioWorker.isLoading.value && isActive;
 
-  /// Current playback position. Returns [Duration.zero] if not active.
+  /// Returns the current playback position.
+  ///
+  /// Returns [Duration.zero], if not active.
   Duration get position =>
       isActive ? _audioWorker.position.value : Duration.zero;
 
-  /// Total duration of audio. Returns [Duration.zero] if not active.
+  /// Returns total [Duration] of audio.
+  ///
+  /// Returns [Duration.zero], if not active.
   Duration get duration =>
       isActive ? _audioWorker.duration.value : Duration.zero;
 

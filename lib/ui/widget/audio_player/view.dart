@@ -39,7 +39,7 @@ class AudioPlayer extends StatelessWidget {
     this.onForbidden,
   });
 
-  /// Source of the audio to play.
+  /// [AudioSource] of the audio to play.
   final AudioSource source;
 
   /// Unique identifier of the audio.
@@ -58,7 +58,7 @@ class AudioPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return GetBuilder<AudioPlayerController>(
+    return GetBuilder(
       init: AudioPlayerController(
         Get.find(),
         id: id,
@@ -66,7 +66,7 @@ class AudioPlayer extends StatelessWidget {
         onForbidden: onForbidden,
       ),
       tag: id.val,
-      builder: (c) {
+      builder: (AudioPlayerController c) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: ConstrainedBox(
@@ -76,48 +76,7 @@ class AudioPlayer extends StatelessWidget {
                 MouseRegion(
                   onEnter: (_) => c.hovered = true,
                   onExit: (_) => c.hovered = false,
-                  child:
-                      progress ??
-                      Obx(
-                        () => WidgetButton(
-                          key: Key('PlayerButton${id.val}'),
-                          onPressed: c.isLoading ? c.stop : c.togglePlay,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            height: 48,
-                            width: 48,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: c.hovered
-                                  ? style.colors.backgroundAuxiliaryLighter
-                                  : null,
-                              border: Border.all(
-                                width: 2,
-                                color: style.colors.primary,
-                              ),
-                            ),
-                            child: SafeAnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
-                              child: c.isLoading
-                                  ? const Padding(
-                                      key: ValueKey('loader'),
-                                      padding: EdgeInsets.all(8.0),
-                                      child: CircularProgressIndicator(),
-                                    )
-                                  : Center(
-                                      key: ValueKey('icon_${c.isPlaying}'),
-                                      child: Icon(
-                                        c.isPlaying
-                                            ? Icons.pause_rounded
-                                            : Icons.play_arrow_rounded,
-                                        size: 36,
-                                        color: const Color(0xFF1F3C5D),
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        ),
-                      ),
+                  child: progress ?? _play(context, c),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -131,20 +90,20 @@ class AudioPlayer extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      Obx(
-                        () => AnimatedSwitcher(
+                      Obx(() {
+                        return AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           child: c.isActive
                               ? KeyedSubtree(
                                   key: const ValueKey('timeline'),
-                                  child: _buildTimeline(c, style, context),
+                                  child: _timeline(context, c),
                                 )
                               : const SizedBox(
                                   key: ValueKey('empty'),
                                   height: 31,
                                 ),
-                        ),
-                      ),
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -156,13 +115,53 @@ class AudioPlayer extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeline(
-    AudioPlayerController c,
-    Style style,
-    BuildContext context,
-  ) {
-    return Obx(
-      () => AnimatedOpacity(
+  /// Builds a play/pause button.
+  Widget _play(BuildContext context, AudioPlayerController c) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      return WidgetButton(
+        key: Key('PlayerButton${id.val}'),
+        onPressed: c.isLoading ? c.stop : c.togglePlay,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 48,
+          width: 48,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: c.hovered ? style.colors.backgroundAuxiliaryLighter : null,
+            border: Border.all(width: 2, color: style.colors.primary),
+          ),
+          child: SafeAnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: c.isLoading
+                ? const Padding(
+                    key: ValueKey('loader'),
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(),
+                  )
+                : Center(
+                    key: ValueKey('icon_${c.isPlaying}'),
+                    child: Icon(
+                      c.isPlaying
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
+                      size: 36,
+                      color: const Color(0xFF1F3C5D),
+                    ),
+                  ),
+          ),
+        ),
+      );
+    });
+  }
+
+  /// Builds a timeline.
+  Widget _timeline(BuildContext context, AudioPlayerController c) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      return AnimatedOpacity(
         opacity: c.isLoading ? 0.0 : 1.0,
         duration: const Duration(milliseconds: 300),
         child: Column(
@@ -207,7 +206,7 @@ class AudioPlayer extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
+    });
   }
 }
