@@ -101,6 +101,15 @@ class CommonDatabase extends _$CommonDatabase {
           bool migrated = false;
 
           try {
+            if (to >= 9 && from <= 8) {
+              try {
+                await m.dropColumn(settings, 'workWithUsTabEnabled');
+              } catch (e) {
+                // It's ok to fail.
+              }
+              migrated = true;
+            }
+
             if (to >= 8 && from <= 7) {
               await m.alterTable(
                 TableMigration(

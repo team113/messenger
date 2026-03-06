@@ -77,7 +77,7 @@ class SettingsRepository extends DisposableInterface
 
   @override
   Future<void> init() async {
-    Log.debug('onInit()', '$runtimeType');
+    Log.debug('onInit()...', '$runtimeType');
 
     await _guard.protect(() async {
       final DtoSettings? settings = await _settingsLocal.read(userId);
@@ -87,6 +87,11 @@ class SettingsRepository extends DisposableInterface
 
       final DtoBackground? bytes = await _backgroundLocal.read(userId);
       background.value = bytes?.bytes;
+
+      Log.debug(
+        'onInit()... done! applicationSettings -> ${applicationSettings.value} mediaSettings -> ${mediaSettings.value}',
+        '$runtimeType',
+      );
     });
 
     _initSettingsSubscription();
@@ -218,12 +223,6 @@ class SettingsRepository extends DisposableInterface
   Future<void> setPinnedActions(List<String> buttons) async {
     Log.debug('setPinnedActions($buttons)', '$runtimeType');
     await _set(settings: (e) => e..pinnedActions = buttons);
-  }
-
-  @override
-  Future<void> setWorkWithUsTabEnabled(bool enabled) async {
-    Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
-    await _set(settings: (e) => e..workWithUsTabEnabled = enabled);
   }
 
   @override
