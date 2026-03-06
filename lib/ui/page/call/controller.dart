@@ -546,6 +546,7 @@ class CallController extends GetxController {
 
   /// Returns the [AudioSpeakerKind] of the used output device.
   AudioSpeakerKind get speaker =>
+      AudioUtils.speaker.value ??
       _currentCall.value.outputDevice.value?.speaker ??
       _currentCall.value.devices.output().firstOrNull?.speaker ??
       AudioSpeakerKind.earpiece;
@@ -653,6 +654,8 @@ class CallController extends GetxController {
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
 
+    _ensureAudioIntent(true);
+
     _chatWorker = ever(_currentCall.value.chatId, (ChatId id) {
       final FutureOr<RxChat?> chatOrFuture = _chatService.get(id);
 
@@ -664,13 +667,6 @@ class CallController extends GetxController {
     });
 
     _stateWorker = ever(state, (OngoingCallState state) {
-      _ensureAudioIntent(switch (state) {
-        OngoingCallState.active ||
-        OngoingCallState.joining ||
-        OngoingCallState.local => true,
-        OngoingCallState.pending || OngoingCallState.ended => false,
-      });
-
       switch (state) {
         case OngoingCallState.active:
           if (_durationTimer == null) {
@@ -924,6 +920,20 @@ class CallController extends GetxController {
           '$runtimeType',
         );
 
+        final List<DeviceDetails> outputs = _currentCall.value.devices
+            .output()
+            .where((e) => e.id() != 'default' && e.deviceId() != 'default')
+            .toList();
+
+        if (outputs.length <= 2) {
+          Log.debug(
+            '_audioRouter.currentDeviceStream -> ignoring due to `outputs` containing less than 3 devices -> ${outputs.map((e) => e.label())}',
+            '$runtimeType',
+          );
+
+          return;
+        }
+
         final AudioSpeakerKind speaker = switch (device?.type) {
           AudioSourceType.builtinSpeaker => AudioSpeakerKind.speaker,
           AudioSourceType.builtinReceiver => AudioSpeakerKind.earpiece,
@@ -1029,6 +1039,7 @@ class CallController extends GetxController {
     }
 
     _intent?.cancel();
+    _intent = null;
   }
 
   /// Drops the call.
@@ -1170,6 +1181,18 @@ class CallController extends GetxController {
         (e) => e == _currentCall.value.outputDevice.value,
       );
 
+      if (PlatformUtils.isMobile) {
+        final int previous = index;
+
+        index = outputs.indexWhere(
+          (e) => e.speaker == AudioUtils.speaker.value,
+        );
+
+        if (index == -1) {
+          index = previous;
+        }
+      }
+
       if (index == -1) {
         index = 0;
       }
@@ -1192,7 +1215,7 @@ class CallController extends GetxController {
         }
       }
 
-      await _currentCall.value.setOutputDevice(outputs[index]);
+      await _currentCall.value.setOutputDevice(outputs[index], force: true);
     }
   }
 

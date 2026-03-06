@@ -170,22 +170,43 @@ class PlayerView extends StatelessWidget {
           height: MediaQuery.of(context).size.height,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return Stack(
-                fit: StackFit.expand,
+              return Row(
                 children: [
-                  _content(context, c, constraints),
-                  _interface(context, c, constraints),
+                  Expanded(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        _content(context, c, constraints),
+                        _interface(context, c, constraints),
 
-                  // Mouse activity detector for desktop platforms.
-                  if (!PlatformUtils.isMobile)
-                    Listener(
-                      behavior: HitTestBehavior.translucent,
-                      onPointerHover: (_) => c.keepActive(),
-                      onPointerMove: (_) => c.keepActive(),
-                      onPointerDown: (_) => c.keepActive(),
-                      onPointerUp: (_) => c.keepActive(),
-                      onPointerSignal: (_) => c.keepActive(),
+                        // Mouse activity detector for desktop platforms.
+                        if (!PlatformUtils.isMobile)
+                          Listener(
+                            behavior: HitTestBehavior.translucent,
+                            onPointerHover: (_) => c.keepActive(),
+                            onPointerMove: (_) => c.keepActive(),
+                            onPointerDown: (_) => c.keepActive(),
+                            onPointerUp: (_) => c.keepActive(),
+                            onPointerSignal: (_) => c.keepActive(),
+                          ),
+                      ],
                     ),
+                  ),
+                  Obx(() {
+                    return AnimatedSize(
+                      duration: Duration(milliseconds: 200),
+                      curve: Curves.ease,
+                      alignment: Alignment.centerRight,
+                      child: Offstage(
+                        key: Key('${!c.side.value}'),
+                        offstage: !c.side.value,
+                        child: SizedBox(
+                          height: double.infinity,
+                          child: _side(context, c, constraints),
+                        ),
+                      ),
+                    );
+                  }),
                 ],
               );
             },
@@ -323,6 +344,12 @@ class PlayerView extends StatelessWidget {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
+                if (c.isClosing) {
+                  return;
+                }
+
+                c.isClosing = true;
+
                 if (WebUtils.isPopup) {
                   WebUtils.closeWindow();
                 } else {
@@ -456,17 +483,16 @@ class PlayerView extends StatelessWidget {
           padding: EdgeInsets.fromLTRB(
             0,
             isMobile ? 0 : 60,
-            0,
-            isMobile ? 0 : 55,
+            8,
+            isMobile ? 0 : 60,
           ),
           child: Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.bottomRight,
             child: Obx(() {
-              return AnimatedSlide(
-                duration: Duration(milliseconds: 200),
-                curve: Curves.ease,
-                offset: Offset(c.side.value ? 0 : 1, 0),
-                child: _side(context, c, constraints),
+              return AnimatedOpacity(
+                duration: const Duration(milliseconds: 250),
+                opacity: c.interface.value ? 1 : 0,
+                child: _arrows(context, c, constraints),
               );
             }),
           ),
@@ -656,6 +682,12 @@ class PlayerView extends StatelessWidget {
         children: [
           WidgetButton(
             onPressed: () {
+              if (c.isClosing) {
+                return;
+              }
+
+              c.isClosing = true;
+
               if (WebUtils.isPopup) {
                 WebUtils.closeWindow();
               } else {
@@ -694,34 +726,6 @@ class PlayerView extends StatelessWidget {
             ),
             const SizedBox(width: 12),
           ],
-          Opacity(
-            opacity: c.source.length > 1 ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: c.source.length > 1
-                  ? () async {
-                      if (isMobile) {
-                        final ReactivePlayerController? video =
-                            c.item?.video.value;
-                        video?.pause();
-
-                        await GalleryView.show(context, controller: c);
-                      } else {
-                        c.side.toggle();
-                      }
-                    }
-                  : null,
-              child: AnimatedContainer(
-                duration: Duration(milliseconds: 250),
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                decoration: BoxDecoration(
-                  color: c.side.value ? style.colors.onPrimaryOpacity25 : null,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: SvgIcon(SvgIcons.mediaGallery),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
           Obx(() {
             return ContextMenuRegion(
               actions: [
@@ -812,8 +816,8 @@ class PlayerView extends StatelessWidget {
               children: [
                 _dots(context, c),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 57 + 12),
-                  child: _description(context, c),
+                  padding: const EdgeInsets.only(bottom: 57 + 12, right: 42),
+                  child: _description(context, c, constraints),
                 ),
               ],
             ),
@@ -845,7 +849,8 @@ class PlayerView extends StatelessWidget {
   /// Builds an expandable [Post.description] with its meta data.
   Widget _description(
     BuildContext context,
-    PlayerController c, {
+    PlayerController c,
+    BoxConstraints constraints, {
     bool bottom = true,
   }) {
     final style = Theme.of(context).style;
@@ -917,7 +922,7 @@ class PlayerView extends StatelessWidget {
                           sizeDuration: Duration(milliseconds: 250),
                           fadeInCurve: Curves.ease,
                           fadeOutCurve: Curves.ease,
-                          alignment: Alignment.center,
+                          alignment: Alignment.centerLeft,
                           child: c.expanded.value
                               ? Column(
                                   key: Key('Expanded'),
@@ -1048,7 +1053,7 @@ class PlayerView extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(0, 16 + 12 + 16, 0, 0),
               child: Opacity(
                 opacity: 0,
-                child: _description(context, c, bottom: false),
+                child: _description(context, c, constraints, bottom: false),
               ),
             ),
           ),
@@ -1241,87 +1246,9 @@ class PlayerView extends StatelessWidget {
   ) {
     final style = Theme.of(context).style;
 
-    final bool hasLabels = constraints.maxWidth > 700;
-
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Obx(() {
-          return Opacity(
-            opacity: c.hasPreviousPage.value ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: c.hasPreviousPage.value ? c.previous : null,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgIcon(SvgIcons.videoPrevious),
-                  if (hasLabels) ...[
-                    SizedBox(width: 6),
-                    Text(
-                      'btn_previous'.l10n,
-                      style: style.fonts.small.regular.onPrimary,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          );
-        }),
-
-        SizedBox(width: 20),
-
-        Obx(() {
-          return Opacity(
-            opacity: c.hasNextPage.value ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: c.hasNextPage.value ? c.next : null,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgIcon(SvgIcons.videoNext),
-                  if (hasLabels) ...[
-                    SizedBox(width: 6),
-                    Text(
-                      'btn_next'.l10n,
-                      style: style.fonts.small.regular.onPrimary,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          );
-        }),
-
-        SizedBox(width: 20),
-
-        Obx(() {
-          final Post? post = c.posts.elementAtOrNull(c.index.value);
-          final ChatItem? item = post?.item;
-          final bool canShare = post != null && item != null && onShare != null;
-
-          return Opacity(
-            opacity: canShare ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: canShare ? () => onShare?.call(post) : null,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgIcon(SvgIcons.videoShare),
-                  if (hasLabels) ...[
-                    SizedBox(width: 6),
-                    Text(
-                      'btn_share'.l10n,
-                      style: style.fonts.small.regular.onPrimary,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          );
-        }),
-
-        SizedBox(width: 20),
-
         Obx(() {
           final Post? post = c.posts.elementAtOrNull(c.index.value);
           final ChatItem? item = post?.item;
@@ -1336,24 +1263,34 @@ class PlayerView extends StatelessWidget {
                       Navigator.of(context).pop();
                     }
                   : null,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgIcon(SvgIcons.videoReply),
-                  if (hasLabels) ...[
-                    SizedBox(width: 6),
-                    Text(
-                      'btn_reply'.l10n,
-                      style: style.fonts.small.regular.onPrimary,
-                    ),
-                  ],
-                ],
-              ),
+              child: SvgIcon(SvgIcons.videoReply),
             ),
           );
         }),
 
-        SizedBox(width: 20),
+        const SizedBox(width: 24),
+
+        Obx(() {
+          final Post? post = c.posts.elementAtOrNull(c.index.value);
+          final ChatItem? item = post?.item;
+          final bool canShare = post != null && item != null && onShare != null;
+
+          return Opacity(
+            opacity: canShare ? 1 : 0.5,
+            child: WidgetButton(
+              onPressed: canShare ? () => onShare?.call(post) : null,
+              child: SvgIcon(SvgIcons.videoShare),
+            ),
+          );
+        }),
+
+        const SizedBox(width: 24),
+        Container(
+          decoration: BoxDecoration(color: style.colors.onPrimaryOpacity50),
+          width: 0.5,
+          height: 16,
+        ),
+        const SizedBox(width: 24),
 
         WidgetButton(
           onPressed: c.toggleFullscreen,
@@ -1371,26 +1308,6 @@ class PlayerView extends StatelessWidget {
   ) {
     final style = Theme.of(context).style;
 
-    final Widget selectedSpacer = Padding(
-      padding: const EdgeInsets.only(left: 8.0),
-      child: SvgIcon(SvgIcons.sentBlue),
-    );
-
-    final Widget selectedInverted = Padding(
-      padding: const EdgeInsets.only(left: 8.0),
-      child: SvgIcon(SvgIcons.sentWhite),
-    );
-
-    final int photos = c.source.values
-        .expand((e) => e.attachments)
-        .whereType<ImageAttachment>()
-        .length;
-
-    final int videos = c.source.values
-        .expand((e) => e.attachments)
-        .whereType<FileAttachment>()
-        .length;
-
     return Container(
       height: constraints.maxHeight,
       width: constraints.maxWidth / 5,
@@ -1398,60 +1315,6 @@ class PlayerView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              SizedBox(width: 6),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'btn_gallery'.l10n,
-                      style: style.fonts.medium.regular.onPrimary,
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'label_media_semicolon_amount'.l10nfmt({
-                        'amount': c.posts.length,
-                      }),
-                      style: style.fonts.small.regular.secondary,
-                    ),
-                  ],
-                ),
-              ),
-              Obx(() {
-                return ContextMenuRegion(
-                  actions: [
-                    ContextMenuButton(
-                      label: 'label_photos_semicolon_amount'.l10nfmt({
-                        'amount': photos,
-                      }),
-                      onPressed: c.includePhotos.toggle,
-                      spacer: c.includePhotos.value ? selectedSpacer : null,
-                      spacerInverted: c.includePhotos.value
-                          ? selectedInverted
-                          : null,
-                    ),
-                    ContextMenuButton(
-                      label: 'label_videos_semicolon_amount'.l10nfmt({
-                        'amount': videos,
-                      }),
-                      onPressed: c.includeVideos.toggle,
-                      spacer: c.includeVideos.value ? selectedSpacer : null,
-                      spacerInverted: c.includeVideos.value
-                          ? selectedInverted
-                          : null,
-                    ),
-                  ],
-                  enablePrimaryTap: true,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 20, 18, 20),
-                    child: SvgIcon(SvgIcons.moreWhite),
-                  ),
-                );
-              }),
-            ],
-          ),
           Expanded(
             child: Obx(() {
               final Iterable<Widget> medias = c.posts
@@ -1496,13 +1359,17 @@ class PlayerView extends StatelessWidget {
                             ),
                             if (selected)
                               Container(
-                                width: max(
-                                  2,
-                                  min(constraints.maxWidth / 100, 10),
-                                ),
+                                width: constraints.maxWidth / 5,
                                 height: constraints.maxWidth / 5,
                                 decoration: BoxDecoration(
-                                  color: style.colors.primary,
+                                  color: style.colors.onBackgroundOpacity40,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'label_current_media'.l10n,
+                                    style: style.fonts.small.regular.onPrimary,
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
                               ),
                           ],
@@ -1538,6 +1405,96 @@ class PlayerView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  /// Builds a side gallery.
+  Widget _arrows(
+    BuildContext context,
+    PlayerController c,
+    BoxConstraints constraints,
+  ) {
+    final style = Theme.of(context).style;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Opacity(
+          opacity: c.source.length > 1 ? 1 : 0.5,
+          child: WidgetButton(
+            onPressed: c.source.length > 1
+                ? () async {
+                    if (context.isMobile) {
+                      final ReactivePlayerController? video =
+                          c.item?.video.value;
+                      video?.pause();
+
+                      await GalleryView.show(context, controller: c);
+                    } else {
+                      c.side.toggle();
+                    }
+                  }
+                : null,
+            child: Obx(() {
+              return AnimatedContainer(
+                duration: Duration(milliseconds: 250),
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: c.side.value
+                      ? style.colors.onPrimaryOpacity25
+                      : style.colors.onBackgroundOpacity27,
+                ),
+                child: Center(child: SvgIcon(SvgIcons.mediaGallery)),
+              );
+            }),
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        Obx(() {
+          return Opacity(
+            opacity: c.hasPreviousPage.value ? 1 : 0.5,
+            child: WidgetButton(
+              onPressed: c.hasPreviousPage.value ? c.previous : null,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: style.colors.onBackgroundOpacity27,
+                ),
+                child: Center(child: SvgIcon(SvgIcons.videoPrevious)),
+              ),
+            ),
+          );
+        }),
+
+        const SizedBox(height: 8),
+
+        Obx(() {
+          return Opacity(
+            opacity: c.hasNextPage.value ? 1 : 0.5,
+            child: WidgetButton(
+              onPressed: c.hasNextPage.value ? c.next : null,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: style.colors.onBackgroundOpacity27,
+                ),
+                child: Center(child: SvgIcon(SvgIcons.videoNext)),
+              ),
+            ),
+          );
+        }),
+      ],
     );
   }
 }

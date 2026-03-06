@@ -116,7 +116,12 @@ class ChatController extends GetxController {
     this._sessionService, {
     this.itemId,
     this.onContext,
-  });
+    bool search = false,
+  }) {
+    if (search) {
+      toggleSearch(true);
+    }
+  }
 
   /// ID of this [Chat].
   ChatId id;
@@ -1799,8 +1804,8 @@ class ChatController extends GetxController {
   Future<void> downloadMediaAs(List<Attachment> attachments) async {
     try {
       String? to = attachments.length > 1
-          ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
-          : await FilePicker.platform.saveFile(
+          ? await FilePicker.getDirectoryPath(lockParentWindow: true)
+          : await FilePicker.saveFile(
               fileName: attachments.first.filename,
               type: switch (attachments.first) {
                 ImageAttachment() => FileType.image,
@@ -1821,6 +1826,8 @@ class ChatController extends GetxController {
 
   /// Enables or disabled [search]ing of the [ChatItem]s of this [Chat].
   void toggleSearch([bool? value]) {
+    Log.debug('toggleSearch($value)', '$runtimeType($hashCode)');
+
     if (value ?? searching.value) {
       searching.value = false;
       search.clear();

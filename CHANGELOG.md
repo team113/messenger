@@ -6,7 +6,68 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-[Diff](/../../compare/v0.9.3...main) | [Milestone](/../../milestone/69)
+## main
+
+[Diff](/../../compare/v0.9.4...main) | [Milestone](/../../milestone/70)
+
+### Added
+
+- UI:
+    - Profile page:
+        - Display input volume for selected microphone. ([#1634])
+
+### Changed
+
+- UI:
+    - Chats tab:
+        - Redesigned searching. ([#1630])
+    - Horizontal application scroll when window's width is less than 300px. ([#1632])
+    - Chat page:
+        - Redesigned attachments buttons. ([#1633])
+        - Redesigned desktop player. ([#1636])
+
+### Fixed
+
+- UI:
+    - Player:
+        - Screen turning dark when double pressing escape. ([#1629])
+    - Freelance page:
+        - Multiline lines displayed in a single line. ([#1617], [#544])
+
+[#544]: /../../issues/544
+[#1617]: /../../pull/1617
+[#1629]: /../../pull/1629
+[#1630]: /../../pull/1630
+[#1632]: /../../pull/1632
+[#1633]: /../../pull/1633
+[#1634]: /../../pull/1634
+[#1636]: /../../pull/1636
+
+
+
+
+## [0.9.4] · 2026-03-02
+[0.9.4]: /../../tree/v0.9.4
+
+[Diff](/../../compare/v0.9.3...v0.9.4) | [Milestone](/../../milestone/69)
+
+### Changed
+
+- UI:
+    - Redesigned user page. ([#1625])
+    - Redesigned chat info page. ([#1625])
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Country and city missing from linked Web devices. ([#1620])
+    - Media panel:
+        - Reconnect button playing animation when dragging. ([#1621])
+
+[#1620]: /../../pull/1620
+[#1621]: /../../pull/1621
+[#1625]: /../../pull/1625
 
 
 

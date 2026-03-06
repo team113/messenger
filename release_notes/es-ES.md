@@ -1,1 +1,3 @@
+- Página de perfil de usuario rediseñada.
+- Página de perfil de chat rediseñada.
 - Corrección de errores y mejoras de rendimiento.

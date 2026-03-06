@@ -63,10 +63,10 @@ class AttachmentButton extends ChatButton {
   String get hint => 'btn_file'.l10n;
 
   @override
-  SvgData get asset => SvgIcons.fileOutlined;
+  SvgData get asset => SvgIcons.fileOutlinedButton;
 
   @override
-  SvgData get assetMini => SvgIcons.fileOutlinedSmall;
+  SvgData get assetMini => SvgIcons.fileOutlined;
 }
 
 /// [ChatButton] taking a photo.
@@ -78,13 +78,10 @@ class TakePhotoButton extends ChatButton {
       PlatformUtils.isAndroid ? 'btn_take_photo'.l10n : 'btn_camera'.l10n;
 
   @override
-  SvgData get asset =>
-      PlatformUtils.isAndroid ? SvgIcons.takePhoto : SvgIcons.takeVideo;
+  SvgData get asset => SvgIcons.takePhotoButton;
 
   @override
-  SvgData get assetMini => PlatformUtils.isAndroid
-      ? SvgIcons.takePhotoSmall
-      : SvgIcons.takeVideoSmall;
+  SvgData get assetMini => SvgIcons.takePhoto;
 }
 
 /// [ChatButton] taking a video.
@@ -95,16 +92,10 @@ class TakeVideoButton extends ChatButton {
   String get hint => 'btn_take_video'.l10n;
 
   @override
-  SvgData get asset => SvgIcons.takeVideo;
+  SvgData get asset => SvgIcons.takeVideoButton;
 
   @override
-  Offset get offset => const Offset(0, -1.5);
-
-  @override
-  SvgData get assetMini => SvgIcons.takeVideoSmall;
-
-  @override
-  Offset get offsetMini => const Offset(2, 0);
+  SvgData get assetMini => SvgIcons.takeVideo;
 }
 
 /// [ChatButton] opening a gallery.
@@ -115,10 +106,10 @@ class GalleryButton extends ChatButton {
   String get hint => 'btn_gallery'.l10n;
 
   @override
-  SvgData get asset => SvgIcons.gallery;
+  SvgData get asset => SvgIcons.galleryButton;
 
   @override
-  SvgData get assetMini => SvgIcons.gallerySmall;
+  SvgData get assetMini => SvgIcons.gallery;
 }
 
 /// [ChatButton] attaching a file.
@@ -129,10 +120,10 @@ class FileButton extends ChatButton {
   String get hint => 'btn_file'.l10n;
 
   @override
-  SvgData get asset => SvgIcons.fileOutlined;
+  SvgData get asset => SvgIcons.fileOutlinedButton;
 
   @override
-  SvgData get assetMini => SvgIcons.fileOutlinedSmall;
+  SvgData get assetMini => SvgIcons.fileOutlined;
 }
 
 /// [ChatButton] making an audio call.
@@ -171,5 +162,8 @@ class LogsButton extends ChatButton {
   String get hint => 'btn_log_file'.l10n;
 
   @override
-  SvgData get asset => SvgIcons.chatLogs;
+  SvgData get asset => SvgIcons.chatLogsButton;
+
+  @override
+  SvgData get assetMini => SvgIcons.chatLogs;
 }

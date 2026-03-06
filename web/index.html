@@ -116,6 +116,33 @@
   <script>
     let audioContext;
   </script>
+
+  <!-- Forward logs via `BroadcastChannel` -->
+  <script type="text/javascript">
+    window.isPopup = window.opener != null && window.opener !== window;
+
+    if (window.isPopup) {
+      let channel = new BroadcastChannel('log');
+
+      var defaultLog = console.log;
+      console.log = (...data) => {
+        defaultLog(...data);
+        channel.postMessage([`${location.pathname}`, ...data]);
+      };
+
+      var defaultWarn = console.warn;
+      console.warn = (...data) => {
+        defaultWarn(...data);
+        channel.postMessage([`${location.pathname}`, 'WARN', ...data]);
+      };
+
+      var defaultError = console.error;
+      console.error = (...data) => {
+        defaultError(...data);
+        channel.postMessage([`${location.pathname}`, 'ERROR', ...data]);
+      };
+    }
+  </script>
 </head>
 
 <body>

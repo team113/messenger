@@ -29,7 +29,7 @@ class CustomSliverAppBar extends StatelessWidget {
     this.leading = const [],
     this.actions = const [],
     this.flexible,
-    this.hasFlexible = true,
+    this.hasFlexible = false,
     this.height = 60,
     this.extended = 110,
   });
@@ -74,7 +74,7 @@ class CustomSliverAppBar extends StatelessWidget {
       floating: false,
       titleSpacing: 0,
       expandedHeight: hasFlexible ? extended : height,
-      toolbarHeight: hasFlexible ? height : extended,
+      toolbarHeight: hasFlexible ? height : height,
       shape: BoxBorder.fromLTRB(right: style.cardBorder.right),
       flexibleSpace: flexible != null && hasFlexible
           ? FlexibleSpaceBar(

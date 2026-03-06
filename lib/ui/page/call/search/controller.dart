@@ -223,7 +223,7 @@ class SearchController extends GetxController {
 
     _nextInterval = interval(
       _scrollPosition,
-      (_) => _next(),
+      (_) => next(),
       time: const Duration(milliseconds: 100),
       condition: () =>
           scrollController.hasClients &&
@@ -377,6 +377,36 @@ class SearchController extends GetxController {
 
   /// Returns a [User] from the [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
+
+  /// Invokes [_nextContacts] and [_nextUsers] for fetching the next page.
+  Future<void> next() async {
+    // Fetch all the [chats] first to prevent them from appearing in other
+    // [SearchCategory]s.
+    if (_chatService.hasNext.isTrue) {
+      if (_chatService.nextLoading.isFalse) {
+        searchStatus.value = RxStatus.loadingMore();
+
+        await _chatService.next();
+        await Future.delayed(16.milliseconds);
+
+        // Populate [chats] first until there's no more [Chat]s to fetch from
+        // [ChatService.paginated], then it is safe to populate other
+        // [SearchCategory]s.
+        if (_chatService.hasNext.isTrue) {
+          _populateChats();
+        } else {
+          populate();
+        }
+
+        if (!hasNext) {
+          searchStatus.value = RxStatus.success();
+        }
+      }
+    } else if (query.value.length > 1) {
+      await _nextContacts();
+      await _nextUsers();
+    }
+  }
 
   /// Searches the [User]s based on the provided [query].
   ///
@@ -780,36 +810,6 @@ class SearchController extends GetxController {
     }
   }
 
-  /// Invokes [_nextContacts] and [_nextUsers] for fetching the next page.
-  Future<void> _next() async {
-    // Fetch all the [chats] first to prevent them from appearing in other
-    // [SearchCategory]s.
-    if (_chatService.hasNext.isTrue) {
-      if (_chatService.nextLoading.isFalse) {
-        searchStatus.value = RxStatus.loadingMore();
-
-        await _chatService.next();
-        await Future.delayed(16.milliseconds);
-
-        // Populate [chats] first until there's no more [Chat]s to fetch from
-        // [ChatService.paginated], then it is safe to populate other
-        // [SearchCategory]s.
-        if (_chatService.hasNext.isTrue) {
-          _populateChats();
-        } else {
-          populate();
-        }
-
-        if (!hasNext) {
-          searchStatus.value = RxStatus.success();
-        }
-      }
-    } else if (query.value.length > 1) {
-      await _nextContacts();
-      await _nextUsers();
-    }
-  }
-
   /// Fetches the next [contactsSearch] page.
   Future<void> _nextContacts() async {
     if (categories.contains(SearchCategory.contact) &&
@@ -846,7 +846,7 @@ class SearchController extends GetxController {
         // pages.
         if (!scrollController.hasClients ||
             scrollController.position.maxScrollExtent < 50) {
-          await _next();
+          await next();
 
           if (_connected) {
             Future.delayed(2.seconds, _ensureScrollable);
@@ -858,7 +858,7 @@ class SearchController extends GetxController {
           _ensureScrollableTimer = Timer(2.seconds, () async {
             if (!scrollController.hasClients ||
                 scrollController.position.maxScrollExtent < 50) {
-              await _next();
+              await next();
               Future.delayed(1.seconds, _ensureScrollable);
             }
           });

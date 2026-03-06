@@ -61,10 +61,13 @@ enum AvatarRadius {
       AvatarRadius.big => 20,
       AvatarRadius.large => 30,
       AvatarRadius.larger => 32,
-      AvatarRadius.largest => 200,
+      AvatarRadius.largest => 300,
     };
   }
 }
+
+/// Shape of an [AvatarWidget].
+enum AvatarShape { tombstone, rectangle, circle }
 
 /// Widget to build an [Avatar].
 ///
@@ -82,7 +85,7 @@ class AvatarWidget extends StatelessWidget {
     this.isAway = false,
     this.label,
     this.onForbidden,
-    this.shape = BoxShape.circle,
+    this.shape = AvatarShape.circle,
     this.constraints,
     this.child,
   });
@@ -153,7 +156,7 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
     bool badge = true,
     FutureOr<void> Function()? onForbidden,
-    BoxShape shape = BoxShape.circle,
+    AvatarShape shape = AvatarShape.circle,
   }) => AvatarWidget(
     key: key,
     isOnline: badge && myUser?.online == true,
@@ -173,7 +176,7 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
-    BoxShape shape = BoxShape.circle,
+    AvatarShape shape = AvatarShape.circle,
     bool isOnline = false,
     bool isAway = false,
     BoxConstraints? constraints,
@@ -197,7 +200,7 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
-    BoxShape shape = BoxShape.circle,
+    AvatarShape shape = AvatarShape.circle,
     BoxConstraints? constraints,
   }) {
     if (user == null) {
@@ -234,7 +237,7 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
-    BoxShape shape = BoxShape.circle,
+    AvatarShape shape = AvatarShape.circle,
   }) => AvatarWidget(
     key: key,
     label: LayoutBuilder(
@@ -278,7 +281,7 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     FutureOr<void> Function()? onForbidden,
-    BoxShape shape = BoxShape.circle,
+    AvatarShape shape = AvatarShape.circle,
   }) {
     if (chat == null) {
       return AvatarWidget(key: key, radius: radius, opacity: opacity);
@@ -348,8 +351,8 @@ class AvatarWidget extends StatelessWidget {
   /// Callback, called when [avatar] fetching fails with `Forbidden` error.
   final FutureOr<void> Function()? onForbidden;
 
-  /// [BoxShape] of this [AvatarWidget].
-  final BoxShape shape;
+  /// [AvatarShape] of this [AvatarWidget].
+  final AvatarShape shape;
 
   /// [BoxConstraints] of the layout this [AvatarWidget] is within.
   ///
@@ -438,10 +441,20 @@ class AvatarWidget extends StatelessWidget {
           colors: [gradient.lighten(), gradient],
         ),
         borderRadius: switch (shape) {
-          BoxShape.circle => null,
-          BoxShape.rectangle => BorderRadius.circular(0.035 * _minDiameter),
+          AvatarShape.circle => null,
+          AvatarShape.rectangle => BorderRadius.circular(0.035 * _minDiameter),
+          AvatarShape.tombstone => BorderRadius.only(
+            topLeft: Radius.circular(0.035 * _minDiameter),
+            topRight: Radius.circular(0.035 * _minDiameter),
+            bottomLeft: Radius.zero,
+            bottomRight: Radius.zero,
+          ),
         },
-        shape: shape,
+        shape: switch (shape) {
+          AvatarShape.circle => BoxShape.circle,
+          AvatarShape.rectangle => BoxShape.rectangle,
+          AvatarShape.tombstone => BoxShape.rectangle,
+        },
       ),
       child: Center(
         child:
@@ -503,9 +516,18 @@ class AvatarWidget extends StatelessWidget {
   /// Returns a [ClipRRect] or [ClipOval] widget based on the [shape].
   Widget _clip({required Widget child}) {
     return switch (shape) {
-      BoxShape.circle => ClipOval(child: child),
-      BoxShape.rectangle => ClipRRect(
+      AvatarShape.circle => ClipOval(child: child),
+      AvatarShape.rectangle => ClipRRect(
         borderRadius: BorderRadius.circular(0.035 * _minDiameter),
+        child: child,
+      ),
+      AvatarShape.tombstone => ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(0.035 * _minDiameter),
+          topRight: Radius.circular(0.035 * _minDiameter),
+          bottomLeft: Radius.zero,
+          bottomRight: Radius.zero,
+        ),
         child: child,
       ),
     };

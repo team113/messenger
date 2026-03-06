@@ -77,6 +77,7 @@ import 'themes.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/erase/view.dart';
+import 'ui/page/home/page/chat/controller.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/popup_gallery/view.dart';
@@ -473,6 +474,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   /// Worker to react on the [RouterState.prefix] changes.
   late final Worker _prefixWorker;
+
+  /// [ScrollController] for horizontal [SingleChildScrollView] appearing when
+  /// window's width is less than a certain value.
+  final ScrollController _horizontalController = ScrollController();
 
   @override
   Future<void> setInitialRoutePath(RouteConfiguration configuration) async {
@@ -1174,7 +1179,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Widget build(BuildContext context) {
-    return SentryDisplayWidget(
+    final Widget body = SentryDisplayWidget(
       child: LifecycleObserver(
         onStateChange: (v) {
           Log.debug('onStateChange() -> $v', '$runtimeType');
@@ -1195,6 +1200,45 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   _state.pop(page.name);
                 }
               },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // [MediaQuery] width to switch to horizontal scrolling.
+    const double minimum = 300;
+
+    if (MediaQuery.of(context).size.width >= minimum) {
+      return body;
+    }
+
+    return ScrollConfiguration(
+      behavior: CustomScrollBehavior(),
+      child: Scrollbar(
+        controller: _horizontalController,
+        child: SingleChildScrollView(
+          controller: _horizontalController,
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: minimum,
+              maxWidth: max(MediaQuery.of(context).size.width, minimum),
+            ),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                size: Size(
+                  max(MediaQuery.of(context).size.width, minimum),
+                  MediaQuery.of(context).size.height,
+                ),
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: ScrollConfiguration(
+                  behavior: MaterialScrollBehavior(),
+                  child: body,
+                ),
+              ),
             ),
           ),
         ),
@@ -1269,6 +1313,7 @@ extension RouteLinks on RouterState {
     RouteAs mode = RouteAs.replace,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
+    bool search = false,
   }) {
     switch (mode) {
       case RouteAs.insteadOfLast:
@@ -1285,7 +1330,18 @@ extension RouteLinks on RouterState {
         break;
     }
 
-    arguments = {'itemId': itemId, 'link': link};
+    arguments = {'itemId': itemId, 'link': link, 'search': search};
+
+    // TODO: Might not be the best thing to do it.
+    if (search) {
+      final List<ChatController> chats = Get.findAll<ChatController>();
+
+      for (var e in chats) {
+        if (e.id == id || (id.isLocal && e.user?.id == id.userId)) {
+          e.toggleSearch();
+        }
+      }
+    }
   }
 
   /// Changes router location to the [Routes.chats] page respecting the possible

@@ -28,6 +28,7 @@ import '/ui/page/support/log/view.dart';
 import '/ui/widget/text_field.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 
 /// Worker opening [LogView] modal.
 class LogWorker extends Dependency {
@@ -40,9 +41,17 @@ class LogWorker extends Dependency {
   /// [_logProvider].
   StreamSubscription? _logsSubscription;
 
+  /// [StreamSubscription] to [WebUtils.onBroadcastMessage] forwarding the
+  /// received message to a [Log] console.
+  StreamSubscription? _channelSubscription;
+
   @override
   void onInit() {
     HardwareKeyboard.instance.addHandler(_consoleListener);
+
+    if (WebUtils.isPopup) {
+      return;
+    }
 
     if (Config.logWrite) {
       _logsSubscription = Log.logs.changes.listen((e) {
@@ -59,6 +68,14 @@ class LogWorker extends Dependency {
       });
     }
 
+    _channelSubscription = WebUtils.onBroadcastMessage(name: 'log').listen((e) {
+      if (e is List) {
+        Log.debug(e.skip(1).toString(), e.first);
+      } else {
+        Log.debug(e.toString(), 'POPUP');
+      }
+    });
+
     super.onInit();
   }
 
@@ -67,6 +84,7 @@ class LogWorker extends Dependency {
     HardwareKeyboard.instance.removeHandler(_consoleListener);
 
     _logsSubscription?.cancel();
+    _channelSubscription?.cancel();
 
     super.onClose();
   }

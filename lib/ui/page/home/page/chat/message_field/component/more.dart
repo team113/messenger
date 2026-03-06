@@ -88,13 +88,14 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
       builder: (context, constraints) {
         final Rect? rect = widget.c.fieldKey.globalPaintBounds;
 
-        final double left = rect?.left ?? 0;
-        final double right = rect == null
-            ? 0
-            : (constraints.maxWidth - rect.right);
+        double left = rect?.left ?? 0;
+        double right = rect == null ? 0 : (constraints.maxWidth - rect.right);
         final double bottom = rect == null
             ? 0
             : (constraints.maxHeight - rect.bottom + rect.height);
+
+        left += 8;
+        right += 8;
 
         final List<Widget> widgets = [];
         for (int i = 0; i < widget.c.panel.length; ++i) {
@@ -128,6 +129,8 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
           mainAxisSize: MainAxisSize.min,
           children: widgets,
         );
+
+        final bool mobile = PlatformUtils.isMobile;
 
         return Stack(
           fit: StackFit.expand,
@@ -176,23 +179,23 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
             ),
             Positioned(
               left: left,
-              right: context.isNarrow ? right : null,
+              right: mobile ? right : null,
               bottom: 0,
               child: SlideTransition(
                 position: Tween(
-                  begin: context.isMobile ? const Offset(0, 1) : Offset.zero,
+                  begin: mobile ? const Offset(0, 1) : Offset.zero,
                   end: Offset.zero,
                 ).animate(_animation),
                 child: FadeTransition(
                   opacity: Tween(
-                    begin: context.isMobile ? 1.0 : 0.0,
+                    begin: mobile ? 1.0 : 0.0,
                     end: 1.0,
                   ).animate(_animation),
                   child: Container(
                     margin: EdgeInsets.only(bottom: bottom + 10),
                     decoration: BoxDecoration(
                       color: style.colors.onPrimary,
-                      borderRadius: style.cardRadius,
+                      borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         CustomBoxShadow(
                           blurRadius: 8,
@@ -200,9 +203,7 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
                         ),
                       ],
                     ),
-                    child: context.isNarrow
-                        ? actions
-                        : IntrinsicWidth(child: actions),
+                    child: mobile ? actions : IntrinsicWidth(child: actions),
                   ),
                 ),
               ),

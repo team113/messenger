@@ -77,7 +77,11 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           try {
             ChatDirectLinkSlug(s.text);
           } on FormatException {
-            s.error.value = 'err_invalid_symbols_in_link'.l10n;
+            if (s.text.length > 100) {
+              s.error.value = 'err_incorrect_link_too_long'.l10n;
+            } else {
+              s.error.value = 'err_invalid_symbols_in_link'.l10n;
+            }
           }
         }
       },
