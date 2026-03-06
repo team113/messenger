@@ -19,11 +19,11 @@
 {{flutter_build_config}}
 
 // Add `?v=` tag to `main.dart.js` and `main.dart.wasm` files with
-// `--web-define`d `build_hash` variable to ensure the files are re-fetched from
+// `--web-define`d `build_ver` variable to ensure the files are re-fetched from
 // the network on the changes.
 for (const build of _flutter.buildConfig.builds) {
-    build.mainJsPath += "?v={{build_hash}}";
-    build.mainWasmPath += "?v={{build_hash}}";
+    build.mainJsPath += "?v={{build_ver}}";
+    build.mainWasmPath += "?v={{build_ver}}";
 }
 
 _flutter.loader.load({
