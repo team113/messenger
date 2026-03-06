@@ -2069,4 +2069,10 @@ class SvgIcons {
     width: 30,
     height: 30,
   );
+
+  static const SvgData changeAccount = SvgData(
+    'assets/icons/change_account.svg',
+    width: 18,
+    height: 18,
+  );
 }

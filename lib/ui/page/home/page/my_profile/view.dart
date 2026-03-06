@@ -701,6 +701,32 @@ Widget _media(BuildContext context, MyProfileController c) {
     children: [
       Obx(() {
         final selected =
+            c.devices.video().firstWhereOrNull(
+              (e) => e.deviceId() == c.media.value?.videoDevice,
+            ) ??
+            c.devices.video().firstOrNull;
+
+        return FieldButton(
+          text: selected?.label() ?? 'label_media_no_device_available'.l10n,
+          trailing: Transform.translate(
+            offset: Offset(5, 0),
+            child: SvgIcon(SvgIcons.mediaDevicesCamera),
+          ),
+          onPressed: () async {
+            await CameraSwitchView.show(
+              context,
+              camera: c.media.value?.videoDevice,
+            );
+
+            if (c.devices.video().isEmpty) {
+              c.devices.value = await MediaUtils.enumerateDevices();
+            }
+          },
+        );
+      }),
+      const SizedBox(height: 12),
+      Obx(() {
+        final selected =
             c.devices.audio().firstWhereOrNull(
               (e) => e.id() == c.media.value?.audioDevice,
             ) ??
@@ -758,95 +784,6 @@ Widget _media(BuildContext context, MyProfileController c) {
           );
         }),
       ],
-      const SizedBox(height: 12),
-      Obx(() {
-        final selected =
-            c.devices.video().firstWhereOrNull(
-              (e) => e.deviceId() == c.media.value?.videoDevice,
-            ) ??
-            c.devices.video().firstOrNull;
-
-        return FieldButton(
-          text: selected?.label() ?? 'label_media_no_device_available'.l10n,
-          trailing: Transform.translate(
-            offset: Offset(5, 0),
-            child: SvgIcon(SvgIcons.mediaDevicesCamera),
-          ),
-          onPressed: () async {
-            await CameraSwitchView.show(
-              context,
-              camera: c.media.value?.videoDevice,
-            );
-
-            if (c.devices.video().isEmpty) {
-              c.devices.value = await MediaUtils.enumerateDevices();
-            }
-          },
-        );
-      }),
-
-      SizedBox(height: 20),
-      LineDivider('label_hotkey'.l10n),
-      SizedBox(height: 16),
-      Obx(() {
-        final HotKey key =
-            c.settings.value?.muteHotKey ?? MuteHotKeyExtension.defaultHotKey;
-
-        final Iterable<String> modifiers = (key.modifiers ?? [])
-            .map(
-              (e) => e.physicalKeys.map((e) {
-                return KeyboardKeyToStringExtension.labels[e] ??
-                    e.debugName ??
-                    'question_mark'.l10n;
-              }),
-            )
-            .expand((e) => e)
-            .toSet();
-
-        final String keys =
-            KeyboardKeyToStringExtension.labels[key.physicalKey] ??
-            key.physicalKey.debugName ??
-            'label_unknown'.l10n;
-
-        return FieldButton(
-          headline: Text(
-            'label_mute_slash_unmute_microphone'.l10n,
-            style: c.hotKeyRecording.value
-                ? style.fonts.normal.regular.primary
-                : style.fonts.normal.regular.secondary,
-          ),
-          onPressed: c.toggleHotKey,
-          border: c.hotKeyRecording.value
-              ? BorderSide(color: style.colors.primary, width: 1)
-              : null,
-          child: Row(
-            children: [
-              if (c.hotKeyRecording.value)
-                Expanded(
-                  child: Text(
-                    'label_key_plus_key_by_default'.l10nfmt({
-                      'modifier': PlatformUtils.isMacOS ? '⌥' : 'Alt',
-                      'key': 'M',
-                    }),
-                    textAlign: TextAlign.left,
-                    style: style.fonts.normal.regular.secondary,
-                  ),
-                )
-              else
-                Expanded(
-                  child: Text(
-                    [...modifiers, keys].join('space_plus_space'.l10n),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-              Text(
-                c.hotKeyRecording.value ? 'btn_cancel'.l10n : 'btn_change'.l10n,
-                style: style.fonts.medium.regular.primary,
-              ),
-            ],
-          ),
-        );
-      }),
 
       // Voice processing is unavailable for mobile platforms.
       if (!PlatformUtils.isMobile) ...[
@@ -858,6 +795,7 @@ Widget _media(BuildContext context, MyProfileController c) {
             text: 'label_echo_cancellation'.l10n,
             value: c.media.value?.echoCancellation ?? false,
             onChanged: c.setEchoCancellation,
+            subtitle: 'label_echo_cancellation_subtitle'.l10n,
           );
         }),
         const SizedBox(height: 16),
@@ -866,6 +804,7 @@ Widget _media(BuildContext context, MyProfileController c) {
             text: 'label_auto_gain_control'.l10n,
             value: c.media.value?.autoGainControl ?? false,
             onChanged: c.setAutoGainControl,
+            subtitle: 'label_auto_gain_control_subtitle'.l10n,
           );
         }),
 
@@ -894,6 +833,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               text: 'label_high_pass_filter'.l10n,
               value: c.media.value?.highPassFilter ?? false,
               onChanged: c.setHighPassFilter,
+              subtitle: 'label_high_pass_filter_subtitle'.l10n,
             );
           }),
           const SizedBox(height: 20),
@@ -936,6 +876,74 @@ Widget _media(BuildContext context, MyProfileController c) {
             );
           }),
         ],
+
+        SizedBox(height: 20),
+        LineDivider('label_hotkey'.l10n),
+        SizedBox(height: 16),
+        Obx(() {
+          final HotKey key =
+              c.settings.value?.muteHotKey ?? MuteHotKeyExtension.defaultHotKey;
+
+          final Iterable<String> modifiers = (key.modifiers ?? [])
+              .map(
+                (e) => e.physicalKeys.map((e) {
+                  return KeyboardKeyToStringExtension.labels[e] ??
+                      e.debugName ??
+                      'question_mark'.l10n;
+                }),
+              )
+              .expand((e) => e)
+              .toSet();
+
+          final String keys =
+              KeyboardKeyToStringExtension.labels[key.physicalKey] ??
+              key.physicalKey.debugName ??
+              'label_unknown'.l10n;
+
+          return FieldButton(
+            headline: Text(
+              'label_mute_slash_unmute_microphone'.l10n,
+              style: c.hotKeyRecording.value
+                  ? style.fonts.normal.regular.primary
+                  : style.fonts.normal.regular.secondary,
+            ),
+            style: c.hotKeyRecording.value
+                ? style.fonts.normal.regular.primary
+                : style.fonts.normal.regular.onBackground,
+            onPressed: c.toggleHotKey,
+            border: c.hotKeyRecording.value
+                ? BorderSide(color: style.colors.primary, width: 1)
+                : null,
+            child: Row(
+              children: [
+                if (c.hotKeyRecording.value)
+                  Expanded(
+                    child: Text(
+                      'label_key_plus_key_by_default'.l10nfmt({
+                        'modifier': PlatformUtils.isMacOS ? '⌥' : 'Alt',
+                        'key': 'M',
+                      }),
+                      textAlign: TextAlign.left,
+                      style: style.fonts.normal.regular.secondary,
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: Text(
+                      [...modifiers, keys].join('space_plus_space'.l10n),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                Text(
+                  c.hotKeyRecording.value
+                      ? 'btn_cancel'.l10n
+                      : 'btn_change'.l10n,
+                  style: style.fonts.normal.regular.primary,
+                ),
+              ],
+            ),
+          );
+        }),
       ],
     ],
   );

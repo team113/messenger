@@ -129,9 +129,6 @@ btn_call_video_on_desc =
     Включить
     камеру
 btn_change = Изменить
-btn_change_account_desc =
-    Сменить
-    аккаунт
 btn_change_password = Изменить пароль
 btn_change_status = Изменить статус
 btn_check_for_updates = Проверить наличие обновлений
@@ -456,8 +453,8 @@ label_account_created = Аккаунт создан
 label_account_may_be_lost = Аккаунт может быть утерян
 label_account_settings = Настройки аккаунта
 label_active_account = Онлайн
-label_active_devices = Активные устройства
-label_active_sessions = Активные сессии
+label_active_devices = Активные сессии
+label_active_sessions = Проверьте входы в аккаунт
 label_add_account = Добавить аккаунт
 label_add_email = Добавить e-mail
 label_add_email_confirmation_sent = Одноразовый код был отправлен на Ваши e-mail'ы. Если Вы не получили e-mail, проверьте введённые данные или папку "Спам".
@@ -529,6 +526,7 @@ label_audio_call = Аудиозвонок{$by ->
         *[other] {" "}от {$by}
     }
 label_auto_gain_control = Авторегулировка громкости
+label_auto_gain_control_subtitle = Автоматическая регулировка громкости микрофона
 label_avatar_removed = {$author} удалил(а) аватар
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}удалил(а) аватар
@@ -636,7 +634,7 @@ label_direct_chat_link = Пригласить в группу
 label_direct_chat_link_in_chat_description = Пользователи, перешедшие по ссылке на группу, автоматически становятся полноправными участниками группы.
 label_discard_changes_question = Отменить изменения
 label_download = Скачать
-label_download_and_update = Скачать и обновить
+label_download_and_update = Установить приложение
 label_download_path = Путь для загрузок
 label_downloading = Скачивается
 label_draft = Черновик
@@ -644,6 +642,7 @@ label_duration_hour_short = ч
 label_duration_minute_short = м
 label_duration_second_short = с
 label_echo_cancellation = Эхоподавление
+label_echo_cancellation_subtitle = Удаляет эхо из исходящего аудио сигнала
 label_editing = Редактирование
 label_email = E-mail
 label_email_or_phone_not_set1 = E-mail не добавлен.{" "}
@@ -685,6 +684,7 @@ label_hidden_chats = Скрытые чаты
 label_hide_chats = Скрыть чат(ы)
 label_hide_chats_modal_description = Чат будет перенесён в список "скрытые чаты"
 label_high_pass_filter = Фильтр высоких частот
+label_high_pass_filter_subtitle = Отрезает низкие частоты для снижения уровня шума
 label_hotkey = Горячие клавиши
 label_id = ID
 label_identifier = Идентификатор
@@ -705,7 +705,7 @@ label_introduction_description =
     Для сохранения доступа к Вашему аккаунту, установите пароль и/или e-mail.
 label_introduction_description_email = E-mail не добавлен. Если вы забудете пароль, доступ к аккаунту будет утерян.
 label_introduction_for_one_time = Чтобы не потерять доступ к аккаунту, задайте пароль, логин или e-mail в настройках Вашего профиля.
-label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
+label_ios_android_windows_macos_linux = На телефоны и десктоп
 label_b = {$amount} Б
 label_kb = {$amount} КБ
 label_mb = {$amount} МБ
@@ -719,7 +719,7 @@ label_language_entry = {$code}, {$name}
 label_latest_version_is_installed = Установлена последняя версия
 label_leave_group = Покинуть группу
 label_link_to_chat = Ссылка на Вас
-label_linked_devices = Связанные устройства
+label_linked_devices = Активные сессии
 label_login = Логин
 label_login_example = your_unique_login
 label_login_options = Способы входа
@@ -810,6 +810,7 @@ label_personal_data_deletion_description5 =
 label_photos_semicolon_amount = Фото: {$amount}
 label_presence_away = Отошёл
 label_presence_present = Онлайн
+label_privacy_policy = Политика Конфиденциальности
 label_profile = Профиль
 label_public_section_hint = Аватар, имя, о Вас, ...
 label_reason = Причина
@@ -938,11 +939,11 @@ label_tech_stack_frontend_developer =
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.
 label_terminate_sessions = Завершить сессию(-ии)
-label_terms_and_privacy_policy = Условия и Политика конфиденциальности
+label_terms_and_privacy_policy = Условия и Положения
 label_text_status = Текстовый статус
 label_text_status_description = Максимум 33 символа
 label_text_status_hint = Текстовый статус. Макс. 33 символа.
-label_this_device = Это устройство
+label_this_device = Эта сессия
 label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
 label_typing = Печатает
 label_unknown = Неизвестно

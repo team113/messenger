@@ -129,9 +129,6 @@ btn_call_video_on_desc =
     Activar
     el video
 btn_change = Cambiar
-btn_change_account_desc =
-    Cambiar
-    de cuenta
 btn_change_password = Cambiar la contraseña
 btn_change_status = Cambiar estado
 btn_check_for_updates = Verificar actualizaciones
@@ -453,8 +450,8 @@ label_account_created = La cuenta ha sido creada
 label_account_may_be_lost = La cuenta puede perderse
 label_account_settings = Configuración de la cuenta
 label_active_account = Online
-label_active_devices = Dispositivos activos
-label_active_sessions = Sesiones activas
+label_active_devices = Sesiones activas
+label_active_sessions = Verificar los inicios de sesión de la cuenta
 label_add_account = Agregar una cuenta
 label_add_email = Agregar un e-mail
 label_add_email_confirmation_sent = Código desechable enviado a sus e-mails. Si no los ha recibido, revise los datos ingresados o carpeta de spam.
@@ -517,6 +514,7 @@ label_audio_call =
         *[other] {" "}de {$by}
     }
 label_auto_gain_control = Auto gain control
+label_auto_gain_control_subtitle = Ajusta automáticamente el volumen del micrófono
 label_avatar_removed = {$author} eliminó el avatar
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}eliminó el avatar
@@ -624,7 +622,7 @@ label_direct_chat_link = Invitar al grupo
 label_direct_chat_link_in_chat_description = Los usuarios que siguen el enlace del grupo serán miembros plenos del grupo automáticamente.
 label_discard_changes_question = Descartar los cambios
 label_download = Descargar
-label_download_and_update = Descargar y actualizar
+label_download_and_update = Instalar aplicación
 label_download_path = Ruta de descarga
 label_downloading = Descargando
 label_draft = Borrador
@@ -632,6 +630,7 @@ label_duration_hour_short = h
 label_duration_minute_short = m
 label_duration_second_short = s
 label_echo_cancellation = Cancelación de eco
+label_echo_cancellation_subtitle = Elimina los ecos de la señal de audio saliente
 label_editing = Edición
 label_email = E-mail
 label_email_deleted = E-mail eliminado
@@ -674,6 +673,7 @@ label_hidden_chats = Chats ocultos
 label_hide_chats = Ocultar chat(s)
 label_hide_chats_modal_description = El chat será movido a la lista de "Chats ocultos"
 label_high_pass_filter = Filtro paso alto
+label_high_pass_filter_subtitle = Corta las frecuencias bajas para reducir el nivel de ruido
 label_hotkey = Tecla de acceso rápido
 label_id = ID
 label_identifier = Identificador
@@ -694,7 +694,7 @@ label_introduction_description =
     Para guardar el acceso a su cuenta, configure una contraseña y/o e-mail.
 label_introduction_description_email = E-mail no agregado. El acceso a su cuenta se perderá en caso de olvidar la contraseña.
 label_introduction_for_one_time = Para guardar el acceso a su cuenta, establezca una contraseña, un nombre de usuario o un correo electrónico en la configuración de su perfil.
-label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
+label_ios_android_windows_macos_linux = Para móviles y computadoras
 label_b = {$amount} B
 label_kb = {$amount} KB
 label_mb = {$amount} MB
@@ -708,7 +708,7 @@ label_language_entry = {$code}, {$name}
 label_latest_version_is_installed = La última versión está instalada
 label_leave_group = Salir del grupo
 label_link_to_chat = Enlace hacia Usted
-label_linked_devices = Dispositivos vinculados
+label_linked_devices = Sesiones activas
 label_login = Usuario
 label_login_example = nombre_de_usuario_unico
 label_login_options = Opciones para ingresar
@@ -799,6 +799,7 @@ label_personal_data_deletion_description5 =
 label_photos_semicolon_amount = Fotos: {$amount}
 label_presence_away = Away
 label_presence_present = En línea
+label_privacy_policy = Política de Privacidad
 label_profile = Perfil
 label_public_section_hint = Avatar, nombre, a cerca de Usted, ...
 label_reason = Motivo
@@ -924,11 +925,11 @@ label_tech_stack_frontend_developer =
     - GraphQL and Artemis - comunicación con el backend;
     - Gherkin - pruebas E2E.
 label_terminate_sessions = Terminar sesión(es)
-label_terms_and_privacy_policy = Condiciones y Política de Privacidad
+label_terms_and_privacy_policy = Términos y Condiciones
 label_text_status = Estatus del texto
 label_text_status_description = Hasta 33 caracteres
 label_text_status_hint = Estatus del texto. Máximo 33 símbolos.
-label_this_device = Este dispositivo
+label_this_device = Esta sesión
 label_to_restore_chats_use_search = Para recuperar los chats, utiliza la búsqueda
 label_typing = Escribiendo
 label_unknown = Desconocido

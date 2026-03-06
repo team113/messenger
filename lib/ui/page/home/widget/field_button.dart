@@ -105,13 +105,13 @@ class _FieldButtonState extends State<FieldButton> {
           onPressed: widget.onPressed,
           style:
               widget.style ??
-              style.fonts.normal.regular.onBackground.copyWith(
+              style.fonts.normal.regular.primary.copyWith(
                 // Exception, as [widget.style] may vary.
                 color: widget.onPressed == null
                     ? style.colors.onBackground
                     : widget.warning || widget.danger
                     ? style.colors.onPrimary
-                    : style.colors.onBackground,
+                    : style.colors.primary,
               ),
           height: 46,
           leading: widget.trailing,
