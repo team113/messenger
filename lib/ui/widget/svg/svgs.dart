@@ -1916,14 +1916,14 @@ class SvgIcons {
 
   static const SvgData videoPrevious = SvgData(
     'assets/icons/video_previous.svg',
-    width: 18,
-    height: 21,
+    width: 14 * 1.3,
+    height: 7 * 1.3,
   );
 
   static const SvgData videoNext = SvgData(
     'assets/icons/video_next.svg',
-    width: 18,
-    height: 21,
+    width: 14 * 1.3,
+    height: 7 * 1.3,
   );
 
   static const SvgData videoShare = SvgData(
@@ -1952,8 +1952,8 @@ class SvgIcons {
 
   static const SvgData mediaGallery = SvgData(
     'assets/icons/media_gallery.svg',
-    width: 20,
-    height: 20,
+    width: 16,
+    height: 16,
   );
 
   static const SvgData mediaPopup = SvgData(
