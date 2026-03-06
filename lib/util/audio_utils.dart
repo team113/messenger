@@ -23,6 +23,8 @@ import 'package:just_audio/just_audio.dart' as ja;
 import 'package:mutex/mutex.dart';
 import 'package:uuid/uuid.dart';
 
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/pubspec.g.dart';
 import '/util/media_utils.dart';
 import 'log.dart';
@@ -675,4 +677,12 @@ extension AudioSourceExtension on AudioSource {
     AudioSourceKind.file => (this as FileAudioSource).file,
     AudioSourceKind.url => (this as UrlAudioSource).url,
   };
+}
+
+/// Unique identifier for audio file.
+class AudioId extends NewType<String> {
+  AudioId(super.value);
+
+  AudioId.fromMessage(ChatItemId messageId, AttachmentId attachmentId)
+    : super('${messageId.val}_${attachmentId.val}');
 }

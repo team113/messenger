@@ -23,7 +23,6 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 
-import '/domain/model/chat_item.dart';
 import '/domain/service/disposable_service.dart';
 import '/util/audio_utils.dart';
 import '/util/backoff.dart';
@@ -36,7 +35,7 @@ class AudioWorker extends Dependency {
   AudioWorker();
 
   /// Unique identifier of the currently active audio, if any.
-  final Rxn<ChatItemId> activeAudioId = Rxn<ChatItemId>();
+  final Rxn<AudioId> activeAudioId = Rxn<AudioId>();
 
   /// Whether the audio is currently playing.
   final RxBool isPlaying = RxBool(false);
@@ -113,7 +112,7 @@ class AudioWorker extends Dependency {
   /// If the audio with the same [id] is already active, it resumes playback.
   /// Otherwise, it sets the new [source] and starts playback.
   Future<void> play(
-    ChatItemId id,
+      AudioId id,
     AudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {

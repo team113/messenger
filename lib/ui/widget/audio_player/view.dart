@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 
 import '../animated_switcher.dart';
 import '../widget_button.dart';
-import '/domain/model/chat_item.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/util/audio_utils.dart';
@@ -43,7 +42,7 @@ class AudioPlayer extends StatelessWidget {
   final AudioSource source;
 
   /// Unique identifier of the audio.
-  final ChatItemId id;
+  final AudioId id;
 
   /// Name of the audio file.
   final String filename;
@@ -165,6 +164,7 @@ class AudioPlayer extends StatelessWidget {
         opacity: c.isLoading ? 0.0 : 1.0,
         duration: const Duration(milliseconds: 300),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SliderTheme(
               data: SliderTheme.of(context).copyWith(
@@ -191,18 +191,9 @@ class AudioPlayer extends StatelessWidget {
                 ),
               ),
             ),
-            Row(
-              children: [
-                Text(
-                  c.position.hhMmSs(),
-                  style: style.fonts.smaller.regular.secondary,
-                ),
-                Text(' / ', style: style.fonts.smaller.regular.secondary),
-                Text(
-                  c.duration.hhMmSs(),
-                  style: style.fonts.smaller.regular.secondary,
-                ),
-              ],
+            Text(
+              '${c.position.hhMmSs()} / ${c.duration.hhMmSs()}',
+              style: style.fonts.smaller.regular.secondary,
             ),
           ],
         ),

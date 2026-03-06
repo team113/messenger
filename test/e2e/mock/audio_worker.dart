@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/service/disposable_service.dart';
 import 'package:messenger/ui/worker/audio.dart';
 import 'package:messenger/util/audio_utils.dart';
@@ -26,7 +25,7 @@ import 'package:messenger/util/audio_utils.dart';
 /// Mocked [AudioWorker] to use in the tests.
 class MockAudioWorker extends Dependency implements AudioWorker {
   @override
-  final Rxn<ChatItemId> activeAudioId = Rxn<ChatItemId>(null);
+  final Rxn<AudioId> activeAudioId = Rxn<AudioId>(null);
 
   @override
   final RxBool isPlaying = RxBool(false);
@@ -42,7 +41,7 @@ class MockAudioWorker extends Dependency implements AudioWorker {
 
   @override
   Future<void> play(
-    ChatItemId id,
+      AudioId id,
     AudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {

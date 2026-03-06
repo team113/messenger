@@ -57,6 +57,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/audio_utils.dart';
 import '/util/fixed_timer.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -333,7 +334,7 @@ class ChatItemWidget extends StatefulWidget {
     Attachment e, {
     void Function(FileAttachment)? onFileTap,
     Future<void> Function()? onAttachmentError,
-    ChatItemId? id,
+    AudioId? id,
   }) {
     return DataAttachment(
       e,
@@ -913,7 +914,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     (e) => [
                       ChatItemWidget.fileAttachment(
                         e,
-                        id: widget.item.value.id,
+                        id: AudioId.fromMessage(widget.item.value.id, e.id),
                         onFileTap: widget.onFileTap,
                         onAttachmentError: () async => await widget
                             .onAttachmentError

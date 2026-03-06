@@ -22,7 +22,6 @@ import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -31,7 +30,7 @@ import '/ui/widget/audio_player/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
-import '/util/audio_utils.dart' show AudioSource;
+import '/util/audio_utils.dart' show AudioSource, AudioId;
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -47,7 +46,7 @@ class DataAttachment extends StatefulWidget {
   final Attachment attachment;
 
   /// Unique id of the attachment in chat.
-  final ChatItemId id;
+  final AudioId id;
 
   /// Callback, called when this [DataAttachment] is pressed.
   final void Function()? onPressed;

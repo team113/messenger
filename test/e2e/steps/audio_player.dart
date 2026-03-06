@@ -15,16 +15,19 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' show Slider;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
+import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/worker/audio.dart';
+import 'package:messenger/util/audio_utils.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
@@ -35,19 +38,13 @@ import '../world/custom_world.dart';
 /// - When I toggle play for "test.mp3" audio
 final StepDefinitionGeneric toggleAudioPlay = when1<String, CustomWorld>(
   'I toggle play for {string} audio',
-  (name, context) async {
+  (fileName, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-
-    final ChatItem item = chat!.messages.map((e) => e.value).firstWhere((i) {
-      if (i is! ChatMessage) return false;
-      return i.attachments.any((a) => a.filename == name);
-    });
+    final AudioId id = _findAudioId(fileName);
 
     Finder toggleButton = context.world.appDriver.findByKeySkipOffstage(
-      'PlayerButton${item.id.val}',
+      'PlayerButton$id',
     );
     await context.world.appDriver.nativeDriver.tap(toggleButton);
   },
@@ -62,18 +59,11 @@ final StepDefinitionGeneric audioIsPlaying = then1<String, CustomWorld>(
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-
-    final ChatItem item = chat!.messages.map((e) => e.value).firstWhere((i) {
-      if (i is! ChatMessage) return false;
-      return i.attachments.any((a) => a.filename == name);
-    });
-
     final AudioWorker worker = Get.find<AudioWorker>();
+    final AudioId id = _findAudioId(name);
 
     bool isPlaying =
-        (worker.activeAudioId.value == item.id && worker.isPlaying.value);
+        (worker.activeAudioId.value == id && worker.isPlaying.value);
 
     expect(isPlaying, true);
   },
@@ -88,19 +78,12 @@ final StepDefinitionGeneric audioIsPaused = then1<String, CustomWorld>(
   (name, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-
-    final ChatItem item = chat!.messages.map((e) => e.value).firstWhere((i) {
-      if (i is! ChatMessage) return false;
-      return i.attachments.any((a) => a.filename == name);
-    });
-
     final AudioWorker worker = Get.find<AudioWorker>();
+    final AudioId id = _findAudioId(name);
 
     bool isPaused =
-        (worker.activeAudioId.value == item.id && !worker.isPlaying.value) ||
-        (worker.activeAudioId.value != item.id);
+        (worker.activeAudioId.value == id && !worker.isPlaying.value) ||
+        (worker.activeAudioId.value != id);
 
     expect(isPaused, true);
   },
@@ -116,18 +99,10 @@ final StepDefinitionGeneric audioSliderPositionChangesWhilePlaying =
       (name, context) async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-
-        final ChatItem item = chat!.messages.map((e) => e.value).firstWhere((
-          i,
-        ) {
-          if (i is! ChatMessage) return false;
-          return i.attachments.any((a) => a.filename == name);
-        });
+        final AudioId id = _findAudioId(name);
 
         final Finder slider = context.world.appDriver.findByKeySkipOffstage(
-          'AudioSlider${item.id.val}',
+          'AudioSlider$id',
         );
         expect(slider.evaluate().isNotEmpty, true);
 
@@ -160,3 +135,22 @@ final StepDefinitionGeneric audioPositionIs = then2<String, int, CustomWorld>(
     );
   },
 );
+
+/// Finds [AudioId] of the provided [fileName].
+AudioId _findAudioId(String fileName) {
+  final RxChat? chat = Get.find<ChatService>()
+      .chats[ChatId(router.route.split('/').lastOrNull ?? '')];
+
+  final ChatItem item = chat!.messages.map((e) => e.value).firstWhere((i) {
+    if (i is! ChatMessage) return false;
+    return i.attachments.any((a) => a.filename == fileName);
+  });
+
+  final Attachment? attachment = chat!.messages
+      .map((e) => e.value)
+      .whereType<ChatMessage>()
+      .expand((e) => e.attachments)
+      .firstWhereOrNull((a) => a.filename == fileName);
+
+  return AudioId.fromMessage(item.id, attachment!.id);
+}

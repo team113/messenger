@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/domain/model/chat_item.dart';
 import '/ui/worker/audio.dart';
 import '/util/audio_utils.dart';
 
@@ -32,8 +31,8 @@ class AudioPlayerController extends GetxController {
     this.onForbidden,
   });
 
-  /// Unique identifier for audio attachment.
-  final ChatItemId id;
+  /// Unique identifier for audio.
+  final AudioId id;
 
   /// [AudioSource] of audio data itself.
   final AudioSource source;
