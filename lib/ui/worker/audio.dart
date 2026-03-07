@@ -16,13 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart' as ja;
+import 'package:video_player/video_player.dart';
 
+import '../page/player/controller.dart';
 import '/domain/service/disposable_service.dart';
 import '/util/audio_utils.dart';
 import '/util/backoff.dart';
@@ -52,6 +53,12 @@ class AudioWorker extends Dependency {
   /// Underlying audio player instance.
   final ja.AudioPlayer _player = ja.AudioPlayer();
 
+  /// [VideoPlayerController] used for Apple URL audio playback.
+  VideoPlayerController? _videoPlayer;
+
+  /// Reactive [VideoPlayerController].
+  ReactivePlayerController? _reactiveVideoController;
+
   /// Subscription to the audio intent (music mode).
   StreamSubscription? _audioIntentSubscription;
 
@@ -66,6 +73,10 @@ class AudioWorker extends Dependency {
 
   /// [CancelToken] for cancelling the audio header fetching.
   CancelToken? _headerToken;
+
+  /// Whether the [VideoPlayerController] should be used for audio playback.
+  final bool _needsVideoPlayer =
+      (PlatformUtils.isMacOS || PlatformUtils.isIOS) && !PlatformUtils.isWeb;
 
   @override
   void onInit() {
@@ -101,6 +112,8 @@ class AudioWorker extends Dependency {
       s.cancel();
     }
     _player.dispose();
+
+    _disposeVideoPlayer();
     _audioIntentSubscription?.cancel();
     _cancelToken?.cancel();
     _headerToken?.cancel();
@@ -112,7 +125,7 @@ class AudioWorker extends Dependency {
   /// If the audio with the same [id] is already active, it resumes playback.
   /// Otherwise, it sets the new [source] and starts playback.
   Future<void> play(
-      AudioId id,
+    AudioId id,
     AudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
@@ -123,7 +136,11 @@ class AudioWorker extends Dependency {
       ).listen((_) {});
 
       if (activeAudioId.value == id) {
-        await _player.play();
+        if (_needsVideoPlayer) {
+          await _videoPlayer?.play();
+        } else {
+          await _player.play();
+        }
       } else {
         await stop();
         activeAudioId.value = id;
@@ -136,14 +153,14 @@ class AudioWorker extends Dependency {
               source,
               onForbidden: onForbidden,
             );
-            final needsLocalDownload =
-                (PlatformUtils.isMacOS || PlatformUtils.isIOS) &&
-                !PlatformUtils.isWeb;
-            if (needsLocalDownload) {
-              await _setDownloadedAudioSource(id.val, reachable);
-            } else {
-              await _player.setAudioSource(reachable.source);
+
+            if (_needsVideoPlayer) {
+              await _setVideoPlayerAudioSource(reachable);
+              await _videoPlayer?.play();
+              return;
             }
+
+            await _player.setAudioSource(reachable.source);
           } on OperationCanceledException {
             return;
           } finally {
@@ -164,7 +181,13 @@ class AudioWorker extends Dependency {
   }
 
   /// Pauses the current playback.
-  Future<void> pause() => _player.pause();
+  Future<void> pause() async {
+    if (_needsVideoPlayer) {
+      await _videoPlayer?.pause();
+    } else {
+      await _player.pause();
+    }
+  }
 
   /// Stops the current playback, clears [activeAudioId], cancels
   /// [_audioIntentSubscription] and tokens.
@@ -173,6 +196,8 @@ class AudioWorker extends Dependency {
     _headerToken?.cancel();
     _cancelToken = null;
     _headerToken = null;
+    await _videoPlayer?.pause();
+    await _disposeVideoPlayer();
     await _player.stop();
     activeAudioId.value = null;
     position.value = Duration.zero;
@@ -182,7 +207,14 @@ class AudioWorker extends Dependency {
   }
 
   /// Seeks to the specified [position] in the active audio.
-  Future<void> seek(Duration position) async => _player.seek(position);
+  Future<void> seek(Duration position) async {
+    if (_needsVideoPlayer) {
+      await _videoPlayer?.pause();
+      await _videoPlayer?.seekTo(position);
+    } else {
+      await _player.seek(position);
+    }
+  }
 
   /// Initializes the [_routeSubscription].
   Future<void> _initialize() async {
@@ -221,36 +253,33 @@ class AudioWorker extends Dependency {
     await _player.pause();
   }
 
-  /// Downloads [source] and sets it as a local file path in [_player].
-  Future<void> _setDownloadedAudioSource(
-    String id,
-    UrlAudioSource source,
-  ) async {
-    _cancelToken?.cancel();
-    _cancelToken = CancelToken();
+  /// Initializes [_videoPlayer] for the provided URL [source].
+  Future<void> _setVideoPlayerAudioSource(UrlAudioSource source) async {
+    await _videoPlayer?.pause();
+    await _disposeVideoPlayer();
 
-    await Backoff.run(
-      () async {
-        final response = await (await PlatformUtils.dio).get(
-          source.url,
-          options: Options(responseType: ResponseType.bytes),
-          cancelToken: _cancelToken,
-        );
-
-        final dir = await PlatformUtils.temporaryDirectory;
-        final filePath = '${dir.path}/audio_$id.mp3';
-        // TODO: add caching
-        //final exists = await File(filePath).exists();
-
-        final file = File(filePath);
-        await file.writeAsBytes(response.data);
-        await _player.setFilePath(filePath);
-      },
-      cancel: _cancelToken,
-      retryIf: (e) =>
-          e is! DioException ||
-          e.response?.statusCode != 403 && e.isNetworkRelated,
+    _videoPlayer = VideoPlayerController.networkUrl(
+      Uri.parse(source.url),
+      videoPlayerOptions: VideoPlayerOptions(
+        mixWithOthers: true,
+        allowBackgroundPlayback: true,
+      ),
     );
+
+    _reactiveVideoController = ReactivePlayerController(_videoPlayer!);
+
+    _subscriptions.addAll([
+      _reactiveVideoController!.isPlaying.listen((v) => isPlaying.value = v),
+      _reactiveVideoController!.isBuffering.listen((v) => isLoading.value = v),
+      _reactiveVideoController!.position.listen((v) => position.value = v),
+      _reactiveVideoController!.duration.listen((v) => duration.value = v),
+      _reactiveVideoController!.isCompleted.listen((completed) {
+        if (completed) _onPlaybackCompleted();
+      }),
+    ]);
+    await _videoPlayer?.initialize();
+    await _videoPlayer?.setLooping(false);
+    await _videoPlayer?.setVolume(1);
   }
 
   /// Fetches the header of [source] to ensure that the URL is reachable.
@@ -284,6 +313,8 @@ class AudioWorker extends Dependency {
         return current;
       } on DioException catch (e) {
         if (e.response?.statusCode == 403 && !retriedAfterForbidden) {
+          _headerToken?.cancel();
+
           final AudioSource? refreshed = await onForbidden?.call();
           if (refreshed is UrlAudioSource) {
             current = refreshed;
@@ -294,5 +325,13 @@ class AudioWorker extends Dependency {
         rethrow;
       }
     }
+  }
+
+  /// Disposes the currently assigned [_videoPlayer], if any.
+  Future<void> _disposeVideoPlayer() async {
+    _reactiveVideoController?.dispose();
+    _reactiveVideoController = null;
+    _videoPlayer?.dispose();
+    _videoPlayer = null;
   }
 }

@@ -146,7 +146,7 @@ AudioId _findAudioId(String fileName) {
     return i.attachments.any((a) => a.filename == fileName);
   });
 
-  final Attachment? attachment = chat!.messages
+  final Attachment? attachment = chat.messages
       .map((e) => e.value)
       .whereType<ChatMessage>()
       .expand((e) => e.attachments)
