@@ -520,7 +520,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     (e) => [
                       ChatItemWidget.fileAttachment(
                         e,
-                        id: AudioId.fromMessage(msg.id, e.id),
+                        id:
+                            (e is FileAttachment && e.isAudio) ||
+                                (e is LocalAttachment && e.file.isAudio)
+                            ? AudioId.fromMessage(msg.id, e.id)
+                            : null,
                         onFileTap: (a) => widget.onFileTap?.call(msg, a),
                         onAttachmentError: () async =>
                             await widget.onAttachmentError?.call(msg),
@@ -809,7 +813,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       (e) => [
                         ChatItemWidget.fileAttachment(
                           e,
-                          id: AudioId.fromMessage(item.id, e.id),
+                          id:
+                              (e is FileAttachment && e.isAudio) ||
+                                  (e is LocalAttachment && e.file.isAudio)
+                              ? AudioId.fromMessage(item.id, e.id)
+                              : null,
                           onFileTap: (a) => widget.onFileTap?.call(item, a),
                           onAttachmentError: () async =>
                               await widget.onAttachmentError?.call(item),

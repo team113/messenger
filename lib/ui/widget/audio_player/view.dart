@@ -216,11 +216,9 @@ Widget _timeline(BuildContext context, AudioPlayerController c) {
               ? Container(
                   key: const ValueKey('duration_skeleton'),
                   width: 27,
-                  // Approximate duration text width
-                  height: 12,
-                  // Approximate font height
+                  height: 10,
                   decoration: BoxDecoration(
-                    color: style.colors.backgroundAuxiliaryLighter,
+                    color: style.colors.onSecondaryOpacity20,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 )

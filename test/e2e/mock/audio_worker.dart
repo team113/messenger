@@ -75,7 +75,10 @@ class MockAudioWorker extends Dependency implements AudioWorker {
 
   @override
   Future<Duration> extractDuration(AudioSource source, {onForbidden}) {
-    throw UnimplementedError();
+    return Future.delayed(
+      const Duration(milliseconds: 100),
+      () => const Duration(minutes: 2),
+    );
   }
 
   /// Fakes progress via increasing [position.value].
