@@ -114,9 +114,7 @@ class AudioWorker extends Dependency {
     for (final s in _subscriptions) {
       s.cancel();
     }
-    for (final s in _videoPlayerSubscriptions) {
-      s.cancel();
-    }
+    _subscriptions.clear();
     _player.dispose();
     _disposeVideoPlayer();
     _audioIntentSubscription?.cancel();

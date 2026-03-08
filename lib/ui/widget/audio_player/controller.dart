@@ -134,7 +134,7 @@ class AudioPlayerController extends GetxController {
     await _audioWorker.seek(Duration(milliseconds: ms.toInt()));
   }
 
-  /// Stops playback.
+  /// Stops playback and clears audio data.
   Future<void> stop() async {
     await _audioWorker.stop();
   }
