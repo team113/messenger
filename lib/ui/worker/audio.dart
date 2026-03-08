@@ -23,8 +23,8 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 import 'package:video_player/video_player.dart';
 
-import '../page/player/controller.dart';
 import '/domain/service/disposable_service.dart';
+import '/ui/page/player/controller.dart';
 import '/util/audio_utils.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
@@ -141,50 +141,42 @@ class AudioWorker extends Dependency {
       ).listen((_) {});
 
       if (activeAudioId.value == id) {
+        _needsVideoPlayer ? await _videoPlayer?.play() : await _player.play();
+        return;
+      }
+
+      await stop();
+      activeAudioId.value = id;
+      isLoading.value = true;
+
+      ja.AudioSource targetSource = source.source;
+
+      if (source is UrlAudioSource) {
+        _headerToken?.cancel();
+        _headerToken = CancelToken();
+        final reachable = await _ensureReachable(
+          source,
+          onForbidden: onForbidden,
+          cancelToken: _headerToken,
+        );
+        targetSource = reachable.source;
+
         if (_needsVideoPlayer) {
+          await _setVideoPlayerAudioSource(reachable);
           await _videoPlayer?.play();
-        } else {
-          await _player.play();
+          return;
         }
-      } else {
-        await stop();
-        activeAudioId.value = id;
-
-        if (source is UrlAudioSource) {
-          isLoading.value = true;
-
-          try {
-            _headerToken?.cancel();
-            _headerToken = CancelToken();
-            final reachable = await _ensureReachable(
-              source,
-              onForbidden: onForbidden,
-              cancelToken: _headerToken,
-            );
-
-            if (_needsVideoPlayer) {
-              await _setVideoPlayerAudioSource(reachable);
-              await _videoPlayer?.play();
-              return;
-            }
-
-            await _player.setAudioSource(reachable.source);
-          } on OperationCanceledException {
-            return;
-          } finally {
-            isLoading.value = false;
-          }
-        } else {
-          await _player.setAudioSource(source.source);
-        }
-
-        await _player.play();
       }
+
+      await _player.setAudioSource(targetSource);
+      await _player.play();
+    } on OperationCanceledException {
+      return;
     } catch (e) {
-      if (e is! OperationCanceledException) {
-        Log.error('Failed to play audio: $e', '$runtimeType');
-        await stop();
-      }
+      Log.error('Failed to play audio: $e', '$runtimeType');
+      await stop();
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -209,6 +201,7 @@ class AudioWorker extends Dependency {
     await _player.stop();
     activeAudioId.value = null;
     position.value = Duration.zero;
+    duration.value = Duration.zero;
     await _audioIntentSubscription?.cancel();
     _audioIntentSubscription = null;
   }
@@ -328,7 +321,6 @@ class AudioWorker extends Dependency {
     ]);
     await _videoPlayer?.initialize();
     await _videoPlayer?.setLooping(false);
-    await _videoPlayer?.setVolume(1);
   }
 
   /// Fetches the header of [source] to ensure that the URL is reachable.
