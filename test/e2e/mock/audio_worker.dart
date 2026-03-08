@@ -41,7 +41,7 @@ class MockAudioWorker extends Dependency implements AudioWorker {
 
   @override
   Future<void> play(
-      AudioId id,
+    AudioId id,
     AudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
@@ -71,6 +71,11 @@ class MockAudioWorker extends Dependency implements AudioWorker {
     isPlaying.value = false;
     activeAudioId.value = null;
     position.value = const Duration();
+  }
+
+  @override
+  Future<Duration> extractDuration(AudioSource source, {onForbidden}) {
+    throw UnimplementedError();
   }
 
   /// Fakes progress via increasing [position.value].

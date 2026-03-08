@@ -90,17 +90,23 @@ class AudioPlayer extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Obx(() {
-                        return AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          child: c.isActive
-                              ? KeyedSubtree(
-                                  key: const ValueKey('timeline'),
-                                  child: _timeline(context, c),
-                                )
-                              : const SizedBox(
-                                  key: ValueKey('empty'),
-                                  height: 31,
-                                ),
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              child: c.isActive
+                                  ? KeyedSubtree(
+                                      key: const ValueKey('timeline'),
+                                      child: _slider(context, c),
+                                    )
+                                  : const SizedBox(
+                                      key: ValueKey('empty'),
+                                      height: 17,
+                                    ),
+                            ),
+                            _timeline(context, c),
+                          ],
                         );
                       }),
                     ],
@@ -155,49 +161,76 @@ class AudioPlayer extends StatelessWidget {
     });
   }
 
-  /// Builds a timeline.
-  Widget _timeline(BuildContext context, AudioPlayerController c) {
+  /// Builds a slider.
+  Widget _slider(BuildContext context, AudioPlayerController c) {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      return AnimatedOpacity(
-        opacity: c.isLoading ? 0.0 : 1.0,
-        duration: const Duration(milliseconds: 300),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 2.0,
-                activeTrackColor: style.colors.primary,
-                inactiveTrackColor: style.colors.secondaryHighlightDarkest,
-                thumbColor: style.colors.primary,
-                thumbShape: const RoundSliderThumbShape(
-                  enabledThumbRadius: 5.0,
-                ),
-              ),
-              child: SizedBox(
-                height: 17,
-                child: Slider(
-                  key: Key('AudioSlider${id.val}'),
-                  onChangeStart: (_) => c.onSliderChangeStart(),
-                  onChangeEnd: (v) => c.onSliderChangeEnd(),
-                  value: c.getSliderValue(),
-                  max: c.duration.inMilliseconds.toDouble() > 0
-                      ? c.duration.inMilliseconds.toDouble()
-                      : 1.0,
-                  onChanged: (v) =>
-                      c.position = Duration(milliseconds: v.toInt()),
-                ),
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 2.0,
+              activeTrackColor: style.colors.primary,
+              inactiveTrackColor: style.colors.secondaryHighlightDarkest,
+              thumbColor: style.colors.primary,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+            ),
+            child: SizedBox(
+              height: 17,
+              child: Slider(
+                key: Key('AudioSlider${id.val}'),
+                onChangeStart: (_) => c.onSliderChangeStart(),
+                onChangeEnd: (v) => c.onSliderChangeEnd(),
+                value: c.getSliderValue(),
+                max: c.duration.inMilliseconds.toDouble() > 0
+                    ? c.duration.inMilliseconds.toDouble()
+                    : 1.0,
+                onChanged: (v) =>
+                    c.position = Duration(milliseconds: v.toInt()),
               ),
             ),
-            Text(
-              '${c.position.hhMmSs()} / ${c.duration.hhMmSs()}',
-              style: style.fonts.smaller.regular.secondary,
-            ),
-          ],
-        ),
+          ),
+        ],
       );
     });
   }
+}
+
+/// Builds a timeline.
+Widget _timeline(BuildContext context, AudioPlayerController c) {
+  final style = Theme.of(context).style;
+
+  return Obx(
+    () => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '${c.position.hhMmSs()} / ',
+          style: style.fonts.smaller.regular.secondary,
+        ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: c.isDurationLoading.value
+              ? Container(
+                  key: const ValueKey('duration_skeleton'),
+                  width: 27,
+                  // Approximate duration text width
+                  height: 12,
+                  // Approximate font height
+                  decoration: BoxDecoration(
+                    color: style.colors.backgroundAuxiliaryLighter,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                )
+              : Text(
+                  key: const ValueKey('duration_text'),
+                  c.duration.hhMmSs(),
+                  style: style.fonts.smaller.regular.secondary,
+                ),
+        ),
+      ],
+    ),
+  );
 }

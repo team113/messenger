@@ -40,6 +40,12 @@ class AudioPlayerController extends GetxController {
   /// Indicator whether the view is being hovered.
   final RxBool isHovered = RxBool(false);
 
+  /// Calculated duration of audio.
+  final Rx<Duration> extractedDuration = Rx<Duration>(Duration.zero);
+
+  /// Indicator whether [extractedDuration] is being fetched.
+  final RxBool isDurationLoading = RxBool(true);
+
   /// Indicator whether audio was playing before interaction started.
   bool _wasPlaying = false;
 
@@ -65,7 +71,7 @@ class AudioPlayerController extends GetxController {
   ///
   /// Returns [Duration.zero], if not active.
   Duration get duration =>
-      isActive ? _audioWorker.duration.value : Duration.zero;
+      isActive ? _audioWorker.duration.value : extractedDuration.value;
 
   /// Returns hover state.
   bool get hovered => isHovered.value;
@@ -75,6 +81,20 @@ class AudioPlayerController extends GetxController {
 
   /// Sets playback position in [AudioWorker].
   set position(Duration v) => _audioWorker.position.value = v;
+
+  @override
+  void onInit() async {
+    super.onInit();
+    isDurationLoading.value = true;
+    try {
+      extractedDuration.value = await _audioWorker.extractDuration(
+        source,
+        onForbidden: onForbidden,
+      );
+    } finally {
+      isDurationLoading.value = false;
+    }
+  }
 
   /// Callback, called when [source] fetch fails with `403` status code.
   final FutureOr<AudioSource?> Function()? onForbidden;

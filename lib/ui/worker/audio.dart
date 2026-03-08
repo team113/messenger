@@ -68,6 +68,9 @@ class AudioWorker extends Dependency {
   /// List of [_player] subscriptions.
   final List<StreamSubscription> _subscriptions = [];
 
+  /// List of [_videoPlayer] subscriptions.
+  final List<StreamSubscription> _videoPlayerSubscriptions = [];
+
   /// [CancelToken] for cancelling the audio download.
   CancelToken? _cancelToken;
 
@@ -111,8 +114,10 @@ class AudioWorker extends Dependency {
     for (final s in _subscriptions) {
       s.cancel();
     }
+    for (final s in _videoPlayerSubscriptions) {
+      s.cancel();
+    }
     _player.dispose();
-
     _disposeVideoPlayer();
     _audioIntentSubscription?.cancel();
     _cancelToken?.cancel();
@@ -149,9 +154,12 @@ class AudioWorker extends Dependency {
           isLoading.value = true;
 
           try {
+            _headerToken?.cancel();
+            _headerToken = CancelToken();
             final reachable = await _ensureReachable(
               source,
               onForbidden: onForbidden,
+              cancelToken: _headerToken,
             );
 
             if (_needsVideoPlayer) {
@@ -201,7 +209,6 @@ class AudioWorker extends Dependency {
     await _player.stop();
     activeAudioId.value = null;
     position.value = Duration.zero;
-    duration.value = Duration.zero;
     await _audioIntentSubscription?.cancel();
     _audioIntentSubscription = null;
   }
@@ -209,10 +216,52 @@ class AudioWorker extends Dependency {
   /// Seeks to the specified [position] in the active audio.
   Future<void> seek(Duration position) async {
     if (_needsVideoPlayer) {
-      await _videoPlayer?.pause();
       await _videoPlayer?.seekTo(position);
     } else {
       await _player.seek(position);
+    }
+  }
+
+  /// Returns the duration of the provided [source].
+  Future<Duration> extractDuration(
+    AudioSource source, {
+    FutureOr<AudioSource?> Function()? onForbidden,
+  }) async {
+    try {
+      ja.AudioSource targetSource = source.source;
+      if (source is UrlAudioSource) {
+        final reachable = await _ensureReachable(
+          source,
+          onForbidden: onForbidden,
+        );
+        targetSource = reachable.source;
+
+        if (_needsVideoPlayer) {
+          final controller = VideoPlayerController.networkUrl(
+            Uri.parse(reachable.url),
+          );
+          try {
+            await controller.initialize();
+            final duration = controller.value.duration;
+            return duration;
+          } finally {
+            await controller.dispose();
+          }
+        }
+      }
+
+      final player = ja.AudioPlayer();
+      try {
+        final duration = await player.setAudioSource(targetSource);
+        return duration ?? Duration.zero;
+      } finally {
+        await player.dispose();
+      }
+    } on OperationCanceledException {
+      return Duration.zero;
+    } catch (e) {
+      Log.error('Failed to get audio duration: $e', '$runtimeType');
+      return Duration.zero;
     }
   }
 
@@ -249,8 +298,8 @@ class AudioWorker extends Dependency {
 
   /// Called when the audio playback is completed.
   Future<void> _onPlaybackCompleted() async {
-    await _player.seek(Duration.zero);
-    await _player.pause();
+    await seek(Duration.zero);
+    await pause();
   }
 
   /// Initializes [_videoPlayer] for the provided URL [source].
@@ -268,7 +317,7 @@ class AudioWorker extends Dependency {
 
     _reactiveVideoController = ReactivePlayerController(_videoPlayer!);
 
-    _subscriptions.addAll([
+    _videoPlayerSubscriptions.addAll([
       _reactiveVideoController!.isPlaying.listen((v) => isPlaying.value = v),
       _reactiveVideoController!.isBuffering.listen((v) => isLoading.value = v),
       _reactiveVideoController!.position.listen((v) => position.value = v),
@@ -288,47 +337,41 @@ class AudioWorker extends Dependency {
   Future<UrlAudioSource> _ensureReachable(
     UrlAudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
+    CancelToken? cancelToken,
   }) async {
-    UrlAudioSource current = source;
-    bool retriedAfterForbidden = false;
+    final token = cancelToken ?? CancelToken();
 
-    while (true) {
-      _headerToken?.cancel();
-      _headerToken = CancelToken();
+    Future<void> check(String url) async {
+      await Backoff.run(
+        () async => (await PlatformUtils.dio).head(url, cancelToken: token),
+        cancel: token,
+        retryIf: (e) =>
+            e is! DioException ||
+            (e.response?.statusCode != 403 && e.isNetworkRelated),
+      );
+    }
 
-      try {
-        await Backoff.run(
-          () async {
-            await (await PlatformUtils.dio).head(
-              current.url,
-              cancelToken: _headerToken,
-            );
-          },
-          cancel: _headerToken,
-          retryIf: (e) =>
-              e is! DioException ||
-              e.response?.statusCode != 403 && e.isNetworkRelated,
-        );
-
-        return current;
-      } on DioException catch (e) {
-        if (e.response?.statusCode == 403 && !retriedAfterForbidden) {
-          _headerToken?.cancel();
-
-          final AudioSource? refreshed = await onForbidden?.call();
-          if (refreshed is UrlAudioSource) {
-            current = refreshed;
-            retriedAfterForbidden = true;
-            continue;
-          }
+    try {
+      await check(source.url);
+      return source;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 403) {
+        final refreshed = await onForbidden?.call();
+        if (refreshed is UrlAudioSource) {
+          await check(refreshed.url);
+          return refreshed;
         }
-        rethrow;
       }
+      rethrow;
     }
   }
 
   /// Disposes the currently assigned [_videoPlayer], if any.
   Future<void> _disposeVideoPlayer() async {
+    for (final s in _videoPlayerSubscriptions) {
+      s.cancel();
+    }
+    _videoPlayerSubscriptions.clear();
     _reactiveVideoController?.dispose();
     _reactiveVideoController = null;
     _videoPlayer?.dispose();
