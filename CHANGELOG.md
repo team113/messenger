@@ -8,7 +8,15 @@ All user visible changes to this project will be documented in this file. This p
 
 ## main
 
-[Diff](/../../compare/v0.9.4...main) | [Milestone](/../../milestone/70)
+[Diff](/../../compare/v0.9.5...main) | [Milestone](/../../milestone/71)
+
+
+
+
+## [0.9.5] · 2026-03-09
+[0.9.5]: /../../tree/v0.9.5
+
+[Diff](/../../compare/v0.9.4...v0.9.5) | [Milestone](/../../milestone/70)
 
 ### Added
 
