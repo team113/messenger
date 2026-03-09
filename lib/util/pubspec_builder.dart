@@ -68,6 +68,9 @@ class PubspecBuilder implements Builder {
         ref = ref.substring(1);
       }
 
+      // Replace the first hyphen: `x.y.z-n-hash` becomes `x.y.z+n-hash`.
+      ref = ref.replaceFirst('-', '+');
+
       // Strip the trailing `\n`.
       if (ref.endsWith('\n')) {
         ref = ref.substring(0, ref.length - 1);
