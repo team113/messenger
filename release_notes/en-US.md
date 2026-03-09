@@ -1,3 +1,7 @@
-- Redesigned user profile page.
-- Redesigned chat profile page.
+- Added input volume displaying to microphone switch modal.
+- Added horizontal scrolling of whole application when window is less than 300px wide.
+- Redesigned searching on chats tab.
+- Redesigned attachments picker menu in chat.
+- Redesigned some parts of desktop media player.
+- Increased camera resolution in calls to 960x540.
 - Bug fixes and performance improvements.
