@@ -25,6 +25,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned attachments buttons. ([#1633])
         - Redesigned desktop player. ([#1636])
+    - Media panel:
+        - Increased camera resolution to 960x540. ([#1637])
 
 ### Fixed
 
@@ -42,6 +44,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1633]: /../../pull/1633
 [#1634]: /../../pull/1634
 [#1636]: /../../pull/1636
+[#1637]: /../../pull/1637
 
 
 
