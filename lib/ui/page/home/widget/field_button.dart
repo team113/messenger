@@ -96,7 +96,7 @@ class _FieldButtonState extends State<FieldButton> {
       children: [
         OutlinedRoundedButton(
           maxWidth: double.infinity,
-          color: widget.danger
+          color: widget.danger && widget.border == null
               ? style.colors.danger
               : widget.warning
               ? style.colors.primary
@@ -109,8 +109,12 @@ class _FieldButtonState extends State<FieldButton> {
                 // Exception, as [widget.style] may vary.
                 color: widget.onPressed == null
                     ? style.colors.onBackground
-                    : widget.warning || widget.danger
+                    : widget.warning
                     ? style.colors.onPrimary
+                    : widget.danger
+                    ? widget.border == null
+                          ? style.colors.onPrimary
+                          : style.colors.danger
                     : style.colors.primary,
               ),
           height: 46,

@@ -37,6 +37,7 @@ btn_add_account = Agregar cuenta
 btn_add_account_with_desc =
     Agregar
     cuenta
+btn_add_link = Agregar enlace
 btn_add_participant = Añadir miembro
 btn_add_participant_desc =
     Añadir
@@ -142,9 +143,6 @@ btn_confirm_email = Confirmar e-mail
 btn_copy = Copiar
 btn_copy_text = Copiar el texto
 btn_create = Crear
-btn_create_and_copy =
-    Crear y
-    copiar
 btn_create_group = Crear grupo
 btn_decline = Rechazar
 btn_delete = Eliminar
@@ -211,6 +209,7 @@ btn_resend = Reenviar
 btn_resend_message = Reenviar el mensaje
 btn_save = Guardar
 btn_save_all = Guardar todo
+btn_save_and_copy = Guardar y Copiar
 btn_save_to_gallery = Guardar en la galería
 btn_save_to_gallery_all = Guardar todo en la galería
 btn_save_my_credentials_for_one_click = Guardar mis credenciales para ingresar con un solo clic
@@ -224,6 +223,7 @@ btn_set_password = Configurar contraseña
 btn_share = Compartir
 btn_share_audio = Compartir audio
 btn_show_chat = Mostrar el chat
+btn_show_qr_code = Mostrar código QR
 btn_sign_in = Ingresar
 btn_sign_up = Crear una cuenta
 btn_skip = Saltar
@@ -236,6 +236,7 @@ btn_terminate_this_session = Terminar esta sesión
 btn_terms_and_conditions = Condiciones de uso & Política de privacidad
 btn_unblock = Desbloquear
 btn_unhide = Mostrar
+btn_unlink = Desconectar
 btn_unmute = Desactivar silencio
 btn_unmute_chat = Desactivar silencio del chat
 btn_unmute_chats = Desactivar silencio de los chats
@@ -456,6 +457,7 @@ label_add_account = Agregar una cuenta
 label_add_email = Agregar un e-mail
 label_add_email_confirmation_sent = Código desechable enviado a sus e-mails. Si no los ha recibido, revise los datos ingresados o carpeta de spam.
 label_add_email_confirmed = E-mail confirmado
+label_add_link = Agregar enlace
 label_add_participants = Añadir miembros
 label_ago =
     {$years ->
@@ -532,7 +534,7 @@ label_blocked = Bloqueado
 label_blocked_users = Usuarios bloqueados
 label_blocked_users_count = Usuarios bloqueados: {$count}
 label_cache = Caché
-label_cache_limit_gb = Límite del caché
+label_cache_limit = Límite del caché
 label_call_active = Llamada activa
 label_call_calling = Llamando
 label_call_joining = Conectando
@@ -601,7 +603,6 @@ label_count_seconds =
     }
 label_critical_update_is_available = La versión actual ya no es compatible
 label_create_group = Creación de grupo
-label_create_link = Crear enlace
 label_current_account = Cuenta corriente
 label_current_media = Medios actuales
 label_current_password = Contrseña actual
@@ -694,6 +695,7 @@ label_introduction_description =
     Para guardar el acceso a su cuenta, configure una contraseña y/o e-mail.
 label_introduction_description_email = E-mail no agregado. El acceso a su cuenta se perderá en caso de olvidar la contraseña.
 label_introduction_for_one_time = Para guardar el acceso a su cuenta, establezca una contraseña, un nombre de usuario o un correo electrónico en la configuración de su perfil.
+label_invite_to_chat_with_you = Invitar a chatear contigo
 label_ios_android_windows_macos_linux = Para móviles y computadoras
 label_b = {$amount} B
 label_kb = {$amount} KB
@@ -766,7 +768,7 @@ label_nothing_found = No encontrado
 label_notifications = Notificaciones
 label_num = Gapopa ID
 label_num_semicolon = Gapopa ID:{" "}
-label_occupied_space = Ocupado
+label_occupied_space = Ocupado: {$amount}
 label_offline = fuera de línea
 label_one_time_password = Código desechable
 label_ongoing_audio_and_video_may_be_blocked = El sistema operativo de su dispositivo puede bloquear el audio y el video salientes cuando la aplicación está en segundo plano
@@ -859,7 +861,6 @@ label_review = Revisión
 label_review_freelance =
     - toda tarea completada debe pasar la revisión del código;
     - las solicitudes de revisión de la tarea completada, comentarios, aclaraciones y argumentos deben publicarse en GitHub en el asunto o pull request.
-label_saved_files = Archivos descargados
 label_screen_sharing = Compartimiento de pantalla
 label_search = Buscar
 label_search_category_chats = Chats
@@ -868,6 +869,7 @@ label_search_category_users = Usuarios
 label_selected = Seleccionado: {$count}
 label_send_message_hint = Mensaje...
 label_sent = Enviada
+label_sessions_remain_active_for_one_year = Las sesiones permanecen activas durante un año o hasta que cierre la sesión
 label_sessions_terminated = Sesión(es) terminada(s)
 label_set_cache_limits = Configurar límites del caché
 label_set_password = Configurar la contraseña
@@ -964,7 +966,6 @@ label_video_downloaded = Video descargado
 label_video_downloading = Video descargando...
 label_video_saved_to_gallery = Video guardado en la galería
 label_videos_semicolon_amount = Vídeos: {$amount}
-label_visits_count = Clicks: {$count}
 label_voice_processing = Procesamiento de voz
 label_wait_seconds = Espere {$for} s
 label_waiting_for_connection = Esperando conexión...
@@ -992,9 +993,8 @@ label_work_with_us_desc =
     Trabaje
     con nosotros
 label_you = Usted
-label_you_can_use_randomly_generated_link = Puede utilizar un enlace generado o crear su propio enlace.
 label_you_were_added_to_group = Usted ha sido agregado(a) al grupo
-label_your_direct_link = Enlace directo para chatear con Usted
+label_your_direct_link = Tus enlaces al chat contigo
 label_your_name = Su nombre
 label_your_num = Su Gapopa ID
 label_your_password = Su contraseña

@@ -2075,4 +2075,40 @@ class SvgIcons {
     width: 18,
     height: 18,
   );
+
+  static const SvgData linkViews = SvgData(
+    'assets/icons/link_views.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData contextQr = SvgData(
+    'assets/icons/context_qr.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData contextQrWhite = SvgData(
+    'assets/icons/context_qr_white.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData contextUnlink = SvgData(
+    'assets/icons/context_unlink.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData contextUnlinkWhite = SvgData(
+    'assets/icons/context_unlink_white.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData addLink = SvgData(
+    'assets/icons/add_link.svg',
+    width: 20,
+    height: 20,
+  );
 }

@@ -37,6 +37,7 @@ btn_add_account = Add account
 btn_add_account_with_desc =
     Add
     account
+btn_add_link = Add link
 btn_add_participant = Add member
 btn_add_participant_desc =
     Add
@@ -142,9 +143,6 @@ btn_confirm_email = Confirm e-mail
 btn_copy = Copy
 btn_copy_text = Copy text
 btn_create = Create
-btn_create_and_copy =
-    Create and
-    copy
 btn_create_group = Create group
 btn_decline = Decline
 btn_delete = Delete
@@ -211,6 +209,7 @@ btn_resend = Resend
 btn_resend_message = Resend message
 btn_save = Save
 btn_save_all = Save all
+btn_save_and_copy = Save & Copy
 btn_save_my_credentials_for_one_click = Save my credentials for one-click sign in
 btn_save_to_gallery = Save to gallery
 btn_save_to_gallery_all = Save all to galley
@@ -224,6 +223,7 @@ btn_set_password = Set password
 btn_share = Share
 btn_share_audio = Share audio
 btn_show_chat = Unhide chat
+btn_show_qr_code = Show QR code
 btn_sign_in = Sign in
 btn_sign_up = Create an account
 btn_skip = Skip
@@ -236,6 +236,7 @@ btn_terminate_this_session = Terminate this session
 btn_terms_and_conditions = Terms of Usage & Privacy Policy
 btn_unblock = Unblock
 btn_unhide = Unhide
+btn_unlink = Unlink
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
@@ -455,6 +456,7 @@ label_add_account = Add account
 label_add_email = Add e-mail
 label_add_email_confirmation_sent = One-time code has been sent to your e-mails. If you did not receive e-mails, check your data entered or spam folder.
 label_add_email_confirmed = E-mail confirmed
+label_add_link = Add link
 label_add_participants = Add members
 label_ago = {$years ->
     [0] {$months ->
@@ -528,7 +530,7 @@ label_blocked = Blocked
 label_blocked_users = Blocked users
 label_blocked_users_count = Blocked users: {$count}
 label_cache = Cache
-label_cache_limit_gb = Cache limit: {$gb} GB
+label_cache_limit = Cache limit
 label_call_active = Active call
 label_call_calling = Calling
 label_call_joining = Connecting
@@ -595,7 +597,6 @@ label_count_seconds = {$count} { $count ->
        *[other] seconds
    }
 label_create_group = Group creation
-label_create_link = Create link
 label_critical_update_is_available = Current version is no longer supported
 label_current_account = Current account
 label_current_media = Current media
@@ -668,7 +669,7 @@ label_hide_chats = Hide chat(s)
 label_hide_chats_modal_description = The chats will be moved to the "Hidden chats" list
 label_high_pass_filter = High-pass filter
 label_high_pass_filter_subtitle = Cuts off low-frequencies to reduce noise level
-label_hotkey = Hotkeys
+label_hotkey = Hotkey
 label_id = ID
 label_identifier = Identifier
 label_identifiers = Identifiers
@@ -688,6 +689,7 @@ label_introduction_description =
     To save access to your account, set a password and/or e-mail.
 label_introduction_description_email = No e-mail is added. Access to your account will be lost if you forget the password.
 label_introduction_for_one_time = To save access to your account, set a password, login or e-mail in your profile settings.
+label_invite_to_chat_with_you = Invite to chat with you
 label_ios_android_windows_macos_linux = For mobile & desktop
 label_b = {$amount} B
 label_kb = {$amount} KB
@@ -731,7 +733,7 @@ label_money_freelance =
     - the payment is made with cryptocurrency USDT or USDC.
 label_monolog_created = Chat created
 label_mute_or_unmute_chats = Mute or unmute chats
-label_mute_slash_unmute_microphone = Mute/Unmute microphone
+label_mute_slash_unmute_microphone = Mute/unmute microphone
 label_muted = Sound off
 label_muted_chats = Muted chats
 label_muted_until_i_turn_on = Muted until: I turn it on
@@ -760,7 +762,7 @@ label_nothing_found = Not found
 label_notifications = Notifications
 label_num = Gapopa ID
 label_num_semicolon = Gapopa ID:{" "}
-label_occupied_space = Occupied
+label_occupied_space = Occupied: {$amount}
 label_offline = offline
 label_one_time_password = One-time code
 label_ongoing_audio_and_video_may_be_blocked = Outgoing audio and video may be blocked by your device's operating system when the app is in the background
@@ -855,7 +857,6 @@ label_review = Review
 label_review_freelance =
     - a completed task should pass the review of the code;
     - the request for the review of the completed task, comments, clarifications, and arguments should be posted publicly on GitHub in the corresponding issue or pull request.
-label_saved_files = Downloaded files
 label_screen_sharing = Screen sharing
 label_search = Search
 label_search_category_chats = Chats
@@ -864,6 +865,7 @@ label_search_category_users = Users
 label_selected = Selected: {$count}
 label_send_message_hint = Message...
 label_sent = Sent
+label_sessions_remain_active_for_one_year = Sessions remain active for one year or until you sign out
 label_sessions_terminated = Session(s) terminated
 label_set_cache_limits = Set cache limits
 label_set_password = Set password
@@ -957,7 +959,6 @@ label_video_downloaded = Video downloaded
 label_video_downloading = Video is downloading...
 label_video_saved_to_gallery = Video saved to gallery
 label_videos_semicolon_amount = Videos: {$amount}
-label_visits_count = Clicks: {$count}
 label_voice_processing = Voice processing
 label_wait_seconds = Wait {$for} s
 label_waiting_for_connection = Waiting for connection...
@@ -985,9 +986,8 @@ label_work_with_us_desc =
     Work
     with us
 label_you = You
-label_you_can_use_randomly_generated_link = You can use a generated link or create your own.
 label_you_were_added_to_group = You have been added to the group
-label_your_direct_link = Direct link to chat with you
+label_your_direct_link = Your links to the chat with you
 label_your_name = Your name
 label_your_num = Your Gapopa ID
 label_your_password = Your password

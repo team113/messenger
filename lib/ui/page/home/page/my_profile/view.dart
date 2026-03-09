@@ -25,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '/api/backend/schema.dart' show UserPresence;
 import '/config.dart';
@@ -46,6 +47,7 @@ import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
+import '/ui/page/home/tab/menu/confirm/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
@@ -53,6 +55,7 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/scroll_keyboard_handler.dart';
+import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/line_divider.dart';
@@ -406,14 +409,75 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         children: [_downloads(context, c)],
       );
 
-    case ProfileTab.danger:
-      return const SizedBox();
-
     case ProfileTab.legal:
       return const SizedBox();
 
     case ProfileTab.support:
-      return const SizedBox();
+      return Block(
+        title: 'btn_help'.l10n,
+        children: [
+          FieldButton(
+            onPressed: () async {
+              await launchUrlString(Config.repository);
+            },
+            child: Text('btn_report_a_bug'.l10n),
+          ),
+          const SizedBox(height: 8),
+          FieldButton(
+            onPressed: () => router.support(),
+            child: Text('label_support_service'.l10n),
+          ),
+          const SizedBox(height: 8),
+          FieldButton(
+            onPressed: () async {
+              await TermsOfUseView.show(context);
+            },
+            child: Column(
+              children: [
+                Text('label_terms_and_privacy_policy'.l10n),
+                const SizedBox(height: 1),
+                Text(
+                  'label_privacy_policy'.l10n,
+                  style: style.fonts.smaller.regular.secondary,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          WidgetButton(
+            onPressed: () {},
+            onPressedWithDetails: (u) {
+              PlatformUtils.copy(text: Pubspec.ref);
+              MessagePopup.success('label_copied'.l10n, at: u.globalPosition);
+            },
+            child: Text(
+              'label_version_semicolon'.l10nfmt({'version': Pubspec.ref}),
+              style: style.fonts.smaller.regular.secondary,
+            ),
+          ),
+          const SizedBox(height: 4),
+        ],
+      );
+
+    case ProfileTab.danger:
+      return Block(
+        title: 'btn_logout'.l10n,
+        children: [
+          FieldButton(
+            onPressed: () async {
+              await ConfirmLogoutView.show(router.context!);
+            },
+            child: Text('btn_logout'.l10n),
+          ),
+          const SizedBox(height: 8),
+          FieldButton(
+            onPressed: () => router.erase(push: true),
+            danger: true,
+            border: BorderSide(color: style.colors.danger),
+            child: Text('btn_delete_account'.l10n),
+          ),
+        ],
+      );
 
     case ProfileTab.logout:
       return const CustomSafeArea(
@@ -1322,12 +1386,17 @@ Widget _devices(BuildContext context, MyProfileController c) {
                 if (sessions.isNotEmpty) ...[
                   if (current != null) SizedBox(height: 20),
                   LineDivider('label_active_devices'.l10n),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 20),
+                  Text(
+                    'label_sessions_remain_active_for_one_year'.l10n,
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                  const SizedBox(height: 24),
                   ...sessions.mapIndexed((i, e) {
                     return Column(
                       children: [
                         SessionTileWidget(e),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         Center(
                           child: WidgetButton(
                             key: Key('TerminateSession_$i'),
@@ -1462,10 +1531,6 @@ Widget _storage(BuildContext context, MyProfileController c) {
           (values.last * GB)) /
       GB;
 
-  /// One megabyte in bytes.
-  // ignore: constant_identifier_names
-  const int MB = 1024 * 1024;
-
   return Column(
     children: [
       LineDivider('label_cache'.l10n),
@@ -1480,15 +1545,12 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'label_occupied_space'.l10n,
-                    style: style.fonts.normal.regular.onBackground,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'label_mb'.l10nfmt({
-                      'amount': '${(size / MB).toPrecision(2)}',
+                    'label_occupied_space'.l10nfmt({
+                      'amount': 'label_gb'.l10nfmt({
+                        'amount': '${(size / GB).toPrecision(2)}',
+                      }),
                     }),
-                    style: style.fonts.small.regular.secondary,
+                    style: style.fonts.medium.regular.onBackground,
                   ),
                 ],
               ),
@@ -1503,21 +1565,9 @@ Widget _storage(BuildContext context, MyProfileController c) {
           ],
         );
       }),
-      const SizedBox(height: 16),
-      Obx(() {
-        final int max =
-            CacheWorker.instance.info.value.maxSize ??
-            (values.last * GB).toInt();
-
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'label_cache_limit_gb'.l10nfmt({
-              'gb': '${max ~/ GB == 64 ? 'label_no_limit'.l10n : max ~/ GB}',
-            }),
-          ),
-        );
-      }),
+      const SizedBox(height: 24),
+      LineDivider('label_cache_limit'.l10n),
+      const SizedBox(height: 12),
       StyledSlider(
         value: values[values.indexWhere((e) => gbs <= e)],
         values: values,
@@ -1546,24 +1596,14 @@ Widget _storage(BuildContext context, MyProfileController c) {
         return Column(
           children: [
             const SizedBox(height: 12),
-            LineDivider('label_saved_files'.l10n),
+            LineDivider('label_download_path'.l10n),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'label_download_path'.l10n,
-                        style: style.fonts.normal.regular.onBackground,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${c.downloadsDirectory.value?.path}',
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                    ],
+                  child: Text(
+                    '${c.downloadsDirectory.value?.path}',
+                    style: style.fonts.small.regular.secondary,
                   ),
                 ),
 

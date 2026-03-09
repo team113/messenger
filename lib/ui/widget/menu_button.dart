@@ -47,7 +47,7 @@ class MenuButton extends StatelessWidget {
        subtitle = switch (tab) {
          ProfileTab.public => 'label_public_section_hint'.l10n,
          ProfileTab.signing => 'label_login_section_hint'.l10n,
-         ProfileTab.link => 'label_your_direct_link'.l10n,
+         ProfileTab.link => 'label_invite_to_chat_with_you'.l10n,
          ProfileTab.media => 'label_media_section_hint'.l10n,
          ProfileTab.welcome => 'label_welcome_message_hint'.l10n,
          ProfileTab.notifications => 'label_mute_or_unmute_chats'.l10n,
