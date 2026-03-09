@@ -395,6 +395,8 @@ class MediaUtilsImpl {
       } else if (video.device != null) {
         constraints.deviceId(video.device!);
       }
+      constraints.idealWidth(960);
+      constraints.idealHeight(540);
       settings.deviceVideo(constraints);
     }
 
