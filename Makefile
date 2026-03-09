@@ -169,8 +169,9 @@ endif
 
 flutter-build-number=$(or $(build),$(shell git rev-list HEAD --count))
 flutter-build-medea-ver=$(strip \
-	$(shell awk '/medea_jason:/{f=1} f && /version:/{gsub(/"|version: /,""); print; exit}' \
-            pubspec.lock))
+	$(shell awk '/medea_jason:/{f=1} f && /version:/{gsub(/"|version: /,""); \
+	             print; exit}' \
+	        pubspec.lock))
 
 flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
