@@ -3,5 +3,5 @@
 - Se rediseñó la búsqueda en la pestaña de chats.
 - Se rediseñó el menú de selección de archivos adjuntos en el chat.
 - Se rediseñaron algunas partes del reproductor multimedia de escritorio.
-- Se aumentó la resolución de la cámara en las llamadas a 960x540.
+- Se aumentó la resolución de la cámara en las llamadas a 960x720.
 - Corrección de errores y mejoras de rendimiento.

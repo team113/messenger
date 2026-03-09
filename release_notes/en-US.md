@@ -3,5 +3,5 @@
 - Redesigned searching on chats tab.
 - Redesigned attachments picker menu in chat.
 - Redesigned some parts of desktop media player.
-- Increased camera resolution in calls to 960x540.
+- Increased camera resolution in calls to 960x720.
 - Bug fixes and performance improvements.
