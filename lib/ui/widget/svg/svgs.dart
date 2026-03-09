@@ -783,12 +783,6 @@ class SvgIcons {
     height: 19,
   );
 
-  static const SvgData share19White = SvgData(
-    'assets/icons/share19_white.svg',
-    width: 16.75,
-    height: 19,
-  );
-
   static const SvgData darkMode = SvgData(
     'assets/icons/dark_mode.svg',
     width: 20.97,

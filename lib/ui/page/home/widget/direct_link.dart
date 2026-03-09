@@ -128,12 +128,17 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           ),
           const SizedBox(height: 8),
           PrimaryButton(
+            key: const Key('CreateLinkButton'),
             title: 'btn_save_and_copy'.l10n,
-            onPressed: () {
-              _state.submit();
+            onPressed: () async {
+              if (_state.text.isEmpty) {
+                _state.text = _generated;
+              }
 
               PlatformUtils.copy(text: '${Config.link}${_state.text}');
               MessagePopup.success('label_copied'.l10n);
+
+              await _submitLink();
             },
             leading: SvgIcon(SvgIcons.copy19White),
           ),
