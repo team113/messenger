@@ -150,7 +150,7 @@
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest" type="application/javascript"></script>
 
   <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter_bootstrap.js"></script>
+  <script src="flutter_bootstrap.js?v={{build_ver}}"></script>
 
   <!-- Initialize `medea_jason` JS code -->
   <script type="module">
@@ -165,7 +165,7 @@
       MediaSourceKind,
       MediaStreamSettings,
       set_log_level
-    } from '/assets/packages/medea_jason/assets/pkg/medea_jason.js';
+    } from '/assets/packages/medea_jason/assets/pkg/medea_jason.js?v={{medea_ver}}';
 
     window.jasonLoaded = (async () => {
       await init();

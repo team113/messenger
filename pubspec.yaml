@@ -1,10 +1,10 @@
 name: messenger
-version: 0.9.5
+version: 0.9.6
 publish_to: none
 
 environment:
-  flutter: ">=3.38.0"
-  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.41.4"
+  sdk: ">=3.11.0 <4.0.0"
 
 dependencies:
   age_range_signals: ^0.5.0
@@ -162,6 +162,9 @@ dependency_overrides:
   # TODO: Remove when `getx` updates.
   get:
     git: https://github.com/sleepysquash/getx.git
+  # Remove `fonts` loaded by `flutter_math_fork`.
+  flutter_math_fork:
+    git: https://github.com/SleepySquash/flutter_math.git
   image_picker_ios:
     git:
       url: https://github.com/SleepySquash/image_picker.git
