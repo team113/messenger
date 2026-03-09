@@ -26,7 +26,7 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned attachments buttons. ([#1633])
         - Redesigned desktop player. ([#1636])
     - Media panel:
-        - Increased camera resolution to 960x540. ([#1637])
+        - Increased camera resolution to 960x720. ([#1637])
 
 ### Fixed
 
