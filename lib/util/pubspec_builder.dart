@@ -55,38 +55,31 @@ class PubspecBuilder implements Builder {
     final ProcessResult git = await Process.run('git', [
       'describe',
       '--tags',
-      '--abbrev=0',
       '--dirty',
       '--match',
       'v*',
     ]);
-    final ProcessResult rev = await Process.run('git', [
-      'rev-list',
-      'HEAD',
-      '--count',
-    ]);
 
-    if (git.exitCode == 0 && rev.exitCode == 0) {
+    if (git.exitCode == 0) {
       String ref = git.stdout.toString();
-      String count = rev.stdout.toString();
 
       // Strip the first `v` of the tag.
       if (ref.startsWith('v')) {
         ref = ref.substring(1);
       }
 
+      // Replace the first hyphen: `x.y.z-n-hash` becomes `x.y.z+n-hash`.
+      ref = ref.replaceFirst('-', '+');
+
       // Strip the trailing `\n`.
       if (ref.endsWith('\n')) {
         ref = ref.substring(0, ref.length - 1);
       }
-      if (count.endsWith('\n')) {
-        count = count.substring(0, count.length - 1);
-      }
 
-      buffer.write('  static const String ref = \'$ref+$count\';\n');
+      buffer.write('  static const String ref = \'$ref\';\n');
 
       // ignore: avoid_print
-      print('[PubspecBuilder] `Pubspec.ref` field is set to be `$ref+$count`.');
+      print('[PubspecBuilder] `Pubspec.ref` field is set to be `$ref`.');
     } else {
       throw Exception(
         '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',

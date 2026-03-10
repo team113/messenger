@@ -390,7 +390,7 @@ class Config {
     if (confRemote) {
       try {
         final response = await (await PlatformUtils.dio).fetch(
-          RequestOptions(path: '$url:$port/conf?${Pubspec.ref}'),
+          RequestOptions(path: '$url:$port/conf?v=${Pubspec.ref}'),
         );
         if (response.statusCode == 200) {
           dynamic remote;

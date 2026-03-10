@@ -818,7 +818,7 @@ class PlatformUtilsImpl {
     if (PlatformUtils.isWeb) {
       try {
         final response = await (await (PlatformUtils.dio)).get(
-          '${Config.origin}/assets/$asset?${Pubspec.ref}',
+          '${Config.origin}/assets/$asset?v=${Pubspec.ref}',
           options: Options(responseType: ResponseType.plain),
         );
 
@@ -844,7 +844,7 @@ class PlatformUtilsImpl {
     if (PlatformUtils.isWeb) {
       try {
         final response = await (await (PlatformUtils.dio)).get(
-          '${Config.origin}/assets/$asset?${Pubspec.ref}',
+          '${Config.origin}/assets/$asset?v=${Pubspec.ref}',
           options: Options(responseType: ResponseType.bytes),
         );
 

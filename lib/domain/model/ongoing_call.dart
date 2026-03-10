@@ -1626,7 +1626,7 @@ class OngoingCall {
       if (videoDevice != null) constraints.deviceId(videoDevice.deviceId());
       if (facingMode != null) constraints.idealFacingMode(facingMode);
       constraints.idealWidth(960);
-      constraints.idealHeight(540);
+      constraints.idealHeight(720);
       settings.deviceVideo(constraints);
     }
 
