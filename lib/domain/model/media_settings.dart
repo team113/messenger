@@ -60,4 +60,8 @@ class MediaSettings {
 
   /// Indicator whether high pass filter should be enabled for local tracks.
   bool? highPassFilter;
+
+  @override
+  String toString() =>
+      'MediaSettings(videoDevice: $videoDevice, audioDevice: $audioDevice, outputDevice: $outputDevice, screenDevice: $screenDevice, noiseSuppression: $noiseSuppression, noiseSuppressionLevel: $noiseSuppressionLevel, echoCancellation: $echoCancellation, autoGainControl: $autoGainControl, highPassFilter: $highPassFilter)';
 }

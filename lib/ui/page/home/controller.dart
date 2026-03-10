@@ -223,10 +223,6 @@ class HomeController extends GetxController {
     await _myUserService.refresh();
   }
 
-  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
-  Future<void> setWorkWithUsTabEnabled(bool enabled) =>
-      _settings.setWorkWithUsTabEnabled(enabled);
-
   /// Refreshes the controller on [router] change.
   ///
   /// Required in order for the [BottomNavigatorBar] to rebuild.

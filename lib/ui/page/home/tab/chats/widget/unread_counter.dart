@@ -27,7 +27,17 @@ class UnreadCounter extends StatelessWidget {
     super.key,
     this.dimmed = false,
     this.inverted = false,
-  });
+  }) : text = null;
+
+  const UnreadCounter.text(
+    String this.text, {
+    super.key,
+    this.dimmed = false,
+    this.inverted = false,
+  }) : count = 0;
+
+  /// Text to display instead of [count].
+  final String? text;
 
   /// Count to display in this [UnreadCounter].
   final int count;
@@ -44,8 +54,15 @@ class UnreadCounter extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final String counter = (count > 999
+        ? 'label_amount_k'.l10nfmt({
+            'amount': (count / 1000).floor().clamp(1, 999),
+          })
+        : '$count');
+
     return Container(
       height: 23,
+      constraints: BoxConstraints(minWidth: 23),
       padding: EdgeInsets.symmetric(horizontal: count > 99 ? 6 : 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
@@ -57,11 +74,7 @@ class UnreadCounter extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Text(
-        count > 999
-            ? 'label_amount_k'.l10nfmt({
-                'amount': (count / 1000).floor().clamp(1, 999),
-              })
-            : '$count',
+        text ?? counter,
         style: dimmed && inverted
             ? style.fonts.smaller.bold.secondary
             : style.fonts.smaller.bold.onPrimary,

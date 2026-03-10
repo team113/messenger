@@ -33,6 +33,7 @@ class MenuButton extends StatelessWidget {
     this.icon,
     this.onPressed,
     this.inverted = false,
+    this.trailing,
   });
 
   MenuButton.tab(
@@ -40,12 +41,13 @@ class MenuButton extends StatelessWidget {
     Key? key,
     this.inverted = false,
     this.onPressed,
+    this.trailing,
   }) : icon = null,
        title = tab.l10n,
        subtitle = switch (tab) {
          ProfileTab.public => 'label_public_section_hint'.l10n,
          ProfileTab.signing => 'label_login_section_hint'.l10n,
-         ProfileTab.link => 'label_your_direct_link'.l10n,
+         ProfileTab.link => 'label_invite_to_chat_with_you'.l10n,
          ProfileTab.media => 'label_media_section_hint'.l10n,
          ProfileTab.welcome => 'label_welcome_message_hint'.l10n,
          ProfileTab.notifications => 'label_mute_or_unmute_chats'.l10n,
@@ -55,7 +57,7 @@ class MenuButton extends StatelessWidget {
          ProfileTab.devices => 'label_active_sessions'.l10n,
          ProfileTab.download => 'label_ios_android_windows_macos_linux'.l10n,
          ProfileTab.danger => null,
-         ProfileTab.legal => null,
+         ProfileTab.legal => 'label_privacy_policy'.l10n,
          ProfileTab.support => null,
          ProfileTab.logout => null,
        },
@@ -109,6 +111,8 @@ class MenuButton extends StatelessWidget {
 
   /// Optional leading to display before the [title].
   final Widget? leading;
+
+  final Widget? trailing;
 
   /// Callback, called when this [MenuButton] is tapped.
   final void Function()? onPressed;
@@ -181,6 +185,7 @@ class MenuButton extends StatelessWidget {
                       ],
                     ),
                   ),
+                  ?trailing,
                 ],
               ),
             ),
