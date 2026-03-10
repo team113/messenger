@@ -44,7 +44,13 @@ import 'field_button.dart';
 ///
 /// If [link] is `null`, generates and displays a random [ChatDirectLinkSlug].
 class DirectLinkField extends StatefulWidget {
-  const DirectLinkField(this.link, {super.key, this.onSubmit, this.background});
+  const DirectLinkField(
+    this.link, {
+    super.key,
+    this.onSubmit,
+    this.background,
+    this.canAddMore = true,
+  });
 
   /// [ChatDirectLink] to display.
   final ChatDirectLink? link;
@@ -54,6 +60,9 @@ class DirectLinkField extends StatefulWidget {
 
   /// Bytes of the background to display under the widget.
   final Uint8List? background;
+
+  /// Indicator whether a new link can be added.
+  final bool canAddMore;
 
   @override
   State<DirectLinkField> createState() => _DirectLinkFieldState();
@@ -253,11 +262,15 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
             child: const LineDivider(''),
           ),
-          const SizedBox(height: 24),
-          FieldButton(
-            trailing: SvgIcon(SvgIcons.addLink),
-            child: Text('btn_add_link'.l10n),
-          ),
+
+          const SizedBox(height: 4),
+          if (widget.canAddMore) ...[
+            const SizedBox(height: 20),
+            FieldButton(
+              trailing: SvgIcon(SvgIcons.addLink),
+              child: Text('btn_add_link'.l10n),
+            ),
+          ],
         ],
       );
     }

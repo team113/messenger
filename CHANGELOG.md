@@ -10,6 +10,23 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.9.5...main) | [Milestone](/../../milestone/71)
 
+### Added
+
+- UI:
+    - Profile page:
+        - Added help and sign out blocks. ([#1638])
+
+### Changed
+
+- UI:
+    - Chat info page:
+        - Redesigned links block. ([#1642], [#1638])
+    - Profile page:
+        - Redesigned links, cache and media devices blocks. ([#1638])
+
+[#1638]: /../../pull/1638
+[#1642]: /../../pull/1642
+
 
 
 

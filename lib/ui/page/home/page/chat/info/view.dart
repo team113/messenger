@@ -240,13 +240,6 @@ class ChatInfoView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(6, 0, 8, 0),
-                child: Text(
-                  'label_direct_chat_link_in_chat_description'.l10n,
-                  style: style.fonts.small.regular.secondary,
-                ),
-              ),
               DirectLinkField(
                 c.chat?.chat.value.directLink,
                 key: Key('DirectLinkField'),
@@ -258,6 +251,14 @@ class ChatInfoView extends StatelessWidget {
                   }
                 },
                 background: c.background.value,
+                canAddMore: false,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                child: Text(
+                  'label_direct_chat_link_in_chat_description'.l10n,
+                  style: style.fonts.small.regular.secondary,
+                ),
               ),
             ],
           );
