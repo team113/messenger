@@ -69,7 +69,8 @@ class MediaUtilsImpl {
         }
 
         try {
-          _jason = await Jason.init();
+          await Jason.ensureInitialized();
+          _jason = Jason.create();
         } catch (e) {
           Log.debug(
             'Unable to invoke `Jason.init()` due to: $e',
@@ -338,8 +339,8 @@ class MediaUtilsImpl {
     Log.debug('setLogLevel(${level.name})', '$runtimeType');
 
     try {
-      // Initialize [jason] first.
-      await jason;
+      // Initialize [Jason] first.
+      await Jason.ensureInitialized();
       await Logging.setLogLevel(level);
     } catch (e) {
       Log.warning(
@@ -543,6 +544,12 @@ class DeviceDetails extends MediaDeviceDetails {
 
   @override
   AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
+
+  @override
+  int? numChannels() => _device.numChannels();
+
+  @override
+  int? sampleRate() => _device.sampleRate();
 
   @override
   String toString() => 'DeviceDetails(id: ${id()}, label: ${label()})';
