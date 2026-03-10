@@ -783,12 +783,6 @@ class SvgIcons {
     height: 19,
   );
 
-  static const SvgData share19White = SvgData(
-    'assets/icons/share19_white.svg',
-    width: 16.75,
-    height: 19,
-  );
-
   static const SvgData darkMode = SvgData(
     'assets/icons/dark_mode.svg',
     width: 20.97,
@@ -1916,14 +1910,14 @@ class SvgIcons {
 
   static const SvgData videoPrevious = SvgData(
     'assets/icons/video_previous.svg',
-    width: 18,
-    height: 21,
+    width: 14 * 1.3,
+    height: 7 * 1.3,
   );
 
   static const SvgData videoNext = SvgData(
     'assets/icons/video_next.svg',
-    width: 18,
-    height: 21,
+    width: 14 * 1.3,
+    height: 7 * 1.3,
   );
 
   static const SvgData videoShare = SvgData(
@@ -1952,8 +1946,8 @@ class SvgIcons {
 
   static const SvgData mediaGallery = SvgData(
     'assets/icons/media_gallery.svg',
-    width: 20,
-    height: 20,
+    width: 16,
+    height: 16,
   );
 
   static const SvgData mediaPopup = SvgData(
@@ -2068,5 +2062,47 @@ class SvgIcons {
     'assets/icons/quick_share.svg',
     width: 30,
     height: 30,
+  );
+
+  static const SvgData changeAccount = SvgData(
+    'assets/icons/change_account.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData linkViews = SvgData(
+    'assets/icons/link_views.svg',
+    width: 16,
+    height: 16,
+  );
+
+  static const SvgData contextQr = SvgData(
+    'assets/icons/context_qr.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData contextQrWhite = SvgData(
+    'assets/icons/context_qr_white.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData contextUnlink = SvgData(
+    'assets/icons/context_unlink.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData contextUnlinkWhite = SvgData(
+    'assets/icons/context_unlink_white.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData addLink = SvgData(
+    'assets/icons/add_link.svg',
+    width: 20,
+    height: 20,
   );
 }

@@ -239,10 +239,10 @@ packages:
     dependency: transitive
     description:
       name: characters
-      sha256: f71061c654a3380576a52b451dd5532377954cf9dbd272a78fc8479606670803
+      sha256: faf38497bda5ead2a8c7615f4f7939df04333478bf32e4173fcb06d428b5716b
       url: "https://pub.dev"
     source: hosted
-    version: "1.4.0"
+    version: "1.4.1"
   charcode:
     dependency: transitive
     description:
@@ -690,12 +690,13 @@ packages:
     source: hosted
     version: "2.0.1"
   flutter_math_fork:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_math_fork
-      sha256: "6d5f2f1aa57ae539ffb0a04bb39d2da67af74601d685a161aff7ce5bda5fa407"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "07338fbdb26edf6660efe62a311f80b5c454ada2"
+      url: "https://github.com/SleepySquash/flutter_math.git"
+    source: git
     version: "0.7.4"
   flutter_plugin_android_lifecycle:
     dependency: transitive
@@ -1340,18 +1341,18 @@ packages:
     dependency: transitive
     description:
       name: matcher
-      sha256: dc58c723c3c24bf8d3e2d3ad3f2f9d7bd9cf43ec6feaa64181775e60190153f2
+      sha256: dc0b7dc7651697ea4ff3e69ef44b0407ea32c487a39fff6a4004fa585e901861
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.17"
+    version: "0.12.19"
   material_color_utilities:
     dependency: transitive
     description:
       name: material_color_utilities
-      sha256: f7142bb1154231d7ea5f96bc7bde4bda2a0945d2806bb11670e30b850d56bdec
+      sha256: "9c337007e82b1889149c82ed242ed1cb24a66044e30979c44912381e9be4c48b"
       url: "https://pub.dev"
     source: hosted
-    version: "0.11.1"
+    version: "0.13.0"
   material_floating_search_bar:
     dependency: "direct main"
     description:
@@ -1364,18 +1365,18 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: "3e7849adacc5b5ed6a2f321eea8f1a1bccd9573d2523c4d3c26eb10efdcd63e0"
+      sha256: "2b07e204973aeeab9590f7f3c3b729560637d04d93bea4611cfb2e8860dad43f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.1"
+    version: "0.18.0"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: "55722b002744c20fd4d3aad59e9f20728e3282e55818b56e5625d836c00601a1"
+      sha256: c748a298d27f595a91f90ef7463d2b247b5734861048def0f7bcbc0ac04dbf5a
       url: "https://pub.dev"
     source: hosted
-    version: "0.13.1"
+    version: "0.14.0"
   media_kit:
     dependency: "direct overridden"
     description:
@@ -2274,10 +2275,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: ab2726c1a94d3176a45960b6234466ec367179b87dd74f1611adb1f3b5fb9d55
+      sha256: "8161c84903fd860b26bfdefb7963b3f0b68fee7adea0f59ef805ecca346f0c7a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.7"
+    version: "0.7.10"
   thumbhash:
     dependency: transitive
     description:
@@ -2663,5 +2664,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.10.0 <4.0.0"
-  flutter: ">=3.38.1"
+  dart: ">=3.11.0 <4.0.0"
+  flutter: ">=3.41.4"

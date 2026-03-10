@@ -118,7 +118,7 @@ class AudioUtilsImpl {
 
         if (url.isNotEmpty) {
           await (WebUtils.play(
-            '$url?${Pubspec.ref}',
+            '$url?v=${Pubspec.ref}',
           )).listen((_) {}).asFuture();
         }
       } else {
@@ -158,7 +158,7 @@ class AudioUtilsImpl {
 
             playback?.cancel();
             playback = WebUtils.play(
-              '${music.direct}?${Pubspec.ref}',
+              '${music.direct}?v=${Pubspec.ref}',
               loop: true,
             ).listen((_) {});
 
@@ -661,7 +661,7 @@ extension on AudioSource {
   /// Returns a [ja.AudioSource] corresponding to this [AudioSource].
   ja.AudioSource get source => switch (kind) {
     AudioSourceKind.asset => ja.AudioSource.asset(
-      'assets/${(this as AssetAudioSource).asset}${PlatformUtils.isWeb ? '?${Pubspec.ref}' : ''}',
+      'assets/${(this as AssetAudioSource).asset}${PlatformUtils.isWeb ? '?v=${Pubspec.ref}' : ''}',
     ),
     AudioSourceKind.file => ja.AudioSource.file((this as FileAudioSource).file),
     AudioSourceKind.url => ja.AudioSource.uri(
