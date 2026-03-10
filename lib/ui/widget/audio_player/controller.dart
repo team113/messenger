@@ -40,6 +40,9 @@ class AudioPlayerController extends GetxController {
   /// Indicator whether the view is being hovered.
   final RxBool isHovered = RxBool(false);
 
+  /// Callback, called when [source] fetch fails with `403` status code.
+  final FutureOr<AudioSource?> Function()? onForbidden;
+
   /// Calculated duration of audio.
   final Rx<Duration> extractedDuration = Rx<Duration>(Duration.zero);
 
@@ -95,9 +98,6 @@ class AudioPlayerController extends GetxController {
       isDurationLoading.value = false;
     }
   }
-
-  /// Callback, called when [source] fetch fails with `403` status code.
-  final FutureOr<AudioSource?> Function()? onForbidden;
 
   /// Toggles playback between playing and paused states.
   void togglePlay() {
