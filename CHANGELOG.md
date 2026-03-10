@@ -24,8 +24,14 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Redesigned links, cache and media devices blocks. ([#1638])
 
+### Fixed
+
+- Windows:
+    - Unsupported devices displayed in output devices list for Windows 10. ([#1643])
+
 [#1638]: /../../pull/1638
 [#1642]: /../../pull/1642
+[#1643]: /../../pull/1643
 
 
 

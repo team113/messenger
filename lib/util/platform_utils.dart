@@ -134,6 +134,9 @@ class PlatformUtilsImpl {
   /// Indicates whether device's OS is Windows.
   bool get isWindows => GetPlatform.isWindows;
 
+  /// Indicates whether device's OS is Windows 10.
+  Future<bool> get isWindows10 async => isWindows && await WebUtils.isWindows10;
+
   /// Indicates whether device's OS is Linux.
   bool get isLinux => GetPlatform.isLinux;
 

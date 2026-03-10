@@ -140,6 +140,16 @@ class WebUtils {
     });
   }
 
+  /// Indicates whether the operating system of the device is Windows 10.
+  static Future<bool> get isWindows10 async {
+    if (PlatformUtils.isWindows) {
+      final info = await DeviceInfoPlugin().windowsInfo;
+      return info.buildNumber >= 10240 && info.buildNumber < 22000;
+    }
+
+    return false;
+  }
+
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
   static void removeCredentials(UserId userId) {

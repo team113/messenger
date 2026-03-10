@@ -25,6 +25,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/util/media_utils.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -46,6 +47,9 @@ class OutputSwitchController extends GetxController {
   /// Error message to display, if any.
   final RxnString error = RxnString();
 
+  /// Indicator whether the current OS is Windows 10.
+  bool isWindows10 = false;
+
   /// ID of the initially selected audio output device.
   String? _output;
 
@@ -62,14 +66,13 @@ class OutputSwitchController extends GetxController {
   @override
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen((e) {
-      devices.value = e.output().toList();
+      devices.value = _filtered(e.output().toList());
       selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
     });
 
     _worker = ever(_settingsRepository.mediaSettings, (e) {
       if (e != null) {
         _output = e.outputDevice;
-
         selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
       }
     });
@@ -78,8 +81,9 @@ class OutputSwitchController extends GetxController {
       // Output devices are permitted to be use when requesting a microphone
       // permission.
       _permissionSubscription = await WebUtils.microphonePermission();
-      devices.value = await MediaUtils.enumerateDevices(
-        MediaDeviceKind.audioOutput,
+      isWindows10 = await PlatformUtils.isWindows10;
+      devices.value = _filtered(
+        await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput),
       );
       selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
     } on UnsupportedError {
@@ -107,5 +111,35 @@ class OutputSwitchController extends GetxController {
   /// Sets the provided [device] as a used by default output device.
   Future<void> setOutputDevice(DeviceDetails device) async {
     await _settingsRepository.setOutputDevice(device.id());
+  }
+
+  /// Returns a list of [DeviceDetails] that is filtered to exclude unsupported
+  /// devices.
+  ///
+  /// For Windows 10, an unsupported devices is a communication mode device due
+  /// to known bugs with such devices there.
+  List<DeviceDetails> _filtered(List<DeviceDetails> devices) {
+    if (isWindows10) {
+      final List<DeviceDetails> copied = devices.toList();
+
+      for (var initial in copied) {
+        for (var compared in copied) {
+          // If groups are the same, then it's the same physical device.
+          if (initial.groupId() == compared.groupId()) {
+            final int? ourRate = initial.sampleRate();
+            final int? theirRate = compared.sampleRate();
+            if (ourRate != null && theirRate != null) {
+              // This is a communication device, if its sample rate is lower
+              // than the same physical device with higher sample rate.
+              if (ourRate < theirRate) {
+                devices.remove(initial);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return devices;
   }
 }
