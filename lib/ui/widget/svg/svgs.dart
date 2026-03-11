@@ -2105,4 +2105,10 @@ class SvgIcons {
     width: 20,
     height: 20,
   );
+
+  static const SvgData buttonUnlink = SvgData(
+    'assets/icons/button_unlink.svg',
+    width: 20,
+    height: 20,
+  );
 }

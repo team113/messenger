@@ -156,6 +156,7 @@ btn_download = Descargar
 btn_download_all = Descargar todo
 btn_download_all_as = Descargar todo como
 btn_download_as = Descargar como
+btn_download_as_png = Descargar como .png
 btn_download_logs = Descargar registros
 btn_download_version = Descargar {$version}
 btn_edit = Editar
@@ -804,6 +805,7 @@ label_presence_present = En línea
 label_privacy_policy = Política de Privacidad
 label_profile = Perfil
 label_public_section_hint = Avatar, nombre, a cerca de Usted, ...
+label_qr_code = Código QR
 label_reason = Motivo
 label_reason_described = Motivo: {$reason}
 label_reason_hint = Escriba el motivo
@@ -937,6 +939,8 @@ label_typing = Escribiendo
 label_unknown = Desconocido
 label_unknown_chat_direct_link = Este enlace directo no es válido
 label_unknown_page = Página desconocida
+label_unlink_link = Desvincular enlace
+label_unlink_link_confirm_description1 = Los enlaces no vinculados aún le pertenecen.
 label_unread_messages =
     {$quantity ->
         [1] {$quantity} mensaje no leído

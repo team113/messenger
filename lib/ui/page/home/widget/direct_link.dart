@@ -239,7 +239,31 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       inverted: SvgIcon(SvgIcons.contextQrWhite),
                     ),
                     ContextMenuButton(
-                      onPressed: () => widget.onSubmit?.call(null),
+                      onPressed: () async {
+                        final proceed = await MessagePopup.alert(
+                          'label_unlink_link'.l10n,
+                          additional: [
+                            Text(
+                              url,
+                              style: style.fonts.normal.regular.onBackground,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'label_unlink_link_confirm_description1'.l10n,
+                              style: style.fonts.small.regular.secondary,
+                            ),
+                          ],
+                          button: (context) => MessagePopup.deleteButton(
+                            context,
+                            label: 'btn_unlink'.l10n,
+                            icon: SvgIcons.buttonUnlink,
+                          ),
+                        );
+
+                        if (proceed == true) {
+                          await widget.onSubmit?.call(null);
+                        }
+                      },
                       label: 'btn_unlink'.l10n,
                       trailing: SvgIcon(SvgIcons.contextUnlink),
                       inverted: SvgIcon(SvgIcons.contextUnlinkWhite),

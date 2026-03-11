@@ -120,6 +120,9 @@ class ChatInfoController extends GetxController {
   /// [submitAvatar].
   final RxBool avatarDeleted = RxBool(false);
 
+  /// Indicator whether the app bar should display the [User.name].
+  final RxBool preferName = RxBool(false);
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
@@ -190,6 +193,7 @@ class ChatInfoController extends GetxController {
   @override
   void onInit() {
     membersScrollController.addListener(_scrollListener);
+    scrollController.addListener(_pageListener);
 
     name = TextFieldState(
       text: chat?.chat.value.name?.val,
@@ -224,6 +228,7 @@ class ChatInfoController extends GetxController {
     _chatSubscription?.cancel();
     _membersSubscription?.cancel();
     membersScrollController.dispose();
+    scrollController.removeListener(_pageListener);
     scrollController.dispose();
     super.onClose();
   }
@@ -663,6 +668,13 @@ class ChatInfoController extends GetxController {
         name.status.value = RxStatus.empty();
         name.editable.value = true;
       }
+    }
+  }
+
+  /// Changes the [preferName] when [scrollController] is scrolled enough.
+  void _pageListener() {
+    if (scrollController.hasClients) {
+      preferName.value = scrollController.position.pixels > 450;
     }
   }
 }

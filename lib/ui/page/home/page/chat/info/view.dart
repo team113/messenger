@@ -23,6 +23,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -473,10 +474,30 @@ class ChatInfoView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'label_group_profile'.l10n,
-                style: style.fonts.medium.regular.onBackground,
-              ),
+              Obx(() {
+                final RxChat? chat = c.chat;
+
+                final Widget child;
+
+                if (!c.preferName.value || chat == null) {
+                  child = Text(
+                    'label_group_profile'.l10n,
+                    key: const Key('Profile'),
+                    style: style.fonts.medium.regular.onBackground,
+                  );
+                } else {
+                  child = Text(
+                    chat.title(),
+                    key: const Key('Chat'),
+                    style: style.fonts.medium.regular.onBackground,
+                  );
+                }
+
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: child,
+                );
+              }),
               if (!c.isMonolog) ...[
                 Text(
                   'label_participants'.l10nfmt({
