@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:ffi' hide Size;
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cupertino_http/cupertino_http.dart'
@@ -26,7 +25,6 @@ import 'package:cupertino_http/cupertino_http.dart'
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:hotkey_manager/hotkey_manager.dart';
