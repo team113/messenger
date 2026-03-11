@@ -332,10 +332,30 @@ class UserView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'label_user_profile'.l10n,
-                style: style.fonts.medium.regular.onBackground,
-              ),
+              Obx(() {
+                final User? user = rxUser?.user.value;
+
+                final Widget child;
+
+                if (!c.preferName.value || user == null) {
+                  child = Text(
+                    'label_user_profile'.l10n,
+                    key: const Key('Profile'),
+                    style: style.fonts.medium.regular.onBackground,
+                  );
+                } else {
+                  child = Text(
+                    user.title(),
+                    key: const Key('User'),
+                    style: style.fonts.medium.regular.onBackground,
+                  );
+                }
+
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: child,
+                );
+              }),
               ?online,
             ],
           ),

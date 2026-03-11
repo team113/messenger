@@ -156,6 +156,7 @@ btn_download = Скачать
 btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
 btn_download_as = Скачать как
+btn_download_as_png = Скачать как .png
 btn_download_logs = Скачать логи
 btn_download_version = Скачать {$version}
 btn_edit = Редактировать
@@ -815,6 +816,7 @@ label_presence_present = Онлайн
 label_privacy_policy = Политика Конфиденциальности
 label_profile = Профиль
 label_public_section_hint = Аватар, имя, о Вас, ...
+label_qr_code = QR код
 label_reason = Причина
 label_reason_described = Причина: {$reason}
 label_reason_hint = Укажите причину
@@ -951,6 +953,8 @@ label_typing = Печатает
 label_unknown = Неизвестно
 label_unknown_chat_direct_link = Данная прямая ссылка недействительна
 label_unknown_page = Страница не найдена
+label_unlink_link = Отлинковать ссылку
+label_unlink_link_confirm_description1 = Отлинкованные ссылки продолжают принадлежать Вам.
 label_unread_messages = {$quantity ->
     [one] {$quantity} непрочитанное сообщение
     [few] {$quantity} непрочитанных сообщения
