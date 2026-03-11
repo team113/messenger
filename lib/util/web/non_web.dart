@@ -25,6 +25,7 @@ import 'package:cupertino_http/cupertino_http.dart'
     show CupertinoClient, URLSessionConfiguration;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ffi/ffi.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
@@ -584,4 +585,14 @@ class WebUtils {
   /// iOS `AVAudioSession`.
   static Future<void> setupAudioSessionManagement(bool value) =>
       webrtc.setupAudioSessionManagement(false);
+
+  /// Ensures the [ISRG Root X1 certificate][1] is trusted on the device.
+  ///
+  /// [1]: https://letsencrypt.org/certificates/
+  static Future<void> ensureIsrgCertificate() async {
+    final ByteData data = await rootBundle.load('assets/isrgrootx1.pem');
+    SecurityContext.defaultContext.setTrustedCertificatesBytes(
+      data.buffer.asUint8List(),
+    );
+  }
 }

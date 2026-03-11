@@ -2321,7 +2321,7 @@ class OngoingCall {
           }
 
           _settings = _mediaStreamSettings(
-            audio: audio ?? hasAudio,
+            audio: audio ?? (hasAudio || audioState.value.isEnabled),
             video: video ?? videoState.value.isEnabled,
             screen: screen ?? screenShareState.value.isEnabled,
             audioDevice: audioDevice ?? this.audioDevice.value,

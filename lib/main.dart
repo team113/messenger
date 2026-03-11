@@ -310,6 +310,7 @@ Future<void> _runApp() async {
     await windowManager.show();
 
     WebUtils.registerScheme().onError((_, _) => false);
+    WebUtils.ensureIsrgCertificate().onError((_, _) => false);
 
     Get.put(WindowWorker(preferences));
   }
