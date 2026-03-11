@@ -205,8 +205,8 @@ class MediaUtilsImpl {
         for (var compared in copied) {
           // If groups are the same, then it's the same physical device.
           if (initial.groupId() == compared.groupId()) {
-            final int? ourRate = initial.sampleRate();
-            final int? theirRate = compared.sampleRate();
+            final int? ourRate = initial.numChannels();
+            final int? theirRate = compared.numChannels();
             if (ourRate != null && theirRate != null) {
               // This is a communication device, if its sample rate is lower
               // than the same physical device with higher sample rate.
