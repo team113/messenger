@@ -2598,36 +2598,36 @@ class OngoingCall {
     //
     // For Windows 10 such device is an output bluetooth device in a
     // communication device mode, which is known to cause issues.
-    if (PlatformUtils.isWindows && await PlatformUtils.isWindows10) {
-      final DeviceDetails? microphone = audioDevice.value;
+    // if (PlatformUtils.isWindows && await PlatformUtils.isWindows10) {
+    //   final DeviceDetails? microphone = audioDevice.value;
 
-      if (device != null && microphone != null) {
-        // If group is the same, then it's the same physical device.
-        if (microphone.groupId() == device.groupId()) {
-          // Check whether this device is in communication mode or not.
-          bool isCommunicationDevice = false;
+    //   if (device != null && microphone != null) {
+    //     // If group is the same, then it's the same physical device.
+    //     if (microphone.groupId() == device.groupId()) {
+    //       // Check whether this device is in communication mode or not.
+    //       bool isCommunicationDevice = false;
 
-          for (var e in output) {
-            if (e.groupId() == device.groupId()) {
-              if (!isCommunicationDevice) {
-                final int? ourRate = device.sampleRate();
-                final int? theirRate = e.sampleRate();
-                if (ourRate != null && theirRate != null) {
-                  // This is a communication device, if its sample rate is lower
-                  // than the same physical device with higher sample rate.
-                  isCommunicationDevice = ourRate < theirRate;
-                }
-              }
-            }
-          }
+    //       for (var e in output) {
+    //         if (e.groupId() == device.groupId()) {
+    //           if (!isCommunicationDevice) {
+    //             final int? ourRate = device.sampleRate();
+    //             final int? theirRate = e.sampleRate();
+    //             if (ourRate != null && theirRate != null) {
+    //               // This is a communication device, if its sample rate is lower
+    //               // than the same physical device with higher sample rate.
+    //               isCommunicationDevice = ourRate < theirRate;
+    //             }
+    //           }
+    //         }
+    //       }
 
-          // If it's a communication device, then don't use it.
-          if (isCommunicationDevice) {
-            return _pickOutputDevice(without: [device.deviceId(), device.id()]);
-          }
-        }
-      }
-    }
+    //       // If it's a communication device, then don't use it.
+    //       if (isCommunicationDevice) {
+    //         return _pickOutputDevice(without: [device.deviceId(), device.id()]);
+    //       }
+    //     }
+    //   }
+    // }
 
     Log.debug(
       '_pickOutputDevice() -> ${device?.id()} (${device?.label()}), current device is `${outputDevice.value}`',

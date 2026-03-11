@@ -196,6 +196,29 @@ class MediaUtilsImpl {
             .map(DeviceDetails.new)
             .toList();
 
+    if (PlatformUtils.isWindows && await PlatformUtils.isWindows10) {
+      final List<DeviceDetails> copied = devices
+          .where((e) => e.kind() == MediaDeviceKind.audioOutput)
+          .toList();
+
+      for (var initial in copied) {
+        for (var compared in copied) {
+          // If groups are the same, then it's the same physical device.
+          if (initial.groupId() == compared.groupId()) {
+            final int? ourRate = initial.sampleRate();
+            final int? theirRate = compared.sampleRate();
+            if (ourRate != null && theirRate != null) {
+              // This is a communication device, if its sample rate is lower
+              // than the same physical device with higher sample rate.
+              if (ourRate > theirRate) {
+                devices.remove(initial);
+              }
+            }
+          }
+        }
+      }
+    }
+
     // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.
     //
     // Browsers and mobiles already may include their own default devices.
