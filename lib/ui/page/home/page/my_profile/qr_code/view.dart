@@ -106,13 +106,10 @@ class QrCodeView extends StatelessWidget {
                   canvas.drawImage(
                     await QrPainter.withQr(
                       qr: QrCode.fromData(data: data, errorCorrectLevel: 1),
+                      gapless: true,
                     ).toImage(500),
                     Offset(12 / 2, 12 / 2),
-                    Paint()
-                      ..colorFilter = ColorFilter.mode(
-                        Colors.black,
-                        BlendMode.srcATop,
-                      ),
+                    Paint(),
                   );
 
                   final picture = recorder.endRecording();
