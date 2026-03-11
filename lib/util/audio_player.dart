@@ -140,7 +140,6 @@ class JustAudioPlaybackEngine implements AudioPlaybackEngine {
     await _player.dispose();
   }
 
-  /// Uses a temporary player to read duration.
   @override
   Future<Duration> extractDuration(AudioSource source) async {
     final player = ja.AudioPlayer();
@@ -221,9 +220,7 @@ class VideoPlayerPlaybackEngine implements AudioPlaybackEngine {
   @override
   Future<void> stop() async {
     await _controller?.pause();
-    _resetState();
-    await _disposeReactiveController();
-    await _disposeController();
+    dispose();
   }
 
   @override
@@ -285,7 +282,7 @@ class VideoPlayerPlaybackEngine implements AudioPlaybackEngine {
     _controller = null;
   }
 
-  /// Resets state to a neutral idle value.
+  /// Resets state.
   void _resetState() {
     isPlaying.value = false;
     isLoading.value = false;
