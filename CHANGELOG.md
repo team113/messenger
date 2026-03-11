@@ -20,12 +20,13 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat info page:
-        - Redesigned links block. ([#1642], [#1638])
+        - Redesigned links block. ([#1644], [#1642], [#1638])
     - Profile page:
-        - Redesigned links, cache and media devices blocks. ([#1638])
+        - Redesigned links, cache and media devices blocks. ([#1644], [#1638])
 
 [#1638]: /../../pull/1638
 [#1642]: /../../pull/1642
+[#1644]: /../../pull/1644
 
 
 
