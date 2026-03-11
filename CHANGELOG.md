@@ -23,10 +23,13 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned links block. ([#1644], [#1642], [#1638])
     - Profile page:
         - Redesigned links, cache and media devices blocks. ([#1644], [#1638])
+    - Chats tab:
+        - Avatar for support chats. ([#1646])
 
 [#1638]: /../../pull/1638
 [#1642]: /../../pull/1642
 [#1644]: /../../pull/1644
+[#1646]: /../../pull/1646
 
 
 
