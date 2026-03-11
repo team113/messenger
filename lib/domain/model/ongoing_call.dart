@@ -1953,8 +1953,11 @@ class OngoingCall {
         // Populate [devices] with a list of available media input devices.
         try {
           await enumerateDevices();
-        } catch (_) {
-          // No-op.
+        } catch (e) {
+          Log.warning(
+            '_initLocalMedia() -> enumerateDevices() failed with $e',
+            '$runtimeType',
+          );
         }
 
         // On mobile platforms, output device is picked in the following priority:
@@ -1968,7 +1971,14 @@ class OngoingCall {
           );
 
           if (outputDevice.value == null) {
-            await _pickOutputDevice();
+            try {
+              await _pickOutputDevice();
+            } catch (e) {
+              Log.warning(
+                '_initLocalMedia() -> _pickOutputDevice() failed with $e',
+                '$runtimeType',
+              );
+            }
           }
         } else {
           // On any other platform the output device is the preferred one.
@@ -1980,7 +1990,14 @@ class OngoingCall {
               devices.output().firstOrNull;
 
           if (outputDevice.value != null) {
-            await AudioUtils.setOutputDevice(outputDevice.value!);
+            try {
+              await AudioUtils.setOutputDevice(outputDevice.value!);
+            } catch (e) {
+              Log.warning(
+                '_initLocalMedia() -> AudioUtils.setOutputDevice(${outputDevice.value}) failed with $e',
+                '$runtimeType',
+              );
+            }
           }
         }
 
