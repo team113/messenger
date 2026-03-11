@@ -124,6 +124,7 @@ class JustAudioPlaybackEngine implements AudioPlaybackEngine {
   @override
   Future<void> stop() async {
     await _player.stop();
+    _resetState();
   }
 
   @override
