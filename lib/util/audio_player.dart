@@ -154,7 +154,7 @@ class JustAudioPlaybackEngine implements AudioPlaybackEngine {
   /// Resets state.
   void _resetState() {
     isPlaying.value = false;
-    isLoading.value = false;
+    isLoading.value = true;
     isCompleted.value = false;
     position.value = Duration.zero;
     duration.value = Duration.zero;
@@ -285,7 +285,7 @@ class VideoPlayerPlaybackEngine implements AudioPlaybackEngine {
   /// Resets state.
   void _resetState() {
     isPlaying.value = false;
-    isLoading.value = false;
+    isLoading.value = true;
     isCompleted.value = false;
     position.value = Duration.zero;
     duration.value = Duration.zero;
