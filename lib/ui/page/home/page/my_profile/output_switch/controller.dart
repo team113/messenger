@@ -115,31 +115,7 @@ class OutputSwitchController extends GetxController {
 
   /// Returns a list of [DeviceDetails] that is filtered to exclude unsupported
   /// devices.
-  ///
-  /// For Windows 10, an unsupported devices is a communication mode device due
-  /// to known bugs with such devices there.
   List<DeviceDetails> _filtered(List<DeviceDetails> devices) {
-    // if (isWindows10) {
-    //   final List<DeviceDetails> copied = devices.toList();
-
-    //   for (var initial in copied) {
-    //     for (var compared in copied) {
-    //       // If groups are the same, then it's the same physical device.
-    //       if (initial.groupId() == compared.groupId()) {
-    //         final int? ourRate = initial.sampleRate();
-    //         final int? theirRate = compared.sampleRate();
-    //         if (ourRate != null && theirRate != null) {
-    //           // This is a communication device, if its sample rate is lower
-    //           // than the same physical device with higher sample rate.
-    //           if (ourRate < theirRate) {
-    //             devices.remove(initial);
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-
     return devices;
   }
 }
