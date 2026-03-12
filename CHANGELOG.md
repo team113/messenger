@@ -28,7 +28,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Media attachments displayed in column instead of grid. ([#1647])
 
-### Fixed:
+### Fixed
 
 - UI:
     - Chat page:
