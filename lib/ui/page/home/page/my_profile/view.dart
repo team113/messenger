@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +30,7 @@ import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/cache_info.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -43,7 +42,7 @@ import '/l10n/l10n.dart';
 import '/pubspec.g.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/fit_view.dart';
+import '/ui/page/home/page/chat/widget/with_global_key.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
@@ -1071,85 +1070,74 @@ Widget _welcome(BuildContext context, MyProfileController c) {
       child: Stack(
         children: [
           IntrinsicWidth(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              decoration: BoxDecoration(
-                color: style.readMessageColor,
-                borderRadius: BorderRadius.circular(15),
-                border: style.secondaryBorder,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (media.isNotEmpty)
-                    ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(15),
-                        topRight: const Radius.circular(15),
-                        bottomLeft: text.isNotEmpty || files.isNotEmpty
-                            ? Radius.zero
-                            : files.isEmpty
-                            ? const Radius.circular(15)
-                            : Radius.zero,
-                        bottomRight: text.isNotEmpty || files.isNotEmpty
-                            ? Radius.zero
-                            : files.isEmpty
-                            ? const Radius.circular(15)
-                            : Radius.zero,
-                      ),
-                      child: media.length == 1
-                          ? ChatItemWidget.mediaAttachment(
-                              context,
-                              attachment: media.first,
-                              filled: false,
-                            )
-                          : SizedBox(
-                              width: media.length * 120,
-                              height: max(media.length * 60, 300),
-                              child: FitView(
-                                dividerColor: Colors.transparent,
-                                children: media
-                                    .mapIndexed(
-                                      (i, e) => ChatItemWidget.mediaAttachment(
-                                        context,
-                                        attachment: e,
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                            ),
-                    ),
-                  if (files.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
-                      child: Column(
-                        children: files
-                            .map((e) => ChatItemWidget.fileAttachment(e))
-                            .toList(),
-                      ),
-                    ),
-                  if (text.isNotEmpty)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        12,
-                        files.isEmpty ? 6 : 0,
-                        12,
-                        6,
-                      ),
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(text: text),
-                            if (timeline != null)
-                              WidgetSpan(
-                                child: Opacity(opacity: 0, child: timeline),
-                              ),
-                          ],
+            child: ClipRRect(
+              borderRadius: style.cardRadius,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                decoration: BoxDecoration(
+                  color: style.readMessageColor,
+                  borderRadius: BorderRadius.circular(15),
+                  border: style.secondaryBorder,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ...media.mapIndexed((i, e) {
+                      int width = 350;
+                      int height = 350;
+                      double aspect = 1;
+
+                      final StorageFile file = e.original;
+                      if (file is ImageFile) {
+                        width = file.width ?? width;
+                        height = file.height ?? height;
+                        aspect = width / height;
+                      }
+
+                      return SizedBox(
+                        width: 350,
+                        height: 350 / height * height.toDouble() / aspect,
+                        child: WithGlobalKey((_, key) {
+                          return ChatItemWidget.mediaAttachment(
+                            context,
+                            attachment: e,
+                            key: key,
+                          );
+                        }),
+                      );
+                    }),
+                    if (files.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
+                        child: Column(
+                          children: files
+                              .map((e) => ChatItemWidget.fileAttachment(e))
+                              .toList(),
                         ),
-                        style: style.fonts.medium.regular.onBackground,
                       ),
-                    ),
-                ],
+                    if (text.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          12,
+                          files.isEmpty ? 6 : 0,
+                          12,
+                          6,
+                        ),
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(text: text),
+                              if (timeline != null)
+                                WidgetSpan(
+                                  child: Opacity(opacity: 0, child: timeline),
+                                ),
+                            ],
+                          ),
+                          style: style.fonts.medium.regular.onBackground,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
