@@ -29,12 +29,12 @@ import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -763,16 +763,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final ChatMessage msg = widget.item.value as ChatMessage;
 
-    final List<Attachment> media = msg.attachments.where((e) {
-      return ((e is ImageAttachment) ||
-          (e is FileAttachment && e.isVideo) ||
-          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
-    }).toList();
+    final List<Attachment> media = msg.attachments
+        .where((e) => e.isMedia)
+        .toList();
 
-    final List<Attachment> files = msg.attachments.where((e) {
-      return ((e is FileAttachment && !e.isVideo) ||
-          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
-    }).toList();
+    final List<Attachment> files = msg.attachments
+        .where((e) => e.isFile)
+        .toList();
 
     final Color color = _fromMe
         ? style.colors.primary
@@ -878,13 +875,12 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             Radius bottomRight = Radius.zero;
 
             if (i == 0) {
-              final bool dontClip =
-                  msg.repliesTo.isNotEmpty ||
-                  (!_fromMe &&
-                      widget.chat.value?.isGroup == true &&
-                      widget.withAvatar);
+              final bool hasTitle =
+                  !_fromMe &&
+                  widget.chat.value?.isGroup == true &&
+                  widget.withAvatar;
 
-              if (!dontClip) {
+              if (msg.repliesTo.isEmpty && !hasTitle) {
                 topLeft = const Radius.circular(15);
                 topRight = const Radius.circular(15);
               }
@@ -911,6 +907,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 child: content,
               );
             }
+
             return content;
           }),
           SizedBox(height: files.isNotEmpty || _text != null ? 6 : 0),
@@ -980,8 +977,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ],
       ];
 
-      return Container(
-        constraints: media.isNotEmpty ? BoxConstraints(maxWidth: 350) : null,
+      return ConstrainedBox(
+        constraints: media.isNotEmpty
+            ? const BoxConstraints(maxWidth: 350)
+            : const BoxConstraints(),
         child: Stack(
           children: [
             IntrinsicWidth(
