@@ -106,7 +106,9 @@ class OutputSwitchView extends StatelessWidget {
                                       c.selected.value = e;
                                       (onChanged ?? c.setOutputDevice).call(e);
                                     },
-                              label: e.label(),
+                              // label: e.label(),
+                              label:
+                                  '${e.label()}\nGroup ID: ${e.groupId()}\nSample rate: ${e.sampleRate()}, channels: ${e.numChannels()}',
                             );
                           });
                         },

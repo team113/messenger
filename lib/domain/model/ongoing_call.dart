@@ -2612,7 +2612,9 @@ class OngoingCall {
     device ??= output.firstOrNull;
 
     // Check whether the output picked is a valid device.
-    await _ensureValidOutputDevice(device: device, outputs: output);
+    if (await _ensureValidOutputDevice(device: device, outputs: output)) {
+      return;
+    }
 
     Log.debug(
       '_pickOutputDevice() -> ${device?.id()} (${device?.label()}), current device is `${outputDevice.value}`',
@@ -2865,10 +2867,15 @@ class OngoingCall {
         false;
   }
 
-  Future<void> _ensureValidOutputDevice({
+  Future<bool> _ensureValidOutputDevice({
     DeviceDetails? device,
     Iterable<DeviceDetails>? outputs,
   }) async {
+    Log.debug(
+      '_ensureValidOutputDevice(device: $device, outputs: $outputs)',
+      '$runtimeType',
+    );
+
     outputs ??= devices.output();
 
     device ??= outputDevice.value;
@@ -2880,6 +2887,11 @@ class OngoingCall {
     // non-communication device mode, which is known to cause issues.
     if (PlatformUtils.isWindows && await PlatformUtils.isWindows10) {
       final DeviceDetails? microphone = audioDevice.value;
+
+      Log.debug(
+        '_ensureValidOutputDevice() -> device is $device, comparing against $microphone -> groups are equal? ${microphone?.groupId() == device?.groupId()}',
+        '$runtimeType',
+      );
 
       // Look for any logical output devices that are the same physical devices.
       if (device != null && microphone != null) {
@@ -2893,6 +2905,12 @@ class OngoingCall {
               if (!isCommunicationDevice) {
                 final int? ourRate = device.numChannels();
                 final int? theirRate = compared.numChannels();
+
+                Log.debug(
+                  '_ensureValidOutputDevice() -> groups of $device and $compared are equal, thus comparing the channels: $ourRate vs $theirRate',
+                  '$runtimeType',
+                );
+
                 if (ourRate != null && theirRate != null) {
                   // This is a communication device, if its channel number is
                   // lower than the same physical device with higher channel
@@ -2903,13 +2921,21 @@ class OngoingCall {
             }
           }
 
+          Log.debug(
+            '_ensureValidOutputDevice() -> compared the whole list of devices, so isCommunicationDevice($isCommunicationDevice)',
+            '$runtimeType',
+          );
+
           // If it's a communication device, then don't use it.
           if (isCommunicationDevice) {
-            return _pickOutputDevice(without: [device.deviceId(), device.id()]);
+            await _pickOutputDevice(without: [device.deviceId(), device.id()]);
+            return true;
           }
         }
       }
     }
+
+    return false;
   }
 }
 

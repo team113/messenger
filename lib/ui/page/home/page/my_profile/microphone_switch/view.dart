@@ -114,7 +114,9 @@ class MicrophoneSwitchView extends StatelessWidget {
                                       c.selected.value = e;
                                       (onChanged ?? c.setAudioDevice).call(e);
                                     },
-                              label: e.label(),
+                              label:
+                                  '${e.label()}\nGroup ID: ${e.groupId()}\nSample rate: ${e.sampleRate()}, channels: ${e.numChannels()}',
+                              // label: e.label(),
                             );
                           });
                         },
