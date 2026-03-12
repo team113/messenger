@@ -22,7 +22,6 @@ import 'dart:ui';
 import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart' show IOHttpClientAdapter;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_custom_cursor/cursor_manager.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
@@ -102,19 +101,6 @@ class PlatformUtilsImpl {
 
   /// Returns a [Dio] client to use in queries.
   Future<Dio> get dio async {
-    // `CERTIFICATE_VERIFY_FAILED` workaround.
-    if (!isWeb && isWindows) {
-      if (client == null) {
-        HttpOverrides.global = _AllowBadCertificatesOverrides();
-        client = Dio(BaseOptions(headers: {'User-Agent': await userAgent}))
-          ..httpClientAdapter = IOHttpClientAdapter(
-            createHttpClient: () {
-              return HttpClient()..badCertificateCallback = (_, _, _) => true;
-            },
-          );
-      }
-    }
-
     client ??= Dio(
       BaseOptions(headers: {if (!isWeb) 'User-Agent': await userAgent}),
     );
@@ -1151,14 +1137,4 @@ class _WindowListener extends WindowListener {
   @override
   void onWindowMoved() async =>
       onMoved?.call(await windowManager.getPosition());
-}
-
-/// [HttpOverrides] creating a [HttpClient] that allows bad certificates.
-class _AllowBadCertificatesOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
-  }
 }

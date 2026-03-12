@@ -532,12 +532,7 @@ class GraphQlClient {
                 protocols: protocols,
                 customClient: PlatformUtils.isWeb
                     ? null
-                    : (HttpClient()
-                        ..userAgent = await PlatformUtils.userAgent
-                        ..badCertificateCallback = PlatformUtils.isWindows
-                            // `CERTIFICATE_VERIFY_FAILED` workaround.
-                            ? (_, _, _) => true
-                            : null),
+                    : (HttpClient()..userAgent = await PlatformUtils.userAgent),
               )
               .forGraphQL();
 

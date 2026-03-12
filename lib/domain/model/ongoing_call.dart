@@ -2611,11 +2611,6 @@ class OngoingCall {
     device ??= output.firstWhereOrNull((e) => e.id() == 'default');
     device ??= output.firstOrNull;
 
-    // Check whether the output picked is a valid device.
-    if (await _ensureValidOutputDevice(device: device, outputs: output)) {
-      return;
-    }
-
     Log.debug(
       '_pickOutputDevice() -> ${device?.id()} (${device?.label()}), current device is `${outputDevice.value}`',
       '$runtimeType',
@@ -2755,6 +2750,10 @@ class OngoingCall {
         rethrow;
       }
     }
+
+    // Check whether the currently picked output device will work with the
+    // current microphone, as it's known on Windows 10 to have some issues.
+    await _ensureValidOutputDevice();
   }
 
   /// Handles the [LocalMediaInitException] by enabling/disabling certain
