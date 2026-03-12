@@ -1735,7 +1735,7 @@ class OngoingCall {
           '$runtimeType',
         );
 
-        final Track t = Track(track);
+        final Track t = Track(track, debugLabel: '$id');
 
         final CallMember? redialed = members[redialedId];
         if (redialed?.isDialing.value == true) {
@@ -2321,7 +2321,7 @@ class OngoingCall {
           }
 
           _settings = _mediaStreamSettings(
-            audio: audio ?? hasAudio,
+            audio: audio ?? (hasAudio || audioState.value.isEnabled),
             video: video ?? videoState.value.isEnabled,
             screen: screen ?? screenShareState.value.isEnabled,
             audioDevice: audioDevice ?? this.audioDevice.value,
@@ -2477,7 +2477,7 @@ class OngoingCall {
         } else {
           _removeLocalTracks(kind, source);
 
-          Track t = Track(track);
+          final Track t = Track(track, debugLabel: 'me');
           members[_me]?.tracks.add(t);
 
           switch (source) {
@@ -2506,7 +2506,7 @@ class OngoingCall {
       case MediaKind.audio:
         _removeLocalTracks(kind, source);
 
-        members[_me]?.tracks.add(Track(track));
+        members[_me]?.tracks.add(Track(track, debugLabel: 'me'));
 
         if (source == MediaSourceKind.device) {
           audioDevice.value =
@@ -2847,10 +2847,13 @@ enum MediaOwnerKind { local, remote }
 
 /// Convenience wrapper around a [webrtc.MediaStreamTrack].
 abstract class RtcRenderer {
-  const RtcRenderer(this.track);
+  const RtcRenderer(this.track, {this.debugLabel});
 
   /// Native media track of this [RtcRenderer].
   final webrtc.MediaStreamTrack track;
+
+  // Debug label that is used for diagnostic output.
+  final String? debugLabel;
 
   /// Disposes this [RtcRenderer] and its [track].
   Future<void> dispose();
@@ -2858,10 +2861,12 @@ abstract class RtcRenderer {
 
 /// Convenience wrapper around a [webrtc.VideoRenderer].
 class RtcVideoRenderer extends RtcRenderer {
-  RtcVideoRenderer(MediaTrack track) : super(track.getTrack()) {
+  RtcVideoRenderer(MediaTrack track, {super.debugLabel})
+    : _mediaSourceKind = track.mediaSourceKind(),
+      super(track.getTrack()) {
     Log.debug(
       'RtcVideoRenderer() -> ${_delegate.videoWidth}x${_delegate.videoHeight}',
-      '$runtimeType',
+      '$runtimeType($debugLabel).${_mediaSourceKind.name}',
     );
 
     if (track is LocalMediaTrack) {
@@ -2870,15 +2875,15 @@ class RtcVideoRenderer extends RtcRenderer {
       if (PlatformUtils.isMobile) {
         mirror = track.getTrack().facingMode() == webrtc.FacingMode.user;
       } else {
-        mirror = track.mediaSourceKind() == MediaSourceKind.device;
+        mirror = _mediaSourceKind == MediaSourceKind.device;
       }
     }
 
     // Listen for video to start having frames to be displayed.
     _delegate.onCanPlay = () {
       Log.debug(
-        '[${track.kind()} ${track.mediaSourceKind()}] canPlay',
-        '$runtimeType',
+        'onCanPlay',
+        '$runtimeType($debugLabel).${_mediaSourceKind.name}',
       );
 
       canPlay.value = true;
@@ -2891,8 +2896,8 @@ class RtcVideoRenderer extends RtcRenderer {
     // Listen for resizes to update [width] and [height].
     _delegate.onResize = () {
       Log.debug(
-        '[${track.kind()} ${track.mediaSourceKind()}] resized to ${_delegate.videoWidth}x${_delegate.videoHeight}',
-        '$runtimeType',
+        'onResize -> resized to ${_delegate.videoWidth}x${_delegate.videoHeight}',
+        '$runtimeType($debugLabel).${_mediaSourceKind.name}',
       );
 
       width.value = _delegate.videoWidth == 0
@@ -2916,9 +2921,6 @@ class RtcVideoRenderer extends RtcRenderer {
   /// Indicator whether this [RtcVideoRenderer] should be auto rotated.
   bool autoRotate = true;
 
-  /// Actual [webrtc.VideoRenderer].
-  final webrtc.VideoRenderer _delegate = webrtc.createVideoRenderer();
-
   /// Reactive width of this [RtcVideoRenderer].
   late final RxInt width = RxInt(_delegate.videoWidth);
 
@@ -2928,6 +2930,12 @@ class RtcVideoRenderer extends RtcRenderer {
   /// Indicator whether this [RtcVideoRenderer] has visible frames, meaning it
   /// may be rendered.
   final RxBool canPlay = RxBool(false);
+
+  /// Actual [webrtc.VideoRenderer].
+  final webrtc.VideoRenderer _delegate = webrtc.createVideoRenderer();
+
+  /// [MediaSourceKind] of this [RtcVideoRenderer].
+  final MediaSourceKind _mediaSourceKind;
 
   /// Returns inner [webrtc.VideoRenderer].
   ///
@@ -2940,33 +2948,53 @@ class RtcVideoRenderer extends RtcRenderer {
 
   /// Initializes inner [webrtc.VideoRenderer].
   Future<void> initialize() async {
-    Log.debug('initialize()', '$runtimeType');
+    Log.debug(
+      'initialize()',
+      '$runtimeType($debugLabel).${_mediaSourceKind.name}',
+    );
     await _delegate.initialize();
   }
 
   @override
   Future<void> dispose() async {
-    Log.debug('dispose()', '$runtimeType');
+    Log.debug(
+      'dispose()',
+      '$runtimeType($debugLabel).${_mediaSourceKind.name}',
+    );
     await _delegate.dispose();
   }
+
+  @override
+  String toString() => 'RtcVideoRenderer($debugLabel).${_mediaSourceKind.name}';
 }
 
 /// Convenience wrapper around an [webrtc.AudioRenderer].
 class RtcAudioRenderer extends RtcRenderer {
-  RtcAudioRenderer(MediaTrack track) : super(track.getTrack()) {
-    Log.debug('RtcAudioRenderer()', '$runtimeType');
+  RtcAudioRenderer(MediaTrack track, {super.debugLabel})
+    : _mediaSourceKind = track.mediaSourceKind(),
+      super(track.getTrack()) {
+    Log.debug(
+      'RtcAudioRenderer()',
+      '$runtimeType($debugLabel).${_mediaSourceKind.name}',
+    );
     srcObject = track.getTrack();
   }
 
   /// Actual [webrtc.AudioRenderer].
   final webrtc.AudioRenderer _delegate = webrtc.createAudioRenderer();
 
+  /// [MediaSourceKind] of this [RtcVideoRenderer].
+  final MediaSourceKind _mediaSourceKind;
+
   /// Sets [webrtc.AudioRenderer.srcObject] property.
   set srcObject(webrtc.MediaStreamTrack? track) => _delegate.srcObject = track;
 
   @override
   Future<void> dispose() async {
-    Log.debug('dispose()', '$runtimeType');
+    Log.debug(
+      'dispose()',
+      '$runtimeType($debugLabel).${_mediaSourceKind.name}',
+    );
     await _delegate.dispose();
   }
 }
@@ -3119,7 +3147,9 @@ class CallMember {
 
 /// Convenience wrapper around a [MediaTrack].
 class Track {
-  Track(this.track) : kind = track.kind(), source = track.mediaSourceKind() {
+  Track(this.track, {this.debugLabel})
+    : kind = track.kind(),
+      source = track.mediaSourceKind() {
     Log.debug('Track($kind, $source)', '$runtimeType');
 
     if (track is RemoteMediaTrack) {
@@ -3147,6 +3177,9 @@ class Track {
   /// [MediaKind] of this [Track].
   final MediaKind kind;
 
+  // Debug label that is used for diagnostic output.
+  final String? debugLabel;
+
   /// Indicator whether this [Track] is already disposed or not.
   ///
   /// Used to prohibit multiple [dispose] invoking.
@@ -3159,7 +3192,10 @@ class Track {
 
   /// Creates the [renderer] for this [Track].
   Future<void> createRenderer() async {
-    Log.debug('createRenderer() for $kind-$source', '$runtimeType');
+    Log.debug(
+      'createRenderer() for $kind-$source',
+      '$runtimeType($debugLabel)',
+    );
 
     await _rendererGuard.protect(() async {
       if (renderer.value != null) {
@@ -3168,11 +3204,11 @@ class Track {
 
       switch (track.kind()) {
         case MediaKind.audio:
-          renderer.value = RtcAudioRenderer(track);
+          renderer.value = RtcAudioRenderer(track, debugLabel: debugLabel);
           break;
 
         case MediaKind.video:
-          renderer.value = RtcVideoRenderer(track);
+          renderer.value = RtcVideoRenderer(track, debugLabel: debugLabel);
           await (renderer.value as RtcVideoRenderer?)?.initialize();
           (renderer.value as RtcVideoRenderer?)?.srcObject = track.getTrack();
           break;
@@ -3182,7 +3218,10 @@ class Track {
 
   /// Disposes the [renderer] of this [Track].
   Future<void> removeRenderer() async {
-    Log.debug('removeRenderer() for $kind-$source', '$runtimeType');
+    Log.debug(
+      'removeRenderer() for $kind-$source',
+      '$runtimeType($debugLabel)',
+    );
 
     await _rendererGuard.protect(() async {
       renderer.value?.dispose();
@@ -3194,7 +3233,7 @@ class Track {
   ///
   /// No-op, if this [Track] was already disposed.
   Future<void> dispose() async {
-    Log.debug('dispose()', '$runtimeType');
+    Log.debug('dispose()', '$runtimeType($debugLabel)');
 
     if (!_disposed) {
       _disposed = true;
@@ -3204,8 +3243,7 @@ class Track {
 
   /// Stops the [webrtc.MediaStreamTrack] of this [Track].
   Future<void> stop() async {
-    Log.debug('stop()', '$runtimeType');
-
+    Log.debug('stop()', '$runtimeType($debugLabel)');
     await Future.wait([track.getTrack().stop(), removeRenderer()]);
   }
 }

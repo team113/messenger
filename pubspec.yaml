@@ -224,6 +224,7 @@ flutter:
     - assets/images/
     - assets/images/logo/
     - assets/images/media_buttons/
+    - assets/isrgrootx1.pem
     - assets/l10n/
     - assets/privacy.html
     - assets/terms.html
