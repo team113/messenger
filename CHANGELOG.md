@@ -28,11 +28,18 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Media attachments displayed in column instead of grid. ([#1647])
 
+### Fixed:
+
+- UI:
+    - Chat page:
+        - Welcome message displayed at bottom instead of top. ([#1649])
+
 [#1638]: /../../pull/1638
 [#1642]: /../../pull/1642
 [#1644]: /../../pull/1644
 [#1646]: /../../pull/1646
 [#1647]: /../../pull/1647
+[#1649]: /../../pull/1649
 
 
 
