@@ -1155,6 +1155,13 @@ class WebUtils {
   /// iOS `AVAudioSession`.
   static Future<void> setupAudioSessionManagement(bool value) => Future.value();
 
+  /// Ensures the [ISRG Root X1 certificate][1] is trusted on the device.
+  ///
+  /// [1]: https://letsencrypt.org/certificates/
+  static Future<void> ensureIsrgCertificate() async {
+    // No-op, as browsers handle the root certificate themselves.
+  }
+
   /// Handles the [key] event to invoke [_keyHandlers] related to it.
   static bool _handleBindKeys(KeyEvent key) {
     if (key is KeyUpEvent) {

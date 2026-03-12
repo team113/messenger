@@ -171,7 +171,7 @@ class Config {
   static bool redirectStdOut = true;
 
   /// [UserId] of the [User]-support.
-  static String supportId = '7GgdGcrEEuLRWMDJakuDkI';
+  static String supportId = 'gapopa';
 
   /// [UserId]s of the [User]s that should be considered as supports.
   static List<String> supportIds = [];
@@ -350,7 +350,7 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_SUPPORT_SECONDARY')
         : document['support']?['secondary'];
 
-    supportIds = ids == null ? [supportId] : ids.split(',');
+    supportIds = ids == null ? [...supportIds, supportId] : ids.split(',');
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {

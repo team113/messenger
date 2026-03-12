@@ -180,18 +180,31 @@ class AvatarWidget extends StatelessWidget {
     bool isOnline = false,
     bool isAway = false,
     BoxConstraints? constraints,
-  }) => AvatarWidget(
-    key: key,
-    avatar: user?.avatar,
-    title: user?.title(withDeletedLabel: false),
-    color: user?.num.val.sum(),
-    radius: radius,
-    opacity: opacity,
-    shape: shape,
-    isOnline: isOnline,
-    isAway: isAway,
-    constraints: constraints,
-  );
+  }) {
+    if (user?.id.isSupport == true) {
+      return AvatarWidget.support(
+        isOnline: isOnline,
+        isAway: isAway,
+        radius: radius,
+        opacity: opacity,
+        shape: shape,
+        constraints: constraints,
+      );
+    }
+
+    return AvatarWidget(
+      key: key,
+      avatar: user?.avatar,
+      title: user?.title(withDeletedLabel: false),
+      color: user?.num.val.sum(),
+      radius: radius,
+      opacity: opacity,
+      shape: shape,
+      isOnline: isOnline,
+      isAway: isAway,
+      constraints: constraints,
+    );
+  }
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
   static Widget fromRxUser(
@@ -214,11 +227,26 @@ class AvatarWidget extends StatelessWidget {
       );
     }
 
-    return Obx(
-      () => AvatarWidget(
+    return Obx(() {
+      final bool isOnline = badge && user.user.value.online == true;
+      final bool isAway =
+          badge && user.user.value.presence == UserPresence.away;
+
+      if (user.id.isSupport == true) {
+        return AvatarWidget.support(
+          isOnline: isOnline,
+          isAway: isAway,
+          radius: radius,
+          opacity: opacity,
+          shape: shape,
+          constraints: constraints,
+        );
+      }
+
+      return AvatarWidget(
         key: key,
-        isOnline: badge && user.user.value.online == true,
-        isAway: badge && user.user.value.presence == UserPresence.away,
+        isOnline: isOnline,
+        isAway: isAway,
         avatar: user.user.value.avatar,
         title: user.title(withDeletedLabel: false),
         color: user.user.value.num.val.sum(),
@@ -226,8 +254,8 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
         shape: shape,
         constraints: constraints,
-      ),
-    );
+      );
+    });
   }
 
   /// Creates an [AvatarWidget] from the specified [chat]-monolog.
@@ -298,15 +326,29 @@ class AvatarWidget extends StatelessWidget {
         );
       }
 
+      final bool isDialog = chat.chat.value.isDialog;
       final RxUser? user = chat.members.values
           .firstWhereOrNull((e) => e.user.id != chat.me)
           ?.user;
+
+      final bool isOnline = isDialog && user?.user.value.online == true;
+      final bool isAway =
+          isDialog && user?.user.value.presence == UserPresence.away;
+
+      if (isDialog && user?.id.isSupport == true) {
+        return AvatarWidget.support(
+          isOnline: isOnline,
+          isAway: isAway,
+          radius: radius,
+          opacity: opacity,
+          shape: shape,
+        );
+      }
+
       return AvatarWidget(
         key: key,
-        isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
-        isAway:
-            chat.chat.value.isDialog &&
-            user?.user.value.presence == UserPresence.away,
+        isOnline: isOnline,
+        isAway: isAway,
         avatar: chat.avatar.value,
         title: chat.title(withDeletedLabel: false),
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),
@@ -316,6 +358,38 @@ class AvatarWidget extends StatelessWidget {
         shape: shape,
       );
     });
+  }
+
+  /// Builds an [AvatarWidget] for a [User]-support.
+  factory AvatarWidget.support({
+    UserId? me,
+    Key? key,
+    AvatarRadius? radius,
+    double opacity = 1,
+    AvatarShape shape = AvatarShape.circle,
+    bool isOnline = false,
+    bool isAway = false,
+    BoxConstraints? constraints,
+  }) {
+    return AvatarWidget(
+      color: 0,
+      label: LayoutBuilder(
+        builder: (context, constraints) {
+          return SvgImage.asset(
+            'assets/images/support.svg',
+            width: constraints.maxHeight * 0.8,
+            height: constraints.maxHeight * 0.8,
+          );
+        },
+      ),
+      isOnline: isOnline,
+      isAway: isAway,
+      key: key,
+      radius: radius,
+      opacity: opacity,
+      shape: shape,
+      constraints: constraints,
+    );
   }
 
   /// [Avatar] to display.
