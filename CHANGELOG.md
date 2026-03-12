@@ -25,11 +25,14 @@ All user visible changes to this project will be documented in this file. This p
         - Redesigned links, cache and media devices blocks. ([#1644], [#1638])
     - Chats tab:
         - Avatar for support chats. ([#1646])
+    - Chat page:
+        - Media attachments displayed in column instead of grid. ([#1647])
 
 [#1638]: /../../pull/1638
 [#1642]: /../../pull/1642
 [#1644]: /../../pull/1644
 [#1646]: /../../pull/1646
+[#1647]: /../../pull/1647
 
 
 
