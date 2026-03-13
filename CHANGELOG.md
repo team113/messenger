@@ -33,9 +33,12 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Welcome message displayed at bottom instead of top. ([#1649])
+- Windows:
+    - Unsupported devices displayed in output devices list for Windows 10. ([#1643])
 
 [#1638]: /../../pull/1638
 [#1642]: /../../pull/1642
+[#1643]: /../../pull/1643
 [#1644]: /../../pull/1644
 [#1646]: /../../pull/1646
 [#1647]: /../../pull/1647

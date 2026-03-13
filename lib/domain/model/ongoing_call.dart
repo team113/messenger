@@ -2719,6 +2719,10 @@ class OngoingCall {
     if (device != audioDevice.value) {
       await _updateSettings(audio: true, audioDevice: device);
     }
+
+    // Check whether the currently picked output device will work with the
+    // current microphone, as it's known on Windows 10 to have some issues.
+    await _ensureValidOutputDevice();
   }
 
   /// Sets the provided [device] as a currently used [outputDevice].
@@ -2746,6 +2750,10 @@ class OngoingCall {
         rethrow;
       }
     }
+
+    // Check whether the currently picked output device will work with the
+    // current microphone, as it's known on Windows 10 to have some issues.
+    await _ensureValidOutputDevice();
   }
 
   /// Handles the [LocalMediaInitException] by enabling/disabling certain
@@ -2856,6 +2864,77 @@ class OngoingCall {
             .where((t) => t.kind == kind && t.source == source)
             .isNotEmpty ??
         false;
+  }
+
+  Future<bool> _ensureValidOutputDevice({
+    DeviceDetails? device,
+    Iterable<DeviceDetails>? outputs,
+  }) async {
+    Log.debug(
+      '_ensureValidOutputDevice(device: $device, outputs: $outputs)',
+      '$runtimeType',
+    );
+
+    outputs ??= devices.output();
+
+    device ??= outputDevice.value;
+    device ??= devices.output().firstOrNull;
+
+    // Ensure we aren't using unavailable device.
+    //
+    // For Windows 10 such device is an output bluetooth device in a
+    // non-communication device mode, which is known to cause issues.
+    if (PlatformUtils.isWindows && await PlatformUtils.isWindows10) {
+      final DeviceDetails? microphone = audioDevice.value;
+
+      Log.debug(
+        '_ensureValidOutputDevice() -> device is $device, comparing against $microphone -> groups are equal? ${microphone?.groupId() == device?.groupId()}',
+        '$runtimeType',
+      );
+
+      // Look for any logical output devices that are the same physical devices.
+      if (device != null && microphone != null) {
+        // If group is the same, then it's the same physical device.
+        if (microphone.groupId() == device.groupId()) {
+          // Check whether this device is in communication mode or not.
+          bool isCommunicationDevice = false;
+
+          for (var compared in outputs) {
+            if (compared.groupId() == device.groupId()) {
+              if (!isCommunicationDevice) {
+                final int? ourRate = device.numChannels();
+                final int? theirRate = compared.numChannels();
+
+                Log.debug(
+                  '_ensureValidOutputDevice() -> groups of $device and $compared are equal, thus comparing the channels: $ourRate vs $theirRate',
+                  '$runtimeType',
+                );
+
+                if (ourRate != null && theirRate != null) {
+                  // This is a communication device, if its channel number is
+                  // lower than the same physical device with higher channel
+                  // number.
+                  isCommunicationDevice = ourRate < theirRate;
+                }
+              }
+            }
+          }
+
+          Log.debug(
+            '_ensureValidOutputDevice() -> compared the whole list of devices, so isCommunicationDevice($isCommunicationDevice)',
+            '$runtimeType',
+          );
+
+          // If it's a communication device, then don't use it.
+          if (isCommunicationDevice) {
+            await _pickOutputDevice(without: [device.deviceId(), device.id()]);
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 }
 

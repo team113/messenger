@@ -398,9 +398,10 @@ class WebUtils {
           router.lifecycle.value != AppLifecycleState.detached);
 
   /// Indicates whether this platform supports system audio capture.
-  static FutureOr<bool> get canShareAudio {
-    return false;
-  }
+  static FutureOr<bool> get canShareAudio => false;
+
+  /// Indicates whether the operating system of the device is Windows 10.
+  static Future<bool> get isWindows10 => Future.value(false);
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
