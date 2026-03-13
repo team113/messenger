@@ -26,13 +26,15 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Avatar for support chats. ([#1646])
     - Chat page:
-        - Media attachments displayed in column instead of grid. ([#1647])
+        - Media attachments displayed in column instead of grid. ([#1651], [#1647])
 
 ### Fixed
 
 - UI:
     - Chat page:
         - Welcome message displayed at bottom instead of top. ([#1649])
+    - Media panel:
+        - Click cursor missing when hovering over dock buttons on macOS. ([#1651])
 
 [#1638]: /../../pull/1638
 [#1642]: /../../pull/1642
@@ -40,6 +42,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1646]: /../../pull/1646
 [#1647]: /../../pull/1647
 [#1649]: /../../pull/1649
+[#1651]: /../../pull/1651
 
 
 

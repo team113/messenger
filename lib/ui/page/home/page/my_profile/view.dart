@@ -1094,7 +1094,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                         aspect = width / height;
                       }
 
-                      return SizedBox(
+                      final Widget content = SizedBox(
                         width: 350,
                         height: 350 / height * height.toDouble() / aspect,
                         child: WithGlobalKey((_, key) {
@@ -1104,6 +1104,11 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                             key: key,
                           );
                         }),
+                      );
+
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [content, const SizedBox(height: 1)],
                       );
                     }),
                     if (files.isNotEmpty)
