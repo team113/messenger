@@ -17,34 +17,40 @@
 
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '/config.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show CreateChatDirectLinkException;
 import '/themes.dart';
+import '/ui/page/home/page/my_profile/qr_code/view.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/line_divider.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'field_button.dart';
 
 /// [ReactiveTextField] displaying the provided [link].
 ///
 /// If [link] is `null`, generates and displays a random [ChatDirectLinkSlug].
 class DirectLinkField extends StatefulWidget {
-  const DirectLinkField(this.link, {super.key, this.onSubmit, this.background});
+  const DirectLinkField(
+    this.link, {
+    super.key,
+    this.onSubmit,
+    this.background,
+    this.canAddMore = true,
+  });
 
   /// [ChatDirectLink] to display.
   final ChatDirectLink? link;
@@ -54,6 +60,9 @@ class DirectLinkField extends StatefulWidget {
 
   /// Bytes of the background to display under the widget.
   final Uint8List? background;
+
+  /// Indicator whether a new link can be added.
+  final bool canAddMore;
 
   @override
   State<DirectLinkField> createState() => _DirectLinkFieldState();
@@ -108,178 +117,156 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+    final link = widget.link;
 
     final Widget child;
 
-    if (widget.link == null) {
+    if (link == null) {
       child = Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 16),
-          Text(
-            'label_you_can_use_randomly_generated_link'.l10n,
-            style: style.fonts.small.regular.secondary,
-          ),
-          const SizedBox(height: 20),
-          LineDivider('label_create_link'.l10n),
-          const SizedBox(height: 12),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ReactiveTextField(
             state: _state,
             hint: _generated,
             floatingAccent: true,
-            label: Config.link,
+            label: 'label_add_link'.l10n,
+            prefixText: Config.link,
             floatingLabelBehavior: FloatingLabelBehavior.always,
             spellCheck: false,
           ),
-          SizedBox(height: 8),
-          Stack(
-            children: [
-              AspectRatio(
-                aspectRatio: 1,
-                child: SizedBox(
-                  width: 300,
-                  height: 300,
-                  child: ImageFiltered(
-                    imageFilter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                    child: QrImageView(data: '${Config.link}$_generated'),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: ColoredBox(color: style.colors.onPrimaryOpacity50),
-              ),
-              Positioned.fill(
-                child: Center(
-                  child: WidgetButton(
-                    key: const Key('CreateLinkButton'),
-                    onPressed: () async {
-                      if (_state.text.isEmpty) {
-                        _state.text = _generated;
-                      }
+          const SizedBox(height: 8),
+          PrimaryButton(
+            key: const Key('CreateLinkButton'),
+            title: 'btn_save_and_copy'.l10n,
+            onPressed: () async {
+              if (_state.text.isEmpty) {
+                _state.text = _generated;
+              }
 
-                      PlatformUtils.copy(text: '${Config.link}${_state.text}');
-                      MessagePopup.success('label_copied'.l10n);
+              PlatformUtils.copy(text: '${Config.link}${_state.text}');
+              MessagePopup.success('label_copied'.l10n);
 
-                      await _submitLink();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: style.colors.primary,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: style.colors.onPrimary,
-                          width: 4,
-                        ),
-                      ),
-                      padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
-                      child: Text(
-                        'btn_create_and_copy'.l10n,
-                        style: style.fonts.small.regular.onPrimary,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              await _submitLink();
+            },
+            leading: SvgIcon(SvgIcons.copy19White),
           ),
           const SizedBox(height: 12),
         ],
       );
     } else {
+      final String url = '${Config.link}${link.slug}';
+
       child = Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: WidgetButton(
-                onPressed: () async {
-                  await launchUrlString(
-                    '${Config.link}${widget.link?.slug.val}',
-                  );
-                },
-                child: Text(
-                  '${Config.link}${widget.link?.slug.val}',
-                  style: style.fonts.normal.regular.primary,
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            ),
+          const SizedBox(height: 8),
+          ReactiveTextField(
+            state: TextFieldState(text: link.slug.val, editable: false),
+            hint: _generated,
+            label: link.createdAt.val.yMd,
+            prefixText: Config.link,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            spellCheck: false,
           ),
-          SizedBox(height: 12),
-          Stack(
-            children: [
-              AspectRatio(
-                aspectRatio: 1,
-                child: SizedBox(
-                  width: 300,
-                  height: 300,
-                  child: QrImageView(data: '${Config.link}$_generated'),
-                ),
-              ),
-              Positioned.fill(
-                child: Center(
-                  child: WidgetButton(
-                    key: const Key('CopyLinkButton'),
-                    onPressed: () {
-                      PlatformUtils.copy(text: '${Config.link}${_state.text}');
-                      MessagePopup.success('label_copied'.l10n);
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: style.colors.primary,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: style.colors.onPrimary,
-                          width: 4,
-                        ),
-                      ),
-                      padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
-                      child: Text(
-                        'btn_copy'.l10n,
-                        style: style.fonts.small.regular.onPrimary,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 4),
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
             child: Row(
               children: [
-                Text(
-                  'label_visits_count'.l10nfmt({
-                    'count': '${widget.link?.usageCount}',
-                  }),
-                  style: style.fonts.small.regular.secondary,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SvgIcon(SvgIcons.linkViews),
+                    const SizedBox(width: 4),
+                    Text(
+                      '${link.usageCount}',
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ],
                 ),
                 Spacer(),
+                WidgetButton(
+                  onPressed: () {},
+                  onPressedWithDetails: (u) {
+                    PlatformUtils.copy(text: url);
+                    MessagePopup.success(
+                      'label_copied'.l10n,
+                      at: u.globalPosition,
+                    );
+                  },
+                  child: Text(
+                    'btn_copy'.l10n,
+                    style: style.fonts.small.regular.primary,
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                  width: 1,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: style.colors.secondaryHighlight,
+                  ),
+                ),
+                if (PlatformUtils.isMobile) ...[
+                  WidgetButton(
+                    onPressed: () async {
+                      await SharePlus.instance.share(ShareParams(text: url));
+                    },
+                    child: Text(
+                      'btn_share'.l10n,
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                    width: 1,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: style.colors.secondaryHighlight,
+                    ),
+                  ),
+                ],
                 ContextMenuRegion(
                   enablePrimaryTap: true,
                   actions: [
-                    if (PlatformUtils.isMobile)
-                      ContextMenuButton(
-                        onPressed: () async {
-                          await SharePlus.instance.share(
-                            ShareParams(text: '${Config.link}$_generated'),
-                          );
-                        },
-                        label: 'btn_share'.l10n,
-                        trailing: SvgIcon(SvgIcons.share),
-                        inverted: SvgIcon(SvgIcons.share19White),
-                      ),
                     ContextMenuButton(
-                      onPressed: () => widget.onSubmit?.call(null),
-                      label: 'btn_delete'.l10n,
-                      trailing: SvgIcon(SvgIcons.delete19),
-                      inverted: SvgIcon(SvgIcons.delete19White),
+                      onPressed: () async {
+                        await QrCodeView.show(context, data: url);
+                      },
+                      label: 'btn_show_qr_code'.l10n,
+                      trailing: SvgIcon(SvgIcons.contextQr),
+                      inverted: SvgIcon(SvgIcons.contextQrWhite),
+                    ),
+                    ContextMenuButton(
+                      onPressed: () async {
+                        final proceed = await MessagePopup.alert(
+                          'label_unlink_link'.l10n,
+                          additional: [
+                            Text(
+                              url,
+                              style: style.fonts.normal.regular.onBackground,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'label_unlink_link_confirm_description1'.l10n,
+                              style: style.fonts.small.regular.secondary,
+                            ),
+                          ],
+                          button: (context) => MessagePopup.deleteButton(
+                            context,
+                            label: 'btn_unlink'.l10n,
+                            icon: SvgIcons.buttonUnlink,
+                          ),
+                        );
+
+                        if (proceed == true) {
+                          await widget.onSubmit?.call(null);
+                        }
+                      },
+                      label: 'btn_unlink'.l10n,
+                      trailing: SvgIcon(SvgIcons.contextUnlink),
+                      inverted: SvgIcon(SvgIcons.contextUnlinkWhite),
                     ),
                   ],
                   child: Padding(
@@ -293,6 +280,21 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
               ],
             ),
           ),
+
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+            child: const LineDivider(''),
+          ),
+
+          const SizedBox(height: 4),
+          if (widget.canAddMore) ...[
+            const SizedBox(height: 20),
+            FieldButton(
+              trailing: SvgIcon(SvgIcons.addLink),
+              child: Text('btn_add_link'.l10n),
+            ),
+          ],
         ],
       );
     }

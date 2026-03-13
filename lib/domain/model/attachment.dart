@@ -69,6 +69,38 @@ abstract class Attachment {
   DownloadStatus get downloadStatus =>
       downloading?.status.value ?? DownloadStatus.notStarted;
 
+  /// Indicates whether this [Attachment] represents an image or a video.
+  bool get isMedia {
+    if (this is ImageAttachment) {
+      return true;
+    }
+
+    if (this is FileAttachment) {
+      return (this as FileAttachment).isVideo;
+    }
+
+    if (this is LocalAttachment) {
+      final local = this as LocalAttachment;
+      return local.file.isImage || local.file.isVideo;
+    }
+
+    return false;
+  }
+
+  /// Indicates whether this [Attachment] represents a file.
+  bool get isFile {
+    if (this is FileAttachment) {
+      return !(this as FileAttachment).isVideo;
+    }
+
+    if (this is LocalAttachment) {
+      final local = this as LocalAttachment;
+      return !local.file.isImage && !local.file.isVideo;
+    }
+
+    return false;
+  }
+
   /// Returns a [Map] representing this [Attachment].
   Map<String, dynamic> toJson() => switch (runtimeType) {
     const (ImageAttachment) => (this as ImageAttachment).toJson(),

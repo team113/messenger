@@ -37,6 +37,7 @@ btn_add_account = Добавить аккаунт
 btn_add_account_with_desc =
     Добавить
     аккаунт
+btn_add_link = Добавить ссылку
 btn_add_participant = Добавить участника
 btn_add_participant_desc =
     Добавить
@@ -46,7 +47,7 @@ btn_add_to_favorites = Добавить в избранные
 btn_audio_call = Аудиозвонок
 btn_back = Назад
 btn_block = Заблокировать
-btn_block = Заблокировать пользователя
+btn_block_user = Заблокировать пользователя
 btn_call_answer_with_audio =
     Ответить
     с аудио
@@ -129,9 +130,6 @@ btn_call_video_on_desc =
     Включить
     камеру
 btn_change = Изменить
-btn_change_account_desc =
-    Сменить
-    аккаунт
 btn_change_password = Изменить пароль
 btn_change_status = Изменить статус
 btn_check_for_updates = Проверить наличие обновлений
@@ -145,9 +143,6 @@ btn_confirm_email = Подтвердить e-mail
 btn_copy = Копировать
 btn_copy_text = Копировать текст
 btn_create = Создать
-btn_create_and_copy =
-    Создать и
-    копировать
 btn_create_group = Создать группу
 btn_decline = Отклонить
 btn_delete = Удалить
@@ -161,6 +156,7 @@ btn_download = Скачать
 btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
 btn_download_as = Скачать как
+btn_download_as_png = Скачать как .png
 btn_download_logs = Скачать логи
 btn_download_version = Скачать {$version}
 btn_edit = Редактировать
@@ -214,6 +210,7 @@ btn_resend = Отправить повторно
 btn_resend_message = Отправить повторно
 btn_save = Сохранить
 btn_save_all = Сохранить всё
+btn_save_and_copy = Сохранить и копировать
 btn_save_to_gallery = Сохранить в галерею
 btn_save_to_gallery_all = Сохранить всё в галерею
 btn_save_my_credentials_for_one_click = Сохранить мои данные для входа в один клик
@@ -227,6 +224,7 @@ btn_set_password = Установить пароль
 btn_share = Поделиться
 btn_share_audio = Транслировать звук
 btn_show_chat = Показать чат
+btn_show_qr_code = Показать QR код
 btn_sign_in = Войти
 btn_sign_up = Создать аккаунт
 btn_skip = Пропустить
@@ -239,6 +237,7 @@ btn_terminate_this_session = Завершить данную сессию
 btn_terms_and_conditions = Условия использования и Политика конфиденциальности
 btn_unblock = Разблокировать
 btn_unhide = Показать
+btn_unlink = Отлинковать
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
 btn_unmute_chats = Включить звук
@@ -456,12 +455,13 @@ label_account_created = Аккаунт создан
 label_account_may_be_lost = Аккаунт может быть утерян
 label_account_settings = Настройки аккаунта
 label_active_account = Онлайн
-label_active_devices = Активные устройства
-label_active_sessions = Активные сессии
+label_active_devices = Активные сессии
+label_active_sessions = Проверьте входы в аккаунт
 label_add_account = Добавить аккаунт
 label_add_email = Добавить e-mail
 label_add_email_confirmation_sent = Одноразовый код был отправлен на Ваши e-mail'ы. Если Вы не получили e-mail, проверьте введённые данные или папку "Спам".
 label_add_email_confirmed = E-mail подтверждён
+label_add_link = Добавить ссылку
 label_add_participants = Добавить участников
 label_ago = {$years ->
     [0] {$months ->
@@ -530,6 +530,7 @@ label_audio_call = Аудиозвонок{$by ->
     }
 label_audio_downloaded = Аудио загружено
 label_auto_gain_control = Авторегулировка громкости
+label_auto_gain_control_subtitle = Автоматическая регулировка громкости микрофона
 label_avatar_removed = {$author} удалил(а) аватар
 label_avatar_removed1 = {$author}
 label_avatar_removed2 = {" "}удалил(а) аватар
@@ -547,7 +548,7 @@ label_blocked = Заблокирован
 label_blocked_users = Заблокированные пользователи
 label_blocked_users_count = Заблокированные пользователи: {$count}
 label_cache = Кэш
-label_cache_limit_gb = Лимит кэша: {$gb} GB
+label_cache_limit = Лимит кэша
 label_call_active = Активный звонок
 label_call_calling = Звоним
 label_call_joining = Подключение
@@ -616,7 +617,6 @@ label_count_seconds = {$count} { $count ->
     }
 label_critical_update_is_available = Текущая версия не поддерживается
 label_create_group = Создание группы
-label_create_link = Создать ссылку
 label_current_account = Текущий аккаунт
 label_current_media = Текущее медиа
 label_current_password = Текущий пароль
@@ -637,7 +637,7 @@ label_direct_chat_link = Пригласить в группу
 label_direct_chat_link_in_chat_description = Пользователи, перешедшие по ссылке на группу, автоматически становятся полноправными участниками группы.
 label_discard_changes_question = Отменить изменения
 label_download = Скачать
-label_download_and_update = Скачать и обновить
+label_download_and_update = Установить приложение
 label_download_path = Путь для загрузок
 label_downloading = Скачивается
 label_draft = Черновик
@@ -645,6 +645,7 @@ label_duration_hour_short = ч
 label_duration_minute_short = м
 label_duration_second_short = с
 label_echo_cancellation = Эхоподавление
+label_echo_cancellation_subtitle = Удаляет эхо из исходящего аудио сигнала
 label_editing = Редактирование
 label_email = E-mail
 label_email_or_phone_not_set1 = E-mail не добавлен.{" "}
@@ -686,7 +687,8 @@ label_hidden_chats = Скрытые чаты
 label_hide_chats = Скрыть чат(ы)
 label_hide_chats_modal_description = Чат будет перенесён в список "скрытые чаты"
 label_high_pass_filter = Фильтр высоких частот
-label_hotkey = Горячие клавиши
+label_high_pass_filter_subtitle = Отрезает низкие частоты для снижения уровня шума
+label_hotkey = Горячая клавиша
 label_id = ID
 label_identifier = Идентификатор
 label_identifiers = Идентификаторы
@@ -706,7 +708,8 @@ label_introduction_description =
     Для сохранения доступа к Вашему аккаунту, установите пароль и/или e-mail.
 label_introduction_description_email = E-mail не добавлен. Если вы забудете пароль, доступ к аккаунту будет утерян.
 label_introduction_for_one_time = Чтобы не потерять доступ к аккаунту, задайте пароль, логин или e-mail в настройках Вашего профиля.
-label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
+label_invite_to_chat_with_you = Пригласите в чат с Вами
+label_ios_android_windows_macos_linux = На телефоны и десктоп
 label_b = {$amount} Б
 label_kb = {$amount} КБ
 label_mb = {$amount} МБ
@@ -720,7 +723,7 @@ label_language_entry = {$code}, {$name}
 label_latest_version_is_installed = Установлена последняя версия
 label_leave_group = Покинуть группу
 label_link_to_chat = Ссылка на Вас
-label_linked_devices = Связанные устройства
+label_linked_devices = Активные сессии
 label_login = Логин
 label_login_example = your_unique_login
 label_login_options = Способы входа
@@ -778,7 +781,7 @@ label_nothing_found = Не найдено
 label_notifications = Уведомления
 label_num = Gapopa ID
 label_num_semicolon = Gapopa ID:{" "}
-label_occupied_space = Занято
+label_occupied_space = Занято: {$amount}
 label_offline = офлайн
 label_one_time_password = Одноразовый код
 label_ongoing_audio_and_video_may_be_blocked = Микрофон и камера могут блокироваться операционной системой Вашего устройства при переходе приложения в фоновый режим.
@@ -811,8 +814,10 @@ label_personal_data_deletion_description5 =
 label_photos_semicolon_amount = Фото: {$amount}
 label_presence_away = Отошёл
 label_presence_present = Онлайн
+label_privacy_policy = Политика Конфиденциальности
 label_profile = Профиль
 label_public_section_hint = Аватар, имя, о Вас, ...
+label_qr_code = QR код
 label_reason = Причина
 label_reason_described = Причина: {$reason}
 label_reason_hint = Укажите причину
@@ -873,7 +878,6 @@ label_review = Ревью
 label_review_freelance =
     - выполненная задача должна пройти ревью кода;
     - запрос на ревью выполненной задачи, комментарии, пояснения, аргументы должны размещаться публично на GitHub в соответствующей ветке или пул-реквесте.
-label_saved_files = Скачанные файлы
 label_screen_sharing = Демонстрация экрана
 label_search = Поиск
 label_search_category_chats = Чаты
@@ -882,6 +886,7 @@ label_search_category_users = Пользователи
 label_selected = Выбрано: {$count}
 label_send_message_hint = Сообщение...
 label_sent = Отправлено
+label_sessions_remain_active_for_one_year = Сессии остаются активными на протяжении года или тех пор, пока Вы не выйдите из системы
 label_sessions_terminated = Сессия(и) завершена(ы)
 label_set_cache_limits = Установить лимиты кэша
 label_set_password = Установить пароль
@@ -939,16 +944,18 @@ label_tech_stack_frontend_developer =
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.
 label_terminate_sessions = Завершить сессию(-ии)
-label_terms_and_privacy_policy = Условия и Политика конфиденциальности
+label_terms_and_privacy_policy = Условия и Положения
 label_text_status = Текстовый статус
 label_text_status_description = Максимум 33 символа
 label_text_status_hint = Текстовый статус. Макс. 33 символа.
-label_this_device = Это устройство
+label_this_device = Эта сессия
 label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
 label_typing = Печатает
 label_unknown = Неизвестно
 label_unknown_chat_direct_link = Данная прямая ссылка недействительна
 label_unknown_page = Страница не найдена
+label_unlink_link = Отлинковать ссылку
+label_unlink_link_confirm_description1 = Отлинкованные ссылки продолжают принадлежать Вам.
 label_unread_messages = {$quantity ->
     [one] {$quantity} непрочитанное сообщение
     [few] {$quantity} непрочитанных сообщения
@@ -977,7 +984,6 @@ label_video_downloaded = Видео загружено
 label_video_downloading = Видео загружается...
 label_video_saved_to_gallery = Видео сохранено в галерею
 label_videos_semicolon_amount = Видео: {$amount}
-label_visits_count = Кликов: {$count}
 label_voice_processing = Обработка голоса
 label_wait_seconds = Подождите {$for} с
 label_waiting_for_connection = Ожидание подключения...
@@ -1005,9 +1011,8 @@ label_work_with_us_desc =
     Работайте
     с нами
 label_you = Вы
-label_you_can_use_randomly_generated_link = Вы можете использовать сгенерированную ссылку или создать собственную.
 label_you_were_added_to_group = Вы добавлены в группу
-label_your_direct_link = Прямая ссылка на чат с Вами
+label_your_direct_link = Ваши ссылки на чат с Вами
 label_your_name = Ваше имя
 label_your_num = Ваш Gapopa ID
 label_your_password = Ваш пароль

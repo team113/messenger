@@ -8,7 +8,39 @@ All user visible changes to this project will be documented in this file. This p
 
 ## main
 
-[Diff](/../../compare/v0.9.4...main) | [Milestone](/../../milestone/70)
+[Diff](/../../compare/v0.9.5...main) | [Milestone](/../../milestone/71)
+
+### Added
+
+- UI:
+    - Profile page:
+        - Added help and sign out blocks. ([#1638])
+
+### Changed
+
+- UI:
+    - Chat info page:
+        - Redesigned links block. ([#1644], [#1642], [#1638])
+    - Profile page:
+        - Redesigned links, cache and media devices blocks. ([#1644], [#1638])
+    - Chats tab:
+        - Avatar for support chats. ([#1646])
+    - Chat page:
+        - Media attachments displayed in column instead of grid. ([#1647])
+
+[#1638]: /../../pull/1638
+[#1642]: /../../pull/1642
+[#1644]: /../../pull/1644
+[#1646]: /../../pull/1646
+[#1647]: /../../pull/1647
+
+
+
+
+## [0.9.5] · 2026-03-09
+[0.9.5]: /../../tree/v0.9.5
+
+[Diff](/../../compare/v0.9.4...v0.9.5) | [Milestone](/../../milestone/70)
 
 ### Added
 
@@ -25,6 +57,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Redesigned attachments buttons. ([#1633])
         - Redesigned desktop player. ([#1636])
+    - Media panel:
+        - Increased camera resolution to 960x720. ([#1637])
 
 ### Fixed
 
@@ -42,6 +76,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1633]: /../../pull/1633
 [#1634]: /../../pull/1634
 [#1636]: /../../pull/1636
+[#1637]: /../../pull/1637
 
 
 

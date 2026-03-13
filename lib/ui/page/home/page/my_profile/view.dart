@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -25,12 +23,14 @@ import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '/api/backend/schema.dart' show UserPresence;
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/cache_info.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -42,10 +42,11 @@ import '/l10n/l10n.dart';
 import '/pubspec.g.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/fit_view.dart';
+import '/ui/page/home/page/chat/widget/with_global_key.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
+import '/ui/page/home/tab/menu/confirm/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
@@ -53,6 +54,7 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/scroll_keyboard_handler.dart';
+import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/line_divider.dart';
@@ -406,14 +408,75 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         children: [_downloads(context, c)],
       );
 
-    case ProfileTab.danger:
-      return const SizedBox();
-
     case ProfileTab.legal:
       return const SizedBox();
 
     case ProfileTab.support:
-      return const SizedBox();
+      return Block(
+        title: 'btn_help'.l10n,
+        children: [
+          FieldButton(
+            onPressed: () async {
+              await launchUrlString(Config.repository);
+            },
+            child: Text('btn_report_a_bug'.l10n),
+          ),
+          const SizedBox(height: 8),
+          FieldButton(
+            onPressed: () => router.support(),
+            child: Text('label_support_service'.l10n),
+          ),
+          const SizedBox(height: 8),
+          FieldButton(
+            onPressed: () async {
+              await TermsOfUseView.show(context);
+            },
+            child: Column(
+              children: [
+                Text('label_terms_and_privacy_policy'.l10n),
+                const SizedBox(height: 1),
+                Text(
+                  'label_privacy_policy'.l10n,
+                  style: style.fonts.smaller.regular.secondary,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          WidgetButton(
+            onPressed: () {},
+            onPressedWithDetails: (u) {
+              PlatformUtils.copy(text: Pubspec.ref);
+              MessagePopup.success('label_copied'.l10n, at: u.globalPosition);
+            },
+            child: Text(
+              'label_version_semicolon'.l10nfmt({'version': Pubspec.ref}),
+              style: style.fonts.smaller.regular.secondary,
+            ),
+          ),
+          const SizedBox(height: 4),
+        ],
+      );
+
+    case ProfileTab.danger:
+      return Block(
+        title: 'btn_logout'.l10n,
+        children: [
+          FieldButton(
+            onPressed: () async {
+              await ConfirmLogoutView.show(router.context!);
+            },
+            child: Text('btn_logout'.l10n),
+          ),
+          const SizedBox(height: 8),
+          FieldButton(
+            onPressed: () => router.erase(push: true),
+            danger: true,
+            border: BorderSide(color: style.colors.danger),
+            child: Text('btn_delete_account'.l10n),
+          ),
+        ],
+      );
 
     case ProfileTab.logout:
       return const CustomSafeArea(
@@ -701,6 +764,32 @@ Widget _media(BuildContext context, MyProfileController c) {
     children: [
       Obx(() {
         final selected =
+            c.devices.video().firstWhereOrNull(
+              (e) => e.deviceId() == c.media.value?.videoDevice,
+            ) ??
+            c.devices.video().firstOrNull;
+
+        return FieldButton(
+          text: selected?.label() ?? 'label_media_no_device_available'.l10n,
+          trailing: Transform.translate(
+            offset: Offset(5, 0),
+            child: SvgIcon(SvgIcons.mediaDevicesCamera),
+          ),
+          onPressed: () async {
+            await CameraSwitchView.show(
+              context,
+              camera: c.media.value?.videoDevice,
+            );
+
+            if (c.devices.video().isEmpty) {
+              c.devices.value = await MediaUtils.enumerateDevices();
+            }
+          },
+        );
+      }),
+      const SizedBox(height: 12),
+      Obx(() {
+        final selected =
             c.devices.audio().firstWhereOrNull(
               (e) => e.id() == c.media.value?.audioDevice,
             ) ??
@@ -758,95 +847,6 @@ Widget _media(BuildContext context, MyProfileController c) {
           );
         }),
       ],
-      const SizedBox(height: 12),
-      Obx(() {
-        final selected =
-            c.devices.video().firstWhereOrNull(
-              (e) => e.deviceId() == c.media.value?.videoDevice,
-            ) ??
-            c.devices.video().firstOrNull;
-
-        return FieldButton(
-          text: selected?.label() ?? 'label_media_no_device_available'.l10n,
-          trailing: Transform.translate(
-            offset: Offset(5, 0),
-            child: SvgIcon(SvgIcons.mediaDevicesCamera),
-          ),
-          onPressed: () async {
-            await CameraSwitchView.show(
-              context,
-              camera: c.media.value?.videoDevice,
-            );
-
-            if (c.devices.video().isEmpty) {
-              c.devices.value = await MediaUtils.enumerateDevices();
-            }
-          },
-        );
-      }),
-
-      SizedBox(height: 20),
-      LineDivider('label_hotkey'.l10n),
-      SizedBox(height: 16),
-      Obx(() {
-        final HotKey key =
-            c.settings.value?.muteHotKey ?? MuteHotKeyExtension.defaultHotKey;
-
-        final Iterable<String> modifiers = (key.modifiers ?? [])
-            .map(
-              (e) => e.physicalKeys.map((e) {
-                return KeyboardKeyToStringExtension.labels[e] ??
-                    e.debugName ??
-                    'question_mark'.l10n;
-              }),
-            )
-            .expand((e) => e)
-            .toSet();
-
-        final String keys =
-            KeyboardKeyToStringExtension.labels[key.physicalKey] ??
-            key.physicalKey.debugName ??
-            'label_unknown'.l10n;
-
-        return FieldButton(
-          headline: Text(
-            'label_mute_slash_unmute_microphone'.l10n,
-            style: c.hotKeyRecording.value
-                ? style.fonts.normal.regular.primary
-                : style.fonts.normal.regular.secondary,
-          ),
-          onPressed: c.toggleHotKey,
-          border: c.hotKeyRecording.value
-              ? BorderSide(color: style.colors.primary, width: 1)
-              : null,
-          child: Row(
-            children: [
-              if (c.hotKeyRecording.value)
-                Expanded(
-                  child: Text(
-                    'label_key_plus_key_by_default'.l10nfmt({
-                      'modifier': PlatformUtils.isMacOS ? '⌥' : 'Alt',
-                      'key': 'M',
-                    }),
-                    textAlign: TextAlign.left,
-                    style: style.fonts.normal.regular.secondary,
-                  ),
-                )
-              else
-                Expanded(
-                  child: Text(
-                    [...modifiers, keys].join('space_plus_space'.l10n),
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-              Text(
-                c.hotKeyRecording.value ? 'btn_cancel'.l10n : 'btn_change'.l10n,
-                style: style.fonts.medium.regular.primary,
-              ),
-            ],
-          ),
-        );
-      }),
 
       // Voice processing is unavailable for mobile platforms.
       if (!PlatformUtils.isMobile) ...[
@@ -858,6 +858,7 @@ Widget _media(BuildContext context, MyProfileController c) {
             text: 'label_echo_cancellation'.l10n,
             value: c.media.value?.echoCancellation ?? false,
             onChanged: c.setEchoCancellation,
+            subtitle: 'label_echo_cancellation_subtitle'.l10n,
           );
         }),
         const SizedBox(height: 16),
@@ -866,6 +867,7 @@ Widget _media(BuildContext context, MyProfileController c) {
             text: 'label_auto_gain_control'.l10n,
             value: c.media.value?.autoGainControl ?? false,
             onChanged: c.setAutoGainControl,
+            subtitle: 'label_auto_gain_control_subtitle'.l10n,
           );
         }),
 
@@ -894,6 +896,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               text: 'label_high_pass_filter'.l10n,
               value: c.media.value?.highPassFilter ?? false,
               onChanged: c.setHighPassFilter,
+              subtitle: 'label_high_pass_filter_subtitle'.l10n,
             );
           }),
           const SizedBox(height: 20),
@@ -936,6 +939,74 @@ Widget _media(BuildContext context, MyProfileController c) {
             );
           }),
         ],
+
+        SizedBox(height: 20),
+        LineDivider('label_hotkey'.l10n),
+        SizedBox(height: 16),
+        Obx(() {
+          final HotKey key =
+              c.settings.value?.muteHotKey ?? MuteHotKeyExtension.defaultHotKey;
+
+          final Iterable<String> modifiers = (key.modifiers ?? [])
+              .map(
+                (e) => e.physicalKeys.map((e) {
+                  return KeyboardKeyToStringExtension.labels[e] ??
+                      e.debugName ??
+                      'question_mark'.l10n;
+                }),
+              )
+              .expand((e) => e)
+              .toSet();
+
+          final String keys =
+              KeyboardKeyToStringExtension.labels[key.physicalKey] ??
+              key.physicalKey.debugName ??
+              'label_unknown'.l10n;
+
+          return FieldButton(
+            headline: Text(
+              'label_mute_slash_unmute_microphone'.l10n,
+              style: c.hotKeyRecording.value
+                  ? style.fonts.normal.regular.primary
+                  : style.fonts.normal.regular.secondary,
+            ),
+            style: c.hotKeyRecording.value
+                ? style.fonts.normal.regular.primary
+                : style.fonts.normal.regular.onBackground,
+            onPressed: c.toggleHotKey,
+            border: c.hotKeyRecording.value
+                ? BorderSide(color: style.colors.primary, width: 1)
+                : null,
+            child: Row(
+              children: [
+                if (c.hotKeyRecording.value)
+                  Expanded(
+                    child: Text(
+                      'label_key_plus_key_by_default'.l10nfmt({
+                        'modifier': PlatformUtils.isMacOS ? '⌥' : 'Alt',
+                        'key': 'M',
+                      }),
+                      textAlign: TextAlign.left,
+                      style: style.fonts.normal.regular.secondary,
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: Text(
+                      [...modifiers, keys].join('space_plus_space'.l10n),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                Text(
+                  c.hotKeyRecording.value
+                      ? 'btn_cancel'.l10n
+                      : 'btn_change'.l10n,
+                  style: style.fonts.normal.regular.primary,
+                ),
+              ],
+            ),
+          );
+        }),
       ],
     ],
   );
@@ -999,85 +1070,74 @@ Widget _welcome(BuildContext context, MyProfileController c) {
       child: Stack(
         children: [
           IntrinsicWidth(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              decoration: BoxDecoration(
-                color: style.readMessageColor,
-                borderRadius: BorderRadius.circular(15),
-                border: style.secondaryBorder,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (media.isNotEmpty)
-                    ClipRRect(
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(15),
-                        topRight: const Radius.circular(15),
-                        bottomLeft: text.isNotEmpty || files.isNotEmpty
-                            ? Radius.zero
-                            : files.isEmpty
-                            ? const Radius.circular(15)
-                            : Radius.zero,
-                        bottomRight: text.isNotEmpty || files.isNotEmpty
-                            ? Radius.zero
-                            : files.isEmpty
-                            ? const Radius.circular(15)
-                            : Radius.zero,
-                      ),
-                      child: media.length == 1
-                          ? ChatItemWidget.mediaAttachment(
-                              context,
-                              attachment: media.first,
-                              filled: false,
-                            )
-                          : SizedBox(
-                              width: media.length * 120,
-                              height: max(media.length * 60, 300),
-                              child: FitView(
-                                dividerColor: Colors.transparent,
-                                children: media
-                                    .mapIndexed(
-                                      (i, e) => ChatItemWidget.mediaAttachment(
-                                        context,
-                                        attachment: e,
-                                      ),
-                                    )
-                                    .toList(),
-                              ),
-                            ),
-                    ),
-                  if (files.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
-                      child: Column(
-                        children: files
-                            .map((e) => ChatItemWidget.fileAttachment(e))
-                            .toList(),
-                      ),
-                    ),
-                  if (text.isNotEmpty)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        12,
-                        files.isEmpty ? 6 : 0,
-                        12,
-                        6,
-                      ),
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(text: text),
-                            if (timeline != null)
-                              WidgetSpan(
-                                child: Opacity(opacity: 0, child: timeline),
-                              ),
-                          ],
+            child: ClipRRect(
+              borderRadius: style.cardRadius,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                decoration: BoxDecoration(
+                  color: style.readMessageColor,
+                  borderRadius: BorderRadius.circular(15),
+                  border: style.secondaryBorder,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ...media.mapIndexed((i, e) {
+                      int width = 350;
+                      int height = 350;
+                      double aspect = 1;
+
+                      final StorageFile file = e.original;
+                      if (file is ImageFile) {
+                        width = file.width ?? width;
+                        height = file.height ?? height;
+                        aspect = width / height;
+                      }
+
+                      return SizedBox(
+                        width: 350,
+                        height: 350 / height * height.toDouble() / aspect,
+                        child: WithGlobalKey((_, key) {
+                          return ChatItemWidget.mediaAttachment(
+                            context,
+                            attachment: e,
+                            key: key,
+                          );
+                        }),
+                      );
+                    }),
+                    if (files.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
+                        child: Column(
+                          children: files
+                              .map((e) => ChatItemWidget.fileAttachment(e))
+                              .toList(),
                         ),
-                        style: style.fonts.medium.regular.onBackground,
                       ),
-                    ),
-                ],
+                    if (text.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          12,
+                          files.isEmpty ? 6 : 0,
+                          12,
+                          6,
+                        ),
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(text: text),
+                              if (timeline != null)
+                                WidgetSpan(
+                                  child: Opacity(opacity: 0, child: timeline),
+                                ),
+                            ],
+                          ),
+                          style: style.fonts.medium.regular.onBackground,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -1314,12 +1374,17 @@ Widget _devices(BuildContext context, MyProfileController c) {
                 if (sessions.isNotEmpty) ...[
                   if (current != null) SizedBox(height: 20),
                   LineDivider('label_active_devices'.l10n),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 20),
+                  Text(
+                    'label_sessions_remain_active_for_one_year'.l10n,
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                  const SizedBox(height: 24),
                   ...sessions.mapIndexed((i, e) {
                     return Column(
                       children: [
                         SessionTileWidget(e),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         Center(
                           child: WidgetButton(
                             key: Key('TerminateSession_$i'),
@@ -1454,10 +1519,6 @@ Widget _storage(BuildContext context, MyProfileController c) {
           (values.last * GB)) /
       GB;
 
-  /// One megabyte in bytes.
-  // ignore: constant_identifier_names
-  const int MB = 1024 * 1024;
-
   return Column(
     children: [
       LineDivider('label_cache'.l10n),
@@ -1472,15 +1533,12 @@ Widget _storage(BuildContext context, MyProfileController c) {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'label_occupied_space'.l10n,
-                    style: style.fonts.normal.regular.onBackground,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'label_mb'.l10nfmt({
-                      'amount': '${(size / MB).toPrecision(2)}',
+                    'label_occupied_space'.l10nfmt({
+                      'amount': 'label_gb'.l10nfmt({
+                        'amount': '${(size / GB).toPrecision(2)}',
+                      }),
                     }),
-                    style: style.fonts.small.regular.secondary,
+                    style: style.fonts.medium.regular.onBackground,
                   ),
                 ],
               ),
@@ -1495,21 +1553,9 @@ Widget _storage(BuildContext context, MyProfileController c) {
           ],
         );
       }),
-      const SizedBox(height: 16),
-      Obx(() {
-        final int max =
-            CacheWorker.instance.info.value.maxSize ??
-            (values.last * GB).toInt();
-
-        return Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            'label_cache_limit_gb'.l10nfmt({
-              'gb': '${max ~/ GB == 64 ? 'label_no_limit'.l10n : max ~/ GB}',
-            }),
-          ),
-        );
-      }),
+      const SizedBox(height: 24),
+      LineDivider('label_cache_limit'.l10n),
+      const SizedBox(height: 12),
       StyledSlider(
         value: values[values.indexWhere((e) => gbs <= e)],
         values: values,
@@ -1538,24 +1584,14 @@ Widget _storage(BuildContext context, MyProfileController c) {
         return Column(
           children: [
             const SizedBox(height: 12),
-            LineDivider('label_saved_files'.l10n),
+            LineDivider('label_download_path'.l10n),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'label_download_path'.l10n,
-                        style: style.fonts.normal.regular.onBackground,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${c.downloadsDirectory.value?.path}',
-                        style: style.fonts.small.regular.secondary,
-                      ),
-                    ],
+                  child: Text(
+                    '${c.downloadsDirectory.value?.path}',
+                    style: style.fonts.small.regular.secondary,
                   ),
                 ),
 

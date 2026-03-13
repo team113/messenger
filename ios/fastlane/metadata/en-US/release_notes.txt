@@ -1,1 +1,4 @@
+- Redesigned searching on chats tab.
+- Redesigned attachments picker menu in chat.
+- Increased camera resolution in calls to 960x720.
 - Bug fixes and performance improvements.

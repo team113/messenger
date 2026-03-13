@@ -129,6 +129,9 @@ class UserController extends GetxController {
   /// be highlighted.
   final RxnInt highlighted = RxnInt();
 
+  /// Indicator whether the app bar should display the [User.name].
+  final RxBool preferName = RxBool(false);
+
   /// [UserService] fetching the [user].
   final UserService _userService;
 
@@ -191,6 +194,8 @@ class UserController extends GetxController {
 
   @override
   void onInit() {
+    scrollController.addListener(_scrollListener);
+
     _fetchUser().whenComplete(() {
       if (isClosed) {
         return;
@@ -213,6 +218,7 @@ class UserController extends GetxController {
     _userSubscription?.cancel();
     _contactWorker?.dispose();
     _worker?.dispose();
+    scrollController.removeListener(_scrollListener);
     scrollController.dispose();
     super.onClose();
   }
@@ -503,6 +509,13 @@ class UserController extends GetxController {
       await MessagePopup.error(e);
       router.pop();
       rethrow;
+    }
+  }
+
+  /// Changes the [preferName] when [scrollController] is scrolled enough.
+  void _scrollListener() {
+    if (scrollController.hasClients) {
+      preferName.value = scrollController.position.pixels > 450;
     }
   }
 }

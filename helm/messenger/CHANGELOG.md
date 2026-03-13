@@ -6,6 +6,18 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.2.1] · 2026-03-10
+[0.2.1]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.2.1/helm/messenger
+
+### Added
+
+- `/geo-ip` [Nginx] proxy forwarding to `ip-api.com` geo IP fetching service. ([#1620])
+
+[#1620]: https://github.com/team113/messenger/pull/1620
+
+
+
+
 ## [0.2.0] · 2025-12-05
 [0.2.0]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.2.0/helm/messenger
 
