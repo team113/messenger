@@ -18,10 +18,8 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/util/media_utils.dart';
@@ -63,10 +61,13 @@ class OutputSwitchController extends GetxController {
   /// [WebUtils.microphonePermission] subscription.
   StreamSubscription? _permissionSubscription;
 
+  /// Returns the [MediaSettings] currently being applied.
+  Rx<MediaSettings?> get mediaSettings => _settingsRepository.mediaSettings;
+
   @override
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen((e) {
-      devices.value = _filtered(e.output().toList());
+      devices.value = _filtered(e.toList());
       selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
     });
 
@@ -82,9 +83,7 @@ class OutputSwitchController extends GetxController {
       // permission.
       _permissionSubscription = await WebUtils.microphonePermission();
       isWindows10 = await PlatformUtils.isWindows10;
-      devices.value = _filtered(
-        await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput),
-      );
+      devices.value = _filtered(await MediaUtils.enumerateDevices());
       selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;

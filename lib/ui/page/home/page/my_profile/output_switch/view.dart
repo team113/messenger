@@ -16,10 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/media_settings.dart';
+import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
@@ -85,14 +87,36 @@ class OutputSwitchView extends StatelessWidget {
                       );
                     }),
                     Obx(() {
+                      final List<DeviceDetails> outputs = c.devices
+                          .output()
+                          .toList();
+
+                      final DeviceDetails? microphone = c.devices
+                          .audio()
+                          .firstWhereOrNull(
+                            (e) => e.id() == c.mediaSettings.value?.audioDevice,
+                          );
+
+                      // Remove physical devices with 2 or more channels, as for
+                      // Windows 10 those aren't going to work.
+                      if (c.isWindows10 && microphone != null) {
+                        outputs.removeWhere((device) {
+                          if (device.groupId() == microphone.groupId()) {
+                            return (device.numChannels() ?? 1) >= 2;
+                          }
+
+                          return false;
+                        });
+                      }
+
                       return ListView.separated(
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
                         separatorBuilder: (_, _) => const SizedBox(height: 8),
-                        itemCount: c.devices.length,
+                        itemCount: outputs.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final DeviceDetails e = c.devices[i];
+                            final DeviceDetails e = outputs.elementAt(i);
 
                             final bool selected =
                                 (c.selected.value == null && i == 0) ||
@@ -106,9 +130,7 @@ class OutputSwitchView extends StatelessWidget {
                                       c.selected.value = e;
                                       (onChanged ?? c.setOutputDevice).call(e);
                                     },
-                              // label: e.label(),
-                              label:
-                                  '${e.label()}\nGroup ID: ${e.groupId()}\nSample rate: ${e.sampleRate()}, channels: ${e.numChannels()}',
+                              label: e.label(),
                             );
                           });
                         },
