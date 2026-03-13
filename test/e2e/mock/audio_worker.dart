@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/disposable_service.dart';
 import 'package:messenger/ui/worker/audio.dart';
+import 'package:messenger/ui/worker/audio/playback.dart';
 import 'package:messenger/util/audio_utils.dart';
 
 /// Mocked [AudioWorker] to use in the tests.
@@ -27,17 +28,11 @@ class MockAudioWorker extends Dependency implements AudioWorker {
   @override
   final Rxn<AudioId> activeAudioId = Rxn<AudioId>(null);
 
-  @override
-  final RxBool isPlaying = RxBool(false);
+  /// [AudioPlayback] to use.
+  final AudioPlayback _playback = DummyPlayback();
 
   @override
-  final RxBool isLoading = RxBool(false);
-
-  @override
-  final Rx<Duration> position = Rx<Duration>(const Duration());
-
-  @override
-  final Rx<Duration> duration = Rx<Duration>(const Duration(minutes: 2));
+  AudioPlayback get playback => _playback;
 
   @override
   Future<void> play(
@@ -46,31 +41,31 @@ class MockAudioWorker extends Dependency implements AudioWorker {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
     activeAudioId.value = id;
-    isLoading.value = true;
+    _playback.isLoading.value = true;
 
     await Future.delayed(const Duration(milliseconds: 100));
 
-    isLoading.value = false;
-    isPlaying.value = true;
+    _playback.isLoading.value = false;
+    _playback.isPlaying.value = true;
 
     _startFakeProgress();
   }
 
   @override
   Future<void> pause() async {
-    isPlaying.value = false;
+    _playback.isPlaying.value = false;
   }
 
   @override
   Future<void> seek(Duration pos) async {
-    position.value = pos;
+    _playback.position.value = pos;
   }
 
   @override
   Future<void> stop() async {
-    isPlaying.value = false;
+    _playback.isPlaying.value = false;
     activeAudioId.value = null;
-    position.value = const Duration();
+    _playback.position.value = const Duration();
   }
 
   @override
@@ -83,10 +78,48 @@ class MockAudioWorker extends Dependency implements AudioWorker {
 
   /// Fakes progress via increasing [position.value].
   void _startFakeProgress() async {
-    while (isPlaying.value) {
+    while (_playback.isPlaying.value) {
       await Future.delayed(const Duration(seconds: 1));
-      if (!isPlaying.value) break;
-      position.value = position.value + const Duration(seconds: 1);
+      if (!_playback.isPlaying.value) break;
+      _playback.position.value =
+          _playback.position.value + const Duration(seconds: 1);
     }
+  }
+}
+
+/// Mocked dummy [AudioPlayback].
+class DummyPlayback extends AudioPlayback {
+  @override
+  Future<void> dispose() async {
+    // No-op.
+  }
+
+  @override
+  Future<Duration> extractDuration(AudioSource source) =>
+      Future.value(Duration.zero);
+
+  @override
+  Future<void> pause() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> play() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> prepare(AudioSource source) async {
+    // No-op.
+  }
+
+  @override
+  Future<void> seek(Duration position) async {
+    // No-op.
+  }
+
+  @override
+  Future<void> stop() async {
+    // No-op.
   }
 }

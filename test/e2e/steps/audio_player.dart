@@ -62,8 +62,8 @@ final StepDefinitionGeneric audioIsPlaying = then1<String, CustomWorld>(
     final AudioWorker worker = Get.find<AudioWorker>();
     final AudioId id = _findAudioId(name);
 
-    bool isPlaying =
-        (worker.activeAudioId.value == id && worker.isPlaying.value);
+    final bool isPlaying =
+        (worker.activeAudioId.value == id && worker.playback.isPlaying.value);
 
     expect(isPlaying, true);
   },
@@ -81,8 +81,9 @@ final StepDefinitionGeneric audioIsPaused = then1<String, CustomWorld>(
     final AudioWorker worker = Get.find<AudioWorker>();
     final AudioId id = _findAudioId(name);
 
-    bool isPaused =
-        (worker.activeAudioId.value == id && !worker.isPlaying.value) ||
+    final bool isPaused =
+        (worker.activeAudioId.value == id &&
+            !worker.playback.isPlaying.value) ||
         (worker.activeAudioId.value != id);
 
     expect(isPaused, true);
@@ -129,7 +130,7 @@ final StepDefinitionGeneric audioPositionIs = then2<String, int, CustomWorld>(
     final audioWorker = Get.find<AudioWorker>();
 
     expect(
-      audioWorker.position.value,
+      audioWorker.playback.position.value,
       Duration(seconds: expectedSeconds),
       reason: 'Worker progress is not 0',
     );

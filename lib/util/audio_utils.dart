@@ -635,6 +635,15 @@ enum AudioMode {
   };
 }
 
+/// Unique identifier of an audio.
+class AudioId extends NewType<String> {
+  AudioId(super.value);
+
+  /// Constructs an [AudioId] from the provided [itemId] and [attachmentId].
+  AudioId.fromMessage(ChatItemId itemId, AttachmentId attachmentId)
+    : super('${itemId}_$attachmentId');
+}
+
 /// Intent for the [AudioUtils] to operate in the provided [AudioMode].
 class _AudioIntent {
   _AudioIntent(this.mode, {this.speaker});
@@ -677,12 +686,4 @@ extension AudioSourceExtension on AudioSource {
     AudioSourceKind.file => (this as FileAudioSource).file,
     AudioSourceKind.url => (this as UrlAudioSource).url,
   };
-}
-
-/// Unique identifier for audio file.
-class AudioId extends NewType<String> {
-  AudioId(super.value);
-
-  AudioId.fromMessage(ChatItemId messageId, AttachmentId attachmentId)
-    : super('${messageId.val}_${attachmentId.val}');
 }

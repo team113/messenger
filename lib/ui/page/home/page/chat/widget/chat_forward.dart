@@ -48,7 +48,6 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/audio_utils.dart' show AudioId;
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
@@ -513,11 +512,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     (e) => [
                       ChatItemWidget.fileAttachment(
                         e,
-                        id:
-                            (e is FileAttachment && e.isAudio) ||
-                                (e is LocalAttachment && e.file.isAudio)
-                            ? AudioId.fromMessage(msg.id, e.id)
-                            : null,
+                        item: msg,
                         onFileTap: (a) => widget.onFileTap?.call(msg, a),
                         onAttachmentError: () async =>
                             await widget.onAttachmentError?.call(msg),
@@ -833,11 +828,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       (e) => [
                         ChatItemWidget.fileAttachment(
                           e,
-                          id:
-                              (e is FileAttachment && e.isAudio) ||
-                                  (e is LocalAttachment && e.file.isAudio)
-                              ? AudioId.fromMessage(item.id, e.id)
-                              : null,
+                          item: item,
                           onFileTap: (a) => widget.onFileTap?.call(item, a),
                           onAttachmentError: () async =>
                               await widget.onAttachmentError?.call(item),

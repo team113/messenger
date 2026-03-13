@@ -87,6 +87,20 @@ abstract class Attachment {
     return false;
   }
 
+  /// Indicates whether this [Attachment] represents an audio.
+  bool get isAudio {
+    if (this is FileAttachment) {
+      return (this as FileAttachment).isAudio;
+    }
+
+    if (this is LocalAttachment) {
+      final local = this as LocalAttachment;
+      return local.file.isAudio;
+    }
+
+    return false;
+  }
+
   /// Indicates whether this [Attachment] represents a file.
   bool get isFile {
     if (this is FileAttachment) {
@@ -171,7 +185,7 @@ class FileAttachment extends Attachment {
         file.endsWith('.3gp');
   }
 
-  /// Indicates whether this [FileAttachment] represents an audio file.
+  @override
   bool get isAudio {
     final String file = filename.toLowerCase();
     return file.endsWith('.mp3') ||

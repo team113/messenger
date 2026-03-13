@@ -34,6 +34,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
+import '/ui/worker/audio/playback.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -151,6 +152,7 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         signedUp: widget.signedUp,
         link: widget.link,
         context: context,
@@ -223,6 +225,7 @@ class _HomeViewState extends State<HomeView> {
                       children: [
                         _announcement(context, c),
                         _upgradePopup(context, c),
+                        _playback(context, c),
                         _navigation(context, c),
                       ],
                     ),
@@ -437,6 +440,30 @@ class _HomeViewState extends State<HomeView> {
         }),
       ),
     );
+  }
+
+  /// Builds an [AudioPlayback] being played visually, if any.
+  Widget _playback(BuildContext context, HomeController c) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      final AudioPlayback playback = c.playback;
+
+      if (!playback.isPlaying.value) {
+        return const SizedBox();
+      }
+
+      // TODO: Implement a widget?
+      return Container(
+        width: double.infinity,
+        height: 48,
+        decoration: BoxDecoration(color: Colors.yellow),
+        child: Text(
+          '${playback.position.value.hhMmSs()} / ${playback.duration.value.hhMmSs()}',
+          style: style.fonts.smaller.regular.secondary,
+        ),
+      );
+    });
   }
 
   /// Builds an upgrade available popup displaying the latest [Release], if any.

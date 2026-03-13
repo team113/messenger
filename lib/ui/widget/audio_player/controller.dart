@@ -59,22 +59,22 @@ class AudioPlayerController extends GetxController {
   bool get isActive => _audioWorker.activeAudioId.value == id;
 
   /// Indicates whether audio is playing and this controller is active.
-  bool get isPlaying => _audioWorker.isPlaying.value && isActive;
+  bool get isPlaying => _audioWorker.playback.isPlaying.value && isActive;
 
   /// Indicates whether audio is loading and this controller is active.
-  bool get isLoading => _audioWorker.isLoading.value && isActive;
+  bool get isLoading => _audioWorker.playback.isLoading.value && isActive;
 
   /// Returns the current playback position.
   ///
   /// Returns [Duration.zero], if not active.
   Duration get position =>
-      isActive ? _audioWorker.position.value : Duration.zero;
+      isActive ? _audioWorker.playback.position.value : Duration.zero;
 
   /// Returns total [Duration] of audio.
   ///
   /// Returns [Duration.zero], if not active.
   Duration get duration =>
-      isActive ? _audioWorker.duration.value : extractedDuration.value;
+      isActive ? _audioWorker.playback.duration.value : extractedDuration.value;
 
   /// Returns hover state.
   bool get hovered => isHovered.value;
@@ -83,7 +83,7 @@ class AudioPlayerController extends GetxController {
   set hovered(bool value) => isHovered.value = value;
 
   /// Sets playback position in [AudioWorker].
-  set position(Duration v) => _audioWorker.position.value = v;
+  set position(Duration v) => _audioWorker.playback.position.value = v;
 
   @override
   void onInit() async {

@@ -37,7 +37,7 @@ class DataAttachment extends StatefulWidget {
   const DataAttachment(
     this.attachment, {
     super.key,
-    this.id,
+    this.audioId,
     this.onPressed,
     this.onForbidden,
   });
@@ -45,10 +45,8 @@ class DataAttachment extends StatefulWidget {
   /// [Attachment] to display.
   final Attachment attachment;
 
-  /// Unique id of the attachment in chat.
-  ///
-  /// Required if [attachment] is an audio file.
-  final AudioId? id;
+  /// [AudioId] this [DataAttachment] represents, if any.
+  final AudioId? audioId;
 
   /// Callback, called when this [DataAttachment] is pressed.
   final void Function()? onPressed;
@@ -75,9 +73,7 @@ class _DataAttachmentState extends State<DataAttachment> {
   Widget build(BuildContext context) {
     final Attachment e = widget.attachment;
 
-    final bool isAudio =
-        (e is FileAttachment && e.isAudio) ||
-        (e is LocalAttachment && e.file.isAudio);
+    final bool isAudio = e.isAudio;
 
     return Obx(() {
       final style = Theme.of(context).style;
@@ -124,7 +120,7 @@ class _DataAttachmentState extends State<DataAttachment> {
         };
       }
 
-      if (isAudio && widget.id != null) {
+      if (isAudio) {
         final (source, progress) = switch (e) {
           LocalAttachment e when e.file.path != null => (
             AudioSource.file(e.file.path!),
@@ -139,7 +135,7 @@ class _DataAttachmentState extends State<DataAttachment> {
 
         if (source != null) {
           return AudioPlayer(
-            id: widget.id!,
+            id: widget.audioId ?? AudioId('${e.id}'),
             source: source,
             filename: e.filename,
             progress: progress,

@@ -334,11 +334,11 @@ class ChatItemWidget extends StatefulWidget {
     Attachment e, {
     void Function(FileAttachment)? onFileTap,
     Future<void> Function()? onAttachmentError,
-    AudioId? id,
+    ChatItem? item,
   }) {
     return DataAttachment(
       e,
-      id: id,
+      audioId: item == null ? null : AudioId.fromMessage(item.id, e.id),
       onForbidden: onAttachmentError,
       onPressed: () {
         if (e is FileAttachment) {
@@ -925,11 +925,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     (e) => [
                       ChatItemWidget.fileAttachment(
                         e,
-                        id:
-                            (e is FileAttachment && e.isAudio) ||
-                                (e is LocalAttachment && e.file.isAudio)
-                            ? AudioId.fromMessage(widget.item.value.id, e.id)
-                            : null,
+                        item: msg,
                         onFileTap: widget.onFileTap,
                         onAttachmentError: () async => await widget
                             .onAttachmentError

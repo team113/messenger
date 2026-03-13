@@ -32,6 +32,8 @@ import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
+import '/ui/worker/audio.dart';
+import '/ui/worker/audio/playback.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
@@ -45,7 +47,8 @@ class HomeController extends GetxController {
     this._auth,
     this._myUserService,
     this._settings,
-    this._upgradeWorker, {
+    this._upgradeWorker,
+    this._audioWorker, {
     this.signedUp = false,
     this.link,
     this.context,
@@ -103,6 +106,9 @@ class HomeController extends GetxController {
   /// [UpgradeWorker] for displaying the [UpgradeWorker.scheduled].
   final UpgradeWorker _upgradeWorker;
 
+  /// [AudioWorker] for displaying the current playback being played.
+  final AudioWorker _audioWorker;
+
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
 
@@ -136,6 +142,9 @@ class HomeController extends GetxController {
 
   /// Indicates whether currently authenticated [MyUser] is a support.
   bool get isSupport => _auth.userId?.isSupport == true;
+
+  /// Returns the [AudioPlayback].
+  AudioPlayback get playback => _audioWorker.playback;
 
   @override
   void onInit() {

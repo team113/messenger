@@ -22,45 +22,35 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
 import '/domain/service/disposable_service.dart';
-import '/util/audio_player.dart';
 import '/util/audio_utils.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart' show AudioSpeakerKind;
 import '/util/platform_utils.dart';
+import 'audio/playback.dart';
+import 'audio/playback/just_audio.dart';
+import 'audio/playback/video_player.dart';
 
 /// Worker responsible for audio playback.
 class AudioWorker extends Dependency {
   AudioWorker();
 
   /// Unique identifier of the currently active audio, if any.
-  final Rxn<AudioId> activeAudioId = Rxn<AudioId>();
+  final Rx<AudioId?> activeAudioId = Rx(null);
 
-  /// Whether the audio is currently playing.
-  RxBool get isPlaying => _engine.isPlaying;
-
-  /// Whether the audio is currently loading or buffering.
-  RxBool get isLoading => _engine.isLoading;
-
-  /// Current playback position of the active audio.
-  Rx<Duration> get position => _engine.position;
-
-  /// Total duration of the active audio.
-  Rx<Duration> get duration => _engine.duration;
-
-  /// Playback engine implementation.
-  final AudioPlaybackEngine _engine =
+  /// [AudioPlayback] to play [AudioSource]s.
+  final AudioPlayback _playback =
       (PlatformUtils.isMacOS || PlatformUtils.isIOS) && !PlatformUtils.isWeb
-      ? VideoPlayerPlaybackEngine()
-      : JustAudioPlaybackEngine();
+      ? VideoPlayerPlayback()
+      : JustAudioPlayback();
 
-  /// Subscription to the audio intent (music mode).
-  StreamSubscription? _audioIntentSubscription;
+  /// [StreamSubscription] to the audio intent in [AudioMode.music].
+  StreamSubscription? _intentSubscription;
 
   /// [StreamSubscription] to [AudioUtilsImpl.routeChangeStream].
   StreamSubscription? _routeSubscription;
 
-  /// Subscription to playback completion.
+  /// [StreamSubscription] for playback completion.
   StreamSubscription? _completedSubscription;
 
   /// [CancelToken] for cancelling the audio download.
@@ -69,56 +59,66 @@ class AudioWorker extends Dependency {
   /// [CancelToken] for cancelling the audio header fetching.
   CancelToken? _headerToken;
 
+  /// Returns the [AudioPlayback].
+  AudioPlayback get playback => _playback;
+
   @override
   void onInit() {
-    Log.debug('onInit()', '$runtimeType');
-
     super.onInit();
+
+    Log.debug('onInit()', '$runtimeType');
 
     if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
       _initialize();
     }
 
-    _completedSubscription = _engine.isCompleted.listen((completed) {
-      if (completed) _onPlaybackCompleted();
+    _completedSubscription = _playback.isCompleted.listen((completed) async {
+      if (completed) {
+        await pause();
+        await seek(Duration.zero);
+      }
     });
   }
 
   @override
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
+
     _routeSubscription?.cancel();
     _completedSubscription?.cancel();
-    _engine.dispose();
-    _audioIntentSubscription?.cancel();
+    _playback.dispose();
+    _intentSubscription?.cancel();
     _cancelToken?.cancel();
     _headerToken?.cancel();
+
     super.onClose();
   }
 
   /// Plays audio from the given [source] with the specified [id].
   ///
-  /// If the audio with the same [id] is already active, it resumes playback.
-  /// Otherwise, it sets the new [source] and starts playback.
+  /// If the audio with the same [id] is already active, then resumes playback.
+  ///
+  /// Otherwise, sets the new [source] and starts a playback.
   Future<void> play(
     AudioId id,
     AudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
+    Log.debug('play(id: $id, source: $source)', '$runtimeType');
+
     try {
-      _audioIntentSubscription ??= AudioUtils.acquire(
+      _intentSubscription ??= AudioUtils.acquire(
         AudioMode.music,
         speaker: AudioSpeakerKind.speaker,
       ).listen((_) {});
 
       if (activeAudioId.value == id) {
-        await _engine.play();
-        return;
+        return await _playback.play();
       }
 
       await stop();
       activeAudioId.value = id;
-      isLoading.value = true;
+      _playback.isLoading.value = true;
 
       AudioSource targetSource = source;
 
@@ -133,48 +133,49 @@ class AudioWorker extends Dependency {
         targetSource = reachable;
       }
 
-      await _engine.setSource(targetSource);
-      await _engine.play();
+      await _playback.prepare(targetSource);
+      await _playback.play();
     } on OperationCanceledException {
-      return;
+      // No-op.
     } catch (e) {
-      Log.error('Failed to play audio: $e', '$runtimeType');
+      Log.error('play($id) failed with: $e', '$runtimeType');
       await stop();
     } finally {
-      isLoading.value = false;
+      _playback.isLoading.value = false;
     }
   }
 
   /// Pauses the current playback.
-  Future<void> pause() async {
-    await _engine.pause();
-  }
+  Future<void> pause() async => await _playback.pause();
 
   /// Stops the current playback, clears [activeAudioId], cancels
-  /// [_audioIntentSubscription] and tokens.
+  /// [_intentSubscription] and tokens.
   Future<void> stop() async {
+    Log.debug('stop()', '$runtimeType');
+
     _cancelToken?.cancel();
     _headerToken?.cancel();
     _cancelToken = null;
     _headerToken = null;
-    await _engine.stop();
+    await _playback.stop();
     activeAudioId.value = null;
-    await _audioIntentSubscription?.cancel();
-    _audioIntentSubscription = null;
+    await _intentSubscription?.cancel();
+    _intentSubscription = null;
   }
 
   /// Seeks to the specified [position] in the active audio.
   Future<void> seek(Duration position) async {
-    await _engine.seek(position);
+    await _playback.seek(position);
   }
 
-  /// Returns the duration of the provided [source].
+  /// Returns the [Duration] of the provided [source].
   Future<Duration> extractDuration(
     AudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
     try {
       AudioSource targetSource = source;
+
       if (source is UrlAudioSource) {
         final reachable = await _ensureReachable(
           source,
@@ -182,11 +183,12 @@ class AudioWorker extends Dependency {
         );
         targetSource = reachable;
       }
-      return await _engine.extractDuration(targetSource);
+
+      return await _playback.extractDuration(targetSource);
     } on OperationCanceledException {
       return Duration.zero;
     } catch (e) {
-      Log.error('Failed to get audio duration: $e', '$runtimeType');
+      Log.error('extractDuration() failed with: $e', '$runtimeType');
       return Duration.zero;
     }
   }
@@ -220,12 +222,6 @@ class AudioWorker extends Dependency {
           break;
       }
     });
-  }
-
-  /// Called when the audio playback is completed.
-  Future<void> _onPlaybackCompleted() async {
-    await pause();
-    await seek(Duration.zero);
   }
 
   /// Fetches the header of [source] to ensure that the URL is reachable.
