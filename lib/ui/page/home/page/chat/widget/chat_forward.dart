@@ -490,7 +490,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 aspect = width / height;
               }
 
-              return SizedBox(
+              final Widget content = SizedBox(
                 width: 350,
                 height: 350 / height * height.toDouble() / aspect,
                 child: _buildAttachment(
@@ -500,6 +500,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                   menu: menu,
                   cover: quote.text != null,
                 ),
+              );
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [content, const SizedBox(height: 1)],
               );
             }),
             SizedBox(height: files.isNotEmpty || text != null ? 6 : 0),
@@ -811,7 +816,10 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 );
               }
 
-              return content;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [content, const SizedBox(height: 1)],
+              );
             }),
             SizedBox(height: files.isNotEmpty || text != null ? 6 : 0),
           ],

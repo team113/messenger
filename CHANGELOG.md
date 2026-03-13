@@ -26,7 +26,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Avatar for support chats. ([#1646])
     - Chat page:
-        - Media attachments displayed in column instead of grid. ([#1647])
+        - Media attachments displayed in column instead of grid. ([#1651], [#1647])
 
 ### Fixed
 

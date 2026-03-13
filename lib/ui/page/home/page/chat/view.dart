@@ -1451,7 +1451,7 @@ class ChatView extends StatelessWidget {
                   aspect = width / height;
                 }
 
-                return SizedBox(
+                final Widget content = SizedBox(
                   width: 350,
                   height: 350 / height * height.toDouble() / aspect,
                   child: WithGlobalKey((_, key) {
@@ -1463,6 +1463,11 @@ class ChatView extends StatelessWidget {
                       key: key,
                     );
                   }),
+                );
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [content, const SizedBox(height: 1)],
                 );
               }),
               ...files.expand(
