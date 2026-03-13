@@ -71,6 +71,7 @@ import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/notes_block.dart';
+import 'widget/selection_text.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
 import 'widget/with_global_key.dart';
@@ -577,27 +578,34 @@ class ChatView extends StatelessWidget {
                                         e is FileAttachment && e.isVideo,
                                   );
 
-                              return Align(
-                                alignment: Alignment.bottomLeft,
-                                child: ListView(
-                                  reverse: true,
-                                  children: [
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: (hasMedia ?? false)
-                                              ? 350 + 48 + 8
-                                              : 550 + 48 + 8,
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(
-                                            8,
-                                            8,
-                                            48,
-                                            8,
+                              return ObscuredSelectionArea(
+                                child: CustomScrollView(
+                                  slivers: [
+                                    SliverFillRemaining(
+                                      hasScrollBody: true,
+                                      child: Align(
+                                        alignment: Alignment.bottomLeft,
+                                        child: SingleChildScrollView(
+                                          child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: ConstrainedBox(
+                                              constraints: BoxConstraints(
+                                                maxWidth: (hasMedia ?? false)
+                                                    ? 350 + 48 + 8
+                                                    : 550 + 48 + 8,
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                      8,
+                                                      8,
+                                                      48,
+                                                      8,
+                                                    ),
+                                                child: welcome,
+                                              ),
+                                            ),
                                           ),
-                                          child: welcome,
                                         ),
                                       ),
                                     ),
@@ -1466,7 +1474,7 @@ class ChatView extends StatelessWidget {
               if (welcome.text != null)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                  child: Text(
+                  child: SelectionText(
                     '${welcome.text}',
                     style: style.fonts.medium.regular.onBackground,
                   ),
