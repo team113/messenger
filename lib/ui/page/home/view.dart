@@ -30,10 +30,12 @@ import '/themes.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/page/link/view.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/audio_player/slider.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
+import '/ui/worker/audio/playback.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -151,6 +153,7 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         signedUp: widget.signedUp,
         link: widget.link,
         context: context,
@@ -223,6 +226,7 @@ class _HomeViewState extends State<HomeView> {
                       children: [
                         _announcement(context, c),
                         _upgradePopup(context, c),
+                        _playback(context, c),
                         _navigation(context, c),
                       ],
                     ),
@@ -437,6 +441,77 @@ class _HomeViewState extends State<HomeView> {
         }),
       ),
     );
+  }
+
+  /// Builds an [AudioPlayback] being played visually, if any.
+  Widget _playback(BuildContext context, HomeController c) {
+    final style = Theme.of(context).style;
+
+    return Obx(() {
+      final AudioPlayback playback = c.playback;
+      bool isPlaying = playback.isPlaying.value;
+      bool isActive = c.activeAudioId.value != null;
+
+      if (!isActive) {
+        return const SizedBox();
+      }
+
+      // TODO: Implement a widget?
+      return Container(
+        width: double.infinity,
+
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+        decoration: BoxDecoration(
+          border: BoxBorder.all(
+            width: 1,
+            color: style.colors.onSecondaryOpacity20,
+          ),
+          color: style.colors.almostTransparent,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [BoxShadow(blurRadius: 5, color: Colors.white38)],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                  onPressed: isPlaying ? playback.pause : playback.play,
+                ),
+                Expanded(
+                  child: Text(
+                    playback.sourceName.value ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style.fonts.small.regular.onBackground,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    c.stopPlayback();
+                  },
+                ),
+              ],
+            ),
+
+            SeekSlider(
+              position: playback.position.value,
+              duration: playback.duration.value,
+              onChangeStart: (_) => c.beginSeek(),
+              onChangeEnd: (v) => c.endSeek(Duration(milliseconds: v.toInt())),
+              onChanged: (v) =>
+                  playback.position.value = Duration(milliseconds: v.toInt()),
+            ),
+            Text(
+              '${playback.position.value.hhMmSs()} / ${playback.duration.value.hhMmSs()}',
+              style: style.fonts.smallest.regular.secondary,
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   /// Builds an upgrade available popup displaying the latest [Release], if any.

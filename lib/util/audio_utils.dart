@@ -23,6 +23,8 @@ import 'package:just_audio/just_audio.dart' as ja;
 import 'package:mutex/mutex.dart';
 import 'package:uuid/uuid.dart';
 
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/pubspec.g.dart';
 import '/util/media_utils.dart';
 import 'log.dart';
@@ -547,17 +549,20 @@ class AudioUtilsImpl {
 enum AudioSourceKind { asset, file, url }
 
 /// Source to play an audio stream from.
-abstract class AudioSource {
-  const AudioSource();
+sealed class AudioSource {
+  const AudioSource({this.name});
+
+  /// Human-readable name of the audio source, if known.
+  final String? name;
 
   /// Constructs an [AudioSource] from the provided [asset].
-  factory AudioSource.asset(String asset) = AssetAudioSource;
+  factory AudioSource.asset(String asset, {String? name}) = AssetAudioSource;
 
   /// Constructs an [AudioSource] from the provided [file].
-  factory AudioSource.file(String file) = FileAudioSource;
+  factory AudioSource.file(String file, {String? name}) = FileAudioSource;
 
   /// Constructs an [AudioSource] from the provided [url].
-  factory AudioSource.url(String url) = UrlAudioSource;
+  factory AudioSource.url(String url, {String? name}) = UrlAudioSource;
 
   /// Returns a [AudioSourceKind] of this [AudioSource].
   AudioSourceKind get kind;
@@ -565,7 +570,7 @@ abstract class AudioSource {
 
 /// [AudioSource] of the provided [asset].
 class AssetAudioSource extends AudioSource {
-  const AssetAudioSource(this.asset);
+  const AssetAudioSource(this.asset, {super.name});
 
   /// Path to an asset to play audio from.
   final String asset;
@@ -583,7 +588,7 @@ class AssetAudioSource extends AudioSource {
 
 /// [AudioSource] of the provided [file].
 class FileAudioSource extends AudioSource {
-  const FileAudioSource(this.file);
+  const FileAudioSource(this.file, {super.name});
 
   /// Path to a file to play audio from.
   final String file;
@@ -601,7 +606,7 @@ class FileAudioSource extends AudioSource {
 
 /// [AudioSource] of the provided [url].
 class UrlAudioSource extends AudioSource {
-  const UrlAudioSource(this.url);
+  const UrlAudioSource(this.url, {super.name});
 
   /// URL to play audio from.
   final String url;
@@ -633,6 +638,15 @@ enum AudioMode {
   };
 }
 
+/// Unique identifier of an audio.
+class AudioId extends NewType<String> {
+  AudioId(super.value);
+
+  /// Constructs an [AudioId] from the provided [itemId] and [attachmentId].
+  AudioId.fromMessage(ChatItemId itemId, AttachmentId attachmentId)
+    : super('${itemId}_$attachmentId');
+}
+
 /// Intent for the [AudioUtils] to operate in the provided [AudioMode].
 class _AudioIntent {
   _AudioIntent(this.mode, {this.speaker});
@@ -657,7 +671,7 @@ class _IntentId extends NewType<String> {
 
 /// Extension adding conversion from an [AudioSource] to a [Media] or
 /// [ja.AudioSource].
-extension on AudioSource {
+extension AudioSourceExtension on AudioSource {
   /// Returns a [ja.AudioSource] corresponding to this [AudioSource].
   ja.AudioSource get source => switch (kind) {
     AudioSourceKind.asset => ja.AudioSource.asset(

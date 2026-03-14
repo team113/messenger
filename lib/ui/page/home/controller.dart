@@ -32,7 +32,10 @@ import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
+import '/ui/worker/audio.dart';
+import '/ui/worker/audio/playback.dart';
 import '/ui/worker/upgrade.dart';
+import '/util/audio_utils.dart' show AudioId;
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import 'introduction/controller.dart';
@@ -45,7 +48,8 @@ class HomeController extends GetxController {
     this._auth,
     this._myUserService,
     this._settings,
-    this._upgradeWorker, {
+    this._upgradeWorker,
+    this._audioWorker, {
     this.signedUp = false,
     this.link,
     this.context,
@@ -103,8 +107,20 @@ class HomeController extends GetxController {
   /// [UpgradeWorker] for displaying the [UpgradeWorker.scheduled].
   final UpgradeWorker _upgradeWorker;
 
+  /// [AudioWorker] for displaying the current playback being played.
+  final AudioWorker _audioWorker;
+
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
+
+  /// Stops playback.
+  Future<void> stopPlayback() => _audioWorker.stop();
+
+  /// Starts a seek interaction for the active playback.
+  Future<void> beginSeek() => _audioWorker.beginSeek();
+
+  /// Ends a seek interaction for the active playback.
+  Future<void> endSeek(Duration position) => _audioWorker.endSeek(position);
 
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
@@ -136,6 +152,12 @@ class HomeController extends GetxController {
 
   /// Indicates whether currently authenticated [MyUser] is a support.
   bool get isSupport => _auth.userId?.isSupport == true;
+
+  /// Returns the currently active audio id, if any.
+  Rx<AudioId?> get activeAudioId => _audioWorker.activeAudioId;
+
+  /// Returns the [AudioPlayback].
+  AudioPlayback get playback => _audioWorker.playback;
 
   @override
   void onInit() {

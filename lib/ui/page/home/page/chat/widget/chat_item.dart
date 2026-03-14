@@ -57,6 +57,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/audio_utils.dart' show AudioId;
 import '/util/fixed_timer.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -229,12 +230,9 @@ class ChatItemWidget extends StatefulWidget {
 
     final bool isLocal = attachment is LocalAttachment;
 
-    final bool isVideo;
-    if (isLocal) {
-      isVideo = attachment.file.isVideo;
-    } else {
-      isVideo = attachment is! ImageAttachment;
-    }
+    final bool isVideo =
+        (attachment is FileAttachment && attachment.isVideo) ||
+        (isLocal && attachment.file.isVideo);
 
     final Widget child = KeyedSubtree(
       key: !isLocal ? const Key('SentImage') : null,
@@ -335,9 +333,13 @@ class ChatItemWidget extends StatefulWidget {
   static Widget fileAttachment(
     Attachment e, {
     void Function(FileAttachment)? onFileTap,
+    Future<void> Function()? onAttachmentError,
+    ChatItem? item,
   }) {
     return DataAttachment(
       e,
+      audioId: item == null ? null : AudioId.fromMessage(item.id, e.id),
+      onForbidden: onAttachmentError,
       onPressed: () {
         if (e is FileAttachment) {
           onFileTap?.call(e);
@@ -926,7 +928,11 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     (e) => [
                       ChatItemWidget.fileAttachment(
                         e,
+                        item: msg,
                         onFileTap: widget.onFileTap,
+                        onAttachmentError: () async => await widget
+                            .onAttachmentError
+                            ?.call(widget.item.value),
                       ),
                       if (files.last != e) const SizedBox(height: 6),
                     ],
@@ -1320,7 +1326,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       copyable = item.text?.val;
       media.addAll(
         item.attachments.where(
-          (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
+          (e) =>
+              e is ImageAttachment ||
+              (e is FileAttachment && (e.isVideo || e.isAudio)),
         ),
       );
     }

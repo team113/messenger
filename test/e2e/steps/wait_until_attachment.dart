@@ -31,6 +31,7 @@ import 'package:messenger/routes.dart';
 /// Examples:
 /// - Then I wait until attachment "test.txt" is absent
 /// - Then I wait until attachment "test.jpg" is present
+/// - Then I wait until attachment "test.mp3" is present
 final StepDefinitionGeneric untilAttachmentExists =
     then2<String, Existence, FlutterWorld>(
       'I wait until attachment {string} is {existence}',

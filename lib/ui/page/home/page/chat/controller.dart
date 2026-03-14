@@ -1727,9 +1727,12 @@ class ChatController extends GetxController {
       MessagePopup.success(
         attachments.length > 1
             ? 'label_files_downloaded'.l10n
-            : attachments.first is ImageAttachment
-            ? 'label_image_downloaded'.l10n
-            : 'label_video_downloaded'.l10n,
+            : switch (attachments.first) {
+                ImageAttachment() => 'label_image_downloaded'.l10n,
+                FileAttachment f when f.isAudio =>
+                  'label_audio_downloaded'.l10n,
+                _ => 'label_video_downloaded'.l10n,
+              },
       );
     } catch (e) {
       MessagePopup.error('err_could_not_download'.l10n);
@@ -1804,9 +1807,11 @@ class ChatController extends GetxController {
           ? await FilePicker.getDirectoryPath(lockParentWindow: true)
           : await FilePicker.saveFile(
               fileName: attachments.first.filename,
-              type: attachments.first is ImageAttachment
-                  ? FileType.image
-                  : FileType.video,
+              type: switch (attachments.first) {
+                ImageAttachment() => FileType.image,
+                FileAttachment f when f.isAudio => FileType.audio,
+                _ => FileType.video,
+              },
               lockParentWindow: true,
             );
 

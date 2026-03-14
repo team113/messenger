@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart' as dio;
@@ -53,14 +54,19 @@ final StepDefinitionGeneric postsNAttachmentsToGroup =
             switch (type) {
               AttachmentType.image => CatImage.bytes,
               AttachmentType.file => Uint8List.fromList([1, 1]),
+              AttachmentType.audio => base64Decode(
+                'SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZTUuMC4xMDAA//uQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+              ),
             },
             filename: switch (type) {
               AttachmentType.image => 'image.jpg',
               AttachmentType.file => 'file.bin',
+              AttachmentType.audio => 'audio.mp3',
             },
             contentType: switch (type) {
               AttachmentType.image => MediaType('image', 'jpeg'),
               AttachmentType.file => MediaType('application', 'octet-stream'),
+              AttachmentType.audio => MediaType('audio', 'mpeg'),
             },
           ),
         );

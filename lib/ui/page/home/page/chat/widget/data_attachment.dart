@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
@@ -24,19 +26,33 @@ import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/audio_player/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
+import '/util/audio_utils.dart' show AudioSource, AudioId;
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
-  const DataAttachment(this.attachment, {super.key, this.onPressed});
+  const DataAttachment(
+    this.attachment, {
+    super.key,
+    this.audioId,
+    this.onPressed,
+    this.onForbidden,
+  });
 
   /// [Attachment] to display.
   final Attachment attachment;
 
+  /// [AudioId] this [DataAttachment] represents, if any.
+  final AudioId? audioId;
+
   /// Callback, called when this [DataAttachment] is pressed.
   final void Function()? onPressed;
+
+  /// Callback, called when [attachment] fetching fails with `403` status code.
+  final Future<void> Function()? onForbidden;
 
   @override
   State<DataAttachment> createState() => _DataAttachmentState();
@@ -56,6 +72,8 @@ class _DataAttachmentState extends State<DataAttachment> {
   @override
   Widget build(BuildContext context) {
     final Attachment e = widget.attachment;
+
+    final bool isAudio = e.isAudio;
 
     return Obx(() {
       final style = Theme.of(context).style;
@@ -102,9 +120,38 @@ class _DataAttachmentState extends State<DataAttachment> {
         };
       }
 
+      if (isAudio) {
+        final (source, progress) = switch (e) {
+          LocalAttachment e when e.file.path != null => (
+            AudioSource.file(e.file.path!, name: e.filename),
+            WidgetButton(onPressed: e.cancelUpload, child: leading),
+          ),
+          FileAttachment e => (
+            AudioSource.url(e.original.url, name: e.filename),
+            null as Widget?,
+          ),
+          _ => (null, null),
+        };
+
+        if (source != null) {
+          return AudioPlayer(
+            id: widget.audioId ?? AudioId('${e.id}'),
+            source: source,
+            filename: e.filename,
+            progress: progress,
+            onForbidden: e is FileAttachment
+                ? () async {
+                    await widget.onForbidden?.call();
+                    return AudioSource.url(e.original.url);
+                  }
+                : null,
+          );
+        }
+      }
+
       return Container(
         key: Key('File_${e.id}'),
-        constraints: BoxConstraints(minWidth: 112),
+        constraints: const BoxConstraints(minWidth: 112),
         padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
         child: WidgetButton(
           onPressed: widget.onPressed,

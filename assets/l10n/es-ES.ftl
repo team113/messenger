@@ -516,6 +516,7 @@ label_audio_call =
         [x]{""}
         *[other] {" "}de {$by}
     }
+label_video_downloaded = Audio descargado
 label_auto_gain_control = Auto gain control
 label_auto_gain_control_subtitle = Ajusta automáticamente el volumen del micrófono
 label_avatar_removed = {$author} eliminó el avatar

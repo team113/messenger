@@ -87,6 +87,20 @@ abstract class Attachment {
     return false;
   }
 
+  /// Indicates whether this [Attachment] represents an audio.
+  bool get isAudio {
+    if (this is FileAttachment) {
+      return (this as FileAttachment).isAudio;
+    }
+
+    if (this is LocalAttachment) {
+      final local = this as LocalAttachment;
+      return local.file.isAudio;
+    }
+
+    return false;
+  }
+
   /// Indicates whether this [Attachment] represents a file.
   bool get isFile {
     if (this is FileAttachment) {
@@ -169,6 +183,18 @@ class FileAttachment extends Attachment {
         file.endsWith('.mkv') ||
         file.endsWith('.flv') ||
         file.endsWith('.3gp');
+  }
+
+  @override
+  bool get isAudio {
+    final String file = filename.toLowerCase();
+    return file.endsWith('.mp3') ||
+        file.endsWith('.wav') ||
+        file.endsWith('.m4a') ||
+        file.endsWith('.ogg') ||
+        file.endsWith('.aac') ||
+        file.endsWith('.aiff') ||
+        file.endsWith('.flac');
   }
 
   /// Initializes this [FileAttachment].
