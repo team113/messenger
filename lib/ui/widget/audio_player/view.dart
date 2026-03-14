@@ -26,6 +26,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/util/audio_utils.dart';
 import 'controller.dart';
+import 'slider.dart';
 
 /// Audio player with controls.
 class AudioPlayer extends StatelessWidget {
@@ -73,8 +74,8 @@ class AudioPlayer extends StatelessWidget {
             child: Row(
               children: [
                 MouseRegion(
-                  onEnter: (_) => c.hovered = true,
-                  onExit: (_) => c.hovered = false,
+                  onEnter: (_) => c.hovered.value = true,
+                  onExit: (_) => c.hovered.value = false,
                   child: progress ?? _play(context, c),
                 ),
                 const SizedBox(width: 16),
@@ -134,7 +135,9 @@ class AudioPlayer extends StatelessWidget {
           width: 48,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: c.hovered ? style.colors.backgroundAuxiliaryLighter : null,
+            color: c.hovered.value
+                ? style.colors.backgroundAuxiliaryLighter
+                : null,
             border: Border.all(width: 2, color: style.colors.primary),
           ),
           child: SafeAnimatedSwitcher(
@@ -163,36 +166,14 @@ class AudioPlayer extends StatelessWidget {
 
   /// Builds a slider.
   Widget _slider(BuildContext context, AudioPlayerController c) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 2.0,
-              activeTrackColor: style.colors.primary,
-              inactiveTrackColor: style.colors.secondaryHighlightDarkest,
-              thumbColor: style.colors.primary,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
-            ),
-            child: SizedBox(
-              height: 17,
-              child: Slider(
-                key: Key('AudioSlider${id.val}'),
-                onChangeStart: (_) => c.onSliderChangeStart(),
-                onChangeEnd: (v) => c.onSliderChangeEnd(),
-                value: c.getSliderValue(),
-                max: c.duration.inMilliseconds.toDouble() > 0
-                    ? c.duration.inMilliseconds.toDouble()
-                    : 1.0,
-                onChanged: (v) =>
-                    c.position = Duration(milliseconds: v.toInt()),
-              ),
-            ),
-          ),
-        ],
+      return SeekSlider(
+        key: Key('AudioSlider${id.val}'),
+        position: c.position,
+        duration: c.duration,
+        onChangeStart: (_) => c.onSliderChangeStart(),
+        onChangeEnd: (_) => c.onSliderChangeEnd(),
+        onChanged: (v) => c.position = Duration(milliseconds: v.toInt()),
       );
     });
   }

@@ -43,6 +43,8 @@ class MockAudioWorker extends Dependency implements AudioWorker {
     activeAudioId.value = id;
     _playback.isLoading.value = true;
 
+    _playback.duration.value = const Duration(minutes: 2);
+
     await Future.delayed(const Duration(milliseconds: 100));
 
     _playback.isLoading.value = false;
@@ -84,6 +86,16 @@ class MockAudioWorker extends Dependency implements AudioWorker {
       _playback.position.value =
           _playback.position.value + const Duration(seconds: 1);
     }
+  }
+
+  @override
+  Future<void> beginSeek() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> endSeek(Duration position) async {
+    // No-op.
   }
 }
 

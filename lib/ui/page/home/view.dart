@@ -30,6 +30,7 @@ import '/themes.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/page/link/view.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/audio_player/slider.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -448,19 +449,66 @@ class _HomeViewState extends State<HomeView> {
 
     return Obx(() {
       final AudioPlayback playback = c.playback;
+      bool isPlaying = playback.isPlaying.value;
+      bool isActive = c.activeAudioId.value != null;
 
-      if (!playback.isPlaying.value) {
+      if (!isActive) {
         return const SizedBox();
       }
 
       // TODO: Implement a widget?
       return Container(
         width: double.infinity,
-        height: 48,
-        decoration: BoxDecoration(color: Colors.yellow),
-        child: Text(
-          '${playback.position.value.hhMmSs()} / ${playback.duration.value.hhMmSs()}',
-          style: style.fonts.smaller.regular.secondary,
+
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+        decoration: BoxDecoration(
+          border: BoxBorder.all(
+            width: 1,
+            color: style.colors.onSecondaryOpacity20,
+          ),
+          color: style.colors.almostTransparent,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [BoxShadow(blurRadius: 5, color: Colors.white38)],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+                  onPressed: isPlaying ? playback.pause : playback.play,
+                ),
+                Expanded(
+                  child: Text(
+                    playback.sourceName.value ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style.fonts.small.regular.onBackground,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    c.stopPlayback();
+                  },
+                ),
+              ],
+            ),
+
+            SeekSlider(
+              position: playback.position.value,
+              duration: playback.duration.value,
+              onChangeStart: (_) => c.beginSeek(),
+              onChangeEnd: (v) => c.endSeek(Duration(milliseconds: v.toInt())),
+              onChanged: (v) =>
+                  playback.position.value = Duration(milliseconds: v.toInt()),
+            ),
+            Text(
+              '${playback.position.value.hhMmSs()} / ${playback.duration.value.hhMmSs()}',
+              style: style.fonts.smallest.regular.secondary,
+            ),
+          ],
         ),
       );
     });

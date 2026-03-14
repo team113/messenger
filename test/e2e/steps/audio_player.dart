@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart' show Slider;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
@@ -26,6 +25,7 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/widget/audio_player/slider.dart';
 import 'package:messenger/ui/worker/audio.dart';
 import 'package:messenger/util/audio_utils.dart';
 
@@ -107,11 +107,11 @@ final StepDefinitionGeneric audioSliderPositionChangesWhilePlaying =
         );
         expect(slider.evaluate().isNotEmpty, true);
 
-        double sliderValue() {
-          return (slider.evaluate().first.widget as Slider).value;
+        Duration sliderValue() {
+          return (slider.evaluate().first.widget as SeekSlider).position;
         }
 
-        final double initialValue = sliderValue();
+        final Duration initialValue = sliderValue();
 
         await Future.delayed(const Duration(seconds: 2));
         expect(sliderValue() > initialValue, true);

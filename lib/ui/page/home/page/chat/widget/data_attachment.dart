@@ -123,11 +123,11 @@ class _DataAttachmentState extends State<DataAttachment> {
       if (isAudio) {
         final (source, progress) = switch (e) {
           LocalAttachment e when e.file.path != null => (
-            AudioSource.file(e.file.path!),
+            AudioSource.file(e.file.path!, name: e.filename),
             WidgetButton(onPressed: e.cancelUpload, child: leading),
           ),
           FileAttachment e => (
-            AudioSource.url(e.original.url),
+            AudioSource.url(e.original.url, name: e.filename),
             null as Widget?,
           ),
           _ => (null, null),

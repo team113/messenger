@@ -550,16 +550,19 @@ enum AudioSourceKind { asset, file, url }
 
 /// Source to play an audio stream from.
 sealed class AudioSource {
-  const AudioSource();
+  const AudioSource({this.name});
+
+  /// Human-readable name of the audio source, if known.
+  final String? name;
 
   /// Constructs an [AudioSource] from the provided [asset].
-  factory AudioSource.asset(String asset) = AssetAudioSource;
+  factory AudioSource.asset(String asset, {String? name}) = AssetAudioSource;
 
   /// Constructs an [AudioSource] from the provided [file].
-  factory AudioSource.file(String file) = FileAudioSource;
+  factory AudioSource.file(String file, {String? name}) = FileAudioSource;
 
   /// Constructs an [AudioSource] from the provided [url].
-  factory AudioSource.url(String url) = UrlAudioSource;
+  factory AudioSource.url(String url, {String? name}) = UrlAudioSource;
 
   /// Returns a [AudioSourceKind] of this [AudioSource].
   AudioSourceKind get kind;
@@ -567,7 +570,7 @@ sealed class AudioSource {
 
 /// [AudioSource] of the provided [asset].
 class AssetAudioSource extends AudioSource {
-  const AssetAudioSource(this.asset);
+  const AssetAudioSource(this.asset, {super.name});
 
   /// Path to an asset to play audio from.
   final String asset;
@@ -585,7 +588,7 @@ class AssetAudioSource extends AudioSource {
 
 /// [AudioSource] of the provided [file].
 class FileAudioSource extends AudioSource {
-  const FileAudioSource(this.file);
+  const FileAudioSource(this.file, {super.name});
 
   /// Path to a file to play audio from.
   final String file;
@@ -603,7 +606,7 @@ class FileAudioSource extends AudioSource {
 
 /// [AudioSource] of the provided [url].
 class UrlAudioSource extends AudioSource {
-  const UrlAudioSource(this.url);
+  const UrlAudioSource(this.url, {super.name});
 
   /// URL to play audio from.
   final String url;

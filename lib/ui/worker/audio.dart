@@ -59,6 +59,9 @@ class AudioWorker extends Dependency {
   /// [CancelToken] for cancelling the audio header fetching.
   CancelToken? _headerToken;
 
+  /// Indicates whether playback was active before a seek interaction.
+  bool _wasPlaying = false;
+
   /// Returns the [AudioPlayback].
   AudioPlayback get playback => _playback;
 
@@ -153,6 +156,7 @@ class AudioWorker extends Dependency {
   Future<void> stop() async {
     Log.debug('stop()', '$runtimeType');
 
+    _wasPlaying = false;
     _cancelToken?.cancel();
     _headerToken?.cancel();
     _cancelToken = null;
@@ -166,6 +170,24 @@ class AudioWorker extends Dependency {
   /// Seeks to the specified [position] in the active audio.
   Future<void> seek(Duration position) async {
     await _playback.seek(position);
+  }
+
+  /// Starts a seek interaction, pausing playback if it was active.
+  Future<void> beginSeek() async {
+    _wasPlaying = _playback.isPlaying.value;
+    if (_wasPlaying) {
+      await pause();
+    }
+  }
+
+  /// Ends a seek interaction by seeking and resuming if needed.
+  Future<void> endSeek(Duration position) async {
+    final bool shouldResume = _wasPlaying;
+    _wasPlaying = false;
+    await seek(position);
+    if (shouldResume) {
+      await _playback.play();
+    }
   }
 
   /// Returns the [Duration] of the provided [source].

@@ -38,7 +38,7 @@ class AudioPlayerController extends GetxController {
   final AudioSource source;
 
   /// Indicator whether the view is being hovered.
-  final RxBool isHovered = RxBool(false);
+  final RxBool hovered = RxBool(false);
 
   /// Callback, called when [source] fetch fails with `403` status code.
   final FutureOr<AudioSource?> Function()? onForbidden;
@@ -48,9 +48,6 @@ class AudioPlayerController extends GetxController {
 
   /// Indicator whether [extractedDuration] is being fetched.
   final RxBool isDurationLoading = RxBool(true);
-
-  /// Indicator whether audio was playing before interaction started.
-  bool _wasPlaying = false;
 
   /// [AudioWorker] handling actual playback and synchronization.
   final AudioWorker _audioWorker;
@@ -75,12 +72,6 @@ class AudioPlayerController extends GetxController {
   /// Returns [Duration.zero], if not active.
   Duration get duration =>
       isActive ? _audioWorker.playback.duration.value : extractedDuration.value;
-
-  /// Returns hover state.
-  bool get hovered => isHovered.value;
-
-  /// Sets hover state.
-  set hovered(bool value) => isHovered.value = value;
 
   /// Sets playback position in [AudioWorker].
   set position(Duration v) => _audioWorker.playback.position.value = v;
@@ -109,24 +100,13 @@ class AudioPlayerController extends GetxController {
   }
 
   /// Handles start of slider interaction.
-  ///
-  /// Pauses playback if it was playing to allow smooth seeking.
   void onSliderChangeStart() {
-    _wasPlaying = isPlaying;
-    if (_wasPlaying) {
-      togglePlay();
-    }
+    _audioWorker.beginSeek();
   }
 
   /// Handles end of slider interaction.
-  ///
-  /// Seeks to current slider value and resumes playback if it was
-  /// playing before interaction started.
   void onSliderChangeEnd() async {
-    await seek(getSliderValue());
-    if (_wasPlaying) {
-      togglePlay();
-    }
+    await _audioWorker.endSeek(position);
   }
 
   /// Seeks to specific position in milliseconds.
@@ -137,12 +117,5 @@ class AudioPlayerController extends GetxController {
   /// Stops playback and clears audio data.
   Future<void> stop() async {
     await _audioWorker.stop();
-  }
-
-  /// Returns current position in milliseconds, clamped between 0 and [duration].
-  double getSliderValue() {
-    final durMs = duration.inMilliseconds.toDouble();
-    if (durMs <= 0) return 0.0;
-    return position.inMilliseconds.toDouble().clamp(0.0, durMs);
   }
 }
