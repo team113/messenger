@@ -6,9 +6,10 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## main
+## [0.9.6] · 2026-03-16
+[0.9.6]: /../../tree/v0.9.6
 
-[Diff](/../../compare/v0.9.5...main) | [Milestone](/../../milestone/71)
+[Diff](/../../compare/v0.9.5...v0.9.6) | [Milestone](/../../milestone/71)
 
 ### Added
 
