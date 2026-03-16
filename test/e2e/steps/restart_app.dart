@@ -21,7 +21,9 @@ import 'package:messenger/main.dart';
 import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/ui/worker/audio.dart';
 
+import '../mock/audio_worker.dart';
 import '../mock/geo.dart';
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
@@ -53,6 +55,7 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>('I restart app', (
   );
 
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
+  Get.put<AudioWorker>(MockAudioWorker());
 
   await main();
 

@@ -32,9 +32,6 @@ class MockAudioWorker extends Dependency implements AudioWorker {
   final AudioPlayback _playback = DummyPlayback();
 
   @override
-  AudioPlayback get playback => _playback;
-
-  @override
   Future<void> play(
     AudioId id,
     AudioSource source, {
@@ -97,6 +94,13 @@ class MockAudioWorker extends Dependency implements AudioWorker {
   Future<void> endSeek(Duration position) async {
     // No-op.
   }
+
+  @override
+  AudioSource? get activeSource =>
+      AssetAudioSource('/assets/pop.mp3', name: 'Pop');
+
+  @override
+  AudioPlayback get playback => _playback;
 }
 
 /// Mocked dummy [AudioPlayback].
