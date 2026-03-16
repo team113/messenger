@@ -57,7 +57,7 @@ class Config {
   /// [ChatDirectLink] prefix.
   ///
   /// If empty, then [origin] is used.
-  static String link = 'https://gapopa.com/~';
+  static String link = '';
 
   /// Directory to download files to.
   static String downloads = '';
