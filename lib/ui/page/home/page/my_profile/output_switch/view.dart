@@ -102,7 +102,15 @@ class OutputSwitchView extends StatelessWidget {
                       if (c.isWindows10 && microphone != null) {
                         outputs.removeWhere((device) {
                           if (device.groupId() == microphone.groupId()) {
-                            return (device.numChannels() ?? 1) >= 2;
+                            final bool hasMono = outputs.any(
+                              (e) =>
+                                  e.id() != device.id() &&
+                                  e.groupId() == device.groupId() &&
+                                  (e.numChannels() ?? 2) <
+                                      (device.numChannels() ?? 2),
+                            );
+
+                            return hasMono && (device.numChannels() ?? 1) >= 2;
                           }
 
                           return false;
