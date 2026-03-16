@@ -1,7 +1,6 @@
-- Se añadió la visualización del volumen de entrada al modal del interruptor del micrófono.
-- Se añadió el desplazamiento horizontal de toda la aplicación cuando la ventana tiene menos de 300 px de ancho.
-- Se rediseñó la búsqueda en la pestaña de chats.
-- Se rediseñó el menú de selección de archivos adjuntos en el chat.
-- Se rediseñaron algunas partes del reproductor multimedia de escritorio.
-- Se aumentó la resolución de la cámara en las llamadas a 960x720.
+- Se agregaron bloques de ayuda y cierre de sesión a la página de perfil.
+- Se agregó un avatar para el chat de soporte.
+- Se actualizó el diseño del bloque de enlaces en la página de perfil del chat.
+- Se actualizaron los bloques de enlaces, caché y dispositivos multimedia en la página de perfil.
+- Se actualizó el diseño de los archivos adjuntos multimedia para que se muestren en columnas en lugar de cuadrícula en el chat.
 - Corrección de errores y mejoras de rendimiento.

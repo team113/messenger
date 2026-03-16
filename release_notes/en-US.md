@@ -1,7 +1,6 @@
-- Added input volume displaying to microphone switch modal.
-- Added horizontal scrolling of whole application when window is less than 300px wide.
-- Redesigned searching on chats tab.
-- Redesigned attachments picker menu in chat.
-- Redesigned some parts of desktop media player.
-- Increased camera resolution in calls to 960x720.
+- Added help and sign out blocks to profile page.
+- Added avatar for support chat.
+- Updated links block design on chat profile page.
+- Updated links, cache and media devices blocks on profile page.
+- Updated media attachments layout to be column instead of grid in chat.
 - Bug fixes and performance improvements.
