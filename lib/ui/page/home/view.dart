@@ -35,6 +35,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
+import '/ui/worker/audio.dart';
 import '/ui/worker/audio/playback.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/platform_utils.dart';
@@ -449,8 +450,9 @@ class _HomeViewState extends State<HomeView> {
 
     return Obx(() {
       final AudioPlayback playback = c.playback;
+      final AudioWorker audioWorker = c.audioWorker;
       bool isPlaying = playback.isPlaying.value;
-      bool isActive = c.activeAudioId.value != null;
+      bool isActive = audioWorker.activeAudioId.value != null;
 
       if (!isActive) {
         return const SizedBox();
@@ -481,7 +483,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 Expanded(
                   child: Text(
-                    c.activeSource?.name ?? '',
+                    audioWorker.activeSource?.name ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: style.fonts.small.regular.onBackground,
@@ -490,7 +492,7 @@ class _HomeViewState extends State<HomeView> {
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () {
-                    c.stopPlayback();
+                    audioWorker.stop();
                   },
                 ),
               ],
@@ -499,8 +501,9 @@ class _HomeViewState extends State<HomeView> {
             SeekSlider(
               position: playback.position.value,
               duration: playback.duration.value,
-              onChangeStart: (_) => c.beginSeek(),
-              onChangeEnd: (v) => c.endSeek(Duration(milliseconds: v.toInt())),
+              onChangeStart: (_) => audioWorker.beginSeek(),
+              onChangeEnd: (v) =>
+                  audioWorker.endSeek(Duration(milliseconds: v.toInt())),
               onChanged: (v) =>
                   playback.position.value = Duration(milliseconds: v.toInt()),
             ),

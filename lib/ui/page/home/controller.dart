@@ -49,7 +49,7 @@ class HomeController extends GetxController {
     this._myUserService,
     this._settings,
     this._upgradeWorker,
-    this._audioWorker, {
+    this.audioWorker, {
     this.signedUp = false,
     this.link,
     this.context,
@@ -108,23 +108,11 @@ class HomeController extends GetxController {
   final UpgradeWorker _upgradeWorker;
 
   /// [AudioWorker] for displaying the current playback being played.
-  final AudioWorker _audioWorker;
+  final AudioWorker audioWorker;
 
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
 
-  /// Stops playback.
-  Future<void> stopPlayback() => _audioWorker.stop();
-
-  /// Starts a seek interaction for the active playback.
-  Future<void> beginSeek() => _audioWorker.beginSeek();
-
-  /// Ends a seek interaction for the active playback.
-  Future<void> endSeek(Duration position) => _audioWorker.endSeek(position);
-
-  /// Currently active audio source.
-  AudioSource? get activeSource => _audioWorker.activeSource;
-  
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
@@ -156,11 +144,8 @@ class HomeController extends GetxController {
   /// Indicates whether currently authenticated [MyUser] is a support.
   bool get isSupport => _auth.userId?.isSupport == true;
 
-  /// Returns the currently active audio id, if any.
-  Rx<AudioId?> get activeAudioId => _audioWorker.activeAudioId;
-
   /// Returns the [AudioPlayback].
-  AudioPlayback get playback => _audioWorker.playback;
+  AudioPlayback get playback => audioWorker.playback;
 
   @override
   void onInit() {
