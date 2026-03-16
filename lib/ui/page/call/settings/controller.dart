@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
+import '/ui/page/home/page/my_profile/microphone_switch/controller.dart';
 import '/util/media_utils.dart';
 import '/util/obs/obs.dart';
 
@@ -90,9 +91,21 @@ class CallSettingsController extends GetxController {
   }
 
   /// Sets the provided [device] as a used by default microphone device.
-  void setAudioDevice(DeviceDetails device) {
+  Future<void> setAudioDevice(DeviceDetails device) async {
     _call.value.setAudioDevice(device);
     _settingsRepo.setAudioDevice(device.id());
+
+    final DeviceDetails? compatible =
+        await MicrophoneSwitchController.pickOutputDevice(
+          outputId: output.value?.id(),
+          microphone: device,
+          devices: devices.toList(),
+        );
+
+    if (compatible != null) {
+      await _call.value.setOutputDevice(compatible);
+      await _settingsRepo.setOutputDevice(compatible.id());
+    }
   }
 
   /// Sets the provided [device] as a used by default output device.
