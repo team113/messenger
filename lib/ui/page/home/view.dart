@@ -481,7 +481,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 Expanded(
                   child: Text(
-                    playback.sourceName.value ?? '',
+                    c.activeSource?.name ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: style.fonts.small.regular.onBackground,

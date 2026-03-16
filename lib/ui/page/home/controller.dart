@@ -35,7 +35,7 @@ import '/ui/page/home/introduction/view.dart';
 import '/ui/worker/audio.dart';
 import '/ui/worker/audio/playback.dart';
 import '/ui/worker/upgrade.dart';
-import '/util/audio_utils.dart' show AudioId;
+import '/util/audio_utils.dart' show AudioId, AudioSource;
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import 'introduction/controller.dart';
@@ -122,6 +122,9 @@ class HomeController extends GetxController {
   /// Ends a seek interaction for the active playback.
   Future<void> endSeek(Duration position) => _audioWorker.endSeek(position);
 
+  /// Currently active audio source.
+  AudioSource? get activeSource => _audioWorker.activeSource;
+  
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 

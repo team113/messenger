@@ -34,7 +34,6 @@ class AudioPlayer extends StatelessWidget {
     super.key,
     required this.source,
     required this.id,
-    required this.filename,
     this.progress,
     this.onForbidden,
   });
@@ -44,9 +43,6 @@ class AudioPlayer extends StatelessWidget {
 
   /// Unique identifier of the audio.
   final AudioId id;
-
-  /// Name of the audio file.
-  final String filename;
 
   /// Indicates uploading progress.
   final Widget? progress;
@@ -85,7 +81,7 @@ class AudioPlayer extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        filename,
+                        source.name ?? '',
                         style: style.fonts.small.regular.onBackground,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

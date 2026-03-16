@@ -38,6 +38,9 @@ class AudioWorker extends Dependency {
   /// Unique identifier of the currently active audio, if any.
   final Rx<AudioId?> activeAudioId = Rx(null);
 
+  /// Currently active [AudioSource].
+  final Rx<AudioSource?> _activeSource = Rx(null);
+
   /// [AudioPlayback] to play [AudioSource]s.
   final AudioPlayback _playback =
       (PlatformUtils.isMacOS || PlatformUtils.isIOS) && !PlatformUtils.isWeb
@@ -64,6 +67,8 @@ class AudioWorker extends Dependency {
 
   /// Returns the [AudioPlayback].
   AudioPlayback get playback => _playback;
+
+  AudioSource? get activeSource => _activeSource.value;
 
   @override
   void onInit() {
@@ -121,6 +126,7 @@ class AudioWorker extends Dependency {
 
       await stop();
       activeAudioId.value = id;
+      _activeSource.value = source;
       _playback.isLoading.value = true;
 
       AudioSource targetSource = source;
@@ -135,7 +141,7 @@ class AudioWorker extends Dependency {
         );
         targetSource = reachable;
       }
-
+      
       await _playback.prepare(targetSource);
       await _playback.play();
     } on OperationCanceledException {
@@ -163,6 +169,7 @@ class AudioWorker extends Dependency {
     _headerToken = null;
     await _playback.stop();
     activeAudioId.value = null;
+    _activeSource.value = null;
     await _intentSubscription?.cancel();
     _intentSubscription = null;
   }

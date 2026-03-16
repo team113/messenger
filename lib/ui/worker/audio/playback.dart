@@ -21,9 +21,6 @@ import '/util/audio_utils.dart';
 
 /// Audio playback helper playing the [AudioSource] provided.
 abstract class AudioPlayback {
-  /// Name of the currently active [AudioSource].
-  final Rx<String?> sourceName = Rx(null);
-
   /// Whether playback is currently active.
   final RxBool isPlaying = RxBool(false);
 

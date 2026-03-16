@@ -52,7 +52,6 @@ class JustAudioPlayback extends AudioPlayback {
   @override
   Future<void> prepare(AudioSource source) async {
     _resetState();
-    sourceName.value = source.name;
     await _player.setAudioSource(source.source);
   }
 

@@ -137,12 +137,11 @@ class _DataAttachmentState extends State<DataAttachment> {
           return AudioPlayer(
             id: widget.audioId ?? AudioId('${e.id}'),
             source: source,
-            filename: e.filename,
             progress: progress,
             onForbidden: e is FileAttachment
                 ? () async {
                     await widget.onForbidden?.call();
-                    return AudioSource.url(e.original.url);
+                    return AudioSource.url(e.original.url, name: e.filename);
                   }
                 : null,
           );

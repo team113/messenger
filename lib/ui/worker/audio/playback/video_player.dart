@@ -59,7 +59,6 @@ class VideoPlayerPlayback extends AudioPlayback {
       ]);
     }
 
-    sourceName.value = source.name;
     await _controller!.initialize();
     await _controller!.setLooping(false);
   }
