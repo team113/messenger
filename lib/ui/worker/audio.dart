@@ -182,12 +182,11 @@ class AudioWorker extends Dependency {
 
   /// Ends a seek interaction by seeking and resuming if needed.
   Future<void> endSeek(Duration position) async {
-    final bool shouldResume = _wasPlaying;
-    _wasPlaying = false;
     await seek(position);
-    if (shouldResume) {
+    if (_wasPlaying) {
       await _playback.play();
     }
+    _wasPlaying = false;
   }
 
   /// Returns the [Duration] of the provided [source].

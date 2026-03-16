@@ -166,16 +166,16 @@ class AudioPlayer extends StatelessWidget {
 
   /// Builds a slider.
   Widget _slider(BuildContext context, AudioPlayerController c) {
-    return Obx(() {
-      return SeekSlider(
+    return Obx(
+      () => SeekSlider(
         key: Key('AudioSlider${id.val}'),
         position: c.position,
         duration: c.duration,
         onChangeStart: (_) => c.onSliderChangeStart(),
         onChangeEnd: (_) => c.onSliderChangeEnd(),
         onChanged: (v) => c.position = Duration(milliseconds: v.toInt()),
-      );
-    });
+      ),
+    );
   }
 }
 

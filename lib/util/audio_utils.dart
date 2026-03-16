@@ -552,9 +552,6 @@ enum AudioSourceKind { asset, file, url }
 sealed class AudioSource {
   const AudioSource({this.name});
 
-  /// Human-readable name of the audio source, if known.
-  final String? name;
-
   /// Constructs an [AudioSource] from the provided [asset].
   factory AudioSource.asset(String asset, {String? name}) = AssetAudioSource;
 
@@ -563,6 +560,9 @@ sealed class AudioSource {
 
   /// Constructs an [AudioSource] from the provided [url].
   factory AudioSource.url(String url, {String? name}) = UrlAudioSource;
+
+  /// Human-readable name of the audio source, if known.
+  final String? name;
 
   /// Returns a [AudioSourceKind] of this [AudioSource].
   AudioSourceKind get kind;
