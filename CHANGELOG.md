@@ -15,9 +15,9 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Media panel:
-        - Inability to drag-n-drop buttons in dock. ([#1652])
+        - Inability to drag-n-drop buttons in dock. ([#1654])
 
-[#1652]: /../../pull/1652
+[#1654]: /../../pull/1654
 
 
 
