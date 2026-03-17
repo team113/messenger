@@ -421,8 +421,7 @@ endef
 #	                      [version=($(git describe --tags)|<version>)]
 #	                      [out=(appcast/<version>.xml|<output-file>)
 
-appcast-item-ver = $(or $(version),\
-	$(shell git describe --tags --abbrev=0 --match "v*" --always)+$(shell git rev-list HEAD --count))
+appcast-item-ver = $(or $(version),$(shell git describe --tags | sed 's/-/+/'))
 appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=\"$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)\"><![CDATA[$$(cat $(xml))]]></description>)
 
 appcast.xml.item:
