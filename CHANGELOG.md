@@ -13,10 +13,14 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
+- UI:
+    - Media panel:
+        - Inability to drag-n-drop buttons in dock. ([#1654])
 - Windows:
     - Unsupported devices displayed in output devices list for Windows 10. ([#1643])
 
 [#1643]: /../../pull/1643
+[#1654]: /../../pull/1654
 
 
 

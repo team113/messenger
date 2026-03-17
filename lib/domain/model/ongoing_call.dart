@@ -2337,6 +2337,11 @@ class OngoingCall {
             );
           }
 
+          Log.debug(
+            '_updateSettings() -> `_mediaStreamSettings()` contains audio($audio ?? ($hasAudio || ${audioState.value.isEnabled})), video($video ?? ${videoState.value.isEnabled}), screen($screen ?? ${screenShareState.value.isEnabled})',
+            '$runtimeType',
+          );
+
           _settings = _mediaStreamSettings(
             audio: audio ?? (hasAudio || audioState.value.isEnabled),
             video: video ?? videoState.value.isEnabled,
@@ -2673,6 +2678,14 @@ class OngoingCall {
         audio.firstOrNull;
 
     if (device != null && audioDevice.value != device) {
+      if (device.id() == 'default' && without.contains(device.deviceId())) {
+        Log.debug(
+          '_pickAudioDevice(without: $without) -> picked the `default` device, yet it is aiming the `without` device, thus IGNORING the call! Default is: $device',
+          '$runtimeType',
+        );
+        return;
+      }
+
       _notifications.add(DeviceChangedNotification(device: device));
       await _setAudioDevice(device);
     }

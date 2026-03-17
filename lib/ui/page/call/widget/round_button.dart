@@ -248,7 +248,6 @@ class _TooltipButtonState extends State<_TooltipButton> {
     return CompositedTransformTarget(
       link: _link,
       child: MouseRegion(
-        opaque: false,
         onEnter: (_) => _show(),
         onExit: (_) => _hide(),
         cursor: SystemMouseCursors.click,
