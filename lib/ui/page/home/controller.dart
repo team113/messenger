@@ -33,9 +33,8 @@ import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
 import '/ui/worker/audio.dart';
-import '/ui/worker/audio/playback.dart';
+import '/ui/worker/audio/active_session.dart';
 import '/ui/worker/upgrade.dart';
-import '/util/audio_utils.dart' show AudioId, AudioSource;
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import 'introduction/controller.dart';
@@ -49,7 +48,7 @@ class HomeController extends GetxController {
     this._myUserService,
     this._settings,
     this._upgradeWorker,
-    this.audioWorker, {
+    this._audioWorker, {
     this.signedUp = false,
     this.link,
     this.context,
@@ -108,7 +107,7 @@ class HomeController extends GetxController {
   final UpgradeWorker _upgradeWorker;
 
   /// [AudioWorker] for displaying the current playback being played.
-  final AudioWorker audioWorker;
+  final AudioWorker _audioWorker;
 
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
@@ -144,8 +143,8 @@ class HomeController extends GetxController {
   /// Indicates whether currently authenticated [MyUser] is a support.
   bool get isSupport => _auth.userId?.isSupport == true;
 
-  /// Returns the [AudioPlayback].
-  AudioPlayback get playback => audioWorker.playback;
+  /// Returns [ActiveAudioSession] for interacting with the audio.
+  ActiveAudioSession? get session => _audioWorker.activeSession.value;
 
   @override
   void onInit() {
@@ -209,6 +208,9 @@ class HomeController extends GetxController {
 
     return width.clamp(sideBarMinWidth, maxWidth);
   }
+
+  /// Stops audio playback.
+  Future<void> stopPlayback() => _audioWorker.stop();
 
   /// Sets the current [sideBarWidth] as the [sideBarAllowedWidth].
   Future<void> setSideBarWidth() =>

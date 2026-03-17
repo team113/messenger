@@ -20,16 +20,17 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/disposable_service.dart';
 import 'package:messenger/ui/worker/audio.dart';
+import 'package:messenger/ui/worker/audio/active_session.dart';
 import 'package:messenger/ui/worker/audio/playback.dart';
 import 'package:messenger/util/audio_utils.dart';
 
 /// Mocked [AudioWorker] to use in the tests.
 class MockAudioWorker extends Dependency implements AudioWorker {
-  @override
-  final Rxn<AudioId> activeAudioId = Rxn<AudioId>(null);
-
   /// [AudioPlayback] to use.
   final AudioPlayback _playback = DummyPlayback();
+
+  /// Currently active session.
+  final Rx<ActiveAudioSession?> _activeSession = Rx(null);
 
   @override
   Future<void> play(
@@ -37,10 +38,17 @@ class MockAudioWorker extends Dependency implements AudioWorker {
     AudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
-    activeAudioId.value = id;
     _playback.isLoading.value = true;
 
     _playback.duration.value = const Duration(minutes: 2);
+    _playback.isCompleted.value = false;
+
+    _activeSession.value?.dispose();
+    _activeSession.value = ActiveAudioSession(
+      _playback,
+      id: id,
+      source: source,
+    );
 
     await Future.delayed(const Duration(milliseconds: 100));
 
@@ -56,15 +64,11 @@ class MockAudioWorker extends Dependency implements AudioWorker {
   }
 
   @override
-  Future<void> seek(Duration pos) async {
-    _playback.position.value = pos;
-  }
-
-  @override
   Future<void> stop() async {
     _playback.isPlaying.value = false;
-    activeAudioId.value = null;
     _playback.position.value = const Duration();
+    _activeSession.value?.dispose();
+    _activeSession.value = null;
   }
 
   @override
@@ -86,21 +90,10 @@ class MockAudioWorker extends Dependency implements AudioWorker {
   }
 
   @override
-  Future<void> beginSeek() async {
-    // No-op.
-  }
-
-  @override
-  Future<void> endSeek(Duration position) async {
-    // No-op.
-  }
-
-  @override
-  AudioSource? get activeSource =>
-      AssetAudioSource('/assets/pop.mp3', name: 'Pop');
-
-  @override
   AudioPlayback get playback => _playback;
+
+  @override
+  Rx<ActiveAudioSession?> get activeSession => _activeSession;
 }
 
 /// Mocked dummy [AudioPlayback].

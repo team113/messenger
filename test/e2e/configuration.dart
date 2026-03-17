@@ -177,6 +177,10 @@ FlutterTestConfiguration gherkinTestConfiguration() {
   final FlutterTestConfiguration configuration = FlutterTestConfiguration();
 
   configuration.stepDefinitions = [
+    audioIsPaused,
+    audioIsPlaying,
+    audioPositionIs,
+    audioSliderPositionChangesWhilePlaying,
     appcastIsAvailable,
     attachFile,
     blockedCountUsers,
@@ -329,6 +333,7 @@ FlutterTestConfiguration gherkinTestConfiguration() {
     tapUserInSearchResults,
     tapWidget,
     tapWidgetNTimes,
+    toggleAudioPlay,
     twoContacts,
     twoUsers,
     untilAttachmentExists,
@@ -349,11 +354,6 @@ FlutterTestConfiguration gherkinTestConfiguration() {
     waitUntilFileStatus,
     waitUntilKeyExists,
     waitUntilMessageStatus,
-    toggleAudioPlay,
-    audioIsPaused,
-    audioIsPlaying,
-    audioSliderPositionChangesWhilePlaying,
-    audioPositionIs,
   ];
   configuration.hooks = [
     ResetAppHook(),

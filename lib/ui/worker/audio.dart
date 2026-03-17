@@ -27,6 +27,7 @@ import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart' show AudioSpeakerKind;
 import '/util/platform_utils.dart';
+import 'audio/active_session.dart';
 import 'audio/playback.dart';
 import 'audio/playback/just_audio.dart';
 import 'audio/playback/video_player.dart';
@@ -35,11 +36,8 @@ import 'audio/playback/video_player.dart';
 class AudioWorker extends Dependency {
   AudioWorker();
 
-  /// Unique identifier of the currently active audio, if any.
-  final Rx<AudioId?> activeAudioId = Rx(null);
-
-  /// Currently active [AudioSource].
-  final Rx<AudioSource?> _activeSource = Rx(null);
+  /// Currently active session.
+  final Rx<ActiveAudioSession?> activeSession = Rx(null);
 
   /// [AudioPlayback] to play [AudioSource]s.
   final AudioPlayback _playback =
@@ -53,22 +51,14 @@ class AudioWorker extends Dependency {
   /// [StreamSubscription] to [AudioUtilsImpl.routeChangeStream].
   StreamSubscription? _routeSubscription;
 
-  /// [StreamSubscription] for playback completion.
-  StreamSubscription? _completedSubscription;
-
   /// [CancelToken] for cancelling the audio download.
   CancelToken? _cancelToken;
 
   /// [CancelToken] for cancelling the audio header fetching.
   CancelToken? _headerToken;
 
-  /// Indicates whether playback was active before a seek interaction.
-  bool _wasPlaying = false;
-
   /// Returns the [AudioPlayback].
   AudioPlayback get playback => _playback;
-
-  AudioSource? get activeSource => _activeSource.value;
 
   @override
   void onInit() {
@@ -79,13 +69,6 @@ class AudioWorker extends Dependency {
     if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
       _initialize();
     }
-
-    _completedSubscription = _playback.isCompleted.listen((completed) async {
-      if (completed) {
-        await pause();
-        await seek(Duration.zero);
-      }
-    });
   }
 
   @override
@@ -93,11 +76,7 @@ class AudioWorker extends Dependency {
     Log.debug('onClose()', '$runtimeType');
 
     _routeSubscription?.cancel();
-    _completedSubscription?.cancel();
-    _playback.dispose();
-    _intentSubscription?.cancel();
-    _cancelToken?.cancel();
-    _headerToken?.cancel();
+    stop();
 
     super.onClose();
   }
@@ -120,16 +99,19 @@ class AudioWorker extends Dependency {
         speaker: AudioSpeakerKind.speaker,
       ).listen((_) {});
 
-      if (activeAudioId.value == id) {
-        return await _playback.play();
+      if (activeSession.value?.id == id) {
+        return _playback.play();
       }
 
       await stop();
-      activeAudioId.value = id;
-      _activeSource.value = source;
-      _playback.isLoading.value = true;
 
+      _playback.isLoading.value = true;
       AudioSource targetSource = source;
+      activeSession.value = ActiveAudioSession(
+        _playback,
+        id: id,
+        source: source,
+      );
 
       if (source is UrlAudioSource) {
         _headerToken?.cancel();
@@ -141,7 +123,7 @@ class AudioWorker extends Dependency {
         );
         targetSource = reachable;
       }
-      
+
       await _playback.prepare(targetSource);
       await _playback.play();
     } on OperationCanceledException {
@@ -157,43 +139,20 @@ class AudioWorker extends Dependency {
   /// Pauses the current playback.
   Future<void> pause() async => await _playback.pause();
 
-  /// Stops the current playback, clears [activeAudioId], cancels
+  /// Stops the current playback, clears [activeSession], cancels
   /// [_intentSubscription] and tokens.
   Future<void> stop() async {
     Log.debug('stop()', '$runtimeType');
 
-    _wasPlaying = false;
     _cancelToken?.cancel();
     _headerToken?.cancel();
     _cancelToken = null;
     _headerToken = null;
     await _playback.stop();
-    activeAudioId.value = null;
-    _activeSource.value = null;
+    activeSession.value?.dispose();
+    activeSession.value = null;
     await _intentSubscription?.cancel();
     _intentSubscription = null;
-  }
-
-  /// Seeks to the specified [position] in the active audio.
-  Future<void> seek(Duration position) async {
-    await _playback.seek(position);
-  }
-
-  /// Starts a seek interaction, pausing playback if it was active.
-  Future<void> beginSeek() async {
-    _wasPlaying = _playback.isPlaying.value;
-    if (_wasPlaying) {
-      await pause();
-    }
-  }
-
-  /// Ends a seek interaction by seeking and resuming if needed.
-  Future<void> endSeek(Duration position) async {
-    await seek(position);
-    if (_wasPlaying) {
-      await _playback.play();
-    }
-    _wasPlaying = false;
   }
 
   /// Returns the [Duration] of the provided [source].

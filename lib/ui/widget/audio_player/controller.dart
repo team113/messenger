@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/ui/worker/audio/active_session.dart';
 import '/ui/worker/audio.dart';
 import '/util/audio_utils.dart';
 
@@ -37,7 +38,7 @@ class AudioPlayerController extends GetxController {
   /// [AudioSource] of audio data itself.
   final AudioSource source;
 
-  /// Indicator whether the view is being hovered.
+  /// Whether the view is being hovered.
   final RxBool hovered = RxBool(false);
 
   /// Callback, called when [source] fetch fails with `403` status code.
@@ -46,35 +47,41 @@ class AudioPlayerController extends GetxController {
   /// Calculated duration of audio.
   final Rx<Duration> extractedDuration = Rx<Duration>(Duration.zero);
 
-  /// Indicator whether [extractedDuration] is being fetched.
+  /// Whether [extractedDuration] is being fetched.
   final RxBool isDurationLoading = RxBool(true);
 
   /// [AudioWorker] handling actual playback and synchronization.
   final AudioWorker _audioWorker;
 
-  /// Indicates whether this controller's audio is active in [AudioWorker].
-  bool get isActive => _audioWorker.activeAudioId.value == id;
+  /// Active session if it belongs to this controller, otherwise `null`.
+  ActiveAudioSession? get _activeSession {
+    final active = _audioWorker.activeSession.value;
+    return active?.id == id ? active : null;
+  }
 
-  /// Indicates whether audio is playing and this controller is active.
-  bool get isPlaying => _audioWorker.playback.isPlaying.value && isActive;
+  /// Indicates whether this controller's [AudioSource] is active.
+  bool get isActive => _activeSession != null;
 
-  /// Indicates whether audio is loading and this controller is active.
-  bool get isLoading => _audioWorker.playback.isLoading.value && isActive;
+  /// Indicates whether current [AudioSource] is playing.
+  bool get isPlaying => _activeSession?.playback.isPlaying.value ?? false;
+
+  /// Indicates whether current [AudioSource] is loading.
+  bool get isLoading => _activeSession?.playback.isLoading.value ?? false;
 
   /// Returns the current playback position.
   ///
   /// Returns [Duration.zero], if not active.
   Duration get position =>
-      isActive ? _audioWorker.playback.position.value : Duration.zero;
+      _activeSession?.playback.position.value ?? Duration.zero;
 
   /// Returns total [Duration] of audio.
   ///
   /// Returns [Duration.zero], if not active.
   Duration get duration =>
-      isActive ? _audioWorker.playback.duration.value : extractedDuration.value;
+      _activeSession?.playback.duration.value ?? extractedDuration.value;
 
-  /// Sets playback position in [AudioWorker].
-  set position(Duration v) => _audioWorker.playback.position.value = v;
+  /// Sets playback position.
+  set position(Duration v) => _activeSession?.playback.position.value = v;
 
   @override
   void onInit() async {
@@ -92,27 +99,19 @@ class AudioPlayerController extends GetxController {
 
   /// Toggles playback between playing and paused states.
   void togglePlay() {
-    if (isActive && isPlaying) {
+    if (isPlaying) {
       _audioWorker.pause();
     } else {
       _audioWorker.play(id, source, onForbidden: onForbidden);
     }
   }
 
-  /// Handles start of slider interaction.
-  void onSliderChangeStart() {
-    _audioWorker.beginSeek();
-  }
+  /// Notifies that seek has started.
+  void onSliderChangeStart() => _activeSession?.beginSeek();
 
-  /// Handles end of slider interaction.
-  void onSliderChangeEnd() async {
-    await _audioWorker.endSeek(position);
-  }
-
-  /// Seeks to specific position in milliseconds.
-  Future<void> seek(double ms) async {
-    await _audioWorker.seek(Duration(milliseconds: ms.toInt()));
-  }
+  /// Notifies that seek has ended.
+  Future<void> onSliderChangeEnd() async =>
+      await _activeSession?.endSeek(position);
 
   /// Stops playback and clears audio data.
   Future<void> stop() async {

@@ -63,7 +63,8 @@ final StepDefinitionGeneric audioIsPlaying = then1<String, CustomWorld>(
     final AudioId id = _findAudioId(name);
 
     final bool isPlaying =
-        (worker.activeAudioId.value == id && worker.playback.isPlaying.value);
+        (worker.activeSession.value?.id == id &&
+        worker.playback.isPlaying.value);
 
     expect(isPlaying, true);
   },
@@ -82,9 +83,9 @@ final StepDefinitionGeneric audioIsPaused = then1<String, CustomWorld>(
     final AudioId id = _findAudioId(name);
 
     final bool isPaused =
-        (worker.activeAudioId.value == id &&
+        (worker.activeSession.value?.id == id &&
             !worker.playback.isPlaying.value) ||
-        (worker.activeAudioId.value != id);
+        (worker.activeSession.value?.id != id);
 
     expect(isPaused, true);
   },

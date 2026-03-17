@@ -35,7 +35,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
-import '/ui/worker/audio.dart';
+import '/ui/worker/audio/active_session.dart';
 import '/ui/worker/audio/playback.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/platform_utils.dart';
@@ -449,16 +449,15 @@ class _HomeViewState extends State<HomeView> {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final AudioPlayback playback = c.playback;
-      final AudioWorker audioWorker = c.audioWorker;
-      bool isPlaying = playback.isPlaying.value;
-      bool isActive = audioWorker.activeAudioId.value != null;
+      final ActiveAudioSession? session = c.session;
 
-      if (!isActive) {
+      if (session == null) {
         return const SizedBox();
       }
 
-      // TODO: Implement a widget?
+      final AudioPlayback playback = session.playback;
+      final bool isPlaying = playback.isPlaying.value;
+
       return Container(
         width: double.infinity,
 
@@ -483,7 +482,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 Expanded(
                   child: Text(
-                    audioWorker.activeSource?.name ?? '',
+                    session.source.name ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: style.fonts.small.regular.onBackground,
@@ -492,7 +491,7 @@ class _HomeViewState extends State<HomeView> {
                 IconButton(
                   icon: const Icon(Icons.close),
                   onPressed: () {
-                    audioWorker.stop();
+                    c.stopPlayback();
                   },
                 ),
               ],
@@ -501,9 +500,9 @@ class _HomeViewState extends State<HomeView> {
             SeekSlider(
               position: playback.position.value,
               duration: playback.duration.value,
-              onChangeStart: (_) => audioWorker.beginSeek(),
+              onChangeStart: (_) => session.beginSeek(),
               onChangeEnd: (v) =>
-                  audioWorker.endSeek(Duration(milliseconds: v.toInt())),
+                  session.endSeek(Duration(milliseconds: v.toInt())),
               onChanged: (v) =>
                   playback.position.value = Duration(milliseconds: v.toInt()),
             ),
