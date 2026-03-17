@@ -2910,11 +2910,11 @@ class OngoingCall {
         // If group is the same, then it's the same physical device.
         if (microphone.groupId() == device.groupId()) {
           // Check whether this device is in communication mode or not.
-          bool isCommunicationDevice = false;
+          bool hasCommunicationDevice = false;
 
           for (var compared in outputs) {
             if (compared.groupId() == device.groupId()) {
-              if (!isCommunicationDevice) {
+              if (!hasCommunicationDevice) {
                 final int? ourRate = device.numChannels();
                 final int? theirRate = compared.numChannels();
 
@@ -2927,19 +2927,19 @@ class OngoingCall {
                   // This is a communication device, if its channel number is
                   // lower than the same physical device with higher channel
                   // number.
-                  isCommunicationDevice = ourRate < theirRate;
+                  hasCommunicationDevice = ourRate > theirRate;
                 }
               }
             }
           }
 
           Log.debug(
-            '_ensureValidOutputDevice() -> compared the whole list of devices, so isCommunicationDevice($isCommunicationDevice)',
+            '_ensureValidOutputDevice() -> compared the whole list of devices, so hasCommunicationDevice($hasCommunicationDevice)',
             '$runtimeType',
           );
 
-          // If it's a communication device, then don't use it.
-          if (isCommunicationDevice) {
+          // If it's not a communication device, then don't use it.
+          if (hasCommunicationDevice) {
             await _pickOutputDevice(without: [device.deviceId(), device.id()]);
             return true;
           }

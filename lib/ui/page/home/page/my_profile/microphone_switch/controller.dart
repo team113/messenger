@@ -147,9 +147,9 @@ class MicrophoneSwitchController extends GetxController {
             bool isCommunicationDevice = false;
 
             for (var compared in devices.output()) {
-              if (compared.groupId() == microphone?.groupId()) {
+              if (compared.groupId() == output.groupId()) {
                 if (!isCommunicationDevice) {
-                  final int? ourRate = microphone?.numChannels();
+                  final int? ourRate = output.numChannels();
                   final int? theirRate = compared.numChannels();
 
                   if (ourRate != null && theirRate != null) {
