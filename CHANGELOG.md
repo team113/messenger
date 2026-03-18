@@ -6,9 +6,26 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## main
+## [0.10.0] · 2026-??-??
+[0.10.0]: /../../tree/v0.10.0
 
-[Diff](/../../compare/v0.9.5...main) | [Milestone](/../../milestone/71)
+[Diff](/../../compare/v0.9.6...v0.10.0) | [Milestone](/../../milestone/72)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Inability to drag-n-drop buttons in dock. ([#1654])
+
+[#1654]: /../../pull/1654
+
+
+
+
+## [0.9.6] · 2026-03-16
+[0.9.6]: /../../tree/v0.9.6
+
+[Diff](/../../compare/v0.9.5...v0.9.6) | [Milestone](/../../milestone/71)
 
 ### Added
 
@@ -26,13 +43,23 @@ All user visible changes to this project will be documented in this file. This p
     - Chats tab:
         - Avatar for support chats. ([#1646])
     - Chat page:
-        - Media attachments displayed in column instead of grid. ([#1647])
+        - Media attachments displayed in column instead of grid. ([#1651], [#1647])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Welcome message displayed at bottom instead of top. ([#1649])
+    - Media panel:
+        - Click cursor missing when hovering over dock buttons on macOS. ([#1651])
 
 [#1638]: /../../pull/1638
 [#1642]: /../../pull/1642
 [#1644]: /../../pull/1644
 [#1646]: /../../pull/1646
 [#1647]: /../../pull/1647
+[#1649]: /../../pull/1649
+[#1651]: /../../pull/1651
 
 
 

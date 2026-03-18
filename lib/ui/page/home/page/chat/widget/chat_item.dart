@@ -910,7 +910,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               );
             }
 
-            return content;
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [content, const SizedBox(height: 1)],
+            );
           }),
           SizedBox(height: files.isNotEmpty || _text != null ? 6 : 0),
         ],

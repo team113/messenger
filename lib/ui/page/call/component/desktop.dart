@@ -753,7 +753,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       ];
 
       // Combines all the stackable content into [Scaffold].
-      Widget scaffold = Scaffold(
+      final Widget scaffold = Scaffold(
         backgroundColor: style.colors.onBackground,
         body: Column(
           mainAxisSize: MainAxisSize.min,

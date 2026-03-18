@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 
 /// [FloatingActionButton] of some [icon] with an optional
@@ -134,13 +135,10 @@ class _ButtonCircle extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 60, maxHeight: 60),
 
-      child: Material(
-        elevation: 0,
-        color: color,
-        type: MaterialType.circle,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(300),
-          onTap: onPressed,
+      child: WidgetButton(
+        onPressed: onPressed,
+        child: Container(
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           child: LayoutBuilder(
             builder: (context, constraints) {
               return Center(
@@ -252,6 +250,7 @@ class _TooltipButtonState extends State<_TooltipButton> {
       child: MouseRegion(
         onEnter: (_) => _show(),
         onExit: (_) => _hide(),
+        cursor: SystemMouseCursors.click,
         child: widget.child,
       ),
     );
