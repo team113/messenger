@@ -57,9 +57,6 @@ class AudioWorker extends Dependency {
   /// [CancelToken] for cancelling the audio header fetching.
   CancelToken? _headerToken;
 
-  /// Returns the [AudioPlayback].
-  AudioPlayback get playback => _playback;
-
   @override
   void onInit() {
     super.onInit();

@@ -53,7 +53,7 @@ class AudioPlayerController extends GetxController {
   /// [AudioWorker] handling actual playback and synchronization.
   final AudioWorker _audioWorker;
 
-  /// Active session if it belongs to this controller, otherwise `null`.
+  /// Returns active session if it belongs to this controller, otherwise `null`.
   ActiveAudioSession? get _activeSession {
     final active = _audioWorker.activeSession.value;
     return active?.id == id ? active : null;

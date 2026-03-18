@@ -449,7 +449,7 @@ class _HomeViewState extends State<HomeView> {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final ActiveAudioSession? session = c.session;
+      final ActiveAudioSession? session = c.audioSession;
 
       if (session == null) {
         return const SizedBox();
@@ -460,7 +460,6 @@ class _HomeViewState extends State<HomeView> {
 
       return Container(
         width: double.infinity,
-
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
         decoration: BoxDecoration(
           border: BoxBorder.all(
