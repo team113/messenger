@@ -17,10 +17,11 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Inability to drag-n-drop buttons in dock. ([#1654])
 - macOS:
-    - Application crashing when exiting. ([#1657])
+    - Application crashing when exiting. ([#1657], [#1561])
 - Windows:
     - Unsupported devices displayed in output devices list for Windows 10. ([#1643])
 
+[#1561]: /../../issues/1561
 [#1643]: /../../pull/1643
 [#1654]: /../../pull/1654
 [#1657]: /../../pull/1657
