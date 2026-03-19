@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '/config.dart';
 import '/domain/service/my_user.dart';
@@ -34,6 +33,7 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/login/widget/prefix_button.dart';
 import '/ui/page/work/widget/project_block.dart';
 import '/ui/widget/outlined_rounded_button.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
@@ -71,36 +71,25 @@ class SupportView extends StatelessWidget {
             children: [
               ProjectBlock(onPressed: () => LogView.show(context)),
               Block(
-                title: 'label_what_we_can_help_you_with'.l10n,
+                title: 'label_report_a_problem'.l10n,
                 children: [
-                  _button(
-                    context,
-                    title: 'btn_report_a_concern'.l10n,
-                    onPressed: () async {
-                      await _mail(
-                        context,
-                        subject: '[Concern] Report a concern',
-                        body: 'label_replace_this_text_with_concern'.l10n,
-                      );
-                    },
+                  Text(
+                    'label_report_a_problem_description',
+                    style: style.fonts.small.regular.secondary,
                   ),
                   const SizedBox(height: 8),
-                  _button(
-                    context,
-                    title: 'btn_report_a_bug'.l10n,
+                  PrimaryButton(
+                    title: 'btn_download_tech_info_file'.l10n,
                     onPressed: () async {
-                      await launchUrlString(Config.repository);
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  _button(
-                    context,
-                    title: 'btn_feedback'.l10n,
-                    onPressed: () async {
-                      await _mail(
-                        context,
-                        subject: '[Feedback] Feedback',
-                        body: 'label_replace_this_text_with_feedback'.l10n,
+                      await LogController.download(
+                        sessions: c.sessions,
+                        sessionId: c.sessionId,
+                        userAgent: c.userAgent.value,
+                        myUser: c.myUser?.value,
+                        token: c.token,
+                        pushNotifications: c.pushNotifications,
+                        notificationSettings:
+                            await LogController.getNotificationSettings(),
                       );
                     },
                   ),
@@ -129,18 +118,7 @@ class SupportView extends StatelessWidget {
                   ],
                   ActionButton(
                     trailing: const SvgIcon(SvgIcons.logs),
-                    onPressed: () async {
-                      await LogController.download(
-                        sessions: c.sessions,
-                        sessionId: c.sessionId,
-                        userAgent: c.userAgent.value,
-                        myUser: c.myUser?.value,
-                        token: c.token,
-                        pushNotifications: c.pushNotifications,
-                        notificationSettings:
-                            await LogController.getNotificationSettings(),
-                      );
-                    },
+                    onPressed: () async {},
                     text: 'btn_download_logs'.l10n,
                   ),
                   const SizedBox(height: 8),
@@ -168,27 +146,6 @@ class SupportView extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  /// Returns an [OutlinedRoundedButton] with the provided [title].
-  Widget _button(
-    BuildContext context, {
-    required String title,
-    void Function()? onPressed,
-  }) {
-    final style = Theme.of(context).style;
-
-    return OutlinedRoundedButton(
-      maxWidth: double.infinity,
-      height: null,
-      onPressed: onPressed,
-      color: style.colors.primary,
-      child: Text(
-        title,
-        style: style.fonts.medium.regular.onPrimary,
-        maxLines: 10,
-      ),
     );
   }
 

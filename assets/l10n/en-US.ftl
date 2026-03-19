@@ -158,6 +158,7 @@ btn_download_all_as = Download all as
 btn_download_as = Download as
 btn_download_as_png = Download as .png
 btn_download_logs = Download logs
+btn_download_tech_info_file = Download Tech-Info file
 btn_download_version = Download {$version}
 btn_edit = Edit
 btn_email = E-mail
@@ -830,6 +831,11 @@ label_replies = [{$count} {$count ->
     *[other] replies
     }]
 label_report = Report
+label_report_a_problem = Report a problem
+label_report_a_problem_description =
+    Tapopa would be very grateful for the information about any encountered inconveniences or problems.
+
+    Attached Tech-Info file would help a lot. Tech-Info file contains only technical information. No personal or sensitive data is included.
 label_requirements = Requirements
 label_requirements_backend_developer =
     - knowledge of Rust;
