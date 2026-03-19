@@ -103,7 +103,9 @@ class AudioWorker extends Dependency {
       await stop();
 
       _playback.isLoading.value = true;
-      AudioSource targetSource = source;
+
+      AudioSource target = source;
+
       activeSession.value = ActiveAudioSession(
         _playback,
         id: id,
@@ -113,15 +115,15 @@ class AudioWorker extends Dependency {
       if (source is UrlAudioSource) {
         _headerToken?.cancel();
         _headerToken = CancelToken();
-        final reachable = await _ensureReachable(
+
+        target = await _ensureReachable(
           source,
           onForbidden: onForbidden,
           cancelToken: _headerToken,
         );
-        targetSource = reachable;
       }
 
-      await _playback.prepare(targetSource);
+      await _playback.prepare(target);
       await _playback.play();
     } on OperationCanceledException {
       // No-op.
@@ -158,21 +160,17 @@ class AudioWorker extends Dependency {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
     try {
-      AudioSource targetSource = source;
+      AudioSource target = source;
 
       if (source is UrlAudioSource) {
-        final reachable = await _ensureReachable(
-          source,
-          onForbidden: onForbidden,
-        );
-        targetSource = reachable;
+        target = await _ensureReachable(source, onForbidden: onForbidden);
       }
 
-      return await _playback.extract(targetSource);
+      return await _playback.extract(target);
     } on OperationCanceledException {
       return Duration.zero;
     } catch (e) {
-      Log.error('extractDuration() failed with: $e', '$runtimeType');
+      Log.error('extract() failed with: $e', '$runtimeType');
       return Duration.zero;
     }
   }
