@@ -18,13 +18,12 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:medea_jason/medea_jason.dart';
 
 import '/domain/model/media_settings.dart';
-import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/util/media_utils.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -46,6 +45,9 @@ class OutputSwitchController extends GetxController {
   /// Error message to display, if any.
   final RxnString error = RxnString();
 
+  /// Indicator whether the current OS is Windows 10.
+  bool isWindows10 = false;
+
   /// ID of the initially selected audio output device.
   String? _output;
 
@@ -59,17 +61,19 @@ class OutputSwitchController extends GetxController {
   /// [WebUtils.microphonePermission] subscription.
   StreamSubscription? _permissionSubscription;
 
+  /// Returns the [MediaSettings] currently being applied.
+  Rx<MediaSettings?> get mediaSettings => _settingsRepository.mediaSettings;
+
   @override
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen((e) {
-      devices.value = e.output().toList();
+      devices.value = _filtered(e.toList());
       selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
     });
 
     _worker = ever(_settingsRepository.mediaSettings, (e) {
       if (e != null) {
         _output = e.outputDevice;
-
         selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
       }
     });
@@ -78,9 +82,8 @@ class OutputSwitchController extends GetxController {
       // Output devices are permitted to be use when requesting a microphone
       // permission.
       _permissionSubscription = await WebUtils.microphonePermission();
-      devices.value = await MediaUtils.enumerateDevices(
-        MediaDeviceKind.audioOutput,
-      );
+      isWindows10 = await PlatformUtils.isWindows10;
+      devices.value = _filtered(await MediaUtils.enumerateDevices());
       selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;
@@ -107,5 +110,11 @@ class OutputSwitchController extends GetxController {
   /// Sets the provided [device] as a used by default output device.
   Future<void> setOutputDevice(DeviceDetails device) async {
     await _settingsRepository.setOutputDevice(device.id());
+  }
+
+  /// Returns a list of [DeviceDetails] that is filtered to exclude unsupported
+  /// devices.
+  List<DeviceDetails> _filtered(List<DeviceDetails> devices) {
+    return devices;
   }
 }

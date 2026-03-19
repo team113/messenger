@@ -25,7 +25,9 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
+import '/util/log.dart';
 import '/util/media_utils.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 
 export 'view.dart';
@@ -79,7 +81,7 @@ class MicrophoneSwitchController extends GetxController {
     _micWorker = ever(_mic, (e) => _initTrack());
 
     _devicesSubscription = MediaUtils.onDeviceChange.listen((e) {
-      devices.value = e.audio().toList();
+      devices.value = e.toList();
       selected.value = devices.firstWhereOrNull((e) => e.id() == _mic.value);
 
       if (_mic.value == 'default') {
@@ -96,9 +98,7 @@ class MicrophoneSwitchController extends GetxController {
 
     try {
       _permissionSubscription = await WebUtils.microphonePermission();
-      devices.value = await MediaUtils.enumerateDevices(
-        MediaDeviceKind.audioInput,
-      );
+      devices.value = await MediaUtils.enumerateDevices();
       selected.value = devices.firstWhereOrNull((e) => e.id() == _mic.value);
       _initTrack();
     } on UnsupportedError {
@@ -126,9 +126,69 @@ class MicrophoneSwitchController extends GetxController {
     super.onClose();
   }
 
+  /// Picks a [DeviceDetails] suitable for the provided [microphone], if any.
+  static Future<DeviceDetails?> pickOutputDevice({
+    String? outputId,
+    DeviceDetails? microphone,
+    List<DeviceDetails> devices = const [],
+  }) async {
+    DeviceDetails? compatible;
+
+    if (PlatformUtils.isWindows && await PlatformUtils.isWindows10) {
+      if (outputId != null) {
+        final DeviceDetails? output = devices.firstWhereOrNull(
+          (e) => e.id() == outputId,
+        );
+
+        if (output != null) {
+          // If it's the same group, then it's the same physical device.
+          if (output.groupId() == microphone?.groupId()) {
+            // Check whether this device is in communication mode or not.
+            bool isCommunicationDevice = false;
+
+            for (var compared in devices.output()) {
+              if (compared.groupId() == output.groupId()) {
+                if (!isCommunicationDevice) {
+                  final int? ourRate = output.numChannels();
+                  final int? theirRate = compared.numChannels();
+
+                  if (ourRate != null && theirRate != null) {
+                    // This is a communication device, if its channel number is
+                    // lower than the same physical device with higher channel
+                    // number.
+                    if (ourRate > theirRate) {
+                      compatible ??= compared;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      Log.debug(
+        'pickOutputDevice($microphone) -> compatible device is $compatible',
+        'MicrophoneSwitchController',
+      );
+    }
+
+    return compatible;
+  }
+
   /// Sets the provided [device] as a used by default microphone device.
   Future<void> setAudioDevice(DeviceDetails device) async {
     await _settingsRepository.setAudioDevice(device.id());
+
+    final DeviceDetails? compatible = await pickOutputDevice(
+      outputId: _settingsRepository.mediaSettings.value?.outputDevice,
+      microphone: device,
+      devices: devices.toList(),
+    );
+
+    if (compatible != null) {
+      await _settingsRepository.setOutputDevice(compatible.id());
+    }
   }
 
   /// Initializes a [RtcVideoRenderer] for the current [_mic].
