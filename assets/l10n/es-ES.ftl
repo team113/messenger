@@ -439,6 +439,7 @@ fcm_webpush_link = /chats/{$chatId}
 hyphen = -
 label_a_of_b = {$a} de {$b}
 label_a_slash_b = {$a} / {$b}
+label_a_slash_space = {$a} /{" "}
 label_about_you = Sobre Usted
 label_about_you_description = Hasta 4096 caracteres
 label_account_has_been_signed_out_due_to_reasons1 = La sesión de la cuenta{" "}

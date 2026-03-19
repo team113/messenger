@@ -1002,7 +1002,10 @@ class PlayerView extends StatelessWidget {
       }
 
       return Text(
-        '${video.position.value.hhMmSs()} / ${video.duration.value.hhMmSs()}',
+        'label_a_slash_b'.l10nfmt({
+          'a': video.position.value.hhMmSs(),
+          'b': video.duration.value.hhMmSs(),
+        }),
         style: style.fonts.normal.regular.onPrimary,
       );
     });

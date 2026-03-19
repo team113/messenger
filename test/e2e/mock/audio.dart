@@ -72,15 +72,22 @@ class MockAudioWorker extends Dependency implements AudioWorker {
   }
 
   @override
-  Future<Duration> extractDuration(AudioSource source, {onForbidden}) {
-    return _playback.extractDuration(source);
+  Future<Duration> extract(
+    AudioSource source, {
+    FutureOr<AudioSource?> Function()? onForbidden,
+  }) {
+    return _playback.extract(source);
   }
 
-  /// Fakes progress via increasing [position.value].
+  /// Fakes progress via increasing [AudioPlayback.position].
   void _startFakeProgress() async {
     while (_playback.isPlaying.value) {
       await Future.delayed(const Duration(seconds: 1));
-      if (!_playback.isPlaying.value) break;
+
+      if (!_playback.isPlaying.value) {
+        break;
+      }
+
       _playback.position.value =
           _playback.position.value + const Duration(seconds: 1);
     }
@@ -98,7 +105,7 @@ class DummyPlayback extends AudioPlayback {
   }
 
   @override
-  Future<Duration> extractDuration(AudioSource source) => Future.delayed(
+  Future<Duration> extract(AudioSource source) => Future.delayed(
     const Duration(milliseconds: 100),
     () => const Duration(minutes: 2),
   );

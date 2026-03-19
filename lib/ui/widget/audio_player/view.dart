@@ -81,26 +81,29 @@ class AudioPlayer extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        source.name ?? '',
+                        source.name ?? ('dot'.l10n * 3),
                         style: style.fonts.small.regular.onBackground,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Obx(() {
+                        final Widget slider;
+
+                        if (c.isActive) {
+                          slider = KeyedSubtree(
+                            key: const ValueKey('Timeline'),
+                            child: _slider(context, c),
+                          );
+                        } else {
+                          slider = const SizedBox(key: Key('None'), height: 17);
+                        }
+
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AnimatedSwitcher(
                               duration: const Duration(milliseconds: 300),
-                              child: c.isActive
-                                  ? KeyedSubtree(
-                                      key: const ValueKey('timeline'),
-                                      child: _slider(context, c),
-                                    )
-                                  : const SizedBox(
-                                      key: ValueKey('empty'),
-                                      height: 17,
-                                    ),
+                              child: slider,
                             ),
                             _timeline(context, c),
                           ],
@@ -122,9 +125,28 @@ class AudioPlayer extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
+      final Widget button;
+
+      if (c.isLoading) {
+        button = const Padding(
+          key: Key('Loader'),
+          padding: EdgeInsets.all(8.0),
+          child: CircularProgressIndicator(),
+        );
+      } else {
+        button = Center(
+          key: Key('Icon_${c.isPlaying}'),
+          child: Icon(
+            c.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+            size: 36,
+            color: const Color(0xFF1F3C5D),
+          ),
+        );
+      }
+
       return WidgetButton(
         key: Key('PlayerButton${id.val}'),
-        onPressed: c.isLoading ? c.stop : c.togglePlay,
+        onPressed: c.isLoading ? c.stop : c.playOrPause,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           height: 48,
@@ -138,22 +160,7 @@ class AudioPlayer extends StatelessWidget {
           ),
           child: SafeAnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
-            child: c.isLoading
-                ? const Padding(
-                    key: ValueKey('loader'),
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
-                  )
-                : Center(
-                    key: ValueKey('icon_${c.isPlaying}'),
-                    child: Icon(
-                      c.isPlaying
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                      size: 36,
-                      color: const Color(0xFF1F3C5D),
-                    ),
-                  ),
+            child: button,
           ),
         ),
       );
@@ -162,16 +169,16 @@ class AudioPlayer extends StatelessWidget {
 
   /// Builds a slider.
   Widget _slider(BuildContext context, AudioPlayerController c) {
-    return Obx(
-      () => SeekSlider(
+    return Obx(() {
+      return SeekSlider(
         key: Key('AudioSlider${id.val}'),
         position: c.position,
         duration: c.duration,
         onChangeStart: (_) => c.onSliderChangeStart(),
         onChangeEnd: (_) => c.onSliderChangeEnd(),
         onChanged: (v) => c.position = Duration(milliseconds: v.toInt()),
-      ),
-    );
+      );
+    });
   }
 }
 
@@ -179,33 +186,39 @@ class AudioPlayer extends StatelessWidget {
 Widget _timeline(BuildContext context, AudioPlayerController c) {
   final style = Theme.of(context).style;
 
-  return Obx(
-    () => Row(
+  return Obx(() {
+    final Widget loader;
+
+    if (c.isDurationLoading.value) {
+      loader = Container(
+        key: const Key('Loader'),
+        width: 27,
+        height: 10,
+        decoration: BoxDecoration(
+          color: style.colors.onSecondaryOpacity20,
+          borderRadius: BorderRadius.circular(4),
+        ),
+      );
+    } else {
+      loader = Text(
+        key: const Key('Duration'),
+        c.duration.hhMmSs(),
+        style: style.fonts.smaller.regular.secondary,
+      );
+    }
+
+    return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          '${c.position.hhMmSs()} / ',
+          'label_a_slash_space'.l10nfmt({'a': c.position.hhMmSs()}),
           style: style.fonts.smaller.regular.secondary,
         ),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
-          child: c.isDurationLoading.value
-              ? Container(
-                  key: const ValueKey('duration_skeleton'),
-                  width: 27,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: style.colors.onSecondaryOpacity20,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                )
-              : Text(
-                  key: const ValueKey('duration_text'),
-                  c.duration.hhMmSs(),
-                  style: style.fonts.smaller.regular.secondary,
-                ),
+          child: loader,
         ),
       ],
-    ),
-  );
+    );
+  });
 }

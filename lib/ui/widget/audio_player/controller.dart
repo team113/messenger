@@ -86,9 +86,11 @@ class AudioPlayerController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
+
     isDurationLoading.value = true;
+
     try {
-      extractedDuration.value = await _audioWorker.extractDuration(
+      extractedDuration.value = await _audioWorker.extract(
         source,
         onForbidden: onForbidden,
       );
@@ -98,11 +100,11 @@ class AudioPlayerController extends GetxController {
   }
 
   /// Toggles playback between playing and paused states.
-  void togglePlay() {
+  Future<void> playOrPause() async {
     if (isPlaying) {
-      _audioWorker.pause();
+      await _audioWorker.pause();
     } else {
-      _audioWorker.play(id, source, onForbidden: onForbidden);
+      await _audioWorker.play(id, source, onForbidden: onForbidden);
     }
   }
 
@@ -114,7 +116,5 @@ class AudioPlayerController extends GetxController {
       await _activeSession?.endSeek(position);
 
   /// Stops playback and clears audio data.
-  Future<void> stop() async {
-    await _audioWorker.stop();
-  }
+  Future<void> stop() async => await _audioWorker.stop();
 }

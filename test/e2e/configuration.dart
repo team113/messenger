@@ -35,7 +35,7 @@ import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/performance.dart';
 import 'hook/reset_app.dart';
-import 'mock/audio_worker.dart';
+import 'mock/audio.dart';
 import 'mock/geo.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';

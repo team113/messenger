@@ -59,8 +59,8 @@ class VideoPlayerPlayback extends AudioPlayback {
       ]);
     }
 
-    await _controller!.initialize();
-    await _controller!.setLooping(false);
+    await _controller?.initialize();
+    await _controller?.setLooping(false);
   }
 
   @override
@@ -96,8 +96,9 @@ class VideoPlayerPlayback extends AudioPlayback {
   }
 
   @override
-  Future<Duration> extractDuration(AudioSource source) async {
-    final controller = _buildController(source);
+  Future<Duration> extract(AudioSource source) async {
+    final VideoPlayerController controller = _buildController(source);
+
     try {
       await controller.initialize();
       return controller.value.duration;

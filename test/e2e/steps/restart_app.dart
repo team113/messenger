@@ -23,7 +23,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/worker/audio.dart';
 
-import '../mock/audio_worker.dart';
+import '../mock/audio.dart';
 import '../mock/geo.dart';
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';

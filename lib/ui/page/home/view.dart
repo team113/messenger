@@ -489,9 +489,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () {
-                    c.stopPlayback();
-                  },
+                  onPressed: c.stopPlayback,
                 ),
               ],
             ),
@@ -506,7 +504,10 @@ class _HomeViewState extends State<HomeView> {
                   playback.position.value = Duration(milliseconds: v.toInt()),
             ),
             Text(
-              '${playback.position.value.hhMmSs()} / ${playback.duration.value.hhMmSs()}',
+              'label_a_slash_b'.l10nfmt({
+                'a': playback.position.value.hhMmSs(),
+                'b': playback.duration.value.hhMmSs(),
+              }),
               style: style.fonts.smallest.regular.secondary,
             ),
           ],

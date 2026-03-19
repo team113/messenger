@@ -56,6 +56,15 @@ class JustAudioPlayback extends AudioPlayback {
   }
 
   @override
+  Future<void> dispose() async {
+    for (final s in _subscriptions) {
+      await s.cancel();
+    }
+    _subscriptions.clear();
+    await _player.dispose();
+  }
+
+  @override
   Future<void> play() async {
     await _player.play();
   }
@@ -77,17 +86,9 @@ class JustAudioPlayback extends AudioPlayback {
   }
 
   @override
-  Future<void> dispose() async {
-    for (final s in _subscriptions) {
-      await s.cancel();
-    }
-    _subscriptions.clear();
-    await _player.dispose();
-  }
-
-  @override
-  Future<Duration> extractDuration(AudioSource source) async {
+  Future<Duration> extract(AudioSource source) async {
     final player = ja.AudioPlayer();
+
     try {
       final duration = await player.setAudioSource(source.source);
       return duration ?? Duration.zero;

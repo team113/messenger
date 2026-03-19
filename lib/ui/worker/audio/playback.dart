@@ -55,5 +55,5 @@ abstract class AudioPlayback {
   Future<void> seek(Duration position);
 
   /// Extracts duration from the [source] not starting a playback.
-  Future<Duration> extractDuration(AudioSource source);
+  Future<Duration> extract(AudioSource source);
 }

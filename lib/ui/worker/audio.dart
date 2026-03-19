@@ -152,8 +152,8 @@ class AudioWorker extends Dependency {
     _intentSubscription = null;
   }
 
-  /// Returns the [Duration] of the provided [source].
-  Future<Duration> extractDuration(
+  /// Returns a [Duration] of the provided [source].
+  Future<Duration> extract(
     AudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
@@ -168,7 +168,7 @@ class AudioWorker extends Dependency {
         targetSource = reachable;
       }
 
-      return await _playback.extractDuration(targetSource);
+      return await _playback.extract(targetSource);
     } on OperationCanceledException {
       return Duration.zero;
     } catch (e) {
