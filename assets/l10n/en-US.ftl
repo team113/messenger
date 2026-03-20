@@ -513,7 +513,6 @@ label_audio_call = Audio call{$by ->
         [x]{""}
         *[other] {" "}by {$by}
     }
-label_audio_downloaded = Audio downloaded
 label_auto_gain_control = Automatic gain control
 label_auto_gain_control_subtitle = Automatically adjust microphone volume
 label_avatar_removed = {$author} removed avatar

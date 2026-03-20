@@ -1728,9 +1728,7 @@ class ChatController extends GetxController {
         attachments.length > 1
             ? 'label_files_downloaded'.l10n
             : switch (attachments.first) {
-                ImageAttachment() => 'label_image_downloaded'.l10n,
-                FileAttachment f when f.isAudio =>
-                  'label_audio_downloaded'.l10n,
+                ImageAttachment _ => 'label_image_downloaded'.l10n,
                 _ => 'label_video_downloaded'.l10n,
               },
       );
@@ -1809,7 +1807,6 @@ class ChatController extends GetxController {
               fileName: attachments.first.filename,
               type: switch (attachments.first) {
                 ImageAttachment() => FileType.image,
-                FileAttachment f when f.isAudio => FileType.audio,
                 _ => FileType.video,
               },
               lockParentWindow: true,
