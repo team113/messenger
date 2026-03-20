@@ -224,15 +224,10 @@ class AudioWorker extends Dependency {
               source.url,
               cancelToken: token,
             );
-            result = source;
           } catch (e) {
             if (e is DioException && e.response?.statusCode == 403) {
               final refreshed = await onForbidden?.call();
-              if (refreshed is UrlAudioSource) {
-                result = refreshed;
-              } else {
-                rethrow;
-              }
+              result = refreshed as UrlAudioSource;
             } else {
               rethrow;
             }

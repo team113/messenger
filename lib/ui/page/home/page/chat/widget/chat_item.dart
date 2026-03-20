@@ -1326,7 +1326,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       copyable = item.text?.val;
       media.addAll(
         item.attachments.where(
-          (e) => e is ImageAttachment || (e is FileAttachment && (e.isVideo)),
+          (e) => e is ImageAttachment || (e is FileAttachment && e.isVideo),
         ),
       );
     }
