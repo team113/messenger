@@ -23,25 +23,21 @@ import '/ui/worker/audio/active_session.dart';
 import '/ui/worker/audio.dart';
 import '/util/audio_utils.dart';
 
-/// Controller for [AudioPlayer] managing state for a specific audio [source].
+/// [AudioPlayer] controller managing state for a specific audio [item].
 class AudioPlayerController extends GetxController {
   AudioPlayerController(
     this._audioWorker, {
-    required this.id,
-    required this.source,
+    required this.item,
     this.onForbidden,
   });
 
-  /// Unique identifier for audio.
-  final AudioId id;
-
-  /// [AudioSource] of audio data itself.
-  final AudioSource source;
+  /// Metadata of the audio.
+  final AudioItem item;
 
   /// Whether the view is being hovered.
   final RxBool hovered = RxBool(false);
 
-  /// Callback, called when [source] fetch fails with `403` status code.
+  /// Callback, called when [item.source] fetch fails with `403` status code.
   final FutureOr<AudioSource?> Function()? onForbidden;
 
   /// Calculated duration of audio.
@@ -54,34 +50,32 @@ class AudioPlayerController extends GetxController {
   final AudioWorker _audioWorker;
 
   /// Returns active session if it belongs to this controller, otherwise `null`.
-  ActiveAudioSession? get _activeSession {
+  ActiveAudioSession? get _session {
     final active = _audioWorker.activeSession.value;
-    return active?.id == id ? active : null;
+    return active?.item.id == item.id ? active : null;
   }
 
-  /// Indicates whether this controller's [AudioSource] is active.
-  bool get isActive => _activeSession != null;
+  /// Indicates whether this controller's [AudioItem] is active.
+  bool get isActive => _session != null;
 
-  /// Indicates whether current [AudioSource] is playing.
-  bool get isPlaying => _activeSession?.playback.isPlaying.value ?? false;
+  /// Indicates whether current [AudioItem] is playing.
+  bool get isPlaying => _session?.isPlaying ?? false;
 
-  /// Indicates whether current [AudioSource] is loading.
-  bool get isLoading => _activeSession?.playback.isLoading.value ?? false;
+  /// Indicates whether current [AudioItem] is loading.
+  bool get isLoading => _session?.isLoading ?? false;
 
   /// Returns the current playback position.
   ///
   /// Returns [Duration.zero], if not active.
-  Duration get position =>
-      _activeSession?.playback.position.value ?? Duration.zero;
+  Duration get position => _session?.position ?? Duration.zero;
 
   /// Returns total [Duration] of audio.
   ///
-  /// Returns [Duration.zero], if not active.
-  Duration get duration =>
-      _activeSession?.playback.duration.value ?? extractedDuration.value;
+  /// Returns [extractedDuration], if not active.
+  Duration get duration => _session?.duration ?? extractedDuration.value;
 
   /// Sets playback position.
-  set position(Duration v) => _activeSession?.playback.position.value = v;
+  set position(Duration v) => _session?.position = v;
 
   @override
   void onInit() async {
@@ -91,7 +85,7 @@ class AudioPlayerController extends GetxController {
 
     try {
       extractedDuration.value = await _audioWorker.extract(
-        source,
+        item.source,
         onForbidden: onForbidden,
       );
     } finally {
@@ -104,16 +98,15 @@ class AudioPlayerController extends GetxController {
     if (isPlaying) {
       await _audioWorker.pause();
     } else {
-      await _audioWorker.play(id, source, onForbidden: onForbidden);
+      await _audioWorker.play(item, onForbidden: onForbidden);
     }
   }
 
   /// Notifies that seek has started.
-  void onSliderChangeStart() => _activeSession?.beginSeek();
+  Future<void> onSliderChangeStart() async => await _session?.beginSeek();
 
   /// Notifies that seek has ended.
-  Future<void> onSliderChangeEnd() async =>
-      await _activeSession?.endSeek(position);
+  Future<void> onSliderChangeEnd() async => await _session?.endSeek(position);
 
   /// Stops playback and clears audio data.
   Future<void> stop() async => await _audioWorker.stop();

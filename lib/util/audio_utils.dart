@@ -550,19 +550,16 @@ enum AudioSourceKind { asset, file, url }
 
 /// Source to play an audio stream from.
 sealed class AudioSource {
-  const AudioSource({this.name});
+  const AudioSource();
 
   /// Constructs an [AudioSource] from the provided [asset].
-  factory AudioSource.asset(String asset, {String? name}) = AssetAudioSource;
+  factory AudioSource.asset(String asset) = AssetAudioSource;
 
   /// Constructs an [AudioSource] from the provided [file].
-  factory AudioSource.file(String file, {String? name}) = FileAudioSource;
+  factory AudioSource.file(String file) = FileAudioSource;
 
   /// Constructs an [AudioSource] from the provided [url].
-  factory AudioSource.url(String url, {String? name}) = UrlAudioSource;
-
-  /// Human-readable name of the audio source, if known.
-  final String? name;
+  factory AudioSource.url(String url) = UrlAudioSource;
 
   /// Returns a [AudioSourceKind] of this [AudioSource].
   AudioSourceKind get kind;
@@ -570,7 +567,7 @@ sealed class AudioSource {
 
 /// [AudioSource] of the provided [asset].
 class AssetAudioSource extends AudioSource {
-  const AssetAudioSource(this.asset, {super.name});
+  const AssetAudioSource(this.asset);
 
   /// Path to an asset to play audio from.
   final String asset;
@@ -588,7 +585,7 @@ class AssetAudioSource extends AudioSource {
 
 /// [AudioSource] of the provided [file].
 class FileAudioSource extends AudioSource {
-  const FileAudioSource(this.file, {super.name});
+  const FileAudioSource(this.file);
 
   /// Path to a file to play audio from.
   final String file;
@@ -606,7 +603,7 @@ class FileAudioSource extends AudioSource {
 
 /// [AudioSource] of the provided [url].
 class UrlAudioSource extends AudioSource {
-  const UrlAudioSource(this.url, {super.name});
+  const UrlAudioSource(this.url);
 
   /// URL to play audio from.
   final String url;
@@ -645,6 +642,20 @@ class AudioId extends NewType<String> {
   /// Constructs an [AudioId] from the provided [itemId] and [attachmentId].
   AudioId.fromMessage(ChatItemId itemId, AttachmentId attachmentId)
     : super('${itemId}_$attachmentId');
+}
+
+/// Metadata describing an audio.
+class AudioItem {
+  const AudioItem({required this.id, required this.source, this.title});
+
+  /// Unique [id] of the audio.
+  final AudioId id;
+
+  /// Source of the audio.
+  final AudioSource source;
+
+  /// Human-readable name of the audio, if known.
+  final String? title;
 }
 
 /// Intent for the [AudioUtils] to operate in the provided [AudioMode].

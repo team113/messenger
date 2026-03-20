@@ -30,7 +30,7 @@ import '/ui/widget/audio_player/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
-import '/util/audio_utils.dart' show AudioSource, AudioId;
+import '/util/audio_utils.dart' show AudioSource, AudioId, AudioItem;
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {
@@ -121,27 +121,32 @@ class _DataAttachmentState extends State<DataAttachment> {
       }
 
       if (isAudio) {
-        final (source, progress) = switch (e) {
-          LocalAttachment e when e.file.path != null => (
-            AudioSource.file(e.file.path!, name: e.filename),
-            WidgetButton(onPressed: e.cancelUpload, child: leading),
-          ),
-          FileAttachment e => (
-            AudioSource.url(e.original.url, name: e.filename),
-            null as Widget?,
-          ),
-          _ => (null, null),
-        };
+        AudioItem? item;
+        Widget? progress;
 
-        if (source != null) {
-          return AudioPlayer(
+        if (e is LocalAttachment && e.file.path != null) {
+          item = AudioItem(
             id: widget.audioId ?? AudioId('${e.id}'),
-            source: source,
+            source: AudioSource.file(e.file.path!),
+            title: e.filename,
+          );
+          progress = WidgetButton(onPressed: e.cancelUpload, child: leading);
+        } else if (e is FileAttachment) {
+          item = AudioItem(
+            id: widget.audioId ?? AudioId('${e.id}'),
+            source: AudioSource.url(e.original.url),
+            title: e.filename,
+          );
+        }
+
+        if (item != null) {
+          return AudioPlayer(
+            item: item,
             progress: progress,
             onForbidden: e is FileAttachment
                 ? () async {
                     await widget.onForbidden?.call();
-                    return AudioSource.url(e.original.url, name: e.filename);
+                    return AudioSource.url(e.original.url);
                   }
                 : null,
           );

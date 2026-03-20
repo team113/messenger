@@ -455,8 +455,7 @@ class _HomeViewState extends State<HomeView> {
         return const SizedBox();
       }
 
-      final AudioPlayback playback = session.playback;
-      final bool isPlaying = playback.isPlaying.value;
+      final bool isPlaying = session.isPlaying;
 
       return Container(
         width: double.infinity,
@@ -477,36 +476,33 @@ class _HomeViewState extends State<HomeView> {
               children: [
                 IconButton(
                   icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                  onPressed: isPlaying ? playback.pause : playback.play,
+                  onPressed: isPlaying ? c.pause : c.resume,
                 ),
                 Expanded(
                   child: Text(
-                    session.source.name ?? '',
+                    session.item.title ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: style.fonts.small.regular.onBackground,
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: c.stopPlayback,
-                ),
+                IconButton(icon: const Icon(Icons.close), onPressed: c.stop),
               ],
             ),
 
             SeekSlider(
-              position: playback.position.value,
-              duration: playback.duration.value,
+              position: session.position,
+              duration: session.duration,
               onChangeStart: (_) => session.beginSeek(),
               onChangeEnd: (v) =>
                   session.endSeek(Duration(milliseconds: v.toInt())),
               onChanged: (v) =>
-                  playback.position.value = Duration(milliseconds: v.toInt()),
+                  session.position = Duration(milliseconds: v.toInt()),
             ),
             Text(
               'label_a_slash_b'.l10nfmt({
-                'a': playback.position.value.hhMmSs(),
-                'b': playback.duration.value.hhMmSs(),
+                'a': session.position.hhMmSs(),
+                'b': session.duration.hhMmSs(),
               }),
               style: style.fonts.smallest.regular.secondary,
             ),

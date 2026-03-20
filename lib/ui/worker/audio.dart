@@ -78,17 +78,21 @@ class AudioWorker extends Dependency {
     super.onClose();
   }
 
-  /// Plays audio from the given [source] with the specified [id].
+  /// Resumes the current playback.
+  Future<void> resume() async {
+    if (activeSession.value != null) {
+      await _playback.play();
+    }
+  }
+
+  /// Plays the provided [item], creating a new [ActiveAudioSession].
   ///
-  /// If the audio with the same [id] is already active, then resumes playback.
-  ///
-  /// Otherwise, sets the new [source] and starts a playback.
+  /// If [item] is already active, resumes playback instead.
   Future<void> play(
-    AudioId id,
-    AudioSource source, {
+    AudioItem item, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
-    Log.debug('play(id: $id, source: $source)', '$runtimeType');
+    Log.debug('play(id: ${item.id}, source: ${item.source})', '$runtimeType');
 
     try {
       _intentSubscription ??= AudioUtils.acquire(
@@ -96,7 +100,7 @@ class AudioWorker extends Dependency {
         speaker: AudioSpeakerKind.speaker,
       ).listen((_) {});
 
-      if (activeSession.value?.id == id) {
+      if (activeSession.value?.item.id == item.id) {
         return _playback.play();
       }
 
@@ -104,20 +108,16 @@ class AudioWorker extends Dependency {
 
       _playback.isLoading.value = true;
 
-      AudioSource target = source;
+      AudioSource target = item.source;
 
-      activeSession.value = ActiveAudioSession(
-        _playback,
-        id: id,
-        source: source,
-      );
+      activeSession.value = ActiveAudioSession(_playback, item: item);
 
-      if (source is UrlAudioSource) {
+      if (item.source is UrlAudioSource) {
         _headerToken?.cancel();
         _headerToken = CancelToken();
 
         target = await _ensureReachable(
-          source,
+          item.source as UrlAudioSource,
           onForbidden: onForbidden,
           cancelToken: _headerToken,
         );
@@ -128,7 +128,7 @@ class AudioWorker extends Dependency {
     } on OperationCanceledException {
       // No-op.
     } catch (e) {
-      Log.error('play($id) failed with: $e', '$runtimeType');
+      Log.error('play(${item.id}) failed with: $e', '$runtimeType');
       await stop();
     } finally {
       _playback.isLoading.value = false;
@@ -215,29 +215,39 @@ class AudioWorker extends Dependency {
     CancelToken? cancelToken,
   }) async {
     final token = cancelToken ?? CancelToken();
-
-    Future<void> check(String url) async {
+    UrlAudioSource result = source;
+    try {
       await Backoff.run(
-        () async => (await PlatformUtils.dio).head(url, cancelToken: token),
+        () async {
+          try {
+            await (await PlatformUtils.dio).head(
+              source.url,
+              cancelToken: token,
+            );
+            result = source;
+          } catch (e) {
+            if (e is DioException && e.response?.statusCode == 403) {
+              final refreshed = await onForbidden?.call();
+              if (refreshed is UrlAudioSource) {
+                result = refreshed;
+              } else {
+                rethrow;
+              }
+            } else {
+              rethrow;
+            }
+          }
+        },
         cancel: token,
-        retryIf: (e) =>
-            e is! DioException ||
-            (e.response?.statusCode != 403 && e.isNetworkRelated),
+        retryIf: (e) => e is DioException && e.isNetworkRelated,
+      );
+    } on OperationCanceledException {
+      Log.debug(
+        '_ensureReachable(${source.url}) -> OperationCanceledException',
+        '$runtimeType',
       );
     }
 
-    try {
-      await check(source.url);
-      return source;
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 403) {
-        final refreshed = await onForbidden?.call();
-        if (refreshed is UrlAudioSource) {
-          await check(refreshed.url);
-          return refreshed;
-        }
-      }
-      rethrow;
-    }
+    return result;
   }
 }

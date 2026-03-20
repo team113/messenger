@@ -32,17 +32,13 @@ import 'slider.dart';
 class AudioPlayer extends StatelessWidget {
   const AudioPlayer({
     super.key,
-    required this.source,
-    required this.id,
+    required this.item,
     this.progress,
     this.onForbidden,
   });
 
-  /// [AudioSource] of the audio to play.
-  final AudioSource source;
-
-  /// Unique identifier of the audio.
-  final AudioId id;
+  /// Metadata of the audio.
+  final AudioItem item;
 
   /// Indicates uploading progress.
   final Widget? progress;
@@ -57,11 +53,10 @@ class AudioPlayer extends StatelessWidget {
     return GetBuilder(
       init: AudioPlayerController(
         Get.find(),
-        id: id,
-        source: source,
+        item: item,
         onForbidden: onForbidden,
       ),
-      tag: id.val,
+      tag: item.id.val,
       builder: (AudioPlayerController c) {
         return Padding(
           padding: const EdgeInsets.all(8.0),
@@ -81,7 +76,7 @@ class AudioPlayer extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        source.name ?? ('dot'.l10n * 3),
+                        item.title ?? ('dot'.l10n * 3),
                         style: style.fonts.small.regular.onBackground,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -91,7 +86,7 @@ class AudioPlayer extends StatelessWidget {
 
                         if (c.isActive) {
                           slider = KeyedSubtree(
-                            key: const ValueKey('Timeline'),
+                            key: const Key('Timeline'),
                             child: _slider(context, c),
                           );
                         } else {
@@ -139,13 +134,13 @@ class AudioPlayer extends StatelessWidget {
           child: Icon(
             c.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
             size: 36,
-            color: const Color(0xFF1F3C5D),
+            color: style.colors.primaryDark,
           ),
         );
       }
 
       return WidgetButton(
-        key: Key('PlayerButton${id.val}'),
+        key: Key('PlayerButton${item.id.val}'),
         onPressed: c.isLoading ? c.stop : c.playOrPause,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -171,7 +166,7 @@ class AudioPlayer extends StatelessWidget {
   Widget _slider(BuildContext context, AudioPlayerController c) {
     return Obx(() {
       return SeekSlider(
-        key: Key('AudioSlider${id.val}'),
+        key: Key('AudioSlider${item.id.val}'),
         position: c.position,
         duration: c.duration,
         onChangeStart: (_) => c.onSliderChangeStart(),

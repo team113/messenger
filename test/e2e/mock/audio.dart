@@ -18,14 +18,13 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/service/disposable_service.dart';
 import 'package:messenger/ui/worker/audio.dart';
 import 'package:messenger/ui/worker/audio/active_session.dart';
 import 'package:messenger/ui/worker/audio/playback.dart';
 import 'package:messenger/util/audio_utils.dart';
 
 /// Mocked [AudioWorker] to use in the tests.
-class MockAudioWorker extends Dependency implements AudioWorker {
+class MockAudioWorker extends AudioWorker {
   /// [AudioPlayback] to use.
   final AudioPlayback _playback = DummyPlayback();
 
@@ -33,9 +32,11 @@ class MockAudioWorker extends Dependency implements AudioWorker {
   final Rx<ActiveAudioSession?> _activeSession = Rx(null);
 
   @override
+  Rx<ActiveAudioSession?> get activeSession => _activeSession;
+
+  @override
   Future<void> play(
-    AudioId id,
-    AudioSource source, {
+    AudioItem item, {
     FutureOr<AudioSource?> Function()? onForbidden,
   }) async {
     _playback.isLoading.value = true;
@@ -44,11 +45,7 @@ class MockAudioWorker extends Dependency implements AudioWorker {
     _playback.isCompleted.value = false;
 
     _activeSession.value?.dispose();
-    _activeSession.value = ActiveAudioSession(
-      _playback,
-      id: id,
-      source: source,
-    );
+    _activeSession.value = ActiveAudioSession(_playback, item: item);
 
     await Future.delayed(const Duration(milliseconds: 100));
 
@@ -92,9 +89,6 @@ class MockAudioWorker extends Dependency implements AudioWorker {
           _playback.position.value + const Duration(seconds: 1);
     }
   }
-
-  @override
-  Rx<ActiveAudioSession?> get activeSession => _activeSession;
 }
 
 /// Mocked dummy [AudioPlayback].

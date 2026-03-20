@@ -209,8 +209,14 @@ class HomeController extends GetxController {
     return width.clamp(sideBarMinWidth, maxWidth);
   }
 
+  /// Resumes audio playback.
+  Future<void> resume() => _audioWorker.resume();
+
+  /// Pauses audio playback.
+  Future<void> pause() => _audioWorker.pause();
+
   /// Stops audio playback.
-  Future<void> stopPlayback() => _audioWorker.stop();
+  Future<void> stop() => _audioWorker.stop();
 
   /// Sets the current [sideBarWidth] as the [sideBarAllowedWidth].
   Future<void> setSideBarWidth() =>
