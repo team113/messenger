@@ -24,10 +24,10 @@ import FirebaseMessaging
 import Flutter
 import MachO
 import PushKit
+import SQLite
 import UIKit
 import flutter_callkit_incoming
 import os
-import sqlite3
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate, PKPushRegistryDelegate {
@@ -168,124 +168,74 @@ import sqlite3
       forSecurityApplicationGroupIdentifier: "group.com.team113.messenger")
     {
       let dbPath = containerURL.appendingPathComponent("common.sqlite").path
-      var db: OpaquePointer?
 
-      if sqlite3_open(dbPath, &db) == SQLITE_OK {
-        defer { sqlite3_close(db) }
+      do {
+        let db = try Connection(dbPath)
 
-        // First, check whether we have any authorization at all.
-        var stmt1: OpaquePointer?
-        let accountQuery = "SELECT user_id FROM accounts LIMIT 1;"
+        let accounts = Table("accounts")
+        let userId = SQLite.Expression<String>("user_id")
 
-        if sqlite3_prepare_v2(db, accountQuery, -1, &stmt1, nil) == SQLITE_OK {
-          defer { sqlite3_finalize(stmt1) }
+        let tokens = Table("tokens")
+        let credentials = SQLite.Expression<String>("credentials")
 
-          if sqlite3_step(stmt1) == SQLITE_ROW {
-            if let accountIdCStr = sqlite3_column_text(stmt1, 0) {
-              myId = String(cString: accountIdCStr)
+        let callKitCalls = Table("call_kit_calls")
+        let callIdExp = SQLite.Expression<String>("id")
+        let atExp = SQLite.Expression<Int64>("at")
 
-              // Second, check if this VoIP is for a user we have credentials for.
-              var stmt2: OpaquePointer?
-              let tokenQuery = "SELECT credentials FROM tokens WHERE user_id = ? LIMIT 1;"
+        // Check if we have any account.
+        if let account = try db.pluck(accounts.select(userId)) {
+          myId = account[userId]
 
-              if sqlite3_prepare_v2(db, tokenQuery, -1, &stmt2, nil) == SQLITE_OK {
-                defer { sqlite3_finalize(stmt2) }
+          // Check credentials.
+          let targetId = recipientId ?? myId
+          let tokenQuery =
+            tokens
+            .filter(userId == targetId)
+            .select(credentials)
 
-                if let text = recipientId {
-                  text.withCString { cStr in
-                    if sqlite3_bind_text(stmt2, 1, cStr, -1, nil) == SQLITE_OK {
-                      let result = sqlite3_step(stmt2)
-
-                      if result == SQLITE_ROW {
-                        if let credentialsCStr = sqlite3_column_text(stmt2, 0) {
-                          creds = String(cString: credentialsCStr)
-                        }
-                      } else if result != SQLITE_ROW {
-                        isAuthorized = false
-                      }
-                    }
-                  }
-                } else {
-                  if sqlite3_bind_text(stmt2, 1, myId, -1, nil) == SQLITE_OK {
-                    if sqlite3_step(stmt2) != SQLITE_ROW {
-                      isAuthorized = false
-                    }
-                  }
-                }
-
-              }
-
-            }
+          if let tokenRow = try db.pluck(tokenQuery) {
+            creds = tokenRow[credentials]
           } else {
             isAuthorized = false
           }
+        } else {
+          isAuthorized = false
+        }
 
-          if isAuthorized {
-            // Third, check if CallKit should be displayed at all (perhaps it
-            // was already declined or accepted in the main app).
-            var stmt3: OpaquePointer?
-            let atQuery = "SELECT at FROM call_kit_calls WHERE id = ? LIMIT 1"
+        // Check CallKit timing.
+        if isAuthorized {
+          let query =
+            callKitCalls
+            .filter(callIdExp == id)
+            .select(atExp)
 
-            if sqlite3_prepare_v2(db, atQuery, -1, &stmt3, nil) == SQLITE_OK {
-              defer { sqlite3_finalize(stmt3) }
+          if let row = try db.pluck(query) {
+            let accountedAt = Date(
+              timeIntervalSince1970: Double(row[atExp]) / 1_000_000.0
+            )
 
-              id.withCString { cStr in
-                if sqlite3_bind_text(stmt3, 1, cStr, -1, nil) == SQLITE_OK {
-                  if sqlite3_step(stmt3) == SQLITE_ROW {
-                    if let atCStr = sqlite3_column_text(stmt3, 0) {
-                      let atStr = String(cString: atCStr)
-
-                      if let atInt64 = Int64(atStr) {
-                        // Convert microseconds -> seconds (Double).
-                        let accountedAt = Date(
-                          timeIntervalSince1970: Double(atInt64) / 1_000_000.0
-                        )
-                        let now = Date()
-
-                        let diff = abs(accountedAt.timeIntervalSince(now))
-                        doReport = diff >= 15
-                      } else {
-                        doReport = true
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-
-          if isAuthorized && doReport {
-            // Forth, mark this call as the already accounted.
-            var stmt: OpaquePointer?
-            let query = """
-                  INSERT INTO call_kit_calls (id, at)
-                  VALUES (?, ?)
-                  ON CONFLICT(id) DO UPDATE SET at = excluded.at;
-              """
-
-            if sqlite3_prepare_v2(db, query, -1, &stmt, nil) == SQLITE_OK {
-              defer { sqlite3_finalize(stmt) }
-
-              // Bind ID.
-              id.withCString { cStr in
-                sqlite3_bind_text(stmt, 1, cStr, -1, nil)
-
-                // Bind current time in microseconds.
-                let nowMicros = Int64(Date().timeIntervalSince1970 * 1_000_000)
-                sqlite3_bind_int64(stmt, 2, nowMicros)
-
-                if sqlite3_step(stmt) != SQLITE_DONE {
-                  print("UPSERT failed: \(String(cString: sqlite3_errmsg(db)))")
-                }
-              }
-            } else {
-              print("Prepare failed: \(String(cString: sqlite3_errmsg(db)))")
-            }
+            let diff = abs(accountedAt.timeIntervalSinceNow)
+            doReport = diff >= 15
+          } else {
+            doReport = true
           }
         }
 
+        // `UPSERT` call.
         if isAuthorized && doReport {
-          // Fifth, try fetching the current status of the call from GraphQL.
+          let nowMicros = Int64(Date().timeIntervalSince1970 * 1_000_000)
+
+          let insert = callKitCalls.insert(
+            or: .replace,
+            callIdExp <- id,
+            atExp <- nowMicros
+          )
+
+          try db.run(insert)
+        }
+
+        // Call GraphQL.
+        if isAuthorized && doReport {
           Task {
             await acknowledgeVoip(
               creds: creds,
@@ -293,11 +243,11 @@ import sqlite3
               chatId: chatId,
               myId: myId,
               data: data,
-              db: db,
             )
           }
         }
-
+      } catch {
+        print("Database error: \(error)")
       }
     }
 
@@ -380,7 +330,6 @@ import sqlite3
     chatId: String,
     myId: String,
     data: flutter_callkit_incoming.Data,
-    db: OpaquePointer?
   ) async {
     let dataToSend: [String: Any] = [
       "query": """
