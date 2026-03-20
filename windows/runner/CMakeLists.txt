@@ -15,3 +15,18 @@ target_compile_definitions(${BINARY_NAME} PRIVATE "NOMINMAX")
 target_link_libraries(${BINARY_NAME} PRIVATE flutter flutter_wrapper_app)
 target_include_directories(${BINARY_NAME} PRIVATE "${CMAKE_SOURCE_DIR}")
 add_dependencies(${BINARY_NAME} flutter_assemble)
+
+# Download and bundle `sqlite3.dll` from GitHub.
+#
+# Should remove this code completely when `sqlite3.dll` hooks bundle the DLL.
+file(DOWNLOAD
+  https://github.com/simolus3/sqlite3.dart/releases/download/sqlite3-3.2.0/sqlite3.x64.windows.dll
+  "${CMAKE_BINARY_DIR}/sqlite3.dll"
+  SHOW_PROGRESS
+)
+
+add_custom_command(TARGET ${BINARY_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy
+    "${CMAKE_BINARY_DIR}/sqlite3.dll"
+    "$<TARGET_FILE_DIR:${BINARY_NAME}>/sqlite3.dll"
+)
