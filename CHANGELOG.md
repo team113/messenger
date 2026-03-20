@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.9.6...v0.10.0) | [Milestone](/../../milestone/72)
 
+### Changed
+
+- UI:
+    - Chats tab:
+        - Display about information when searching users. ([#1659])
+
 ### Fixed
 
 - UI:
@@ -25,6 +31,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1643]: /../../pull/1643
 [#1654]: /../../pull/1654
 [#1657]: /../../pull/1657
+[#1659]: /../../pull/1659
 
 
 

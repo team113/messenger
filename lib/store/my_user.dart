@@ -883,6 +883,15 @@ class MyUserRepository extends DisposableInterface
 
     _keepOnlineSubscription?.cancel(immediate: true);
 
+    final UserId? userId = myUser.value?.id ?? await _accountLocal.read();
+    if (userId?.isSupport == true) {
+      Log.debug(
+        '_initKeepOnlineSubscription() -> current `$userId` is support, thus skipping',
+        '$runtimeType',
+      );
+      return;
+    }
+
     await WebUtils.protect(() async {
       if (isClosed) {
         return;

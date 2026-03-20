@@ -886,6 +886,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                     ? NoiseSuppressionLevelWithOff.veryHigh
                     : NoiseSuppressionLevelWithOff.off,
               ),
+              subtitle: 'label_noise_suppression_subtitle'.l10n,
             );
           }),
           const SizedBox(height: 8),
