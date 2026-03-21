@@ -226,7 +226,8 @@ class AudioWorker extends Dependency {
 
   /// Fetches the header of [source] to ensure that the URL is reachable.
   ///
-  /// Tries refreshing the [source] once via [onForbidden] on `403` response.
+  /// On a `403` response code calls [onForbidden] to obtain a refreshed
+  /// [UrlAudioSource] and returns it.
   Future<UrlAudioSource> _ensureReachable(
     UrlAudioSource source, {
     FutureOr<AudioSource?> Function()? onForbidden,
@@ -243,6 +244,10 @@ class AudioWorker extends Dependency {
               cancelToken: token,
             );
           } catch (e) {
+            Log.debug(
+              '_ensureReachable() -> fetching HEAD... ⛔️ failed with $e',
+              '$runtimeType',
+            );
             if (e is DioException && e.response?.statusCode == 403) {
               final refreshed = await onForbidden?.call();
               result = refreshed as UrlAudioSource;

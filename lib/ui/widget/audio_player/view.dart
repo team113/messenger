@@ -85,12 +85,9 @@ class AudioPlayer extends StatelessWidget {
                         final Widget slider;
 
                         if (c.isActive) {
-                          slider = KeyedSubtree(
-                            key: const Key('Timeline'),
-                            child: _slider(context, c),
-                          );
+                          slider = _slider(context, c);
                         } else {
-                          slider = const SizedBox(key: Key('None'), height: 17);
+                          slider = const SizedBox(height: 17);
                         }
 
                         return Column(
