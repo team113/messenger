@@ -57,6 +57,11 @@ class AudioWorker extends Dependency {
   /// [CancelToken] for cancelling the audio header fetching.
   CancelToken? _headerToken;
 
+  /// Current play request identifier.
+  ///
+  /// Used to implement a cancellation mechanism for concurrent [play] calls.
+  int _playRequestId = 0;
+
   @override
   void onInit() {
     super.onInit();
@@ -94,6 +99,7 @@ class AudioWorker extends Dependency {
   }) async {
     Log.debug('play(id: ${item.id}, source: ${item.source})', '$runtimeType');
 
+    final int playId = ++_playRequestId;
     try {
       _intentSubscription ??= AudioUtils.acquire(
         AudioMode.music,
@@ -104,12 +110,13 @@ class AudioWorker extends Dependency {
         return _playback.play();
       }
 
-      await stop();
+      _clean();
+      await _playback.stop();
+      if (_isStale(playId)) return;
 
       _playback.isLoading.value = true;
 
       AudioSource target = item.source;
-
       activeSession.value = ActiveAudioSession(_playback, item: item);
 
       if (item.source is UrlAudioSource) {
@@ -124,32 +131,29 @@ class AudioWorker extends Dependency {
       }
 
       await _playback.prepare(target);
+      if (_isStale(playId)) return;
       await _playback.play();
     } on OperationCanceledException {
       // No-op.
     } catch (e) {
       Log.error('play(${item.id}) failed with: $e', '$runtimeType');
-      await stop();
+      if (_playRequestId == playId) await stop();
     } finally {
-      _playback.isLoading.value = false;
+      if (_playRequestId == playId) _playback.isLoading.value = false;
     }
   }
 
   /// Pauses the current playback.
   Future<void> pause() async => await _playback.pause();
 
-  /// Stops the current playback, clears [activeSession], cancels
-  /// [_intentSubscription] and tokens.
+  /// Stops the current playback, clears resources, cancels
+  /// [_intentSubscription].
   Future<void> stop() async {
     Log.debug('stop()', '$runtimeType');
-
-    _cancelToken?.cancel();
-    _headerToken?.cancel();
-    _cancelToken = null;
-    _headerToken = null;
+    _playRequestId++;
+    _clean();
     await _playback.stop();
-    activeSession.value?.dispose();
-    activeSession.value = null;
+
     await _intentSubscription?.cancel();
     _intentSubscription = null;
   }
@@ -174,6 +178,20 @@ class AudioWorker extends Dependency {
       return Duration.zero;
     }
   }
+
+  /// Cancels pending tokens, disposes the active session.
+  Future<void> _clean() async {
+    _cancelToken?.cancel();
+    _headerToken?.cancel();
+    _cancelToken = null;
+    _headerToken = null;
+    activeSession.value?.dispose();
+    activeSession.value = null;
+  }
+
+  /// Returns `true` if the given [requestId] no longer matches the current
+  /// [_playRequestId].
+  bool _isStale(int requestId) => requestId != _playRequestId;
 
   /// Initializes the [_routeSubscription].
   Future<void> _initialize() async {

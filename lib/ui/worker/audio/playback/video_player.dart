@@ -46,7 +46,9 @@ class VideoPlayerPlayback extends AudioPlayback {
       ),
     );
 
-    _reactiveController = ReactivePlayerController(_controller!);
+    // Guard against dispose() nulling [_controller] during initialization.
+    final VideoPlayerController controller = _controller!;
+    _reactiveController = ReactivePlayerController(controller);
 
     final ReactivePlayerController? reactive = _reactiveController;
     if (reactive != null) {
@@ -59,8 +61,12 @@ class VideoPlayerPlayback extends AudioPlayback {
       ]);
     }
 
-    await _controller?.initialize();
-    await _controller?.setLooping(false);
+    await controller.initialize();
+
+    // If dispose() was called while we were initializing, quit.
+    if (_controller == null) return;
+
+    await controller.setLooping(false);
   }
 
   @override
@@ -74,8 +80,9 @@ class VideoPlayerPlayback extends AudioPlayback {
     _reactiveController?.dispose();
     _reactiveController = null;
 
-    await _controller?.dispose();
+    final VideoPlayerController? controller = _controller;
     _controller = null;
+    await controller?.dispose();
   }
 
   @override
