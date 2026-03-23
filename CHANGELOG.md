@@ -14,6 +14,7 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - UI:
+    - Support page. ([#1660])
     - Chats tab:
         - Display about information when searching users. ([#1659])
 
@@ -32,6 +33,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1654]: /../../pull/1654
 [#1657]: /../../pull/1657
 [#1659]: /../../pull/1659
+[#1660]: /../../pull/1660
 
 
 

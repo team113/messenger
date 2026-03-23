@@ -1992,12 +1992,6 @@ class SvgIcons {
     height: 19,
   );
 
-  static const SvgData logs = SvgData(
-    'assets/icons/logs.svg',
-    width: 19,
-    height: 19,
-  );
-
   static const SvgData deleteAction = SvgData(
     'assets/icons/delete_action.svg',
     width: 16,
