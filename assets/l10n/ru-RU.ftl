@@ -773,6 +773,7 @@ label_noise_suppression_disabled = Отключ.
 label_noise_suppression_high = Высокое
 label_noise_suppression_low = Низкое
 label_noise_suppression_medium = Среднее
+label_noise_suppression_subtitle = Уменьшает фоновый шум
 label_noise_suppression_very_high = Оч. выс.
 label_nothing_found = Не найдено
 label_notifications = Уведомления

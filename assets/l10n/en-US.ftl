@@ -756,6 +756,7 @@ label_noise_suppression_disabled = Disabled
 label_noise_suppression_high = High
 label_noise_suppression_low = Low
 label_noise_suppression_medium = Medium
+label_noise_suppression_subtitle = Reduces background noises
 label_noise_suppression_very_high = Very high
 label_nothing_found = Not found
 label_notifications = Notifications
