@@ -132,7 +132,6 @@ btn_cancel_selection = Cancel selection
 btn_change = Change
 btn_change_password = Change password
 btn_change_status = Change status
-btn_check_for_updates = Check for updates
 btn_clear = Clear
 btn_clear_cache = Clear cache
 btn_clear_chat = Clear chat
@@ -157,12 +156,10 @@ btn_download_all = Download all
 btn_download_all_as = Download all as
 btn_download_as = Download as
 btn_download_as_png = Download as .png
-btn_download_logs = Download logs
 btn_download_tech_info_file = Download Tech-Info file
 btn_download_version = Download {$version}
 btn_edit = Edit
 btn_email = E-mail
-btn_feedback = Feedback
 btn_file = Select file
 btn_find_in_chat = Find in chat
 btn_forgot_password = Forgot your password?
@@ -206,7 +203,6 @@ btn_reply = Reply
 btn_reply_message = Reply to message
 btn_report = Report
 btn_report_a_bug = Report a bug
-btn_report_a_concern = Report a violation
 btn_resend = Resend
 btn_resend_message = Resend message
 btn_save = Save
@@ -825,8 +821,6 @@ label_regulations_freelance =
     6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
 label_remove_member = Remove from the group
 label_repeat_password = Repeat password
-label_replace_this_text_with_concern = Describe the concern.
-label_replace_this_text_with_feedback = Feedback.
 label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
@@ -994,7 +988,6 @@ label_we_welcome_backend_developer =
 label_welcome_message = Welcome message
 label_welcome_message_description = Welcome message is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.
 label_welcome_message_hint = Add, edit, delete
-label_what_we_can_help_you_with = How can we help you?
 label_work_with_us = Work with us
 label_work_with_us_desc =
     Work

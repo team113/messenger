@@ -132,7 +132,6 @@ btn_call_video_on_desc =
 btn_change = Cambiar
 btn_change_password = Cambiar la contraseña
 btn_change_status = Cambiar estado
-btn_check_for_updates = Verificar actualizaciones
 btn_clear = Borrar
 btn_clear_cache = Borrar caché
 btn_clear_chat = Borrar el chat
@@ -157,12 +156,10 @@ btn_download_all = Descargar todo
 btn_download_all_as = Descargar todo como
 btn_download_as = Descargar como
 btn_download_as_png = Descargar como .png
-btn_download_logs = Descargar registros
 btn_download_tech_info_file = Descargar el archivo Tech-Info
 btn_download_version = Descargar {$version}
 btn_edit = Editar
 btn_email = E-mail
-btn_feedback = Comentarios
 btn_file = Seleccionar archivo
 btn_find_in_chat = Encontrar en el chat
 btn_forgot_password = ¿Olvidó su contraseña?
@@ -206,7 +203,6 @@ btn_reply = Responder
 btn_reply_message = Responder al mensaje
 btn_report = Reportar
 btn_report_a_bug = Reportar un error
-btn_report_a_concern = Reportar una infracción
 btn_resend = Reenviar
 btn_resend_message = Reenviar el mensaje
 btn_save = Guardar
@@ -831,8 +827,6 @@ label_regulations_freelance =
     6. El equipo frontend puede rechazar la colaboración si el código presentado es de calidad evidentemente baja.
 label_remove_member = Eliminar del grupo
 label_repeat_password = Repita la contraseña
-label_replace_this_text_with_concern = Describe el asunto.
-label_replace_this_text_with_feedback = Comentarios.
 label_replies = [{$count} {$count ->
     [1] respuesta
     *[other] respuestas
@@ -1001,7 +995,6 @@ label_we_welcome_backend_developer =
 label_welcome_message = Mensaje de bienvenida
 label_welcome_message_description = El mensaje de bienvenida se muestra automáticamente a los usuarios que le agregaron a su lista de chats, pero no se muestra a los usuarios que Usted agregó.
 label_welcome_message_hint = Agregar, editar, eliminar
-label_what_we_can_help_you_with = ¿Cómo podemos ayudarle?
 label_work_with_us = Trabaje con nosotros
 label_work_with_us_desc =
     Trabaje

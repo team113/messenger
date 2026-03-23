@@ -132,7 +132,6 @@ btn_call_video_on_desc =
 btn_change = Изменить
 btn_change_password = Изменить пароль
 btn_change_status = Изменить статус
-btn_check_for_updates = Проверить наличие обновлений
 btn_clear = Очистить
 btn_clear_cache = Очистить кэш
 btn_clear_chat = Очистить чат
@@ -157,12 +156,10 @@ btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
 btn_download_as = Скачать как
 btn_download_as_png = Скачать как .png
-btn_download_logs = Скачать логи
 btn_download_tech_info_file = Скачать Tech-Info файл
 btn_download_version = Скачать {$version}
 btn_edit = Редактировать
 btn_email = E-mail
-btn_feedback = Обратная связь
 btn_file = Выбрать файл
 btn_find_in_chat = Найти в чате
 btn_forgot_password = Забыли пароль?
@@ -206,7 +203,6 @@ btn_reply = Ответить
 btn_reply_message = Ответить на сообщение
 btn_report = Пожаловаться
 btn_report_a_bug = Сообщить об ошибке
-btn_report_a_concern = Сообщить о нарушении
 btn_resend = Отправить повторно
 btn_resend_message = Отправить повторно
 btn_save = Сохранить
@@ -842,8 +838,6 @@ label_regulations_freelance =
     6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
 label_remove_member = Удалить из группы
 label_repeat_password = Повторите пароль
-label_replace_this_text_with_concern = Опишите проблему.
-label_replace_this_text_with_feedback = Обратная связь.
 label_replies = [{$count} {$count ->
     [1] ответ
     [few] ответа
@@ -1014,7 +1008,6 @@ label_we_welcome_backend_developer =
 label_welcome_message = Приветственное сообщение
 label_welcome_message_description = Приветственное сообщение отображается только пользователям, которые добавили Вас в свой список чатов. Не отображается пользователям, которых в свой список чатов добавили Вы.
 label_welcome_message_hint = Добавить, редактировать, удалить
-label_what_we_can_help_you_with = Чем мы можем Вам помочь?
 label_work_with_us = Работайте с нами
 label_work_with_us_desc =
     Работайте
