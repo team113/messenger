@@ -1373,15 +1373,22 @@ class OngoingCall {
     }
 
     await _videoGuard.protect(() async {
-      final Map<CallMemberId, bool> previous = Map.fromEntries(
+      final Map<CallMemberId, bool> devices = Map.fromEntries(
         members.values
             .where((e) => e.id != _me)
-            .map((e) => MapEntry(e.id, e.hasVideo.value)),
+            .map((e) => MapEntry(e.id, e.hasDeviceVideo.value)),
+      );
+
+      final Map<CallMemberId, bool> displays = Map.fromEntries(
+        members.values
+            .where((e) => e.id != _me)
+            .map((e) => MapEntry(e.id, e.hasDisplayVideo.value)),
       );
 
       try {
         for (var e in members.values.where((e) => e.id != _me)) {
-          e.hasVideo.value = enabled;
+          e.hasDisplayVideo.value = enabled;
+          e.hasDeviceVideo.value = enabled;
         }
 
         if (enabled) {
@@ -1394,8 +1401,12 @@ class OngoingCall {
       } on MediaStateTransitionException catch (_) {
         // No-op.
       } catch (e) {
-        for (var e in previous.entries) {
-          members[e.key]?.hasVideo.value = e.value;
+        for (var e in devices.entries) {
+          members[e.key]?.hasDeviceVideo.value = e.value;
+        }
+
+        for (var e in displays.entries) {
+          members[e.key]?.hasDisplayVideo.value = e.value;
         }
 
         rethrow;
@@ -1778,7 +1789,16 @@ class OngoingCall {
                   break;
 
                 case MediaKind.video:
-                  members[id]?.hasVideo.value = true;
+                  switch (track.mediaSourceKind()) {
+                    case MediaSourceKind.device:
+                      members[id]?.hasDeviceVideo.value = true;
+                      break;
+
+                    case MediaSourceKind.display:
+                      members[id]?.hasDisplayVideo.value = true;
+                      break;
+                  }
+
                   await t.createRenderer();
                   break;
               }
@@ -1815,7 +1835,16 @@ class OngoingCall {
 
           case MediaKind.video:
             if (track.mediaDirection().isEmitting) {
-              members[id]?.hasVideo.value = true;
+              switch (track.mediaSourceKind()) {
+                case MediaSourceKind.device:
+                  members[id]?.hasDeviceVideo.value = true;
+                  break;
+
+                case MediaSourceKind.display:
+                  members[id]?.hasDisplayVideo.value = true;
+                  break;
+              }
+
               await t.createRenderer();
             }
             break;
@@ -2509,6 +2538,7 @@ class OngoingCall {
                   devices.firstWhereOrNull(
                     (e) => e.deviceId() == track.getTrack().deviceId(),
                   );
+              members[_me]?.hasDeviceVideo.value = true;
               break;
 
             case MediaSourceKind.display:
@@ -2517,10 +2547,10 @@ class OngoingCall {
                   displays.firstWhereOrNull(
                     (e) => e.deviceId() == track.getTrack().deviceId(),
                   );
+              members[_me]?.hasDisplayVideo.value = true;
               break;
           }
 
-          members[_me]?.hasVideo.value = true;
           await t.createRenderer();
         }
         break;
@@ -3195,9 +3225,13 @@ class CallMember {
   /// [DateTime] when this [CallMember] has joined.
   final Rx<PreciseDateTime?> joinedAt;
 
-  /// Indicator whether video [tracks] of this [CallMember] should be ignored or
-  /// not.
-  final RxBool hasVideo = RxBool(true);
+  /// Indicator whether [MediaSourceKind.device] video [tracks] of this
+  /// [CallMember] should be ignored or not.
+  final RxBool hasDeviceVideo = RxBool(true);
+
+  /// Indicator whether [MediaSourceKind.display] video [tracks] of this
+  /// [CallMember] should be ignored or not.
+  final RxBool hasDisplayVideo = RxBool(true);
 
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;
@@ -3226,10 +3260,18 @@ class CallMember {
     }
 
     await _videoGuard.protect(() async {
-      final bool previous = hasVideo.value;
+      final bool previous = switch (source) {
+        MediaSourceKind.device => hasDeviceVideo.value,
+        MediaSourceKind.display => hasDisplayVideo.value,
+      };
+
+      final RxBool reactive = switch (source) {
+        MediaSourceKind.device => hasDeviceVideo,
+        MediaSourceKind.display => hasDisplayVideo,
+      };
 
       try {
-        hasVideo.value = enabled;
+        reactive.value = enabled;
 
         if (enabled) {
           await _connection?.enableRemoteVideo(source);
@@ -3237,7 +3279,7 @@ class CallMember {
           await _connection?.disableRemoteVideo(source);
         }
       } catch (e) {
-        hasVideo.value = previous;
+        reactive.value = previous;
       }
     });
   }
