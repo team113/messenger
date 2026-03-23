@@ -132,7 +132,6 @@ btn_cancel_selection = Cancel selection
 btn_change = Change
 btn_change_password = Change password
 btn_change_status = Change status
-btn_check_for_updates = Check for updates
 btn_clear = Clear
 btn_clear_cache = Clear cache
 btn_clear_chat = Clear chat
@@ -157,11 +156,10 @@ btn_download_all = Download all
 btn_download_all_as = Download all as
 btn_download_as = Download as
 btn_download_as_png = Download as .png
-btn_download_logs = Download logs
+btn_download_tech_info_file = Download Tech-Info file
 btn_download_version = Download {$version}
 btn_edit = Edit
 btn_email = E-mail
-btn_feedback = Feedback
 btn_file = Select file
 btn_find_in_chat = Find in chat
 btn_forgot_password = Forgot your password?
@@ -205,7 +203,6 @@ btn_reply = Reply
 btn_reply_message = Reply to message
 btn_report = Report
 btn_report_a_bug = Report a bug
-btn_report_a_concern = Report a violation
 btn_resend = Resend
 btn_resend_message = Resend message
 btn_save = Save
@@ -219,6 +216,7 @@ btn_search_chat = Search in chat
 btn_select = Select
 btn_select_messages = Select messages
 btn_send_application = Send an application
+btn_send_email = Send e-mail
 btn_send_one_time_code = Send one-time code
 btn_set_password = Set password
 btn_share = Share
@@ -823,13 +821,16 @@ label_regulations_freelance =
     6. The frontend team has the right to refuse to continue collaboration if the code you offered for review is of obviously low quality.
 label_remove_member = Remove from the group
 label_repeat_password = Repeat password
-label_replace_this_text_with_concern = Describe the concern.
-label_replace_this_text_with_feedback = Feedback.
 label_replies = [{$count} {$count ->
     [1] reply
     *[other] replies
     }]
 label_report = Report
+label_report_a_problem = Report a problem
+label_report_a_problem_description =
+    Tapopa would be very grateful for the information about any encountered inconveniences or problems.
+
+    Attached Tech-Info file would help a lot. Tech-Info file contains only technical information. No personal or sensitive data is included.
 label_requirements = Requirements
 label_requirements_backend_developer =
     - knowledge of Rust;
@@ -865,6 +866,8 @@ label_search_category_chats = Chats
 label_search_category_contacts = Contacts
 label_search_category_users = Users
 label_selected = Selected: {$count}
+label_send_an_email = Send an e-mail
+label_send_an_email_description = If you are unable to sign in, please send an e-mail with the Tech-Info file.
 label_send_message_hint = Message...
 label_sent = Sent
 label_sessions_remain_active_for_one_year = Sessions remain active for one year or until you sign out
@@ -929,6 +932,7 @@ label_text_status = Text status
 label_text_status_description = 33 characters max
 label_text_status_hint = Text status. 33 symb. max
 label_this_device = This session
+label_to_contact_support_sign_in = To contact Support Service, sign in and send a message to the user Gapopa
 label_to_restore_chats_use_search = To restore the chats, use the search
 label_typing = Typing
 label_unknown = Unknown
@@ -984,7 +988,6 @@ label_we_welcome_backend_developer =
 label_welcome_message = Welcome message
 label_welcome_message_description = Welcome message is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.
 label_welcome_message_hint = Add, edit, delete
-label_what_we_can_help_you_with = How can we help you?
 label_work_with_us = Work with us
 label_work_with_us_desc =
     Work
