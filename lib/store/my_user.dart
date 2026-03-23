@@ -20,6 +20,7 @@ import 'dart:math';
 
 import 'package:async/async.dart';
 import 'package:dio/dio.dart' as dio;
+import 'package:drift/remote.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/extension/chat.dart';
@@ -123,11 +124,12 @@ class MyUserRepository extends DisposableInterface
   /// Returns the currently active [DtoMyUser] from the storage.
   Future<DtoMyUser?> get _active async {
     final UserId? userId = _accountLocal.userId;
-    final DtoMyUser? saved = userId != null
-        ? await _driftMyUser.read(userId)
-        : null;
 
-    return saved;
+    try {
+      return userId != null ? await _driftMyUser.read(userId) : null;
+    } on DriftRemoteException {
+      return null;
+    }
   }
 
   @override
