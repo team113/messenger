@@ -1806,7 +1806,7 @@ class ChatController extends GetxController {
           : await FilePicker.saveFile(
               fileName: attachments.first.filename,
               type: switch (attachments.first) {
-                ImageAttachment() => FileType.image,
+                ImageAttachment _ => FileType.image,
                 _ => FileType.video,
               },
               lockParentWindow: true,

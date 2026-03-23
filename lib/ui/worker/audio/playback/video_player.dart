@@ -48,8 +48,8 @@ class VideoPlayerPlayback extends AudioPlayback {
 
     // Guard against dispose() nulling [_controller] during initialization.
     final VideoPlayerController controller = _controller!;
-    _reactiveController = ReactivePlayerController(controller);
 
+    _reactiveController = ReactivePlayerController(controller);
     final ReactivePlayerController? reactive = _reactiveController;
     if (reactive != null) {
       _subscriptions.addAll([
@@ -63,7 +63,7 @@ class VideoPlayerPlayback extends AudioPlayback {
 
     await controller.initialize();
 
-    // If dispose() was called while we were initializing, quit.
+    // If dispose() was called while initializing, quit.
     if (_controller == null) return;
 
     await controller.setLooping(false);

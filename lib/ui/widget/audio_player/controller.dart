@@ -55,13 +55,13 @@ class AudioPlayerController extends GetxController {
     return active?.item.id == item.id ? active : null;
   }
 
-  /// Indicates whether this controller's [AudioItem] is active.
+  /// Indicates whether this controller's [item] is active.
   bool get isActive => _session != null;
 
-  /// Indicates whether current [AudioItem] is playing.
+  /// Indicates whether the current [item] is playing.
   bool get isPlaying => _session?.isPlaying ?? false;
 
-  /// Indicates whether current [AudioItem] is loading.
+  /// Indicates whether the current [item] is loading.
   bool get isLoading => _session?.isLoading ?? false;
 
   /// Returns the current playback position.
