@@ -23,6 +23,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Inability to drag-n-drop buttons in dock. ([#1654])
+        - Incoming video being disabled when disabling screen sharing only. ([#1662])
 - macOS:
     - Application crashing when exiting. ([#1657], [#1561])
 - Windows:
@@ -34,6 +35,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1657]: /../../pull/1657
 [#1659]: /../../pull/1659
 [#1660]: /../../pull/1660
+[#1662]: /../../pull/1662
 
 
 
