@@ -39,9 +39,6 @@ enum ChatEventKind {
   callStarted,
   cleared,
   delivered,
-  directLinkDeleted,
-  directLinkUpdated,
-  directLinkUsageCountUpdated,
   favorited,
   hidden,
   itemDeleted,
@@ -127,8 +124,8 @@ abstract class ChatEvent {
 
 /// Event of a [ChatCall] being moved from its [Chat]-dialog to a newly created
 /// [Chat]-group.
-class EventChatCallMoved extends ChatEvent {
-  const EventChatCallMoved(
+class ChatCallMovedEvent extends ChatEvent {
+  const ChatCallMovedEvent(
     super.chatId,
     this.callId,
     this.call,
@@ -169,8 +166,8 @@ class EventChatCallMoved extends ChatEvent {
 }
 
 /// Event of a [User] being redialed in a [ChatCall].
-class EventChatCallMemberRedialed extends ChatEvent {
-  const EventChatCallMemberRedialed(
+class ChatCallMemberRedialedEvent extends ChatEvent {
+  const ChatCallMemberRedialedEvent(
     super.chatId,
     this.at,
     this.callId,
@@ -200,8 +197,8 @@ class EventChatCallMemberRedialed extends ChatEvent {
 }
 
 /// Event of a [Chat] being cleared by the authenticated [MyUser].
-class EventChatCleared extends ChatEvent {
-  const EventChatCleared(super.chatId, this.at);
+class ChatClearedEvent extends ChatEvent {
+  const ChatClearedEvent(super.chatId, this.at);
 
   /// [PreciseDateTime] when the [Chat] was cleared.
   final PreciseDateTime at;
@@ -211,8 +208,8 @@ class EventChatCleared extends ChatEvent {
 }
 
 /// Event of a [ChatItem] being hidden by the authenticated [MyUser].
-class EventChatItemHidden extends ChatEvent {
-  const EventChatItemHidden(super.chatId, this.itemId);
+class ChatItemHiddenEvent extends ChatEvent {
+  const ChatItemHiddenEvent(super.chatId, this.itemId);
 
   /// ID of the hidden [ChatItem].
   final ChatItemId itemId;
@@ -222,8 +219,8 @@ class EventChatItemHidden extends ChatEvent {
 }
 
 /// Event of a [Chat] being muted by the authenticated [MyUser].
-class EventChatMuted extends ChatEvent {
-  const EventChatMuted(super.chatId, this.duration);
+class ChatMutedEvent extends ChatEvent {
+  const ChatMutedEvent(super.chatId, this.duration);
 
   /// Duration the [Chat] should be muted until.
   final MuteDuration duration;
@@ -233,8 +230,8 @@ class EventChatMuted extends ChatEvent {
 }
 
 /// Event of a [ChatMember] started typing in a [Chat].
-class EventChatTypingStarted extends ChatEvent {
-  const EventChatTypingStarted(super.chatId, this.user);
+class ChatTypingStartedEvent extends ChatEvent {
+  const ChatTypingStartedEvent(super.chatId, this.user);
 
   /// [User] who started typing.
   final User user;
@@ -252,8 +249,8 @@ class EventChatUnmuted extends ChatEvent {
 }
 
 /// Event of a [ChatMember] stopped typing in a [Chat].
-class EventChatTypingStopped extends ChatEvent {
-  const EventChatTypingStopped(super.chatId, this.user);
+class ChatTypingStoppedEvent extends ChatEvent {
+  const ChatTypingStoppedEvent(super.chatId, this.user);
 
   /// [User] who stopped typing.
   final User user;
@@ -263,8 +260,8 @@ class EventChatTypingStopped extends ChatEvent {
 }
 
 /// Event of a [Chat] being hidden by the authenticated [MyUser].
-class EventChatHidden extends ChatEvent {
-  const EventChatHidden(super.chatId, this.at);
+class ChatHiddenEvent extends ChatEvent {
+  const ChatHiddenEvent(super.chatId, this.at);
 
   /// [PreciseDateTime] when the [Chat] was hidden.
   final PreciseDateTime at;
@@ -274,8 +271,8 @@ class EventChatHidden extends ChatEvent {
 }
 
 /// Event of a [Chat] being archived by the authenticated [MyUser].
-class EventChatArchived extends ChatEvent {
-  const EventChatArchived(super.chatId, this.at);
+class ChatArchivedEvent extends ChatEvent {
+  const ChatArchivedEvent(super.chatId, this.at);
 
   /// [PreciseDateTime] when the [Chat] was archived.
   final PreciseDateTime at;
@@ -285,8 +282,8 @@ class EventChatArchived extends ChatEvent {
 }
 
 /// Event of a [Chat] being unarchived by the authenticated [MyUser].
-class EventChatUnarchived extends ChatEvent {
-  const EventChatUnarchived(super.chatId, this.at);
+class ChatUnarchivedEvent extends ChatEvent {
+  const ChatUnarchivedEvent(super.chatId, this.at);
 
   /// [PreciseDateTime] when the [Chat] was unarchived.
   final PreciseDateTime at;
@@ -296,8 +293,8 @@ class EventChatUnarchived extends ChatEvent {
 }
 
 /// Event of a [ChatItem] being deleted by some [User].
-class EventChatItemDeleted extends ChatEvent {
-  const EventChatItemDeleted(super.chatId, this.itemId);
+class ChatItemDeletedEvent extends ChatEvent {
+  const ChatItemDeletedEvent(super.chatId, this.itemId);
 
   /// ID of the deleted [ChatItem].
   final ChatItemId itemId;
@@ -307,8 +304,8 @@ class EventChatItemDeleted extends ChatEvent {
 }
 
 /// Event of a [ChatItem] being edited by its author.
-class EventChatItemEdited extends ChatEvent {
-  const EventChatItemEdited(
+class ChatItemEditedEvent extends ChatEvent {
+  const ChatItemEditedEvent(
     super.chatId,
     this.itemId,
     this.text,
@@ -333,8 +330,8 @@ class EventChatItemEdited extends ChatEvent {
 }
 
 /// Event of a [ChatCall] being started.
-class EventChatCallStarted extends ChatEvent {
-  const EventChatCallStarted(super.chatId, this.call);
+class ChatCallStartedEvent extends ChatEvent {
+  const ChatCallStartedEvent(super.chatId, this.call);
 
   /// Started [ChatCall].
   final ChatCall call;
@@ -344,8 +341,8 @@ class EventChatCallStarted extends ChatEvent {
 }
 
 /// Event of a [Chat] unread items count being updated.
-class EventChatUnreadItemsCountUpdated extends ChatEvent {
-  const EventChatUnreadItemsCountUpdated(super.chatId, this.count);
+class ChatUnreadItemsCountUpdatedEvent extends ChatEvent {
+  const ChatUnreadItemsCountUpdatedEvent(super.chatId, this.count);
 
   /// Updated unread [ChatItem]s count.
   final int count;
@@ -354,20 +351,9 @@ class EventChatUnreadItemsCountUpdated extends ChatEvent {
   ChatEventKind get kind => ChatEventKind.unreadItemsCountUpdated;
 }
 
-/// Event of a [Chat]'s [ChatDirectLink.usageCount] being updated.
-class EventChatDirectLinkUsageCountUpdated extends ChatEvent {
-  const EventChatDirectLinkUsageCountUpdated(super.chatId, this.usageCount);
-
-  /// New [Chat]'s [ChatDirectLink.usageCount].
-  final int usageCount;
-
-  @override
-  ChatEventKind get kind => ChatEventKind.directLinkUsageCountUpdated;
-}
-
 /// Event of a [ChatCall] being finished.
-class EventChatCallFinished extends ChatEvent {
-  const EventChatCallFinished(super.chatId, this.call, this.reason);
+class ChatCallFinishedEvent extends ChatEvent {
+  const ChatCallFinishedEvent(super.chatId, this.call, this.reason);
 
   /// Finished [ChatCall].
   final ChatCall call;
@@ -380,8 +366,8 @@ class EventChatCallFinished extends ChatEvent {
 }
 
 /// Event of a [User] leaving a [ChatCall].
-class EventChatCallMemberLeft extends ChatEvent {
-  const EventChatCallMemberLeft(super.chatId, this.user, this.at);
+class ChatCallMemberLeftEvent extends ChatEvent {
+  const ChatCallMemberLeftEvent(super.chatId, this.user, this.at);
 
   /// User who left the [ChatCall].
   final User user;
@@ -394,8 +380,8 @@ class EventChatCallMemberLeft extends ChatEvent {
 }
 
 /// Event of a [User] joined a [ChatCall].
-class EventChatCallMemberJoined extends ChatEvent {
-  const EventChatCallMemberJoined(super.chatId, this.call, this.user, this.at);
+class ChatCallMemberJoinedEvent extends ChatEvent {
+  const ChatCallMemberJoinedEvent(super.chatId, this.call, this.user, this.at);
 
   /// Joined [ChatCall].
   final ChatCall call;
@@ -411,8 +397,8 @@ class EventChatCallMemberJoined extends ChatEvent {
 }
 
 /// Event of a [Chat] last item being updated.
-class EventChatLastItemUpdated extends ChatEvent {
-  const EventChatLastItemUpdated(super.chatId, this.lastItem);
+class ChatLastItemUpdatedEvent extends ChatEvent {
+  const ChatLastItemUpdatedEvent(super.chatId, this.lastItem);
 
   /// Updated last [ChatItem].
   final DtoChatItem? lastItem;
@@ -423,8 +409,8 @@ class EventChatLastItemUpdated extends ChatEvent {
 
 /// Event of last [ChatItem]s posted by the authenticated [MyUser] being
 /// delivered to other [User]s in a [Chat].
-class EventChatDelivered extends ChatEvent {
-  const EventChatDelivered(super.chatId, this.until);
+class ChatDeliveredEvent extends ChatEvent {
+  const ChatDeliveredEvent(super.chatId, this.until);
 
   /// [PreciseDateTime] until which the [ChatItem]s in [Chat] were delivered.
   final PreciseDateTime until;
@@ -434,8 +420,8 @@ class EventChatDelivered extends ChatEvent {
 }
 
 /// Event of a [Chat] being read by a [User].
-class EventChatRead extends ChatEvent {
-  const EventChatRead(super.chatId, this.byUser, this.at);
+class ChatReadEvent extends ChatEvent {
+  const ChatReadEvent(super.chatId, this.byUser, this.at);
 
   /// [User] who read the [Chat].
   final User byUser;
@@ -448,8 +434,8 @@ class EventChatRead extends ChatEvent {
 }
 
 /// Event of a [ChatCall] being declined by a [ChatMember].
-class EventChatCallDeclined extends ChatEvent {
-  const EventChatCallDeclined(
+class ChatCallDeclinedEvent extends ChatEvent {
+  const ChatCallDeclinedEvent(
     super.chatId,
     this.callId,
     this.call,
@@ -474,8 +460,8 @@ class EventChatCallDeclined extends ChatEvent {
 }
 
 /// Event of a new [ChatItem] being posted in a [Chat].
-class EventChatItemPosted extends ChatEvent {
-  const EventChatItemPosted(super.chatId, this.item);
+class ChatItemPostedEvent extends ChatEvent {
+  const ChatItemPostedEvent(super.chatId, this.item);
 
   /// New [ChatItem].
   final DtoChatItem item;
@@ -485,33 +471,14 @@ class EventChatItemPosted extends ChatEvent {
 }
 
 /// Event of a [Chat] total items count being updated.
-class EventChatTotalItemsCountUpdated extends ChatEvent {
-  const EventChatTotalItemsCountUpdated(super.chatId, this.count);
+class ChatTotalItemsCountUpdatedEvent extends ChatEvent {
+  const ChatTotalItemsCountUpdatedEvent(super.chatId, this.count);
 
   /// Updated total [ChatItem]s count.
   final int count;
 
   @override
   ChatEventKind get kind => ChatEventKind.totalItemsCountUpdated;
-}
-
-/// Event of a [Chat]'s [ChatDirectLink] being deleted.
-class EventChatDirectLinkDeleted extends ChatEvent {
-  const EventChatDirectLinkDeleted(super.chatId);
-
-  @override
-  ChatEventKind get kind => ChatEventKind.directLinkDeleted;
-}
-
-/// Event of a [Chat]'s [ChatDirectLink] being updated.
-class EventChatDirectLinkUpdated extends ChatEvent {
-  const EventChatDirectLinkUpdated(super.chatId, this.link);
-
-  /// New [Chat]'s [ChatDirectLink].
-  final ChatDirectLink link;
-
-  @override
-  ChatEventKind get kind => ChatEventKind.directLinkUpdated;
 }
 
 /// Events happening in the the favorite [Chat]s list.
@@ -524,8 +491,8 @@ abstract class FavoriteChatsEvent extends ChatEvent {
 
 /// Event of a [Chat] being added to the favorites list of the authenticated
 /// [MyUser].
-class EventChatFavorited extends FavoriteChatsEvent {
-  const EventChatFavorited(super.chatId, super.at, this.position);
+class ChatFavoritedEvent extends FavoriteChatsEvent {
+  const ChatFavoritedEvent(super.chatId, super.at, this.position);
 
   /// Position of the [Chat] in the favorites list.
   final ChatFavoritePosition position;
@@ -536,8 +503,8 @@ class EventChatFavorited extends FavoriteChatsEvent {
 
 /// Event of a [Chat] being removed from the favorites list of the authenticated
 /// [MyUser].
-class EventChatUnfavorited extends FavoriteChatsEvent {
-  const EventChatUnfavorited(super.chatId, super.at);
+class ChatUnfavoritedEvent extends FavoriteChatsEvent {
+  const ChatUnfavoritedEvent(super.chatId, super.at);
 
   @override
   ChatEventKind get kind => ChatEventKind.unfavorited;
@@ -546,8 +513,8 @@ class EventChatUnfavorited extends FavoriteChatsEvent {
 /// Event of an audio/video conversation being started in a [ChatCall], meaning
 /// that enough [ChatCallMember]s joined the `Medea` room after ringing had been
 /// finished.
-class EventChatCallConversationStarted extends ChatEvent {
-  const EventChatCallConversationStarted(
+class ChatCallConversationStartedEvent extends ChatEvent {
+  const ChatCallConversationStartedEvent(
     super.chatId,
     this.callId,
     this.at,
@@ -568,8 +535,8 @@ class EventChatCallConversationStarted extends ChatEvent {
 }
 
 /// Event of an answer timeout being reached in a [ChatCall].
-class EventChatCallAnswerTimeoutPassed extends ChatEvent {
-  const EventChatCallAnswerTimeoutPassed(super.chatId, this.callId);
+class ChatCallAnswerTimeoutPassedEvent extends ChatEvent {
+  const ChatCallAnswerTimeoutPassedEvent(super.chatId, this.callId);
 
   /// ID of the [ChatCall] the conversation started in.
   final ChatItemId callId;

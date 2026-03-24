@@ -16,29 +16,26 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/domain/model/link.dart';
 
 void main() {
-  test('ChatDirectLinkSlug generates slug of the specified length', () {
-    expect(ChatDirectLinkSlug.generate(1).val.length, 1);
-    expect(ChatDirectLinkSlug.generate(10).val.length, 10);
-    expect(ChatDirectLinkSlug.generate(100).val.length, 100);
+  test('DirectLinkSlug generates slug of the specified length', () {
+    expect(DirectLinkSlug.generate(1).val.length, 1);
+    expect(DirectLinkSlug.generate(10).val.length, 10);
+    expect(DirectLinkSlug.generate(100).val.length, 100);
   });
 
-  test('ChatDirectLinkSlug generates slug with valid characters', () {
-    final slug = ChatDirectLinkSlug.generate(100);
+  test('DirectLinkSlug generates slug with valid characters', () {
+    final slug = DirectLinkSlug.generate(100);
     final validChars = RegExp(r'^[A-Za-z0-9_-]+$');
     expect(validChars.hasMatch(slug.val), isTrue);
   });
 
-  test(
-    'ChatDirectLinkSlug generates slug that doesn\'t end with `-` or `_`',
-    () {
-      for (int i = 0; i < 10; ++i) {
-        final slug = ChatDirectLinkSlug.generate();
-        expect(slug.val.endsWith('-'), isFalse);
-        expect(slug.val.endsWith('_'), isFalse);
-      }
-    },
-  );
+  test('DirectLinkSlug generates slug that doesn\'t end with `-` or `_`', () {
+    for (int i = 0; i < 10; ++i) {
+      final slug = DirectLinkSlug.generate();
+      expect(slug.val.endsWith('-'), isFalse);
+      expect(slug.val.endsWith('_'), isFalse);
+    }
+  });
 }

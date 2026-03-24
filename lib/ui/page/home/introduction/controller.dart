@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/config.dart';
+import '/domain/model/link.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
@@ -47,8 +48,9 @@ class IntroductionController extends GetxController {
 
   /// [TextFieldState] of the link to use in [createLink] method.
   late final TextFieldState link = TextFieldState(
-    text:
-        '$_origin${myUser.value?.chatDirectLink?.slug.val ?? myUser.value?.num.val ?? ChatDirectLinkSlug.generate(10).val}',
+    text: '$_origin${myUser.value?.num.val ?? DirectLinkSlug.generate(10).val}',
+    // text:
+    //     '$_origin${myUser.value?.chatDirectLink?.slug.val ?? myUser.value?.num.val ?? DirectLinkSlug.generate(10).val}',
     editable: false,
   );
 
@@ -96,23 +98,23 @@ class IntroductionController extends GetxController {
 
   /// Creates a [ChatDirectLink] from the [link].
   Future<void> createLink() async {
-    final String text = link.text.replaceFirst(_origin, '');
+    // final String text = link.text.replaceFirst(_origin, '');
 
-    if (myUser.value?.chatDirectLink?.slug.val == text) {
-      return;
-    }
+    // if (myUser.value?.chatDirectLink?.slug.val == text) {
+    //   return;
+    // }
 
-    if (!link.status.value.isEmpty) {
-      return;
-    }
+    // if (!link.status.value.isEmpty) {
+    //   return;
+    // }
 
-    try {
-      await _myUserService.createChatDirectLink(ChatDirectLinkSlug(text));
-    } on CreateChatDirectLinkException catch (e) {
-      link.error.value = e.toMessage();
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
+    // try {
+    //   await _myUserService.createChatDirectLink(DirectLinkSlug(text));
+    // } on CreateChatDirectLinkException catch (e) {
+    //   link.error.value = e.toMessage();
+    // } catch (e) {
+    //   MessagePopup.error(e);
+    //   rethrow;
+    // }
   }
 }

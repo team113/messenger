@@ -294,10 +294,10 @@ class BlocklistRepository extends DisposableInterface
   BlocklistEvent _blocklistEvent(BlocklistEventsVersionedMixin$Events e) {
     Log.trace('_blocklistEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventBlocklistRecordAdded') {
+    if (e.$$typename == 'BlocklistRecordAddedEvent') {
       final node =
-          e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
-      return EventBlocklistRecordAdded(node.user.toDto(), node.at, node.reason);
+          e as BlocklistEventsVersionedMixin$Events$BlocklistRecordAddedEvent;
+      return BlocklistRecordAddedEvent(node.user.toDto(), node.at, node.reason);
     } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
       return EventBlocklistRecordRemoved(e.user.toDto(), e.at);
     } else {
@@ -336,7 +336,7 @@ class BlocklistRepository extends DisposableInterface
           for (final BlocklistEvent event in versioned.events) {
             switch (event.kind) {
               case BlocklistEventKind.recordAdded:
-                event as EventBlocklistRecordAdded;
+                event as BlocklistRecordAddedEvent;
                 ++count.value;
                 put(
                   DtoBlocklistRecord(

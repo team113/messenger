@@ -106,6 +106,7 @@ class MyProfileView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
@@ -283,15 +284,9 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
             return IgnorePointer(
               ignoring: c.isSupport,
               child: DirectLinkField(
-                c.myUser.value?.chatDirectLink,
-                onSubmit: (s) async {
-                  if (s == null) {
-                    await c.deleteChatDirectLink();
-                  } else {
-                    await c.createChatDirectLink(s);
-                  }
-                },
-                background: c.background.value,
+                c.links.values,
+                onAdded: c.linkLink,
+                onRemoved: c.unlinkLink,
               ),
             );
           }),

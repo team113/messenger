@@ -38,11 +38,11 @@ fragment MyUser on MyUser {
         ...UserCallCover
     }
     hasPassword
-    chatDirectLink {
-        slug
-        usageCount
-        createdAt
-    }
+    # chatDirectLink {
+    #     slug
+    #     usageCount
+    #     createdAt
+    # }
     muted {
         __typename
         ... on MuteUntilDuration {

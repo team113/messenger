@@ -26,11 +26,13 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'config.dart';
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
+import 'domain/model/link.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/blocklist.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
 import 'domain/repository/contact.dart';
+import 'domain/repository/link.dart';
 import 'domain/repository/my_user.dart';
 import 'domain/repository/session.dart';
 import 'domain/repository/settings.dart';
@@ -40,6 +42,7 @@ import 'domain/service/blocklist.dart';
 import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
+import 'domain/service/link.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/notification.dart';
 import 'domain/service/session.dart';
@@ -69,13 +72,14 @@ import 'store/blocklist.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
+import 'store/link.dart';
 import 'store/my_user.dart';
 import 'store/session.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
 import 'themes.dart';
 import 'ui/page/auth/view.dart';
-import 'ui/page/chat_direct_link/view.dart';
+import 'ui/page/direct_link/view.dart';
 import 'ui/page/erase/view.dart';
 import 'ui/page/home/page/chat/controller.dart';
 import 'ui/page/home/view.dart';
@@ -104,7 +108,7 @@ late RouterState router;
 class Routes {
   static const auth = '/';
   static const call = '/call';
-  static const chatDirectLink = '/~';
+  static const directLink = '/~';
   static const chatInfo = '/info';
   static const chats = '/chats';
   static const contacts = '/contacts';
@@ -346,7 +350,7 @@ class RouterState extends ChangeNotifier {
     if (to.startsWith(Routes.work) ||
         to.startsWith(Routes.erase) ||
         to.startsWith(Routes.support) ||
-        to.startsWith(Routes.chatDirectLink)) {
+        to.startsWith(Routes.directLink)) {
       return to;
     }
 
@@ -1074,12 +1078,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                       Get.find(),
                     ),
                   );
+              final AbstractLinkRepository linkRepository = deps
+                  .put<AbstractLinkRepository>(
+                    LinkRepository(graphQlProvider, versionProvider, me: me),
+                  );
 
               final MyUserService myUserService = deps.put(
                 MyUserService(Get.find(), myUserRepository),
               );
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
+              deps.put(LinkService(linkRepository));
 
               final ChatService chatService = deps.put(
                 ChatService(chatRepository, Get.find()),
@@ -1113,7 +1122,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               return deps;
             },
             signedUp: router.arguments?['signedUp'] as bool? ?? false,
-            link: router.arguments?['link'] as ChatDirectLinkSlug?,
+            link: router.arguments?['link'] as DirectLinkSlug?,
           ),
         ),
       );
@@ -1141,13 +1150,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: SupportView(),
         ),
       ];
-    } else if (_state.route.startsWith(Routes.chatDirectLink)) {
-      final String slug = _state.route.replaceFirst(Routes.chatDirectLink, '');
+    } else if (_state.route.startsWith(Routes.directLink)) {
+      final String slug = _state.route.replaceFirst(Routes.directLink, '');
       return [
         MaterialPage(
-          key: ValueKey('ChatDirectLinkPage$slug'),
-          name: '${Routes.chatDirectLink}$slug',
-          child: ChatDirectLinkView(slug),
+          key: ValueKey('DirectLinkPage$slug'),
+          name: '${Routes.directLink}$slug',
+          child: DirectLinkView(slug),
         ),
       ];
     } else {
@@ -1166,7 +1175,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.work) ||
         _state.route.startsWith(Routes.erase) ||
         _state.route.startsWith(Routes.support) ||
-        _state.route.startsWith(Routes.chatDirectLink) ||
+        _state.route.startsWith(Routes.directLink) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -1312,7 +1321,7 @@ extension RouteLinks on RouterState {
     ChatId id, {
     RouteAs mode = RouteAs.replace,
     ChatItemId? itemId,
-    ChatDirectLinkSlug? link,
+    DirectLinkSlug? link,
     bool search = false,
   }) {
     switch (mode) {
@@ -1353,7 +1362,7 @@ extension RouteLinks on RouterState {
     UserId? me, {
     RouteAs mode = RouteAs.replace,
     ChatItemId? itemId,
-    ChatDirectLinkSlug? link,
+    DirectLinkSlug? link,
   }) {
     ChatId chatId = chat.id;
 
@@ -1388,8 +1397,8 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.nowhere] page.
   void nowhere() => go(Routes.nowhere);
 
-  /// Changes router location to the [Routes.chatDirectLink] page.
-  void link(ChatDirectLinkSlug slug) => go('${Routes.chatDirectLink}$slug');
+  /// Changes router location to the [Routes.directLink] page.
+  void link(DirectLinkSlug slug) => go('${Routes.directLink}$slug');
 
   /// Changes router location to the [Routes.erase] page.
   void erase({bool push = false}) => (push ? this.push : go)(Routes.erase);

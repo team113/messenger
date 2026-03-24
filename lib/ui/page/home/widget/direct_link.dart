@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
@@ -24,9 +23,10 @@ import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '/config.dart';
-import '/domain/model/user.dart';
+import '/domain/model/link.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart' show CreateChatDirectLinkException;
+import '/provider/gql/exceptions.dart'
+    show UpdateDirectLinkException, UpdateGroupDirectLinkException;
 import '/themes.dart';
 import '/ui/page/home/page/my_profile/qr_code/view.dart';
 import '/ui/widget/context_menu/menu.dart';
@@ -40,26 +40,27 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'field_button.dart';
 
-/// [ReactiveTextField] displaying the provided [link].
+/// [ReactiveTextField] displaying the provided [links].
 ///
-/// If [link] is `null`, generates and displays a random [ChatDirectLinkSlug].
+/// If [link] is `null`, generates and displays a random [DirectLinkSlug] as the
+/// first one.
 class DirectLinkField extends StatefulWidget {
   const DirectLinkField(
-    this.link, {
+    this.links, {
     super.key,
-    this.onSubmit,
-    this.background,
+    this.onAdded,
+    this.onRemoved,
     this.canAddMore = true,
   });
 
-  /// [ChatDirectLink] to display.
-  final ChatDirectLink? link;
+  /// [DirectLink]s to display.
+  final Iterable<DirectLink> links;
 
-  /// Callback, called when [ChatDirectLinkSlug] is submitted.
-  final FutureOr<void> Function(ChatDirectLinkSlug?)? onSubmit;
+  /// Callback, called when a new [DirectLinkSlug] is submitted.
+  final FutureOr<void> Function(DirectLinkSlug)? onAdded;
 
-  /// Bytes of the background to display under the widget.
-  final Uint8List? background;
+  /// Callback, called when a certain [DirectLinkSlug] is removed.
+  final FutureOr<void> Function(DirectLinkSlug)? onRemoved;
 
   /// Indicator whether a new link can be added.
   final bool canAddMore;
@@ -70,8 +71,8 @@ class DirectLinkField extends StatefulWidget {
 
 /// State of an [DirectLinkField] maintaining the [_state].
 class _DirectLinkFieldState extends State<DirectLinkField> {
-  /// Generated [ChatDirectLinkSlug], used in the [_state].
-  final String _generated = ChatDirectLinkSlug.generate(10).val;
+  /// Generated [DirectLinkSlug], used in the [_state].
+  final String _generated = DirectLinkSlug.generate(10).val;
 
   /// State of the [ReactiveTextField].
   late final TextFieldState _state;
@@ -79,12 +80,10 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   @override
   void initState() {
     _state = TextFieldState(
-      text: widget.link?.slug.val,
-      submitted: widget.link != null,
       onFocus: (s) {
         if (s.text.trim().isNotEmpty) {
           try {
-            ChatDirectLinkSlug(s.text);
+            DirectLinkSlug(s.text);
           } on FormatException {
             if (s.text.length > 100) {
               s.error.value = 'err_incorrect_link_too_long'.l10n;
@@ -94,34 +93,21 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           }
         }
       },
-      onSubmitted: (_) async {
-        await _submitLink();
-      },
+      onSubmitted: (_) async => await _submitLink(),
     );
 
     super.initState();
   }
 
   @override
-  void didUpdateWidget(DirectLinkField oldWidget) {
-    if (!_state.focus.hasFocus &&
-        !_state.changed.value &&
-        _state.error.value == null &&
-        _state.editable.value) {
-      _state.unchecked = widget.link?.slug.val;
-    }
-
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-    final link = widget.link;
 
     final Widget child;
 
-    if (link == null) {
+    final Iterable<DirectLink> links = widget.links.where((e) => e.isEnabled);
+
+    if (links.isEmpty) {
       child = Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -155,131 +141,147 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         ],
       );
     } else {
-      final String url = '${Config.link}${link.slug}';
-
       child = Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 8),
-          ReactiveTextField(
-            state: TextFieldState(text: link.slug.val, editable: false),
-            hint: _generated,
-            label: link.createdAt.val.yMd,
-            prefixText: Config.link,
-            floatingLabelBehavior: FloatingLabelBehavior.always,
-            spellCheck: false,
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-            child: Row(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SvgIcon(SvgIcons.linkViews),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${link.usageCount}',
-                      style: style.fonts.small.regular.primary,
-                    ),
-                  ],
-                ),
-                Spacer(),
-                WidgetButton(
-                  onPressed: () {},
-                  onPressedWithDetails: (u) {
-                    PlatformUtils.copy(text: url);
-                    MessagePopup.success(
-                      'label_copied'.l10n,
-                      at: u.globalPosition,
-                    );
-                  },
-                  child: Text(
-                    'btn_copy'.l10n,
-                    style: style.fonts.small.regular.primary,
+          ...links
+              .map((e) {
+                final String url = '${Config.link}${e.slug}';
+
+                return [
+                  ReactiveTextField(
+                    state: TextFieldState(text: e.slug.val, editable: false),
+                    hint: _generated,
+                    label: e.createdAt.val.yMd,
+                    prefixText: Config.link,
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    spellCheck: false,
                   ),
-                ),
-                Container(
-                  margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                  width: 1,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: style.colors.secondaryHighlight,
-                  ),
-                ),
-                if (PlatformUtils.isMobile) ...[
-                  WidgetButton(
-                    onPressed: () async {
-                      await SharePlus.instance.share(ShareParams(text: url));
-                    },
-                    child: Text(
-                      'btn_share'.l10n,
-                      style: style.fonts.small.regular.primary,
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                    width: 1,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: style.colors.secondaryHighlight,
-                    ),
-                  ),
-                ],
-                ContextMenuRegion(
-                  enablePrimaryTap: true,
-                  actions: [
-                    ContextMenuButton(
-                      onPressed: () async {
-                        await QrCodeView.show(context, data: url);
-                      },
-                      label: 'btn_show_qr_code'.l10n,
-                      trailing: SvgIcon(SvgIcons.contextQr),
-                      inverted: SvgIcon(SvgIcons.contextQrWhite),
-                    ),
-                    ContextMenuButton(
-                      onPressed: () async {
-                        final proceed = await MessagePopup.alert(
-                          'label_unlink_link'.l10n,
-                          additional: [
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                    child: Row(
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SvgIcon(SvgIcons.linkViews),
+                            const SizedBox(width: 4),
                             Text(
-                              url,
-                              style: style.fonts.normal.regular.onBackground,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'label_unlink_link_confirm_description1'.l10n,
-                              style: style.fonts.small.regular.secondary,
+                              // '${link.usageCount}',
+                              '0',
+                              style: style.fonts.small.regular.primary,
                             ),
                           ],
-                          button: (context) => MessagePopup.deleteButton(
-                            context,
-                            label: 'btn_unlink'.l10n,
-                            icon: SvgIcons.buttonUnlink,
+                        ),
+                        Spacer(),
+                        WidgetButton(
+                          onPressed: () {},
+                          onPressedWithDetails: (u) {
+                            PlatformUtils.copy(text: url);
+                            MessagePopup.success(
+                              'label_copied'.l10n,
+                              at: u.globalPosition,
+                            );
+                          },
+                          child: Text(
+                            'btn_copy'.l10n,
+                            style: style.fonts.small.regular.primary,
                           ),
-                        );
+                        ),
+                        Container(
+                          margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                          width: 1,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: style.colors.secondaryHighlight,
+                          ),
+                        ),
+                        if (PlatformUtils.isMobile) ...[
+                          WidgetButton(
+                            onPressed: () async {
+                              await SharePlus.instance.share(
+                                ShareParams(text: url),
+                              );
+                            },
+                            child: Text(
+                              'btn_share'.l10n,
+                              style: style.fonts.small.regular.primary,
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                            width: 1,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: style.colors.secondaryHighlight,
+                            ),
+                          ),
+                        ],
+                        ContextMenuRegion(
+                          enablePrimaryTap: true,
+                          actions: [
+                            ContextMenuButton(
+                              onPressed: () async {
+                                await QrCodeView.show(context, data: url);
+                              },
+                              label: 'btn_show_qr_code'.l10n,
+                              trailing: SvgIcon(SvgIcons.contextQr),
+                              inverted: SvgIcon(SvgIcons.contextQrWhite),
+                            ),
+                            ContextMenuButton(
+                              onPressed: () async {
+                                final proceed = await MessagePopup.alert(
+                                  'label_unlink_link'.l10n,
+                                  additional: [
+                                    Text(
+                                      url,
+                                      style: style
+                                          .fonts
+                                          .normal
+                                          .regular
+                                          .onBackground,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      'label_unlink_link_confirm_description1'
+                                          .l10n,
+                                      style:
+                                          style.fonts.small.regular.secondary,
+                                    ),
+                                  ],
+                                  button: (context) =>
+                                      MessagePopup.deleteButton(
+                                        context,
+                                        label: 'btn_unlink'.l10n,
+                                        icon: SvgIcons.buttonUnlink,
+                                      ),
+                                );
 
-                        if (proceed == true) {
-                          await widget.onSubmit?.call(null);
-                        }
-                      },
-                      label: 'btn_unlink'.l10n,
-                      trailing: SvgIcon(SvgIcons.contextUnlink),
-                      inverted: SvgIcon(SvgIcons.contextUnlinkWhite),
-                    ),
-                  ],
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 6, 0, 6),
-                    child: RotatedBox(
-                      quarterTurns: 3,
-                      child: SvgIcon(SvgIcons.more),
+                                if (proceed == true) {
+                                  await widget.onRemoved?.call(e.slug);
+                                }
+                              },
+                              label: 'btn_unlink'.l10n,
+                              trailing: SvgIcon(SvgIcons.contextUnlink),
+                              inverted: SvgIcon(SvgIcons.contextUnlinkWhite),
+                            ),
+                          ],
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 6, 0, 6),
+                            child: RotatedBox(
+                              quarterTurns: 3,
+                              child: SvgIcon(SvgIcons.more),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
+                ];
+              })
+              .expand((e) => e),
 
           const SizedBox(height: 20),
           Padding(
@@ -310,28 +312,30 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   Future<void> _submitLink() async {
     _state.focus.unfocus();
 
-    ChatDirectLinkSlug? slug;
+    DirectLinkSlug? slug;
 
     if (_state.text.isNotEmpty) {
       try {
-        slug = ChatDirectLinkSlug(_state.text);
+        slug = DirectLinkSlug(_state.text);
       } on FormatException {
         _state.error.value = 'err_invalid_symbols_in_link'.l10n;
       }
     }
 
-    if (_state.error.value == null || _state.resubmitOnError.isTrue) {
-      if (slug == widget.link?.slug) {
-        return;
-      }
+    if (slug == null) {
+      return;
+    }
 
+    if (_state.error.value == null || _state.resubmitOnError.isTrue) {
       _state.editable.value = false;
       _state.status.value = RxStatus.loading();
 
       try {
-        await widget.onSubmit?.call(slug);
+        await widget.onAdded?.call(slug);
         setState(() {});
-      } on CreateChatDirectLinkException catch (e) {
+      } on UpdateDirectLinkException catch (e) {
+        _state.error.value = e.toMessage();
+      } on UpdateGroupDirectLinkException catch (e) {
         _state.error.value = e.toMessage();
       } catch (e) {
         _state.resubmitOnError.value = true;

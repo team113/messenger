@@ -20,6 +20,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'avatar.dart';
 import 'chat.dart';
 import 'chat_item.dart';
+import 'link.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
@@ -147,8 +148,8 @@ class ChatInfoActionCreated implements ChatInfoAction {
   factory ChatInfoActionCreated.fromJson(Map<String, dynamic> json) =>
       _$ChatInfoActionCreatedFromJson(json);
 
-  /// [ChatDirectLinkSlug] used to create the [Chat], if any.
-  final ChatDirectLinkSlug? directLinkSlug;
+  /// [DirectLinkSlug] used to create the [Chat], if any.
+  final DirectLinkSlug? directLinkSlug;
 
   @override
   int get hashCode => directLinkSlug.hashCode;
@@ -184,8 +185,8 @@ class ChatInfoActionMemberAdded implements ChatInfoAction {
   /// himself.
   final User user;
 
-  /// [ChatDirectLinkSlug] used by the [ChatMember] to join the [Chat], if any.
-  final ChatDirectLinkSlug? directLinkSlug;
+  /// [DirectLinkSlug] used by the [ChatMember] to join the [Chat], if any.
+  final DirectLinkSlug? directLinkSlug;
 
   @override
   int get hashCode => Object.hash(user, directLinkSlug);

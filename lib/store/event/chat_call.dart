@@ -113,8 +113,8 @@ abstract class ChatCallEvent {
 }
 
 /// Event of a [ChatCall] being finished.
-class EventChatCallFinished extends ChatCallEvent {
-  const EventChatCallFinished(
+class ChatCallFinishedEvent extends ChatCallEvent {
+  const ChatCallFinishedEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -139,8 +139,8 @@ class EventChatCallFinished extends ChatCallEvent {
 /// Use [joinLink] to reach the media server and the [ChatCallCredentials] to
 /// authenticate. Otherwise, the authenticated [MyUser] will be kicked from the
 /// [ChatCall] by timeout.
-class EventChatCallRoomReady extends ChatCallEvent {
-  const EventChatCallRoomReady(
+class ChatCallRoomReadyEvent extends ChatCallEvent {
+  const ChatCallRoomReadyEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -155,8 +155,8 @@ class EventChatCallRoomReady extends ChatCallEvent {
 }
 
 /// Event of a [User] leaving a [ChatCall].
-class EventChatCallMemberLeft extends ChatCallEvent {
-  const EventChatCallMemberLeft(
+class ChatCallMemberLeftEvent extends ChatCallEvent {
+  const ChatCallMemberLeftEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -179,8 +179,8 @@ class EventChatCallMemberLeft extends ChatCallEvent {
 }
 
 /// Event of a [User] joined a [ChatCall].
-class EventChatCallMemberJoined extends ChatCallEvent {
-  const EventChatCallMemberJoined(
+class ChatCallMemberJoinedEvent extends ChatCallEvent {
+  const ChatCallMemberJoinedEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -203,8 +203,8 @@ class EventChatCallMemberJoined extends ChatCallEvent {
 }
 
 /// Event of a [User] being redialed in a [ChatCall].
-class EventChatCallMemberRedialed extends ChatCallEvent {
-  const EventChatCallMemberRedialed(
+class ChatCallMemberRedialedEvent extends ChatCallEvent {
+  const ChatCallMemberRedialedEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -228,8 +228,8 @@ class EventChatCallMemberRedialed extends ChatCallEvent {
 }
 
 /// Event of a [User] being undialed in a [ChatCall].
-class EventChatCallMemberUndialed extends ChatCallEvent {
-  const EventChatCallMemberUndialed(
+class ChatCallMemberUndialedEvent extends ChatCallEvent {
+  const ChatCallMemberUndialedEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -244,8 +244,8 @@ class EventChatCallMemberUndialed extends ChatCallEvent {
 }
 
 /// Event of a [ChatMember]'s hand being lowered in a [ChatCall].
-class EventChatCallHandLowered extends ChatCallEvent {
-  const EventChatCallHandLowered(
+class ChatCallHandLoweredEvent extends ChatCallEvent {
+  const ChatCallHandLoweredEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -269,8 +269,8 @@ class EventChatCallHandLowered extends ChatCallEvent {
 
 /// Event of a [ChatCall] being moved from its [Chat]-dialog to a newly created
 /// [Chat]-group.
-class EventChatCallMoved extends ChatCallEvent {
-  const EventChatCallMoved(
+class ChatCallMovedEvent extends ChatCallEvent {
+  const ChatCallMovedEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -305,8 +305,8 @@ class EventChatCallMoved extends ChatCallEvent {
 }
 
 /// Event of a [ChatMember]'s hand being raised in a [ChatCall].
-class EventChatCallHandRaised extends ChatCallEvent {
-  const EventChatCallHandRaised(
+class ChatCallHandRaisedEvent extends ChatCallEvent {
+  const ChatCallHandRaisedEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -329,8 +329,8 @@ class EventChatCallHandRaised extends ChatCallEvent {
 }
 
 /// Event of a [ChatCall] being declined by a [ChatMember].
-class EventChatCallDeclined extends ChatCallEvent {
-  const EventChatCallDeclined(
+class ChatCallDeclinedEvent extends ChatCallEvent {
+  const ChatCallDeclinedEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -349,8 +349,8 @@ class EventChatCallDeclined extends ChatCallEvent {
 }
 
 /// Event of an answer timeout being reached in a [ChatCall].
-class EventChatCallAnswerTimeoutPassed extends ChatCallEvent {
-  const EventChatCallAnswerTimeoutPassed(
+class ChatCallAnswerTimeoutPassedEvent extends ChatCallEvent {
+  const ChatCallAnswerTimeoutPassedEvent(
     super.callId,
     super.chatId,
     super.at,
@@ -381,8 +381,8 @@ class EventChatCallAnswerTimeoutPassed extends ChatCallEvent {
 /// Event of an audio/video conversation being started in a [ChatCall], meaning
 /// that enough [ChatCallMember]s joined the `Medea` room after ringing had been
 /// finished.
-class EventChatCallConversationStarted extends ChatCallEvent {
-  const EventChatCallConversationStarted(
+class ChatCallConversationStartedEvent extends ChatCallEvent {
+  const ChatCallConversationStartedEvent(
     super.callId,
     super.chatId,
     super.at,

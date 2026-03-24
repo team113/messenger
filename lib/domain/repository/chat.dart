@@ -174,14 +174,6 @@ abstract class AbstractChatRepository {
   /// later use in the [sendChatMessage] method.
   Future<Attachment?> uploadAttachment(LocalAttachment attachment);
 
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the given [Chat]-group (if
-  /// any).
-  Future<void> createChatDirectLink(ChatId chatId, ChatDirectLinkSlug slug);
-
-  /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
-  Future<void> deleteChatDirectLink(ChatId chatId);
-
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
   Stream<dynamic> keepTyping(ChatId id);

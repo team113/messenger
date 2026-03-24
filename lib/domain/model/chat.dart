@@ -19,7 +19,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '/api/backend/schema.dart' show ChatKind;
+import '/api/backend/schema.dart' show Kind;
 import '/config.dart';
 import '/util/new_type.dart';
 import 'avatar.dart';
@@ -44,7 +44,6 @@ class Chat implements Comparable<Chat> {
     this.isHidden = false,
     this.isArchived = false,
     this.muted,
-    this.directLink,
     PreciseDateTime? createdAt,
     PreciseDateTime? updatedAt,
     this.lastReads = const [],
@@ -78,11 +77,11 @@ class Chat implements Comparable<Chat> {
   /// Kind of this [Chat].
   int kindIndex;
 
-  /// Get [ChatKind] of this [Chat].
-  ChatKind get kind => ChatKind.values[kindIndex];
+  /// Get [Kind] of this [Chat].
+  Kind get kind => Kind.values[kindIndex];
 
-  /// Sets the [ChatKind] of this [Chat].
-  set kind(ChatKind chatKind) {
+  /// Sets the [Kind] of this [Chat].
+  set kind(Kind chatKind) {
     kindIndex = chatKind.index;
   }
 
@@ -102,9 +101,6 @@ class Chat implements Comparable<Chat> {
   /// [Chat] of unmuted [MyUser] (and unmuted [Chat] of muted [MyUser]) should
   /// not produce any sounds.
   MuteDuration? muted;
-
-  /// [ChatDirectLink] to this [Chat].
-  ChatDirectLink? directLink;
 
   /// [PreciseDateTime] when this [Chat] was created.
   PreciseDateTime createdAt;
@@ -156,13 +152,13 @@ class Chat implements Comparable<Chat> {
   int membersCount;
 
   /// Indicates whether this [Chat] is a monolog.
-  bool get isMonolog => kind == ChatKind.monolog;
+  bool get isMonolog => kind == Kind.monolog;
 
   /// Indicates whether this [Chat] is a dialog.
-  bool get isDialog => kind == ChatKind.dialog;
+  bool get isDialog => kind == Kind.dialog;
 
   /// Indicates whether this [Chat] is a group.
-  bool get isGroup => kind == ChatKind.group;
+  bool get isGroup => kind == Kind.group;
 
   /// Indicates whether this [Chat] is a support chat.
   bool get isSupport {
@@ -176,12 +172,12 @@ class Chat implements Comparable<Chat> {
   /// Returns an [UserAvatar] of this [Chat].
   UserAvatar? getUserAvatar(UserId? me) {
     switch (kind) {
-      case ChatKind.monolog:
+      case Kind.monolog:
         return members.firstOrNull?.user.avatar;
-      case ChatKind.dialog:
+      case Kind.dialog:
         return members.firstWhereOrNull((e) => e.user.id != me)?.user.avatar;
-      case ChatKind.group:
-      case ChatKind.artemisUnknown:
+      case Kind.group:
+      case Kind.artemisUnknown:
         return null;
     }
   }
@@ -193,12 +189,12 @@ class Chat implements Comparable<Chat> {
   /// Returns an [UserCallCover] of this [Chat].
   UserCallCover? getCallCover(UserId? me) {
     switch (kind) {
-      case ChatKind.monolog:
+      case Kind.monolog:
         return members.firstOrNull?.user.callCover;
-      case ChatKind.dialog:
+      case Kind.dialog:
         return members.firstWhereOrNull((e) => e.user.id != me)?.user.callCover;
-      case ChatKind.group:
-      case ChatKind.artemisUnknown:
+      case Kind.group:
+      case Kind.artemisUnknown:
         return null;
     }
   }
@@ -308,7 +304,6 @@ class Chat implements Comparable<Chat> {
       muted: muted,
       isHidden: isHidden,
       isArchived: isArchived,
-      directLink: directLink,
       createdAt: createdAt,
       updatedAt: updatedAt,
       lastReads: lastReads,
@@ -339,7 +334,6 @@ class Chat implements Comparable<Chat> {
         isHidden == other.isHidden &&
         isArchived == other.isArchived &&
         muted == other.muted &&
-        directLink == other.directLink &&
         createdAt == other.createdAt &&
         updatedAt == other.updatedAt &&
         const ListEquality().equals(lastReads, other.lastReads) &&
@@ -364,7 +358,6 @@ class Chat implements Comparable<Chat> {
     isHidden,
     isArchived,
     muted,
-    directLink,
     createdAt,
     updatedAt,
     lastReads,

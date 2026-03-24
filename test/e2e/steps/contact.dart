@@ -46,7 +46,7 @@ final StepDefinitionGeneric contact = given1<TestUser, CustomWorld>(
     );
 
     context.world.contacts[user.name] = contact.events
-        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .firstWhere((e) => e.$$typename == 'ChatContactCreatedEvent')
         .contactId;
 
     provider.disconnect();
@@ -76,7 +76,7 @@ final twoContacts = given2<TestUser, TestUser, CustomWorld>(
     );
 
     context.world.contacts[user1.name] = contact1.events
-        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .firstWhere((e) => e.$$typename == 'ChatContactCreatedEvent')
         .contactId;
 
     final contact2 = await provider.createChatContact(
@@ -88,7 +88,7 @@ final twoContacts = given2<TestUser, TestUser, CustomWorld>(
     );
 
     context.world.contacts[user2.name] = contact2.events
-        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .firstWhere((e) => e.$$typename == 'ChatContactCreatedEvent')
         .contactId;
 
     provider.disconnect();

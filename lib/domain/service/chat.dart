@@ -369,23 +369,6 @@ class ChatService extends Dependency {
     return await _chatRepository.uploadAttachment(attachment);
   }
 
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the given [Chat]-group (if
-  /// any).
-  Future<void> createChatDirectLink(
-    ChatId chatId,
-    ChatDirectLinkSlug slug,
-  ) async {
-    Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
-    await _chatRepository.createChatDirectLink(chatId, slug);
-  }
-
-  /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
-  Future<void> deleteChatDirectLink(ChatId chatId) async {
-    Log.debug('deleteChatDirectLink($chatId)', '$runtimeType');
-    await _chatRepository.deleteChatDirectLink(chatId);
-  }
-
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
   Stream<dynamic> keepTyping(ChatId chatId) {

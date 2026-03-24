@@ -263,14 +263,14 @@ void main() async {
       //   ],
       // )).thenAnswer((_) {
       //   var event1 = {
-      //     '__typename': 'EventChatContactCreated',
+      //     '__typename': 'ChatContactCreatedEvent',
       //     'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
       //     'at': DateTime.now().toString(),
       //     'name': '1009422423626377'
       //   };
 
       //   var event2 = {
-      //     '__typename': 'EventChatContactUserAdded',
+      //     '__typename': 'ChatContactUserAddedEvent',
       //     'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
       //     'at': DateTime.now().toString(),
       //     'user': {

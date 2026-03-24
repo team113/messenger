@@ -19,10 +19,10 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
     events {
         __typename
         chatId
-        ... on EventChatTotalItemsCountUpdated {
+        ... on ChatTotalItemsCountUpdatedEvent {
             count
         }
-        ... on EventChatCallMemberRedialed {
+        ... on ChatCallMemberRedialedEvent {
             callId
             call {
                 __typename
@@ -38,13 +38,13 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             }
             at
         }
-        ... on EventChatCleared {
+        ... on ChatClearedEvent {
             at
         }
-        ... on EventChatItemHidden {
+        ... on ChatItemHiddenEvent {
             itemId
         }
-        ... on EventChatMuted {
+        ... on ChatMutedEvent {
             duration {
                 __typename
                 ... on MuteUntilDuration {
@@ -52,35 +52,25 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
                 }
             }
         }
-        ... on EventChatDirectLinkUsageCountUpdated {
-            usageCount
-        }
-        ... on EventChatTypingStarted {
+        ... on ChatTypingStartedEvent {
             user {
               __typename
               ...User
             }
         }
-        ... on EventChatTypingStopped {
+        ... on ChatTypingStoppedEvent {
             user {
               __typename
               ...User
             }
         }
-        ... on EventChatHidden {
+        ... on ChatHiddenEvent {
             at
         }
-        ... on EventChatDirectLinkUpdated {
-            directLink {
-                slug
-                usageCount
-                createdAt
-            }
-        }
-        ... on EventChatItemDeleted {
+        ... on ChatItemDeletedEvent {
             itemId
         }
-        ... on EventChatItemEdited {
+        ... on ChatItemEditedEvent {
             itemId
             text {
                 changed
@@ -111,17 +101,17 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
                 }
             }
         }
-        ... on EventChatCallStarted {
+        ... on ChatCallStartedEvent {
             callId
             call {
                 __typename
                 ...ChatCall
             }
         }
-        ... on EventChatUnreadItemsCountUpdated {
+        ... on ChatUnreadItemsCountUpdatedEvent {
             count
         }
-        ... on EventChatCallFinished {
+        ... on ChatCallFinishedEvent {
             callId
             call {
                 __typename
@@ -130,7 +120,7 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             reason
             at
         }
-        ... on EventChatCallMemberLeft {
+        ... on ChatCallMemberLeftEvent {
             callId
             call {
                 __typename
@@ -142,7 +132,7 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             }
             at
         }
-        ... on EventChatCallMemberJoined {
+        ... on ChatCallMemberJoinedEvent {
             callId
             call {
                 __typename
@@ -154,7 +144,7 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             }
             at
         }
-        ... on EventChatLastItemUpdated {
+        ... on ChatLastItemUpdatedEvent {
             lastItem {
                 node {
                     __typename
@@ -174,10 +164,10 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
                 cursor
             }
         }
-        ... on EventChatDelivered {
+        ... on ChatDeliveredEvent {
             until
         }
-        ... on EventChatCallMoved {
+        ... on ChatCallMovedEvent {
             callId
             call {
                 __typename
@@ -199,14 +189,14 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             }
             at
         }
-        ... on EventChatRead {
+        ... on ChatReadEvent {
             byUser {
                 __typename
                 ...User
             }
             at
         }
-        ... on EventChatItemPosted {
+        ... on ChatItemPostedEvent {
             item {
                 node {
                     __typename
@@ -226,7 +216,7 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
                 cursor
             }
         }
-        ... on EventChatCallDeclined {
+        ... on ChatCallDeclinedEvent {
             callId
             call {
                 __typename
@@ -238,20 +228,20 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             }
             at
         }
-        ... on EventChatArchived {
+        ... on ChatArchivedEvent {
             at
         }
-        ... on EventChatUnarchived {
+        ... on ChatUnarchivedEvent {
             at
         }
-        ... on EventChatFavorited {
+        ... on ChatFavoritedEvent {
             position
             at
         }
-        ... on EventChatUnfavorited {
+        ... on ChatUnfavoritedEvent {
             at
         }
-        ... on EventChatCallConversationStarted {
+        ... on ChatCallConversationStartedEvent {
             callId
             call {
                 __typename
@@ -259,7 +249,7 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             }
             at
         }
-        ... on EventChatCallAnswerTimeoutPassed {
+        ... on ChatCallAnswerTimeoutPassedEvent {
             callId
             userId
         }

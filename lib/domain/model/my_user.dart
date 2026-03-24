@@ -41,7 +41,6 @@ class MyUser {
     this.hasPassword = false,
     required this.emails,
     required this.phones,
-    this.chatDirectLink,
     this.unreadChatsCount = 0,
     this.status,
     this.avatar,
@@ -109,9 +108,6 @@ class MyUser {
   /// Count of the unread Chats of this [MyUser].
   int unreadChatsCount;
 
-  /// [ChatDirectLink] to the `Chat` with this [MyUser].
-  ChatDirectLink? chatDirectLink;
-
   /// Custom text status of this [MyUser].
   UserTextStatus? status;
 
@@ -158,7 +154,6 @@ class MyUser {
     hasPassword: hasPassword,
     emails: emails.copyWith(),
     phones: phones.copyWith(),
-    chatDirectLink: chatDirectLink,
     unreadChatsCount: unreadChatsCount,
     status: status,
     callCover: callCover,

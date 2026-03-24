@@ -143,11 +143,11 @@ mixin ContactGraphQlMixin {
   /// ### Result
   ///
   /// The following [ChatContactEvent]s may be produced on success:
-  /// - [EventChatContactCreated];
-  /// - [EventChatContactEmailAdded];
-  /// - [EventChatContactGroupAdded];
-  /// - [EventChatContactPhoneAdded];
-  /// - [EventChatContactUserAdded].
+  /// - [ChatContactCreatedEvent];
+  /// - [ChatContactEmailAddedEvent];
+  /// - [ChatContactGroupAddedEvent];
+  /// - [ChatContactPhoneAddedEvent];
+  /// - [ChatContactUserAddedEvent].
   ///
   /// ### Non-idempotent
   ///
@@ -284,7 +284,7 @@ mixin ContactGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatContactEvent] may be produced on success:
-  /// - [EventChatContactNameUpdated].
+  /// - [ChatContactNameUpdatedEvent].
   ///
   /// ### Idempotent
   ///
@@ -328,7 +328,7 @@ mixin ContactGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatContactEvent] may be produced on success:
-  /// - [EventChatContactFavorited].
+  /// - [ChatContactFavoritedEvent].
   ///
   /// ### Idempotent
   ///

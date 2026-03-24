@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/link.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
@@ -270,7 +271,7 @@ void main() async {
 
       when(
         graphQlProvider.createChatDirectLink(
-          ChatDirectLinkSlug('link'),
+          DirectLinkSlug('link'),
           groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         ),
       ).thenAnswer(
@@ -280,7 +281,7 @@ void main() async {
                   '__typename': 'ChatEventsVersioned',
                   'events': [
                     {
-                      '__typename': 'EventChatDirectLinkUpdated',
+                      '__typename': 'ChatDirectLinkUpdatedEvent',
                       'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
                       'directLink': {
                         'slug': 'link',
@@ -297,7 +298,7 @@ void main() async {
       );
 
       when(
-        graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')),
+        graphQlProvider.createUserDirectLink(DirectLinkSlug('link')),
       ).thenAnswer(
         (_) => Future.value(
           CreateUserDirectLink$Mutation.fromJson({
@@ -305,7 +306,7 @@ void main() async {
                   '__typename': 'MyUserEventsVersioned',
                   'events': [
                     {
-                      '__typename': 'EventUserDirectLinkUpdated',
+                      '__typename': 'UserDirectLinkUpdatedEvent',
                       'userId': '0d72d245-8425-467a-9ebd-082d4f47850b',
                       'directLink': {
                         'slug': 'link',
@@ -324,17 +325,17 @@ void main() async {
 
       await chatService.createChatDirectLink(
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        ChatDirectLinkSlug('link'),
+        DirectLinkSlug('link'),
       );
 
-      await myUserService.createChatDirectLink(ChatDirectLinkSlug('link'));
+      await myUserService.createChatDirectLink(DirectLinkSlug('link'));
 
       verifyInOrder([
         graphQlProvider.createChatDirectLink(
-          ChatDirectLinkSlug('link'),
+          DirectLinkSlug('link'),
           groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         ),
-        graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')),
+        graphQlProvider.createUserDirectLink(DirectLinkSlug('link')),
       ]);
     },
   );
@@ -364,13 +365,11 @@ void main() async {
     final GraphQlProvider graphQlProvider = Get.find();
     final AuthService authService = Get.find();
 
-    when(
-      graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')),
-    ).thenAnswer(
+    when(graphQlProvider.useDirectLink(DirectLinkSlug('link'))).thenAnswer(
       (_) => Future.value(
-        UseChatDirectLink$Mutation.fromJson({
-              'useChatDirectLink': {
-                '__typename': 'UseChatDirectLinkOk',
+        UseDirectLink$Mutation.fromJson({
+              'useDirectLink': {
+                '__typename': 'UseDirectLinkOk',
                 'chat': {
                   'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
                   'name': 'null',
@@ -393,14 +392,14 @@ void main() async {
                 },
                 'event': null,
               },
-            }).useChatDirectLink
-            as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk,
+            }).useDirectLink
+            as UseDirectLink$Mutation$UseDirectLink$UseDirectLinkOk,
       ),
     );
 
-    await authService.useChatDirectLink(ChatDirectLinkSlug('link'));
+    await authService.useDirectLink(DirectLinkSlug('link'));
 
-    verify(graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')));
+    verify(graphQlProvider.useDirectLink(DirectLinkSlug('link')));
   });
 
   test(
@@ -412,7 +411,7 @@ void main() async {
 
       when(
         graphQlProvider.createChatDirectLink(
-          ChatDirectLinkSlug('link'),
+          DirectLinkSlug('link'),
           groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         ),
       ).thenThrow(
@@ -422,7 +421,7 @@ void main() async {
       );
 
       when(
-        graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')),
+        graphQlProvider.createUserDirectLink(DirectLinkSlug('link')),
       ).thenThrow(
         const CreateChatDirectLinkException(
           CreateChatDirectLinkErrorCode.unknownChat,
@@ -431,22 +430,21 @@ void main() async {
 
       await chatService.createChatDirectLink(
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        ChatDirectLinkSlug('link'),
+        DirectLinkSlug('link'),
       );
 
       await expectLater(
-        () async => await myUserService.createChatDirectLink(
-          ChatDirectLinkSlug('link'),
-        ),
+        () async =>
+            await myUserService.createChatDirectLink(DirectLinkSlug('link')),
         throwsA(isA<CreateChatDirectLinkException>()),
       );
 
       verifyInOrder([
         graphQlProvider.createChatDirectLink(
-          ChatDirectLinkSlug('link'),
+          DirectLinkSlug('link'),
           groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         ),
-        graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')),
+        graphQlProvider.createUserDirectLink(DirectLinkSlug('link')),
       ]);
     },
   );
@@ -485,25 +483,21 @@ void main() async {
       final GraphQlProvider graphQlProvider = Get.find();
       final AuthService authService = Get.find();
 
-      when(
-        graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')),
-      ).thenThrow(
-        const UseChatDirectLinkException(
-          UseChatDirectLinkErrorCode.unknownDirectLink,
-        ),
+      when(graphQlProvider.useDirectLink(DirectLinkSlug('link'))).thenThrow(
+        const UseDirectLinkException(UseDirectLinkErrorCode.unknownDirectLink),
       );
 
       dynamic exception;
 
       try {
-        await authService.useChatDirectLink(ChatDirectLinkSlug('link'));
+        await authService.useDirectLink(DirectLinkSlug('link'));
       } catch (e) {
         exception = e;
       }
 
-      expect(exception.runtimeType, UseChatDirectLinkException);
+      expect(exception.runtimeType, UseDirectLinkException);
 
-      verify(graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')));
+      verify(graphQlProvider.useDirectLink(DirectLinkSlug('link')));
     },
   );
 

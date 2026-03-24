@@ -254,20 +254,6 @@ class MyUserService extends Dependency {
     );
   }
 
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
-  /// (if any).
-  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('createChatDirectLink($slug)', '$runtimeType');
-    await _myUserRepository.createChatDirectLink(slug);
-  }
-
-  /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
-  Future<void> deleteChatDirectLink() async {
-    Log.debug('deleteChatDirectLink()', '$runtimeType');
-    await _myUserRepository.deleteChatDirectLink();
-  }
-
   /// Updates or resets the [MyUser.avatar] field with the provided image
   /// [file].
   Future<void> updateAvatar(

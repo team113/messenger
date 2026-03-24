@@ -69,7 +69,6 @@ class ChatInfoView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
-        Get.find(),
       ),
       tag: id.val,
       global: !Get.isRegistered<ChatInfoController>(tag: id.val),
@@ -242,17 +241,11 @@ class ChatInfoView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DirectLinkField(
-                c.chat?.chat.value.directLink,
+                // c.chat?.chat.value.directLink,
+                [],
                 key: Key('DirectLinkField'),
-                onSubmit: (s) async {
-                  if (s == null) {
-                    await c.deleteChatDirectLink();
-                  } else {
-                    await c.createChatDirectLink(s);
-                  }
-                },
-                background: c.background.value,
-                canAddMore: false,
+                onAdded: c.createChatDirectLink,
+                onRemoved: c.deleteChatDirectLink,
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),

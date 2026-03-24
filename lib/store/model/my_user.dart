@@ -45,11 +45,6 @@ class MyUserVersion extends Version {
   MyUserVersion(super.val);
 }
 
-/// Version of a [ChatDirectLink]'s state.
-class ChatDirectLinkVersion extends Version {
-  ChatDirectLinkVersion(super.val);
-}
-
 /// Cursor of blocked [User]s.
 class BlocklistCursor extends NewType<String> {
   BlocklistCursor(super.val);

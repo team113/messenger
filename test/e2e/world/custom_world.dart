@@ -23,6 +23,7 @@ import 'package:messenger/api/backend/extension/credentials.dart';
 import 'package:messenger/api/backend/schema.graphql.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/contact.dart';
+import 'package:messenger/domain/model/link.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -90,8 +91,8 @@ class CustomUser {
   /// [UserId] of this [CustomUser].
   final UserId userId;
 
-  /// [ChatDirectLinkSlug] of this [CustomUser], if any.
-  ChatDirectLinkSlug? slug;
+  /// [DirectLinkSlug] of this [CustomUser], if any.
+  DirectLinkSlug? slug;
 
   /// [UserPassword] this [CustomUser] uses, if any.
   UserPassword? password;

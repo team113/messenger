@@ -231,7 +231,7 @@ void main() async {
                 '__typename': 'ChatEventsVersioned',
                 'events': [
                   {
-                    '__typename': 'EventChatHidden',
+                    '__typename': 'ChatHiddenEvent',
                     'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
                     'at': DateTime.now().toString(),
                   },

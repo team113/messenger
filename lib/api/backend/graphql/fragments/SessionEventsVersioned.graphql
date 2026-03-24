@@ -20,16 +20,16 @@ fragment SessionEventsVersioned on SessionEventsVersioned {
         __typename
         id
         at
-        ... on EventSessionCreated {
+        ... on SessionCreatedEvent {
             userAgent
             remembered
             ip
         }
-        ... on EventSessionRefreshed {
+        ... on SessionRefreshedEvent {
             userAgent
             ip
         }
-        # ... on EventSessionDeleted { }
+        # ... on SessionDeletedEvent { }
     }
     ver
     listVer

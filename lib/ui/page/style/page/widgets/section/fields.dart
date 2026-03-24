@@ -189,7 +189,7 @@ class FieldsSection {
       const Headline(
         child: UserStatusCopyable(UserTextStatus.unchecked('Status')),
       ),
-      const Headline(child: DirectLinkField(null)),
+      const Headline(child: DirectLinkField([])),
       Headline(
         child: BlocklistRecordWidget(
           BlocklistRecord(

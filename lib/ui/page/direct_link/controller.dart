@@ -23,7 +23,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/user.dart';
+import '/domain/model/link.dart';
 import '/domain/service/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
@@ -32,17 +32,17 @@ import '/util/message_popup.dart';
 export 'view.dart';
 
 /// [Routes.chatDirectLink] page controller.
-class ChatDirectLinkController extends GetxController {
-  ChatDirectLinkController(String url, this._auth)
-    : slug = Rx(ChatDirectLinkSlug.tryParse(url));
+class DirectLinkController extends GetxController {
+  DirectLinkController(String url, this._auth)
+    : slug = Rx(DirectLinkSlug.tryParse(url));
 
-  /// [ChatDirectLinkSlug] of this controller.
-  final Rx<ChatDirectLinkSlug?> slug;
+  /// [DirectLinkSlug] of this controller.
+  final Rx<DirectLinkSlug?> slug;
 
   /// Authorization service used for signing up.
   final AuthService _auth;
 
-  /// [Sentry] transaction monitoring this [ChatDirectLinkController] readiness.
+  /// [Sentry] transaction monitoring this [DirectLinkController] readiness.
   final ISentrySpan _ready = Sentry.startTransaction(
     'ui.direct_link.ready',
     'ui',
@@ -53,11 +53,11 @@ class ChatDirectLinkController extends GetxController {
   void onReady() async {
     try {
       if (_auth.status.value.isSuccess) {
-        await _useChatDirectLink();
+        await _useDirectLink();
       } else if (_auth.status.value.isEmpty) {
         await _register();
         if (_auth.status.value.isSuccess) {
-          await _useChatDirectLink();
+          await _useDirectLink();
         }
       }
 
@@ -90,25 +90,29 @@ class ChatDirectLinkController extends GetxController {
 
   /// Uses the [slug] and redirects to the fetched [Routes.chats] page on
   /// success.
-  Future<void> _useChatDirectLink() async {
+  Future<void> _useDirectLink() async {
     final ISentrySpan span = _ready.startChild('use');
 
     try {
-      final Chat chat = await _auth.useChatDirectLink(slug.value!);
+      final Chat chat = await _auth.useDirectLink(slug.value!);
       router.dialog(
         chat,
         _auth.userId,
         link: slug.value,
         mode: RouteAs.insteadOfLast,
       );
-    } on UseChatDirectLinkException catch (e) {
+    } on UseDirectLinkException catch (e) {
       span.throwable = e;
       span.status = const SpanStatus.internalError();
 
-      if (e.code == UseChatDirectLinkErrorCode.unknownDirectLink) {
-        slug.value = null;
-      } else {
-        MessagePopup.error(e);
+      switch (e.code) {
+        case UseDirectLinkErrorCode.unknownDirectLink:
+          slug.value = null;
+          break;
+
+        default:
+          MessagePopup.error(e);
+          break;
       }
     } catch (e) {
       span.throwable = e;

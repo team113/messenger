@@ -575,7 +575,7 @@ class MyUserRepository extends DisposableInterface
     for (var e in events?.events ?? []) {
       final event = _myUserEvent(e);
 
-      if (event is EventUserEmailAdded) {
+      if (event is UserEmailAddedEvent) {
         if (event.confirmed) {
           myUser.value?.emails.confirmed.addIf(
             myUser.value?.emails.confirmed.contains(email) == false,
@@ -633,50 +633,6 @@ class MyUserRepository extends DisposableInterface
             : u?.phones.unconfirmed = v,
       ),
     );
-  }
-
-  @override
-  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('createChatDirectLink($slug)', '$runtimeType');
-
-    // Don't do optimism, as [slug] might be occupied, thus shouldn't set the
-    // link right away.
-    await Backoff.run(
-      () async {
-        await _graphQlProvider.createUserDirectLink(slug);
-      },
-      retryIf: (e) => e.isNetworkRelated,
-      retries: 10,
-    );
-
-    myUser.update(
-      (u) => u?.chatDirectLink = ChatDirectLink(
-        slug: slug,
-        createdAt: PreciseDateTime.now(),
-      ),
-    );
-  }
-
-  @override
-  Future<void> deleteChatDirectLink() async {
-    Log.debug('deleteChatDirectLink()', '$runtimeType');
-
-    final ChatDirectLink? link = myUser.value?.chatDirectLink;
-
-    myUser.update((u) => u?.chatDirectLink = null);
-
-    try {
-      await Backoff.run(
-        () async {
-          await _graphQlProvider.deleteUserDirectLink();
-        },
-        retryIf: (e) => e.isNetworkRelated,
-        retries: 10,
-      );
-    } catch (_) {
-      myUser.update((u) => u?.chatDirectLink = link);
-      rethrow;
-    }
   }
 
   @override
@@ -1033,83 +989,83 @@ class MyUserRepository extends DisposableInterface
 
       switch (event.kind) {
         case MyUserEventKind.nameUpdated:
-          event as EventUserNameUpdated;
+          event as UserNameUpdatedEvent;
           userEntity.value.name = event.name;
           put((u) => u..name = event.name);
           break;
 
         case MyUserEventKind.nameDeleted:
-          event as EventUserNameRemoved;
+          event as UserNameRemovedEvent;
           userEntity.value.name = null;
           put((u) => u..name = null);
           break;
 
         case MyUserEventKind.avatarUpdated:
-          event as EventUserAvatarUpdated;
+          event as UserAvatarUpdatedEvent;
           userEntity.value.avatar = event.avatar;
           put((u) => u..avatar = event.avatar);
           break;
 
         case MyUserEventKind.avatarDeleted:
-          event as EventUserAvatarRemoved;
+          event as UserAvatarRemovedEvent;
           userEntity.value.avatar = null;
           put((u) => u..avatar = null);
           break;
 
         case MyUserEventKind.bioUpdated:
-          event as EventUserBioUpdated;
+          event as UserBioUpdatedEvent;
           userEntity.value.bio = event.bio;
           put((u) => u..bio = event.bio);
           break;
 
         case MyUserEventKind.bioDeleted:
-          event as EventUserBioRemoved;
+          event as UserBioRemovedEvent;
           userEntity.value.bio = null;
           put((u) => u..bio = null);
           break;
 
         case MyUserEventKind.callCoverUpdated:
-          event as EventUserCallCoverUpdated;
+          event as UserCallCoverUpdatedEvent;
           userEntity.value.callCover = event.callCover;
           put((u) => u..callCover = event.callCover);
           break;
 
         case MyUserEventKind.callCoverDeleted:
-          event as EventUserCallCoverRemoved;
+          event as UserCallCoverRemovedEvent;
           userEntity.value.callCover = null;
           put((u) => u..callCover = null);
           break;
 
         case MyUserEventKind.presenceUpdated:
-          event as EventUserPresenceUpdated;
+          event as UserPresenceUpdatedEvent;
           userEntity.value.presence = event.presence;
           put((u) => u..presence = event.presence);
           break;
 
         case MyUserEventKind.statusUpdated:
-          event as EventUserStatusUpdated;
+          event as UserStatusUpdatedEvent;
           userEntity.value.status = event.status;
           put((u) => u..status = event.status);
           break;
 
         case MyUserEventKind.statusDeleted:
-          event as EventUserStatusRemoved;
+          event as UserStatusRemovedEvent;
           userEntity.value.status = null;
           put((u) => u..status = null);
           break;
 
         case MyUserEventKind.loginUpdated:
-          event as EventUserLoginUpdated;
+          event as UserLoginUpdatedEvent;
           userEntity.value.login = event.login;
           break;
 
         case MyUserEventKind.loginDeleted:
-          event as EventUserLoginRemoved;
+          event as UserLoginRemovedEvent;
           userEntity.value.login = null;
           break;
 
         case MyUserEventKind.emailAdded:
-          event as EventUserEmailAdded;
+          event as UserEmailAddedEvent;
           if (event.confirmed) {
             userEntity.value.emails.confirmed.addIf(
               !userEntity.value.emails.confirmed.contains(event.email),
@@ -1124,7 +1080,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.emailDeleted:
-          event as EventUserEmailRemoved;
+          event as UserEmailRemovedEvent;
           if (userEntity.value.emails.unconfirmed == event.email) {
             userEntity.value.emails.unconfirmed = null;
           }
@@ -1134,7 +1090,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.phoneAdded:
-          event as EventUserPhoneAdded;
+          event as UserPhoneAddedEvent;
           if (event.confirmed) {
             userEntity.value.phones.confirmed.addIf(
               !userEntity.value.phones.confirmed.contains(event.phone),
@@ -1149,7 +1105,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.phoneDeleted:
-          event as EventUserPhoneRemoved;
+          event as UserPhoneRemovedEvent;
           if (userEntity.value.phones.unconfirmed == event.phone) {
             userEntity.value.phones.unconfirmed = null;
           }
@@ -1159,7 +1115,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.passwordUpdated:
-          event as EventUserPasswordUpdated;
+          event as UserPasswordUpdatedEvent;
           userEntity.value.hasPassword = true;
 
           if (event.userId == myUser.value?.id) {
@@ -1168,23 +1124,23 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.userMuted:
-          event as EventUserMuted;
+          event as UserMutedEvent;
           userEntity.value.muted = event.until;
           break;
 
         case MyUserEventKind.unmuted:
-          event as EventUserUnmuted;
+          event as UserUnmutedEvent;
           userEntity.value.muted = null;
           break;
 
         case MyUserEventKind.cameOnline:
-          event as EventUserCameOnline;
+          event as UserCameOnlineEvent;
           userEntity.value.online = true;
           put((u) => u..online = true);
           break;
 
         case MyUserEventKind.cameOffline:
-          event as EventUserCameOffline;
+          event as UserCameOfflineEvent;
           userEntity.value.online = false;
           put(
             (u) => u
@@ -1194,36 +1150,26 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.unreadChatsCountUpdated:
-          event as EventUserUnreadChatsCountUpdated;
+          event as UserUnreadChatsCountUpdatedEvent;
           userEntity.value.unreadChatsCount = event.count;
           break;
 
         case MyUserEventKind.deleted:
-          event as EventUserDeleted;
+          event as UserDeletedEvent;
 
           if (event.userId == myUser.value?.id) {
             onUserDeleted();
           }
           break;
 
-        case MyUserEventKind.directLinkDeleted:
-          event as EventUserDirectLinkDeleted;
-          userEntity.value.chatDirectLink = null;
-          break;
-
-        case MyUserEventKind.directLinkUpdated:
-          event as EventUserDirectLinkUpdated;
-          userEntity.value.chatDirectLink = event.directLink;
-          break;
-
         case MyUserEventKind.welcomeMessageDeleted:
-          event as EventUserWelcomeMessageDeleted;
+          event as UserWelcomeMessageDeletedEvent;
           userEntity.value.welcomeMessage = null;
           put((u) => u..welcomeMessage = null);
           break;
 
         case MyUserEventKind.welcomeMessageUpdated:
-          event as EventUserWelcomeMessageUpdated;
+          event as UserWelcomeMessageUpdatedEvent;
 
           final message = WelcomeMessage(
             text: event.text == null
@@ -1286,119 +1232,104 @@ class MyUserRepository extends DisposableInterface
   MyUserEvent _myUserEvent(MyUserEventsVersionedMixin$Events e) {
     Log.trace('_myUserEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventUserNameUpdated') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserNameUpdated;
-      return EventUserNameUpdated(node.userId, node.name);
-    } else if (e.$$typename == 'EventUserNameRemoved') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserNameRemoved;
-      return EventUserNameRemoved(node.userId);
-    } else if (e.$$typename == 'EventUserAvatarUpdated') {
+    if (e.$$typename == 'UserNameUpdatedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserNameUpdatedEvent;
+      return UserNameUpdatedEvent(node.userId, node.name);
+    } else if (e.$$typename == 'UserNameRemovedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserNameRemovedEvent;
+      return UserNameRemovedEvent(node.userId);
+    } else if (e.$$typename == 'UserAvatarUpdatedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserAvatarUpdated;
-      return EventUserAvatarUpdated(node.userId, node.avatar.toModel());
-    } else if (e.$$typename == 'EventUserAvatarRemoved') {
+          e as MyUserEventsVersionedMixin$Events$UserAvatarUpdatedEvent;
+      return UserAvatarUpdatedEvent(node.userId, node.avatar.toModel());
+    } else if (e.$$typename == 'UserAvatarRemovedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserAvatarRemoved;
-      return EventUserAvatarRemoved(node.userId);
-    } else if (e.$$typename == 'EventUserBioUpdated') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserBioUpdated;
-      return EventUserBioUpdated(node.userId, node.bio, node.at);
-    } else if (e.$$typename == 'EventUserBioRemoved') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserBioRemoved;
-      return EventUserBioRemoved(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserCallCoverUpdated') {
+          e as MyUserEventsVersionedMixin$Events$UserAvatarRemovedEvent;
+      return UserAvatarRemovedEvent(node.userId);
+    } else if (e.$$typename == 'UserBioUpdatedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserBioUpdatedEvent;
+      return UserBioUpdatedEvent(node.userId, node.bio, node.at);
+    } else if (e.$$typename == 'UserBioRemovedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserBioRemovedEvent;
+      return UserBioRemovedEvent(node.userId, node.at);
+    } else if (e.$$typename == 'UserCallCoverUpdatedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
-      return EventUserCallCoverUpdated(node.userId, node.callCover.toModel());
-    } else if (e.$$typename == 'EventUserCallCoverRemoved') {
+          e as MyUserEventsVersionedMixin$Events$UserCallCoverUpdatedEvent;
+      return UserCallCoverUpdatedEvent(node.userId, node.callCover.toModel());
+    } else if (e.$$typename == 'UserCallCoverRemovedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserCallCoverRemoved;
-      return EventUserCallCoverRemoved(node.userId);
-    } else if (e.$$typename == 'EventUserPresenceUpdated') {
+          e as MyUserEventsVersionedMixin$Events$UserCallCoverRemovedEvent;
+      return UserCallCoverRemovedEvent(node.userId);
+    } else if (e.$$typename == 'UserPresenceUpdatedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserPresenceUpdated;
-      return EventUserPresenceUpdated(node.userId, node.presence);
-    } else if (e.$$typename == 'EventUserStatusUpdated') {
+          e as MyUserEventsVersionedMixin$Events$UserPresenceUpdatedEvent;
+      return UserPresenceUpdatedEvent(node.userId, node.presence);
+    } else if (e.$$typename == 'UserStatusUpdatedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserStatusUpdated;
-      return EventUserStatusUpdated(node.userId, node.status);
-    } else if (e.$$typename == 'EventUserStatusRemoved') {
+          e as MyUserEventsVersionedMixin$Events$UserStatusUpdatedEvent;
+      return UserStatusUpdatedEvent(node.userId, node.status);
+    } else if (e.$$typename == 'UserStatusRemovedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserStatusRemoved;
-      return EventUserStatusRemoved(node.userId);
-    } else if (e.$$typename == 'EventUserLoginUpdated') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserLoginUpdated;
-      return EventUserLoginUpdated(node.userId, node.login);
-    } else if (e.$$typename == 'EventUserLoginRemoved') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserLoginRemoved;
-      return EventUserLoginRemoved(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserEmailAdded') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserEmailAdded;
-      return EventUserEmailAdded(node.userId, node.email, node.confirmed);
-    } else if (e.$$typename == 'EventUserEmailRemoved') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserEmailRemoved;
-      return EventUserEmailRemoved(node.userId, node.email);
-    } else if (e.$$typename == 'EventUserPhoneAdded') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneAdded;
-      return EventUserPhoneAdded(node.userId, node.phone, node.confirmed);
-    } else if (e.$$typename == 'EventUserPhoneRemoved') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneRemoved;
-      return EventUserPhoneRemoved(node.userId, node.phone);
-    } else if (e.$$typename == 'EventUserPasswordUpdated') {
+          e as MyUserEventsVersionedMixin$Events$UserStatusRemovedEvent;
+      return UserStatusRemovedEvent(node.userId);
+    } else if (e.$$typename == 'UserLoginUpdatedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserLoginUpdatedEvent;
+      return UserLoginUpdatedEvent(node.userId, node.login);
+    } else if (e.$$typename == 'UserLoginRemovedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserLoginRemovedEvent;
+      return UserLoginRemovedEvent(node.userId, node.at);
+    } else if (e.$$typename == 'UserEmailAddedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserEmailAddedEvent;
+      return UserEmailAddedEvent(node.userId, node.email, node.confirmed);
+    } else if (e.$$typename == 'UserEmailRemovedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserEmailRemovedEvent;
+      return UserEmailRemovedEvent(node.userId, node.email);
+    } else if (e.$$typename == 'UserPhoneAddedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserPhoneAddedEvent;
+      return UserPhoneAddedEvent(node.userId, node.phone, node.confirmed);
+    } else if (e.$$typename == 'UserPhoneRemovedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserPhoneRemovedEvent;
+      return UserPhoneRemovedEvent(node.userId, node.phone);
+    } else if (e.$$typename == 'UserPasswordUpdatedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserPasswordUpdated;
-      return EventUserPasswordUpdated(node.userId);
-    } else if (e.$$typename == 'EventUserMuted') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserMuted;
-      return EventUserMuted(
+          e as MyUserEventsVersionedMixin$Events$UserPasswordUpdatedEvent;
+      return UserPasswordUpdatedEvent(node.userId);
+    } else if (e.$$typename == 'UserMutedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserMutedEvent;
+      return UserMutedEvent(
         node.userId,
         node.until.$$typename == 'MuteForeverDuration'
             ? MuteDuration.forever()
             : MuteDuration.until(
                 (node.until
-                        as MyUserEventsVersionedMixin$Events$EventUserMuted$Until$MuteUntilDuration)
+                        as MyUserEventsVersionedMixin$Events$UserMutedEvent$Until$MuteUntilDuration)
                     .until,
               ),
       );
-    } else if (e.$$typename == 'EventUserCameOffline') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserCameOffline;
-      return EventUserCameOffline(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserUnreadChatsCountUpdated') {
+    } else if (e.$$typename == 'UserCameOfflineEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserCameOfflineEvent;
+      return UserCameOfflineEvent(node.userId, node.at);
+    } else if (e.$$typename == 'UserUnreadChatsCountUpdatedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserUnreadChatsCountUpdated;
-      return EventUserUnreadChatsCountUpdated(node.userId, node.count);
-    } else if (e.$$typename == 'EventUserDirectLinkUpdated') {
+          e as MyUserEventsVersionedMixin$Events$UserUnreadChatsCountUpdatedEvent;
+      return UserUnreadChatsCountUpdatedEvent(node.userId, node.count);
+    } else if (e.$$typename == 'UserDeletedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserDeletedEvent;
+      return UserDeletedEvent(node.userId);
+    } else if (e.$$typename == 'UserUnmutedEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserUnmutedEvent;
+      return UserUnmutedEvent(node.userId);
+    } else if (e.$$typename == 'UserCameOnlineEvent') {
+      final node = e as MyUserEventsVersionedMixin$Events$UserCameOnlineEvent;
+      return UserCameOnlineEvent(node.userId);
+    } else if (e.$$typename == 'UserWelcomeMessageDeletedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserDirectLinkUpdated;
-      return EventUserDirectLinkUpdated(
-        node.userId,
-        ChatDirectLink(
-          slug: node.directLink.slug,
-          usageCount: node.directLink.usageCount,
-          createdAt: node.directLink.createdAt,
-        ),
-      );
-    } else if (e.$$typename == 'EventUserDirectLinkDeleted') {
+          e as MyUserEventsVersionedMixin$Events$UserWelcomeMessageDeletedEvent;
+      return UserWelcomeMessageDeletedEvent(node.userId, node.at);
+    } else if (e.$$typename == 'UserWelcomeMessageUpdatedEvent') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserDirectLinkDeleted;
-      return EventUserDirectLinkDeleted(node.userId);
-    } else if (e.$$typename == 'EventUserDeleted') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserDeleted;
-      return EventUserDeleted(node.userId);
-    } else if (e.$$typename == 'EventUserUnmuted') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserUnmuted;
-      return EventUserUnmuted(node.userId);
-    } else if (e.$$typename == 'EventUserCameOnline') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
-      return EventUserCameOnline(node.userId);
-    } else if (e.$$typename == 'EventUserWelcomeMessageDeleted') {
-      final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageDeleted;
-      return EventUserWelcomeMessageDeleted(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserWelcomeMessageUpdated') {
-      final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated;
-      return EventUserWelcomeMessageUpdated(
+          e as MyUserEventsVersionedMixin$Events$UserWelcomeMessageUpdatedEvent;
+      return UserWelcomeMessageUpdatedEvent(
         node.userId,
         node.at,
         node.text == null ? null : ChangedChatMessageText(node.text!.changed),

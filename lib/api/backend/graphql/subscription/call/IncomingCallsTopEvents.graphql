@@ -27,13 +27,13 @@ subscription IncomingCallsTopEvents($count: Int!) {
                 ...ChatCall
             }
         }
-        ... on EventIncomingChatCallsTopChatCallAdded {
+        ... on IncomingChatCallsTopChatCallAddedEvent {
             call {
                 __typename
                 ...ChatCall
             }
         }
-        ... on EventIncomingChatCallsTopChatCallRemoved {
+        ... on IncomingChatCallsTopChatCallRemovedEvent {
             call {
                 __typename
                 ...ChatCall

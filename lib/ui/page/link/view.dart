@@ -37,7 +37,7 @@ class LinkView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: LinkController(Get.find(), Get.find()),
+      init: LinkController(Get.find()),
       builder: (LinkController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -50,15 +50,9 @@ class LinkView extends StatelessWidget {
                 children: [
                   Obx(() {
                     return DirectLinkField(
-                      c.myUser.value?.chatDirectLink,
-                      onSubmit: (s) async {
-                        if (s == null) {
-                          await c.deleteChatDirectLink();
-                        } else {
-                          await c.createChatDirectLink(s);
-                        }
-                      },
-                      background: c.background.value,
+                      [],
+                      onAdded: c.createChatDirectLink,
+                      onRemoved: c.deleteChatDirectLink,
                     );
                   }),
                   const SizedBox(height: 16),

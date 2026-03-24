@@ -25,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/link.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
@@ -1026,11 +1027,11 @@ class AuthService extends Dependency {
     }
   }
 
-  /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
-  /// a new [Chat]-dialog or joining an existing [Chat]-group.
-  Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('useChatDirectLink($slug)', '$runtimeType');
-    return await _authRepository.useChatDirectLink(slug);
+  /// Uses the specified [DirectLink] by the authenticated [MyUser] creating a
+  /// new [Chat]-dialog or joining an existing [Chat]-group.
+  Future<Chat> useDirectLink(DirectLinkSlug slug) async {
+    Log.debug('useDirectLink($slug)', '$runtimeType');
+    return await _authRepository.useDirectLink(slug);
   }
 
   /// Puts the provided [creds] to [accounts].

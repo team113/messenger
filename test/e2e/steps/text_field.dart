@@ -20,6 +20,7 @@ import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/link.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
@@ -140,7 +141,7 @@ StepDefinitionGeneric fillFieldWithRandomLogin = when1<WidgetKey, CustomWorld>(
 
       do {
         random = UserLogin.tryParse(
-          ChatDirectLinkSlug.generate(18).val.toLowerCase(),
+          DirectLinkSlug.generate(18).val.toLowerCase(),
         );
       } while (random == null);
 

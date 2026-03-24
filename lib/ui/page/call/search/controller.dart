@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/link.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
@@ -502,7 +503,7 @@ class SearchController extends GetxController {
 
   /// Searches the [User]s based on the provided [query].
   ///
-  /// Query may be a [UserNum], [UserName], [UserLogin] or [ChatDirectLinkSlug].
+  /// Query may be a [UserNum], [UserName], [UserLogin] or [DirectLinkSlug].
   void _searchUsers(String query) {
     _usersSearchWorker?.dispose();
     _usersSearchWorker = null;
@@ -511,7 +512,7 @@ class SearchController extends GetxController {
       final UserNum? num = UserNum.tryParse(query);
       final UserName? name = UserName.tryParse(query);
       final UserLogin? login = UserLogin.tryParse(query.toLowerCase());
-      final ChatDirectLinkSlug? link = ChatDirectLinkSlug.tryParse(query);
+      final DirectLinkSlug? link = DirectLinkSlug.tryParse(query);
 
       if (num != null || name != null || login != null || link != null) {
         searchStatus.value = searchStatus.value.isSuccess
@@ -577,11 +578,11 @@ class SearchController extends GetxController {
         }
 
         // Account searching via [MyUser.chatDirectLink].
-        final link = ChatDirectLinkSlug.tryParse(trimmed);
-        if (link != null && myUser.chatDirectLink?.slug == link) {
-          chats.value = {monologId: monolog, ...chats};
-          return;
-        }
+        // final link = DirectLinkSlug.tryParse(trimmed);
+        // if (link != null && myUser.chatDirectLink?.slug == link) {
+        //   chats.value = {monologId: monolog, ...chats};
+        //   return;
+        // }
 
         final String title = monolog.title();
         final String? name = myUser.name?.val;
@@ -765,7 +766,7 @@ class SearchController extends GetxController {
         final RxChat? monolog = chats[_chatService.monolog];
 
         // Display users found globally in [chats] as [_matchesQuery] cannot
-        // filter by [ChatDirectLink] and [UserLogin].
+        // filter by [DirectLink] and [UserLogin].
         chats.value = {
           _chatService.monolog: ?monolog,
           for (final c in sorted) c.chat.value.id: c,

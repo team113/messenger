@@ -676,7 +676,7 @@ class ContactRepository extends DisposableInterface
 
           for (var node in versioned.events) {
             if (node.kind == ChatContactEventKind.created) {
-              node as EventChatContactCreated;
+              node as ChatContactCreatedEvent;
               entities[node.contactId] = DtoChatContact(
                 ChatContact(node.contactId, name: node.name),
                 versioned.ver,
@@ -711,32 +711,32 @@ class ContactRepository extends DisposableInterface
 
             switch (node.kind) {
               case ChatContactEventKind.emailAdded:
-                node as EventChatContactEmailAdded;
+                node as ChatContactEmailAddedEvent;
                 entity.value.emails.add(node.email);
                 break;
 
               case ChatContactEventKind.emailRemoved:
-                node as EventChatContactEmailRemoved;
+                node as ChatContactEmailRemovedEvent;
                 entity.value.emails.remove(node.email);
                 break;
 
               case ChatContactEventKind.favorited:
-                node as EventChatContactFavorited;
+                node as ChatContactFavoritedEvent;
                 entity.value.favoritePosition = node.position;
                 break;
 
               case ChatContactEventKind.groupAdded:
-                node as EventChatContactGroupAdded;
+                node as ChatContactGroupAddedEvent;
                 entity.value.groups.add(node.group);
                 break;
 
               case ChatContactEventKind.groupRemoved:
-                node as EventChatContactGroupRemoved;
+                node as ChatContactGroupRemovedEvent;
                 entity.value.groups.removeWhere((e) => e.id == node.groupId);
                 break;
 
               case ChatContactEventKind.nameUpdated:
-                node as EventChatContactNameUpdated;
+                node as ChatContactNameUpdatedEvent;
                 entity.value.name = node.name;
 
                 // Add the [entity.value] to the [node.user], as [User] has no
@@ -747,12 +747,12 @@ class ContactRepository extends DisposableInterface
                 break;
 
               case ChatContactEventKind.phoneAdded:
-                node as EventChatContactPhoneAdded;
+                node as ChatContactPhoneAddedEvent;
                 entity.value.phones.add(node.phone);
                 break;
 
               case ChatContactEventKind.phoneRemoved:
-                node as EventChatContactPhoneRemoved;
+                node as ChatContactPhoneRemovedEvent;
                 entity.value.phones.remove(node.phone);
                 break;
 
@@ -761,7 +761,7 @@ class ContactRepository extends DisposableInterface
                 break;
 
               case ChatContactEventKind.userAdded:
-                node as EventChatContactUserAdded;
+                node as ChatContactUserAddedEvent;
                 entity.value.users.add(node.user);
 
                 // Add the [entity.value] to the [node.user], as [User] has no
@@ -770,7 +770,7 @@ class ContactRepository extends DisposableInterface
                 break;
 
               case ChatContactEventKind.userRemoved:
-                node as EventChatContactUserRemoved;
+                node as ChatContactUserRemovedEvent;
                 entity.value.users.removeWhere((e) => e.id == node.userId);
 
                 // Remove the [node.contactId] from the [node.userId], as [User]
@@ -933,85 +933,85 @@ class ContactRepository extends DisposableInterface
   ChatContactEvent _contactEvent(ChatContactEventsVersionedMixin$Events e) {
     Log.trace('_contactEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventChatContactCreated') {
+    if (e.$$typename == 'ChatContactCreatedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactCreated;
-      return EventChatContactCreated(node.contactId, node.at, node.name);
+          e as ChatContactEventsVersionedMixin$Events$ChatContactCreatedEvent;
+      return ChatContactCreatedEvent(node.contactId, node.at, node.name);
     } else if (e.$$typename == 'EventChatContactDeleted') {
       return EventChatContactDeleted(e.contactId, e.at);
-    } else if (e.$$typename == 'EventChatContactEmailAdded') {
+    } else if (e.$$typename == 'ChatContactEmailAddedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactEmailAdded;
-      return EventChatContactEmailAdded(
+          e as ChatContactEventsVersionedMixin$Events$ChatContactEmailAddedEvent;
+      return ChatContactEmailAddedEvent(
         node.contactId,
         node.at,
         node.email.email,
       );
-    } else if (e.$$typename == 'EventChatContactEmailRemoved') {
+    } else if (e.$$typename == 'ChatContactEmailRemovedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactEmailRemoved;
-      return EventChatContactEmailRemoved(
+          e as ChatContactEventsVersionedMixin$Events$ChatContactEmailRemovedEvent;
+      return ChatContactEmailRemovedEvent(
         node.contactId,
         node.at,
         node.email.email,
       );
-    } else if (e.$$typename == 'EventChatContactFavorited') {
+    } else if (e.$$typename == 'ChatContactFavoritedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactFavorited;
-      return EventChatContactFavorited(node.contactId, node.at, node.position);
-    } else if (e.$$typename == 'EventChatContactGroupAdded') {
+          e as ChatContactEventsVersionedMixin$Events$ChatContactFavoritedEvent;
+      return ChatContactFavoritedEvent(node.contactId, node.at, node.position);
+    } else if (e.$$typename == 'ChatContactGroupAddedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactGroupAdded;
-      return EventChatContactGroupAdded(
+          e as ChatContactEventsVersionedMixin$Events$ChatContactGroupAddedEvent;
+      return ChatContactGroupAddedEvent(
         node.contactId,
         node.at,
         Chat(node.group.id),
       );
-    } else if (e.$$typename == 'EventChatContactGroupRemoved') {
+    } else if (e.$$typename == 'ChatContactGroupRemovedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactGroupRemoved;
-      return EventChatContactGroupRemoved(
+          e as ChatContactEventsVersionedMixin$Events$ChatContactGroupRemovedEvent;
+      return ChatContactGroupRemovedEvent(
         node.contactId,
         node.at,
         node.groupId,
       );
-    } else if (e.$$typename == 'EventChatContactNameUpdated') {
+    } else if (e.$$typename == 'ChatContactNameUpdatedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactNameUpdated;
-      return EventChatContactNameUpdated(node.contactId, node.at, node.name);
-    } else if (e.$$typename == 'EventChatContactPhoneAdded') {
+          e as ChatContactEventsVersionedMixin$Events$ChatContactNameUpdatedEvent;
+      return ChatContactNameUpdatedEvent(node.contactId, node.at, node.name);
+    } else if (e.$$typename == 'ChatContactPhoneAddedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactPhoneAdded;
-      return EventChatContactPhoneAdded(
+          e as ChatContactEventsVersionedMixin$Events$ChatContactPhoneAddedEvent;
+      return ChatContactPhoneAddedEvent(
         node.contactId,
         node.at,
         node.phone.phone,
       );
-    } else if (e.$$typename == 'EventChatContactPhoneRemoved') {
+    } else if (e.$$typename == 'ChatContactPhoneRemovedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactPhoneRemoved;
-      return EventChatContactPhoneRemoved(
+          e as ChatContactEventsVersionedMixin$Events$ChatContactPhoneRemovedEvent;
+      return ChatContactPhoneRemovedEvent(
         node.contactId,
         node.at,
         node.phone.phone,
       );
     } else if (e.$$typename == 'EventChatContactUnfavorited') {
       return EventChatContactUnfavorited(e.contactId, e.at);
-    } else if (e.$$typename == 'EventChatContactUserAdded') {
+    } else if (e.$$typename == 'ChatContactUserAddedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
+          e as ChatContactEventsVersionedMixin$Events$ChatContactUserAddedEvent;
       _userRepo.put(e.user.toDto());
 
-      return EventChatContactUserAdded(
+      return ChatContactUserAddedEvent(
         node.contactId,
         node.at,
         node.user.toModel(),
       );
-    } else if (e.$$typename == 'EventChatContactUserRemoved') {
+    } else if (e.$$typename == 'ChatContactUserRemovedEvent') {
       var node =
-          e as ChatContactEventsVersionedMixin$Events$EventChatContactUserRemoved;
+          e as ChatContactEventsVersionedMixin$Events$ChatContactUserRemovedEvent;
 
-      return EventChatContactUserRemoved(node.contactId, node.at, node.userId);
+      return ChatContactUserRemovedEvent(node.contactId, node.at, node.userId);
     } else {
       throw UnimplementedError('Unknown ContactEvent: ${e.$$typename}');
     }

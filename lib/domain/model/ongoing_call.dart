@@ -779,7 +779,7 @@ class OngoingCall {
                 for (final ChatCallEvent event in versioned.events) {
                   switch (event.kind) {
                     case ChatCallEventKind.roomReady:
-                      final node = event as EventChatCallRoomReady;
+                      final node = event as ChatCallRoomReadyEvent;
 
                       if (!_background) {
                         await _joinRoom(node.joinLink);
@@ -789,7 +789,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.finished:
-                      final node = event as EventChatCallFinished;
+                      final node = event as ChatCallFinishedEvent;
                       if (node.chatId == chatId.value) {
                         calls.removeCredentials(node.call.chatId, node.call.id);
                         calls.remove(chatId.value);
@@ -797,7 +797,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.memberLeft:
-                      final node = event as EventChatCallMemberLeft;
+                      final node = event as ChatCallMemberLeftEvent;
                       if (me.id.userId == node.user.id &&
                           me.id.deviceId == node.deviceId) {
                         calls.remove(chatId.value);
@@ -820,7 +820,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.memberJoined:
-                      final node = event as EventChatCallMemberJoined;
+                      final node = event as ChatCallMemberJoinedEvent;
 
                       final CallMemberId redialedId = CallMemberId(
                         node.user.id,
@@ -861,7 +861,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.handLowered:
-                      final node = event as EventChatCallHandLowered;
+                      final node = event as ChatCallHandLoweredEvent;
 
                       // Ignore the event, if it's our hand and is already lowered.
                       if (node.user.id == _me.userId &&
@@ -885,7 +885,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.handRaised:
-                      final node = event as EventChatCallHandRaised;
+                      final node = event as ChatCallHandRaisedEvent;
 
                       // Ignore the event, if it's our hand and is already raised.
                       if (node.user.id == _me.userId &&
@@ -909,7 +909,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.declined:
-                      final node = event as EventChatCallDeclined;
+                      final node = event as ChatCallDeclinedEvent;
                       final CallMemberId id = CallMemberId(node.user.id, null);
                       if (members[id]?.isConnected.value == false) {
                         members.remove(id)?.dispose();
@@ -917,7 +917,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.callMoved:
-                      final node = event as EventChatCallMoved;
+                      final node = event as ChatCallMovedEvent;
                       chatId.value = node.newChatId;
                       call.value = node.newCall;
 
@@ -933,12 +933,12 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.redialed:
-                      final node = event as EventChatCallMemberRedialed;
+                      final node = event as ChatCallMemberRedialedEvent;
                       _addDialing(node.user.id);
                       break;
 
                     case ChatCallEventKind.answerTimeoutPassed:
-                      final node = event as EventChatCallAnswerTimeoutPassed;
+                      final node = event as ChatCallAnswerTimeoutPassedEvent;
 
                       if (node.user?.id != null) {
                         final CallMemberId id = CallMemberId(
@@ -963,11 +963,11 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.conversationStarted:
-                      // TODO: Implement [EventChatCallConversationStarted].
+                      // TODO: Implement [ChatCallConversationStartedEvent].
                       break;
 
                     case ChatCallEventKind.undialed:
-                      final node = event as EventChatCallMemberUndialed;
+                      final node = event as ChatCallMemberUndialedEvent;
 
                       final CallMemberId id = CallMemberId(node.user.id, null);
                       if (members[id]?.isConnected.value == false) {
@@ -1886,7 +1886,7 @@ class OngoingCall {
           // In case a new link will be sent shortly.
           connectionLost.value = true;
 
-          // Awaiting 5 seconds for another `EventChatCallRoomReady` to come in
+          // Awaiting 5 seconds for another `ChatCallRoomReadyEvent` to come in
           // case there's a new room being opened instead of the closed one.
           await Future.delayed(Duration(seconds: 4));
 

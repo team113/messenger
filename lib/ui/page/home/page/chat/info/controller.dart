@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -29,12 +28,12 @@ import '/api/backend/schema.dart'
     show CropAreaInput, PointInput, UpdateChatAvatarErrorCode;
 import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
+import '/domain/model/link.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
@@ -59,7 +58,6 @@ class ChatInfoController extends GetxController {
     this._authService,
     this._callService,
     this._myUserService,
-    this._settingsRepo,
   );
 
   /// ID of the [Chat] this page is about.
@@ -135,9 +133,6 @@ class ChatInfoController extends GetxController {
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
-  /// Settings repository, used to retrieve the [background].
-  final AbstractSettingsRepository _settingsRepo;
-
   /// Worker to react on [chat] changes.
   Worker? _worker;
 
@@ -183,9 +178,6 @@ class ChatInfoController extends GetxController {
 
   /// Indicates whether the [Chat.members] have a next page.
   RxBool get haveNext => chat?.members.hasNext ?? RxBool(false);
-
-  /// Returns the current background's [Uint8List] value.
-  Rx<Uint8List?> get background => _settingsRepo.background;
 
   /// Indicates whether the [Chat.avatar] and [Chat.name] can be edited.
   bool get canEdit => !isMonolog;
@@ -439,16 +431,16 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug]
+  /// Creates a new [ChatDirectLink] with the specified [DirectLinkSlug]
   /// and deletes the current active [ChatDirectLink] of the given [Chat]-group
   /// (if any).
-  Future<void> createChatDirectLink(ChatDirectLinkSlug? slug) async {
-    await _chatService.createChatDirectLink(chatId, slug!);
+  Future<void> createChatDirectLink(DirectLinkSlug slug) async {
+    // await _chatService.createChatDirectLink(chatId, slug!);
   }
 
   /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
-  Future<void> deleteChatDirectLink() async {
-    await _chatService.deleteChatDirectLink(chatId);
+  Future<void> deleteChatDirectLink(DirectLinkSlug slug) async {
+    // await _chatService.deleteChatDirectLink(chatId);
   }
 
   /// Uploads the current edits ([avatarCrop], [avatarImage] and
