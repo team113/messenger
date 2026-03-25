@@ -310,7 +310,6 @@ class IntroductionView extends StatelessWidget {
     return ReactiveTextField(
       state: c.link,
       onSuffixPressed: copy,
-      // selectable: c.myUser.value?.chatDirectLink != null,
       trailing: PlatformUtils.isMobile
           ? const SvgIcon(SvgIcons.share)
           : const SvgIcon(SvgIcons.copy),

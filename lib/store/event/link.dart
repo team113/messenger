@@ -127,7 +127,7 @@ class DirectLinkLocationUpdatedEvent extends DirectLinkEvent {
   DirectLinkEventKind get kind => DirectLinkEventKind.locationUpdated;
 }
 
-/// Event of [DirectLink.stats] being updated.
+/// Event of [DirectLink.visitors] or different stats being updated.
 class DirectLinkStatsUpdatedEvent extends DirectLinkEvent {
   const DirectLinkStatsUpdatedEvent(super.slug, super.link, super.at);
 

@@ -111,8 +111,8 @@ class BlocklistRecordAddedEvent extends BlocklistEvent {
 
 /// Event of a [BlocklistRecord] being removed from blocklist of the
 /// authenticated [MyUser].
-class EventBlocklistRecordRemoved extends BlocklistEvent {
-  const EventBlocklistRecordRemoved(super.user, super.at);
+class BlocklistRecordRemovedEvent extends BlocklistEvent {
+  const BlocklistRecordRemovedEvent(super.user, super.at);
 
   @override
   BlocklistEventKind get kind => BlocklistEventKind.recordRemoved;

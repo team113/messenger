@@ -967,7 +967,7 @@ class UpdateDirectLinkException
         return 'label_unknown_chat_direct_link'.l10n;
 
       case UpdateDirectLinkErrorCode.occupied:
-        return toString();
+        return 'err_chat_direct_link_occupied'.l10n;
 
       case UpdateDirectLinkErrorCode.unknownUser:
         return toString();
@@ -994,7 +994,7 @@ class UpdateGroupDirectLinkException
         return 'err_unknown'.l10n;
 
       case UpdateGroupDirectLinkErrorCode.occupied:
-        return toString();
+        return 'err_chat_direct_link_occupied'.l10n;
 
       case UpdateGroupDirectLinkErrorCode.notGroup:
         return toString();

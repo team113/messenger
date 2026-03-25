@@ -29,12 +29,15 @@ import 'disposable_service.dart';
 class LinkService extends Dependency {
   LinkService(this._linkRepository);
 
+  /// [AbstractLinkRepository] maintaining the [DirectLink]s.
   final AbstractLinkRepository _linkRepository;
 
   /// Listens to the updates of [DirectLink]s for the provided [ChatId] while
   /// the returned [Stream] is listened to.
   Stream<void> updatesFor(ChatId id) => _linkRepository.updatesFor(id);
 
+  /// Returns [DirectLink]s owned by the authenticated [MyUser] or the specified
+  /// [Chat]-group.
   Paginated<DirectLinkSlug, DirectLink> links({
     UserId? userId,
     ChatId? chatId,
@@ -43,11 +46,15 @@ class LinkService extends Dependency {
     return _linkRepository.links(userId: userId, chatId: chatId);
   }
 
+  /// Creates, updates or disabled the specified [DirectLink] owned by the
+  /// authenticated [MyUser].
   Future<void> updateLink(DirectLinkSlug slug, UserId? userId) async {
     Log.debug('updateLink($slug, $userId)', '$runtimeType');
     return await _linkRepository.updateLink(slug, userId);
   }
 
+  /// Creates, updates or disables the current [DirectLink] of the specified
+  /// [Chat]-group.
   Future<void> updateGroupLink(ChatId groupId, DirectLinkSlug? slug) async {
     Log.debug('updateGroupLink($groupId, $slug)', '$runtimeType');
     return await _linkRepository.updateGroupLink(groupId, slug);

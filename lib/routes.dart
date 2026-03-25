@@ -586,7 +586,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MonologDriftProvider(Get.find(), Get.find()));
               deps.put(DraftDriftProvider(Get.find(), scoped));
               deps.put(SessionDriftProvider(Get.find(), scoped));
-              await deps.put(VersionDriftProvider(Get.find())).init();
+              final versionProvider = deps.put(
+                VersionDriftProvider(Get.find()),
+              );
+              await versionProvider.init();
 
               final AbstractSettingsRepository settingsRepository = deps
                   .put<AbstractSettingsRepository>(
@@ -666,6 +669,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                       Get.find(),
                     ),
                   );
+              final AbstractLinkRepository linkRepository = deps
+                  .put<AbstractLinkRepository>(
+                    LinkRepository(graphQlProvider, versionProvider, me: me),
+                  );
 
               final AbstractSessionRepository sessionRepository = deps
                   .put<AbstractSessionRepository>(
@@ -685,6 +692,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               );
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
+              deps.put(LinkService(linkRepository));
 
               final ChatService chatService = deps.put(
                 ChatService(chatRepository, Get.find()),

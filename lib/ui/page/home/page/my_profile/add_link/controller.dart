@@ -24,6 +24,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
 
+/// Controller of a [AddLinkView] modal.
 class AddLinkController extends GetxController {
   AddLinkController({this.onAdded, this.pop});
 

@@ -31,7 +31,7 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
-/// [Routes.chatDirectLink] page controller.
+/// [Routes.directLink] page controller.
 class DirectLinkController extends GetxController {
   DirectLinkController(String url, this._auth)
     : slug = Rx(DirectLinkSlug.tryParse(url));

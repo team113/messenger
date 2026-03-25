@@ -32,6 +32,7 @@ import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/link.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/session.dart';
 import '/domain/service/user.dart';
@@ -73,7 +74,8 @@ class SearchController extends GetxController {
     this._userService,
     this._contactService,
     this._myUserService,
-    this._sessionService, {
+    this._sessionService,
+    this._linkService, {
     required this.categories,
     this.chat,
     this.onSelected,
@@ -192,11 +194,17 @@ class SearchController extends GetxController {
   /// [ChatContact]s service searching the [ChatContact]s.
   final ContactService _contactService;
 
-  /// [MyUserService] searching [myUser].
+  /// [MyUserService] searching [MyUser].
   final MyUserService _myUserService;
 
   /// [SessionService] for checking the current [_connected] status.
   final SessionService _sessionService;
+
+  /// [LinkService] for searching for [User]s and [Chat]s by [DirectLink]s.
+  final LinkService _linkService;
+
+  /// [Paginated] for [DirectLink]s owned by [MyUser] used to search by those.
+  late final Paginated<DirectLinkSlug, DirectLink> _myLinks;
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService.me;
@@ -270,6 +278,11 @@ class SearchController extends GetxController {
       _ensureScrollable();
       populate();
     }
+
+    // Ensure [DirectLink]s leading to our user are initialized, because those
+    // are used to search monolog by the link.
+    _myLinks = _linkService.links(userId: me);
+    _myLinks.ensureInitialized();
 
     super.onInit();
   }
@@ -577,12 +590,14 @@ class SearchController extends GetxController {
           return;
         }
 
-        // Account searching via [MyUser.chatDirectLink].
-        // final link = DirectLinkSlug.tryParse(trimmed);
-        // if (link != null && myUser.chatDirectLink?.slug == link) {
-        //   chats.value = {monologId: monolog, ...chats};
-        //   return;
-        // }
+        // Account searching via [DirectLink]s.
+        final link = DirectLinkSlug.tryParse(trimmed);
+        if (link != null) {
+          if (_myLinks.values.any((e) => e.slug == link)) {
+            chats.value = {monologId: monolog, ...chats};
+          }
+          return;
+        }
 
         final String title = monolog.title();
         final String? name = myUser.name?.val;

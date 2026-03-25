@@ -31,7 +31,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View displaying a provided [String] in a QR code format.
+/// View displaying a [DirectLink] input.
 class AddLinkView extends StatelessWidget {
   const AddLinkView({super.key, this.onAdded});
 

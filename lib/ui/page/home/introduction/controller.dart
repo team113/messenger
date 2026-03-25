@@ -51,8 +51,6 @@ class IntroductionController extends GetxController {
   /// [TextFieldState] of the link to use in [createLink] method.
   late final TextFieldState link = TextFieldState(
     text: '$_origin${myUser.value?.num.val ?? DirectLinkSlug.generate(10).val}',
-    // text:
-    //     '$_origin${myUser.value?.chatDirectLink?.slug.val ?? myUser.value?.num.val ?? DirectLinkSlug.generate(10).val}',
     editable: false,
   );
 
@@ -101,7 +99,7 @@ class IntroductionController extends GetxController {
     super.onClose();
   }
 
-  /// Creates a [ChatDirectLink] from the [link].
+  /// Creates a [DirectLink] from the [link].
   Future<void> createLink() async {
     final String text = link.text.replaceFirst(_origin, '');
 

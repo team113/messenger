@@ -16,6 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/schema.graphql.dart'
+    show DirectLinkLocationInput;
 import 'package:messenger/domain/model/link.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -94,7 +96,10 @@ Future<void> _setCredentialTo(
 
     case TestCredential.directLink:
       user.slug ??= DirectLinkSlug.generate();
-      // await provider.createUserDirectLink(user.slug!);
+      await provider.updateDirectLink(
+        user.slug!,
+        DirectLinkLocationInput(userId: user.userId),
+      );
       break;
 
     case TestCredential.num:

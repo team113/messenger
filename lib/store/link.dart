@@ -51,11 +51,14 @@ class LinkRepository extends DisposableInterface
   /// to.
   final UserId me;
 
+  /// [GraphQlProvider] used to operate with API in order to create links.
   final GraphQlProvider _graphQlProvider;
 
   /// [VersionDriftProvider] used to store blocked [User]s list related data.
   final VersionDriftProvider _versionLocal;
 
+  /// [PaginatedImpl]s for [DirectLink] lists sorted by their [_LinkDestination]
+  /// keys.
   final Map<
     _LinkDestination,
     PaginatedImpl<DirectLinkSlug, DirectLink, DirectLink, DirectLinksCursor>
@@ -261,10 +264,7 @@ class LinkRepository extends DisposableInterface
     return _graphQlProvider.directLinksEvents(chatId: chatId).asyncExpand((
       event,
     ) async* {
-      Log.debug(
-        'TRACE _directLinksRemoteEvents(): ${event.data}',
-        '$runtimeType',
-      );
+      Log.trace('_directLinksRemoteEvents(): ${event.data}', '$runtimeType');
 
       var events = DirectLinksEvents$Subscription.fromJson(
         event.data!,
@@ -293,7 +293,7 @@ class LinkRepository extends DisposableInterface
   DirectLinkEvent _directLinkRemoteEvent(
     DirectLinkVersionedEventsMixin$Events e,
   ) {
-    Log.trace('chatEvent($e)', '$runtimeType');
+    Log.trace('_directLinkRemoteEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'DirectLinkCreatedEvent') {
       return DirectLinkCreatedEvent(

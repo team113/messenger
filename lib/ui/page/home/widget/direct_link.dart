@@ -43,8 +43,8 @@ import 'field_button.dart';
 
 /// [ReactiveTextField] displaying the provided [links].
 ///
-/// If [link] is `null`, generates and displays a random [DirectLinkSlug] as the
-/// first one.
+/// If [links] are empty, generates and displays a random [DirectLinkSlug] as
+/// the first one.
 class DirectLinkField extends StatefulWidget {
   const DirectLinkField(
     this.links, {
@@ -414,6 +414,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     }
   }
 
+  /// Invokes [DirectLinkField.onMore] when [_scrollController] hits the bottom
+  /// scrolling window, thus paginating the links.
   Future<void> _scrollListener() async {
     if (_scrollController.hasClients) {
       final position = _scrollController.position.pixels;

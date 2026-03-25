@@ -22,12 +22,19 @@ import 'paginated.dart';
 
 /// [DirectLink] repository interface.
 abstract class AbstractLinkRepository {
+  /// Returns [DirectLink]s owned by the authenticated [MyUser] or the specified
+  /// [Chat]-group.
   Paginated<DirectLinkSlug, DirectLink> links({UserId? userId, ChatId? chatId});
 
   /// Listens to the updates of [DirectLink]s for the provided [ChatId] while
   /// the returned [Stream] is listened to.
   Stream<void> updatesFor(ChatId id);
 
+  /// Creates, updates or disabled the specified [DirectLink] owned by the
+  /// authenticated [MyUser].
   Future<void> updateLink(DirectLinkSlug slug, UserId? userId);
+
+  /// Creates, updates or disables the current [DirectLink] of the specified
+  /// [Chat]-group.
   Future<void> updateGroupLink(ChatId groupId, DirectLinkSlug? slug);
 }

@@ -1150,7 +1150,7 @@ mixin UserGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [BlocklistEvent] may be produced on success:
-  /// - [EventBlocklistRecordRemoved].
+  /// - [BlocklistRecordRemovedEvent].
   ///
   /// Idempotent
   ///

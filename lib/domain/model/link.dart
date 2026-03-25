@@ -27,7 +27,7 @@ import 'user.dart';
 
 part 'link.g.dart';
 
-/// Direct link to a `Chat`.
+/// Direct link to a [Chat].
 @JsonSerializable()
 class DirectLink implements Comparable<DirectLink> {
   DirectLink({

@@ -298,8 +298,8 @@ class BlocklistRepository extends DisposableInterface
       final node =
           e as BlocklistEventsVersionedMixin$Events$BlocklistRecordAddedEvent;
       return BlocklistRecordAddedEvent(node.user.toDto(), node.at, node.reason);
-    } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
-      return EventBlocklistRecordRemoved(e.user.toDto(), e.at);
+    } else if (e.$$typename == 'BlocklistRecordRemovedEvent') {
+      return BlocklistRecordRemovedEvent(e.user.toDto(), e.at);
     } else {
       throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
     }
@@ -351,7 +351,7 @@ class BlocklistRepository extends DisposableInterface
                 break;
 
               case BlocklistEventKind.recordRemoved:
-                event as EventBlocklistRecordRemoved;
+                event as BlocklistRecordRemovedEvent;
                 --count.value;
                 remove(event.user.id);
                 break;
