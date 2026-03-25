@@ -77,7 +77,7 @@ class IntroductionView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('IntroductionView'),
-      init: IntroductionController(Get.find(), initial: initial),
+      init: IntroductionController(Get.find(), Get.find(), initial: initial),
       builder: (IntroductionController c) {
         return Obx(() {
           final Widget header;

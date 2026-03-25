@@ -251,6 +251,7 @@ class MyProfileController extends GetxController {
   /// Indicator whether mute/unmute hotkey is being recorded right now.
   final RxBool hotKeyRecording = RxBool(false);
 
+  /// [Paginated] containing the [DirectLink] leading to this [MyUser].
   late final Paginated<DirectLinkSlug, DirectLink> links;
 
   /// Service managing current [Credentials].
@@ -560,7 +561,7 @@ class MyProfileController extends GetxController {
     });
 
     links = _linkService.links(userId: _authService.userId);
-    links.around();
+    links.ensureInitialized();
 
     super.onInit();
   }
@@ -734,9 +735,8 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Creates a new [ChatDirectLink] with the specified [DirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
-  /// (if any).
+  /// Creates a new [DirectLink] with the specified [DirectLinkSlug] and deletes
+  /// the current active [DirectLink] of the authenticated [MyUser] (if any).
   Future<void> linkLink(DirectLinkSlug slug) async {
     await _linkService.updateLink(slug, _authService.userId);
   }

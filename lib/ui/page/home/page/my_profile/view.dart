@@ -277,8 +277,10 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         return const SizedBox();
       }
 
-      return block(
+      return Block(
         title: 'label_your_direct_link'.l10n,
+        highlight: c.highlightIndex.value == i,
+        padding: Block.defaultPadding.copyWith(right: 0, left: 0),
         children: [
           Obx(() {
             return IgnorePointer(
@@ -287,6 +289,9 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                 c.links.values,
                 onAdded: c.linkLink,
                 onRemoved: c.unlinkLink,
+                onMore: c.links.hasNext.value && !c.links.nextLoading.value
+                    ? c.links.next
+                    : null,
               ),
             );
           }),

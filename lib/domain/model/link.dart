@@ -29,12 +29,13 @@ part 'link.g.dart';
 
 /// Direct link to a `Chat`.
 @JsonSerializable()
-class DirectLink {
+class DirectLink implements Comparable<DirectLink> {
   DirectLink({
     required this.slug,
     required this.location,
     this.isEnabled = true,
     required this.createdAt,
+    this.visitors = 0,
   });
 
   /// Constructs a [DirectLink] from the provided [json].
@@ -53,6 +54,9 @@ class DirectLink {
   /// [PreciseDateTime] when this [DirectLink] was created.
   PreciseDateTime createdAt;
 
+  /// Count of unique visitors visited the [DirectLink].
+  final int visitors;
+
   @override
   bool operator ==(Object other) =>
       other is DirectLink &&
@@ -66,6 +70,16 @@ class DirectLink {
 
   /// Returns a [Map] representing this [DirectLink].
   Map<String, dynamic> toJson() => _$DirectLinkToJson(this);
+
+  @override
+  int compareTo(DirectLink other) {
+    final at = other.createdAt.compareTo(createdAt);
+    if (at != 0) {
+      return at;
+    }
+
+    return other.slug.val.compareTo(slug.val);
+  }
 }
 
 /// Possible locations where a [DirectLink] can lead to.

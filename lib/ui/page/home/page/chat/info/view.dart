@@ -69,6 +69,7 @@ class ChatInfoView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
       tag: id.val,
       global: !Get.isRegistered<ChatInfoController>(tag: id.val),
@@ -228,12 +229,13 @@ class ChatInfoView extends StatelessWidget {
     });
   }
 
-  /// Returns the [Chat.directLink] visual representation.
+  /// Returns the [DirectLink]s for this [Chat] visual representation.
   Widget _link(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
 
     return Block(
       title: 'label_direct_chat_link'.l10n,
+      padding: Block.defaultPadding.copyWith(right: 0, left: 0),
       children: [
         Obx(() {
           return Column(
@@ -241,11 +243,14 @@ class ChatInfoView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               DirectLinkField(
-                // c.chat?.chat.value.directLink,
-                [],
+                c.links.values,
                 key: Key('DirectLinkField'),
                 onAdded: c.createChatDirectLink,
                 onRemoved: c.deleteChatDirectLink,
+                canAddMore: false,
+                onMore: c.links.hasNext.value && !c.links.nextLoading.value
+                    ? c.links.next
+                    : null,
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),

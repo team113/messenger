@@ -37,7 +37,7 @@ class LinkView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: LinkController(Get.find()),
+      init: LinkController(Get.find(), Get.find(), Get.find()),
       builder: (LinkController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -49,10 +49,17 @@ class LinkView extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   Obx(() {
-                    return DirectLinkField(
-                      [],
-                      onAdded: c.createChatDirectLink,
-                      onRemoved: c.deleteChatDirectLink,
+                    return IgnorePointer(
+                      ignoring: c.isSupport,
+                      child: DirectLinkField(
+                        c.links.values,
+                        onAdded: c.linkLink,
+                        onRemoved: c.unlinkLink,
+                        onMore:
+                            c.links.hasNext.value && !c.links.nextLoading.value
+                            ? c.links.next
+                            : null,
+                      ),
                     );
                   }),
                   const SizedBox(height: 16),

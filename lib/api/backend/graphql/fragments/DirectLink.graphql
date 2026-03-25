@@ -33,4 +33,7 @@ fragment DirectLink on DirectLink {
     isEnabled
     createdAt
     ver
+    stats {
+        visitors
+    }
 }

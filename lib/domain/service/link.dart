@@ -31,6 +31,10 @@ class LinkService extends Dependency {
 
   final AbstractLinkRepository _linkRepository;
 
+  /// Listens to the updates of [DirectLink]s for the provided [ChatId] while
+  /// the returned [Stream] is listened to.
+  Stream<void> updatesFor(ChatId id) => _linkRepository.updatesFor(id);
+
   Paginated<DirectLinkSlug, DirectLink> links({
     UserId? userId,
     ChatId? chatId,

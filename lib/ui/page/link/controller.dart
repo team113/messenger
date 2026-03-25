@@ -19,27 +19,50 @@ import 'package:get/get.dart';
 
 import '/domain/model/link.dart';
 import '/domain/model/my_user.dart';
+import '/domain/repository/paginated.dart';
+import '/domain/service/auth.dart';
+import '/domain/service/link.dart';
 import '/domain/service/my_user.dart';
 
 /// Controller of the [LinkView].
 class LinkController extends GetxController {
-  LinkController(this._myUserService);
+  LinkController(this._myUserService, this._linkService, this._authService);
+
+  /// [Paginated] containing the [DirectLink] leading to this [MyUser].
+  late final Paginated<DirectLinkSlug, DirectLink> links;
 
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
+  /// [AuthService] used to retrieve the [UserId] of the currently authenticated
+  /// [MyUser].
+  final AuthService _authService;
+
+  /// [LinkService] maintaining the [DirectLink]s.
+  final LinkService _linkService;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
-  /// Creates a new [ChatDirectLink] with the specified [DirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
-  /// (if any).
-  Future<void> createChatDirectLink(DirectLinkSlug slug) async {
-    // await _myUserService.createChatDirectLink(slug);
+  /// Indicates whether currently authenticated [MyUser] is a support.
+  bool get isSupport => _authService.userId?.isSupport == true;
+
+  @override
+  void onInit() {
+    links = _linkService.links(userId: _authService.userId);
+    links.ensureInitialized();
+
+    super.onInit();
   }
 
-  /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
-  Future<void> deleteChatDirectLink(DirectLinkSlug slug) async {
-    // await _myUserService.deleteChatDirectLink();
+  /// Creates a new [DirectLink] with the specified [DirectLinkSlug] and deletes
+  /// the current active [DirectLink] of the authenticated [MyUser] (if any).
+  Future<void> linkLink(DirectLinkSlug slug) async {
+    await _linkService.updateLink(slug, _authService.userId);
+  }
+
+  /// Deletes the provided [DirectLinkSlug] from the authenticated [MyUser].
+  Future<void> unlinkLink(DirectLinkSlug slug) async {
+    await _linkService.updateLink(slug, null);
   }
 }

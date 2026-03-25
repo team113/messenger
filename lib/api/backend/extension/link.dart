@@ -39,6 +39,7 @@ extension DirectLinkConversion on DirectLinkMixin {
     },
     isEnabled: isEnabled,
     createdAt: createdAt,
+    visitors: stats.visitors,
   );
 
   /// Constructs a new [DtoDirectLink] from this [DirectLinkMixin].

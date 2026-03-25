@@ -17,6 +17,8 @@ All user visible changes to this project will be documented in this file. This p
     - Support page. ([#1660])
     - Chats tab:
         - Display about information when searching users. ([#1659])
+    - Profile page:
+        - Allow creating multiple direct links to chat. ([#1664])
 
 ### Fixed
 
@@ -36,6 +38,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1659]: /../../pull/1659
 [#1660]: /../../pull/1660
 [#1662]: /../../pull/1662
+[#1664]: /../../pull/1664
 
 
 

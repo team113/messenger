@@ -23,6 +23,11 @@ import 'paginated.dart';
 /// [DirectLink] repository interface.
 abstract class AbstractLinkRepository {
   Paginated<DirectLinkSlug, DirectLink> links({UserId? userId, ChatId? chatId});
+
+  /// Listens to the updates of [DirectLink]s for the provided [ChatId] while
+  /// the returned [Stream] is listened to.
+  Stream<void> updatesFor(ChatId id);
+
   Future<void> updateLink(DirectLinkSlug slug, UserId? userId);
   Future<void> updateGroupLink(ChatId groupId, DirectLinkSlug? slug);
 }
