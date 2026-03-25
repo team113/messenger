@@ -253,7 +253,9 @@ class ChatInfoView extends StatelessWidget {
                     : null,
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                padding: Block.defaultPadding
+                    .copyWith(top: 0, bottom: 0)
+                    .add(const EdgeInsets.fromLTRB(8, 8, 8, 0)),
                 child: Text(
                   'label_direct_chat_link_in_chat_description'.l10n,
                   style: style.fonts.small.regular.secondary,

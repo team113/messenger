@@ -240,12 +240,11 @@ class LinkRepository extends DisposableInterface
         _directLinksEvent,
         onError: (e) async {
           if (e is StaleVersionException) {
-            // await clear();
-            // await _pagination?.around(cursor: _lastReadItemCursor);
+            // No-op.
           }
         },
       );
-    }, tag: 'directLinksEvents()');
+    }, tag: 'directLinksEvents($chatId)');
 
     if (chatId == null) {
       _remoteSubscription?.close(immediate: true);

@@ -184,77 +184,58 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ConstrainedBox(
-          constraints: const BoxConstraints(maxHeight: 500),
-          child: ListView(
-            controller: _scrollController,
-            shrinkWrap: true,
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            children: [
-              ...links
-                  .map((e) {
-                    final String url = '${Config.link}${e.slug}';
+        if (links.isNotEmpty) ...[
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 500),
+            child: ListView(
+              controller: _scrollController,
+              shrinkWrap: true,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              children: [
+                ...links
+                    .map((e) {
+                      final String url = '${Config.link}${e.slug}';
 
-                    return [
-                      ReactiveTextField(
-                        state: TextFieldState(
-                          text: e.slug.val,
-                          editable: false,
+                      return [
+                        ReactiveTextField(
+                          state: TextFieldState(
+                            text: e.slug.val,
+                            editable: false,
+                          ),
+                          hint: _generated,
+                          label: e.createdAt.val.yMd,
+                          prefixText: Config.link,
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          spellCheck: false,
                         ),
-                        hint: _generated,
-                        label: e.createdAt.val.yMd,
-                        prefixText: Config.link,
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        spellCheck: false,
-                      ),
-                      const SizedBox(height: 8),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        child: Row(
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const SvgIcon(SvgIcons.linkViews),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${e.visitors}',
-                                  style: style.fonts.small.regular.primary,
-                                ),
-                              ],
-                            ),
-                            Spacer(),
-                            WidgetButton(
-                              onPressed: () {},
-                              onPressedWithDetails: (u) {
-                                PlatformUtils.copy(text: url);
-                                MessagePopup.success(
-                                  'label_copied'.l10n,
-                                  at: u.globalPosition,
-                                );
-                              },
-                              child: Text(
-                                'btn_copy'.l10n,
-                                style: style.fonts.small.regular.primary,
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                          child: Row(
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const SvgIcon(SvgIcons.linkViews),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${e.visitors}',
+                                    style: style.fonts.small.regular.primary,
+                                  ),
+                                ],
                               ),
-                            ),
-                            Container(
-                              margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
-                              width: 1,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                color: style.colors.secondaryHighlight,
-                              ),
-                            ),
-                            if (PlatformUtils.isMobile) ...[
+                              Spacer(),
                               WidgetButton(
-                                onPressed: () async {
-                                  await SharePlus.instance.share(
-                                    ShareParams(text: url),
+                                onPressed: () {},
+                                onPressedWithDetails: (u) {
+                                  PlatformUtils.copy(text: url);
+                                  MessagePopup.success(
+                                    'label_copied'.l10n,
+                                    at: u.globalPosition,
                                   );
                                 },
                                 child: Text(
-                                  'btn_share'.l10n,
+                                  'btn_copy'.l10n,
                                   style: style.fonts.small.regular.primary,
                                 ),
                               ),
@@ -266,85 +247,109 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                                   color: style.colors.secondaryHighlight,
                                 ),
                               ),
-                            ],
-                            ContextMenuRegion(
-                              enablePrimaryTap: true,
-                              actions: [
-                                ContextMenuButton(
+                              if (PlatformUtils.isMobile) ...[
+                                WidgetButton(
                                   onPressed: () async {
-                                    await QrCodeView.show(context, data: url);
-                                  },
-                                  label: 'btn_show_qr_code'.l10n,
-                                  trailing: SvgIcon(SvgIcons.contextQr),
-                                  inverted: SvgIcon(SvgIcons.contextQrWhite),
-                                ),
-                                ContextMenuButton(
-                                  onPressed: () async {
-                                    final proceed = await MessagePopup.alert(
-                                      'label_unlink_link'.l10n,
-                                      additional: [
-                                        Text(
-                                          url,
-                                          style: style
-                                              .fonts
-                                              .normal
-                                              .regular
-                                              .onBackground,
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Text(
-                                          'label_unlink_link_confirm_description1'
-                                              .l10n,
-                                          style: style
-                                              .fonts
-                                              .small
-                                              .regular
-                                              .secondary,
-                                        ),
-                                      ],
-                                      button: (context) =>
-                                          MessagePopup.deleteButton(
-                                            context,
-                                            label: 'btn_unlink'.l10n,
-                                            icon: SvgIcons.buttonUnlink,
-                                          ),
+                                    await SharePlus.instance.share(
+                                      ShareParams(text: url),
                                     );
-
-                                    if (proceed == true) {
-                                      await widget.onRemoved?.call(e.slug);
-                                    }
                                   },
-                                  label: 'btn_unlink'.l10n,
-                                  trailing: SvgIcon(SvgIcons.contextUnlink),
-                                  inverted: SvgIcon(
-                                    SvgIcons.contextUnlinkWhite,
+                                  child: Text(
+                                    'btn_share'.l10n,
+                                    style: style.fonts.small.regular.primary,
+                                  ),
+                                ),
+                                Container(
+                                  margin: EdgeInsets.fromLTRB(8, 0, 8, 0),
+                                  width: 1,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: style.colors.secondaryHighlight,
                                   ),
                                 ),
                               ],
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(8, 6, 0, 6),
-                                child: RotatedBox(
-                                  quarterTurns: 3,
-                                  child: SvgIcon(SvgIcons.more),
+                              ContextMenuRegion(
+                                enablePrimaryTap: true,
+                                actions: [
+                                  ContextMenuButton(
+                                    onPressed: () async {
+                                      await QrCodeView.show(context, data: url);
+                                    },
+                                    label: 'btn_show_qr_code'.l10n,
+                                    trailing: SvgIcon(SvgIcons.contextQr),
+                                    inverted: SvgIcon(SvgIcons.contextQrWhite),
+                                  ),
+                                  ContextMenuButton(
+                                    onPressed: () async {
+                                      final proceed = await MessagePopup.alert(
+                                        'label_unlink_link'.l10n,
+                                        additional: [
+                                          Text(
+                                            url,
+                                            style: style
+                                                .fonts
+                                                .normal
+                                                .regular
+                                                .onBackground,
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            'label_unlink_link_confirm_description1'
+                                                .l10n,
+                                            style: style
+                                                .fonts
+                                                .small
+                                                .regular
+                                                .secondary,
+                                          ),
+                                        ],
+                                        button: (context) =>
+                                            MessagePopup.deleteButton(
+                                              context,
+                                              label: 'btn_unlink'.l10n,
+                                              icon: SvgIcons.buttonUnlink,
+                                            ),
+                                      );
+
+                                      if (proceed == true) {
+                                        await widget.onRemoved?.call(e.slug);
+                                      }
+                                    },
+                                    label: 'btn_unlink'.l10n,
+                                    trailing: SvgIcon(SvgIcons.contextUnlink),
+                                    inverted: SvgIcon(
+                                      SvgIcons.contextUnlinkWhite,
+                                    ),
+                                  ),
+                                ],
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    8,
+                                    6,
+                                    0,
+                                    6,
+                                  ),
+                                  child: RotatedBox(
+                                    quarterTurns: 3,
+                                    child: SvgIcon(SvgIcons.more),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 20),
-                    ];
-                  })
-                  .expand((e) => e),
-              if (_fetching) ...[
-                CircularProgressIndicator(),
-                const SizedBox(height: 8),
+                        const SizedBox(height: 20),
+                      ];
+                    })
+                    .expand((e) => e),
+                if (_fetching) ...[
+                  CircularProgressIndicator(),
+                  const SizedBox(height: 8),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
 
-        if (links.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
             child: const LineDivider(''),
