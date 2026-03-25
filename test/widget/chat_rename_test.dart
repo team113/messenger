@@ -21,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql/client.dart';
-import 'package:log_me/log_me.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -189,8 +188,6 @@ void main() async {
   testWidgets('ChatView successfully changes chat name', (
     WidgetTester tester,
   ) async {
-    Log.options = LogOptions(level: LogLevel.debug);
-
     when(
       graphQlProvider.recentChatsTopEvents(3),
     ).thenAnswer((_) => const Stream.empty());

@@ -31,7 +31,7 @@ class AddLinkController extends GetxController {
   /// Callback, called when a new [DirectLinkSlug] is submitted.
   final FutureOr<void> Function(DirectLinkSlug)? onAdded;
 
-  /// Generated [DirectLinkSlug], used in the [_state].
+  /// Generated [DirectLinkSlug], used in the [state].
   final String generated = DirectLinkSlug.generate(10).val;
 
   /// Callback, called when a [AddLinkView] this controller is bound to should
