@@ -595,8 +595,8 @@ class SearchController extends GetxController {
         if (link != null) {
           if (_myLinks.values.any((e) => e.slug == link)) {
             chats.value = {monologId: monolog, ...chats};
+            return;
           }
-          return;
         }
 
         final String title = monolog.title();
