@@ -32,7 +32,7 @@ import 'package:messenger/util/audio_utils.dart';
 import '../configuration.dart';
 import '../world/custom_world.dart';
 
-/// Toggles the audio player.
+/// Plays or pauses the provided audio file in a [Chat].
 ///
 /// Examples:
 /// - When I toggle play for "test.mp3" audio
@@ -41,11 +41,12 @@ final StepDefinitionGeneric toggleAudioPlay = when1<String, CustomWorld>(
   (fileName, context) async {
     await context.world.appDriver.waitForAppToSettle();
 
-    final AudioId id = _findAudioId(fileName);
+    final AudioId id = _resolve(fileName);
 
-    Finder toggleButton = context.world.appDriver.findByKeySkipOffstage(
+    final Finder toggleButton = context.world.appDriver.findByKeySkipOffstage(
       'PlayerButton$id',
     );
+
     await context.world.appDriver.nativeDriver.tap(toggleButton);
   },
 );
@@ -60,7 +61,7 @@ final StepDefinitionGeneric audioIsPlaying = then1<String, CustomWorld>(
     await context.world.appDriver.waitForAppToSettle();
 
     final AudioWorker worker = Get.find<AudioWorker>();
-    final AudioId id = _findAudioId(name);
+    final AudioId id = _resolve(name);
 
     final bool isPlaying =
         (worker.activeSession.value?.item.id == id &&
@@ -80,7 +81,7 @@ final StepDefinitionGeneric audioIsPaused = then1<String, CustomWorld>(
     await context.world.appDriver.waitForAppToSettle();
 
     final AudioWorker worker = Get.find<AudioWorker>();
-    final AudioId id = _findAudioId(name);
+    final AudioId id = _resolve(name);
 
     final bool isPaused =
         (worker.activeSession.value?.item.id == id &&
@@ -101,7 +102,7 @@ final StepDefinitionGeneric audioSliderPositionChangesWhilePlaying =
       (name, context) async {
         await context.world.appDriver.waitForAppToSettle();
 
-        final AudioId id = _findAudioId(name);
+        final AudioId id = _resolve(name);
 
         final Finder slider = context.world.appDriver.findByKeySkipOffstage(
           'AudioSlider$id',
@@ -138,21 +139,24 @@ final StepDefinitionGeneric audioPositionIs = then2<String, int, CustomWorld>(
   },
 );
 
-/// Finds [AudioId] of the provided [fileName].
-AudioId _findAudioId(String fileName) {
+/// Resolves [AudioId] for an [FileAttachment] with the provided [name].
+AudioId _resolve(String name) {
   final RxChat? chat = Get.find<ChatService>()
       .chats[ChatId(router.route.split('/').lastOrNull ?? '')];
 
   final ChatItem item = chat!.messages.map((e) => e.value).firstWhere((i) {
-    if (i is! ChatMessage) return false;
-    return i.attachments.any((a) => a.filename == fileName);
+    if (i is! ChatMessage) {
+      return false;
+    }
+
+    return i.attachments.any((a) => a.filename == name);
   });
 
   final Attachment? attachment = chat.messages
       .map((e) => e.value)
       .whereType<ChatMessage>()
       .expand((e) => e.attachments)
-      .firstWhereOrNull((a) => a.filename == fileName);
+      .firstWhereOrNull((a) => a.filename == name);
 
   return AudioId.fromMessage(item.id, attachment!.id);
 }
