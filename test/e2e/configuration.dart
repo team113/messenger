@@ -54,6 +54,8 @@ import 'parameters/iterable_amount.dart';
 import 'parameters/keys.dart';
 import 'parameters/muted_status.dart';
 import 'parameters/online_status.dart';
+import 'parameters/play_pause.dart';
+import 'parameters/playback_status.dart';
 import 'parameters/position_status.dart';
 import 'parameters/search_category.dart';
 import 'parameters/selection_status.dart';
@@ -177,8 +179,7 @@ FlutterTestConfiguration gherkinTestConfiguration() {
   final FlutterTestConfiguration configuration = FlutterTestConfiguration();
 
   configuration.stepDefinitions = [
-    audioIsPaused,
-    audioIsPlaying,
+    audioIsPlayingOrPaused,
     audioPositionIs,
     audioSliderPositionChangesWhilePlaying,
     appcastIsAvailable,
@@ -393,6 +394,8 @@ FlutterTestConfiguration gherkinTestConfiguration() {
     MessageSentStatusParameter(),
     MutedStatusParameter(),
     OnlineStatusParameter(),
+    PlaybackStatusParameter(),
+    PlayPauseActionParameter(),
     PositionStatusParameter(),
     SearchCategoryParameter(),
     SelectionStatusParameter(),

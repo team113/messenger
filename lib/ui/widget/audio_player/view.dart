@@ -137,7 +137,11 @@ class AudioPlayer extends StatelessWidget {
       }
 
       return WidgetButton(
-        key: Key('PlayerButton${item.id.val}'),
+        key: c.isLoading
+            ? Key('StopAudio_${item.id.val}')
+            : c.isPlaying
+            ? Key('PauseAudio_${item.id.val}')
+            : Key('PlayAudio_${item.id.val}'),
         onPressed: c.isLoading ? c.stop : c.playOrPause,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -166,9 +170,9 @@ class AudioPlayer extends StatelessWidget {
         key: Key('AudioSlider${item.id.val}'),
         position: c.position,
         duration: c.duration,
-        onChangeStart: (_) => c.onSliderChangeStart(),
-        onChangeEnd: (_) => c.onSliderChangeEnd(),
-        onChanged: (v) => c.position = Duration(milliseconds: v.toInt()),
+        onDragStart: (_) => c.onSliderChangeStart(),
+        onDragged: (v) => c.position = Duration(milliseconds: v.toInt()),
+        onDragEnd: (_) => c.onSliderChangeEnd(),
       );
     });
   }

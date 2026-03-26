@@ -24,38 +24,38 @@ Feature: Audio Player functionality
     And I am in chat with Bob
     And I wait for app to settle
 
-  @audio
-  Scenario: Play and pause audio
+  @messaging
+  Scenario: Audio sent in chat can be played and paused
     Given Bob sends "test.mp3" attachment to me
     And I wait until attachment "test.mp3" is present
 
-    When I toggle play for "test.mp3" audio
+    When I play "test.mp3" audio
     Then I see "test.mp3" audio is playing
     And I see "test.mp3" audio slider position changes while playing
 
-    When I toggle play for "test.mp3" audio
+    When I pause "test.mp3" audio
     Then I see "test.mp3" audio is paused
 
-  @audio
-  Scenario: Exclusive playback - only one audio plays at a time
+  @messaging
+  Scenario: Only one audio plays in a chat at the same time
     Given Bob sends "first.mp3" attachment to me
     And Bob sends "second.mp3" attachment to me
     And I wait until attachment "first.mp3" is present
     And I wait until attachment "second.mp3" is present
 
-    When I toggle play for "first.mp3" audio
+    When I play "first.mp3" audio
     Then I see "first.mp3" audio is playing
 
-    When I toggle play for "second.mp3" audio
+    When I play "second.mp3" audio
     Then I see "second.mp3" audio is playing
     And I see "first.mp3" audio is paused
 
-  @audio
+  @messaging
   Scenario: Audio continues playing after navigating out and back
     Given Bob sends "test.mp3" attachment to me
     And I wait until attachment "test.mp3" is present
 
-    When I toggle play for "test.mp3" audio
+    When I play "test.mp3" audio
     And I return to previous page
     And I am in chat with Bob
 

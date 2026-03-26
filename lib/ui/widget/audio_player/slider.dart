@@ -25,9 +25,9 @@ class SeekSlider extends StatelessWidget {
     super.key,
     required this.position,
     required this.duration,
-    this.onChanged,
-    this.onChangeStart,
-    this.onChangeEnd,
+    this.onDragged,
+    this.onDragStart,
+    this.onDragEnd,
   });
 
   /// Current audio position.
@@ -36,14 +36,14 @@ class SeekSlider extends StatelessWidget {
   /// Total audio duration.
   final Duration duration;
 
-  /// Callback, called on slider drag.
-  final ValueChanged<double>? onChanged;
+  /// Callback, called when slider is being dragged.
+  final ValueChanged<double>? onDragged;
 
-  /// Callback, called on slider drag start.
-  final ValueChanged<double>? onChangeStart;
+  /// Callback, called when slider dragging starts.
+  final ValueChanged<double>? onDragStart;
 
-  /// Callback, called on slider drag end.
-  final ValueChanged<double>? onChangeEnd;
+  /// Callback, called when slider dragging ends.
+  final ValueChanged<double>? onDragEnd;
 
   @override
   Widget build(BuildContext context) {
@@ -68,9 +68,9 @@ class SeekSlider extends StatelessWidget {
         child: Slider(
           value: value,
           max: max > 0 ? max : 1.0,
-          onChangeStart: onChangeStart,
-          onChangeEnd: onChangeEnd,
-          onChanged: onChanged,
+          onChangeStart: onDragStart,
+          onChangeEnd: onDragEnd,
+          onChanged: onDragged,
         ),
       ),
     );

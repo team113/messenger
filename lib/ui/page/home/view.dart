@@ -493,11 +493,11 @@ class _HomeViewState extends State<HomeView> {
             SeekSlider(
               position: session.position,
               duration: session.duration,
-              onChangeStart: (_) => session.beginSeek(),
-              onChangeEnd: (v) =>
-                  session.endSeek(Duration(milliseconds: v.toInt())),
-              onChanged: (v) =>
+              onDragStart: (_) => session.beginSeek(),
+              onDragged: (v) =>
                   session.position = Duration(milliseconds: v.toInt()),
+              onDragEnd: (v) =>
+                  session.endSeek(Duration(milliseconds: v.toInt())),
             ),
             Text(
               'label_a_slash_b'.l10nfmt({
