@@ -83,7 +83,7 @@ class MockGraphQlProvider extends GraphQlProvider {
               '__typename': 'MyUserEventsVersioned',
               'events': [
                 {
-                  '__typename': 'EventUserEmailAdded',
+                  '__typename': 'UserEmailAddedEvent',
                   'userId': 'id',
                   'email': '$email',
                   'confirmed': true,

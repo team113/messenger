@@ -36,7 +36,7 @@ subscription RecentChatsTopEvents(
                 cursor
             }
         }
-        ... on EventRecentChatsTopChatUpdated {
+        ... on RecentChatsTopChatUpdatedEvent {
             chat {
                 node {
                     __typename
@@ -45,7 +45,7 @@ subscription RecentChatsTopEvents(
                 cursor
             }
         }
-        ... on EventRecentChatsTopChatRemoved {
+        ... on RecentChatsTopChatRemovedEvent {
             chatId
         }
     }

@@ -20,6 +20,7 @@ import '/store/model/chat.dart';
 import '/store/model/contact.dart';
 import '/util/new_type.dart';
 import 'blocklist.dart';
+import 'link.dart';
 import 'session.dart';
 
 /// [Session] relative preferences.
@@ -34,6 +35,7 @@ class SessionData {
     this.sessionsListVersion,
     this.blocklistVersion,
     this.blocklistCount,
+    this.directLinksListVersion,
   });
 
   /// Persisted [FavoriteChatsListVersion] data.
@@ -67,6 +69,9 @@ class SessionData {
   /// Persisted total count of [BlocklistRecord]s in the blocklist of [MyUser].
   int? blocklistCount;
 
+  /// Persisted [BlocklistVersion] data.
+  DirectLinkVersion? directLinksListVersion;
+
   /// Returns a copy of this [SessionData] replaced with the [NewType]s
   /// provided.
   SessionData replaceWith({
@@ -79,6 +84,7 @@ class SessionData {
     NewType<SessionsListVersion?>? sessionsListVersion,
     NewType<BlocklistVersion?>? blocklistVersion,
     NewType<int?>? blocklistCount,
+    NewType<DirectLinkVersion?>? directLinksListVersion,
   }) {
     return SessionData(
       favoriteChatsListVersion: favoriteChatsListVersion == null
@@ -108,6 +114,9 @@ class SessionData {
       blocklistCount: blocklistCount == null
           ? this.blocklistCount
           : blocklistCount.val,
+      directLinksListVersion: directLinksListVersion == null
+          ? this.directLinksListVersion
+          : directLinksListVersion.val,
     );
   }
 

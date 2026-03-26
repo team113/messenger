@@ -37,11 +37,6 @@ fragment Chat on Chat {
             until
         }
     }
-    directLink {
-        slug
-        usageCount
-        createdAt
-    }
     createdAt
     updatedAt
     lastReads {

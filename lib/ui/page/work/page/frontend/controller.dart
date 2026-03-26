@@ -17,9 +17,9 @@
 
 import 'package:get/get.dart';
 
-import '/domain/model/user.dart';
+import '/domain/model/link.dart';
 import '/domain/service/auth.dart';
-import '/provider/gql/exceptions.dart' show UseChatDirectLinkException;
+import '/provider/gql/exceptions.dart' show UseDirectLinkException;
 import '/routes.dart';
 import '/util/message_popup.dart';
 
@@ -37,15 +37,13 @@ class FrontendWorkController extends GetxController {
   /// [AuthService] for using the [_link].
   final AuthService _authService;
 
-  /// [ChatDirectLinkSlug] to use in the [useLink].
-  static const ChatDirectLinkSlug _link = ChatDirectLinkSlug.unchecked(
-    'HR-Gapopa',
-  );
+  /// [DirectLinkSlug] to use in the [useLink].
+  static const DirectLinkSlug _link = DirectLinkSlug.unchecked('HR-Gapopa');
 
   /// Returns the authorization [RxStatus].
   Rx<RxStatus> get status => _authService.status;
 
-  /// Uses the [ChatDirectLinkSlug].
+  /// Uses the [DirectLinkSlug].
   Future<void> useLink({bool? signedUp}) async {
     linkStatus.value = RxStatus.loading();
 
@@ -55,12 +53,12 @@ class FrontendWorkController extends GetxController {
       }
 
       router.dialog(
-        await _authService.useChatDirectLink(_link),
+        await _authService.useDirectLink(_link),
         _authService.userId,
       );
 
       linkStatus.value = RxStatus.empty();
-    } on UseChatDirectLinkException catch (e) {
+    } on UseDirectLinkException catch (e) {
       linkStatus.value = RxStatus.empty();
       MessagePopup.error(e.toMessage());
     } catch (e) {

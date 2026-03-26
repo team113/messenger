@@ -124,9 +124,9 @@ mixin CallGraphQlMixin {
   /// Finite.
   ///
   /// Completes without re-subscription necessity when:
-  /// - The [ChatCall] is finished ([EventChatCallFinished] is emitted).
+  /// - The [ChatCall] is finished ([ChatCallFinishedEvent] is emitted).
   /// - The authenticated [MyUser] is no longer a member of the [ChatCall]
-  /// ([EventChatCallMemberLeft] is emitted for the the authenticated [MyUser]).
+  /// ([ChatCallMemberLeftEvent] is emitted for the the authenticated [MyUser]).
   /// - The [ChatCall] is not found or the authenticated [MyUser] doesn't
   /// participate in it (emits nothing, completes immediately after being
   /// established).
@@ -152,11 +152,11 @@ mixin CallGraphQlMixin {
 
   /// Subscribes to updates of top [count] items of [incomingCalls] list.
   ///
-  /// Note, that [EventIncomingChatCallsTopChatCallAdded] informs about a
+  /// Note, that [IncomingChatCallsTopChatCallAddedEvent] informs about a
   /// [ChatCall] becoming the topmost in [incomingCalls] list, but never about a
   /// [ChatCall] being updated itself.
   ///
-  /// Note, that [EventIncomingChatCallsTopChatCallRemoved] informs about a
+  /// Note, that [IncomingChatCallsTopChatCallRemovedEvent] informs about a
   /// [ChatCall] being removed from top count items of [incomingCalls] list, but
   /// never about a [ChatCall] being finished or removed itself.
   ///
@@ -208,7 +208,7 @@ mixin CallGraphQlMixin {
   /// Starts a new [ChatCall] in the specified [Chat] by the authenticated
   /// [MyUser].
   ///
-  /// Once this mutation succeeds the [EventChatCallStarted] is fired to all
+  /// Once this mutation succeeds the [ChatCallStartedEvent] is fired to all
   /// [Chat] members via `Subscription.chatEvents`, and it's required to use
   /// [callEvents] for the authenticated [MyUser] to be able to react on all
   /// [ChatCallEvent]s happening during the started [ChatCall].
@@ -220,9 +220,9 @@ mixin CallGraphQlMixin {
   /// ### Result
   ///
   /// Only of the following [ChatEvent]s may be produced on success:
-  /// - [EventChatItemPosted] (if no [ChatCall] exists);
-  /// - [EventChatCallStarted] (if no [ChatCall] exists);
-  /// - [EventChatCallMemberJoined] (if [ChatCall] exists already).
+  /// - [ChatItemPostedEvent] (if no [ChatCall] exists);
+  /// - [ChatCallStartedEvent] (if no [ChatCall] exists);
+  /// - [ChatCallMemberJoinedEvent] (if [ChatCall] exists already).
   ///
   /// ### Idempotent
   ///
@@ -260,11 +260,11 @@ mixin CallGraphQlMixin {
   /// Joins the ongoing [ChatCall] in the specified [Chat] by the authenticated
   /// [MyUser].
   ///
-  /// Use this mutation when an [EventChatCallStarted] is received via
+  /// Use this mutation when an [ChatCallStartedEvent] is received via
   /// `Subscription.chatEvents` and [MyUser] wants to accept the [ChatCall], or
   /// he wants to join an ongoing [ChatCall].
   ///
-  /// Once this mutation succeeds the [EventChatCallMemberJoined] is fired to
+  /// Once this mutation succeeds the [ChatCallMemberJoinedEvent] is fired to
   /// all [ChatCall] members via [callEvents], and it's required to use
   /// [callEvents] for the authenticated [MyUser] to be able to react on all
   /// [ChatCallEvent]s happening during the accepted [ChatCall].
@@ -276,7 +276,7 @@ mixin CallGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatCallMemberJoined].
+  /// - [ChatCallMemberJoinedEvent].
   ///
   /// ### Idempotent
   ///
@@ -318,8 +318,8 @@ mixin CallGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [ChatEvent]s may be produced on success:
-  /// - [EventChatCallMemberLeft] (for [Chat]-groups);
-  /// - [EventChatCallFinished] (for [Chat]-dialogs).
+  /// - [ChatCallMemberLeftEvent] (for [Chat]-groups);
+  /// - [ChatCallFinishedEvent] (for [Chat]-dialogs).
   ///
   /// ### Idempotent
   ///
@@ -352,7 +352,7 @@ mixin CallGraphQlMixin {
   /// Declines the ongoing [ChatCall] in the specified [Chat] by the
   /// authenticated [MyUser].
   ///
-  /// Use this mutation when an [EventChatCallStarted] is received via
+  /// Use this mutation when an [ChatCallStartedEvent] is received via
   /// `Subscription.chatEvents` and [MyUser] doesn't want to accept the
   /// [ChatCall].
   ///
@@ -363,8 +363,8 @@ mixin CallGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [ChatEvent]s may be produced on success:
-  /// - [EventChatCallDeclined] (for [Chat]-groups);
-  /// - [EventChatCallFinished] (for [Chat]-dialogs).
+  /// - [ChatCallDeclinedEvent] (for [Chat]-groups);
+  /// - [ChatCallFinishedEvent] (for [Chat]-dialogs).
   ///
   /// ### Idempotent
   ///
@@ -407,8 +407,8 @@ mixin CallGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [ChatCallEvent]s may be produced on success:
-  /// - [EventChatCallHandRaised] (if [raised] argument is `true`);
-  /// - [EventChatCallHandLowered] (if [raised] argument is `false`).
+  /// - [ChatCallHandRaisedEvent] (if [raised] argument is `true`);
+  /// - [ChatCallHandLoweredEvent] (if [raised] argument is `false`).
   ///
   /// ### Idempotent
   ///
@@ -461,7 +461,7 @@ mixin CallGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [ChatCallEvent]s may be produced on success:
-  /// - [EventChatCallMemberRedialed].
+  /// - [ChatCallMemberRedialedEvent].
   ///
   /// ### Idempotent
   ///
@@ -502,12 +502,12 @@ mixin CallGraphQlMixin {
   /// moving, otherwise the [ChatCall] is not considered by this mutation as an
   /// ongoing one.
   ///
-  /// Once this mutation succeeds, the [EventChatCallMoved] is fired to all
+  /// Once this mutation succeeds, the [ChatCallMovedEvent] is fired to all
   /// [Chat]-dialog members via [callEvents], and it's required to establish a
-  /// new [callEvents] using the emitted [EventChatCallMoved.newCallId]. Note,
+  /// new [callEvents] using the emitted [ChatCallMovedEvent.newCallId]. Note,
   /// that the connection to the media room of the moved [ChatCall] should not
   /// be dropped, as it's simply moved to the returned
-  /// [EventChatCallMoved.newCall], ensuring smooth experience for the
+  /// [ChatCallMovedEvent.newCall], ensuring smooth experience for the
   /// [ChatCall] members.
   ///
   /// ### Authentication
@@ -517,8 +517,8 @@ mixin CallGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatCallEvent]s are produced on success:
-  /// - [EventChatCallMoved];
-  /// - [EventChatCallFinished].
+  /// - [ChatCallMovedEvent];
+  /// - [ChatCallFinishedEvent].
   ///
   /// ### Non-idempotent
   ///
@@ -578,8 +578,8 @@ mixin CallGraphQlMixin {
   /// ### Result
   ///
   /// The following [ChatEvent]s may be produced on success:
-  /// - [EventChatCallMemberLeft] (for each device of the [User]);
-  /// - [EventChatCallFinished].
+  /// - [ChatCallMemberLeftEvent] (for each device of the [User]);
+  /// - [ChatCallFinishedEvent].
   ///
   /// ### Idempotent
   ///

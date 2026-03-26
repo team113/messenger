@@ -102,7 +102,7 @@ void main() async {
               'toggleMyUserMute': {
                 '__typename': 'MyUserEventsVersioned',
                 'events': [
-                  {'__typename': 'EventUserUnmuted', 'userId': '12345'},
+                  {'__typename': 'UserUnmutedEvent', 'userId': '12345'},
                 ],
                 'myUser': myUserData,
                 'ver': '2',

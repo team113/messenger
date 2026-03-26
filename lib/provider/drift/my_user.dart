@@ -47,7 +47,6 @@ class MyUsers extends Table {
   BoolColumn get hasPassword => boolean().withDefault(const Constant(false))();
   TextColumn get emails => text()();
   TextColumn get phones => text()();
-  TextColumn get chatDirectLink => text().nullable()();
   IntColumn get unreadChatsCount => integer().withDefault(const Constant(0))();
   TextColumn get status => text().nullable()();
   TextColumn get avatar => text().nullable()();
@@ -205,9 +204,6 @@ extension _MyUserDb on DtoMyUser {
         hasPassword: e.hasPassword,
         emails: MyUserEmails.fromJson(jsonDecode(e.emails)),
         phones: MyUserPhones.fromJson(jsonDecode(e.phones)),
-        chatDirectLink: e.chatDirectLink == null
-            ? null
-            : ChatDirectLink.fromJson(jsonDecode(e.chatDirectLink!)),
         unreadChatsCount: e.unreadChatsCount,
         status: e.status == null ? null : UserTextStatus.tryParse(e.status!),
         avatar: e.avatar == null
@@ -241,9 +237,6 @@ extension _MyUserDb on DtoMyUser {
       hasPassword: value.hasPassword,
       emails: jsonEncode(value.emails.toJson()),
       phones: jsonEncode(value.phones.toJson()),
-      chatDirectLink: value.chatDirectLink == null
-          ? null
-          : jsonEncode(value.chatDirectLink?.toJson()),
       unreadChatsCount: value.unreadChatsCount,
       status: value.status?.val,
       avatar: value.avatar == null ? null : jsonEncode(value.avatar?.toJson()),

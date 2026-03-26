@@ -15,14 +15,25 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation DeleteChatDirectLink($groupId: ChatId) {
-    deleteChatDirectLink(groupId: $groupId) {
+fragment DirectLink on DirectLink {
+    slug
+    location {
         __typename
-        ... on ChatEventsVersioned {
-            ...ChatEventsVersioned
+        ... on DirectLinkLocationUser {
+            responder {
+                id
+            }
         }
-        ... on DeleteChatDirectLinkError {
-            code
+        ... on DirectLinkLocationGroup {
+            group {
+                id
+            }
         }
+    }
+    isEnabled
+    createdAt
+    ver
+    stats {
+        visitors
     }
 }

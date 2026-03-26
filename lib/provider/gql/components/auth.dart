@@ -98,7 +98,7 @@ mixin AuthGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [SessionEvent] may be produced on success:
-  /// - [EventSessionDeleted].
+  /// - [SessionDeletedEvent].
   ///
   /// Idempotent
   ///

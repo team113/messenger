@@ -625,6 +625,7 @@ class PostChatMessageException
       case PostChatMessageErrorCode.unknownUser:
       case PostChatMessageErrorCode.disabledDonation:
       case PostChatMessageErrorCode.tooSmallDonation:
+      case PostChatMessageErrorCode.disabled:
         return toString();
 
       case PostChatMessageErrorCode.artemisUnknown:
@@ -919,79 +920,87 @@ class RedialChatCallMemberException
   }
 }
 
-/// Exception of `Mutation.createChatDirectLink` described in the [code].
-class CreateChatDirectLinkException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const CreateChatDirectLinkException(this.code);
+/// Exception of `Mutation.useDirectLink` described in the [code].
+class UseDirectLinkException with LocalizedExceptionMixin implements Exception {
+  const UseDirectLinkException(this.code);
 
   /// Reason of why the mutation has failed.
-  final CreateChatDirectLinkErrorCode code;
+  final UseDirectLinkErrorCode code;
 
   @override
-  String toString() => 'CreateChatDirectLinkException($code)';
+  String toString() => 'UseDirectLinkException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case CreateChatDirectLinkErrorCode.artemisUnknown:
+      case UseDirectLinkErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case CreateChatDirectLinkErrorCode.occupied:
+      case UseDirectLinkErrorCode.blocked:
+        return 'err_you_are_blocked'.l10n;
+      case UseDirectLinkErrorCode.unknownDirectLink:
+        return 'label_unknown_chat_direct_link'.l10n;
+      case UseDirectLinkErrorCode.sameUser:
+        return toString();
+    }
+  }
+}
+
+/// Exception of `Mutation.updateDirectLink` described in the [code].
+class UpdateDirectLinkException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UpdateDirectLinkException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UpdateDirectLinkErrorCode code;
+
+  @override
+  String toString() => 'UpdateDirectLinkException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UpdateDirectLinkErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+
+      case UpdateDirectLinkErrorCode.unknownDirectLink:
+        return 'label_unknown_chat_direct_link'.l10n;
+
+      case UpdateDirectLinkErrorCode.occupied:
         return 'err_chat_direct_link_occupied'.l10n;
 
-      case CreateChatDirectLinkErrorCode.notGroup:
-      case CreateChatDirectLinkErrorCode.unknownChat:
+      case UpdateDirectLinkErrorCode.unknownUser:
         return toString();
     }
   }
 }
 
-/// Exception of `Mutation.deleteChatDirectLink` described in the [code].
-class DeleteChatDirectLinkException
+/// Exception of `Mutation.updateGroupDirectLink` described in the [code].
+class UpdateGroupDirectLinkException
     with LocalizedExceptionMixin
     implements Exception {
-  const DeleteChatDirectLinkException(this.code);
+  const UpdateGroupDirectLinkException(this.code);
 
   /// Reason of why the mutation has failed.
-  final DeleteChatDirectLinkErrorCode code;
+  final UpdateGroupDirectLinkErrorCode code;
 
   @override
-  String toString() => 'DeleteChatDirectLinkException($code)';
+  String toString() => 'UpdateGroupDirectLinkException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case DeleteChatDirectLinkErrorCode.artemisUnknown:
+      case UpdateGroupDirectLinkErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
 
-      case DeleteChatDirectLinkErrorCode.notGroup:
-      case DeleteChatDirectLinkErrorCode.unknownChat:
+      case UpdateGroupDirectLinkErrorCode.occupied:
+        return 'err_chat_direct_link_occupied'.l10n;
+
+      case UpdateGroupDirectLinkErrorCode.notGroup:
         return toString();
-    }
-  }
-}
 
-/// Exception of `Mutation.useChatDirectLink` described in the [code].
-class UseChatDirectLinkException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const UseChatDirectLinkException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final UseChatDirectLinkErrorCode code;
-
-  @override
-  String toString() => 'UseChatDirectLinkException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case UseChatDirectLinkErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
-      case UseChatDirectLinkErrorCode.blocked:
-        return 'err_you_are_blocked'.l10n;
-      case UseChatDirectLinkErrorCode.unknownDirectLink:
-        return 'label_unknown_chat_direct_link'.l10n;
+      case UpdateGroupDirectLinkErrorCode.unknownChat:
+        return toString();
     }
   }
 }
@@ -1187,6 +1196,7 @@ class ForwardChatItemsException
       case ForwardChatItemsErrorCode.unknownForwardedItem:
       case ForwardChatItemsErrorCode.disabledDonation:
       case ForwardChatItemsErrorCode.tooSmallDonation:
+      case ForwardChatItemsErrorCode.disabled:
         return toString();
 
       case ForwardChatItemsErrorCode.artemisUnknown:

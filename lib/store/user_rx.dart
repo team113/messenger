@@ -234,7 +234,7 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.avatarUpdated:
-              event as EventUserAvatarUpdated;
+              event as UserAvatarUpdatedEvent;
               userEntity.value.avatar = event.avatar;
               break;
 
@@ -243,12 +243,12 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.bioUpdated:
-              event as EventUserBioUpdated;
+              event as UserBioUpdatedEvent;
               userEntity.value.bio = event.bio;
               break;
 
             case UserEventKind.cameOffline:
-              event as EventUserCameOffline;
+              event as UserCameOfflineEvent;
               userEntity.value.online = false;
               userEntity.value.lastSeenAt = event.at;
               break;
@@ -262,7 +262,7 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.callCoverUpdated:
-              event as EventUserCallCoverUpdated;
+              event as UserCallCoverUpdatedEvent;
               userEntity.value.callCover = event.callCover;
               break;
 
@@ -271,12 +271,12 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.nameUpdated:
-              event as EventUserNameUpdated;
+              event as UserNameUpdatedEvent;
               userEntity.value.name = event.name;
               break;
 
             case UserEventKind.presenceUpdated:
-              event as EventUserPresenceUpdated;
+              event as UserPresenceUpdatedEvent;
               userEntity.value.presence = event.presence;
               break;
 
@@ -285,7 +285,7 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.statusUpdated:
-              event as EventUserStatusUpdated;
+              event as UserStatusUpdatedEvent;
               userEntity.value.status = event.status;
               break;
 
@@ -298,7 +298,7 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.welcomeMessageUpdated:
-              event as EventUserWelcomeMessageUpdated;
+              event as UserWelcomeMessageUpdatedEvent;
               userEntity.value.welcomeMessage = WelcomeMessage(
                 text: event.text == null
                     ? userEntity.value.welcomeMessage?.text

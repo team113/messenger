@@ -38,13 +38,6 @@ extension MyUserConversion on MyUserMixin {
     bio: bio,
     hasPassword: hasPassword,
     unreadChatsCount: unreadChatsCount,
-    chatDirectLink: chatDirectLink != null
-        ? ChatDirectLink(
-            slug: chatDirectLink!.slug,
-            usageCount: chatDirectLink!.usageCount,
-            createdAt: chatDirectLink!.createdAt,
-          )
-        : null,
     avatar: avatar?.toModel(),
     status: status,
     presenceIndex: presence.index,
