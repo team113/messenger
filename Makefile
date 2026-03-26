@@ -198,7 +198,8 @@ else
 		--build-number=$(flutter-build-number) \
 		$(if $(call eq,$(profile),yes),--profile,--release) \
 		$(if $(call eq,$(platform),web),--wasm --source-maps \
-			--web-define=build_ver=$(shell git describe --tags | sed 's/-/+/') \
+			--web-define=build_ver=$(shell git describe --tags --match='v*' \
+			                               | sed 's/-/+/') \
 			--web-define=medea_ver=$(flutter-build-medea-ver),) \
 		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
@@ -421,7 +422,8 @@ endef
 #	                      [version=($(git describe --tags)|<version>)]
 #	                      [out=(appcast/<version>.xml|<output-file>)
 
-appcast-item-ver = $(or $(version),$(shell git describe --tags | sed 's/-/+/'))
+appcast-item-ver = $(or $(version),$(shell git describe --tags --match='v*' \
+	                                       | sed 's/-/+/'))
 appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=\"$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)\"><![CDATA[$$(cat $(xml))]]></description>)
 
 appcast.xml.item:
