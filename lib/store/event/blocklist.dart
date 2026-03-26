@@ -89,8 +89,8 @@ abstract class BlocklistEvent {
 
 /// Event of a [BlocklistRecord] being added to blocklist of the authenticated
 /// [MyUser].
-class EventBlocklistRecordAdded extends BlocklistEvent {
-  const EventBlocklistRecordAdded(super.user, super.at, this.reason);
+class BlocklistRecordAddedEvent extends BlocklistEvent {
+  const BlocklistRecordAddedEvent(super.user, super.at, this.reason);
 
   /// Reason of why the [User] was blocked.
   final BlocklistReason? reason;
@@ -100,7 +100,7 @@ class EventBlocklistRecordAdded extends BlocklistEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventBlocklistRecordAdded &&
+      other is BlocklistRecordAddedEvent &&
       user == other.user &&
       at == other.at &&
       reason == other.reason;
@@ -111,15 +111,15 @@ class EventBlocklistRecordAdded extends BlocklistEvent {
 
 /// Event of a [BlocklistRecord] being removed from blocklist of the
 /// authenticated [MyUser].
-class EventBlocklistRecordRemoved extends BlocklistEvent {
-  const EventBlocklistRecordRemoved(super.user, super.at);
+class BlocklistRecordRemovedEvent extends BlocklistEvent {
+  const BlocklistRecordRemovedEvent(super.user, super.at);
 
   @override
   BlocklistEventKind get kind => BlocklistEventKind.recordRemoved;
 
   @override
   bool operator ==(Object other) =>
-      other is EventBlocklistRecordAdded &&
+      other is BlocklistRecordAddedEvent &&
       user == other.user &&
       at == other.at;
 

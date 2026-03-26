@@ -2090,13 +2090,10 @@ extension LinkParsingExtension on String {
 
                 for (var e in origins) {
                   if (url.startsWith(e)) {
-                    if (e.endsWith(Routes.chatDirectLink)) {
+                    if (e.endsWith(Routes.directLink)) {
                       return router.push(
                         url.replaceFirst(
-                          e.substring(
-                            0,
-                            e.length - Routes.chatDirectLink.length,
-                          ),
+                          e.substring(0, e.length - Routes.directLink.length),
                           '',
                         ),
                       );

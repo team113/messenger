@@ -18,7 +18,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
@@ -27,18 +26,18 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/system_info_prompt.dart';
 import 'controller.dart';
 
-/// View of the [Routes.chatDirectLink] page.
-class ChatDirectLinkView extends StatelessWidget {
-  const ChatDirectLinkView(this._slug, {super.key});
+/// View of the [Routes.directLink] page.
+class DirectLinkView extends StatelessWidget {
+  const DirectLinkView(this._slug, {super.key});
 
-  /// [String] to be parsed as a [ChatDirectLinkSlug] of this page.
+  /// [String] to be parsed as a [DirectLinkSlug] of this page.
   final String _slug;
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: ChatDirectLinkController(_slug, Get.find()),
-      builder: (ChatDirectLinkController c) {
+      init: DirectLinkController(_slug, Get.find()),
+      builder: (DirectLinkController c) {
         return Scaffold(
           appBar: ModalRoute.of(context)?.canPop == true
               ? const CustomAppBar(leading: [StyledBackButton()])

@@ -18,7 +18,7 @@
 query SearchUsers(
     $num: UserNum
     $login: UserLogin
-    $directLink: ChatDirectLinkSlug
+    $directLink: DirectLinkSlug
     $name: UserName
     $first: Int
     $after: UsersCursor

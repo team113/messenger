@@ -99,8 +99,8 @@ abstract class ChatContactEvent {
 }
 
 /// Event of a new [ChatContact] being created.
-class EventChatContactCreated extends ChatContactEvent {
-  const EventChatContactCreated(super.contactId, super.at, this.name);
+class ChatContactCreatedEvent extends ChatContactEvent {
+  const ChatContactCreatedEvent(super.contactId, super.at, this.name);
 
   /// Name of the created [ChatContact].
   final UserName name;
@@ -118,8 +118,8 @@ class EventChatContactDeleted extends ChatContactEvent {
 }
 
 /// Event of an [UserEmail] being added to a [ChatContact].
-class EventChatContactEmailAdded extends ChatContactEvent {
-  const EventChatContactEmailAdded(super.contactId, super.at, this.email);
+class ChatContactEmailAddedEvent extends ChatContactEvent {
+  const ChatContactEmailAddedEvent(super.contactId, super.at, this.email);
 
   /// Added [UserEmail].
   final UserEmail email;
@@ -129,8 +129,8 @@ class EventChatContactEmailAdded extends ChatContactEvent {
 }
 
 /// Event of an [UserEmail] being removed from a [ChatContact].
-class EventChatContactEmailRemoved extends ChatContactEvent {
-  const EventChatContactEmailRemoved(super.contactId, super.at, this.email);
+class ChatContactEmailRemovedEvent extends ChatContactEvent {
+  const ChatContactEmailRemovedEvent(super.contactId, super.at, this.email);
 
   /// Removed [UserEmail].
   final UserEmail email;
@@ -140,8 +140,8 @@ class EventChatContactEmailRemoved extends ChatContactEvent {
 }
 
 /// Event of a [ChatContact] being favorited.
-class EventChatContactFavorited extends ChatContactEvent {
-  const EventChatContactFavorited(super.contactId, super.at, this.position);
+class ChatContactFavoritedEvent extends ChatContactEvent {
+  const ChatContactFavoritedEvent(super.contactId, super.at, this.position);
 
   /// Position of the [ChatContact] in the favorites list.
   final ChatContactFavoritePosition position;
@@ -151,8 +151,8 @@ class EventChatContactFavorited extends ChatContactEvent {
 }
 
 /// Event of a [Chat]-group being added to the [ChatContact].
-class EventChatContactGroupAdded extends ChatContactEvent {
-  const EventChatContactGroupAdded(super.contactId, super.at, this.group);
+class ChatContactGroupAddedEvent extends ChatContactEvent {
+  const ChatContactGroupAddedEvent(super.contactId, super.at, this.group);
 
   /// [Chat]-group added to the [ChatContact].
   final Chat group;
@@ -162,8 +162,8 @@ class EventChatContactGroupAdded extends ChatContactEvent {
 }
 
 /// Event of a [Chat]-group being removed from a [ChatContact].
-class EventChatContactGroupRemoved extends ChatContactEvent {
-  const EventChatContactGroupRemoved(super.contactId, super.at, this.groupId);
+class ChatContactGroupRemovedEvent extends ChatContactEvent {
+  const ChatContactGroupRemovedEvent(super.contactId, super.at, this.groupId);
 
   /// ID of the removed [Chat]-group.
   final ChatId groupId;
@@ -173,8 +173,8 @@ class EventChatContactGroupRemoved extends ChatContactEvent {
 }
 
 /// Event of a [ChatContact]'s name being updated.
-class EventChatContactNameUpdated extends ChatContactEvent {
-  const EventChatContactNameUpdated(super.contactId, super.at, this.name);
+class ChatContactNameUpdatedEvent extends ChatContactEvent {
+  const ChatContactNameUpdatedEvent(super.contactId, super.at, this.name);
 
   /// Updated name of the [ChatContact].
   final UserName name;
@@ -184,8 +184,8 @@ class EventChatContactNameUpdated extends ChatContactEvent {
 }
 
 /// Event of an [UserPhone] being added to a [ChatContact].
-class EventChatContactPhoneAdded extends ChatContactEvent {
-  const EventChatContactPhoneAdded(super.contactId, super.at, this.phone);
+class ChatContactPhoneAddedEvent extends ChatContactEvent {
+  const ChatContactPhoneAddedEvent(super.contactId, super.at, this.phone);
 
   /// Added [UserPhone].
   final UserPhone phone;
@@ -195,8 +195,8 @@ class EventChatContactPhoneAdded extends ChatContactEvent {
 }
 
 /// Event of an [UserPhone] being removed from a [ChatContact].
-class EventChatContactPhoneRemoved extends ChatContactEvent {
-  const EventChatContactPhoneRemoved(super.contactId, super.at, this.phone);
+class ChatContactPhoneRemovedEvent extends ChatContactEvent {
+  const ChatContactPhoneRemovedEvent(super.contactId, super.at, this.phone);
 
   /// Removed [UserPhone].
   final UserPhone phone;
@@ -214,8 +214,8 @@ class EventChatContactUnfavorited extends ChatContactEvent {
 }
 
 /// Event of an [User] being added to a [ChatContact].
-class EventChatContactUserAdded extends ChatContactEvent {
-  const EventChatContactUserAdded(super.contactId, super.at, this.user);
+class ChatContactUserAddedEvent extends ChatContactEvent {
+  const ChatContactUserAddedEvent(super.contactId, super.at, this.user);
 
   /// [User] added to the [ChatContact].
   final User user;
@@ -225,8 +225,8 @@ class EventChatContactUserAdded extends ChatContactEvent {
 }
 
 /// Event of an [User] being removed from a [ChatContact].
-class EventChatContactUserRemoved extends ChatContactEvent {
-  const EventChatContactUserRemoved(super.contactId, super.at, this.userId);
+class ChatContactUserRemovedEvent extends ChatContactEvent {
+  const ChatContactUserRemovedEvent(super.contactId, super.at, this.userId);
 
   /// ID of the removed [User].
   final UserId userId;

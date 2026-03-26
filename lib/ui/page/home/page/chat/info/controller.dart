@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -29,15 +28,17 @@ import '/api/backend/schema.dart'
     show CropAreaInput, PointInput, UpdateChatAvatarErrorCode;
 import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
+import '/domain/model/link.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
-import '/domain/repository/settings.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/link.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
@@ -59,7 +60,7 @@ class ChatInfoController extends GetxController {
     this._authService,
     this._callService,
     this._myUserService,
-    this._settingsRepo,
+    this._linkService,
   );
 
   /// ID of the [Chat] this page is about.
@@ -123,6 +124,9 @@ class ChatInfoController extends GetxController {
   /// Indicator whether the app bar should display the [User.name].
   final RxBool preferName = RxBool(false);
 
+  /// [Paginated] containing the [DirectLink] leading to this [Chat].
+  late final Paginated<DirectLinkSlug, DirectLink> links;
+
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
 
@@ -135,8 +139,8 @@ class ChatInfoController extends GetxController {
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
-  /// Settings repository, used to retrieve the [background].
-  final AbstractSettingsRepository _settingsRepo;
+  /// [LinkService] managing the [DirectLink]s.
+  final LinkService _linkService;
 
   /// Worker to react on [chat] changes.
   Worker? _worker;
@@ -146,6 +150,9 @@ class ChatInfoController extends GetxController {
 
   /// Subscription for the [RxChat.members] changes.
   StreamSubscription? _membersSubscription;
+
+  /// Subscription for the [DirectLink]s changes.
+  StreamSubscription? _linksSubscription;
 
   /// Indicator whether the [_scrollListener] is already invoked during the
   /// current frame.
@@ -184,9 +191,6 @@ class ChatInfoController extends GetxController {
   /// Indicates whether the [Chat.members] have a next page.
   RxBool get haveNext => chat?.members.hasNext ?? RxBool(false);
 
-  /// Returns the current background's [Uint8List] value.
-  Rx<Uint8List?> get background => _settingsRepo.background;
-
   /// Indicates whether the [Chat.avatar] and [Chat.name] can be edited.
   bool get canEdit => !isMonolog;
 
@@ -202,6 +206,9 @@ class ChatInfoController extends GetxController {
 
     _fetched?.finish();
     _fetched = _ready.startChild('fetch');
+
+    links = _linkService.links(chatId: chatId);
+    links.ensureInitialized();
 
     try {
       final FutureOr<RxChat?> fetched = _chatService.get(chatId);
@@ -227,6 +234,7 @@ class ChatInfoController extends GetxController {
     _highlightTimer?.cancel();
     _chatSubscription?.cancel();
     _membersSubscription?.cancel();
+    _linksSubscription?.cancel();
     membersScrollController.dispose();
     scrollController.removeListener(_pageListener);
     scrollController.dispose();
@@ -439,16 +447,16 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug]
-  /// and deletes the current active [ChatDirectLink] of the given [Chat]-group
-  /// (if any).
-  Future<void> createChatDirectLink(ChatDirectLinkSlug? slug) async {
-    await _chatService.createChatDirectLink(chatId, slug!);
+  /// Creates a new [DirectLink] with the specified [DirectLinkSlug] and
+  /// disables the current active [DirectLink] of the given [Chat]-group (if
+  /// any).
+  Future<void> createChatDirectLink(DirectLinkSlug slug) async {
+    await _linkService.updateGroupLink(chatId, slug);
   }
 
-  /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
-  Future<void> deleteChatDirectLink() async {
-    await _chatService.deleteChatDirectLink(chatId);
+  /// Deletes the current [DirectLink] of the given [Chat]-group.
+  Future<void> deleteChatDirectLink(DirectLinkSlug slug) async {
+    await _linkService.updateGroupLink(chatId, null);
   }
 
   /// Uploads the current edits ([avatarCrop], [avatarImage] and
@@ -560,6 +568,11 @@ class ChatInfoController extends GetxController {
       status.value = RxStatus.empty();
     } else {
       _chatSubscription = chat.updates.listen((_) {});
+
+      // Only groups can have direct links.
+      if (chat.chat.value.isGroup) {
+        _linksSubscription = _linkService.updatesFor(chatId).listen((_) {});
+      }
 
       name.unchecked = chat.chat.value.name?.val;
 

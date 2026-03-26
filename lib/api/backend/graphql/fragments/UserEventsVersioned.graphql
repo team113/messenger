@@ -19,66 +19,66 @@ fragment UserEventsVersioned on UserEventsVersioned {
     events {
         __typename
         userId
-        ... on EventUserAvatarRemoved {
+        ... on UserAvatarRemovedEvent {
             at
         }
-        ... on EventUserAvatarUpdated {
+        ... on UserAvatarUpdatedEvent {
             avatar {
                 __typename
                 ...UserAvatar
             }
             at
         }
-        ... on EventUserBioRemoved {
+        ... on UserBioRemovedEvent {
             userId
             at
         }
-        ... on EventUserBioUpdated {
+        ... on UserBioUpdatedEvent {
             userId
             bio
             at
         }
-        ... on EventUserCallCoverRemoved {
+        ... on UserCallCoverRemovedEvent {
             at
         }
-        ... on EventUserCallCoverUpdated {
+        ... on UserCallCoverUpdatedEvent {
             callCover {
                 __typename
                 ...UserCallCover
             }
             at
         }
-        ... on EventUserCameOffline {
+        ... on UserCameOfflineEvent {
             at
         }
-        ... on EventUserCameOnline {
+        ... on UserCameOnlineEvent {
             userId
         }
-        ... on EventUserDeleted {
+        ... on UserDeletedEvent {
             at
         }
-        ... on EventUserNameRemoved {
+        ... on UserNameRemovedEvent {
             at
         }
-        ... on EventUserNameUpdated {
+        ... on UserNameUpdatedEvent {
             name
             at
         }
-        ... on EventUserPresenceUpdated {
+        ... on UserPresenceUpdatedEvent {
             presence
             at
         }
-        ... on EventUserStatusRemoved {
+        ... on UserStatusRemovedEvent {
             at
         }
-        ... on EventUserStatusUpdated {
+        ... on UserStatusUpdatedEvent {
             status
             at
         }
-        ... on EventUserWelcomeMessageDeleted {
+        ... on UserWelcomeMessageDeletedEvent {
             at
         }
-        ... on EventUserWelcomeMessageUpdated {
+        ... on UserWelcomeMessageUpdatedEvent {
             text {
                 changed
             }

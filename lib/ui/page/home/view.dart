@@ -23,7 +23,7 @@ import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/config.dart';
-import '/domain/model/user.dart';
+import '/domain/model/link.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -63,8 +63,8 @@ class HomeView extends StatefulWidget {
   /// Should also mean that sign up operation just has been occurred.
   final bool signedUp;
 
-  /// [ChatDirectLinkSlug] to display [IntroductionView] with.
-  final ChatDirectLinkSlug? link;
+  /// [DirectLinkSlug] to display [IntroductionView] with.
+  final DirectLinkSlug? link;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies?> Function() _depsFactory;

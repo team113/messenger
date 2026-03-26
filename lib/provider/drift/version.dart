@@ -25,6 +25,7 @@ import '/domain/model/user.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
+import '/store/model/link.dart';
 import '/store/model/session_data.dart';
 import '/store/model/session.dart';
 import '/util/new_type.dart';
@@ -46,6 +47,7 @@ class Versions extends Table {
   TextColumn get sessionsListVersion => text().nullable()();
   TextColumn get blocklistVersion => text().nullable()();
   IntColumn get blocklistCount => integer().nullable()();
+  TextColumn get directLinksListVersion => text().nullable()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [SessionData].
@@ -105,6 +107,7 @@ class VersionDriftProvider extends DriftProviderBase {
     NewType<SessionsListVersion?>? sessionsListVersion,
     NewType<BlocklistVersion?>? blocklistVersion,
     NewType<int?>? blocklistCount,
+    NewType<DirectLinkVersion?>? directLinksListVersion,
   }) async {
     final SessionData? existing = data[userId];
     final SessionData session = (existing ?? SessionData()).replaceWith(
@@ -117,6 +120,7 @@ class VersionDriftProvider extends DriftProviderBase {
       sessionsListVersion: sessionsListVersion,
       blocklistVersion: blocklistVersion,
       blocklistCount: blocklistCount,
+      directLinksListVersion: directLinksListVersion,
     );
 
     data[userId] = session;
@@ -203,6 +207,9 @@ extension _SessionDataDb on SessionData {
           ? null
           : BlocklistVersion(e.blocklistVersion!),
       blocklistCount: e.blocklistCount,
+      directLinksListVersion: e.directLinksListVersion == null
+          ? null
+          : DirectLinkVersion(e.directLinksListVersion!),
     );
   }
 
@@ -219,6 +226,7 @@ extension _SessionDataDb on SessionData {
       sessionsListVersion: sessionsListVersion?.val,
       blocklistVersion: blocklistVersion?.val,
       blocklistCount: blocklistCount,
+      directLinksListVersion: directLinksListVersion?.val,
     );
   }
 }

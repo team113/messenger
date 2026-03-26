@@ -24,20 +24,20 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '../config.dart';
 import '/api/backend/extension/call.dart';
 import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
+import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart' as model;
+import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat_message_input.dart' as model;
+import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/ongoing_call.dart';
@@ -47,9 +47,9 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/provider/drift/chat.dart';
 import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
+import '/provider/drift/chat.dart';
 import '/provider/drift/draft.dart';
 import '/provider/drift/monolog.dart';
 import '/provider/drift/version.dart';
@@ -58,7 +58,6 @@ import '/provider/gql/exceptions.dart'
         AddChatMemberException,
         ClearChatException,
         ConnectionException,
-        DeleteChatDirectLinkException,
         DeleteChatForwardException,
         DeleteChatMessageException,
         EditChatMessageException,
@@ -74,7 +73,6 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException,
         UpdateChatAvatarException,
         UploadAttachmentException,
-        CreateChatDirectLinkException,
         CreateDialogException;
 import '/provider/gql/graphql.dart';
 import '/store/event/recent_chat.dart';
@@ -91,12 +89,12 @@ import '/util/web/web_utils.dart';
 import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
-import 'model/chat.dart';
 import 'model/chat_member.dart';
+import 'model/chat.dart';
 import 'paginated.dart';
 import 'pagination.dart';
-import 'pagination/drift.dart';
 import 'pagination/drift_graphql.dart';
+import 'pagination/drift.dart';
 
 typedef ArchivedPaginated =
     RxPaginatedImpl<ChatId, RxChatImpl, DtoChat, RecentChatsCursor>;
@@ -1431,86 +1429,6 @@ class ChatRepository extends DisposableInterface
     }
   }
 
-  @override
-  Future<void> createChatDirectLink(
-    ChatId chatId,
-    ChatDirectLinkSlug slug,
-  ) async {
-    Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
-
-    try {
-      // Don't do optimism, as [slug] might be occupied, thus shouldn't set the
-      // link right away.
-      await Backoff.run(
-        () async {
-          await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
-        },
-        retryIf: (e) => e.isNetworkRelated,
-        retries: 10,
-      );
-    } on CreateChatDirectLinkException catch (e) {
-      switch (e.code) {
-        case CreateChatDirectLinkErrorCode.artemisUnknown:
-        case CreateChatDirectLinkErrorCode.occupied:
-          rethrow;
-
-        case CreateChatDirectLinkErrorCode.notGroup:
-          // No-op.
-          return;
-
-        case CreateChatDirectLinkErrorCode.unknownChat:
-          await remove(chatId);
-          return;
-      }
-    }
-
-    final RxChatImpl? chat = chats[chatId];
-    chat?.chat.update(
-      (c) => c?.directLink = ChatDirectLink(
-        slug: slug,
-        createdAt: PreciseDateTime.now(),
-      ),
-    );
-  }
-
-  @override
-  Future<void> deleteChatDirectLink(ChatId groupId) async {
-    Log.debug('deleteChatDirectLink($groupId)', '$runtimeType');
-
-    final RxChatImpl? chat = chats[groupId];
-    final ChatDirectLink? link = chat?.chat.value.directLink;
-
-    chat?.chat.update((c) => c?.directLink = null);
-
-    try {
-      try {
-        await Backoff.run(
-          () async {
-            await _graphQlProvider.deleteChatDirectLink(groupId: groupId);
-          },
-          retryIf: (e) => e.isNetworkRelated,
-          retries: 10,
-        );
-      } on DeleteChatDirectLinkException catch (e) {
-        switch (e.code) {
-          case DeleteChatDirectLinkErrorCode.artemisUnknown:
-            rethrow;
-
-          case DeleteChatDirectLinkErrorCode.notGroup:
-            // No-op.
-            break;
-
-          case DeleteChatDirectLinkErrorCode.unknownChat:
-            await remove(groupId);
-            break;
-        }
-      }
-    } catch (_) {
-      chat?.chat.update((c) => c?.directLink = link);
-      rethrow;
-    }
-  }
-
   // TODO: Make [ChatForward]s to post like [ChatMessage]s.
   @override
   Future<void> forwardChatItems(
@@ -1563,6 +1481,7 @@ class ChatRepository extends DisposableInterface
         case ForwardChatItemsErrorCode.artemisUnknown:
         case ForwardChatItemsErrorCode.disabledDonation:
         case ForwardChatItemsErrorCode.tooSmallDonation:
+        case ForwardChatItemsErrorCode.disabled:
           rethrow;
 
         case ForwardChatItemsErrorCode.unknownChat:
@@ -2042,78 +1961,74 @@ class ChatRepository extends DisposableInterface
   ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {
     Log.trace('chatEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventChatCleared') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCleared;
-      return EventChatCleared(e.chatId, node.at);
-    } else if (e.$$typename == 'EventChatUnreadItemsCountUpdated') {
+    if (e.$$typename == 'ChatClearedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatClearedEvent;
+      return ChatClearedEvent(e.chatId, node.at);
+    } else if (e.$$typename == 'ChatUnreadItemsCountUpdatedEvent') {
       var node =
-          e as ChatEventsVersionedMixin$Events$EventChatUnreadItemsCountUpdated;
-      return EventChatUnreadItemsCountUpdated(e.chatId, node.count);
-    } else if (e.$$typename == 'EventChatItemPosted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemPosted;
-      return EventChatItemPosted(e.chatId, node.item.toDto());
-    } else if (e.$$typename == 'EventChatLastItemUpdated') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatLastItemUpdated;
-      return EventChatLastItemUpdated(e.chatId, node.lastItem?.toDto());
-    } else if (e.$$typename == 'EventChatItemHidden') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemHidden;
-      return EventChatItemHidden(e.chatId, node.itemId);
-    } else if (e.$$typename == 'EventChatMuted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatMuted;
-      return EventChatMuted(e.chatId, node.duration.toModel());
-    } else if (e.$$typename == 'EventChatTypingStarted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStarted;
+          e as ChatEventsVersionedMixin$Events$ChatUnreadItemsCountUpdatedEvent;
+      return ChatUnreadItemsCountUpdatedEvent(e.chatId, node.count);
+    } else if (e.$$typename == 'ChatItemPostedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatItemPostedEvent;
+      return ChatItemPostedEvent(e.chatId, node.item.toDto());
+    } else if (e.$$typename == 'ChatLastItemUpdatedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatLastItemUpdatedEvent;
+      return ChatLastItemUpdatedEvent(e.chatId, node.lastItem?.toDto());
+    } else if (e.$$typename == 'ChatItemHiddenEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatItemHiddenEvent;
+      return ChatItemHiddenEvent(e.chatId, node.itemId);
+    } else if (e.$$typename == 'ChatMutedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatMutedEvent;
+      return ChatMutedEvent(e.chatId, node.duration.toModel());
+    } else if (e.$$typename == 'ChatTypingStartedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatTypingStartedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatTypingStarted(e.chatId, node.user.toModel());
+      return ChatTypingStartedEvent(e.chatId, node.user.toModel());
     } else if (e.$$typename == 'EventChatUnmuted') {
       return EventChatUnmuted(e.chatId);
-    } else if (e.$$typename == 'EventChatTypingStopped') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStopped;
+    } else if (e.$$typename == 'ChatTypingStoppedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatTypingStoppedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatTypingStopped(e.chatId, node.user.toModel());
-    } else if (e.$$typename == 'EventChatHidden') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatHidden;
-      return EventChatHidden(e.chatId, node.at);
-    } else if (e.$$typename == 'EventChatItemDeleted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemDeleted;
-      return EventChatItemDeleted(e.chatId, node.itemId);
-    } else if (e.$$typename == 'EventChatItemEdited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemEdited;
-      return EventChatItemEdited(
+      return ChatTypingStoppedEvent(e.chatId, node.user.toModel());
+    } else if (e.$$typename == 'ChatHiddenEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatHiddenEvent;
+      return ChatHiddenEvent(e.chatId, node.at);
+    } else if (e.$$typename == 'ChatItemDeletedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatItemDeletedEvent;
+      return ChatItemDeletedEvent(e.chatId, node.itemId);
+    } else if (e.$$typename == 'ChatItemEditedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatItemEditedEvent;
+      return ChatItemEditedEvent(
         e.chatId,
         node.itemId,
         node.text == null ? null : EditedMessageText(node.text!.changed),
         node.attachments?.changed.map((e) => e.toModel()).toList(),
         node.repliesTo?.changed.map((e) => e.toDto()).toList(),
       );
-    } else if (e.$$typename == 'EventChatCallStarted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
-      return EventChatCallStarted(e.chatId, node.call.toModel());
-    } else if (e.$$typename == 'EventChatDirectLinkUsageCountUpdated') {
-      var node =
-          e as ChatEventsVersionedMixin$Events$EventChatDirectLinkUsageCountUpdated;
-      return EventChatDirectLinkUsageCountUpdated(e.chatId, node.usageCount);
-    } else if (e.$$typename == 'EventChatCallFinished') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
-      return EventChatCallFinished(e.chatId, node.call.toModel(), node.reason);
-    } else if (e.$$typename == 'EventChatCallMemberLeft') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
+    } else if (e.$$typename == 'ChatCallStartedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallStartedEvent;
+      return ChatCallStartedEvent(e.chatId, node.call.toModel());
+    } else if (e.$$typename == 'ChatCallFinishedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallFinishedEvent;
+      return ChatCallFinishedEvent(e.chatId, node.call.toModel(), node.reason);
+    } else if (e.$$typename == 'ChatCallMemberLeftEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallMemberLeftEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatCallMemberLeft(e.chatId, node.user.toModel(), node.at);
-    } else if (e.$$typename == 'EventChatCallMemberJoined') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+      return ChatCallMemberLeftEvent(e.chatId, node.user.toModel(), node.at);
+    } else if (e.$$typename == 'ChatCallMemberJoinedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallMemberJoinedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatCallMemberJoined(
+      return ChatCallMemberJoinedEvent(
         e.chatId,
         node.call.toModel(),
         node.user.toModel(),
         node.at,
       );
-    } else if (e.$$typename == 'EventChatCallMemberRedialed') {
+    } else if (e.$$typename == 'ChatCallMemberRedialedEvent') {
       var node =
-          e as ChatEventsVersionedMixin$Events$EventChatCallMemberRedialed;
+          e as ChatEventsVersionedMixin$Events$ChatCallMemberRedialedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatCallMemberRedialed(
+      return ChatCallMemberRedialedEvent(
         e.chatId,
         node.at,
         node.callId,
@@ -2121,44 +2036,31 @@ class ChatRepository extends DisposableInterface
         node.user.toModel(),
         node.byUser.toModel(),
       );
-    } else if (e.$$typename == 'EventChatDelivered') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;
-      return EventChatDelivered(e.chatId, node.until);
-    } else if (e.$$typename == 'EventChatRead') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatRead;
+    } else if (e.$$typename == 'ChatDeliveredEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatDeliveredEvent;
+      return ChatDeliveredEvent(e.chatId, node.until);
+    } else if (e.$$typename == 'ChatReadEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatReadEvent;
       _userRepo.put(node.byUser.toDto());
-      return EventChatRead(e.chatId, node.byUser.toModel(), node.at);
-    } else if (e.$$typename == 'EventChatCallDeclined') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+      return ChatReadEvent(e.chatId, node.byUser.toModel(), node.at);
+    } else if (e.$$typename == 'ChatCallDeclinedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallDeclinedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatCallDeclined(
+      return ChatCallDeclinedEvent(
         e.chatId,
         node.callId,
         node.call.toModel(),
         node.user.toModel(),
         node.at,
       );
-    } else if (e.$$typename == 'EventChatTotalItemsCountUpdated') {
+    } else if (e.$$typename == 'ChatTotalItemsCountUpdatedEvent') {
       var node =
-          e as ChatEventsVersionedMixin$Events$EventChatTotalItemsCountUpdated;
-      return EventChatTotalItemsCountUpdated(e.chatId, node.count);
-    } else if (e.$$typename == 'EventChatDirectLinkDeleted') {
-      return EventChatDirectLinkDeleted(e.chatId);
-    } else if (e.$$typename == 'EventChatDirectLinkUpdated') {
-      var node =
-          e as ChatEventsVersionedMixin$Events$EventChatDirectLinkUpdated;
-      return EventChatDirectLinkUpdated(
-        e.chatId,
-        ChatDirectLink(
-          slug: node.directLink.slug,
-          usageCount: node.directLink.usageCount,
-          createdAt: node.directLink.createdAt,
-        ),
-      );
-    } else if (e.$$typename == 'EventChatCallMoved') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMoved;
+          e as ChatEventsVersionedMixin$Events$ChatTotalItemsCountUpdatedEvent;
+      return ChatTotalItemsCountUpdatedEvent(e.chatId, node.count);
+    } else if (e.$$typename == 'ChatCallMovedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallMovedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatCallMoved(
+      return ChatCallMovedEvent(
         e.chatId,
         node.callId,
         node.call.toModel(),
@@ -2169,31 +2071,31 @@ class ChatRepository extends DisposableInterface
         node.user.toModel(),
         node.at,
       );
-    } else if (e.$$typename == 'EventChatArchived') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatArchived;
-      return EventChatArchived(e.chatId, node.at);
-    } else if (e.$$typename == 'EventChatUnarchived') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatUnarchived;
-      return EventChatUnarchived(e.chatId, node.at);
-    } else if (e.$$typename == 'EventChatFavorited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatFavorited;
-      return EventChatFavorited(e.chatId, node.at, node.position);
-    } else if (e.$$typename == 'EventChatUnfavorited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatUnfavorited;
-      return EventChatUnfavorited(e.chatId, node.at);
-    } else if (e.$$typename == 'EventChatCallConversationStarted') {
+    } else if (e.$$typename == 'ChatArchivedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatArchivedEvent;
+      return ChatArchivedEvent(e.chatId, node.at);
+    } else if (e.$$typename == 'ChatUnarchivedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatUnarchivedEvent;
+      return ChatUnarchivedEvent(e.chatId, node.at);
+    } else if (e.$$typename == 'ChatFavoritedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatFavoritedEvent;
+      return ChatFavoritedEvent(e.chatId, node.at, node.position);
+    } else if (e.$$typename == 'ChatUnfavoritedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatUnfavoritedEvent;
+      return ChatUnfavoritedEvent(e.chatId, node.at);
+    } else if (e.$$typename == 'ChatCallConversationStartedEvent') {
       var node =
-          e as ChatEventsVersionedMixin$Events$EventChatCallConversationStarted;
-      return EventChatCallConversationStarted(
+          e as ChatEventsVersionedMixin$Events$ChatCallConversationStartedEvent;
+      return ChatCallConversationStartedEvent(
         e.chatId,
         node.callId,
         node.at,
         node.call.toModel(),
       );
-    } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+    } else if (e.$$typename == 'ChatCallAnswerTimeoutPassedEvent') {
       var node =
-          e as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
-      return EventChatCallAnswerTimeoutPassed(e.chatId, node.callId);
+          e as ChatEventsVersionedMixin$Events$ChatCallAnswerTimeoutPassedEvent;
+      return ChatCallAnswerTimeoutPassedEvent(e.chatId, node.callId);
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }
@@ -2889,17 +2791,17 @@ class ChatRepository extends DisposableInterface
         yield RecentChatsTop(
           list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
         );
-      } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
+      } else if (events.$$typename == 'RecentChatsTopChatUpdatedEvent') {
         var mixin =
             events
-                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
+                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTopChatUpdatedEvent;
         yield EventRecentChatsUpdated(
           _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
         );
-      } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
+      } else if (events.$$typename == 'RecentChatsTopChatRemovedEvent') {
         var mixin =
             events
-                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
+                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTopChatRemovedEvent;
         yield EventRecentChatsDeleted(mixin.chatId);
       }
     });
@@ -2932,17 +2834,17 @@ class ChatRepository extends DisposableInterface
     //     yield RecentChatsTop(
     //       list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
     //     );
-    //   } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
+    //   } else if (events.$$typename == 'RecentChatsTopChatUpdatedEvent') {
     //     var mixin =
     //         events
-    //             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
+    //             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTopChatUpdatedEvent;
     //     yield EventRecentChatsUpdated(
     //       _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
     //     );
-    //   } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
+    //   } else if (events.$$typename == 'RecentChatsTopChatRemovedEvent') {
     //     var mixin =
     //         events
-    //             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
+    //             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTopChatRemovedEvent;
     //     yield EventRecentChatsDeleted(mixin.chatId);
     //   }
     // });
@@ -3225,7 +3127,7 @@ class ChatRepository extends DisposableInterface
                 // [paginated], then fetch it and store appropriately with its
                 // favorite position.
                 if (paginated[event.chatId] == null || !isRemote) {
-                  event as EventChatFavorited;
+                  event as ChatFavoritedEvent;
 
                   final DtoChat? dto = await _chatLocal.read(event.chatId);
                   if (dto != null) {
@@ -3294,12 +3196,12 @@ class ChatRepository extends DisposableInterface
   ) {
     Log.trace('_favoriteChatsVersionedEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventChatFavorited') {
+    if (e.$$typename == 'ChatFavoritedEvent') {
       var node =
-          e as FavoriteChatsEventsVersionedMixin$Events$EventChatFavorited;
-      return EventChatFavorited(e.chatId, e.at, node.position);
-    } else if (e.$$typename == 'EventChatUnfavorited') {
-      return EventChatUnfavorited(e.chatId, e.at);
+          e as FavoriteChatsEventsVersionedMixin$Events$ChatFavoritedEvent;
+      return ChatFavoritedEvent(e.chatId, e.at, node.position);
+    } else if (e.$$typename == 'ChatUnfavoritedEvent') {
+      return ChatUnfavoritedEvent(e.chatId, e.at);
     } else {
       throw UnimplementedError('Unknown FavoriteChatsEvent: ${e.$$typename}');
     }
@@ -3327,8 +3229,8 @@ class ChatRepository extends DisposableInterface
           members: users.nonNulls
               .map((e) => ChatMember(e.user.value, PreciseDateTime.now()))
               .toList(),
-          kindIndex: ChatKind.values.indexOf(
-            responderId == me ? ChatKind.monolog : ChatKind.dialog,
+          kindIndex: Kind.values.indexOf(
+            responderId == me ? Kind.monolog : Kind.dialog,
           ),
           updatedAt: PreciseDateTime.fromMicrosecondsSinceEpoch(0),
         ),

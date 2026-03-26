@@ -39,17 +39,20 @@ import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/file.dart';
+import '/domain/model/link.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/blocklist.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/link.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/session.dart';
 import '/l10n/l10n.dart';
@@ -80,6 +83,7 @@ class MyProfileController extends GetxController {
     this._blocklistService,
     this._upgradeWorker,
     this._cacheWorker,
+    this._linkService,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -247,6 +251,9 @@ class MyProfileController extends GetxController {
   /// Indicator whether mute/unmute hotkey is being recorded right now.
   final RxBool hotKeyRecording = RxBool(false);
 
+  /// [Paginated] containing the [DirectLink] leading to this [MyUser].
+  late final Paginated<DirectLinkSlug, DirectLink> links;
+
   /// Service managing current [Credentials].
   final AuthService _authService;
 
@@ -270,6 +277,9 @@ class MyProfileController extends GetxController {
 
   /// [CacheWorker] for retrieving the [CacheWorker.downloadsDirectory].
   final CacheWorker _cacheWorker;
+
+  /// [LinkService] managing the [DirectLink]s.
+  final LinkService _linkService;
 
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
@@ -550,6 +560,9 @@ class MyProfileController extends GetxController {
       }
     });
 
+    links = _linkService.links(userId: _authService.userId);
+    links.ensureInitialized();
+
     super.onInit();
   }
 
@@ -722,16 +735,15 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
-  /// (if any).
-  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
-    await _myUserService.createChatDirectLink(slug);
+  /// Creates a new [DirectLink] with the specified [DirectLinkSlug] and deletes
+  /// the current active [DirectLink] of the authenticated [MyUser] (if any).
+  Future<void> linkLink(DirectLinkSlug slug) async {
+    await _linkService.updateLink(slug, _authService.userId);
   }
 
-  /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
-  Future<void> deleteChatDirectLink() async {
-    await _myUserService.deleteChatDirectLink();
+  /// Deletes the provided [DirectLinkSlug] from the authenticated [MyUser].
+  Future<void> unlinkLink(DirectLinkSlug slug) async {
+    await _linkService.updateLink(slug, null);
   }
 
   /// Updates [MyUser.name] field for the authenticated [MyUser].

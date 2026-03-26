@@ -20,7 +20,7 @@ fragment FavoriteChatsEventsVersioned on FavoriteChatsEventsVersioned {
         __typename
         chatId
         at
-        ... on EventChatFavorited {
+        ... on ChatFavoritedEvent {
             position
         }
     }

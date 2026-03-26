@@ -23,7 +23,7 @@ fragment BlocklistEventsVersioned on BlocklistEventsVersioned {
             __typename
         }
         at
-        ... on EventBlocklistRecordAdded {
+        ... on BlocklistRecordAddedEvent {
             reason
         }
     }

@@ -20,6 +20,7 @@ import 'components/auth.dart';
 import 'components/call.dart';
 import 'components/chat.dart';
 import 'components/contact.dart';
+import 'components/link.dart';
 import 'components/user.dart';
 
 /// Provider of backend GraphQL API.
@@ -29,4 +30,5 @@ class GraphQlProvider extends GraphQlProviderBase
         UserGraphQlMixin,
         CallGraphQlMixin,
         ContactGraphQlMixin,
-        ChatGraphQlMixin {}
+        ChatGraphQlMixin,
+        LinkGraphQlMixin {}

@@ -20,7 +20,7 @@ fragment ChatContactEventsVersioned on ChatContactEventsVersioned {
         __typename
         contactId
         at
-        ... on EventChatContactPhoneRemoved {
+        ... on ChatContactPhoneRemovedEvent {
             phone {
                 phone
                 user {
@@ -29,10 +29,10 @@ fragment ChatContactEventsVersioned on ChatContactEventsVersioned {
                 }
             }
         }
-        ... on EventChatContactFavorited {
+        ... on ChatContactFavoritedEvent {
             position
         }
-        ... on EventChatContactEmailAdded {
+        ... on ChatContactEmailAddedEvent {
             email {
                 email
                 user {
@@ -41,7 +41,7 @@ fragment ChatContactEventsVersioned on ChatContactEventsVersioned {
                 }
             }
         }
-        ... on EventChatContactEmailRemoved {
+        ... on ChatContactEmailRemovedEvent {
             email {
                 email
                 user {
@@ -50,31 +50,31 @@ fragment ChatContactEventsVersioned on ChatContactEventsVersioned {
                 }
             }
         }
-        ... on EventChatContactCreated {
+        ... on ChatContactCreatedEvent {
             name
         }
-        ... on EventChatContactGroupAdded {
+        ... on ChatContactGroupAddedEvent {
             group {
                 __typename
                 ...Chat
             }
         }
-        ... on EventChatContactNameUpdated {
+        ... on ChatContactNameUpdatedEvent {
             name
         }
-        ... on EventChatContactGroupRemoved {
+        ... on ChatContactGroupRemovedEvent {
             groupId
         }
-        ... on EventChatContactUserAdded {
+        ... on ChatContactUserAddedEvent {
             user {
                 __typename
                 ...User
             }
         }
-        ... on EventChatContactUserRemoved {
+        ... on ChatContactUserRemovedEvent {
             userId
         }
-        ... on EventChatContactPhoneAdded {
+        ... on ChatContactPhoneAddedEvent {
             phone {
                 phone
                 user {

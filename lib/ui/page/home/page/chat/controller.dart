@@ -2507,7 +2507,7 @@ class ChatController extends GetxController {
   /// during operations with this [Chat].
   void _showBlockedPopup() {
     switch (chat?.chat.value.kind) {
-      case ChatKind.dialog:
+      case Kind.dialog:
         if (user != null) {
           MessagePopup.error(
             'err_blocked_by'.l10nfmt({
@@ -2517,12 +2517,12 @@ class ChatController extends GetxController {
         }
         break;
 
-      case ChatKind.group:
+      case Kind.group:
         MessagePopup.error('err_blocked'.l10n);
         break;
 
-      case ChatKind.monolog:
-      case ChatKind.artemisUnknown:
+      case Kind.monolog:
+      case Kind.artemisUnknown:
       case null:
         // No-op.
         break;
@@ -2732,14 +2732,14 @@ extension ChatViewExt on Chat {
   /// presence of the provided [partner], if any.
   String? getSubtitle({RxUser? partner}) {
     switch (kind) {
-      case ChatKind.dialog:
+      case Kind.dialog:
         return partner?.user.value.getStatus(partner.lastSeen.value);
 
-      case ChatKind.group:
+      case Kind.group:
         return 'label_subtitle_participants'.l10nfmt({'count': membersCount});
 
-      case ChatKind.monolog:
-      case ChatKind.artemisUnknown:
+      case Kind.monolog:
+      case Kind.artemisUnknown:
         return null;
     }
   }
@@ -2747,14 +2747,14 @@ extension ChatViewExt on Chat {
   /// Returns a string that is based on [members] or [id] of this [Chat].
   String colorDiscriminant(UserId? me) {
     switch (kind) {
-      case ChatKind.monolog:
+      case Kind.monolog:
         return (members.firstOrNull?.user.num ?? id).val;
-      case ChatKind.dialog:
+      case Kind.dialog:
         return (members.firstWhereOrNull((e) => e.user.id != me)?.user.num ??
                 id)
             .val;
-      case ChatKind.group:
-      case ChatKind.artemisUnknown:
+      case Kind.group:
+      case Kind.artemisUnknown:
         return id.val;
     }
   }
@@ -2770,11 +2770,11 @@ extension ChatRxExt on RxChat {
     String title = 'dot'.l10n * 3;
 
     switch (chat.value.kind) {
-      case ChatKind.monolog:
+      case Kind.monolog:
         title = chat.value.name?.val ?? 'label_chat_monolog'.l10n;
         break;
 
-      case ChatKind.dialog:
+      case Kind.dialog:
         final String? name =
             members.values
                 .firstWhereOrNull((u) => u.user.id != me)
@@ -2788,7 +2788,7 @@ extension ChatRxExt on RxChat {
         title = name ?? title;
         break;
 
-      case ChatKind.group:
+      case Kind.group:
         if (chat.value.name != null) {
           title = chat.value.name!.val;
         } else {
@@ -2816,7 +2816,7 @@ extension ChatRxExt on RxChat {
         }
         break;
 
-      case ChatKind.artemisUnknown:
+      case Kind.artemisUnknown:
         // No-op.
         break;
     }

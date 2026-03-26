@@ -104,7 +104,7 @@ void main() async {
   //     '__typename': 'ChatContactEventsVersioned',
   //     'events': [
   //       {
-  //         '__typename': 'EventChatContactNameUpdated',
+  //         '__typename': 'ChatContactNameUpdatedEvent',
   //         'contactId': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
   //         'name': 'newname',
   //         'at': DateTime.now().toString(),

@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/domain/model/link.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
@@ -35,7 +36,7 @@ abstract class AbstractUserRepository {
     UserNum? num,
     UserName? name,
     UserLogin? login,
-    ChatDirectLinkSlug? link,
+    DirectLinkSlug? link,
   });
 
   /// Returns an [User] by the provided [id].

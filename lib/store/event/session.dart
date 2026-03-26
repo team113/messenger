@@ -53,8 +53,8 @@ abstract class SessionEvent {
 }
 
 /// Event of a new [Session] being created.
-class EventSessionCreated extends SessionEvent {
-  const EventSessionCreated(
+class SessionCreatedEvent extends SessionEvent {
+  const SessionCreatedEvent(
     super.id,
     super.at,
     this.userAgent,
@@ -77,7 +77,7 @@ class EventSessionCreated extends SessionEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventSessionCreated &&
+      other is SessionCreatedEvent &&
       other.id == id &&
       other.at == at &&
       other.userAgent == userAgent &&
@@ -95,30 +95,30 @@ class EventSessionCreated extends SessionEvent {
       lastActivatedAt: at,
 
       // TODO: Replace when backend introduces [SiteDomain] in
-      //       [EventSessionCreated].
+      //       [SessionCreatedEvent].
       siteDomain: SiteDomain(''),
     );
   }
 }
 
 /// Event of a [Session] being deleted.
-class EventSessionDeleted extends SessionEvent {
-  const EventSessionDeleted(super.id, super.at);
+class SessionDeletedEvent extends SessionEvent {
+  const SessionDeletedEvent(super.id, super.at);
 
   @override
   SessionEventKind get kind => SessionEventKind.deleted;
 
   @override
   bool operator ==(Object other) =>
-      other is EventSessionDeleted && other.id == id && other.at == at;
+      other is SessionDeletedEvent && other.id == id && other.at == at;
 
   @override
   int get hashCode => Object.hash(id, at);
 }
 
 /// Event of a [Session] being refreshed.
-class EventSessionRefreshed extends SessionEvent {
-  const EventSessionRefreshed(super.userId, super.at, this.userAgent, this.ip);
+class SessionRefreshedEvent extends SessionEvent {
+  const SessionRefreshedEvent(super.userId, super.at, this.userAgent, this.ip);
 
   /// [UserAgent] the [Session] was refreshed by.
   final UserAgent userAgent;
@@ -131,7 +131,7 @@ class EventSessionRefreshed extends SessionEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventSessionRefreshed &&
+      other is SessionRefreshedEvent &&
       other.id == id &&
       other.at == at &&
       other.userAgent == userAgent;
@@ -148,7 +148,7 @@ class EventSessionRefreshed extends SessionEvent {
       lastActivatedAt: at,
 
       // TODO: Replace when backend introduces [SiteDomain] in
-      //       [EventSessionRefreshed].
+      //       [SessionRefreshedEvent].
       siteDomain: SiteDomain(''),
     );
   }
