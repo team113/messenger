@@ -15,18 +15,20 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation UseChatDirectLink($slug: ChatDirectLinkSlug!) {
-    useChatDirectLink(slug: $slug) {
+mutation UseDirectLink($slug: DirectLinkSlug!) {
+    useDirectLink(slug: $slug) {
         __typename
-        ... on UseChatDirectLinkOk {
+        ... on UseDirectLinkOk {
             chat {
+                __typename
                 ...Chat
             }
             event {
+                __typename
                 ...ChatEventsVersioned
             }
         }
-        ... on UseChatDirectLinkError {
+        ... on UseDirectLinkError {
             code
         }
     }

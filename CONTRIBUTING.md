@@ -276,13 +276,13 @@ class _ChatWatcher {
 
 class Chat {
     final ChatId id;
-    final ChatKind kind;
+    final Kind kind;
 
     final Map<UserId, _ChatWatcher> _reads = {};
 
-    Chat.monolog(this.id) : kind = ChatKind.monolog;
-    Chat.dialog(this.id) : kind = ChatKind.dialog;
-    Chat.group(this.id) : kind = ChatKind.group;
+    Chat.monolog(this.id) : kind = Kind.monolog;
+    Chat.dialog(this.id) : kind = Kind.dialog;
+    Chat.group(this.id) : kind = Kind.group;
     Chat(this.id, this.kind);
 
     void _ensureWatcher(UserId userId) {
@@ -297,16 +297,16 @@ class Chat {
         // ...
     }
 
-    bool get isMonolog => kind == ChatKind.monolog;
-    bool get isDialog => kind == ChatKind.dialog;
-    bool get isGroup => kind == ChatKind.group;
+    bool get isMonolog => kind == Kind.monolog;
+    bool get isDialog => kind == Kind.dialog;
+    bool get isGroup => kind == Kind.group;
 }
 
 class ChatId {
     // ...
 }
 
-enum ChatKind {
+enum Kind {
     monolog,
     dialog,
     group,
@@ -315,7 +315,7 @@ enum ChatKind {
 
 #### 👍 Correct
 ```dart
-enum ChatKind {
+enum Kind {
     monolog,
     dialog,
     group,
@@ -324,18 +324,18 @@ enum ChatKind {
 class Chat {
     Chat(this.id, this.kind);
 
-    Chat.monolog(this.id) : kind = ChatKind.monolog;
-    Chat.dialog(this.id) : kind = ChatKind.dialog;
-    Chat.group(this.id) : kind = ChatKind.group;
+    Chat.monolog(this.id) : kind = Kind.monolog;
+    Chat.dialog(this.id) : kind = Kind.dialog;
+    Chat.group(this.id) : kind = Kind.group;
 
     final ChatId id;
-    final ChatKind kind;
+    final Kind kind;
 
     final Map<UserId, _ChatWatcher> _reads = {};
 
-    bool get isMonolog => kind == ChatKind.monolog;
-    bool get isDialog => kind == ChatKind.dialog;
-    bool get isGroup => kind == ChatKind.group;
+    bool get isMonolog => kind == Kind.monolog;
+    bool get isDialog => kind == Kind.dialog;
+    bool get isGroup => kind == Kind.group;
 
     void dispose() {
         // ...

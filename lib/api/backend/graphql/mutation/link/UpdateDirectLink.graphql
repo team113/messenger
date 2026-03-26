@@ -15,13 +15,19 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation DeleteUserDirectLink {
-    deleteChatDirectLink {
+mutation UpdateDirectLink(
+    $slug: DirectLinkSlug!
+    $location: DirectLinkLocationInput
+) {
+    updateDirectLink(
+        slug: $slug
+        location: $location
+    ) {
         __typename
-        ... on MyUserEventsVersioned {
-            ...MyUserEventsVersioned
+        ... on DirectLinkVersionedEvents {
+            ...DirectLinkVersionedEvents
         }
-        ... on DeleteChatDirectLinkError {
+        ... on UpdateDirectLinkError {
             code
         }
     }

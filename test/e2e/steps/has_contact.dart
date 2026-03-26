@@ -74,7 +74,7 @@ hasFavoriteContacts = given2<TestUser, int, CustomWorld>(
             .createChatContact(name: UserName(i.toString().padLeft(2, '0')));
         final ChatContactId contactId =
             (result.events.first
-                    as ChatContactEventsVersionedMixin$Events$EventChatContactCreated)
+                    as ChatContactEventsVersionedMixin$Events$ChatContactCreatedEvent)
                 .contactId;
 
         provider.favoriteChatContact(

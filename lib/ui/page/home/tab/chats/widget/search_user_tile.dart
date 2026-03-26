@@ -74,7 +74,8 @@ class SearchUserTile extends StatelessWidget {
           subtitle: [
             const SizedBox(height: 5),
             Text(
-              '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value?.user.value.num ?? user?.user.value.num)}',
+              user?.user.value.bio?.val ??
+                  '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value?.user.value.num ?? user?.user.value.num)}',
               style: selected
                   ? style.fonts.small.regular.onPrimary
                   : style.fonts.small.regular.secondary,

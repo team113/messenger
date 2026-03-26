@@ -765,53 +765,53 @@ class CallRepository extends DisposableInterface
         }
         yield IncomingChatCallsTop(list.map((e) => e.toModel()).toList());
       } else if (events.$$typename ==
-          'EventIncomingChatCallsTopChatCallAdded') {
+          'IncomingChatCallsTopChatCallAddedEvent') {
         final data =
             events
-                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
-        yield EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
+                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTopChatCallAddedEvent;
+        yield IncomingChatCallsTopChatCallAddedEvent(data.call.toModel());
       } else if (events.$$typename ==
-          'EventIncomingChatCallsTopChatCallRemoved') {
+          'IncomingChatCallsTopChatCallRemovedEvent') {
         final data =
             events
-                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
-        yield EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
+                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTopChatCallRemovedEvent;
+        yield IncomingChatCallsTopChatCallRemovedEvent(data.call.toModel());
       }
     });
   }
 
   /// Constructs a [ChatCallEvent] from [ChatCallEventsVersionedMixin$Event].
   ChatCallEvent _callEvent(ChatCallEventsVersionedMixin$Events e) {
-    if (e.$$typename == 'EventChatCallFinished') {
+    if (e.$$typename == 'ChatCallFinishedEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallFinished;
+          e as ChatCallEventsVersionedMixin$Events$ChatCallFinishedEvent;
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
-      return EventChatCallFinished(
+      return ChatCallFinishedEvent(
         node.callId,
         node.chatId,
         node.at,
         node.call.toModel(),
         node.reason,
       );
-    } else if (e.$$typename == 'EventChatCallRoomReady') {
+    } else if (e.$$typename == 'ChatCallRoomReadyEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallRoomReady;
-      return EventChatCallRoomReady(
+          e as ChatCallEventsVersionedMixin$Events$ChatCallRoomReadyEvent;
+      return ChatCallRoomReadyEvent(
         node.callId,
         node.chatId,
         node.at,
         node.joinLink,
       );
-    } else if (e.$$typename == 'EventChatCallMemberLeft') {
+    } else if (e.$$typename == 'ChatCallMemberLeftEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberLeft;
+          e as ChatCallEventsVersionedMixin$Events$ChatCallMemberLeftEvent;
       _userRepo.put(node.user.toDto());
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
-      return EventChatCallMemberLeft(
+      return ChatCallMemberLeftEvent(
         node.callId,
         node.chatId,
         node.at,
@@ -819,13 +819,13 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
         node.deviceId,
       );
-    } else if (e.$$typename == 'EventChatCallMemberJoined') {
+    } else if (e.$$typename == 'ChatCallMemberJoinedEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberJoined;
+          e as ChatCallEventsVersionedMixin$Events$ChatCallMemberJoinedEvent;
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
-      return EventChatCallMemberJoined(
+      return ChatCallMemberJoinedEvent(
         node.callId,
         node.chatId,
         node.at,
@@ -833,13 +833,13 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
         node.deviceId,
       );
-    } else if (e.$$typename == 'EventChatCallMemberRedialed') {
+    } else if (e.$$typename == 'ChatCallMemberRedialedEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberRedialed;
+          e as ChatCallEventsVersionedMixin$Events$ChatCallMemberRedialedEvent;
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
-      return EventChatCallMemberRedialed(
+      return ChatCallMemberRedialedEvent(
         node.callId,
         node.chatId,
         node.at,
@@ -847,22 +847,22 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
         node.byUser.toModel(),
       );
-    } else if (e.$$typename == 'EventChatCallMemberUndialed') {
+    } else if (e.$$typename == 'ChatCallMemberUndialedEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallMemberUndialed;
-      return EventChatCallMemberUndialed(
+          e as ChatCallEventsVersionedMixin$Events$ChatCallMemberUndialedEvent;
+      return ChatCallMemberUndialedEvent(
         node.callId,
         node.chatId,
         node.at,
         node.user.toModel(),
       );
-    } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+    } else if (e.$$typename == 'ChatCallAnswerTimeoutPassedEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+          e as ChatCallEventsVersionedMixin$Events$ChatCallAnswerTimeoutPassedEvent;
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
-      return EventChatCallAnswerTimeoutPassed(
+      return ChatCallAnswerTimeoutPassedEvent(
         node.callId,
         node.chatId,
         node.at,
@@ -870,13 +870,13 @@ class CallRepository extends DisposableInterface
         node.nUser?.toModel(),
         node.userId,
       );
-    } else if (e.$$typename == 'EventChatCallHandLowered') {
+    } else if (e.$$typename == 'ChatCallHandLoweredEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallHandLowered;
+          e as ChatCallEventsVersionedMixin$Events$ChatCallHandLoweredEvent;
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
-      return EventChatCallHandLowered(
+      return ChatCallHandLoweredEvent(
         node.callId,
         node.chatId,
         node.at,
@@ -884,13 +884,13 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
         node.deviceId,
       );
-    } else if (e.$$typename == 'EventChatCallMoved') {
-      final node = e as ChatCallEventsVersionedMixin$Events$EventChatCallMoved;
+    } else if (e.$$typename == 'ChatCallMovedEvent') {
+      final node = e as ChatCallEventsVersionedMixin$Events$ChatCallMovedEvent;
       _userRepo.put(node.user.toDto());
       for (final m in [...node.call.members, ...node.newCall.members]) {
         _userRepo.put(m.user.toDto());
       }
-      return EventChatCallMoved(
+      return ChatCallMovedEvent(
         node.callId,
         node.chatId,
         node.at,
@@ -901,13 +901,13 @@ class CallRepository extends DisposableInterface
         node.newCallId,
         node.newCall.toModel(),
       );
-    } else if (e.$$typename == 'EventChatCallHandRaised') {
+    } else if (e.$$typename == 'ChatCallHandRaisedEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallHandRaised;
+          e as ChatCallEventsVersionedMixin$Events$ChatCallHandRaisedEvent;
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
-      return EventChatCallHandRaised(
+      return ChatCallHandRaisedEvent(
         node.callId,
         node.chatId,
         node.at,
@@ -915,27 +915,27 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
         node.deviceId,
       );
-    } else if (e.$$typename == 'EventChatCallDeclined') {
+    } else if (e.$$typename == 'ChatCallDeclinedEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallDeclined;
+          e as ChatCallEventsVersionedMixin$Events$ChatCallDeclinedEvent;
       _userRepo.put(node.user.toDto());
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
-      return EventChatCallDeclined(
+      return ChatCallDeclinedEvent(
         node.callId,
         node.chatId,
         node.at,
         node.call.toModel(),
         node.user.toModel(),
       );
-    } else if (e.$$typename == 'EventChatCallConversationStarted') {
+    } else if (e.$$typename == 'ChatCallConversationStartedEvent') {
       final node =
-          e as ChatCallEventsVersionedMixin$Events$EventChatCallConversationStarted;
+          e as ChatCallEventsVersionedMixin$Events$ChatCallConversationStartedEvent;
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
-      return EventChatCallConversationStarted(
+      return ChatCallConversationStartedEvent(
         node.callId,
         node.chatId,
         node.at,
@@ -951,15 +951,15 @@ class CallRepository extends DisposableInterface
     Log.trace('_chatCall($m)', '$runtimeType');
 
     for (ChatEventsVersionedMixin$Events e in m?.events ?? []) {
-      if (e.$$typename == 'EventChatCallStarted') {
-        final node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
+      if (e.$$typename == 'ChatCallStartedEvent') {
+        final node = e as ChatEventsVersionedMixin$Events$ChatCallStartedEvent;
         for (final m in node.call.members) {
           _userRepo.put(m.user.toDto());
         }
         return node.call.toModel();
-      } else if (e.$$typename == 'EventChatCallMemberJoined') {
+      } else if (e.$$typename == 'ChatCallMemberJoinedEvent') {
         final node =
-            e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+            e as ChatEventsVersionedMixin$Events$ChatCallMemberJoinedEvent;
 
         for (final m in node.call.members) {
           _userRepo.put(m.user.toDto());
@@ -1010,7 +1010,7 @@ class CallRepository extends DisposableInterface
         break;
 
       case IncomingChatCallsTopEventKind.added:
-        e as EventIncomingChatCallsTopChatCallAdded;
+        e as IncomingChatCallsTopChatCallAddedEvent;
 
         Log.debug(
           '_incomingChatCallsTopEvent(${e.kind.name}) -> ${e.call}',
@@ -1023,7 +1023,7 @@ class CallRepository extends DisposableInterface
         break;
 
       case IncomingChatCallsTopEventKind.removed:
-        e as EventIncomingChatCallsTopChatCallRemoved;
+        e as IncomingChatCallsTopChatCallRemovedEvent;
 
         Log.debug(
           '_incomingChatCallsTopEvent(${e.kind.name}) -> ${e.call}',

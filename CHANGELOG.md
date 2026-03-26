@@ -11,16 +11,34 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.9.6...v0.10.0) | [Milestone](/../../milestone/72)
 
+### Changed
+
+- UI:
+    - Support page. ([#1660])
+    - Chats tab:
+        - Display about information when searching users. ([#1659])
+    - Profile page:
+        - Allow creating multiple direct links to chat. ([#1664])
+
 ### Fixed
 
 - UI:
     - Media panel:
         - Inability to drag-n-drop buttons in dock. ([#1654])
+        - Incoming video being disabled when disabling screen sharing only. ([#1662])
+- macOS:
+    - Application crashing when exiting. ([#1657], [#1561])
 - Windows:
     - Unsupported devices displayed in output devices list for Windows 10. ([#1643])
 
+[#1561]: /../../issues/1561
 [#1643]: /../../pull/1643
 [#1654]: /../../pull/1654
+[#1657]: /../../pull/1657
+[#1659]: /../../pull/1659
+[#1660]: /../../pull/1660
+[#1662]: /../../pull/1662
+[#1664]: /../../pull/1664
 
 
 

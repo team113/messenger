@@ -27,6 +27,7 @@ import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/domain/service/session.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -77,6 +78,20 @@ class SupportController extends GetxController {
   /// Indicates whether the [NotificationService] reports push notifications as
   /// being active.
   bool? get pushNotifications => _notificationService?.pushNotifications;
+
+  /// Returns the [Credentials] used in [AuthService].
+  Rx<Credentials?> get credentials => _authService.credentials;
+
+  /// Registers and redirects to the support page.
+  Future<void> register() async {
+    try {
+      await _authService.register();
+      router.support();
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
 
   /// Fetches the application updates via the [UpgradeWorker].
   Future<void> checkForUpdates() async {

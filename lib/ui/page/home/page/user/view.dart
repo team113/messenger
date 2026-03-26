@@ -381,6 +381,9 @@ class UserView extends StatelessWidget {
     final bool favorite =
         c.user?.dialog.value?.chat.value.favoritePosition != null;
     final bool muted = c.user?.dialog.value?.chat.value.muted != null;
+    final bool hasDialog =
+        (c.user?.dialog.value?.id ?? c.user?.user.value.dialog)?.isLocal ==
+        false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,24 +401,26 @@ class UserView extends StatelessWidget {
             favorite ? SvgIcons.favorite19 : SvgIcons.unfavorite19,
           ),
         ),
-        ActionButton(
-          key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
-          text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-          onPressed: muted ? c.unmuteChat : c.muteChat,
-          trailing: SvgIcon(muted ? SvgIcons.muted19 : SvgIcons.unmuted19),
-        ),
-        ActionButton(
-          key: const Key('ClearHistoryButton'),
-          text: 'btn_clear_history'.l10n,
-          onPressed: () => _clearChat(c, context),
-          trailing: SvgIcon(SvgIcons.cleanHistory19),
-        ),
-        ActionButton(
-          key: const Key('DeleteChatButton'),
-          text: 'btn_delete_chat'.l10n,
-          onPressed: () => _hideChat(c, context),
-          trailing: SvgIcon(SvgIcons.delete19),
-        ),
+        if (hasDialog) ...[
+          ActionButton(
+            key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
+            text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+            onPressed: muted ? c.unmuteChat : c.muteChat,
+            trailing: SvgIcon(muted ? SvgIcons.muted19 : SvgIcons.unmuted19),
+          ),
+          ActionButton(
+            key: const Key('ClearHistoryButton'),
+            text: 'btn_clear_history'.l10n,
+            onPressed: () => _clearChat(c, context),
+            trailing: SvgIcon(SvgIcons.cleanHistory19),
+          ),
+          ActionButton(
+            key: const Key('DeleteChatButton'),
+            text: 'btn_delete_chat'.l10n,
+            onPressed: () => _hideChat(c, context),
+            trailing: SvgIcon(SvgIcons.delete19),
+          ),
+        ],
 
         if (!c.isSupport) ...[
           ActionButton(

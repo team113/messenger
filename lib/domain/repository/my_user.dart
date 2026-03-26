@@ -129,14 +129,6 @@ abstract class AbstractMyUserRepository {
     String? locale,
   });
 
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
-  /// (if any).
-  Future<void> createChatDirectLink(ChatDirectLinkSlug slug);
-
-  /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
-  Future<void> deleteChatDirectLink();
-
   /// Updates or resets the [MyUser.avatar] field with the provided image
   /// [file].
   Future<void> updateAvatar(

@@ -15,8 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:math';
-
 import 'package:email_validator/email_validator.dart';
 import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -443,129 +441,6 @@ class UserPhone extends NewType<String> {
   }
 
   /// Returns a [String] representing this [UserPhone].
-  String toJson() => val;
-}
-
-/// Direct link to a `Chat`.
-@JsonSerializable()
-class ChatDirectLink {
-  ChatDirectLink({
-    required this.slug,
-    this.usageCount = 0,
-    required this.createdAt,
-  });
-
-  /// Constructs a [ChatDirectLink] from the provided [json].
-  factory ChatDirectLink.fromJson(Map<String, dynamic> json) =>
-      _$ChatDirectLinkFromJson(json);
-
-  /// Unique slug associated with this [ChatDirectLink].
-  ChatDirectLinkSlug slug;
-
-  /// Number of times this [ChatDirectLink] has been used.
-  int usageCount;
-
-  /// [PreciseDateTime] when this [ChatDirectLink] was created.
-  PreciseDateTime createdAt;
-
-  @override
-  bool operator ==(Object other) =>
-      other is ChatDirectLink &&
-      slug == other.slug &&
-      usageCount == other.usageCount &&
-      createdAt == other.createdAt;
-
-  @override
-  int get hashCode => Object.hash(slug, usageCount);
-
-  /// Returns a [Map] representing this [ChatDirectLink].
-  Map<String, dynamic> toJson() => _$ChatDirectLinkToJson(this);
-}
-
-/// Slug of a [ChatDirectLink].
-class ChatDirectLinkSlug extends NewType<String> {
-  const ChatDirectLinkSlug._(super.val);
-
-  ChatDirectLinkSlug(String value) : super(value.trim()) {
-    if (val.length > 100) {
-      throw const FormatException('Must contain no more than 100 characters');
-    } else if (val.isEmpty) {
-      throw const FormatException('Must not be empty');
-    } else if (!_regExp.hasMatch(val)) {
-      throw FormatException('Does not match validation RegExp: `$val`');
-    }
-  }
-
-  /// Creates an object without any validation.
-  const factory ChatDirectLinkSlug.unchecked(String val) = ChatDirectLinkSlug._;
-
-  /// Constructs a [ChatDirectLinkSlug] from the provided [val].
-  factory ChatDirectLinkSlug.fromJson(String val) =
-      ChatDirectLinkSlug.unchecked;
-
-  /// Creates a random [ChatDirectLinkSlug] of the provided [length].
-  factory ChatDirectLinkSlug.generate([int length = 10]) {
-    final Random r = Random();
-    const String chars = 'abcdefghijklmnopqrstuvwxyz1234567890_-';
-
-    return ChatDirectLinkSlug(
-      List.generate(length, (i) {
-        // `-` and `_` being the last or first might not be parsed as a link by
-        // some applications.
-        if (i == 0 || i == length - 1) {
-          final str = chars.replaceFirst('-', '').replaceFirst('_', '');
-          return str[r.nextInt(str.length)];
-        }
-
-        return chars[r.nextInt(chars.length)];
-      }).join(),
-    );
-  }
-
-  /// Regular expression for basic [ChatDirectLinkSlug] validation.
-  static final RegExp _regExp = RegExp(r'^[A-Za-z0-9_-]{1,100}$');
-
-  /// Parses the provided [val] as a [ChatDirectLinkSlug], if [val] meets the
-  /// validation, or returns `null` otherwise.
-  ///
-  /// If [val] starts with [Config.link], then that part is omitted.
-  static ChatDirectLinkSlug? tryParse(String val) {
-    if (val.startsWith(Config.link)) {
-      val = val.substring(Config.link.length);
-    }
-
-    if (val.startsWith(Config.origin)) {
-      val = val.substring(Config.origin.length);
-    }
-
-    if (val.startsWith('https://')) {
-      val = val.substring('https://'.length);
-    }
-
-    if (val.startsWith('http://')) {
-      val = val.substring('http://'.length);
-    }
-
-    if (val.startsWith(Config.link)) {
-      val = val.substring(Config.link.length);
-    }
-
-    if (val.startsWith(Config.origin)) {
-      val = val.substring(Config.origin.length);
-    }
-
-    if (val.startsWith('/')) {
-      val = val.substring(1);
-    }
-
-    try {
-      return ChatDirectLinkSlug(val);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Returns a [String] representing this [ChatDirectLinkSlug].
   String toJson() => val;
 }
 

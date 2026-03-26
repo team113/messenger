@@ -50,8 +50,8 @@ class IncomingChatCallsTop extends IncomingChatCallsTopEvent {
 }
 
 /// Event of a [ChatCall] being added to an ongoing list.
-class EventIncomingChatCallsTopChatCallAdded extends IncomingChatCallsTopEvent {
-  const EventIncomingChatCallsTopChatCallAdded(this.call);
+class IncomingChatCallsTopChatCallAddedEvent extends IncomingChatCallsTopEvent {
+  const IncomingChatCallsTopChatCallAddedEvent(this.call);
 
   /// Added [ChatCall].
   final ChatCall call;
@@ -61,9 +61,9 @@ class EventIncomingChatCallsTopChatCallAdded extends IncomingChatCallsTopEvent {
 }
 
 /// Event of a [ChatCall] being removed from an ongoing list.
-class EventIncomingChatCallsTopChatCallRemoved
+class IncomingChatCallsTopChatCallRemovedEvent
     extends IncomingChatCallsTopEvent {
-  const EventIncomingChatCallsTopChatCallRemoved(this.call);
+  const IncomingChatCallsTopChatCallRemovedEvent(this.call);
 
   /// Removed [ChatCall].
   final ChatCall call;

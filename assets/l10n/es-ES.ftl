@@ -132,7 +132,6 @@ btn_call_video_on_desc =
 btn_change = Cambiar
 btn_change_password = Cambiar la contraseña
 btn_change_status = Cambiar estado
-btn_check_for_updates = Verificar actualizaciones
 btn_clear = Borrar
 btn_clear_cache = Borrar caché
 btn_clear_chat = Borrar el chat
@@ -157,11 +156,10 @@ btn_download_all = Descargar todo
 btn_download_all_as = Descargar todo como
 btn_download_as = Descargar como
 btn_download_as_png = Descargar como .png
-btn_download_logs = Descargar registros
+btn_download_tech_info_file = Descargar el archivo Tech-Info
 btn_download_version = Descargar {$version}
 btn_edit = Editar
 btn_email = E-mail
-btn_feedback = Comentarios
 btn_file = Seleccionar archivo
 btn_find_in_chat = Encontrar en el chat
 btn_forgot_password = ¿Olvidó su contraseña?
@@ -205,7 +203,6 @@ btn_reply = Responder
 btn_reply_message = Responder al mensaje
 btn_report = Reportar
 btn_report_a_bug = Reportar un error
-btn_report_a_concern = Reportar una infracción
 btn_resend = Reenviar
 btn_resend_message = Reenviar el mensaje
 btn_save = Guardar
@@ -219,6 +216,7 @@ btn_search_chat = Buscar en chat
 btn_select = Seleccionar
 btn_select_messages = Seleccionar mensajes
 btn_send_application = Enviar solicitud
+btn_send_email = Enviar correo electrónico
 btn_send_one_time_code = Enviar código desechable
 btn_set_password = Configurar contraseña
 btn_share = Compartir
@@ -765,6 +763,7 @@ label_noise_suppression_disabled = Desactiv.
 label_noise_suppression_high = Alto
 label_noise_suppression_low = Bajo
 label_noise_suppression_medium = Medio
+label_noise_suppression_subtitle = Reduce el ruido de fondo
 label_noise_suppression_very_high = Muy alto
 label_nothing_found = No encontrado
 label_notifications = Notificaciones
@@ -830,13 +829,16 @@ label_regulations_freelance =
     6. El equipo frontend puede rechazar la colaboración si el código presentado es de calidad evidentemente baja.
 label_remove_member = Eliminar del grupo
 label_repeat_password = Repita la contraseña
-label_replace_this_text_with_concern = Describe el asunto.
-label_replace_this_text_with_feedback = Comentarios.
 label_replies = [{$count} {$count ->
     [1] respuesta
     *[other] respuestas
 }]
 label_report = Reportar
+label_report_a_problem = Informar de un problema
+label_report_a_problem_description =
+    Tapopa agradecería mucho cualquier información sobre inconvenientes o problemas que haya encontrado.
+
+    El archivo de información técnica adjunto sería de gran ayuda. Este archivo contiene únicamente información técnica. No incluye datos personales ni confidenciales.
 label_requirements = Requisitos
 label_requirements_backend_developer =
     - conocimiento de Rust;
@@ -870,6 +872,8 @@ label_search_category_chats = Chats
 label_search_category_contacts = Contactos
 label_search_category_users = Usuarios
 label_selected = Seleccionado: {$count}
+label_send_an_email = Enviar un correo electrónico
+label_send_an_email_description = Si no puede iniciar sesión, envíe un correo electrónico con el archivo de información técnica.
 label_send_message_hint = Mensaje...
 label_sent = Enviada
 label_sessions_remain_active_for_one_year = Las sesiones permanecen activas durante un año o hasta que cierre la sesión
@@ -935,6 +939,7 @@ label_text_status = Estatus del texto
 label_text_status_description = Hasta 33 caracteres
 label_text_status_hint = Estatus del texto. Máximo 33 símbolos.
 label_this_device = Esta sesión
+label_to_contact_support_sign_in = Para contactar con el Servicio de Soporte, inicie sesión y envíe un mensaje al usuario Gapopa
 label_to_restore_chats_use_search = Para recuperar los chats, utiliza la búsqueda
 label_typing = Escribiendo
 label_unknown = Desconocido
@@ -992,7 +997,6 @@ label_we_welcome_backend_developer =
 label_welcome_message = Mensaje de bienvenida
 label_welcome_message_description = El mensaje de bienvenida se muestra automáticamente a los usuarios que le agregaron a su lista de chats, pero no se muestra a los usuarios que Usted agregó.
 label_welcome_message_hint = Agregar, editar, eliminar
-label_what_we_can_help_you_with = ¿Cómo podemos ayudarle?
 label_work_with_us = Trabaje con nosotros
 label_work_with_us_desc =
     Trabaje

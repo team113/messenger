@@ -17,7 +17,7 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/api/backend/schema.dart' show ChatKind;
+import 'package:messenger/api/backend/schema.dart' show Kind;
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/ui/page/home/tab/chats/controller.dart';
@@ -45,7 +45,7 @@ final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
             .edges
             .firstWhereOrNull(
               (e) =>
-                  e.node.kind == ChatKind.dialog &&
+                  e.node.kind == Kind.dialog &&
                   e.node.members.nodes.any(
                     (m) => m.user.id == context.world.me,
                   ),
@@ -75,7 +75,7 @@ final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
     final dialog = (await provider.recentChats(first: 120)).recentChats.edges
         .firstWhereOrNull(
           (e) =>
-              e.node.kind == ChatKind.dialog &&
+              e.node.kind == Kind.dialog &&
               e.node.members.nodes.any((m) => m.user.id == context.world.me),
         );
 

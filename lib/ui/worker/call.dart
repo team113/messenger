@@ -971,12 +971,12 @@ class CallWorker extends Dependency {
             events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
 
         for (var e in mixin.events) {
-          if (e.$$typename == 'EventChatCallFinished') {
+          if (e.$$typename == 'ChatCallFinishedEvent') {
             final node =
-                e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
+                e as ChatEventsVersionedMixin$Events$ChatCallFinishedEvent;
 
             Log.debug(
-              '_eventsSubscriptions($chatId) -> EventChatCallFinished -> invoking `FlutterCallkitIncoming.endCall()`',
+              '_eventsSubscriptions($chatId) -> ChatCallFinishedEvent -> invoking `FlutterCallkitIncoming.endCall()`',
               '$runtimeType',
             );
 
@@ -984,15 +984,15 @@ class CallWorker extends Dependency {
             await FlutterCallkitIncoming.endCall(
               node.call.id.val.base62ToUuid(),
             );
-          } else if (e.$$typename == 'EventChatCallMemberJoined') {
+          } else if (e.$$typename == 'ChatCallMemberJoinedEvent') {
             final node =
-                e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+                e as ChatEventsVersionedMixin$Events$ChatCallMemberJoinedEvent;
             final call = _callService.calls[chatId];
 
             if (node.user.id == credentials.userId &&
                 call?.value.connected != true) {
               Log.debug(
-                '_eventsSubscriptions($chatId) -> EventChatCallMemberJoined -> invoking `FlutterCallkitIncoming.endCall()` due to connected(`${call?.value.connected}` and node match(`${node.user.id}` vs ${credentials.userId}))',
+                '_eventsSubscriptions($chatId) -> ChatCallMemberJoinedEvent -> invoking `FlutterCallkitIncoming.endCall()` due to connected(`${call?.value.connected}` and node match(`${node.user.id}` vs ${credentials.userId}))',
                 '$runtimeType',
               );
 
@@ -1001,27 +1001,27 @@ class CallWorker extends Dependency {
                 node.call.id.val.base62ToUuid(),
               );
             }
-          } else if (e.$$typename == 'EventChatCallMemberLeft') {
+          } else if (e.$$typename == 'ChatCallMemberLeftEvent') {
             var node =
-                e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
+                e as ChatEventsVersionedMixin$Events$ChatCallMemberLeftEvent;
             final call = _callService.calls[chatId];
 
             if (node.user.id == credentials.userId &&
                 call?.value.connected != true) {
               Log.debug(
-                '_eventsSubscriptions($chatId) -> EventChatCallMemberLeft -> invoking `FlutterCallkitIncoming.endCall()` due to connected(`${call?.value.connected}` and node match(`${node.user.id}` vs ${credentials.userId}))',
+                '_eventsSubscriptions($chatId) -> ChatCallMemberLeftEvent -> invoking `FlutterCallkitIncoming.endCall()` due to connected(`${call?.value.connected}` and node match(`${node.user.id}` vs ${credentials.userId}))',
                 '$runtimeType',
               );
 
               _eventsSubscriptions.remove(chatId)?.cancel();
               await FlutterCallkitIncoming.endCall(chatId.val.base62ToUuid());
             }
-          } else if (e.$$typename == 'EventChatCallDeclined') {
+          } else if (e.$$typename == 'ChatCallDeclinedEvent') {
             final node =
-                e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+                e as ChatEventsVersionedMixin$Events$ChatCallDeclinedEvent;
             if (node.user.id == credentials.userId) {
               Log.debug(
-                '_eventsSubscriptions($chatId) -> EventChatCallDeclined -> invoking `FlutterCallkitIncoming.endCall()` due to node match(`${node.user.id}` vs ${credentials.userId}))',
+                '_eventsSubscriptions($chatId) -> ChatCallDeclinedEvent -> invoking `FlutterCallkitIncoming.endCall()` due to node match(`${node.user.id}` vs ${credentials.userId}))',
                 '$runtimeType',
               );
 
@@ -1030,12 +1030,12 @@ class CallWorker extends Dependency {
                 node.call.id.val.base62ToUuid(),
               );
             }
-          } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+          } else if (e.$$typename == 'ChatCallAnswerTimeoutPassedEvent') {
             final node =
-                e as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+                e as ChatEventsVersionedMixin$Events$ChatCallAnswerTimeoutPassedEvent;
             if (node.userId == credentials.userId) {
               Log.debug(
-                '_eventsSubscriptions($chatId) -> EventChatCallAnswerTimeoutPassed -> invoking `FlutterCallkitIncoming.endCall()` due to node match(`${node.userId}` vs ${credentials.userId}))',
+                '_eventsSubscriptions($chatId) -> ChatCallAnswerTimeoutPassedEvent -> invoking `FlutterCallkitIncoming.endCall()` due to node match(`${node.userId}` vs ${credentials.userId}))',
                 '$runtimeType',
               );
 

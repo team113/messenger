@@ -18,6 +18,7 @@
 import 'package:get/get.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/link.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
@@ -118,9 +119,9 @@ abstract class AbstractAuthRepository {
     UserPhone? phone,
   });
 
-  /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
-  /// a new [Chat]-dialog or joining an existing [Chat]-group.
-  Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug);
+  /// Uses the specified [DirectLink] by the authenticated [MyUser] creating a
+  /// new [Chat]-dialog or joining an existing [Chat]-group.
+  Future<Chat> useDirectLink(DirectLinkSlug slug);
 
   /// Generates and sends a new single-use [ConfirmationCode] for the [MyUser]
   /// identified by the provided [login], [num], [email] and/or [phone].

@@ -261,7 +261,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionNameUpdated]).
+  /// - [ChatItemPostedEvent] ([ChatInfo] with [ChatInfoActionNameUpdated]).
   ///
   /// ### Idempotent
   ///
@@ -377,7 +377,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemPosted].
+  /// - [ChatItemPostedEvent].
   ///
   /// ### Non-idempotent
   ///
@@ -425,7 +425,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following ChatEvent may be produced on success:
-  /// - [EventChatItemPosted] ([ChatInfo]).
+  /// - [ChatItemPostedEvent] ([ChatInfo]).
   ///
   /// ### Idempotent
   ///
@@ -464,7 +464,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemPosted] ([ChatInfo]).
+  /// - [ChatItemPostedEvent] ([ChatInfo]).
   ///
   /// ### Idempotent
   ///
@@ -509,7 +509,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatHidden].
+  /// - [ChatHiddenEvent].
   ///
   /// ### Idempotent
   ///
@@ -541,7 +541,7 @@ mixin ChatGraphQlMixin {
   /// [archive] argument is set to `false`.
   ///
   /// Once a new [ChatItem] is posted in an archived unmuted [Chat], it
-  /// automatically becomes unarchived again, despite no [EventChatUnarchived]
+  /// automatically becomes unarchived again, despite no [ChatUnarchivedEvent]
   /// is emitted (which means manual unarchivation only). Muted [Chat]s,
   /// however, are not unarchived automatically once new [ChatItem]s are posted.
   ///
@@ -552,8 +552,8 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// One of the following [ChatEvent]s may be produced on success:
-  /// - [EventChatArchived] (if [archive] argument is `true`);
-  /// - [EventChatUnarchived] (if [archive] argument is `false`).
+  /// - [ChatArchivedEvent] (if [archive] argument is `true`);
+  /// - [ChatUnarchivedEvent] (if [archive] argument is `false`).
   ///
   /// ### Idempotent
   ///
@@ -609,7 +609,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatRead].
+  /// - [ChatReadEvent].
   ///
   /// ### Idempotent
   ///
@@ -753,7 +753,7 @@ mixin ChatGraphQlMixin {
   /// of subscribing (emits nothing, completes immediately after being
   /// established).
   /// - The authenticated [MyUser] is no longer a member of the [Chat] (emits
-  /// [EventChatItemPosted] with [ChatInfo] of [MyUser] being removed and
+  /// [ChatItemPostedEvent] with [ChatInfo] of [MyUser] being removed and
   /// completes).
   ///
   /// Completes requiring a re-subscription when:
@@ -797,7 +797,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemHidden].
+  /// - [ChatItemHiddenEvent].
   ///
   /// ### Idempotent
   ///
@@ -839,7 +839,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemDeleted].
+  /// - [ChatItemDeletedEvent].
   ///
   /// ### Idempotent
   ///
@@ -881,7 +881,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemDeleted].
+  /// - [ChatItemDeletedEvent].
   ///
   /// ### Idempotent
   ///
@@ -991,138 +991,12 @@ mixin ChatGraphQlMixin {
     }
   }
 
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the given [Chat]-group.
-  ///
-  /// Deleted [ChatDirectLink]s can be re-created again by the original owner
-  /// only ([Chat]-group) and cannot leak to somebody else.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatDirectLinkUpdated].
-  ///
-  /// ### Idempotent
-  ///
-  /// Succeeds as no-op (and returns no [ChatEvent]) if the given [Chat]-group
-  /// has an active [ChatDirectLink] with such [ChatDirectLinkSlug] already.
-  Future<ChatEventsVersionedMixin?> createChatDirectLink(
-    ChatDirectLinkSlug slug, {
-    ChatId? groupId,
-  }) async {
-    Log.debug('createChatDirectLink($slug, $groupId)', '$runtimeType');
-
-    final variables = CreateChatDirectLinkArguments(
-      slug: slug,
-      groupId: groupId,
-    );
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'CreateChatDirectLink',
-        document: CreateChatDirectLinkMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => CreateChatDirectLinkException(
-        (CreateChatDirectLink$Mutation.fromJson(data).createChatDirectLink
-                as CreateChatDirectLink$Mutation$CreateChatDirectLink$CreateChatDirectLinkError)
-            .code,
-      ),
-    );
-    return CreateChatDirectLink$Mutation.fromJson(
-          result.data!,
-        ).createChatDirectLink
-        as ChatEventsVersionedMixin?;
-  }
-
-  /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatDirectLinkDeleted].
-  ///
-  /// ### Idempotent
-  ///
-  /// Succeeds as no-op (and returns no [ChatEvent]) if the given [Chat]-group
-  /// has no active [ChatDirectLink]s already.
-  Future<ChatEventsVersionedMixin?> deleteChatDirectLink({
-    ChatId? groupId,
-  }) async {
-    Log.debug('deleteChatDirectLink($groupId)', '$runtimeType');
-
-    final variables = DeleteChatDirectLinkArguments(groupId: groupId);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'DeleteChatDirectLink',
-        document: DeleteChatDirectLinkMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => DeleteChatDirectLinkException(
-        DeleteChatDirectLink$Mutation.fromJson(data).deleteChatDirectLink
-            as DeleteChatDirectLinkErrorCode,
-      ),
-    );
-    return DeleteChatDirectLink$Mutation.fromJson(
-          result.data!,
-        ).deleteChatDirectLink
-        as ChatEventsVersionedMixin?;
-  }
-
-  /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
-  /// a new [Chat]-dialog or joining an existing [Chat]-group.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Always returns the created or modified [Chat].
-  ///
-  /// Only the following [ChatEvent] may be produced on success for the
-  /// [Chat]-group:
-  /// - [EventChatItemPosted].
-  ///
-  /// ### Idempotent
-  ///
-  /// Succeeds as no-op (and returns no [ChatEvent]) if the authenticated
-  /// [MyUser] is already a member of the [Chat]-group or has already created
-  /// the [Chat]-dialog by the specified [ChatDirectLink].
-  Future<UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk>
-  useChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('useChatDirectLink($slug)', '$runtimeType');
-
-    final variables = UseChatDirectLinkArguments(slug: slug);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'UseChatDirectLink',
-        document: UseChatDirectLinkMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => UseChatDirectLinkException(
-        (UseChatDirectLink$Mutation.fromJson(data).useChatDirectLink
-                as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkError)
-            .code,
-      ),
-    );
-    return (UseChatDirectLink$Mutation.fromJson(result.data!).useChatDirectLink
-        as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk);
-  }
-
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.
   ///
   /// Keep this subscription up while the authenticated [MyUser] is typing. Once
-  /// this subscription begins, [chatEvents] emit [EventChatTypingStarted], and
-  /// [EventChatTypingStopped] once it ends.
+  /// this subscription begins, [chatEvents] emit [ChatTypingStartedEvent], and
+  /// [ChatTypingStoppedEvent] once it ends.
   ///
   /// ### Authentication
   ///
@@ -1176,7 +1050,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatItemEdited].
+  /// - [ChatItemEditedEvent].
   ///
   /// ### Idempotent
   ///
@@ -1235,7 +1109,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent]s may be produced on success:
-  /// - [EventChatItemPosted] ([ChatForward] and optionally [ChatMessage]).
+  /// - [ChatItemPostedEvent] ([ChatForward] and optionally [ChatMessage]).
   ///
   /// ### Non-idempotent
   ///
@@ -1295,7 +1169,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent]s may be produced on success:
-  /// - [EventChatMuted] (if `until` argument is not `null`);
+  /// - [ChatMutedEvent] (if `until` argument is not `null`);
   /// - [EventChatUnmuted] (if `until` argument is `null`).
   ///
   /// ### Idempotent
@@ -1362,7 +1236,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent]s may be produced on success:
-  /// - [EventChatItemPosted] ([ChatInfo] with [ChatInfoActionAvatarUpdated]).
+  /// - [ChatItemPostedEvent] ([ChatInfo] with [ChatInfoActionAvatarUpdated]).
   ///
   /// ### Idempotent
   ///
@@ -1454,7 +1328,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatFavorited]
+  /// - [ChatFavoritedEvent]
   ///
   /// ### Idempotent
   ///
@@ -1493,7 +1367,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatUnfavorited]
+  /// - [ChatUnfavoritedEvent]
   ///
   /// ### Idempotent
   ///
@@ -1596,7 +1470,7 @@ mixin ChatGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [ChatEvent] may be produced on success:
-  /// - [EventChatCleared].
+  /// - [ChatClearedEvent].
   ///
   /// ### Idempotent
   ///

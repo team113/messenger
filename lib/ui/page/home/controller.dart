@@ -24,9 +24,9 @@ import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/application_settings.dart';
+import '/domain/model/link.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
@@ -84,8 +84,8 @@ class HomeController extends GetxController {
   /// Used to position a status changing [Selector] properly.
   final GlobalKey panelKey = GlobalKey();
 
-  /// [ChatDirectLinkSlug] to display [IntroductionView] with.
-  final ChatDirectLinkSlug? link;
+  /// [DirectLinkSlug] to display [IntroductionView] with.
+  final DirectLinkSlug? link;
 
   /// [BuildContext] of the [HomeView].
   final BuildContext? context;

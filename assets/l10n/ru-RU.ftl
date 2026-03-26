@@ -132,7 +132,6 @@ btn_call_video_on_desc =
 btn_change = Изменить
 btn_change_password = Изменить пароль
 btn_change_status = Изменить статус
-btn_check_for_updates = Проверить наличие обновлений
 btn_clear = Очистить
 btn_clear_cache = Очистить кэш
 btn_clear_chat = Очистить чат
@@ -157,11 +156,10 @@ btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
 btn_download_as = Скачать как
 btn_download_as_png = Скачать как .png
-btn_download_logs = Скачать логи
+btn_download_tech_info_file = Скачать Tech-Info файл
 btn_download_version = Скачать {$version}
 btn_edit = Редактировать
 btn_email = E-mail
-btn_feedback = Обратная связь
 btn_file = Выбрать файл
 btn_find_in_chat = Найти в чате
 btn_forgot_password = Забыли пароль?
@@ -205,7 +203,6 @@ btn_reply = Ответить
 btn_reply_message = Ответить на сообщение
 btn_report = Пожаловаться
 btn_report_a_bug = Сообщить об ошибке
-btn_report_a_concern = Сообщить о нарушении
 btn_resend = Отправить повторно
 btn_resend_message = Отправить повторно
 btn_save = Сохранить
@@ -219,6 +216,7 @@ btn_search_chat = Поиск в чате
 btn_select = Выбрать
 btn_select_messages = Выбрать сообщения
 btn_send_application = Отправить заявку
+btn_send_email = Отправить e-mail
 btn_send_one_time_code = Отправить одноразовый код
 btn_set_password = Установить пароль
 btn_share = Поделиться
@@ -776,6 +774,7 @@ label_noise_suppression_disabled = Отключ.
 label_noise_suppression_high = Высокое
 label_noise_suppression_low = Низкое
 label_noise_suppression_medium = Среднее
+label_noise_suppression_subtitle = Уменьшает фоновый шум
 label_noise_suppression_very_high = Оч. выс.
 label_nothing_found = Не найдено
 label_notifications = Уведомления
@@ -841,14 +840,17 @@ label_regulations_freelance =
     6. Команда фронтэнда оставляет за собой право отказаться от сотрудничества, если предложенный на ревью код заведомо низкого качества.
 label_remove_member = Удалить из группы
 label_repeat_password = Повторите пароль
-label_replace_this_text_with_concern = Опишите проблему.
-label_replace_this_text_with_feedback = Обратная связь.
 label_replies = [{$count} {$count ->
     [1] ответ
     [few] ответа
     *[other] ответов
 }]
 label_report = Пожаловаться
+label_report_a_problem = Сообщить о проблеме
+label_report_a_problem_description =
+    Tapopa будет очень благодарна за информацию о любых возникших неудобствах или проблемах.
+
+    Прикрепленный файл Tech-Info очень поможет. Файл Tech-Info содержит только техническую информацию. В него не включены личные или конфиденциальные данные.
 label_requirements = Требования
 label_requirements_backend_developer =
     - знание языка Rust;
@@ -884,6 +886,8 @@ label_search_category_chats = Чаты
 label_search_category_contacts = Контакты
 label_search_category_users = Пользователи
 label_selected = Выбрано: {$count}
+label_send_an_email = Отправить e-mail
+label_send_an_email_description = Если Вы не можете авторизоваться, пожалуйста, отправьте e-mail с прикреплением файла Tech-Info.
 label_send_message_hint = Сообщение...
 label_sent = Отправлено
 label_sessions_remain_active_for_one_year = Сессии остаются активными на протяжении года или тех пор, пока Вы не выйдите из системы
@@ -949,6 +953,7 @@ label_text_status = Текстовый статус
 label_text_status_description = Максимум 33 символа
 label_text_status_hint = Текстовый статус. Макс. 33 символа.
 label_this_device = Эта сессия
+label_to_contact_support_sign_in = Чтобы связаться со Службой Поддержки, авторизуйтесь и отправьте сообщение пользователю Gapopa
 label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
 label_typing = Печатает
 label_unknown = Неизвестно
@@ -1005,7 +1010,6 @@ label_we_welcome_backend_developer =
 label_welcome_message = Приветственное сообщение
 label_welcome_message_description = Приветственное сообщение отображается только пользователям, которые добавили Вас в свой список чатов. Не отображается пользователям, которых в свой список чатов добавили Вы.
 label_welcome_message_hint = Добавить, редактировать, удалить
-label_what_we_can_help_you_with = Чем мы можем Вам помочь?
 label_work_with_us = Работайте с нами
 label_work_with_us_desc =
     Работайте

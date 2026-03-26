@@ -140,8 +140,8 @@ abstract class UserEvent {
 }
 
 /// Event of a [UserAvatar] being deleted.
-class EventUserAvatarRemoved extends UserEvent {
-  const EventUserAvatarRemoved(super.userId, this.at);
+class UserAvatarRemovedEvent extends UserEvent {
+  const UserAvatarRemovedEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserAvatar] was deleted.
   final PreciseDateTime at;
@@ -151,8 +151,8 @@ class EventUserAvatarRemoved extends UserEvent {
 }
 
 /// Event of a [UserAvatar] being updated.
-class EventUserAvatarUpdated extends UserEvent {
-  const EventUserAvatarUpdated(super.userId, this.avatar, this.at);
+class UserAvatarUpdatedEvent extends UserEvent {
+  const UserAvatarUpdatedEvent(super.userId, this.avatar, this.at);
 
   /// New [UserAvatar].
   final UserAvatar avatar;
@@ -165,8 +165,8 @@ class EventUserAvatarUpdated extends UserEvent {
 }
 
 /// Event of a [UserBio] being deleted.
-class EventUserBioRemoved extends UserEvent {
-  const EventUserBioRemoved(super.userId, this.at);
+class UserBioRemovedEvent extends UserEvent {
+  const UserBioRemovedEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserBio] was deleted.
   final PreciseDateTime at;
@@ -176,8 +176,8 @@ class EventUserBioRemoved extends UserEvent {
 }
 
 /// Event of a [UserBio] being updated.
-class EventUserBioUpdated extends UserEvent {
-  const EventUserBioUpdated(super.userId, this.bio, this.at);
+class UserBioUpdatedEvent extends UserEvent {
+  const UserBioUpdatedEvent(super.userId, this.bio, this.at);
 
   /// New [UserBio].
   final UserBio bio;
@@ -190,8 +190,8 @@ class EventUserBioUpdated extends UserEvent {
 }
 
 /// Event of a [UserCallCover] being deleted.
-class EventUserCallCoverRemoved extends UserEvent {
-  const EventUserCallCoverRemoved(super.userId, this.at);
+class UserCallCoverRemovedEvent extends UserEvent {
+  const UserCallCoverRemovedEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserCallCover] was deleted.
   final PreciseDateTime at;
@@ -201,8 +201,8 @@ class EventUserCallCoverRemoved extends UserEvent {
 }
 
 /// Event of a [UserCallCover] being updated.
-class EventUserCallCoverUpdated extends UserEvent {
-  const EventUserCallCoverUpdated(super.userId, this.callCover, this.at);
+class UserCallCoverUpdatedEvent extends UserEvent {
+  const UserCallCoverUpdatedEvent(super.userId, this.callCover, this.at);
 
   /// New [UserCallCover].
   final UserCallCover callCover;
@@ -215,8 +215,8 @@ class EventUserCallCoverUpdated extends UserEvent {
 }
 
 /// Event of a [User] coming offline.
-class EventUserCameOffline extends UserEvent {
-  const EventUserCameOffline(super.userId, this.at);
+class UserCameOfflineEvent extends UserEvent {
+  const UserCameOfflineEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the [User] was online the last time.
   final PreciseDateTime at;
@@ -226,16 +226,16 @@ class EventUserCameOffline extends UserEvent {
 }
 
 /// Event of a [User] coming online.
-class EventUserCameOnline extends UserEvent {
-  const EventUserCameOnline(super.userId);
+class UserCameOnlineEvent extends UserEvent {
+  const UserCameOnlineEvent(super.userId);
 
   @override
   UserEventKind get kind => UserEventKind.cameOnline;
 }
 
 /// Event of a [User] being deleted.
-class EventUserDeleted extends UserEvent {
-  const EventUserDeleted(super.userId, this.at);
+class UserDeletedEvent extends UserEvent {
+  const UserDeletedEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the [User] was deleted.
   final PreciseDateTime at;
@@ -245,8 +245,8 @@ class EventUserDeleted extends UserEvent {
 }
 
 /// Event of a [UserName] being deleted.
-class EventUserNameRemoved extends UserEvent {
-  const EventUserNameRemoved(super.userId, this.at);
+class UserNameRemovedEvent extends UserEvent {
+  const UserNameRemovedEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserName] was deleted.
   final PreciseDateTime at;
@@ -256,8 +256,8 @@ class EventUserNameRemoved extends UserEvent {
 }
 
 /// Event of a [UserName] being updated.
-class EventUserNameUpdated extends UserEvent {
-  const EventUserNameUpdated(super.userId, this.name, this.at);
+class UserNameUpdatedEvent extends UserEvent {
+  const UserNameUpdatedEvent(super.userId, this.name, this.at);
 
   /// New [UserName].
   final UserName name;
@@ -270,8 +270,8 @@ class EventUserNameUpdated extends UserEvent {
 }
 
 /// Event of a [User]'s [UserPresence] being updated.
-class EventUserPresenceUpdated extends UserEvent {
-  const EventUserPresenceUpdated(super.userId, this.presence, this.at);
+class UserPresenceUpdatedEvent extends UserEvent {
+  const UserPresenceUpdatedEvent(super.userId, this.presence, this.at);
 
   /// New [User]'s [UserPresence].
   final UserPresence presence;
@@ -284,8 +284,8 @@ class EventUserPresenceUpdated extends UserEvent {
 }
 
 /// Event of a [UserTextStatus] being deleted.
-class EventUserStatusRemoved extends UserEvent {
-  const EventUserStatusRemoved(super.userId, this.at);
+class UserStatusRemovedEvent extends UserEvent {
+  const UserStatusRemovedEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserTextStatus] was deleted.
   final PreciseDateTime at;
@@ -295,8 +295,8 @@ class EventUserStatusRemoved extends UserEvent {
 }
 
 /// Event of a [UserTextStatus] being updated.
-class EventUserStatusUpdated extends UserEvent {
-  const EventUserStatusUpdated(super.userId, this.status, this.at);
+class UserStatusUpdatedEvent extends UserEvent {
+  const UserStatusUpdatedEvent(super.userId, this.status, this.at);
 
   /// New [UserTextStatus].
   final UserTextStatus status;
@@ -309,8 +309,8 @@ class EventUserStatusUpdated extends UserEvent {
 }
 
 /// Event of a [WelcomeMessage] being deleted by its author.
-class EventUserWelcomeMessageDeleted extends UserEvent {
-  EventUserWelcomeMessageDeleted(super.userId, this.at);
+class UserWelcomeMessageDeletedEvent extends UserEvent {
+  UserWelcomeMessageDeletedEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the [WelcomeMessage] was deleted.
   final PreciseDateTime at;
@@ -320,15 +320,15 @@ class EventUserWelcomeMessageDeleted extends UserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserWelcomeMessageDeleted && other.at == at;
+      other is UserWelcomeMessageDeletedEvent && other.at == at;
 
   @override
   int get hashCode => kind.hashCode;
 }
 
 /// Event of a [WelcomeMessage] being updated by its author.
-class EventUserWelcomeMessageUpdated extends UserEvent {
-  EventUserWelcomeMessageUpdated(
+class UserWelcomeMessageUpdatedEvent extends UserEvent {
+  UserWelcomeMessageUpdatedEvent(
     super.userId,
     this.at,
     this.text,
@@ -354,7 +354,7 @@ class EventUserWelcomeMessageUpdated extends UserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserWelcomeMessageUpdated && other.at == at;
+      other is UserWelcomeMessageUpdatedEvent && other.at == at;
 
   @override
   int get hashCode => kind.hashCode;

@@ -36,8 +36,6 @@ enum MyUserEventKind {
   cameOffline,
   cameOnline,
   deleted,
-  directLinkDeleted,
-  directLinkUpdated,
   emailAdded,
   emailDeleted,
   loginDeleted,
@@ -80,22 +78,22 @@ abstract class MyUserEvent {
 }
 
 /// Event of an [UserAvatar] being deleted.
-class EventUserAvatarRemoved extends MyUserEvent {
-  const EventUserAvatarRemoved(super.userId);
+class UserAvatarRemovedEvent extends MyUserEvent {
+  const UserAvatarRemovedEvent(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.avatarDeleted;
 
   @override
-  bool operator ==(Object other) => other is EventUserAvatarRemoved;
+  bool operator ==(Object other) => other is UserAvatarRemovedEvent;
 
   @override
   int get hashCode => kind.hashCode;
 }
 
 /// Event of an [UserAvatar] being updated.
-class EventUserAvatarUpdated extends MyUserEvent {
-  const EventUserAvatarUpdated(super.userId, this.avatar);
+class UserAvatarUpdatedEvent extends MyUserEvent {
+  const UserAvatarUpdatedEvent(super.userId, this.avatar);
 
   /// New [UserAvatar].
   final UserAvatar avatar;
@@ -105,7 +103,7 @@ class EventUserAvatarUpdated extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserAvatarUpdated &&
+      other is UserAvatarUpdatedEvent &&
       avatar.original.relativeRef == other.avatar.original.relativeRef &&
       avatar.crop == other.avatar.crop;
 
@@ -114,8 +112,8 @@ class EventUserAvatarUpdated extends MyUserEvent {
 }
 
 /// Event of a [UserBio] being deleted.
-class EventUserBioRemoved extends MyUserEvent {
-  const EventUserBioRemoved(super.userId, this.at);
+class UserBioRemovedEvent extends MyUserEvent {
+  const UserBioRemovedEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserBio] was deleted.
   final PreciseDateTime at;
@@ -125,15 +123,15 @@ class EventUserBioRemoved extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserBioRemoved && at == other.at;
+      other is UserBioRemovedEvent && at == other.at;
 
   @override
   int get hashCode => at.hashCode;
 }
 
 /// Event of a [UserBio] being updated.
-class EventUserBioUpdated extends MyUserEvent {
-  const EventUserBioUpdated(super.userId, this.bio, this.at);
+class UserBioUpdatedEvent extends MyUserEvent {
+  const UserBioUpdatedEvent(super.userId, this.bio, this.at);
 
   /// New [UserBio].
   final UserBio bio;
@@ -146,29 +144,29 @@ class EventUserBioUpdated extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserBioUpdated && bio == other.bio && at == other.at;
+      other is UserBioUpdatedEvent && bio == other.bio && at == other.at;
 
   @override
   int get hashCode => Object.hash(bio, at);
 }
 
 /// Event of an [UserCallCover] being deleted.
-class EventUserCallCoverRemoved extends MyUserEvent {
-  const EventUserCallCoverRemoved(super.userId);
+class UserCallCoverRemovedEvent extends MyUserEvent {
+  const UserCallCoverRemovedEvent(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.callCoverDeleted;
 
   @override
-  bool operator ==(Object other) => other is EventUserCallCoverRemoved;
+  bool operator ==(Object other) => other is UserCallCoverRemovedEvent;
 
   @override
   int get hashCode => kind.hashCode;
 }
 
 /// Event of an [UserCallCover] being updated.
-class EventUserCallCoverUpdated extends MyUserEvent {
-  const EventUserCallCoverUpdated(super.userId, this.callCover);
+class UserCallCoverUpdatedEvent extends MyUserEvent {
+  const UserCallCoverUpdatedEvent(super.userId, this.callCover);
 
   /// New [UserCallCover].
   final UserCallCover callCover;
@@ -178,7 +176,7 @@ class EventUserCallCoverUpdated extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserCallCoverUpdated &&
+      other is UserCallCoverUpdatedEvent &&
       callCover.original.relativeRef == other.callCover.original.relativeRef &&
       callCover.crop == other.callCover.crop;
 
@@ -187,8 +185,8 @@ class EventUserCallCoverUpdated extends MyUserEvent {
 }
 
 /// Event of an [MyUser] coming offline.
-class EventUserCameOffline extends MyUserEvent {
-  const EventUserCameOffline(super.userId, this.at);
+class UserCameOfflineEvent extends MyUserEvent {
+  const UserCameOfflineEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the user came offline.
   final PreciseDateTime at;
@@ -197,75 +195,43 @@ class EventUserCameOffline extends MyUserEvent {
   MyUserEventKind get kind => MyUserEventKind.cameOffline;
 
   @override
-  bool operator ==(Object other) => other is EventUserCameOffline;
+  bool operator ==(Object other) => other is UserCameOfflineEvent;
 
   @override
   int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser] coming online.
-class EventUserCameOnline extends MyUserEvent {
-  const EventUserCameOnline(super.userId);
+class UserCameOnlineEvent extends MyUserEvent {
+  const UserCameOnlineEvent(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.cameOnline;
 
   @override
-  bool operator ==(Object other) => other is EventUserCameOnline;
+  bool operator ==(Object other) => other is UserCameOnlineEvent;
 
   @override
   int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser] being deleted.
-class EventUserDeleted extends MyUserEvent {
-  const EventUserDeleted(super.userId);
+class UserDeletedEvent extends MyUserEvent {
+  const UserDeletedEvent(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.deleted;
 
   @override
-  bool operator ==(Object other) => other is EventUserDeleted;
+  bool operator ==(Object other) => other is UserDeletedEvent;
 
   @override
   int get hashCode => kind.hashCode;
-}
-
-/// Event of an [MyUser]'s [ChatDirectLink] being deleted.
-class EventUserDirectLinkDeleted extends MyUserEvent {
-  EventUserDirectLinkDeleted(super.userId);
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.directLinkDeleted;
-
-  @override
-  bool operator ==(Object other) => other is EventUserDirectLinkDeleted;
-
-  @override
-  int get hashCode => kind.hashCode;
-}
-
-/// Event of an [MyUser]'s [ChatDirectLink] being updated.
-class EventUserDirectLinkUpdated extends MyUserEvent {
-  const EventUserDirectLinkUpdated(super.userId, this.directLink);
-
-  /// New [User]'s [ChatDirectLink].
-  final ChatDirectLink directLink;
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.directLinkUpdated;
-
-  @override
-  bool operator ==(Object other) =>
-      other is EventUserDirectLinkUpdated && directLink == other.directLink;
-
-  @override
-  int get hashCode => directLink.hashCode;
 }
 
 /// Event of an [MyUser]'s [UserEmail] address being added.
-class EventUserEmailAdded extends MyUserEvent {
-  const EventUserEmailAdded(super.userId, this.email, this.confirmed);
+class UserEmailAddedEvent extends MyUserEvent {
+  const UserEmailAddedEvent(super.userId, this.email, this.confirmed);
 
   /// Added [UserEmail].
   final UserEmail email;
@@ -282,7 +248,7 @@ class EventUserEmailAdded extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserEmailAdded &&
+      other is UserEmailAddedEvent &&
       email == other.email &&
       confirmed == other.confirmed;
 
@@ -291,8 +257,8 @@ class EventUserEmailAdded extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s [UserEmail] address being deleted.
-class EventUserEmailRemoved extends MyUserEvent {
-  const EventUserEmailRemoved(super.userId, this.email);
+class UserEmailRemovedEvent extends MyUserEvent {
+  const UserEmailRemovedEvent(super.userId, this.email);
 
   /// Deleted [UserEmail].
   final UserEmail email;
@@ -302,15 +268,15 @@ class EventUserEmailRemoved extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserEmailRemoved && email == other.email;
+      other is UserEmailRemovedEvent && email == other.email;
 
   @override
   int get hashCode => email.hashCode;
 }
 
 /// Event of a [UserLogin] being updated.
-class EventUserLoginUpdated extends MyUserEvent {
-  const EventUserLoginUpdated(super.userId, this.login);
+class UserLoginUpdatedEvent extends MyUserEvent {
+  const UserLoginUpdatedEvent(super.userId, this.login);
 
   /// New [UserLogin].
   final UserLogin login;
@@ -320,15 +286,15 @@ class EventUserLoginUpdated extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserLoginUpdated && login == other.login;
+      other is UserLoginUpdatedEvent && login == other.login;
 
   @override
   int get hashCode => login.hashCode;
 }
 
 /// Event of a [UserLogin] being deleted.
-class EventUserLoginRemoved extends MyUserEvent {
-  const EventUserLoginRemoved(super.userId, this.at);
+class UserLoginRemovedEvent extends MyUserEvent {
+  const UserLoginRemovedEvent(super.userId, this.at);
 
   /// [DateTime] when the [UserLogin] was deleted.
   final PreciseDateTime at;
@@ -338,8 +304,8 @@ class EventUserLoginRemoved extends MyUserEvent {
 }
 
 /// Event of an [MyUser] being muted.
-class EventUserMuted extends MyUserEvent {
-  const EventUserMuted(super.userId, this.until);
+class UserMutedEvent extends MyUserEvent {
+  const UserMutedEvent(super.userId, this.until);
 
   /// Duration of the mute.
   final MuteDuration until;
@@ -349,29 +315,29 @@ class EventUserMuted extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserMuted && until == other.until;
+      other is UserMutedEvent && until == other.until;
 
   @override
   int get hashCode => until.hashCode;
 }
 
 /// Event of an [UserName] being deleted.
-class EventUserNameRemoved extends MyUserEvent {
-  const EventUserNameRemoved(super.userId);
+class UserNameRemovedEvent extends MyUserEvent {
+  const UserNameRemovedEvent(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.nameDeleted;
 
   @override
-  bool operator ==(Object other) => other is EventUserNameRemoved;
+  bool operator ==(Object other) => other is UserNameRemovedEvent;
 
   @override
   int get hashCode => kind.hashCode;
 }
 
 /// Event of an [UserName] being updated.
-class EventUserNameUpdated extends MyUserEvent {
-  const EventUserNameUpdated(super.userId, this.name);
+class UserNameUpdatedEvent extends MyUserEvent {
+  const UserNameUpdatedEvent(super.userId, this.name);
 
   /// New [UserName].
   final UserName name;
@@ -381,29 +347,29 @@ class EventUserNameUpdated extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserNameUpdated && name == other.name;
+      other is UserNameUpdatedEvent && name == other.name;
 
   @override
   int get hashCode => name.hashCode;
 }
 
 /// Event of an [MyUser]'s password being updated.
-class EventUserPasswordUpdated extends MyUserEvent {
-  const EventUserPasswordUpdated(super.userId);
+class UserPasswordUpdatedEvent extends MyUserEvent {
+  const UserPasswordUpdatedEvent(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.passwordUpdated;
 
   @override
-  bool operator ==(Object other) => other is EventUserPasswordUpdated;
+  bool operator ==(Object other) => other is UserPasswordUpdatedEvent;
 
   @override
   int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser]'s phone number being added.
-class EventUserPhoneAdded extends MyUserEvent {
-  const EventUserPhoneAdded(super.userId, this.phone, this.confirmed);
+class UserPhoneAddedEvent extends MyUserEvent {
+  const UserPhoneAddedEvent(super.userId, this.phone, this.confirmed);
 
   /// Added [UserPhone].
   final UserPhone phone;
@@ -420,7 +386,7 @@ class EventUserPhoneAdded extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserPhoneAdded &&
+      other is UserPhoneAddedEvent &&
       phone == other.phone &&
       confirmed == other.confirmed;
 
@@ -429,8 +395,8 @@ class EventUserPhoneAdded extends MyUserEvent {
 }
 
 /// Event of an [MyUser]'s phone number being deleted.
-class EventUserPhoneRemoved extends MyUserEvent {
-  const EventUserPhoneRemoved(super.userId, this.phone);
+class UserPhoneRemovedEvent extends MyUserEvent {
+  const UserPhoneRemovedEvent(super.userId, this.phone);
 
   /// Deleted [UserPhone].
   final UserPhone phone;
@@ -440,15 +406,15 @@ class EventUserPhoneRemoved extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserPhoneRemoved && phone == other.phone;
+      other is UserPhoneRemovedEvent && phone == other.phone;
 
   @override
   int get hashCode => phone.hashCode;
 }
 
 /// Event of an [MyUser]'s [UserPresence] being updated.
-class EventUserPresenceUpdated extends MyUserEvent {
-  const EventUserPresenceUpdated(super.userId, this.presence);
+class UserPresenceUpdatedEvent extends MyUserEvent {
+  const UserPresenceUpdatedEvent(super.userId, this.presence);
 
   /// New [MyUser]'s [UserPresence].
   final UserPresence presence;
@@ -458,29 +424,29 @@ class EventUserPresenceUpdated extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserPresenceUpdated && presence == other.presence;
+      other is UserPresenceUpdatedEvent && presence == other.presence;
 
   @override
   int get hashCode => presence.hashCode;
 }
 
 /// Event of an [UserTextStatus] being deleted.
-class EventUserStatusRemoved extends MyUserEvent {
-  const EventUserStatusRemoved(super.userId);
+class UserStatusRemovedEvent extends MyUserEvent {
+  const UserStatusRemovedEvent(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.statusDeleted;
 
   @override
-  bool operator ==(Object other) => other is EventUserStatusRemoved;
+  bool operator ==(Object other) => other is UserStatusRemovedEvent;
 
   @override
   int get hashCode => kind.hashCode;
 }
 
 /// Event of an [UserTextStatus] being updated.
-class EventUserStatusUpdated extends MyUserEvent {
-  const EventUserStatusUpdated(super.userId, this.status);
+class UserStatusUpdatedEvent extends MyUserEvent {
+  const UserStatusUpdatedEvent(super.userId, this.status);
 
   /// New [UserTextStatus].
   final UserTextStatus status;
@@ -490,29 +456,29 @@ class EventUserStatusUpdated extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserStatusUpdated && status == other.status;
+      other is UserStatusUpdatedEvent && status == other.status;
 
   @override
   int get hashCode => status.hashCode;
 }
 
 /// Event of an [MyUser] being unmuted.
-class EventUserUnmuted extends MyUserEvent {
-  const EventUserUnmuted(super.userId);
+class UserUnmutedEvent extends MyUserEvent {
+  const UserUnmutedEvent(super.userId);
 
   @override
   MyUserEventKind get kind => MyUserEventKind.unmuted;
 
   @override
-  bool operator ==(Object other) => other is EventUserUnmuted;
+  bool operator ==(Object other) => other is UserUnmutedEvent;
 
   @override
   int get hashCode => kind.hashCode;
 }
 
 /// Event of an [MyUser]'s unread `Chat`s count being updated.
-class EventUserUnreadChatsCountUpdated extends MyUserEvent {
-  const EventUserUnreadChatsCountUpdated(super.userId, this.count);
+class UserUnreadChatsCountUpdatedEvent extends MyUserEvent {
+  const UserUnreadChatsCountUpdatedEvent(super.userId, this.count);
 
   /// New [MyUser]'s unread `Chat`s count.
   final int count;
@@ -522,15 +488,15 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserUnreadChatsCountUpdated && count == other.count;
+      other is UserUnreadChatsCountUpdatedEvent && count == other.count;
 
   @override
   int get hashCode => count.hashCode;
 }
 
 /// Event of a [WelcomeMessage] being deleted by its author.
-class EventUserWelcomeMessageDeleted extends MyUserEvent {
-  EventUserWelcomeMessageDeleted(super.userId, this.at);
+class UserWelcomeMessageDeletedEvent extends MyUserEvent {
+  UserWelcomeMessageDeletedEvent(super.userId, this.at);
 
   /// [PreciseDateTime] when the [WelcomeMessage] was deleted.
   final PreciseDateTime at;
@@ -540,15 +506,15 @@ class EventUserWelcomeMessageDeleted extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserWelcomeMessageDeleted && other.at == at;
+      other is UserWelcomeMessageDeletedEvent && other.at == at;
 
   @override
   int get hashCode => kind.hashCode;
 }
 
 /// Event of a [WelcomeMessage] being updated by its author.
-class EventUserWelcomeMessageUpdated extends MyUserEvent {
-  EventUserWelcomeMessageUpdated(
+class UserWelcomeMessageUpdatedEvent extends MyUserEvent {
+  UserWelcomeMessageUpdatedEvent(
     super.userId,
     this.at,
     this.text,
@@ -574,7 +540,7 @@ class EventUserWelcomeMessageUpdated extends MyUserEvent {
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserWelcomeMessageUpdated &&
+      other is UserWelcomeMessageUpdatedEvent &&
       other.at == at &&
       other.text == text &&
       other.attachments == attachments;

@@ -18,11 +18,11 @@
 fragment MyUserEventsVersioned on MyUserEventsVersioned {
     events {
         __typename
-        ... on EventUserAvatarRemoved {
+        ... on UserAvatarRemovedEvent {
             userId
             at
         }
-        ... on EventUserAvatarUpdated {
+        ... on UserAvatarUpdatedEvent {
             userId
             avatar {
                 __typename
@@ -30,20 +30,20 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             }
             at
         }
-        ... on EventUserBioRemoved {
+        ... on UserBioRemovedEvent {
             userId
             at
         }
-        ... on EventUserBioUpdated {
+        ... on UserBioUpdatedEvent {
             userId
             bio
             at
         }
-        ... on EventUserCallCoverRemoved {
+        ... on UserCallCoverRemovedEvent {
             userId
             at
         }
-        ... on EventUserCallCoverUpdated {
+        ... on UserCallCoverUpdatedEvent {
             userId
             callCover {
                 __typename
@@ -51,42 +51,31 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             }
             at
         }
-        ... on EventUserDeleted {
+        ... on UserDeletedEvent {
             userId
             at
         }
-        ... on EventUserDirectLinkDeleted {
-            userId
-        }
-        ... on EventUserDirectLinkUpdated {
-            userId
-            directLink {
-                slug
-                usageCount
-                createdAt
-            }
-        }
-        ... on EventUserEmailAdded {
+        ... on UserEmailAddedEvent {
             userId
             email
             at
             confirmed
         }
-        ... on EventUserEmailRemoved {
+        ... on UserEmailRemovedEvent {
             userId
             email
             at
         }
-        ... on EventUserLoginRemoved {
+        ... on UserLoginRemovedEvent {
             userId
             at
         }
-        ... on EventUserLoginUpdated {
+        ... on UserLoginUpdatedEvent {
             userId
             login
             at
         }
-        ... on EventUserMuted {
+        ... on UserMutedEvent {
             userId
             until {
                 __typename
@@ -95,63 +84,63 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
                 }
             }
         }
-        ... on EventUserNameRemoved {
+        ... on UserNameRemovedEvent {
             userId
             at
         }
-        ... on EventUserNameUpdated {
+        ... on UserNameUpdatedEvent {
             userId
             name
             at
         }
-        ... on EventUserCameOnline {
+        ... on UserCameOnlineEvent {
             userId
         }
-        ... on EventUserCameOffline {
-            userId
-            at
-        }
-        ... on EventUserPasswordUpdated {
+        ... on UserCameOfflineEvent {
             userId
             at
         }
-        ... on EventUserPhoneAdded {
+        ... on UserPasswordUpdatedEvent {
+            userId
+            at
+        }
+        ... on UserPhoneAddedEvent {
             userId
             phone
             at
             confirmed
         }
-        ... on EventUserPhoneRemoved {
+        ... on UserPhoneRemovedEvent {
             userId
             phone
             at
         }
-        ... on EventUserPresenceUpdated {
+        ... on UserPresenceUpdatedEvent {
             userId
             presence
             at
         }
-        ... on EventUserStatusRemoved {
+        ... on UserStatusRemovedEvent {
             userId
             at
         }
-        ... on EventUserStatusUpdated {
+        ... on UserStatusUpdatedEvent {
             userId
             status
             at
         }
-        ... on EventUserUnmuted {
+        ... on UserUnmutedEvent {
             userId
         }
-        ... on EventUserUnreadChatsCountUpdated {
+        ... on UserUnreadChatsCountUpdatedEvent {
             userId
             count
         }
-        ... on EventUserWelcomeMessageDeleted {
+        ... on UserWelcomeMessageDeletedEvent {
             userId
             at
         }
-        ... on EventUserWelcomeMessageUpdated {
+        ... on UserWelcomeMessageUpdatedEvent {
             userId
             text {
                 changed

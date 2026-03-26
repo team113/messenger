@@ -77,7 +77,7 @@ class IntroductionView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('IntroductionView'),
-      init: IntroductionController(Get.find(), initial: initial),
+      init: IntroductionController(Get.find(), Get.find(), initial: initial),
       builder: (IntroductionController c) {
         return Obx(() {
           final Widget header;
@@ -310,7 +310,6 @@ class IntroductionView extends StatelessWidget {
     return ReactiveTextField(
       state: c.link,
       onSuffixPressed: copy,
-      selectable: c.myUser.value?.chatDirectLink != null,
       trailing: PlatformUtils.isMobile
           ? const SvgIcon(SvgIcons.share)
           : const SvgIcon(SvgIcons.copy),

@@ -1061,8 +1061,8 @@ class CustomMouseCursors {
   static Future<void> _initCursor(
     String path,
     String name, {
-    double width = 30,
-    double height = 30,
+    double width = 32,
+    double height = 32,
   }) async {
     try {
       final ByteData bytes = await rootBundle.load(path);

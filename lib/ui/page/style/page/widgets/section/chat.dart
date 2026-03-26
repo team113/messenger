@@ -121,7 +121,7 @@ class ChatSection {
       ChatItem v, {
       bool delivered = false,
       bool read = false,
-      ChatKind kind = ChatKind.dialog,
+      Kind kind = Kind.dialog,
     }) {
       return ChatItemWidget(
         item: Rx(v),
@@ -157,7 +157,7 @@ class ChatSection {
       bool delivered = false,
       bool read = false,
       bool fromMe = true,
-      ChatKind kind = ChatKind.dialog,
+      Kind kind = Kind.dialog,
     }) {
       return ChatForwardWidget(
         forwards: RxList(
@@ -235,28 +235,28 @@ class ChatSection {
                 status: SendingStatus.sending,
                 text: 'Sending message...',
               ),
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
             chatItem(
               message(status: SendingStatus.error, text: 'Error'),
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
             chatItem(
               message(status: SendingStatus.sent, text: 'Sent message'),
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
             chatItem(
               message(status: SendingStatus.sent, text: 'Delivered message'),
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
               delivered: true,
             ),
             const SizedBox(height: 8),
             chatItem(
               message(status: SendingStatus.sent, text: 'Read message'),
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
               read: true,
             ),
             const SizedBox(height: 8),
@@ -266,7 +266,7 @@ class ChatSection {
                 text: 'Received message',
                 fromMe: false,
               ),
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
 
@@ -285,7 +285,7 @@ class ChatSection {
                 ],
               ),
               read: true,
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
             chatItem(
@@ -302,7 +302,7 @@ class ChatSection {
                 ],
               ),
               read: true,
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
 
@@ -315,7 +315,7 @@ class ChatSection {
                 attachments: ['image'],
               ),
               read: true,
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
             chatItem(
@@ -326,7 +326,7 @@ class ChatSection {
                 attachments: ['image'],
               ),
               read: true,
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
 
@@ -339,7 +339,7 @@ class ChatSection {
                 attachments: ['file'],
               ),
               read: true,
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
             chatItem(
@@ -350,7 +350,7 @@ class ChatSection {
                 attachments: ['file'],
               ),
               read: true,
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
 
@@ -371,7 +371,7 @@ class ChatSection {
                 text: 'Message with file and image attachments',
               ),
               read: true,
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
             chatItem(
@@ -382,7 +382,7 @@ class ChatSection {
                 attachments: ['file', 'file', 'image', 'image', 'image'],
               ),
               read: true,
-              kind: ChatKind.dialog,
+              kind: Kind.dialog,
             ),
             const SizedBox(height: 8),
 

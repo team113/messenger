@@ -304,7 +304,7 @@ class SessionRepository extends DisposableInterface
     for (final SessionEvent event in versioned.events) {
       switch (event.kind) {
         case SessionEventKind.created:
-          event as EventSessionCreated;
+          event as SessionCreatedEvent;
 
           final session = event.toModel();
 
@@ -320,7 +320,7 @@ class SessionRepository extends DisposableInterface
           break;
 
         case SessionEventKind.deleted:
-          event as EventSessionDeleted;
+          event as SessionDeletedEvent;
           _sessionLocal.delete(event.id);
           sessions.removeWhere((e) => e.id == event.id);
           sessions.sort();
@@ -328,7 +328,7 @@ class SessionRepository extends DisposableInterface
           break;
 
         case SessionEventKind.refreshed:
-          event as EventSessionRefreshed;
+          event as SessionRefreshedEvent;
 
           final session = event.toModel();
 
@@ -401,21 +401,21 @@ class SessionRepository extends DisposableInterface
   SessionEvent _sessionEvent(SessionEventsVersionedMixin$Events e) {
     Log.trace('_sessionEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventSessionCreated') {
-      final node = e as SessionEventsVersionedMixin$Events$EventSessionCreated;
-      return EventSessionCreated(
+    if (e.$$typename == 'SessionCreatedEvent') {
+      final node = e as SessionEventsVersionedMixin$Events$SessionCreatedEvent;
+      return SessionCreatedEvent(
         e.id,
         e.at,
         node.userAgent,
         node.remembered,
         node.ip,
       );
-    } else if (e.$$typename == 'EventSessionDeleted') {
-      return EventSessionDeleted(e.id, e.at);
-    } else if (e.$$typename == 'EventSessionRefreshed') {
+    } else if (e.$$typename == 'SessionDeletedEvent') {
+      return SessionDeletedEvent(e.id, e.at);
+    } else if (e.$$typename == 'SessionRefreshedEvent') {
       final node =
-          e as SessionEventsVersionedMixin$Events$EventSessionRefreshed;
-      return EventSessionRefreshed(e.id, e.at, node.userAgent, node.ip);
+          e as SessionEventsVersionedMixin$Events$SessionRefreshedEvent;
+      return SessionRefreshedEvent(e.id, e.at, node.userAgent, node.ip);
     } else {
       throw UnimplementedError('Unknown SessionEvent: ${e.$$typename}');
     }

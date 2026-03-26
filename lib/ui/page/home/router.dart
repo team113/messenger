@@ -24,7 +24,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
-import '/ui/page/chat_direct_link/view.dart';
+import '/ui/page/direct_link/view.dart';
 import '/ui/page/erase/view.dart';
 import '/ui/page/support/view.dart';
 import '/ui/page/work/page/vacancy/view.dart';
@@ -145,16 +145,13 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             child: SupportView(),
           ),
         );
-      } else if (route.startsWith(Routes.chatDirectLink)) {
-        final String slug = _state.route.replaceFirst(
-          Routes.chatDirectLink,
-          '',
-        );
+      } else if (route.startsWith(Routes.directLink)) {
+        final String slug = _state.route.replaceFirst(Routes.directLink, '');
         pages.add(
           CustomPage(
-            key: ValueKey('ChatDirectLinkPage$slug'),
-            name: '${Routes.chatDirectLink}$slug',
-            child: ChatDirectLinkView(slug),
+            key: ValueKey('DirectLinkPage$slug'),
+            name: '${Routes.directLink}$slug',
+            child: DirectLinkView(slug),
           ),
         );
       }
