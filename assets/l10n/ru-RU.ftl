@@ -143,7 +143,6 @@ btn_copy = Копировать
 btn_copy_text = Копировать текст
 btn_create = Создать
 btn_create_group = Создать группу
-btn_decline = Отклонить
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
 btn_delete_chat = Удалить чат

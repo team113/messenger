@@ -143,7 +143,6 @@ btn_copy = Copiar
 btn_copy_text = Copiar el texto
 btn_create = Crear
 btn_create_group = Crear grupo
-btn_decline = Rechazar
 btn_delete = Eliminar
 btn_delete_account = Eliminar la cuenta
 btn_delete_chat = Eliminar el chat
