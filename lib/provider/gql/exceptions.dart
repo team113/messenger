@@ -171,7 +171,7 @@ class ConnectionException with LocalizedExceptionMixin implements Exception {
   String toString() => 'ConnectionException($exception)';
 
   @override
-  String toMessage() => 'err_network'.l10n;
+  String toMessage() => 'err_data_transfer'.l10n;
 }
 
 /// Exception of an authentication absence or invalidity.
