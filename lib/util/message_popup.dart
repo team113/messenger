@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -67,7 +67,6 @@ class MessagePopup {
             children: [
               const SizedBox(height: 4),
               ModalPopupHeader(text: title),
-              const SizedBox(height: 13),
               if (description.isNotEmpty || additional.isNotEmpty) ...[
                 Flexible(
                   child: ListView(
@@ -80,7 +79,7 @@ class MessagePopup {
                             child: RichText(
                               text: TextSpan(
                                 children: description,
-                                style: style.fonts.normal.regular.secondary,
+                                style: style.fonts.small.regular.secondary,
                               ),
                             ),
                           ),

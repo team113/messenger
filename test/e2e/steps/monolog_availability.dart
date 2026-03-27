@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/log.dart';
 
 import '../parameters/availability_status.dart';
 import '../world/custom_world.dart';
@@ -28,13 +29,21 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then monolog is indeed local
 /// - Then monolog is indeed remote
-final StepDefinitionGeneric monologAvailability =
-    then1<AvailabilityStatus, CustomWorld>('monolog is indeed {availability}', (
-      status,
-      context,
-    ) async {
-      await context.world.appDriver.waitUntil(() async {
-        await context.world.appDriver.waitForAppToSettle();
+final StepDefinitionGeneric
+monologAvailability = then1<AvailabilityStatus, CustomWorld>(
+  'monolog is indeed {availability}',
+  (status, context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        Log.debug(
+          'monologAvailability -> await waitForAppToSettle()...',
+          'E2E',
+        );
+
+        Log.debug(
+          'monologAvailability -> await waitForAppToSettle()... done!',
+          'E2E',
+        );
 
         final GraphQlProvider provider = GraphQlProvider()
           ..client.withWebSocket = false;
@@ -42,7 +51,14 @@ final StepDefinitionGeneric monologAvailability =
         final AuthService authService = Get.find();
         provider.token = authService.credentials.value!.access.secret;
 
-        final isLocal = (await provider.getMonolog()) == null;
+        final mixin = await provider.getMonolog();
+
+        final bool isLocal = mixin == null;
+
+        Log.debug(
+          'monologAvailability -> isLocal($isLocal), `getMonolog()` -> $mixin',
+          'E2E',
+        );
 
         provider.disconnect();
 
@@ -53,5 +69,9 @@ final StepDefinitionGeneric monologAvailability =
           case AvailabilityStatus.remote:
             return !isLocal;
         }
-      }, timeout: const Duration(seconds: 30));
-    });
+      },
+      timeout: const Duration(seconds: 30),
+      pollInterval: const Duration(seconds: 4),
+    );
+  },
+);

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -103,7 +103,6 @@ class ParticipantView extends StatelessWidget {
                                 ParticipantsFlowStage.participants
                           : null,
                     ),
-
                     Flexible(
                       child: SearchView(
                         categories: const [
@@ -111,7 +110,6 @@ class ParticipantView extends StatelessWidget {
                           SearchCategory.contact,
                           SearchCategory.user,
                         ],
-
                         submit: 'btn_add'.l10n,
                         onSubmit: c.addMembers,
                         enabled: c.status.value.isEmpty,
@@ -221,10 +219,12 @@ class ParticipantView extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                         child: PrimaryButton(
-                          onPressed: () {
-                            c.status.value = RxStatus.empty();
-                            c.stage.value = ParticipantsFlowStage.search;
-                          },
+                          onPressed: c.isSupport
+                              ? null
+                              : () {
+                                  c.status.value = RxStatus.empty();
+                                  c.stage.value = ParticipantsFlowStage.search;
+                                },
                           title: 'btn_add_participants'.l10n,
                         ),
                       ),

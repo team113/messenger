@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart' as dio show Options, FormData;
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 
 import '../base.dart';
 import '../exceptions.dart';
@@ -98,7 +98,7 @@ mixin AuthGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [SessionEvent] may be produced on success:
-  /// - [EventSessionDeleted].
+  /// - [SessionDeletedEvent].
   ///
   /// Idempotent
   ///
@@ -329,9 +329,7 @@ mixin AuthGraphQlMixin {
         'map': '{ "token": ["variables.token"] }',
         'token': const RawClientOptions().token ?? token,
       }),
-      options: dio.Options(
-        headers: {if (locale != null) 'Accept-Language': locale},
-      ),
+      options: dio.Options(headers: {'Accept-Language': ?locale}),
       operationName: query.operationName,
     );
   }

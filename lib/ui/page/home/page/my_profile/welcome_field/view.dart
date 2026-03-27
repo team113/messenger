@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -448,8 +448,13 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                             : 0,
                         child: CloseButton(
                           key: const Key('RemovePickedFile'),
-                          onPressed: () =>
-                              c.attachments.removeWhere((a) => a.value == e),
+                          onPressed: () {
+                            if (e is LocalAttachment) {
+                              e.cancelUpload();
+                            }
+
+                            c.attachments.removeWhere((a) => a.value == e);
+                          },
                         ),
                       );
                     }),

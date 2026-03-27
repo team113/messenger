@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
@@ -26,21 +25,20 @@ import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/page/user/controller.dart';
@@ -382,7 +380,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 'MessageStatus_${widget.note.value?.value.id ?? widget.forwards.firstOrNull?.value.id}',
                               ),
                               at: _at,
-                              status: SendingStatus.sent,
+                              status: _fromMe
+                                  ? widget.forwards.first.value.status.value
+                                  : null,
                               read: _isRead,
                               halfRead: _isHalfRead,
                               delivered:
@@ -422,20 +422,11 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         final TextSpan? text = _text[msg.id];
 
         final List<Attachment> media = quote.attachments
-            .where(
-              (e) =>
-                  e is ImageAttachment ||
-                  (e is FileAttachment && e.isVideo) ||
-                  (e is LocalAttachment && (e.file.isImage || e.file.isVideo)),
-            )
+            .where((e) => e.isMedia)
             .toList();
 
         final List<Attachment> files = quote.attachments
-            .where(
-              (e) =>
-                  (e is FileAttachment && !e.isVideo) ||
-                  (e is LocalAttachment && !e.file.isImage && !e.file.isVideo),
-            )
+            .where((e) => e.isFile)
             .toList();
 
         timeInBubble = text == null && media.isNotEmpty && files.isEmpty;
@@ -487,27 +478,35 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ),
           SizedBox(height: quote.attachments.isNotEmpty ? 6 : 3),
           if (media.isNotEmpty) ...[
-            media.length == 1
-                ? _buildAttachment(
-                    media.first,
-                    msg,
-                    menu: menu,
-                    filled: false,
-                    cover: quote.text != null,
-                  )
-                : SizedBox(
-                    width: media.length * 120,
-                    height: max(media.length * 60, 300),
-                    child: FitView(
-                      dividerColor: style.colors.transparent,
-                      children: media
-                          .mapIndexed(
-                            (i, e) =>
-                                _buildAttachment(e, msg, i: i, menu: menu),
-                          )
-                          .toList(),
-                    ),
-                  ),
+            ...media.mapIndexed((i, e) {
+              int width = 350;
+              int height = 350;
+              double aspect = 1;
+
+              final StorageFile file = e.original;
+              if (file is ImageFile) {
+                width = file.width ?? width;
+                height = file.height ?? height;
+                aspect = width / height;
+              }
+
+              final Widget content = SizedBox(
+                width: 350,
+                height: 350 / height * height.toDouble() / aspect,
+                child: _buildAttachment(
+                  e,
+                  i: i,
+                  msg,
+                  menu: menu,
+                  cover: quote.text != null,
+                ),
+              );
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [content, const SizedBox(height: 1)],
+              );
+            }),
             SizedBox(height: files.isNotEmpty || text != null ? 6 : 0),
           ],
           if (files.isNotEmpty) ...[
@@ -547,7 +546,8 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     child: SelectionText.rich(
                       TextSpan(
                         children: [
-                          if (text != null) text,
+                          ?text,
+
                           // TODO: Use transparent [MessageTimestamp]:
                           //       https://github.com/flutter/flutter/issues/124787
                           const WidgetSpan(child: SizedBox(width: 95)),
@@ -716,16 +716,13 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
       final TextSpan? text = _text[item.id];
 
-      final List<Attachment> media = item.attachments.where((e) {
-        return ((e is ImageAttachment) ||
-            (e is FileAttachment && e.isVideo) ||
-            (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
-      }).toList();
+      final List<Attachment> media = item.attachments
+          .where((e) => e.isMedia)
+          .toList();
 
-      final List<Attachment> files = item.attachments.where((e) {
-        return ((e is FileAttachment && !e.isVideo) ||
-            (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
-      }).toList();
+      final List<Attachment> files = item.attachments
+          .where((e) => e.isFile)
+          .toList();
 
       final Color color = widget.user?.user.value.id == widget.me
           ? style.colors.primary
@@ -766,31 +763,64 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           ] else
             SizedBox(height: media.isEmpty ? 6 : 0),
           if (media.isNotEmpty) ...[
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 500),
-              opacity: _isRead || !_fromMe ? 1 : 0.55,
-              child: media.length == 1
-                  ? _buildAttachment(
-                      media.first,
-                      item,
-                      menu: menu,
-                      filled: false,
-                      cover: text != null,
-                    )
-                  : SizedBox(
-                      width: media.length * 120,
-                      height: max(media.length * 60, 300),
-                      child: FitView(
-                        dividerColor: style.colors.transparent,
-                        children: media
-                            .mapIndexed(
-                              (i, e) =>
-                                  _buildAttachment(e, item, i: i, menu: menu),
-                            )
-                            .toList(),
-                      ),
-                    ),
-            ),
+            ...media.mapIndexed((i, e) {
+              int width = 350;
+              int height = 350;
+              double aspect = 1;
+
+              final StorageFile file = e.original;
+              if (file is ImageFile) {
+                width = file.width ?? width;
+                height = file.height ?? height;
+                aspect = width / height;
+              }
+
+              final Widget content = SizedBox(
+                width: 350,
+                height: 350 / height * height.toDouble() / aspect,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 500),
+                  opacity: _isRead || !_fromMe ? 1 : 0.55,
+                  child: _buildAttachment(
+                    e,
+                    i: i,
+                    item,
+                    menu: menu,
+                    cover: text != null,
+                  ),
+                ),
+              );
+
+              Radius topLeft = Radius.zero;
+              Radius topRight = Radius.zero;
+
+              if (i == 0) {
+                final bool hasTitle =
+                    !_fromMe &&
+                    widget.chat.value?.isGroup == true &&
+                    widget.withAvatar;
+
+                if (!hasTitle) {
+                  topLeft = const Radius.circular(15);
+                  topRight = const Radius.circular(15);
+                }
+              }
+
+              if (topLeft != Radius.zero || topRight != Radius.zero) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    topLeft: topLeft,
+                    topRight: topRight,
+                  ),
+                  child: content,
+                );
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [content, const SizedBox(height: 1)],
+              );
+            }),
             SizedBox(height: files.isNotEmpty || text != null ? 6 : 0),
           ],
           if (files.isNotEmpty) ...[
@@ -952,10 +982,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
             return Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.center,
-              children: <Widget>[
-                ...previousChildren,
-                if (currentChild != null) currentChild,
-              ],
+              children: <Widget>[...previousChildren, ?currentChild],
             );
           },
           transitionBuilder: (child, animation) {
@@ -999,8 +1026,33 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         Flexible(
           child: LayoutBuilder(
             builder: (context, constraints) {
+              bool hasMedia = false;
+
+              if (note is ChatMessage) {
+                hasMedia = note.attachments.any((e) => e.isMedia);
+              }
+
+              if (!hasMedia) {
+                hasMedia = widget.forwards.any((e) {
+                  final item = e.value;
+
+                  if (item is ChatMessage) {
+                    return item.attachments.any((e) => e.isMedia);
+                  }
+
+                  if (item is ChatForward) {
+                    final quote = item.quote;
+                    if (quote is ChatMessageQuote) {
+                      return quote.attachments.any((e) => e.isMedia);
+                    }
+                  }
+
+                  return false;
+                });
+              }
+
               return ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: 550),
+                constraints: BoxConstraints(maxWidth: hasMedia ? 350 : 550),
                 child: Padding(
                   padding: EdgeInsets.zero,
                   child: Material(

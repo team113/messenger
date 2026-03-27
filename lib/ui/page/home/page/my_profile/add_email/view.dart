@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -75,6 +75,7 @@ class AddEmailView extends StatelessWidget {
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 style: style.fonts.normal.regular.onBackground,
                 treatErrorAsStatus: false,
+                spellCheck: false,
               ),
               const SizedBox(height: 25),
               Obx(() {

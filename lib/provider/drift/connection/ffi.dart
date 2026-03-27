@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,7 +23,6 @@ import 'package:log_me/log_me.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
-import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 import '/domain/model/user.dart';
 import '/util/ios_utils.dart';
@@ -47,11 +46,6 @@ QueryExecutor connect([UserId? userId]) {
     final File file = File(
       p.join(dbFolder.path, '${userId?.val ?? 'common'}.sqlite'),
     );
-
-    // Workaround limitations on old Android versions.
-    if (Platform.isAndroid) {
-      await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
-    }
 
     // Make `sqlite3` pick a more suitable location for temporary files - the
     // one from the system may be inaccessible due to sandboxing.

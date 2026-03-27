@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/domain/model/link.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
@@ -26,7 +27,7 @@ import '/util/log.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [User]s related functionality.
-class UserService extends DisposableService {
+class UserService extends Dependency {
   UserService(this._userRepository);
 
   /// Repository to fetch [User]s from.
@@ -40,7 +41,7 @@ class UserService extends DisposableService {
     UserNum? num,
     UserName? name,
     UserLogin? login,
-    ChatDirectLinkSlug? link,
+    DirectLinkSlug? link,
   }) {
     Log.debug('search($num, $name, $login, $link)', '$runtimeType');
 

@@ -6,6 +6,526 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.10.0] · 2026-03-26
+[0.10.0]: /../../tree/v0.10.0
+
+[Diff](/../../compare/v0.9.6...v0.10.0) | [Milestone](/../../milestone/72)
+
+### Changed
+
+- UI:
+    - Support page. ([#1660])
+    - Chats tab:
+        - Display about information when searching users. ([#1659])
+    - Profile page:
+        - Allow creating multiple direct links to chat. ([#1664])
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Inability to drag-n-drop buttons in dock. ([#1654])
+        - Incoming video being disabled when disabling screen sharing only. ([#1662])
+- macOS:
+    - Application crashing when exiting. ([#1657], [#1561])
+- Windows:
+    - Unsupported devices displayed in output devices list for Windows 10. ([#1643])
+
+[#1561]: /../../issues/1561
+[#1643]: /../../pull/1643
+[#1654]: /../../pull/1654
+[#1657]: /../../pull/1657
+[#1659]: /../../pull/1659
+[#1660]: /../../pull/1660
+[#1662]: /../../pull/1662
+[#1664]: /../../pull/1664
+
+
+
+
+## [0.9.6] · 2026-03-16
+[0.9.6]: /../../tree/v0.9.6
+
+[Diff](/../../compare/v0.9.5...v0.9.6) | [Milestone](/../../milestone/71)
+
+### Added
+
+- UI:
+    - Profile page:
+        - Added help and sign out blocks. ([#1638])
+
+### Changed
+
+- UI:
+    - Chat info page:
+        - Redesigned links block. ([#1644], [#1642], [#1638])
+    - Profile page:
+        - Redesigned links, cache and media devices blocks. ([#1644], [#1638])
+    - Chats tab:
+        - Avatar for support chats. ([#1646])
+    - Chat page:
+        - Media attachments displayed in column instead of grid. ([#1651], [#1647])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Welcome message displayed at bottom instead of top. ([#1649])
+    - Media panel:
+        - Click cursor missing when hovering over dock buttons on macOS. ([#1651])
+
+[#1638]: /../../pull/1638
+[#1642]: /../../pull/1642
+[#1644]: /../../pull/1644
+[#1646]: /../../pull/1646
+[#1647]: /../../pull/1647
+[#1649]: /../../pull/1649
+[#1651]: /../../pull/1651
+
+
+
+
+## [0.9.5] · 2026-03-09
+[0.9.5]: /../../tree/v0.9.5
+
+[Diff](/../../compare/v0.9.4...v0.9.5) | [Milestone](/../../milestone/70)
+
+### Added
+
+- UI:
+    - Profile page:
+        - Display input volume for selected microphone. ([#1634])
+
+### Changed
+
+- UI:
+    - Chats tab:
+        - Redesigned searching. ([#1630])
+    - Horizontal application scroll when window's width is less than 300px. ([#1632])
+    - Chat page:
+        - Redesigned attachments buttons. ([#1633])
+        - Redesigned desktop player. ([#1636])
+    - Media panel:
+        - Increased camera resolution to 960x720. ([#1637])
+
+### Fixed
+
+- UI:
+    - Player:
+        - Screen turning dark when double pressing escape. ([#1629])
+    - Freelance page:
+        - Multiline lines displayed in a single line. ([#1617], [#544])
+
+[#544]: /../../issues/544
+[#1617]: /../../pull/1617
+[#1629]: /../../pull/1629
+[#1630]: /../../pull/1630
+[#1632]: /../../pull/1632
+[#1633]: /../../pull/1633
+[#1634]: /../../pull/1634
+[#1636]: /../../pull/1636
+[#1637]: /../../pull/1637
+
+
+
+
+## [0.9.4] · 2026-03-02
+[0.9.4]: /../../tree/v0.9.4
+
+[Diff](/../../compare/v0.9.3...v0.9.4) | [Milestone](/../../milestone/69)
+
+### Changed
+
+- UI:
+    - Redesigned user page. ([#1625])
+    - Redesigned chat info page. ([#1625])
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Country and city missing from linked Web devices. ([#1620])
+    - Media panel:
+        - Reconnect button playing animation when dragging. ([#1621])
+
+[#1620]: /../../pull/1620
+[#1621]: /../../pull/1621
+[#1625]: /../../pull/1625
+
+
+
+
+## [0.9.3] · 2026-02-23
+[0.9.3]: /../../tree/v0.9.3
+
+[Diff](/../../compare/v0.9.2...v0.9.3) | [Milestone](/../../milestone/68)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Draft not being updated when removing attachments or replies. ([#1613])
+    - Profile page:
+        - Invalid microphone and output device displayed as selected by default. ([#1613])
+        - Invalid icon being used for devices with unknown OS. ([#1615])
+
+[#1613]: /../../pull/1613
+[#1615]: /../../pull/1615
+
+
+
+
+## [0.9.2] · 2026-02-16
+[0.9.2]: /../../tree/v0.9.2
+
+[Diff](/../../compare/v0.9.1...v0.9.2) | [Milestone](/../../milestone/67)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Pending call notification being displayed when already joined on another device. ([#1605])
+        - Invalid microphone or output being used by default when joining call on Web. ([#1606])
+        - Invalid screen sharing resolution under desktop platforms. ([#1609])
+        - Default device not being first in devices list. ([#1610])
+    - Context menu closing when clicking RMB instead of reopening on desktops. ([#1603])
+
+[#1603]: /../../pull/1603
+[#1605]: /../../pull/1605
+[#1606]: /../../pull/1606
+[#1609]: /../../pull/1609
+[#1610]: /../../pull/1610
+
+
+
+
+## [0.9.1] · 2026-02-11
+[0.9.1]: /../../tree/v0.9.1
+
+[Diff](/../../compare/v0.9.0...v0.9.1) | [Milestone](/../../milestone/66)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Enabled video sometimes not being seen by participants. ([#1602])
+        - Call buttons dragged from dock to panel are being left hanging on screen. ([#1602])
+
+[#1602]: /../../pull/1602
+
+
+
+
+## [0.9.0] · 2026-02-05
+[0.9.0]: /../../tree/v0.9.0
+
+[Diff](/../../compare/v0.8.2...v0.9.0) | [Milestone](/../../milestone/65)
+
+### Changed
+
+- UI:
+    - Profile page:
+        - Allow name to be 1 symbols long. ([#1600])
+
+[#1600]: /../../pull/1600
+
+
+
+
+## [0.8.2] · 2026-02-02
+[0.8.2]: /../../tree/v0.8.2
+
+[Diff](/../../compare/v0.8.1...v0.8.2) | [Milestone](/../../milestone/64)
+
+### Added
+
+- UI:
+    - Support chat. ([#1598], [#1597], [#1595])
+    - Chat page:
+        - Logs button in notes and support chats. ([#1595])
+- Mobile:
+    - Media panel:
+        - Output device modal being displayed when any external device is connected. ([#1596], [#1593])
+
+### Changed
+
+- UI:
+    - User page:
+        - Join and decline call buttons. ([#1597])
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Camera disabling for remote peers when disable screen sharing. ([#1594])
+- iOS:
+    - Dialogue calls not being connected sometimes. ([#1594])
+    - Output device not switching to headphones or not displaying being switched. ([#1593])
+
+[#1593]: /../../pull/1593
+[#1594]: /../../pull/1594
+[#1595]: /../../pull/1595
+[#1596]: /../../pull/1596
+[#1597]: /../../pull/1597
+[#1598]: /../../pull/1598
+
+
+
+
+## [0.8.1] · 2026-01-26
+[0.8.1]: /../../tree/v0.8.1
+
+[Diff](/../../compare/v0.8.0...v0.8.1) | [Milestone](/../../milestone/63)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Incoming call sometimes being stuck ringing infinitely. ([#1589])
+        - Text below accept and decline buttons being unreadable. ([#1589])
+        - Remote video not being disabled on slow Internet connection. ([#1591])
+
+[#1589]: /../../pull/1589
+[#1591]: /../../pull/1591
+
+
+
+
+## [0.8.0] · 2026-01-21
+[0.8.0]: /../../tree/v0.8.0
+
+[Diff](/../../compare/v0.7.2...v0.8.0) | [Milestone](/../../milestone/62)
+
+### Added
+
+- UI:
+    - Media panel:
+        - Reconnecting notifications when network changes in call. ([#1581])
+
+### Fixed
+
+- UI:
+    - Chat info page:
+        - Leave group button in members list not working. ([#1578])
+    - Media panel:
+        - Infinite vibration when ringing pending calls on iOS and Android. ([#1580])
+        - Connection not being reconnected on network changes on Web. ([#1581])
+        - Own camera or recipient's video sometimes not being rendered. ([#1582])
+        - Raised hand appearing on display demonstrations. ([#1584])
+
+[#1578]: /../../pull/1578
+[#1580]: /../../pull/1580
+[#1581]: /../../pull/1581
+[#1582]: /../../pull/1582
+[#1584]: /../../pull/1584
+
+
+
+
+## [0.7.2] · 2026-01-12
+[0.7.2]: /../../tree/v0.7.2
+
+[Diff](/../../compare/v0.7.1...v0.7.2) | [Milestone](/../../milestone/61)
+
+### Added
+
+- UI:
+    - Media panel:
+        - Reconnect call button. ([#1577], [#1575])
+    - Profile page:
+        - Display domains of linked devices. ([#1576])
+- Mobile:
+    - Media panel:
+        - Disclaimer of microphone and camera being blocked when tab is in background. ([#1575])
+
+### Changed
+
+- UI:
+    - Menu tab:
+        - Buttons grouped into sections. ([#1577])
+
+[#1575]: /../../pull/1575
+[#1576]: /../../pull/1576
+[#1577]: /../../pull/1577
+
+
+
+
+## [0.7.1] · 2026-01-07
+[0.7.1]: /../../tree/v0.7.1
+
+[Diff](/../../compare/v0.7.0...v0.7.1) | [Milestone](/../../milestone/60)
+
+### Added
+
+- UI:
+    - Media panel:
+        - Audio sharing with screen sharing. ([#1570])
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Empty screen sharing being displayed sometimes. ([#1566])
+        - Incoming call window not being displayed in rare cases. ([#1567])
+        - Camera device turning off sometimes when microphone device is disconnected. ([#1568])
+    - Autocorrect invalidly enabled for login, passwords and e-mail fields. ([#1571])
+    - New and repeat password fields filling in current password instead of suggesting new. ([#1571])
+- iOS:
+    - Media panel:
+        - Calls not transmitting neither audio nor video to recipients. ([#1571])
+
+[#1566]: /../../pull/1566
+[#1567]: /../../pull/1567
+[#1568]: /../../pull/1568
+[#1570]: /../../pull/1570
+[#1571]: /../../pull/1571
+
+
+
+
+## [0.7.0] · 2025-12-25
+[0.7.0]: /../../tree/v0.7.0
+
+[Diff](/../../compare/v0.6.14...v0.7.0) | [Milestone](/../../milestone/59)
+
+### Fixed
+
+- Authorization sometimes being lost on some devices. ([#1564])
+
+[#1564]: /../../pull/1564
+
+
+
+
+## [0.6.14] · 2025-12-19
+[0.6.14]: /../../tree/v0.6.14
+
+[Diff](/../../compare/v0.6.13...v0.6.14) | [Milestone](/../../milestone/58)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Calls ringing from muted chats. ([#1557], [#1546])
+
+[#1546]: /../../pull/1546
+[#1557]: /../../pull/1557
+
+
+
+
+## [0.6.13] · 2025-12-10
+[0.6.13]: /../../tree/v0.6.13
+
+[Diff](/../../compare/v0.6.12...v0.6.13) | [Milestone](/../../milestone/57)
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Presence status sometimes not being updated. ([#1540], [#1539])
+    - Passwords fields having first letter capitalization enabled automatically. ([#1537], [#1533])
+    - Chats tab:
+        - Answered or declined call displayed as unread notification in chat. ([#1516], [#1508])
+
+[#1508]: /../../issues/1508
+[#1516]: /../../pull/1516
+[#1533]: /../../issues/1533
+[#1537]: /../../pull/1537
+[#1539]: /../../issues/1539
+[#1540]: /../../pull/1540
+
+
+
+
+## [0.6.12] · 2025-12-01
+[0.6.12]: /../../tree/v0.6.12
+
+[Diff](/../../compare/v0.6.11...v0.6.12) | [Milestone](/../../milestone/56)
+
+### Changed
+
+- UI:
+    - Menu tab:
+       - Redesigned sidebar color. [[#1529], [#1524]]
+    - Chat page:
+        - Auto-play video thumbnails only when hovered. ([#1518], [#1446])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Page sometimes not being popped when navigating back. ([#1526])
+        - Forwarded messages displaying invalid sent/read status. ([#1521], [#1452])
+    - Home Page:
+        - Navigation bar expanding inappropriately when side bar is wide enough. ([#1532], [#1528])
+
+[#1446]: /../../issues/1446
+[#1452]: /../../issues/1452
+[#1518]: /../../pull/1518
+[#1521]: /../../pull/1521
+[#1524]: /../../issues/1524
+[#1526]: /../../pull/1526
+[#1528]: /../../issues/1528
+[#1529]: /../../pull/1529
+[#1532]: /../../pull/1532
+
+
+
+
+## [0.6.11] · 2025-11-24
+[0.6.11]: /../../tree/v0.6.11
+
+[Diff](/../../compare/v0.6.10...v0.6.11) | [Milestone](/../../milestone/55)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - File uploads can be canceled. ([#1496], [#1490])
+    - Chats tab:
+        - Redesigned chats appearing animation. ([#1514])
+        - Redesigned unread messages counter. ([#1512], [#1507])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to navigate back after clicking on direct link. ([#1504], [#1460])
+
+[#1460]: /../../issues/1460
+[#1490]: /../../issues/1490
+[#1496]: /../../pull/1496
+[#1504]: /../../pull/1504
+[#1507]: /../../issues/1507
+[#1512]: /../../pull/1512
+[#1514]: /../../pull/1514
+
+
+
+
+## [0.6.10] · 2025-11-17
+[0.6.10]: /../../tree/v0.6.10
+
+[Diff](/../../compare/v0.6.9...v0.6.10) | [Milestone](/../../milestone/54)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Upload progress indicator not updating during file upload. ([#1492], [#1491])
+- Web:
+    - Inability to crop SVG avatar images on Web. ([#1501], [#1489])
+
+[#1489]: /../../issues/1489
+[#1491]: /../../issues/1491
+[#1492]: /../../pull/1492
+[#1501]: /../../pull/1501
+
+
+
+
 ## [0.6.9] · 2025-11-11
 [0.6.9]: /../../tree/v0.6.9
 

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,11 +26,13 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'config.dart';
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
+import 'domain/model/link.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/blocklist.dart';
 import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
 import 'domain/repository/contact.dart';
+import 'domain/repository/link.dart';
 import 'domain/repository/my_user.dart';
 import 'domain/repository/session.dart';
 import 'domain/repository/settings.dart';
@@ -40,6 +42,7 @@ import 'domain/service/blocklist.dart';
 import 'domain/service/call.dart';
 import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
+import 'domain/service/link.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/notification.dart';
 import 'domain/service/session.dart';
@@ -69,14 +72,16 @@ import 'store/blocklist.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
+import 'store/link.dart';
 import 'store/my_user.dart';
 import 'store/session.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
 import 'themes.dart';
 import 'ui/page/auth/view.dart';
-import 'ui/page/chat_direct_link/view.dart';
+import 'ui/page/direct_link/view.dart';
 import 'ui/page/erase/view.dart';
+import 'ui/page/home/page/chat/controller.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/popup_gallery/view.dart';
@@ -103,7 +108,7 @@ late RouterState router;
 class Routes {
   static const auth = '/';
   static const call = '/call';
-  static const chatDirectLink = '/~';
+  static const directLink = '/~';
   static const chatInfo = '/info';
   static const chats = '/chats';
   static const contacts = '/contacts';
@@ -138,18 +143,33 @@ enum ProfileTab {
   public,
   signing,
   link,
-  media,
   welcome,
   notifications,
-  storage,
   confidential,
-  interface,
   devices,
+
+  interface,
+  media,
+  storage,
   download,
-  legal,
-  danger,
+
   support,
+  legal,
+
+  danger,
   logout,
+}
+
+/// Navigation mode.
+enum RouteAs {
+  /// Pushes to the [router]'s routes stack.
+  push,
+
+  /// Clears all routes and pushes to the [router]'s routes stack.
+  replace,
+
+  /// Pops last route and pushes to the [router]'s routes stack.
+  insteadOfLast,
 }
 
 /// Application's router state.
@@ -220,9 +240,6 @@ class RouterState extends ChangeNotifier {
   /// Current [Routes.home] tab.
   HomeTab _tab = HomeTab.chats;
 
-  /// List of [routes] already [pop]ped so that those aren't removed twice.
-  final List<String> _accounted = [];
-
   /// Current route (last in the [routes] history).
   String get route => routes.lastOrNull == null ? Routes.home : routes.last;
 
@@ -241,13 +258,9 @@ class RouterState extends ChangeNotifier {
   ///
   /// Clears the whole [routes] stack.
   void go(String to) {
-    arguments = null;
+    Log.debug('go($to)', '$runtimeType');
 
-    for (var e in routes) {
-      if (e != '/' && e != to) {
-        _accounted.add(e);
-      }
-    }
+    arguments = null;
 
     routes.value = [_guarded(to)];
     notifyListeners();
@@ -255,6 +268,8 @@ class RouterState extends ChangeNotifier {
 
   /// Pushes [to] to the [routes] stack.
   void push(String to) {
+    Log.debug('push($to)', '$runtimeType');
+
     arguments = null;
     int pageIndex = routes.indexWhere((e) => e == to);
     if (pageIndex != -1) {
@@ -273,9 +288,7 @@ class RouterState extends ChangeNotifier {
   /// If [routes] contain only one record, then removes segments of that record
   /// by `/` if any, otherwise replaces it with [Routes.home].
   void pop([String? page]) {
-    if (_accounted.remove(page ?? routes.lastOrNull)) {
-      return;
-    }
+    Log.debug('pop($page)', '$runtimeType');
 
     if (routes.isNotEmpty) {
       if (page != null && !routes.contains(page)) {
@@ -294,13 +307,11 @@ class RouterState extends ChangeNotifier {
           last = Routes.home;
         }
 
-        _accounted.remove(routes.last);
         routes.last = last;
       } else {
         if (page != null) {
           routes.remove(page);
         } else {
-          _accounted.remove(routes.last);
           routes.removeLast();
         }
 
@@ -318,7 +329,6 @@ class RouterState extends ChangeNotifier {
     for (String e in routes.toList(growable: false)) {
       if (predicate(e)) {
         routes.remove(route);
-        _accounted.add(route);
       }
     }
 
@@ -327,6 +337,8 @@ class RouterState extends ChangeNotifier {
 
   /// Replaces the provided [from] with the specified [to] in the [routes].
   void replace(String from, String to) {
+    Log.debug('replace($from, $to)', '$runtimeType');
+
     routes.value = routes.map((e) => e.replaceAll(from, to)).toList();
   }
 
@@ -338,7 +350,7 @@ class RouterState extends ChangeNotifier {
     if (to.startsWith(Routes.work) ||
         to.startsWith(Routes.erase) ||
         to.startsWith(Routes.support) ||
-        to.startsWith(Routes.chatDirectLink)) {
+        to.startsWith(Routes.directLink)) {
       return to;
     }
 
@@ -467,6 +479,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   /// Worker to react on the [RouterState.prefix] changes.
   late final Worker _prefixWorker;
 
+  /// [ScrollController] for horizontal [SingleChildScrollView] appearing when
+  /// window's width is less than a certain value.
+  final ScrollController _horizontalController = ScrollController();
+
   @override
   Future<void> setInitialRoutePath(RouteConfiguration configuration) async {
     Future.delayed(Duration.zero, () {
@@ -567,10 +583,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
               deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
               deps.put(CallRectDriftProvider(Get.find(), scoped));
-              deps.put(MonologDriftProvider(Get.find()));
+              deps.put(MonologDriftProvider(Get.find(), Get.find()));
               deps.put(DraftDriftProvider(Get.find(), scoped));
               deps.put(SessionDriftProvider(Get.find(), scoped));
-              await deps.put(VersionDriftProvider(Get.find())).init();
+              final versionProvider = deps.put(
+                VersionDriftProvider(Get.find()),
+              );
+              await versionProvider.init();
 
               final AbstractSettingsRepository settingsRepository = deps
                   .put<AbstractSettingsRepository>(
@@ -650,10 +669,30 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                       Get.find(),
                     ),
                   );
+              final AbstractLinkRepository linkRepository = deps
+                  .put<AbstractLinkRepository>(
+                    LinkRepository(graphQlProvider, versionProvider, me: me),
+                  );
 
-              deps.put(MyUserService(Get.find(), myUserRepository));
+              final AbstractSessionRepository sessionRepository = deps
+                  .put<AbstractSessionRepository>(
+                    SessionRepository(
+                      graphQlProvider,
+                      Get.find(),
+                      Get.find(),
+                      Get.find(),
+                      Get.find(),
+                      Get.find(),
+                    ),
+                  );
+              deps.put<SessionService>(SessionService(sessionRepository));
+
+              final myUserService = deps.put(
+                MyUserService(Get.find(), myUserRepository),
+              );
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
+              deps.put(LinkService(linkRepository));
 
               final ChatService chatService = deps.put(
                 ChatService(chatRepository, Get.find()),
@@ -665,6 +704,20 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callService.onChatRemoved = chatRepository.remove;
 
               deps.put(BlocklistService(blocklistRepository));
+
+              deps.put(
+                CallWorker(
+                  callService,
+                  chatService,
+                  myUserService,
+                  null,
+                  Get.find(),
+                  settingsRepository,
+                  graphQlProvider,
+                  Get.find(),
+                  sessionRepository,
+                ),
+              );
 
               return deps;
             },
@@ -704,7 +757,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
               deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
               deps.put(CallRectDriftProvider(Get.find(), scoped));
-              deps.put(MonologDriftProvider(Get.find()));
+              deps.put(MonologDriftProvider(Get.find(), Get.find()));
               deps.put(DraftDriftProvider(Get.find(), scoped));
               deps.put(SessionDriftProvider(Get.find(), scoped));
               await deps.put(VersionDriftProvider(Get.find())).init();
@@ -844,7 +897,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               final callRectProvider = deps.put(
                 CallRectDriftProvider(common, scoped),
               );
-              final monologProvider = deps.put(MonologDriftProvider(common));
+              final monologProvider = deps.put(
+                MonologDriftProvider(common, scoped),
+              );
               final draftProvider = deps.put(
                 DraftDriftProvider(common, scoped),
               );
@@ -889,8 +944,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                         Get.findOrNull<BackgroundDriftProvider>();
                     final credentialsProvider =
                         Get.findOrNull<CredentialsDriftProvider>();
-                    final monologProvider =
-                        Get.findOrNull<MonologDriftProvider>();
                     final myUserProvider =
                         Get.findOrNull<MyUserDriftProvider>();
                     final settingsProvider =
@@ -900,7 +953,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
                     await backgroundProvider?.delete(me);
                     await credentialsProvider?.delete(me);
-                    await monologProvider?.delete(me);
                     await myUserProvider?.delete(me);
                     await settingsProvider?.delete(me);
                     await versionProvider?.delete(me);
@@ -1034,12 +1086,17 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                       Get.find(),
                     ),
                   );
+              final AbstractLinkRepository linkRepository = deps
+                  .put<AbstractLinkRepository>(
+                    LinkRepository(graphQlProvider, versionProvider, me: me),
+                  );
 
               final MyUserService myUserService = deps.put(
                 MyUserService(Get.find(), myUserRepository),
               );
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
+              deps.put(LinkService(linkRepository));
 
               final ChatService chatService = deps.put(
                 ChatService(chatRepository, Get.find()),
@@ -1057,11 +1114,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   callService,
                   chatService,
                   myUserService,
-                  Get.find(),
+                  notificationService,
                   Get.find(),
                   settingsRepository,
                   graphQlProvider,
                   Get.find(),
+                  sessionRepository,
                 ),
               );
 
@@ -1072,7 +1130,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               return deps;
             },
             signedUp: router.arguments?['signedUp'] as bool? ?? false,
-            link: router.arguments?['link'] as ChatDirectLinkSlug?,
+            link: router.arguments?['link'] as DirectLinkSlug?,
           ),
         ),
       );
@@ -1100,13 +1158,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: SupportView(),
         ),
       ];
-    } else if (_state.route.startsWith(Routes.chatDirectLink)) {
-      final String slug = _state.route.replaceFirst(Routes.chatDirectLink, '');
+    } else if (_state.route.startsWith(Routes.directLink)) {
+      final String slug = _state.route.replaceFirst(Routes.directLink, '');
       return [
         MaterialPage(
-          key: ValueKey('ChatDirectLinkPage$slug'),
-          name: Routes.chatDirectLink,
-          child: ChatDirectLinkView(slug),
+          key: ValueKey('DirectLinkPage$slug'),
+          name: '${Routes.directLink}$slug',
+          child: DirectLinkView(slug),
         ),
       ];
     } else {
@@ -1125,7 +1183,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.work) ||
         _state.route.startsWith(Routes.erase) ||
         _state.route.startsWith(Routes.support) ||
-        _state.route.startsWith(Routes.chatDirectLink) ||
+        _state.route.startsWith(Routes.directLink) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -1138,9 +1196,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
   @override
   Widget build(BuildContext context) {
-    return SentryDisplayWidget(
+    final Widget body = SentryDisplayWidget(
       child: LifecycleObserver(
-        onStateChange: (v) => _state.lifecycle.value = v,
+        onStateChange: (v) {
+          Log.debug('onStateChange() -> $v', '$runtimeType');
+          _state.lifecycle.value = v;
+        },
         child: Listener(
           onPointerDown: (_) => PlatformUtils.keepActive(),
           onPointerHover: (_) => PlatformUtils.keepActive(),
@@ -1156,6 +1217,45 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   _state.pop(page.name);
                 }
               },
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // [MediaQuery] width to switch to horizontal scrolling.
+    const double minimum = 300;
+
+    if (MediaQuery.of(context).size.width >= minimum) {
+      return body;
+    }
+
+    return ScrollConfiguration(
+      behavior: CustomScrollBehavior(),
+      child: Scrollbar(
+        controller: _horizontalController,
+        child: SingleChildScrollView(
+          controller: _horizontalController,
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: minimum,
+              maxWidth: max(MediaQuery.of(context).size.width, minimum),
+            ),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                size: Size(
+                  max(MediaQuery.of(context).size.width, minimum),
+                  MediaQuery.of(context).size.height,
+                ),
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: ScrollConfiguration(
+                  behavior: MaterialScrollBehavior(),
+                  child: body,
+                ),
+              ),
             ),
           ),
         ),
@@ -1227,13 +1327,38 @@ extension RouteLinks on RouterState {
   /// If [push] is `true`, then location is pushed to the router location stack.
   void chat(
     ChatId id, {
-    bool push = false,
+    RouteAs mode = RouteAs.replace,
     ChatItemId? itemId,
-    ChatDirectLinkSlug? link,
+    DirectLinkSlug? link,
+    bool search = false,
   }) {
-    (push ? this.push : go)('${Routes.chats}/$id');
+    switch (mode) {
+      case RouteAs.insteadOfLast:
+        routes.removeLast();
+        push('${Routes.chats}/$id');
+        break;
 
-    arguments = {'itemId': itemId, 'link': link};
+      case RouteAs.replace:
+        go('${Routes.chats}/$id');
+        break;
+
+      case RouteAs.push:
+        push('${Routes.chats}/$id');
+        break;
+    }
+
+    arguments = {'itemId': itemId, 'link': link, 'search': search};
+
+    // TODO: Might not be the best thing to do it.
+    if (search) {
+      final List<ChatController> chats = Get.findAll<ChatController>();
+
+      for (var e in chats) {
+        if (e.id == id || (id.isLocal && e.user?.id == id.userId)) {
+          e.toggleSearch();
+        }
+      }
+    }
   }
 
   /// Changes router location to the [Routes.chats] page respecting the possible
@@ -1243,9 +1368,9 @@ extension RouteLinks on RouterState {
   void dialog(
     Chat chat,
     UserId? me, {
-    bool push = false,
+    RouteAs mode = RouteAs.replace,
     ChatItemId? itemId,
-    ChatDirectLinkSlug? link,
+    DirectLinkSlug? link,
   }) {
     ChatId chatId = chat.id;
 
@@ -1260,7 +1385,7 @@ extension RouteLinks on RouterState {
       }
     }
 
-    router.chat(chatId, push: push, itemId: itemId, link: link);
+    router.chat(chatId, itemId: itemId, link: link, mode: mode);
   }
 
   /// Changes router location to the [Routes.chatInfo] page.
@@ -1272,9 +1397,6 @@ extension RouteLinks on RouterState {
     '${Routes.work}${tab == null ? '' : '/${tab.name}'}',
   );
 
-  /// Changes router location to the [Routes.support] page.
-  void support({bool push = false}) => (push ? this.push : go)(Routes.support);
-
   /// Changes router location to the [Routes.style] page.
   ///
   /// If [push] is `true`, then location is pushed to the router location stack.
@@ -1283,11 +1405,18 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.nowhere] page.
   void nowhere() => go(Routes.nowhere);
 
-  /// Changes router location to the [Routes.chatDirectLink] page.
-  void link(ChatDirectLinkSlug slug) => go('${Routes.chatDirectLink}$slug');
+  /// Changes router location to the [Routes.directLink] page.
+  void link(DirectLinkSlug slug) => go('${Routes.directLink}$slug');
 
   /// Changes router location to the [Routes.erase] page.
   void erase({bool push = false}) => (push ? this.push : go)(Routes.erase);
+
+  /// Changes router location to the [Config.supportId] page.
+  // void support({bool push = false}) => (push ? this.push : go)(Routes.support);
+  void support({bool push = false}) => chat(
+    ChatId.local(UserId(Config.supportId)),
+    mode: push ? RouteAs.push : RouteAs.replace,
+  );
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -356,9 +356,10 @@ class AccountsSwitcherView extends StatelessWidget {
                             return Text.rich(
                               TextSpan(
                                 text: switch (presence) {
-                                  Presence.present =>
+                                  UserPresence.present =>
                                     'label_presence_present'.l10n,
-                                  Presence.away => 'label_presence_away'.l10n,
+                                  UserPresence.away =>
+                                    'label_presence_away'.l10n,
                                   (_) => 'label_offline'.l10n.capitalized,
                                 },
                                 style: style.fonts.small.regular.secondary,
@@ -428,7 +429,7 @@ class AccountsSwitcherView extends StatelessWidget {
                       style: style.fonts.small.regular.onBackground,
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       maxLines: 1,
-                      formatters: [LengthLimitingTextInputFormatter(25)],
+                      formatters: [LengthLimitingTextInputFormatter(33)],
                     ),
                   ),
                 ],

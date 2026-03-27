@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/session.dart';
@@ -26,6 +27,9 @@ abstract class AbstractSessionRepository {
 
   /// Indicates whether the current device is connected to any network.
   RxBool get connected;
+
+  /// [ConnectivityResult]s of the current device.
+  RxList<ConnectivityResult> get connectivity;
 
   /// Fetches the [IpGeoLocation] of the provided [ip].
   ///

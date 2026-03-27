@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -74,7 +74,7 @@ hasFavoriteContacts = given2<TestUser, int, CustomWorld>(
             .createChatContact(name: UserName(i.toString().padLeft(2, '0')));
         final ChatContactId contactId =
             (result.events.first
-                    as ChatContactEventsVersionedMixin$Events$EventChatContactCreated)
+                    as ChatContactEventsVersionedMixin$Events$ChatContactCreatedEvent)
                 .contactId;
 
         provider.favoriteChatContact(

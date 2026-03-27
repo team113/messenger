@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,10 +20,10 @@ import 'dart:async';
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart'
     as dio
-    show DioException, Options, Response, DioExceptionType;
+    show DioException, Options, Response, DioExceptionType, CancelToken;
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -202,6 +202,9 @@ class GraphQlClient {
   /// Unique ID of this [GraphQlClient] to differentiate it from others.
   final String _id = const Uuid().v4();
 
+  /// [Timer] sending pings in period to indicate that we're alive.
+  Timer? _kaTimer;
+
   /// Returns [GraphQLClient] with or without [token] header authorization.
   Future<GraphQLClient> get client async {
     if (_client != null && _currentToken == token) {
@@ -280,10 +283,14 @@ class GraphQlClient {
   }
 
   /// Subscribes to a GraphQL subscription according to the [options] specified.
+  ///
+  /// The higher the [priority], the earlier this subscription will be
+  /// subscribed to in a rate limiter queue.
   Stream<QueryResult> subscribe(
     SubscriptionOptions options, {
     FutureOr<Version?> Function()? ver,
     bool resubscribe = true,
+    int priority = 0,
   }) {
     return SubscriptionHandle(
       _subscribe,
@@ -294,6 +301,7 @@ class GraphQlClient {
       options,
       ver: ver,
       resubscribe: resubscribe,
+      priority: priority,
     ).stream;
   }
 
@@ -305,6 +313,7 @@ class GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
     RawClientOptions? raw,
+    dio.CancelToken? cancelToken,
   }) {
     return _middleware(() async {
       return await _transaction(operationName, () async {
@@ -322,8 +331,11 @@ class GraphQlClient {
             data: data,
             options: authorized,
             onSendProgress: onSendProgress,
+            cancelToken: cancelToken,
           );
         } on dio.DioException catch (e) {
+          Log.warning('post() -> `DioException` occurred: $e', '$runtimeType');
+
           if (e.response != null) {
             if (onException != null &&
                 e.response?.data is Map<String, dynamic> &&
@@ -381,9 +393,13 @@ class GraphQlClient {
   /// and returns a [Stream] which either emits received data or an error.
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
-  Future<SubscriptionConnection> _subscribe(SubscriptionOptions options) async {
+  Future<SubscriptionConnection> _subscribe(
+    SubscriptionOptions options,
+    int priority,
+  ) async {
     final stream = await _subscriptionLimiter.execute<Stream<QueryResult>>(
       () async => (await client).subscribe(options),
+      priority: priority,
     );
 
     // Store the reference to the current [WebSocketLink].
@@ -501,8 +517,9 @@ class GraphQlClient {
 
     _wsLink = WebSocketLink(
       Config.ws,
+      subProtocol: GraphQLProtocol.graphqlTransportWs,
       config: SocketClientConfig(
-        initialPayload: {'ticket': token?.val},
+        initialPayload: {'authorization': token?.val},
         headers: {
           if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
         },
@@ -542,6 +559,11 @@ class GraphQlClient {
             }
           }, onDone: _reconnect);
 
+          _kaTimer?.cancel();
+          _kaTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+            _wsChannel?.sink.add('{"type":"ping"}');
+          });
+
           return _wsChannel!;
         },
       ),
@@ -569,6 +591,7 @@ class GraphQlClient {
     _backoffTimer?.cancel();
     _channelSubscription?.cancel();
     _wsChannel?.sink.close();
+    _kaTimer?.cancel();
     _wsLink?.dispose();
     _wsLink = null;
   }
@@ -747,6 +770,7 @@ class SubscriptionHandle {
     this._options, {
     this.ver,
     this.resubscribe = true,
+    this.priority = 0,
   });
 
   /// Callback, called when a [Version] to pass the [SubscriptionOptions] is
@@ -757,8 +781,14 @@ class SubscriptionHandle {
   /// [ResubscriptionRequiredException] or not.
   final bool resubscribe;
 
+  /// Priority of [_listen] subscription in [RateLimiter]'s queue.
+  ///
+  /// The bigger, the more earlier this subscription will be resubscribed.
+  int priority;
+
   /// Callback, called to get the [Stream] of [QueryResult]s itself.
-  final FutureOr<SubscriptionConnection> Function(SubscriptionOptions) _listen;
+  final FutureOr<SubscriptionConnection> Function(SubscriptionOptions, int)
+  _listen;
 
   /// Callback, called to cancel the provided [SubscriptionConnection].
   final void Function(SubscriptionConnection?) _cancel;
@@ -811,7 +841,7 @@ class SubscriptionHandle {
           return;
         }
 
-        _connection = await _listen(_options);
+        _connection = await _listen(_options, priority);
 
         if (!_controller.hasListener) {
           return cancel();

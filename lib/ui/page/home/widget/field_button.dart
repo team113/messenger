@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -96,7 +96,7 @@ class _FieldButtonState extends State<FieldButton> {
       children: [
         OutlinedRoundedButton(
           maxWidth: double.infinity,
-          color: widget.danger
+          color: widget.danger && widget.border == null
               ? style.colors.danger
               : widget.warning
               ? style.colors.primary
@@ -105,13 +105,17 @@ class _FieldButtonState extends State<FieldButton> {
           onPressed: widget.onPressed,
           style:
               widget.style ??
-              style.fonts.normal.regular.onBackground.copyWith(
+              style.fonts.normal.regular.primary.copyWith(
                 // Exception, as [widget.style] may vary.
                 color: widget.onPressed == null
                     ? style.colors.onBackground
-                    : widget.warning || widget.danger
+                    : widget.warning
                     ? style.colors.onPrimary
-                    : style.colors.onBackground,
+                    : widget.danger
+                    ? widget.border == null
+                          ? style.colors.onPrimary
+                          : style.colors.danger
+                    : style.colors.primary,
               ),
           height: 46,
           leading: widget.trailing,
@@ -122,7 +126,7 @@ class _FieldButtonState extends State<FieldButton> {
               : widget.warning
               ? null
               : widget.border ??
-                    BorderSide(width: 0.5, color: style.colors.secondary),
+                    BorderSide(width: 0.5, color: style.colors.primary),
           child:
               widget.child ??
               Text(widget.text ?? '', maxLines: widget.maxLines),

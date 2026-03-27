@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -183,7 +183,7 @@ class CredentialsDriftProvider extends DriftProviderBase {
 extension _CredentialsDb on Credentials {
   /// Constructs the [Credentials] from the provided [TokenRow].
   static Credentials fromDb(TokenRow e) {
-    return Credentials.fromJson(jsonDecode(e.credentials));
+    return Credentials.fromJson(json.decode(e.credentials));
   }
 
   /// Constructs a [TokenRow] from these [Credentials].

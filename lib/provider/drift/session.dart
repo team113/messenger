@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -35,6 +35,7 @@ class Sessions extends Table {
   TextColumn get userAgent => text()();
   IntColumn get lastActivatedAt =>
       integer().map(const PreciseDateTimeConverter())();
+  TextColumn get siteDomain => text()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [Session].
@@ -117,6 +118,7 @@ extension _SessionDb on Session {
       ip: IpAddress(e.ip),
       userAgent: UserAgent(e.userAgent),
       lastActivatedAt: e.lastActivatedAt,
+      siteDomain: SiteDomain(e.siteDomain),
     );
   }
 
@@ -127,6 +129,7 @@ extension _SessionDb on Session {
       ip: ip.val,
       userAgent: userAgent.val,
       lastActivatedAt: lastActivatedAt,
+      siteDomain: siteDomain.val,
     );
   }
 }

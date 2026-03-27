@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,7 +23,7 @@ import '/store/model/window_preferences.dart';
 import '/util/platform_utils.dart';
 
 /// Worker updating the [WindowPreferences] on the [WindowListener] changes.
-class WindowWorker extends DisposableService {
+class WindowWorker extends Dependency {
   WindowWorker(this._windowProvider);
 
   /// [WindowRectDriftProvider] maintaining the [WindowPreferences].

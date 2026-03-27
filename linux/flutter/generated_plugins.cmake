@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_linux
   flutter_custom_cursor
+  fvp
   gtk
   hotkey_manager_linux
   irondash_engine_context
@@ -15,10 +16,8 @@ list(APPEND FLUTTER_PLUGIN_LIST
   open_file_linux
   screen_retriever_linux
   sentry_flutter
-  sqlite3_flutter_libs
   super_native_extensions
   url_launcher_linux
-  volume_controller
   window_manager
 )
 

@@ -168,6 +168,10 @@ endif
 #	                   [split-debug-info=(no|yes)]
 
 flutter-build-number=$(or $(build),$(shell git rev-list HEAD --count))
+flutter-build-medea-ver=$(strip \
+	$(shell awk '/medea_jason:/{f=1} f && /version:/{gsub(/"|version: /,""); \
+	             print; exit}' \
+	        pubspec.lock))
 
 flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
@@ -193,7 +197,10 @@ else
 	flutter build $(or $(platform),apk) \
 		--build-number=$(flutter-build-number) \
 		$(if $(call eq,$(profile),yes),--profile,--release) \
-		$(if $(call eq,$(platform),web),--wasm --source-maps,) \
+		$(if $(call eq,$(platform),web),--wasm --source-maps \
+			--web-define=build_ver=$(shell git describe --tags --match='v*' \
+			                               | sed 's/-/+/') \
+			--web-define=medea_ver=$(flutter-build-medea-ver),) \
 		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
 			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
@@ -415,8 +422,8 @@ endef
 #	                      [version=($(git describe --tags)|<version>)]
 #	                      [out=(appcast/<version>.xml|<output-file>)
 
-appcast-item-ver = $(or $(version),\
-	$(shell git describe --tags --abbrev=0 --match "v*" --always)+$(shell git rev-list HEAD --count))
+appcast-item-ver = $(or $(version),$(shell git describe --tags --match='v*' \
+	                                       | sed 's/-/+/'))
 appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=\"$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)\"><![CDATA[$$(cat $(xml))]]></description>)
 
 appcast.xml.item:

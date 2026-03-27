@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -94,7 +94,7 @@ class Block extends StatelessWidget {
   final bool folded;
 
   /// Default [Block.padding] of its contents.
-  static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(32, 16, 32, 16);
+  static const EdgeInsets defaultPadding = EdgeInsets.fromLTRB(16, 16, 16, 16);
 
   /// Default [Block.margin] to apply.
   static const EdgeInsets defaultMargin = EdgeInsets.fromLTRB(8, 4, 8, 4);

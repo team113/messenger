@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -56,6 +56,9 @@ class EraseController extends GetxController {
 
   /// Returns the authenticated [MyUser].
   Rx<MyUser?>? get myUser => _myUserService?.myUser;
+
+  /// Indicates whether currently authenticated [MyUser] is a support.
+  bool get isSupport => _authService.userId?.isSupport == true;
 
   /// Signs in and redirects to the [Routes.erase] page.
   ///

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,6 +28,7 @@ import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/routes.dart';
@@ -50,6 +51,7 @@ void main() async {
   final credsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   setUp(() async {
     Get.reset();
@@ -79,6 +81,7 @@ void main() async {
             'isCurrent': true,
             'lastActivatedAt': DateTime.now().toString(),
             'ver': '031592915314290362597742826064324903711',
+            'siteDomain': 'example.com',
           },
           'accessToken': {
             '__typename': 'AccessToken',
@@ -112,7 +115,13 @@ void main() async {
       AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
     AuthService authService = Get.put(
-      AuthService(authRepository, getStorage, accountProvider, locksProvider),
+      AuthService(
+        authRepository,
+        getStorage,
+        accountProvider,
+        locksProvider,
+        secretsProvider,
+      ),
     );
 
     router = RouterState(authService);
@@ -158,6 +167,7 @@ void main() async {
           ip: IpAddress('localhost'),
           userAgent: UserAgent(''),
           lastActivatedAt: PreciseDateTime.now(),
+          siteDomain: SiteDomain(''),
         ),
         const UserId('me'),
       ),
@@ -174,6 +184,7 @@ void main() async {
         credsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
 
@@ -215,6 +226,7 @@ void main() async {
         credsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
 
@@ -249,6 +261,7 @@ void main() async {
         credsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
 
@@ -298,6 +311,7 @@ void main() async {
         credsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
 

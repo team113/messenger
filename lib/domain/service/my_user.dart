@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '/api/backend/schema.dart' show Presence, CropAreaInput;
+import '/api/backend/schema.dart' show UserPresence, CropAreaInput;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/mute_duration.dart';
@@ -37,7 +37,7 @@ import 'auth.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [MyUser] management.
-class MyUserService extends DisposableService {
+class MyUserService extends Dependency {
   MyUserService(this._authService, this._myUserRepository);
 
   /// Authentication service providing the authentication capabilities.
@@ -129,6 +129,10 @@ class MyUserService extends DisposableService {
       }
 
       await WebUtils.protect(() async {
+        if (isClosed) {
+          return;
+        }
+
         await _myUserRepository.updateUserPassword(oldPassword, newPassword);
 
         // TODO: Replace `unsafe` with something more granular and correct.
@@ -143,7 +147,7 @@ class MyUserService extends DisposableService {
   }
 
   /// Updates [MyUser.presence] to the provided value.
-  Future<void> updateUserPresence(Presence presence) async {
+  Future<void> updateUserPresence(UserPresence presence) async {
     Log.debug('updateUserPresence($presence)', '$runtimeType');
     await _myUserRepository.updateUserPresence(presence);
   }
@@ -248,20 +252,6 @@ class MyUserService extends DisposableService {
       confirmation: confirmation,
       locale: locale,
     );
-  }
-
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
-  /// (if any).
-  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('createChatDirectLink($slug)', '$runtimeType');
-    await _myUserRepository.createChatDirectLink(slug);
-  }
-
-  /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
-  Future<void> deleteChatDirectLink() async {
-    Log.debug('deleteChatDirectLink()', '$runtimeType');
-    await _myUserRepository.deleteChatDirectLink();
   }
 
   /// Updates or resets the [MyUser.avatar] field with the provided image

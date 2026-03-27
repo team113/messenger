@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,32 +16,43 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
+import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/push_token.dart';
 import '/domain/model/sending_status.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
+import '/domain/service/notification.dart';
+import '/domain/service/session.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/ui/page/support/log/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
@@ -56,7 +67,11 @@ class MessageFieldController extends GetxController {
   MessageFieldController(
     this._chatService,
     this._userService,
-    this._settingsRepository, {
+    this._settingsRepository,
+    this._authService,
+    this._myUserService,
+    this._sessionService,
+    this._notificationService, {
     this.onSubmit,
     this.onChanged,
     this.onCall,
@@ -71,9 +86,7 @@ class MessageFieldController extends GetxController {
        ) {
     field = TextFieldState(
       text: text,
-      onFocus: (s) {
-        onChanged?.call();
-      },
+      onFocus: (s) => onChanged?.call(),
       submitted: false,
       onSubmitted: (s) {
         field.unsubmit();
@@ -83,28 +96,6 @@ class MessageFieldController extends GetxController {
     );
 
     field.focus.addListener(_focusListener);
-
-    _repliesWorker ??= ever(replied, (_) => onChanged?.call());
-    _attachmentsWorker ??= ever(this.attachments, (_) => onChanged?.call());
-    _editedWorker ??= ever(edited, (item) {
-      if (item != null) {
-        field.text = item.text?.val ?? '';
-        this.attachments.value = item.attachments
-            .map((e) => MapEntry(GlobalKey(), e))
-            .toList();
-        replied.value = item.repliesTo
-            .map((e) => e.original)
-            .nonNulls
-            .map((e) => Rx(e))
-            .toList();
-      } else {
-        field.text = '';
-        this.attachments.clear();
-        replied.clear();
-      }
-
-      onChanged?.call();
-    });
   }
 
   /// Callback, called when this [MessageFieldController] is submitted.
@@ -159,13 +150,13 @@ class MessageFieldController extends GetxController {
       GalleryButton(pickMedia),
       FileButton(pickFile),
     ] else ...[
-      if (PlatformUtils.isMobile) GalleryButton(pickPhotoOrVideo),
+      GalleryButton(pickPhotoOrVideo),
       AttachmentButton(pickFile),
     ],
   ]);
 
   /// [ChatButton]s displayed (pinned) in the text field.
-  late final RxList<ChatButton> buttons;
+  final RxList<ChatButton> buttons = RxList();
 
   /// Indicator whether there is space for more [ChatButton]s to be pinned.
   final RxBool hasSpaceForPins = RxBool(true);
@@ -185,14 +176,26 @@ class MessageFieldController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [buttons] value.
   final AbstractSettingsRepository? _settingsRepository;
 
-  /// [Worker] reacting on the [replied] changes.
-  Worker? _repliesWorker;
+  /// [AuthService] used to retrieve the current [sessionId].
+  final AuthService? _authService;
 
-  /// [Worker] reacting on the [attachments] changes.
-  Worker? _attachmentsWorker;
+  /// [MyUserService] used to retrieve the current [MyUser].
+  final MyUserService? _myUserService;
 
-  /// [Worker] reacting on the [edited] changes.
-  Worker? _editedWorker;
+  /// [SessionService] maintaining the [Session]s.
+  final SessionService? _sessionService;
+
+  /// [NotificationService] having the [DeviceToken] information.
+  final NotificationService? _notificationService;
+
+  /// [StreamSubscription] reacting on the [replied] changes.
+  StreamSubscription? _repliesSubscription;
+
+  /// [StreamSubscription] reacting on the [attachments] changes.
+  StreamSubscription? _attachmentsSubscription;
+
+  /// [StreamSubscription] reacting on the [edited] changes.
+  StreamSubscription? _editedSubscription;
 
   /// [Worker] capturing any [buttons] changes to update the
   /// [ApplicationSettings.pinnedActions] value.
@@ -211,6 +214,22 @@ class MessageFieldController extends GetxController {
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _chatService?.me;
+
+  /// Returns the currently authenticated [MyUser], if any.
+  Rx<MyUser?>? get _myUser => _myUserService?.myUser;
+
+  /// Returns the [Session]s known to this device, if any.
+  RxList<RxSession>? get _sessions => _sessionService?.sessions;
+
+  /// Returns the currently authenticated [SessionId], if any.
+  SessionId? get _sessionId => _authService?.credentials.value?.session.id;
+
+  /// Returns the [DeviceToken] of this device, if any.
+  DeviceToken? get _token => _notificationService?.token;
+
+  /// Indicates whether the [NotificationService] reports push notifications as
+  /// being active.
+  bool? get _pushNotifications => _notificationService?.pushNotifications;
 
   /// Handles the new lines for the provided [KeyEvent] in the [field].
   static KeyEventResult handleNewLines(KeyEvent e, TextFieldState field) {
@@ -284,14 +303,17 @@ class MessageFieldController extends GetxController {
 
   @override
   void onInit() {
+    Log.debug('onInit', '$runtimeType');
+
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
 
-    buttons = RxList(
-      _toButtons(_settingsRepository?.applicationSettings.value?.pinnedActions),
+    buttons.value = _toButtons(
+      _settingsRepository?.applicationSettings.value?.pinnedActions,
     );
 
+    _buttonsWorker?.dispose();
     _buttonsWorker = ever(buttons, (List<ChatButton> list) {
       _settingsRepository?.setPinnedActions(
         list.map((e) => e.runtimeType.toString()).toList(),
@@ -299,11 +321,39 @@ class MessageFieldController extends GetxController {
     });
 
     String route = router.route;
+    _routesWorker?.dispose();
     _routesWorker = ever(router.routes, (routes) {
       if (router.route != route) {
         _moreEntry?.remove();
         _moreEntry = null;
       }
+    });
+
+    _repliesSubscription?.cancel();
+    _repliesSubscription = replied.listen((_) => onChanged?.call());
+
+    _attachmentsSubscription?.cancel();
+    _attachmentsSubscription = attachments.listen((_) => onChanged?.call());
+
+    _editedSubscription?.cancel();
+    _editedSubscription = edited.listen((item) {
+      if (item != null) {
+        field.text = item.text?.val ?? '';
+        attachments.value = item.attachments
+            .map((e) => MapEntry(GlobalKey(), e))
+            .toList();
+        replied.value = item.repliesTo
+            .map((e) => e.original)
+            .nonNulls
+            .map((e) => Rx(e))
+            .toList();
+      } else {
+        field.text = '';
+        attachments.clear();
+        replied.clear();
+      }
+
+      onChanged?.call();
     });
 
     super.onInit();
@@ -318,9 +368,9 @@ class MessageFieldController extends GetxController {
   @override
   void onClose() {
     _moreEntry?.remove();
-    _repliesWorker?.dispose();
-    _attachmentsWorker?.dispose();
-    _editedWorker?.dispose();
+    _repliesSubscription?.cancel();
+    _attachmentsSubscription?.cancel();
+    _editedSubscription?.cancel();
     _buttonsWorker?.dispose();
     _routesWorker?.dispose();
     scrollController.dispose();
@@ -442,6 +492,46 @@ class MessageFieldController extends GetxController {
     }
 
     _pasteItem(await clipboard.read());
+  }
+
+  /// Forms and attaches [LogController.report] log to [attachments].
+  Future<void> attachLogs() async {
+    final DateTime utc = DateTime.now().toUtc();
+    final String app = PlatformUtils.isWeb
+        ? Config.origin.replaceFirst('https://', '').replaceFirst('http://', '')
+        : Config.userAgentProduct;
+
+    final String report = LogController.report(
+      sessions: _sessions,
+      sessionId: _sessionId,
+      userAgent: await PlatformUtils.userAgent,
+      myUser: _myUser?.value,
+      token: _token,
+      pushNotifications: _pushNotifications,
+      notificationSettings: await LogController.getNotificationSettings(),
+    );
+
+    final Utf8Encoder encoder = Utf8Encoder();
+    final Uint8List bytes = encoder.convert(report);
+
+    await _addAttachment(
+      NativeFile(
+        name:
+            '${app.toLowerCase()}_bug_report_${utc.year.toString().padLeft(4, '0')}.${utc.month.toString().padLeft(2, '0')}.${utc.day.toString().padLeft(2, '0')}_${utc.hour.toString().padLeft(2, '0')}.${utc.minute.toString().padLeft(2, '0')}.${utc.second.toString().padLeft(2, '0')}.log',
+        size: bytes.lengthInBytes,
+        bytes: bytes,
+        mime: MediaType('text', 'plain'),
+      ),
+    );
+  }
+
+  /// Adds or removes [LogsButton] from the [panel].
+  void toggleLogs(bool enabled) {
+    if (enabled) {
+      panel.addIf(panel.none((e) => e is LogsButton), LogsButton(attachLogs));
+    } else {
+      panel.removeWhere((e) => e is LogsButton);
+    }
   }
 
   /// Reads the [event] and pastes any content contained in it.
@@ -569,16 +659,28 @@ class MessageFieldController extends GetxController {
   ///
   /// May be used to test a [file] upload since [FilePicker] can't be mocked.
   Future<void> _addAttachment(NativeFile file) async {
+    Log.debug(
+      '_addAttachment($file) -> edited(${edited.value})',
+      '$runtimeType',
+    );
+
     if (file.size < maxAttachmentSize && _chatService != null) {
       try {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         attachments.add(MapEntry(GlobalKey(), attachment));
 
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
+        final Attachment? uploaded = await _chatService.uploadAttachment(
+          attachment,
+        );
 
         int index = attachments.indexWhere((e) => e.value.id == attachment.id);
         if (index != -1) {
-          attachments[index] = MapEntry(attachments[index].key, uploaded);
+          // If `Attachment` returned is `null`, then it was canceled.
+          if (uploaded == null) {
+            attachments.removeAt(index);
+          } else {
+            attachments[index] = MapEntry(attachments[index].key, uploaded);
+          }
           onChanged?.call();
         }
       } on UploadAttachmentException catch (e) {

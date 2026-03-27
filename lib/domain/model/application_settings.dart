@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,9 +24,9 @@ class ApplicationSettings {
     this.sideBarWidth,
     this.callButtons = const [],
     this.pinnedActions = const [],
-    this.workWithUsTabEnabled = true,
     this.muteKeys,
     this.videoVolume = 1,
+    this.logLevel = 1,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -49,15 +49,14 @@ class ApplicationSettings {
   /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
   List<String> pinnedActions;
 
-  /// Indicator whether [WorkTabView] should be displayed in the
-  /// [CustomNavigationBar] of [HomeView].
-  bool workWithUsTabEnabled;
-
   /// String representation of the [HotKey]s used to mute/unmute [OngoingCall]s.
   List<String>? muteKeys;
 
   /// Volume that should be applied a video being played.
   double videoVolume;
+
+  /// Level of [Log]s that should be printed to the console.
+  int logLevel;
 
   @override
   bool operator ==(Object other) {
@@ -68,9 +67,9 @@ class ApplicationSettings {
         sideBarWidth == other.sideBarWidth &&
         callButtons.toString() == other.callButtons.toString() &&
         pinnedActions.toString() == other.pinnedActions.toString() &&
-        workWithUsTabEnabled == other.workWithUsTabEnabled &&
         muteKeys?.toString() == other.muteKeys?.toString() &&
-        videoVolume == other.videoVolume;
+        videoVolume == other.videoVolume &&
+        logLevel == other.logLevel;
   }
 
   @override
@@ -81,8 +80,12 @@ class ApplicationSettings {
     sideBarWidth,
     callButtons.toString(),
     pinnedActions.toString(),
-    workWithUsTabEnabled,
     muteKeys.toString(),
     videoVolume,
+    logLevel,
   );
+
+  @override
+  String toString() =>
+      'ApplicationSettings(enablePopups: $enablePopups, locale: $locale, showIntroduction: $showIntroduction, sideBarWidth: $sideBarWidth, callButtons: $callButtons, pinnedActions: $pinnedActions, muteKeys: $muteKeys, videoVolume: $videoVolume, logLevel: $logLevel)';
 }

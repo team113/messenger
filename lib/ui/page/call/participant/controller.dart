@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -123,6 +123,9 @@ class ParticipantController extends GetxController {
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
+
+  /// Indicates whether currently authenticated [MyUser] is a [User]-support.
+  bool get isSupport => me?.isSupport == true;
 
   @override
   void onInit() {

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/my_user.dart';
 import '/domain/service/my_user.dart';
 
@@ -36,6 +36,6 @@ class PresenceSwitchController extends GetxController {
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
   /// Updates [MyUser.presence] to the provided [presence].
-  Future<void> setPresence(Presence presence) =>
+  Future<void> setPresence(UserPresence presence) =>
       _myUserService.updateUserPresence(presence);
 }

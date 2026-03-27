@@ -14,5 +14,5 @@ ingress:
   hosts:
     - messenger.test
   tls:
-    enabled: yes
-    auto: yes
+    enabled: true
+    auto: true

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -29,10 +29,12 @@ import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/repository/link.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/domain/service/link.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/account.dart';
@@ -50,6 +52,7 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -59,6 +62,7 @@ import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
+import 'package:messenger/store/link.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
@@ -88,6 +92,7 @@ void main() async {
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   await accountProvider.upsert(const UserId('me'));
   await credentialsProvider.upsert(
@@ -105,6 +110,7 @@ void main() async {
         ip: IpAddress('localhost'),
         userAgent: UserAgent(''),
         lastActivatedAt: PreciseDateTime.now(),
+        siteDomain: SiteDomain(''),
       ),
       const UserId('me'),
     ),
@@ -147,6 +153,7 @@ void main() async {
     credentialsProvider,
     accountProvider,
     locksProvider,
+    secretsProvider,
   );
 
   router = RouterState(authService);
@@ -168,7 +175,7 @@ void main() async {
   );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
-  final monologProvider = Get.put(MonologDriftProvider(common));
+  final monologProvider = Get.put(MonologDriftProvider(common, scoped));
   final versionProvider = Get.put(VersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
@@ -330,6 +337,28 @@ void main() async {
     );
 
     when(
+      graphQlProvider.directLinks(
+        chatId: anyNamed('chatId'),
+        by: anyNamed('by'),
+        pagination: anyNamed('pagination'),
+      ),
+    ).thenAnswer(
+      (_) => Future.value(
+        DirectLinks$Query$DirectLinks.fromJson({
+          'edges': [],
+          'totalCount': 0,
+          'ver': '0',
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
+          },
+        }),
+      ),
+    );
+
+    when(
       graphQlProvider.myUserEvents(any),
     ).thenAnswer((_) async => const Stream.empty());
 
@@ -345,6 +374,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
 
@@ -409,6 +439,16 @@ void main() async {
       ),
     );
     Get.put(MyUserService(authService, myUserRepository));
+
+    final AbstractLinkRepository linkRepository =
+        Get.put<AbstractLinkRepository>(
+          LinkRepository(
+            graphQlProvider,
+            versionProvider,
+            me: const UserId('me'),
+          ),
+        );
+    Get.put(LinkService(linkRepository));
 
     await tester.pumpWidget(
       createWidgetForTesting(

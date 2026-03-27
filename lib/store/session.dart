@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -63,6 +63,9 @@ class SessionRepository extends DisposableInterface
   @override
   final RxBool connected = RxBool(true);
 
+  @override
+  final RxList<ConnectivityResult> connectivity = RxList();
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -97,6 +100,9 @@ class SessionRepository extends DisposableInterface
   /// [connected] changes.
   StreamSubscription? _connectivitySubscription;
 
+  /// Subscription for [WebUtils.onNetworkChange] to change [connected].
+  StreamSubscription? _networkSubscription;
+
   /// [IpAddress] of this device.
   IpAddress? _ip;
 
@@ -118,8 +124,12 @@ class SessionRepository extends DisposableInterface
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
-    _initLocalSubscription();
-    _initRemoteSubscription();
+    // For popups this store should be used for connectivity check only.
+    if (!WebUtils.isPopup) {
+      _initLocalSubscription();
+      _initRemoteSubscription();
+    }
+
     _initConnectivity();
 
     super.onInit();
@@ -133,6 +143,7 @@ class SessionRepository extends DisposableInterface
     _remoteSubscription?.close(immediate: true);
     _connectivitySubscription?.cancel();
     _graphQlSubscription?.cancel();
+    _networkSubscription?.cancel();
 
     super.onClose();
   }
@@ -238,6 +249,10 @@ class SessionRepository extends DisposableInterface
     _remoteSubscription?.cancel(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(
         await _sessionRemoteEvents(
           () => _versionLocal.data[_accountLocal.userId]?.sessionsListVersion,
@@ -289,7 +304,7 @@ class SessionRepository extends DisposableInterface
     for (final SessionEvent event in versioned.events) {
       switch (event.kind) {
         case SessionEventKind.created:
-          event as EventSessionCreated;
+          event as SessionCreatedEvent;
 
           final session = event.toModel();
 
@@ -305,7 +320,7 @@ class SessionRepository extends DisposableInterface
           break;
 
         case SessionEventKind.deleted:
-          event as EventSessionDeleted;
+          event as SessionDeletedEvent;
           _sessionLocal.delete(event.id);
           sessions.removeWhere((e) => e.id == event.id);
           sessions.sort();
@@ -313,7 +328,7 @@ class SessionRepository extends DisposableInterface
           break;
 
         case SessionEventKind.refreshed:
-          event as EventSessionRefreshed;
+          event as SessionRefreshedEvent;
 
           final session = event.toModel();
 
@@ -386,21 +401,21 @@ class SessionRepository extends DisposableInterface
   SessionEvent _sessionEvent(SessionEventsVersionedMixin$Events e) {
     Log.trace('_sessionEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventSessionCreated') {
-      final node = e as SessionEventsVersionedMixin$Events$EventSessionCreated;
-      return EventSessionCreated(
+    if (e.$$typename == 'SessionCreatedEvent') {
+      final node = e as SessionEventsVersionedMixin$Events$SessionCreatedEvent;
+      return SessionCreatedEvent(
         e.id,
         e.at,
         node.userAgent,
         node.remembered,
         node.ip,
       );
-    } else if (e.$$typename == 'EventSessionDeleted') {
-      return EventSessionDeleted(e.id, e.at);
-    } else if (e.$$typename == 'EventSessionRefreshed') {
+    } else if (e.$$typename == 'SessionDeletedEvent') {
+      return SessionDeletedEvent(e.id, e.at);
+    } else if (e.$$typename == 'SessionRefreshedEvent') {
       final node =
-          e as SessionEventsVersionedMixin$Events$EventSessionRefreshed;
-      return EventSessionRefreshed(e.id, e.at, node.userAgent, node.ip);
+          e as SessionEventsVersionedMixin$Events$SessionRefreshedEvent;
+      return SessionRefreshedEvent(e.id, e.at, node.userAgent, node.ip);
     } else {
       throw UnimplementedError('Unknown SessionEvent: ${e.$$typename}');
     }
@@ -420,6 +435,8 @@ class SessionRepository extends DisposableInterface
     });
 
     void apply(List<ConnectivityResult> result) {
+      connectivity.value = result;
+
       _hasNetwork =
           result.contains(ConnectivityResult.wifi) ||
           result.contains(ConnectivityResult.ethernet) ||
@@ -434,6 +451,8 @@ class SessionRepository extends DisposableInterface
         '$runtimeType',
       );
     }
+
+    _networkSubscription = WebUtils.onNetworkChange.listen((e) => apply([e]));
 
     try {
       apply(await Connectivity().checkConnectivity());
@@ -466,7 +485,7 @@ class RxSessionImpl extends RxSession {
     try {
       geo.value = await _repository.fetch(ip: session.value.ip);
     } catch (e) {
-      Log.debug(
+      Log.warning(
         'Failed to retrieve IP geolocation information: $e',
         '$runtimeType',
       );

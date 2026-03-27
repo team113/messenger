@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,15 +16,18 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:expandable_text/expandable_text.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -36,16 +39,16 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/line_divider.dart';
 import '/ui/widget/obscured_selection_area.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
+import 'widget/quick_button.dart';
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -85,6 +88,7 @@ class UserView extends StatelessWidget {
                   BlocklistRecordWidget(c.isBlocked!, onUnblock: c.unblock),
                 ],
               ),
+            _avatar(c, context),
             _name(c, context, index: c.isBlocked != null ? 2 : 1),
             SelectionContainer.disabled(
               child: Block(children: [_actions(c, context)]),
@@ -123,146 +127,17 @@ class UserView extends StatelessWidget {
     );
   }
 
-  /// Returns the [User.name] visual representation.
-  Widget _name(UserController c, BuildContext context, {required int index}) {
-    final style = Theme.of(context).style;
-
-    final UserBio? bio = c.user?.user.value.bio;
-
-    return Block(
-      folded: c.isFavorite,
-      padding: EdgeInsets.fromLTRB(32, 8, 32, 16),
-      children: [
-        Obx(() {
-          final List<Widget> children = [
-            Container(width: double.infinity),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: Text(
-                key: Key('UserViewTitleKey'),
-                '${c.user?.title()}',
-                style: style.fonts.larger.regular.onBackground,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 4),
-            if (c.contactId != null) ...[
-              const SizedBox(height: 4),
-              const SizedBox(height: 1),
-              WidgetButton(
-                onPressed: () {
-                  final ItemPosition? first =
-                      c.positionsListener.itemPositions.value.firstOrNull;
-
-                  // If the [Block] containing this button isn't fully visible,
-                  //then animate to it's beginning.
-                  if (first?.index == index && first!.itemLeadingEdge < 0) {
-                    c.itemScrollController.scrollTo(
-                      index: index,
-                      curve: Curves.ease,
-                      duration: const Duration(milliseconds: 600),
-                    );
-                    c.highlight(index);
-                  }
-
-                  c.nameEditing.value = true;
-                },
-                child: SelectionContainer.disabled(
-                  child: Text(
-                    'btn_change'.l10n,
-                    style: style.fonts.small.regular.primary,
-                  ),
-                ),
-              ),
-            ],
-          ];
-
-          return Column(
-            key: Key(c.nameEditing.value.toString()),
-            children: children,
-          );
-        }),
-        const SizedBox(height: 1),
-        Obx(() {
-          final String? subtitle = c.user?.user.value.getSubtitle();
-
-          if (subtitle?.isNotEmpty != true) {
-            return const SizedBox();
-          }
-
-          bool isOnline = false;
-          bool isAway = false;
-
-          switch (c.user!.user.value.presence) {
-            case Presence.present:
-              isOnline = c.user!.user.value.online;
-              break;
-
-            case Presence.away:
-              isAway = c.user!.user.value.online;
-              break;
-
-            case null || Presence.artemisUnknown:
-              // No-op.
-              break;
-          }
-
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (isOnline || isAway)
-                    Transform.translate(
-                      offset: Offset(0, 0.5),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isAway
-                              ? style.colors.warning
-                              : style.colors.acceptAuxiliary,
-                          shape: BoxShape.circle,
-                        ),
-                        width: 10,
-                        height: 10,
-                      ),
-                    ),
-                  const SizedBox(width: 3),
-                  Text(
-                    key: Key(
-                      c.user?.user.value.presence?.name.capitalized ?? '',
-                    ),
-                    subtitle!,
-                    style: style.fonts.small.regular.secondary,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-            ],
-          );
-        }),
-        Obx(() {
-          final String? subtitle = c.user?.user.value.status?.val;
-
-          if (subtitle?.isNotEmpty != true) {
-            return const SizedBox();
-          }
-
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 6),
-              Text(subtitle!, style: style.fonts.small.regular.secondary),
-              const SizedBox(height: 4),
-            ],
-          );
-        }),
-        const SizedBox(height: 8),
-        Stack(
-          children: [
-            SelectionContainer.disabled(
+  /// Returns the [User.avatar] visual representation.
+  Widget _avatar(UserController c, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: context.isNarrow
+              ? BoxConstraints()
+              : BoxConstraints(maxWidth: 400 - 16, maxHeight: 400 - 16),
+          child: FittedBox(
+            child: SelectionContainer.disabled(
               child: BigAvatarWidget.user(
                 c.user,
                 key: Key('UserAvatar_${c.id}'),
@@ -271,15 +146,113 @@ class UserView extends StatelessWidget {
                 onUpload: c.contactId != null ? c.pickAvatar : null,
               ),
             ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  /// Returns the [User.name] visual representation.
+  Widget _name(UserController c, BuildContext context, {required int index}) {
+    final style = Theme.of(context).style;
+
+    final String? name = c.user?.user.value.isDeleted == true
+        ? 'label_deleted_account'.l10n
+        : c.user?.user.value.name?.val;
+    final UserBio? bio = c.user?.user.value.bio;
+
+    return Block(
+      folded: c.isFavorite,
+      children: [
+        if (name != null) ...[
+          Text(
+            key: Key('UserViewTitleKey'),
+            name,
+            style: style.fonts.larger.regular.onBackground,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+        ],
+
+        Text.rich(
+          key: const Key('NumCopyable'),
+          TextSpan(
+            children: [
+              TextSpan(text: 'label_num_semicolon'.l10n),
+              TextSpan(
+                text: '${c.user?.user.value.num}',
+                style: style.fonts.small.regular.primary,
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    PlatformUtils.copy(text: '${c.user?.user.value.num}');
+                    MessagePopup.success('label_copied'.l10n);
+                  },
+              ),
+            ],
+          ),
+          style: style.fonts.small.regular.secondary,
+        ),
+
+        const SizedBox(height: 16),
+
+        FittedBox(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              QuickButton(
+                SvgIcons.quickChat,
+                onPressed: () =>
+                    router.chat(ChatId.local(c.user!.user.value.id)),
+              ),
+              if (!c.isSupport) ...[
+                const SizedBox(width: 8),
+                QuickButton(
+                  SvgIcons.quickAudio,
+                  onPressed: () => c.call(false),
+                ),
+                const SizedBox(width: 8),
+                QuickButton(SvgIcons.quickVideo, onPressed: () => c.call(true)),
+              ],
+              const SizedBox(width: 8),
+              QuickButton(
+                SvgIcons.quickForward,
+                onPressed: () async {
+                  // No-op?
+                },
+              ),
+              const SizedBox(width: 8),
+              QuickButton(
+                SvgIcons.quickShare,
+                onPressed: () async {
+                  final String value = '${c.user?.user.value.num}';
+
+                  if (PlatformUtils.isMobile) {
+                    await SharePlus.instance.share(ShareParams(text: value));
+                  } else {
+                    PlatformUtils.copy(text: value);
+                    MessagePopup.success('label_copied'.l10n);
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+
+        if (c.isSupport) ...[
+          const SizedBox(height: 16),
+          Text(
+            'label_support_service'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+        ],
+
         if (bio != null) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           ExpandableText(
             bio.val,
             expandText: 'label_expandable_more'.l10n,
             collapseText: '',
-            maxLines: 3,
+            maxLines: 2,
             linkColor: style.colors.primary,
             animation: true,
             collapseOnTextTap: false,
@@ -288,14 +261,6 @@ class UserView extends StatelessWidget {
             onUrlTap: (url) => launchUrlString(url),
           ),
         ],
-        const SizedBox(height: 16),
-        LineDivider('label_identifier'.l10n),
-        const SizedBox(height: 21),
-        ReactiveTextField.copyable(
-          key: const Key('NumCopyable'),
-          text: '${c.user?.user.value.num}',
-          label: 'label_num'.l10n,
-        ),
         const SizedBox(height: 8),
       ],
     );
@@ -304,28 +269,102 @@ class UserView extends StatelessWidget {
   /// Returns information about the [User] and related to it action buttons in
   /// the [CustomAppBar].
   Widget _bar(UserController c, BuildContext context) {
-    final Widget title = Row(
-      children: [StyledBackButton(withLabel: true), SizedBox(width: 10)],
-    );
+    final style = Theme.of(context).style;
+
+    final Widget? online;
+
+    final RxUser? rxUser = c.user;
+    if (rxUser == null) {
+      online = null;
+    } else {
+      online = Obx(() {
+        final User user = rxUser.user.value;
+
+        if (user.online) {
+          final bool isAway = user.presence == UserPresence.away;
+
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Transform.translate(
+                offset: Offset(0, 0.5),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: isAway
+                        ? style.colors.warning
+                        : style.colors.acceptAuxiliary,
+                    shape: BoxShape.circle,
+                  ),
+                  width: 10,
+                  height: 10,
+                ),
+              ),
+              const SizedBox(width: 3),
+              Text(
+                key: Key(c.user?.user.value.presence?.name.capitalized ?? ''),
+                isAway ? 'label_away'.l10n : 'label_online'.l10n,
+                style: style.fonts.small.regular.secondary,
+              ),
+            ],
+          );
+        }
+
+        if (user.lastSeenAt != null) {
+          return Text(
+            '${user.lastSeenAt?.val.toDifferenceAgo().toLowerCase()}',
+            style: style.fonts.small.regular.secondary,
+          );
+        }
+
+        return Text(
+          'label_offline'.l10n,
+          style: style.fonts.small.regular.secondary,
+        );
+      });
+    }
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Expanded(child: title),
+        StyledBackButton(),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Obx(() {
+                final User? user = rxUser?.user.value;
+
+                final Widget child;
+
+                if (!c.preferName.value || user == null) {
+                  child = Text(
+                    'label_user_profile'.l10n,
+                    key: const Key('Profile'),
+                    style: style.fonts.medium.regular.onBackground,
+                  );
+                } else {
+                  child = Text(
+                    user.title(),
+                    key: const Key('User'),
+                    style: style.fonts.medium.regular.onBackground,
+                  );
+                }
+
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: child,
+                );
+              }),
+              ?online,
+            ],
+          ),
+        ),
         const SizedBox(width: 8),
         AnimatedButton(
-          onPressed: () => router.chat(ChatId.local(c.user!.user.value.id)),
-          child: const SvgIcon(SvgIcons.chat),
-        ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          onPressed: () => c.call(true),
-          child: const SvgIcon(SvgIcons.chatVideoCall),
-        ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          key: const Key('AudioCall'),
-          onPressed: () => c.call(false),
-          child: const SvgIcon(SvgIcons.chatAudioCall),
+          onPressed: () =>
+              router.chat(ChatId.local(c.user!.user.value.id), search: true),
+          child: const SvgIcon(SvgIcons.search),
         ),
         const SizedBox(width: 20),
       ],
@@ -342,6 +381,9 @@ class UserView extends StatelessWidget {
     final bool favorite =
         c.user?.dialog.value?.chat.value.favoritePosition != null;
     final bool muted = c.user?.dialog.value?.chat.value.muted != null;
+    final bool hasDialog =
+        (c.user?.dialog.value?.id ?? c.user?.user.value.dialog)?.isLocal ==
+        false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,42 +401,47 @@ class UserView extends StatelessWidget {
             favorite ? SvgIcons.favorite19 : SvgIcons.unfavorite19,
           ),
         ),
-        ActionButton(
-          key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
-          text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
-          onPressed: muted ? c.unmuteChat : c.muteChat,
-          trailing: SvgIcon(muted ? SvgIcons.muted19 : SvgIcons.unmuted19),
-        ),
-        ActionButton(
-          key: const Key('ClearHistoryButton'),
-          text: 'btn_clear_history'.l10n,
-          onPressed: () => _clearChat(c, context),
-          trailing: SvgIcon(SvgIcons.cleanHistory19),
-        ),
-        ActionButton(
-          key: const Key('DeleteChatButton'),
-          text: 'btn_delete_chat'.l10n,
-          onPressed: () => _hideChat(c, context),
-          trailing: SvgIcon(SvgIcons.delete19),
-        ),
-        ActionButton(
-          text: 'btn_report'.l10n,
-          trailing: const SvgIcon(SvgIcons.report19),
-          onPressed: () => _reportUser(c, context),
-        ),
-        Obx(() {
-          if (c.isBlocked != null) {
-            return const SizedBox();
-          }
+        if (hasDialog) ...[
+          ActionButton(
+            key: muted ? const Key('UnmuteButton') : const Key('MuteButton'),
+            text: muted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
+            onPressed: muted ? c.unmuteChat : c.muteChat,
+            trailing: SvgIcon(muted ? SvgIcons.muted19 : SvgIcons.unmuted19),
+          ),
+          ActionButton(
+            key: const Key('ClearHistoryButton'),
+            text: 'btn_clear_history'.l10n,
+            onPressed: () => _clearChat(c, context),
+            trailing: SvgIcon(SvgIcons.cleanHistory19),
+          ),
+          ActionButton(
+            key: const Key('DeleteChatButton'),
+            text: 'btn_delete_chat'.l10n,
+            onPressed: () => _hideChat(c, context),
+            trailing: SvgIcon(SvgIcons.delete19),
+          ),
+        ],
 
-          return ActionButton(
-            key: const Key('Block'),
-            text: 'btn_block'.l10n,
-            onPressed: () => _blockUser(c, context),
-            trailing: const SvgIcon(SvgIcons.blockRed19),
-            danger: true,
-          );
-        }),
+        if (!c.isSupport) ...[
+          ActionButton(
+            text: 'btn_report'.l10n,
+            trailing: const SvgIcon(SvgIcons.report19),
+            onPressed: () => _reportUser(c, context),
+          ),
+          Obx(() {
+            if (c.isBlocked != null) {
+              return const SizedBox();
+            }
+
+            return ActionButton(
+              key: const Key('Block'),
+              text: 'btn_block_user'.l10n,
+              onPressed: () => _blockUser(c, context),
+              trailing: const SvgIcon(SvgIcons.blockRed19),
+              danger: true,
+            );
+          }),
+        ],
       ],
     );
   }

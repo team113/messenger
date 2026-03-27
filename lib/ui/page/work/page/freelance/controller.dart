@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,9 +17,9 @@
 
 import 'package:get/get.dart';
 
-import '/domain/model/user.dart';
+import '/domain/model/link.dart';
 import '/domain/service/auth.dart';
-import '/provider/gql/exceptions.dart' show UseChatDirectLinkException;
+import '/provider/gql/exceptions.dart' show UseDirectLinkException;
 import '/routes.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -52,10 +52,8 @@ class FreelanceWorkController extends GetxController {
   /// [AuthService] for using the [_link].
   final AuthService _authService;
 
-  /// [ChatDirectLinkSlug] to use in the [useLink].
-  static const ChatDirectLinkSlug _link = ChatDirectLinkSlug.unchecked(
-    'freelance',
-  );
+  /// [DirectLinkSlug] to use in the [useLink].
+  static const DirectLinkSlug _link = DirectLinkSlug.unchecked('freelance');
 
   /// URL to fetch the [Issue]s from.
   ///
@@ -77,7 +75,7 @@ class FreelanceWorkController extends GetxController {
     super.onInit();
   }
 
-  /// Uses the [ChatDirectLinkSlug].
+  /// Uses the [DirectLinkSlug].
   Future<void> useLink({bool? signedUp}) async {
     linkStatus.value = RxStatus.loading();
 
@@ -87,12 +85,12 @@ class FreelanceWorkController extends GetxController {
       }
 
       router.dialog(
-        await _authService.useChatDirectLink(_link),
+        await _authService.useDirectLink(_link),
         _authService.userId,
       );
 
       linkStatus.value = RxStatus.empty();
-    } on UseChatDirectLinkException catch (e) {
+    } on UseDirectLinkException catch (e) {
       linkStatus.value = RxStatus.empty();
       MessagePopup.error(e.toMessage());
     } catch (e) {

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,13 +18,13 @@
 import 'dart:async';
 import 'dart:ffi' hide Size;
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cupertino_http/cupertino_http.dart'
     show CupertinoClient, URLSessionConfiguration;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ffi/ffi.dart';
-import 'package:flutter/widgets.dart' show Rect;
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:hotkey_manager/hotkey_manager.dart';
@@ -59,6 +59,11 @@ class WebUtils {
   /// [Mutex]es guarding the [protect] method.
   static final Map<String, Mutex> _guards = {};
 
+  /// Indicator whether this platform supports system audio capture.
+  ///
+  /// Used to "cache" the response of [webrtc.systemAudioCaptureIsAvailable].
+  static bool? _systemAudioCaptureIsAvailable;
+
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS => false;
 
@@ -77,6 +82,9 @@ class WebUtils {
   /// Indicates whether device's browser is in focus.
   static bool get isFocused => false;
 
+  /// Indicates whether this device is considered to be running as a PWA.
+  static bool get isPwa => false;
+
   /// Returns a stream broadcasting the fullscreen changes.
   static Stream<bool> get onFullscreenChange => const Stream.empty();
 
@@ -92,6 +100,9 @@ class WebUtils {
   /// Returns a stream broadcasting the browser's broadcast channel changes.
   static Stream<dynamic> onBroadcastMessage({String name = 'fcm'}) =>
       const Stream.empty();
+
+  /// Returns a stream broadcasting the [ConnectivityResult] of the browser.
+  static Stream<ConnectivityResult> get onNetworkChange => const Stream.empty();
 
   /// Indicates whether the current window is a popup.
   static bool get isPopup => false;
@@ -113,7 +124,30 @@ class WebUtils {
   }
 
   /// Indicates whether browser is considering to have connectivity status.
-  static bool get isOnLine => true;
+  static bool get isOnLine =>
+      !PlatformUtils.isIOS || router.lifecycle.value.inForeground;
+
+  /// Indicates whether this platform supports system audio capture.
+  static FutureOr<bool> get canShareAudio {
+    if (_systemAudioCaptureIsAvailable != null) {
+      return _systemAudioCaptureIsAvailable ?? false;
+    }
+
+    return Future(() async {
+      return _systemAudioCaptureIsAvailable = await webrtc
+          .systemAudioCaptureIsAvailable();
+    });
+  }
+
+  /// Indicates whether the operating system of the device is Windows 10.
+  static Future<bool> get isWindows10 async {
+    if (PlatformUtils.isWindows) {
+      final info = await DeviceInfoPlugin().windowsInfo;
+      return info.buildNumber >= 10240 && info.buildNumber < 22000;
+    }
+
+    return false;
+  }
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
@@ -553,5 +587,20 @@ class WebUtils {
   /// platforms.
   static void registerWith() {
     // No-op.
+  }
+
+  /// Configures whether `medea_flutter_webrtc` should automatically manage the
+  /// iOS `AVAudioSession`.
+  static Future<void> setupAudioSessionManagement(bool value) =>
+      webrtc.setupAudioSessionManagement(false);
+
+  /// Ensures the [ISRG Root X1 certificate][1] is trusted on the device.
+  ///
+  /// [1]: https://letsencrypt.org/certificates/
+  static Future<void> ensureIsrgCertificate() async {
+    final ByteData data = await rootBundle.load('assets/isrgrootx1.pem');
+    SecurityContext.defaultContext.setTrustedCertificatesBytes(
+      data.buffer.asUint8List(),
+    );
   }
 }

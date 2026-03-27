@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,12 +22,15 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import '/domain/model/user.dart';
+import '/config.dart';
+import '/domain/model/link.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/page/link/view.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
@@ -41,6 +44,7 @@ import 'router.dart';
 import 'tab/chats/controller.dart';
 import 'tab/menu/controller.dart';
 import 'widget/animated_slider.dart';
+import 'widget/announcement.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
 
@@ -59,8 +63,8 @@ class HomeView extends StatefulWidget {
   /// Should also mean that sign up operation just has been occurred.
   final bool signedUp;
 
-  /// [ChatDirectLinkSlug] to display [IntroductionView] with.
-  final ChatDirectLinkSlug? link;
+  /// [DirectLinkSlug] to display [IntroductionView] with.
+  final DirectLinkSlug? link;
 
   /// [ScopedDependencies] factory of [Routes.home] page.
   final Future<ScopedDependencies?> Function() _depsFactory;
@@ -217,6 +221,7 @@ class _HomeViewState extends State<HomeView> {
                     bottomNavigationBar: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        _announcement(context, c),
                         _upgradePopup(context, c),
                         _navigation(context, c),
                       ],
@@ -310,49 +315,55 @@ class _HomeViewState extends State<HomeView> {
             isOpen: router.navigation.value,
             beginOffset: const Offset(0.0, 5),
             translate: false,
-            child: CustomNavigationBar(
-              key: c.panelKey,
-              items: tabs.map((e) {
-                switch (e) {
-                  case HomeTab.link:
-                    return const CustomNavigationBarItem.link();
+            child: ContextMenuInterceptor(
+              child: CustomNavigationBar(
+                key: c.panelKey,
+                items: tabs.map((e) {
+                  switch (e) {
+                    case HomeTab.link:
+                      return const CustomNavigationBarItem.link();
 
-                  case HomeTab.chats:
-                    return Obx(() {
-                      return CustomNavigationBarItem.chats(
-                        unread: c.unreadChats.value.toString(),
-                        danger: c.myUser.value?.muted == null,
-                        selector: c.chatsKey,
-                        onMute: c.toggleMute,
-                      );
-                    });
+                    case HomeTab.chats:
+                      return Obx(() {
+                        return CustomNavigationBarItem.chats(
+                          unread: c.unreadChats.value.toString(),
+                          danger: c.myUser.value?.muted == null,
+                          selector: c.chatsKey,
+                          onMute: c.toggleMute,
+                        );
+                      });
 
-                  case HomeTab.menu:
-                    return Obx(() {
-                      return CustomNavigationBarItem.menu(
-                        avatarKey: c.avatarKey,
-                        onAvatar: c.updateAvatar,
-                        myUser: c.myUser.value,
-                        onSecondary: () async {
-                          PlatformUtils.haptic(kind: HapticKind.light);
-                          await AccountsSwitcherView.show(
-                            context,
-                            avatarKey: c.avatarKey,
-                            panelKey: c.panelKey,
-                          );
-                        },
-                      );
-                    });
-                }
-              }).toList(),
-              currentIndex: tabs.indexOf(router.tab),
-              onTap: (i) {
-                if (i == 0) {
-                  return LinkView.show(context);
-                }
+                    case HomeTab.menu:
+                      return Obx(() {
+                        return CustomNavigationBarItem.menu(
+                          avatarKey: c.avatarKey,
+                          onAvatar: c.updateAvatar,
+                          myUser: c.myUser.value,
+                          onSecondary: () async {
+                            PlatformUtils.haptic(kind: HapticKind.light);
+                            await AccountsSwitcherView.show(
+                              context,
+                              avatarKey: c.avatarKey,
+                              panelKey: c.panelKey,
+                            );
+                          },
+                        );
+                      });
+                  }
+                }).toList(),
+                currentIndex: tabs.indexOf(router.tab),
+                onTap: (i) {
+                  if (i == 0) {
+                    if (c.isSupport) {
+                      return Future.value();
+                    }
 
-                c.pages.jumpToPage(tabs[i].index);
-              },
+                    return LinkView.show(context);
+                  }
+
+                  c.pages.jumpToPage(tabs[i].index);
+                },
+              ),
             ),
           ),
           ?router.navigator.value?.call(context),
@@ -435,14 +446,30 @@ class _HomeViewState extends State<HomeView> {
         return SizedBox();
       }
 
-      return Padding(
+      return UpgradeAvailableButton(
         key: Key('UpgradeAlert'),
-        padding: const EdgeInsets.only(bottom: 6),
-        child: UpgradeAvailableButton(
-          scheduled: c.scheduled.value!,
-          download: c.activeDownload.value,
-          onClose: () => c.scheduled.value = null,
+        scheduled: c.scheduled.value!,
+        download: c.activeDownload.value,
+        onClose: () => c.scheduled.value = null,
+      );
+    });
+  }
+
+  /// Builds the [Config.announcements] visualized, if any.
+  Widget _announcement(BuildContext context, HomeController c) {
+    return Obx(() {
+      final String? language = L10n.chosen.value?.toString();
+      final Announcement? announcement = Config.announcements[language];
+
+      if (announcement == null || announcement.isEmpty) {
+        return SizedBox();
+      }
+
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height / 4,
         ),
+        child: AnnouncementWidget(announcement, key: Key('AnnouncementAlert')),
       );
     });
   }

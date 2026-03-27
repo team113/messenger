@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,9 +23,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -130,6 +129,9 @@ class UserController extends GetxController {
   /// be highlighted.
   final RxnInt highlighted = RxnInt();
 
+  /// Indicator whether the app bar should display the [User.name].
+  final RxBool preferName = RxBool(false);
+
   /// [UserService] fetching the [user].
   final UserService _userService;
 
@@ -187,8 +189,13 @@ class UserController extends GetxController {
   bool get isFavorite =>
       user?.dialog.value?.chat.value.favoritePosition != null;
 
+  /// Indicates whether this [user] is a [Config.supportId].
+  bool get isSupport => Config.isSupport(user?.id ?? id);
+
   @override
   void onInit() {
+    scrollController.addListener(_scrollListener);
+
     _fetchUser().whenComplete(() {
       if (isClosed) {
         return;
@@ -211,6 +218,7 @@ class UserController extends GetxController {
     _userSubscription?.cancel();
     _contactWorker?.dispose();
     _worker?.dispose();
+    scrollController.removeListener(_scrollListener);
     scrollController.dispose();
     super.onClose();
   }
@@ -248,9 +256,9 @@ class UserController extends GetxController {
   /// Opens a [Chat]-dialog with this [user].
   void openChat() {
     if (user?.id == me) {
-      router.chat(_chatService.monolog, push: true);
+      router.chat(_chatService.monolog, mode: RouteAs.push);
     } else {
-      router.chat(ChatId.local(user!.user.value.id), push: true);
+      router.chat(ChatId.local(user!.user.value.id), mode: RouteAs.push);
     }
   }
 
@@ -296,33 +304,8 @@ class UserController extends GetxController {
   // TODO: Replace with GraphQL mutation when implemented.
   /// Reports the [user].
   Future<void> report() async {
-    String? encodeQueryParameters(Map<String, String> params) {
-      return params.entries
-          .map(
-            (e) =>
-                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
-          )
-          .join('&');
-    }
-
-    try {
-      await launchUrl(
-        Uri(
-          scheme: 'mailto',
-          path: Config.support,
-          query: encodeQueryParameters({
-            'subject': '[Abuse] Report on UserId($id)',
-            'body': '${reporting.text}\n\n',
-          }),
-        ),
-      );
-    } catch (e) {
-      await MessagePopup.error(
-        'label_contact_us_via_provided_email'.l10nfmt({
-          'email': Config.support,
-        }),
-      );
-    }
+    // TODO: Open with `ChatMessage` set up.
+    router.support(push: true);
   }
 
   /// Removes the [user] from the blocklist of the authenticated [MyUser].
@@ -528,6 +511,13 @@ class UserController extends GetxController {
       rethrow;
     }
   }
+
+  /// Changes the [preferName] when [scrollController] is scrolled enough.
+  void _scrollListener() {
+    if (scrollController.hasClients) {
+      preferName.value = scrollController.position.pixels > 450;
+    }
+  }
 }
 
 /// Extension adding [UserView] related wrappers and helpers.
@@ -536,7 +526,7 @@ extension UserViewExt on User {
   /// [User.presence] and [User.online] fields.
   String? getStatus([PreciseDateTime? lastSeen]) {
     switch (presence) {
-      case Presence.present:
+      case UserPresence.present:
         if (online) {
           return 'label_online'.l10n;
         } else if (lastSeenAt != null) {
@@ -545,7 +535,7 @@ extension UserViewExt on User {
           return 'label_offline'.l10n;
         }
 
-      case Presence.away:
+      case UserPresence.away:
         if (online) {
           return 'label_away'.l10n;
         } else if (lastSeenAt != null) {
@@ -557,7 +547,7 @@ extension UserViewExt on User {
       case null:
         return 'label_hidden'.l10n;
 
-      case Presence.artemisUnknown:
+      case UserPresence.artemisUnknown:
         return null;
     }
   }
@@ -577,7 +567,7 @@ extension UserViewExt on User {
   /// Returns the string representation of this [User] to display as a subtitle.
   String? getSubtitle([PreciseDateTime? lastSeen]) {
     switch (presence) {
-      case Presence.present:
+      case UserPresence.present:
         if (online) {
           return 'label_online'.l10n;
         } else if (lastSeenAt != null) {
@@ -588,7 +578,7 @@ extension UserViewExt on User {
           return 'label_offline'.l10n;
         }
 
-      case Presence.away:
+      case UserPresence.away:
         if (online) {
           return 'label_away'.l10n;
         } else if (lastSeenAt != null) {
@@ -602,7 +592,7 @@ extension UserViewExt on User {
       case null:
         return 'label_hidden'.l10n;
 
-      case Presence.artemisUnknown:
+      case UserPresence.artemisUnknown:
         return null;
     }
   }

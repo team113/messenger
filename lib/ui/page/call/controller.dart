@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:all_sensors/all_sensors.dart';
+import 'package:audio_router/audio_router.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +59,9 @@ import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'background_audio/view.dart';
 import 'component/common.dart';
+import 'output/view.dart';
 import 'screen_share/view.dart';
 import 'settings/view.dart';
 import 'widget/dock.dart';
@@ -72,8 +75,9 @@ class CallController extends GetxController {
     this._calls,
     this._chatService,
     this._userService,
-    this._settingsRepository,
-  );
+    this._settingsRepository, {
+    this.onMinimized,
+  });
 
   /// Duration of the current ongoing call.
   final Rx<Duration> duration = Rx<Duration>(Duration.zero);
@@ -289,6 +293,9 @@ class CallController extends GetxController {
   /// Indicator whether the [MinimizableView] is being minimized.
   final RxBool minimizing = RxBool(false);
 
+  /// Callback, called [minimized] changes.
+  final void Function(bool)? onMinimized;
+
   /// Indicator whether the [relocateSecondary] is already invoked during the
   /// current frame.
   bool _secondaryRelocated = false;
@@ -391,6 +398,9 @@ class CallController extends GetxController {
   /// [StreamSubscription]s for the [CallMember.tracks] updates.
   late final Map<CallMemberId, StreamSubscription> _membersTracksSubscriptions;
 
+  /// [StreamSubscription]s of [RxUser.updates] for [CallMember]s.
+  final Map<UserId, List<StreamSubscription>> _usersSubscriptions = {};
+
   /// [Worker]s reacting on [CallMember.isConnected] or [CallMember.joinedAt]
   /// changes playing the [_connected] sound.
   final Map<CallMemberId, Worker> _memberWorkers = {};
@@ -426,6 +436,37 @@ class CallController extends GetxController {
 
   /// [Timer] setting [hidden] to `false` on timeout.
   Timer? _hiddenTimer;
+
+  /// [Worker] reacting on [minimized] changes to invoke [onMinimized].
+  Worker? _minimizedWorker;
+
+  /// [Worker] reacting on [fullscreen] changes to invoke [onMinimized].
+  Worker? _fullscreenWorker;
+
+  /// [Worker] reacting on [minimizing] changes to invoke [onMinimized].
+  Worker? _minimizingWorker;
+
+  /// [Worker] reacting on [RouterState.lifecycle] changes to display popup
+  /// regarding background audio/video being blocked.
+  Worker? _lifecycleWorker;
+
+  /// Indicator whether a popup should be displayed regarding background audio
+  /// and video being blocked.
+  bool _audioBlockedInBackgroundDisplayed = false;
+
+  /// [DateTime] of device transitioning into [AppLifecycleState] that is
+  /// considered as a background.
+  DateTime? _backgroundSince;
+
+  /// [AudioUtilsImpl.acquire] intent kept for [AudioMode.call].
+  StreamSubscription<void>? _intent;
+
+  /// [AudioRouter] to listen for [AudioDevice] changes and displaying output
+  /// switcher for mobile platforms.
+  final AudioRouter _audioRouter = AudioRouter();
+
+  /// [StreamSubscription] for [AudioDevice] changes.
+  StreamSubscription? _audioRouterSubscription;
 
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
@@ -505,6 +546,7 @@ class CallController extends GetxController {
 
   /// Returns the [AudioSpeakerKind] of the used output device.
   AudioSpeakerKind get speaker =>
+      AudioUtils.speaker.value ??
       _currentCall.value.outputDevice.value?.speaker ??
       _currentCall.value.devices.output().firstOrNull?.speaker ??
       AudioSpeakerKind.earpiece;
@@ -611,6 +653,8 @@ class CallController extends GetxController {
     );
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
+
+    _ensureAudioIntent(true);
 
     _chatWorker = ever(_currentCall.value.chatId, (ChatId id) {
       final FutureOr<RxChat?> chatOrFuture = _chatService.get(id);
@@ -763,6 +807,7 @@ class CallController extends GetxController {
       RemoteAudioButton(this),
       VideoButton(this),
       AudioButton(this),
+      ReconnectButton(this),
     ]);
 
     List<CallButton> previousButtons = buttons.toList();
@@ -770,7 +815,7 @@ class CallController extends GetxController {
       if (!const ListEquality().equals(previousButtons, buttons)) {
         previousButtons = buttons.toList();
         _settingsRepository.setCallButtons(
-          buttons.map((e) => e.runtimeType.toString()).toList(),
+          buttons.map((e) => e.runtimeType.toString()).toSet().toList(),
         );
       }
     });
@@ -824,6 +869,108 @@ class CallController extends GetxController {
       }
     }
 
+    _minimizedWorker = ever(minimized, (m) {
+      onMinimized?.call(m);
+    });
+
+    _fullscreenWorker = ever(fullscreen, (m) {
+      onMinimized?.call(!m);
+    });
+
+    _minimizingWorker = ever(minimizing, (m) {
+      if (!m) {
+        onMinimized?.call(minimized.value);
+      } else {
+        onMinimized?.call(m);
+      }
+    });
+
+    AppLifecycleState previousLifecycle = router.lifecycle.value;
+    _lifecycleWorker = ever(router.lifecycle, (lifecycle) {
+      if (previousLifecycle != lifecycle) {
+        if (PlatformUtils.isWeb && PlatformUtils.isMobile) {
+          if (previousLifecycle.inForeground && !lifecycle.inForeground) {
+            _backgroundSince = DateTime.now();
+          }
+          // If previous state was a background one, and a new one is
+          // foreground, then display the popup.
+          else if (!previousLifecycle.inForeground && lifecycle.inForeground) {
+            final int backgroundSeconds =
+                _backgroundSince?.difference(DateTime.now()).abs().inSeconds ??
+                0;
+
+            if (!_audioBlockedInBackgroundDisplayed && backgroundSeconds >= 5) {
+              BackgroundAudioDisclaimerView.show(router.context!);
+              _audioBlockedInBackgroundDisplayed = true;
+            }
+          }
+        }
+
+        previousLifecycle = lifecycle;
+      }
+    });
+
+    // [AudioRouter] should be enabled for iOS platform only.
+    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+      _audioRouterSubscription = _audioRouter.currentDeviceStream.listen((
+        device,
+      ) async {
+        Log.debug(
+          '_audioRouter.currentDeviceStream -> ${device?.type.name} | ${device?.id}',
+          '$runtimeType',
+        );
+
+        final List<DeviceDetails> outputs = _currentCall.value.devices
+            .output()
+            .where((e) => e.id() != 'default' && e.deviceId() != 'default')
+            .toList();
+
+        if (outputs.length <= 2) {
+          Log.debug(
+            '_audioRouter.currentDeviceStream -> ignoring due to `outputs` containing less than 3 devices -> ${outputs.map((e) => e.label())}',
+            '$runtimeType',
+          );
+
+          return;
+        }
+
+        final AudioSpeakerKind speaker = switch (device?.type) {
+          AudioSourceType.builtinSpeaker => AudioSpeakerKind.speaker,
+          AudioSourceType.builtinReceiver => AudioSpeakerKind.earpiece,
+          AudioSourceType.bluetooth => AudioSpeakerKind.headphones,
+          AudioSourceType.wiredHeadset => AudioSpeakerKind.headphones,
+          AudioSourceType.carAudio => AudioSpeakerKind.headphones,
+          AudioSourceType.airplay => AudioSpeakerKind.headphones,
+          AudioSourceType.unknown => AudioSpeakerKind.headphones,
+          null => AudioSpeakerKind.headphones,
+        };
+
+        await _currentCall.value.enumerateDevices(screen: false);
+
+        final List<DeviceDetails> devices = _currentCall.value.devices
+            .output()
+            .toList();
+
+        // First, try to find device by its ID.
+        DeviceDetails? output = devices.firstWhereOrNull(
+          (e) => e.id() == device?.id,
+        );
+
+        // If not found, try to look device by its speaker type.
+        output ??= devices.firstWhereOrNull((e) => e.speaker == speaker);
+
+        if (output != null) {
+          _currentCall.value.outputDevice.value = output;
+          AudioUtils.outputDevice.value = output;
+          await AudioUtils.setSpeaker(speaker);
+        }
+      });
+    }
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      onMinimized?.call(minimized.value);
+    });
+
     span.finish();
     span = _ready.startChild('chat');
     _initChat();
@@ -854,6 +1001,11 @@ class CallController extends GetxController {
     _reconnectAudio?.cancel();
     _reconnectWorker?.dispose();
     _hiddenTimer?.cancel();
+    _minimizedWorker?.dispose();
+    _fullscreenWorker?.dispose();
+    _minimizingWorker?.dispose();
+    _lifecycleWorker?.dispose();
+    _audioRouterSubscription?.cancel();
 
     secondaryEntry?.remove();
 
@@ -881,6 +1033,13 @@ class CallController extends GetxController {
     _notificationTimers.clear();
     _chatSubscription?.cancel();
     _proximitySubscription?.cancel();
+
+    for (var e in _usersSubscriptions.values.expand((e) => e)) {
+      e.cancel();
+    }
+
+    _intent?.cancel();
+    _intent = null;
   }
 
   /// Drops the call.
@@ -915,17 +1074,28 @@ class CallController extends GetxController {
       // TODO: `medea_jason` should have `onScreenChange` callback.
       await _currentCall.value.enumerateDevices(media: false);
 
-      if (_currentCall.value.displays.length > 1) {
-        final MediaDisplayDetails? display = await ScreenShareView.show(
-          router.context!,
-          _currentCall,
-        );
+      // Currently only desktops can have multiple displays.
+      if (PlatformUtils.isMobile || PlatformUtils.isWeb) {
+        return await _currentCall.value.setScreenShareEnabled(
+          true,
 
-        if (display != null) {
-          await _currentCall.value.setScreenShareEnabled(true, device: display);
-        }
-      } else {
-        await _currentCall.value.setScreenShareEnabled(true);
+          // Whether to share or not to share the audio is dependent on the
+          // browser's API, so always try to query it.
+          withAudio: !PlatformUtils.isMobile,
+        );
+      }
+
+      final ScreenShareRequest? display = await ScreenShareView.show(
+        router.context!,
+        _currentCall,
+      );
+
+      if (display != null) {
+        await _currentCall.value.setScreenShareEnabled(
+          true,
+          device: display.details,
+          withAudio: display.audio,
+        );
       }
     }
   }
@@ -983,10 +1153,45 @@ class CallController extends GetxController {
         .where((e) => e.id() != 'default' && e.deviceId() != 'default')
         .toList();
 
+    // If there are more than 2 outputs (earpiece and speakerphone), then show
+    // the audio output picker for iOS and Android.
+    if (!PlatformUtils.isWeb) {
+      if (outputs.length > 2) {
+        if (PlatformUtils.isIOS) {
+          await _audioRouter.showAudioRoutePicker(router.context!);
+          return;
+        }
+
+        if (PlatformUtils.isAndroid) {
+          await OutputRouteView.show(
+            router.context!,
+            initial: _currentCall.value.outputDevice.value,
+            onSelected: (d) async {
+              await _currentCall.value.setOutputDevice(d);
+            },
+          );
+
+          return;
+        }
+      }
+    }
+
     if (outputs.length > 1) {
       int index = outputs.indexWhere(
         (e) => e == _currentCall.value.outputDevice.value,
       );
+
+      if (PlatformUtils.isMobile) {
+        final int previous = index;
+
+        index = outputs.indexWhere(
+          (e) => e.speaker == AudioUtils.speaker.value,
+        );
+
+        if (index == -1) {
+          index = previous;
+        }
+      }
 
       if (index == -1) {
         index = 0;
@@ -1010,7 +1215,7 @@ class CallController extends GetxController {
         }
       }
 
-      await _currentCall.value.setOutputDevice(outputs[index]);
+      await _currentCall.value.setOutputDevice(outputs[index], force: true);
     }
   }
 
@@ -2149,6 +2354,7 @@ class CallController extends GetxController {
 
             _ensureCorrectGrouping();
             _playConnected(e.value!);
+            _ensureUserSubscription(e.value!.id.userId);
             break;
 
           case OperationKind.removed:
@@ -2159,6 +2365,7 @@ class CallController extends GetxController {
             remotes.removeWhere((m) => m.member.id == e.key);
             _membersTracksSubscriptions.remove(e.key)?.cancel();
             _memberWorkers.remove(e.key)?.dispose();
+            _removeUserSubscription(e.key?.userId);
             _ensureCorrectGrouping();
             if (wasNotEmpty && primary.isEmpty) {
               focusAll();
@@ -2288,6 +2495,68 @@ class CallController extends GetxController {
     top.value = height.value + 50 < size.height
         ? prefs?.top ?? 50
         : prefs?.top ?? size.height / 2 - height.value / 2;
+  }
+
+  Future<void> _ensureUserSubscription(UserId? userId) async {
+    Log.debug('_ensureUserSubscription($userId)', '$runtimeType');
+
+    if (userId == null || userId == me.id.userId) {
+      return;
+    }
+
+    final RxUser? user = await _userService.get(userId);
+    if (user == null) {
+      return;
+    }
+
+    final List<StreamSubscription>? existing = _usersSubscriptions[userId];
+    if (existing == null) {
+      _usersSubscriptions[userId] = [user.updates.listen((_) {})];
+    } else {
+      existing.add(user.updates.listen((_) {}));
+    }
+  }
+
+  void _removeUserSubscription(UserId? userId) {
+    Log.debug('_removeUserSubscription($userId)', '$runtimeType');
+
+    if (userId == null || userId == me.id.userId) {
+      return;
+    }
+
+    final List<StreamSubscription>? existing = _usersSubscriptions[userId];
+    if (existing != null) {
+      if (existing.isNotEmpty) {
+        existing.removeLast().cancel();
+      }
+
+      if (existing.isEmpty) {
+        _usersSubscriptions.remove(userId);
+      }
+    }
+  }
+
+  /// Ensures this [OngoingCall] has the [_intent] active or not.
+  void _ensureAudioIntent(bool has) {
+    Log.debug('_ensureAudioIntent($has)', '$runtimeType');
+
+    if (has) {
+      final AudioSpeakerKind? preferred = switch (AudioUtils.speaker.value) {
+        AudioSpeakerKind.headphones => null,
+        (_) =>
+          withVideo || videoState.value.isEnabled
+              ? AudioSpeakerKind.speaker
+              : AudioSpeakerKind.earpiece,
+      };
+
+      _intent ??= AudioUtils.acquire(
+        AudioMode.call,
+        speaker: preferred,
+      ).listen((_) {});
+    } else {
+      _intent?.cancel();
+      _intent = null;
+    }
   }
 }
 

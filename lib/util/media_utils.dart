@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
@@ -37,10 +36,10 @@ MediaUtilsImpl MediaUtils = MediaUtilsImpl();
 /// devices, media tracks, etc.
 class MediaUtilsImpl {
   /// ID of the currently used output device.
-  final RxnString outputDeviceId = RxnString();
+  String? _outputDeviceId;
 
   /// [Mutex] guarding synchronized output device updating.
-  final Mutex outputGuard = Mutex();
+  final Mutex _outputGuard = Mutex();
 
   /// [Jason] communicating with the media resources.
   Jason? _jason;
@@ -70,7 +69,8 @@ class MediaUtilsImpl {
         }
 
         try {
-          _jason = await Jason.init();
+          await Jason.ensureInitialized();
+          _jason = Jason.create();
         } catch (e) {
           Log.debug(
             'Unable to invoke `Jason.init()` due to: $e',
@@ -80,6 +80,15 @@ class MediaUtilsImpl {
           // TODO: So the test would run. Jason currently only supports Web and
           //       Android, and unit tests run on a host machine.
           _jason = null;
+        }
+
+        try {
+          await WebUtils.setupAudioSessionManagement(false);
+        } catch (e) {
+          Log.debug(
+            'Unable to invoke `setupAudioSessionManagement(false)` due to: $e',
+            '$runtimeType',
+          );
         }
 
         WebUtils.onPanic((e) {
@@ -122,11 +131,7 @@ class MediaUtilsImpl {
 
       Future(() async {
         (await _mediaManager)?.onDeviceChange(() async {
-          _devicesController?.add(
-            (await enumerateDevices())
-                .where((e) => e.deviceId().isNotEmpty)
-                .toList(),
-          );
+          _devicesController?.add(await enumerateDevices());
         });
       });
     }
@@ -185,9 +190,10 @@ class MediaUtilsImpl {
     final List<DeviceDetails> devices =
         (await (await _mediaManager)?.enumerateDevices() ?? [])
             .where((e) => e.deviceId().isNotEmpty)
+            .where((e) => !e.isFailed())
             .where((e) => kind == null || e.kind() == kind)
             .whereType<MediaDeviceDetails>()
-            .map((e) => DeviceDetails(e))
+            .map(DeviceDetails.new)
             .toList();
 
     // Add the [DefaultMediaDeviceDetails] to the retrieved list of devices.
@@ -195,40 +201,70 @@ class MediaUtilsImpl {
     // Browsers and mobiles already may include their own default devices.
     if (kind == null || kind == MediaDeviceKind.audioInput) {
       final DeviceDetails? hasDefault = devices.firstWhereOrNull(
-        (d) =>
-            d.kind() == MediaDeviceKind.audioInput && d.deviceId() == 'default',
+        (d) => d.kind() == MediaDeviceKind.audioInput && d.id() == 'default',
       );
 
       if (hasDefault == null) {
-        final DeviceDetails? device = devices.firstWhereOrNull(
-          (e) => e.kind() == MediaDeviceKind.audioInput,
-        );
-        if (device != null) {
-          devices.insert(0, DefaultDeviceDetails(device));
+        if (PlatformUtils.isDesktop || PlatformUtils.isWeb) {
+          final DeviceDetails? device = devices.firstWhereOrNull(
+            (e) => e.kind() == MediaDeviceKind.audioInput,
+          );
+
+          if (device != null) {
+            devices.insert(0, DefaultDeviceDetails(device));
+          }
         }
       } else {
+        // Sort the default device to the top, as it might be somewhere else.
+        if (PlatformUtils.isWeb) {
+          devices.removeWhere(
+            (e) =>
+                e.kind() == MediaDeviceKind.audioInput &&
+                e.label() == e.label() &&
+                e.id() == hasDefault.id(),
+          );
+          devices.insert(0, hasDefault);
+        }
+
         // Audio input on mobile devices is handled by `medea_jason`, and we
         // should not interfere, as otherwise we may run into
         // [MediaSettingsUpdateException].
         if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-          devices.remove(hasDefault);
+          devices.removeWhere(
+            (e) =>
+                e.kind() == MediaDeviceKind.audioInput &&
+                e.label() == e.label() &&
+                e.id() == hasDefault.id(),
+          );
         }
       }
     }
 
     if (kind == null || kind == MediaDeviceKind.audioOutput) {
-      final bool hasDefault = devices.any(
-        (d) =>
-            d.kind() == MediaDeviceKind.audioOutput &&
-            d.deviceId() == 'default',
+      final DeviceDetails? hasDefault = devices.firstWhereOrNull(
+        (d) => d.kind() == MediaDeviceKind.audioOutput && d.id() == 'default',
       );
 
-      if (!hasDefault) {
-        final DeviceDetails? device = devices.firstWhereOrNull(
-          (e) => e.kind() == MediaDeviceKind.audioOutput,
-        );
-        if (device != null) {
-          devices.insert(0, DefaultDeviceDetails(device));
+      if (hasDefault == null) {
+        if (!PlatformUtils.isMobile || PlatformUtils.isWeb) {
+          final DeviceDetails? device = devices.firstWhereOrNull(
+            (e) => e.kind() == MediaDeviceKind.audioOutput,
+          );
+
+          if (device != null) {
+            devices.insert(0, DefaultDeviceDetails(device));
+          }
+        }
+      } else {
+        // Sort the default device to the top, as it might be somewhere else.
+        if (PlatformUtils.isWeb) {
+          devices.removeWhere(
+            (e) =>
+                e.kind() == MediaDeviceKind.audioOutput &&
+                e.label() == e.label() &&
+                e.id() == hasDefault.id(),
+          );
+          devices.insert(0, hasDefault);
         }
       }
     }
@@ -238,10 +274,19 @@ class MediaUtilsImpl {
 
   /// Sets device with [deviceId] as a currently used output device.
   Future<void> setOutputDevice(String deviceId) async {
-    if (outputDeviceId.value != deviceId) {
-      outputDeviceId.value = deviceId;
+    Log.debug('setOutputDevice($deviceId)', '$runtimeType');
+
+    if (_outputDeviceId != deviceId) {
+      _outputDeviceId = deviceId;
       await _setOutputDevice();
     }
+  }
+
+  /// Reconnects the current [jason] instance, if any is initialized.
+  Future<void> ensureReconnected() async {
+    Log.debug('ensureReconnected()...', '$runtimeType');
+    await _jason?.networkChanged();
+    Log.debug('ensureReconnected()... done!', '$runtimeType');
   }
 
   /// Invokes a [MediaManagerHandle.setOutputAudioId] method.
@@ -251,24 +296,16 @@ class MediaUtilsImpl {
       return;
     }
 
-    final String deviceId = outputDeviceId.value!;
-    await outputGuard.protect(() async {
+    final String deviceId = _outputDeviceId!;
+    await _outputGuard.protect(() async {
       await _mutex.protect(() async {
-        if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
-          await AVAudioSession().setCategory(
-            AVAudioSessionCategory.playAndRecord,
-            AVAudioSessionCategoryOptions.allowBluetooth,
-            AVAudioSessionMode.voiceChat,
-          );
-        }
-
         await (await _mediaManager)?.setOutputAudioId(deviceId);
       });
     });
 
     // If the [outputDeviceId] was changed while setting the output device
     // then call [_setOutputDevice] again.
-    if (deviceId != outputDeviceId.value) {
+    if (deviceId != _outputDeviceId) {
       _setOutputDevice();
     }
   }
@@ -297,6 +334,22 @@ class MediaUtilsImpl {
     // await WebUtils.setupForegroundService();
   }
 
+  /// Changes the log level of the `medea_jason` package.
+  Future<void> setLogLevel(LogLevel level) async {
+    Log.debug('setLogLevel(${level.name})', '$runtimeType');
+
+    try {
+      // Initialize [Jason] first.
+      await Jason.ensureInitialized();
+      await Logging.setLogLevel(level);
+    } catch (e) {
+      Log.warning(
+        'Unable to enable `Logging.setLogLevel(${level.name})` -> $e',
+        '$runtimeType',
+      );
+    }
+  }
+
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   MediaStreamSettings _mediaStreamSettings({
@@ -307,7 +360,8 @@ class MediaUtilsImpl {
     final MediaStreamSettings settings = MediaStreamSettings();
 
     if (audio != null) {
-      final AudioTrackConstraints constraints = AudioTrackConstraints();
+      final DeviceAudioTrackConstraints constraints =
+          DeviceAudioTrackConstraints();
       if (audio.device != null) constraints.deviceId(audio.device!);
 
       if (audio.noiseSuppression != null) {
@@ -331,7 +385,7 @@ class MediaUtilsImpl {
         constraints.idealHighPassFilter(audio.highPassFilter!);
       }
 
-      settings.audio(constraints);
+      settings.deviceAudio(constraints);
     }
 
     if (video != null) {
@@ -342,6 +396,8 @@ class MediaUtilsImpl {
       } else if (video.device != null) {
         constraints.deviceId(video.device!);
       }
+      constraints.idealWidth(960);
+      constraints.idealHeight(720);
       settings.deviceVideo(constraints);
     }
 
@@ -350,7 +406,15 @@ class MediaUtilsImpl {
           DisplayVideoTrackConstraints();
       if (screen.device != null) constraints.deviceId(screen.device!);
       constraints.idealFrameRate(screen.framerate ?? 30);
+      constraints.idealWidth(1920);
+      constraints.idealHeight(1080);
       settings.displayVideo(constraints);
+
+      if (screen.audio) {
+        final DisplayAudioTrackConstraints constraints =
+            DisplayAudioTrackConstraints();
+        settings.displayAudio(constraints);
+      }
     }
 
     return settings;
@@ -402,10 +466,13 @@ class VideoPreferences extends TrackPreferences {
 
 /// [TrackPreferences] of a screen share track.
 class ScreenPreferences extends TrackPreferences {
-  const ScreenPreferences({super.device, this.framerate});
+  const ScreenPreferences({super.device, this.framerate, this.audio = false});
 
   /// Preferred framerate of the screen track.
   final int? framerate;
+
+  /// Indicator whether audio system capture should be enabled.
+  final bool audio;
 }
 
 /// Extension adding conversion on [MediaDeviceDetails] to [AudioSpeakerKind].
@@ -414,11 +481,23 @@ extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
   ///
   /// Only meaningful, if these [MediaDeviceDetails] are of
   /// [MediaDeviceKind.audioOutput].
-  AudioSpeakerKind get speaker => switch (deviceId()) {
-    'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
-    'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
-    (_) => AudioSpeakerKind.headphones,
-  };
+  AudioSpeakerKind get speaker {
+    return switch (audioDeviceKind()) {
+      AudioDeviceKind.earSpeaker => AudioSpeakerKind.earpiece,
+      AudioDeviceKind.speakerphone => AudioSpeakerKind.speaker,
+      AudioDeviceKind.wiredHeadphones => AudioSpeakerKind.headphones,
+      AudioDeviceKind.wiredHeadset => AudioSpeakerKind.headphones,
+      AudioDeviceKind.usbHeadphones => AudioSpeakerKind.headphones,
+      AudioDeviceKind.usbHeadset => AudioSpeakerKind.headphones,
+      AudioDeviceKind.bluetoothHeadphones => AudioSpeakerKind.headphones,
+      AudioDeviceKind.bluetoothHeadset => AudioSpeakerKind.headphones,
+      null => switch (deviceId()) {
+        'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
+        'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
+        (_) => AudioSpeakerKind.headphones,
+      },
+    };
+  }
 }
 
 /// Possible kind of an audio output device.
@@ -432,6 +511,9 @@ class DeviceDetails extends MediaDeviceDetails {
 
   /// [MediaDeviceDetails] actually used by these [DeviceDetails].
   final MediaDeviceDetails _device;
+
+  /// Returns a unique identifier of this [DeviceDetails].
+  String id() => _device.deviceId();
 
   @override
   String deviceId() => _device.deviceId();
@@ -461,7 +543,16 @@ class DeviceDetails extends MediaDeviceDetails {
   }
 
   @override
-  String toString() => id();
+  AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
+
+  @override
+  int? numChannels() => _device.numChannels();
+
+  @override
+  int? sampleRate() => _device.sampleRate();
+
+  @override
+  String toString() => 'DeviceDetails(id: ${id()}, label: ${label()})';
 
   @override
   int get hashCode => (id() + deviceId()).hashCode;
@@ -475,9 +566,6 @@ class DeviceDetails extends MediaDeviceDetails {
         // On Web `default` devices aren't equal.
         (!PlatformUtils.isWeb || deviceId() != 'default');
   }
-
-  /// Returns a unique identifier of this [DeviceDetails].
-  String id() => _device.deviceId();
 }
 
 /// [DeviceDetails] representing a default device.
@@ -495,6 +583,12 @@ class DefaultDeviceDetails extends DeviceDetails {
 
   @override
   String id() => 'default';
+
+  @override
+  AudioDeviceKind? audioDeviceKind() => _device.audioDeviceKind();
+
+  @override
+  bool isFailed() => _device.isFailed();
 }
 
 /// Audio processing noise suppression aggressiveness.

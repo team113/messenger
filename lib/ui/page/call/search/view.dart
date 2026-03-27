@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -51,6 +51,7 @@ class SearchView extends StatelessWidget {
     this.onPressed,
     this.onSubmit,
     this.onSelected,
+    this.excludeSupports = false,
   });
 
   /// [SearchCategory]ies to search through.
@@ -80,6 +81,9 @@ class SearchView extends StatelessWidget {
   /// Callback, called on the selected items changes.
   final void Function(SearchViewResults? results)? onSelected;
 
+  /// Indicator whether [Config.supportIds] should be excluded from the list.
+  final bool excludeSupports;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -92,9 +96,11 @@ class SearchView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         chat: chat,
         categories: categories,
         onSelected: onSelected,
+        excludeSupports: excludeSupports,
       ),
       builder: (SearchController c) {
         return Container(

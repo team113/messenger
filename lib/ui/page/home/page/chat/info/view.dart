@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,10 +21,9 @@ import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/config.dart';
-import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/crop_area.dart';
 import '/domain/model/my_user.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -33,6 +32,7 @@ import '/ui/page/home/page/chat//controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/page/chat/widget/notes_block.dart';
+import '/ui/page/home/page/user/widget/quick_button.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -95,8 +95,10 @@ class ChatInfoView extends StatelessWidget {
                   child: BigAvatarWidget.chat(c.chat),
                 ),
               )
-            else
+            else ...[
+              _avatar(c, context),
               _profile(c, context),
+            ],
 
             if (!c.isMonolog) ...[
               SelectionContainer.disabled(child: _members(c, context)),
@@ -139,67 +141,87 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
+  /// Returns the [Chat.avatar] visual representation.
+  Widget _avatar(ChatInfoController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: context.isNarrow
+              ? BoxConstraints()
+              : BoxConstraints(maxWidth: 400 - 16),
+          child: SelectionContainer.disabled(
+            child: Container(
+              decoration: BoxDecoration(
+                color: style.colors.onPrimary,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(100),
+                  topRight: Radius.circular(100),
+                  bottomLeft: Radius.circular(16),
+                  bottomRight: Radius.circular(16),
+                ),
+              ),
+              padding: EdgeInsets.only(bottom: 8),
+              child: BigAvatarWidget.chat(
+                c.chat,
+                key: Key('ChatAvatar_${c.chat!.id}'),
+                loading: c.avatarUpload.value.isLoading,
+                error: c.avatarUpload.value.errorMessage,
+                shape: AvatarShape.tombstone,
+                onUpload: c.canEdit ? c.pickAvatar : null,
+                onEdit: c.canEdit && c.chat?.avatar.value != null
+                    ? c.editAvatar
+                    : null,
+                onDelete: c.canEdit && c.chat?.avatar.value != null
+                    ? c.deleteAvatar
+                    : null,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Builds the profile [Block] with editing functionality.
   Widget _profile(ChatInfoController c, BuildContext context) {
     return Obx(() {
       return Block(
         folded: c.isFavorite,
         children: [
-          SelectionContainer.disabled(
-            child: BigAvatarWidget.chat(
-              c.chat,
-              key: Key('ChatAvatar_${c.chat!.id}'),
-              loading: c.avatarUpload.value.isLoading,
-              error: c.avatarUpload.value.errorMessage,
-              onUpload: c.canEdit ? c.pickAvatar : null,
-              onEdit: c.canEdit && c.chat?.avatar.value != null
-                  ? c.editAvatar
-                  : null,
-              onDelete: c.canEdit && c.chat?.avatar.value != null
-                  ? c.deleteAvatar
-                  : null,
-              builder: (child) {
-                if (c.avatarCrop.value == null &&
-                    c.avatarImage.value == null &&
-                    c.avatarDeleted.value == false) {
-                  return child;
-                }
-
-                return AvatarWidget(
-                  radius: AvatarRadius.largest,
-                  shape: BoxShape.rectangle,
-                  title: c.chat?.title(withDeletedLabel: false),
-                  color: c.chat?.chat.value.colorDiscriminant(c.me).sum(),
-                  avatar: c.avatarDeleted.value || c.avatarImage.value == null
-                      ? null
-                      : LocalAvatar(
-                          file: c.avatarImage.value!,
-                          crop: c.avatarCrop.value == null
-                              ? null
-                              : CropArea(
-                                  topLeft: CropPoint(
-                                    x: c.avatarCrop.value!.topLeft.x,
-                                    y: c.avatarCrop.value!.topLeft.y,
-                                  ),
-                                  bottomRight: CropPoint(
-                                    x: c.avatarCrop.value!.bottomRight.x,
-                                    y: c.avatarCrop.value!.bottomRight.y,
-                                  ),
-                                  angle: c.avatarCrop.value!.angle,
-                                ),
-                        ),
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 16),
           ReactiveTextField(
             key: const Key('RenameChatField'),
             state: c.name,
-            label: 'label_name'.l10n,
+            label: 'label_group_name'.l10n,
             hint: c.chat?.title(),
             floatingLabelBehavior: FloatingLabelBehavior.always,
             formatters: [LengthLimitingTextInputFormatter(100)],
+          ),
+          const SizedBox(height: 16),
+          FittedBox(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                QuickButton(
+                  SvgIcons.quickChat,
+                  onPressed: () => router.chat(id),
+                ),
+                if (!c.isMonolog) ...[
+                  const SizedBox(width: 8),
+                  QuickButton(
+                    SvgIcons.quickAudio,
+                    onPressed: () => c.call(false),
+                  ),
+                  const SizedBox(width: 8),
+                  QuickButton(
+                    SvgIcons.quickVideo,
+                    onPressed: () => c.call(true),
+                  ),
+                ],
+              ],
+            ),
           ),
           const SizedBox(height: 8),
         ],
@@ -207,36 +229,37 @@ class ChatInfoView extends StatelessWidget {
     });
   }
 
-  /// Returns the [Chat.directLink] visual representation.
+  /// Returns the [DirectLink]s for this [Chat] visual representation.
   Widget _link(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
 
     return Block(
       title: 'label_direct_chat_link'.l10n,
+      padding: Block.defaultPadding.copyWith(right: 0, left: 0),
       children: [
         Obx(() {
           return Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              DirectLinkField(
+                c.links.values,
+                key: Key('DirectLinkField'),
+                onAdded: c.createChatDirectLink,
+                onRemoved: c.deleteChatDirectLink,
+                canAddMore: false,
+                onMore: c.links.hasNext.value && !c.links.nextLoading.value
+                    ? c.links.next
+                    : null,
+              ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(6, 0, 8, 0),
+                padding: Block.defaultPadding
+                    .copyWith(top: 0, bottom: 0)
+                    .add(const EdgeInsets.fromLTRB(8, 8, 8, 0)),
                 child: Text(
                   'label_direct_chat_link_in_chat_description'.l10n,
                   style: style.fonts.small.regular.secondary,
                 ),
-              ),
-              DirectLinkField(
-                c.chat?.chat.value.directLink,
-                key: Key('DirectLinkField'),
-                onSubmit: (s) async {
-                  if (s == null) {
-                    await c.deleteChatDirectLink();
-                  } else {
-                    await c.createChatDirectLink(s);
-                  }
-                },
-                background: c.background.value,
               ),
             ],
           );
@@ -306,10 +329,12 @@ class ChatInfoView extends StatelessWidget {
                                   }
                                 }
                               : c.joinCall,
+                          onKick: () => _leaveGroup(c, context),
                         );
                       } else {
                         final RxUser member = members[i];
 
+                        final bool meInCall = c.chat?.inCall.value == true;
                         final bool inCall =
                             c.chat?.chat.value.ongoingCall?.members.any(
                               (u) => u.user.id == member.id,
@@ -321,11 +346,13 @@ class ChatInfoView extends StatelessWidget {
                           inCall: hasCall ? inCall : null,
                           onTap: () => router.chat(
                             ChatId.local(member.user.value.id),
-                            push: true,
+                            mode: RouteAs.push,
                           ),
-                          onCall: inCall
-                              ? () => c.removeChatCallMember(member.id)
-                              : () => c.redialChatCallMember(member.id),
+                          onCall: meInCall
+                              ? inCall
+                                    ? () => c.removeChatCallMember(member.id)
+                                    : () => c.redialChatCallMember(member.id)
+                              : null,
                           onKick: () => c.removeChatMember(member.id),
                         );
                       }
@@ -420,7 +447,7 @@ class ChatInfoView extends StatelessWidget {
             key: const Key('ReportChatButton'),
             onPressed: () => _reportChat(c, context),
             text: 'btn_report'.l10n,
-            trailing: const SvgIcon(SvgIcons.report),
+            trailing: const SvgIcon(SvgIcons.report19),
           ),
           ActionButton(
             key: const Key('LeaveChatButton'),
@@ -437,34 +464,56 @@ class ChatInfoView extends StatelessWidget {
   /// Returns information about the [Chat] and related to it action buttons in
   /// the [CustomAppBar].
   Widget _bar(ChatInfoController c, BuildContext context) {
-    final bool isMonolog = c.chat?.chat.value.isMonolog == true;
+    final style = Theme.of(context).style;
 
     return Row(
       children: [
+        const StyledBackButton(),
+        const SizedBox(width: 8),
         Expanded(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: const StyledBackButton(withLabel: true),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Obx(() {
+                final RxChat? chat = c.chat;
+
+                final Widget child;
+
+                if (!c.preferName.value || chat == null) {
+                  child = Text(
+                    'label_group_profile'.l10n,
+                    key: const Key('Profile'),
+                    style: style.fonts.medium.regular.onBackground,
+                  );
+                } else {
+                  child = Text(
+                    chat.title(),
+                    key: const Key('Chat'),
+                    style: style.fonts.medium.regular.onBackground,
+                  );
+                }
+
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: child,
+                );
+              }),
+              if (!c.isMonolog) ...[
+                Text(
+                  'label_participants'.l10nfmt({
+                    'count': c.chat?.chat.value.membersCount ?? 0,
+                  }),
+                  style: style.fonts.small.regular.secondary,
+                ),
+              ],
+            ],
           ),
         ),
         const SizedBox(width: 8),
         AnimatedButton(
-          onPressed: () => router.dialog(c.chat!.chat.value, c.me),
-          child: const SvgIcon(SvgIcons.chat),
+          onPressed: () => router.chat(id, search: true),
+          child: const SvgIcon(SvgIcons.search),
         ),
-        if (!isMonolog) ...[
-          const SizedBox(width: 28),
-          AnimatedButton(
-            onPressed: () => c.call(true),
-            child: const SvgIcon(SvgIcons.chatVideoCall),
-          ),
-          const SizedBox(width: 28),
-          AnimatedButton(
-            key: const Key('AudioCall'),
-            onPressed: () => c.call(false),
-            child: const SvgIcon(SvgIcons.chatAudioCall),
-          ),
-        ],
         const SizedBox(width: 20),
       ],
     );
@@ -508,6 +557,11 @@ class ChatInfoView extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_leave_group'.l10n,
       description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
+      button: (context) => MessagePopup.deleteButton(
+        context,
+        icon: SvgIcons.leaveGroupWhite,
+        label: 'btn_leave'.l10n,
+      ),
     );
 
     if (result == true) {

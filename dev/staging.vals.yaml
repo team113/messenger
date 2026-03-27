@@ -17,7 +17,7 @@ deployment:
 
 ingress:
   tls:
-    enabled: yes
-    auto: yes
+    enabled: true
+    auto: true
   httpAuth:
-    enabled: no
+    enabled: false

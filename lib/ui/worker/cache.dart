@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -41,10 +41,8 @@ import '/util/platform_utils.dart';
 
 /// Worker maintaining [File]s cache and downloads.
 ///
-/// Uses distributed caching strategy:
-/// 1) In-memory cache, represented in [FIFOCache].
-/// 2) [File]-system cache.
-class CacheWorker extends DisposableService {
+/// Uses [File]-system cache.
+class CacheWorker extends Dependency {
   CacheWorker(this._cacheLocal, this._downloadLocal) {
     instance = this;
   }
@@ -131,33 +129,6 @@ class CacheWorker extends DisposableService {
       responseType = CacheResponseType.bytes;
     }
 
-    // Try to retrieve the [CacheEntry] by URL as well, yet [checksum] is still
-    // more preferred.
-    final String? key = checksum ?? url;
-
-    if (key != null && FIFOCache.exists(key)) {
-      final Uint8List? bytes = FIFOCache.get(key);
-
-      if (bytes != null && bytes.lengthInBytes != 0) {
-        switch (responseType) {
-          case CacheResponseType.file:
-            // If [CacheEntry] is supposed to contain a [File], and we don't
-            // have a [checksum], then there won't be a [File], thus we should
-            // break and proceed to fetch the [File] by the [url] provided.
-            if (checksum == null) {
-              break;
-            }
-
-            return Future(
-              () async => CacheEntry(file: await add(bytes, checksum, url)),
-            );
-
-          case CacheResponseType.bytes:
-            return CacheEntry(bytes: bytes);
-        }
-      }
-    }
-
     return Future(() async {
       if (checksum != null) {
         final Directory? cache = cacheDirectory.value ??=
@@ -175,7 +146,6 @@ class CacheWorker extends DisposableService {
                 final Uint8List bytes = await file.readAsBytes();
 
                 if (bytes.lengthInBytes != 0) {
-                  FIFOCache.set(checksum, bytes);
                   return CacheEntry(bytes: bytes);
                 }
             }
@@ -249,13 +219,6 @@ class CacheWorker extends DisposableService {
 
   /// Adds the provided [data] to the cache.
   FutureOr<File?> add(Uint8List data, [String? checksum, String? url]) {
-    // Set [url] to the [FIFOCache] as well, yet if [checksum] isn't specified,
-    // then there will be no [File] written, only this.
-    final String? key = checksum ?? url;
-    if (key != null && !FIFOCache.exists(key)) {
-      FIFOCache.set(key, data);
-    }
-
     // Calculating SHA-256 hash from [data] on Web freezes the application.
     if (!PlatformUtils.isWeb) {
       checksum ??= sha256.convert(data).toString();
@@ -295,6 +258,8 @@ class CacheWorker extends DisposableService {
     String? checksum,
     String? to,
   }) {
+    Log.debug('download($filename, $size)', '$runtimeType');
+
     Downloading? downloading = downloads[checksum]?..start(url, to: to);
 
     if (downloading == null) {
@@ -381,8 +346,7 @@ class CacheWorker extends DisposableService {
   }
 
   /// Indicates whether [checksum] is in the cache.
-  bool exists(String checksum) =>
-      FIFOCache.exists(checksum) || hashes.contains(checksum);
+  bool exists(String checksum) => hashes.contains(checksum);
 
   /// Clears the cache in the cache directory.
   Future<void> clear() {
@@ -532,50 +496,6 @@ class CacheWorker extends DisposableService {
   }
 }
 
-/// Naive [LinkedHashMap]-based cache of [Uint8List]s.
-///
-/// FIFO policy is used, meaning if [_cache] exceeds its [_maxSize] or
-/// [_maxLength], then the first inserted element is removed.
-class FIFOCache {
-  /// Maximum allowed length of [_cache].
-  static const int _maxLength = 1000;
-
-  /// Maximum allowed size in bytes of [_cache].
-  static const int _maxSize = 100 << 20; // 100 MiB
-
-  /// [LinkedHashMap] maintaining [Uint8List]s itself.
-  static final LinkedHashMap<String, Uint8List> _cache =
-      LinkedHashMap<String, Uint8List>();
-
-  /// Returns the total size [_cache] occupies.
-  static int get size =>
-      _cache.values.map((e) => e.lengthInBytes).fold<int>(0, (p, e) => p + e);
-
-  /// Puts the provided [bytes] to the cache.
-  static void set(String key, Uint8List bytes) {
-    if (!_cache.containsKey(key)) {
-      while (size >= _maxSize) {
-        _cache.remove(_cache.keys.first);
-      }
-
-      if (_cache.length >= _maxLength) {
-        _cache.remove(_cache.keys.first);
-      }
-
-      _cache[key] = bytes;
-    }
-  }
-
-  /// Returns the [Uint8List] of the provided [key], if any is cached.
-  static Uint8List? get(String key) => _cache[key];
-
-  /// Indicates whether an item with the provided [key] exists.
-  static bool exists(String key) => _cache.containsKey(key);
-
-  /// Removes all entries from the [_cache].
-  static void clear() => _cache.clear();
-}
-
 /// [File] downloading entry.
 class Downloading {
   Downloading(this.checksum, this.filename, this.size, {this.onDownloaded});
@@ -625,9 +545,12 @@ class Downloading {
 
   /// Starts the [file] downloading.
   Future<void> start(String url, {String? to}) async {
+    Log.debug('start($filename, $size)', '$runtimeType');
+
     progress.value = 0;
     status.value = DownloadStatus.inProgress;
     _completer = Completer<File?>();
+    _completer?.future.catchError((_) => null);
 
     try {
       file = await PlatformUtils.download(
@@ -640,6 +563,8 @@ class Downloading {
         cancelToken: _token,
       );
       _completer?.complete(file);
+
+      Log.debug('start($filename, $size)... completed!', '$runtimeType');
 
       if (file != null) {
         status.value = DownloadStatus.isFinished;
@@ -655,6 +580,8 @@ class Downloading {
 
   /// Cancels the [file] downloading.
   void cancel() {
+    Log.debug('cancel($filename, $size)', '$runtimeType');
+
     status.value = DownloadStatus.notStarted;
     if (_completer?.isCompleted == false) {
       _completer?.complete(null);
@@ -666,6 +593,8 @@ class Downloading {
 
   /// Marks this [Downloading] as not started.
   void markAsNotStarted() {
+    Log.debug('markAsNotStarted()', '$runtimeType');
+
     if (status.value == DownloadStatus.isFinished) {
       status.value = DownloadStatus.notStarted;
       file = null;

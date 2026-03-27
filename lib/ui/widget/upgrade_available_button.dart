@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -105,9 +105,7 @@ class UpgradeAvailableButton extends StatelessWidget {
           : null,
       child: Container(
         height: 48,
-        margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
           color: style.colors.primary,
           boxShadow: [
             CustomBoxShadow(

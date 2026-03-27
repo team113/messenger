@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
 import '/domain/model/chat.dart';
+import '/domain/model/link.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
@@ -33,6 +34,7 @@ import '/domain/repository/auth.dart';
 import '/provider/drift/account.dart';
 import '/provider/drift/credentials.dart';
 import '/provider/drift/locks.dart';
+import '/provider/drift/secret.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/log.dart';
@@ -44,12 +46,13 @@ import 'disposable_service.dart';
 ///
 /// It contains all the required methods to do the authentication process and
 /// exposes [credentials] (a session and an user) of the authorized session.
-class AuthService extends DisposableService {
+class AuthService extends Dependency {
   AuthService(
     this._authRepository,
     this._credentialsProvider,
     this._accountProvider,
     this._lockProvider,
+    this._secretProvider,
   );
 
   /// Currently authorized session's [Credentials].
@@ -87,6 +90,9 @@ class AuthService extends DisposableService {
   /// [LockDriftProvider] storing the database locks.
   final LockDriftProvider _lockProvider;
 
+  /// [RefreshSecretDriftProvider] storing the [RefreshSessionSecrets].
+  final RefreshSecretDriftProvider _secretProvider;
+
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
 
@@ -121,8 +127,8 @@ class AuthService extends DisposableService {
   /// over and over again.
   Duration _refreshRetryDelay = _initialRetryDelay;
 
-  /// [RefreshSessionSecrets] to use during [refreshSession].
-  RefreshSessionSecrets? _failed;
+  /// [Stopwatch] counting since the last successful [refreshSession] occurred.
+  final Map<UserId, Stopwatch> _refreshedAt = {};
 
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
@@ -228,6 +234,10 @@ class AuthService extends DisposableService {
     });
 
     return await WebUtils.protect(() async {
+      if (isClosed) {
+        return null;
+      }
+
       final List<Credentials> allCredentials = await _credentialsProvider.all();
       for (final Credentials e in allCredentials) {
         WebUtils.putCredentials(e);
@@ -368,6 +378,10 @@ class AuthService extends DisposableService {
     status.value = force ? RxStatus.loadingMore() : RxStatus.loading();
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       // If service is already authorized, then no-op, as this operation is
       // meant to be invoked only during unauthorized phase or account
       // switching, or otherwise the dependencies will be broken as of now.
@@ -463,6 +477,10 @@ class AuthService extends DisposableService {
 
     status.value = RxStatus.loadingMore();
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       await _authorized(credentials);
       status.value = RxStatus.success();
     });
@@ -528,6 +546,10 @@ class AuthService extends DisposableService {
     }
 
     return await WebUtils.protect(() async {
+      if (isClosed) {
+        return null;
+      }
+
       try {
         await _authRepository.deleteSession();
       } catch (e) {
@@ -598,6 +620,10 @@ class AuthService extends DisposableService {
       final bool areValid = await validateToken(creds);
       if (areValid) {
         await WebUtils.protect(() async {
+          if (isClosed) {
+            return;
+          }
+
           await _authorized(creds!);
           status.value = RxStatus.success();
         });
@@ -644,6 +670,10 @@ class AuthService extends DisposableService {
     }
 
     return await WebUtils.protect(() async {
+      if (isClosed) {
+        return false;
+      }
+
       // If [creds] are not provided, then validate the current [credentials].
       creds ??= credentials.value;
 
@@ -677,12 +707,11 @@ class AuthService extends DisposableService {
     final bool areCurrent = userId == this.userId;
 
     Log.debug(
-      'refreshSession($userId |-> $attempt) with `isLocked` ($isLocked) and `failed` ($_failed)',
+      'refreshSession($userId |-> $attempt) with `isLocked` ($isLocked)',
       '$runtimeType',
     );
 
     LockIdentifier? dbLock;
-    RefreshSessionSecrets? secrets;
 
     try {
       // Acquire a database lock to prevent multiple refreshes of the same
@@ -692,10 +721,29 @@ class AuthService extends DisposableService {
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
+        if (isClosed) {
+          return;
+        }
+
         Log.debug(
           'refreshSession($userId |-> $attempt) acquired both `dbLock` and `WebUtils.protect()`',
           '$runtimeType',
         );
+
+        final Stopwatch? watch = _refreshedAt[userId];
+
+        // If previous `refreshSession()` happened less than 10 seconds ago,
+        // then ignore this `refreshSession()`, since it might already be new.
+        if (watch != null) {
+          if (watch.elapsed.inSeconds <= 10) {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) seems like `Stopwatch` is less than 10 seconds: ${watch.elapsed}, thus ignoring this `refreshSession()`',
+              '$runtimeType',
+            );
+
+            return Future.value();
+          }
+        }
 
         while (!WebUtils.isOnLine && !isClosed) {
           Log.debug(
@@ -704,6 +752,16 @@ class AuthService extends DisposableService {
           );
 
           await Future.delayed(Duration(seconds: 1));
+
+          // If there's any ongoing call, then ignore the device being in
+          // background.
+          if (WebUtils.containsCalls() || hasCalls?.call() == true) {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) navigator.onLine returned `false`, however there\'s a call, thus proceeding: ${WebUtils.containsCalls()} || ${hasCalls?.call()}',
+              '$runtimeType',
+            );
+            break;
+          }
         }
 
         Credentials? oldCreds;
@@ -881,10 +939,9 @@ class AuthService extends DisposableService {
         }
 
         try {
-          secrets = _failed ?? RefreshSessionSecrets.generate();
           final Credentials data = await _authRepository.refreshSession(
             oldCreds.refresh.secret,
-            input: secrets,
+            input: await _secretProvider.getOrCreate(oldCreds.userId),
             reconnect: areCurrent,
           );
 
@@ -893,7 +950,9 @@ class AuthService extends DisposableService {
             '$runtimeType',
           );
 
-          _failed = null;
+          await _secretProvider.delete(oldCreds.userId);
+          _refreshedAt[userId]?.stop();
+          _refreshedAt[userId] = Stopwatch()..start();
 
           if (areCurrent) {
             await _authorized(data);
@@ -926,6 +985,7 @@ class AuthService extends DisposableService {
             // Remove stale [Credentials].
             accounts.remove(oldCreds.userId);
             await _credentialsProvider.delete(oldCreds.userId);
+            await _secretProvider.delete(oldCreds.userId);
           }
 
           _refreshRetryDelay = _initialRetryDelay;
@@ -936,7 +996,6 @@ class AuthService extends DisposableService {
       await _lockProvider.release(dbLock);
     } on RefreshSessionException catch (_) {
       _refreshRetryDelay = _initialRetryDelay;
-      _failed = null;
 
       if (dbLock != null) {
         await _lockProvider.release(dbLock);
@@ -948,8 +1007,6 @@ class AuthService extends DisposableService {
         'refreshSession($userId |-> $attempt): ⛔️ exception occurred: $e',
         '$runtimeType',
       );
-
-      _failed = secrets;
 
       if (dbLock != null) {
         await _lockProvider.release(dbLock);
@@ -970,11 +1027,11 @@ class AuthService extends DisposableService {
     }
   }
 
-  /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
-  /// a new [Chat]-dialog or joining an existing [Chat]-group.
-  Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('useChatDirectLink($slug)', '$runtimeType');
-    return await _authRepository.useChatDirectLink(slug);
+  /// Uses the specified [DirectLink] by the authenticated [MyUser] creating a
+  /// new [Chat]-dialog or joining an existing [Chat]-group.
+  Future<Chat> useDirectLink(DirectLinkSlug slug) async {
+    Log.debug('useDirectLink($slug)', '$runtimeType');
+    return await _authRepository.useDirectLink(slug);
   }
 
   /// Puts the provided [creds] to [accounts].
@@ -1043,6 +1100,7 @@ class AuthService extends DisposableService {
     final UserId? id = userId;
     if (id != null) {
       _credentialsProvider.delete(id);
+      _secretProvider.delete(id);
       _refreshTimers.remove(id)?.cancel();
       accounts.remove(id);
       WebUtils.removeCredentials(id);

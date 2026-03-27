@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,9 +27,10 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
@@ -38,7 +39,6 @@ import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
-import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
@@ -71,19 +71,23 @@ import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/notes_block.dart';
+import 'widget/selection_text.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
 import 'widget/with_global_key.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatelessWidget {
-  const ChatView(this.id, {super.key, this.itemId});
+  const ChatView(this.id, {super.key, this.itemId, this.search = false});
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// ID of a [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
+
+  /// Indicator whether searching mode should be enabled by default or not.
+  final bool search;
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +104,11 @@ class ChatView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
+        Get.find(),
         itemId: itemId,
         onContext: () => context,
+        search: search,
       ),
       tag: id.val,
       global: !Get.isRegistered<ChatController>(tag: id.val),
@@ -317,6 +324,9 @@ class ChatView extends StatelessWidget {
                           final bool inCall = c.chat?.inCall.value ?? false;
                           final bool isMonolog =
                               c.chat?.chat.value.isMonolog == true;
+                          final bool isSupport =
+                              c.me?.isSupport == false &&
+                              c.chat?.chat.value.isSupport == true;
 
                           final List<Widget> children;
 
@@ -363,7 +373,7 @@ class ChatView extends StatelessWidget {
                                 ),
                               ),
                             ];
-                          } else if (!blocked && !isMonolog) {
+                          } else if (!blocked && !isMonolog && !isSupport) {
                             children = [
                               AnimatedButton(
                                 onPressed: () => c.call(true),
@@ -559,22 +569,43 @@ class ChatView extends StatelessWidget {
                             final Widget? welcome = _welcomeMessage(context, c);
 
                             if (welcome != null) {
-                              return Align(
-                                alignment: Alignment.bottomLeft,
-                                child: ListView(
-                                  reverse: true,
-                                  children: [
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(
-                                          maxWidth: 550,
-                                        ),
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                            right: 48,
+                              final bool? hasMedia = c
+                                  .welcomeMessage
+                                  ?.attachments
+                                  .any(
+                                    (e) =>
+                                        e is ImageAttachment ||
+                                        e is FileAttachment && e.isVideo,
+                                  );
+
+                              return ObscuredSelectionArea(
+                                child: CustomScrollView(
+                                  slivers: [
+                                    SliverFillRemaining(
+                                      hasScrollBody: true,
+                                      child: Align(
+                                        alignment: Alignment.bottomLeft,
+                                        child: SingleChildScrollView(
+                                          child: Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: ConstrainedBox(
+                                              constraints: BoxConstraints(
+                                                maxWidth: (hasMedia ?? false)
+                                                    ? 350 + 48 + 8
+                                                    : 550 + 48 + 8,
+                                              ),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                      8,
+                                                      8,
+                                                      48,
+                                                      8,
+                                                    ),
+                                                child: welcome,
+                                              ),
+                                            ),
                                           ),
-                                          child: welcome,
                                         ),
                                       ),
                                     ),
@@ -833,7 +864,7 @@ class ChatView extends StatelessWidget {
                       chatId = c.monolog;
                     }
 
-                    router.chat(chatId, push: true);
+                    router.chat(chatId, mode: RouteAs.push);
                   },
                   onDragging: (e) => c.isDraggingItem.value = e,
                 ),
@@ -979,7 +1010,7 @@ class ChatView extends StatelessWidget {
                         router.chat(
                           item.quote.original!.chatId,
                           itemId: item.quote.original!.id,
-                          push: true,
+                          mode: RouteAs.push,
                         );
                       }
                     }
@@ -1260,6 +1291,7 @@ class ChatView extends StatelessWidget {
       if (c.edit.value != null) {
         return MessageFieldView(
           key: const Key('EditField'),
+          fieldKey: const Key('EditMessageField'),
           controller: c.edit.value,
           onChanged: c.chat?.chat.value.isMonolog == true
               ? null
@@ -1323,10 +1355,7 @@ class ChatView extends StatelessWidget {
                 return Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.center,
-                  children: <Widget>[
-                    ...previousChildren,
-                    if (currentChild != null) currentChild,
-                  ],
+                  children: <Widget>[...previousChildren, ?currentChild],
                 );
               },
               transitionBuilder: (child, animation) {
@@ -1334,7 +1363,6 @@ class ChatView extends StatelessWidget {
                   sizeFactor: animation,
                   axis: Axis.horizontal,
                   axisAlignment: 0,
-
                   child: ScaleTransition(
                     scale: animation,
                     alignment: Alignment.centerLeft,
@@ -1404,7 +1432,6 @@ class ChatView extends StatelessWidget {
         color: style.messageColor,
         borderRadius: style.cardRadius,
       ),
-      margin: const EdgeInsets.all(8),
       child: IntrinsicWidth(
         child: ClipRRect(
           borderRadius: style.cardRadius,
@@ -1412,38 +1439,37 @@ class ChatView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (media.isNotEmpty) ...[
-                if (media.length == 1)
-                  WithGlobalKey((_, key) {
+              ...media.mapIndexed((i, e) {
+                int width = 350;
+                int height = 350;
+                double aspect = 1;
+
+                final StorageFile file = e.original;
+                if (file is ImageFile) {
+                  width = file.width ?? width;
+                  height = file.height ?? height;
+                  aspect = width / height;
+                }
+
+                final Widget content = SizedBox(
+                  width: 350,
+                  height: 350 / height * height.toDouble() / aspect,
+                  child: WithGlobalKey((_, key) {
                     return ChatItemWidget.mediaAttachment(
                       context,
-                      attachment: media.first,
-                      filled: false,
+                      attachment: e,
                       item: item,
                       onGallery: onGallery,
                       key: key,
                     );
-                  })
-                else
-                  SizedBox(
-                    width: 550,
-                    height: max(media.length * 60, 300),
-                    child: FitView(
-                      dividerColor: style.colors.transparent,
-                      children: media.mapIndexed((i, e) {
-                        return WithGlobalKey((_, key) {
-                          return ChatItemWidget.mediaAttachment(
-                            context,
-                            attachment: e,
-                            item: item,
-                            onGallery: onGallery,
-                            key: key,
-                          );
-                        });
-                      }).toList(),
-                    ),
-                  ),
-              ],
+                  }),
+                );
+
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [content, const SizedBox(height: 1)],
+                );
+              }),
               ...files.expand(
                 (e) => [
                   const SizedBox(height: 6),
@@ -1453,7 +1479,7 @@ class ChatView extends StatelessWidget {
               if (welcome.text != null)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                  child: Text(
+                  child: SelectionText(
                     '${welcome.text}',
                     style: style.fonts.medium.regular.onBackground,
                   ),

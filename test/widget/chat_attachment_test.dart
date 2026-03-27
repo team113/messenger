@@ -1,5 +1,7 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
+// Copyright © 2025-2026 Ideas Networks Solutions S.A.,
+//                       <https://github.com/tapopa>
 //
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Affero General Public License v3.0 as published by the
@@ -23,7 +25,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
@@ -34,6 +36,7 @@ import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/repository/session.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
@@ -41,6 +44,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/notification.dart';
+import 'package:messenger/domain/service/session.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
@@ -54,9 +58,12 @@ import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/geolocation.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
+import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -68,6 +75,7 @@ import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/session.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -79,6 +87,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../mock/audio_utils.dart';
+import '../mock/geo_provider.dart';
 import '../mock/platform_utils.dart';
 import 'chat_attachment_test.mocks.dart';
 
@@ -98,6 +107,7 @@ void main() async {
   Config.disableDragArea = true;
 
   var graphQlProvider = MockGraphQlProvider();
+  when(graphQlProvider.connected).thenReturn(RxBool(true));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(
     graphQlProvider.onStart,
@@ -220,7 +230,7 @@ void main() async {
       '__typename': 'ChatEventsVersioned',
       'events': [
         {
-          '__typename': 'EventChatItemPosted',
+          '__typename': 'ChatItemPostedEvent',
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'item': {
             'node': {
@@ -278,6 +288,7 @@ void main() async {
     graphQlProvider.uploadAttachment(
       any,
       onSendProgress: anyNamed('onSendProgress'),
+      cancelToken: anyNamed('cancelToken'),
     ),
   ).thenAnswer(
     (_) => Future.value(
@@ -377,6 +388,7 @@ void main() async {
         ip: IpAddress('localhost'),
         userAgent: UserAgent(''),
         lastActivatedAt: PreciseDateTime.now(),
+        siteDomain: SiteDomain(''),
       ),
       const UserId('me'),
     ),
@@ -398,9 +410,12 @@ void main() async {
   );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
-  final monologProvider = Get.put(MonologDriftProvider(common));
+  final monologProvider = Get.put(MonologDriftProvider(common, scoped));
   final versionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
+  final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
+  final geoProvider = Get.put(GeoLocationDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -427,6 +442,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
 
@@ -497,6 +513,19 @@ void main() async {
       ),
     );
     Get.put(ContactService(contactRepository));
+
+    final AbstractSessionRepository sessionRepository =
+        Get.put<AbstractSessionRepository>(
+          SessionRepository(
+            graphQlProvider,
+            accountProvider,
+            versionProvider,
+            sessionProvider,
+            geoProvider,
+            MockedGeoLocationProvider(),
+          ),
+        );
+    Get.put(SessionService(sessionRepository));
 
     Get.put(UserService(userRepository));
     final ChatService chatService = Get.put(

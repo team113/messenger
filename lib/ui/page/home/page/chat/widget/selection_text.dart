@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -67,6 +67,9 @@ class SelectionText extends StatefulWidget {
 /// State of a [SelectionText] invoking a [SelectionText.onChanged] in its
 /// [initState].
 class _SelectionTextState extends State<SelectionText> {
+  /// [GlobalKey] for [ObscuredSelectionArea] to keep it from rebuilding.
+  final GlobalKey _key = GlobalKey();
+
   @override
   void initState() {
     widget.onChanged?.call(null);
@@ -94,6 +97,7 @@ class _SelectionTextState extends State<SelectionText> {
         );
       } else {
         child = ObscuredSelectionArea(
+          key: _key,
           onSelectionChanged: widget.onChanged,
           child: child,
         );

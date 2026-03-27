@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -48,6 +48,7 @@ import 'geolocation.dart';
 import 'locks.dart';
 import 'monolog.dart';
 import 'my_user.dart';
+import 'secret.dart';
 import 'session.dart';
 import 'settings.dart';
 import 'skipped_version.dart';
@@ -68,8 +69,8 @@ part 'drift.g.dart';
     Downloads,
     GeoLocations,
     Locks,
-    Monologs,
     MyUsers,
+    RefreshSecrets,
     Settings,
     SkippedVersions,
     Tokens,
@@ -100,6 +101,26 @@ class CommonDatabase extends _$CommonDatabase {
           bool migrated = false;
 
           try {
+            if (to >= 9 && from <= 8) {
+              try {
+                await m.dropColumn(settings, 'workWithUsTabEnabled');
+              } catch (e) {
+                // It's ok to fail.
+              }
+              migrated = true;
+            }
+
+            if (to >= 8 && from <= 7) {
+              await m.alterTable(
+                TableMigration(
+                  settings,
+                  columnTransformer: {settings.logLevel: Constant(1)},
+                  newColumns: [settings.logLevel],
+                ),
+              );
+              migrated = true;
+            }
+
             if (to >= 7 && from <= 6) {
               await m.addColumn(settings, settings.videoVolume);
               migrated = true;
@@ -216,6 +237,7 @@ class CommonDatabase extends _$CommonDatabase {
     ChatMembers,
     Chats,
     Drafts,
+    Monologs,
     Sessions,
     Users,
   ],
@@ -304,6 +326,17 @@ class ScopedDatabase extends _$ScopedDatabase {
           bool migrated = false;
 
           try {
+            if (to >= 4 && from <= 3) {
+              await m.alterTable(
+                TableMigration(
+                  sessions,
+                  columnTransformer: {sessions.siteDomain: Constant('')},
+                  newColumns: [sessions.siteDomain],
+                ),
+              );
+              migrated = true;
+            }
+
             if (to >= 3 && from <= 2) {
               await m.addColumn(chats, chats.isArchived);
               migrated = true;

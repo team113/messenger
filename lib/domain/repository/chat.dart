@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -54,6 +54,10 @@ abstract class AbstractChatRepository {
   /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
   /// [MyUser], if any.
   ChatId get monolog;
+
+  /// Returns [ChatId] of the support [Chat] of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get support;
 
   /// Indicates whether the [paginated] have next page.
   RxBool get hasNext;
@@ -168,15 +172,7 @@ abstract class AbstractChatRepository {
 
   /// Creates a new [Attachment] linked to the authenticated [MyUser] for a
   /// later use in the [sendChatMessage] method.
-  Future<Attachment> uploadAttachment(LocalAttachment attachment);
-
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the given [Chat]-group (if
-  /// any).
-  Future<void> createChatDirectLink(ChatId chatId, ChatDirectLinkSlug slug);
-
-  /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
-  Future<void> deleteChatDirectLink(ChatId chatId);
+  Future<Attachment?> uploadAttachment(LocalAttachment attachment);
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the
   /// specified [Chat] at the moment.

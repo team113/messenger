@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,25 +31,28 @@ import '/api/backend/schema.dart'
     show
         AddUserEmailErrorCode,
         AddUserPhoneErrorCode,
-        Presence,
         CropAreaInput,
         UpdateUserAvatarErrorCode,
-        UpdateUserCallCoverErrorCode;
+        UpdateUserCallCoverErrorCode,
+        UserPresence;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/file.dart';
+import '/domain/model/link.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/blocklist.dart';
 import '/domain/service/chat.dart';
+import '/domain/service/link.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/session.dart';
 import '/l10n/l10n.dart';
@@ -80,6 +83,7 @@ class MyProfileController extends GetxController {
     this._blocklistService,
     this._upgradeWorker,
     this._cacheWorker,
+    this._linkService,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -143,6 +147,7 @@ class MyProfileController extends GetxController {
   /// [MyUser.name] field state.
   late final TextFieldState name = TextFieldState(
     text: myUser.value?.name?.val,
+    editable: !isSupport,
     onFocus: (s) async {
       s.error.value = null;
 
@@ -168,6 +173,7 @@ class MyProfileController extends GetxController {
   /// [MyUser.login] field state.
   late final TextFieldState login = TextFieldState(
     text: myUser.value?.login?.val,
+    editable: !isSupport,
     onFocus: (s) async {
       s.error.value = null;
 
@@ -245,6 +251,9 @@ class MyProfileController extends GetxController {
   /// Indicator whether mute/unmute hotkey is being recorded right now.
   final RxBool hotKeyRecording = RxBool(false);
 
+  /// [Paginated] containing the [DirectLink] leading to this [MyUser].
+  late final Paginated<DirectLinkSlug, DirectLink> links;
+
   /// Service managing current [Credentials].
   final AuthService _authService;
 
@@ -268,6 +277,9 @@ class MyProfileController extends GetxController {
 
   /// [CacheWorker] for retrieving the [CacheWorker.downloadsDirectory].
   final CacheWorker _cacheWorker;
+
+  /// [LinkService] managing the [DirectLink]s.
+  final LinkService _linkService;
 
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
@@ -333,6 +345,9 @@ class MyProfileController extends GetxController {
   int get mutedChatsCount => _chatService.paginated.values
       .where((e) => e.chat.value.muted != null)
       .length;
+
+  /// Indicates whether currently authenticated [MyUser] is a support.
+  bool get isSupport => _authService.userId?.isSupport == true;
 
   @override
   void onInit() {
@@ -545,6 +560,9 @@ class MyProfileController extends GetxController {
       }
     });
 
+    links = _linkService.links(userId: _authService.userId);
+    links.ensureInitialized();
+
     super.onInit();
   }
 
@@ -717,16 +735,15 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
-  /// (if any).
-  Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
-    await _myUserService.createChatDirectLink(slug);
+  /// Creates a new [DirectLink] with the specified [DirectLinkSlug] and deletes
+  /// the current active [DirectLink] of the authenticated [MyUser] (if any).
+  Future<void> linkLink(DirectLinkSlug slug) async {
+    await _linkService.updateLink(slug, _authService.userId);
   }
 
-  /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
-  Future<void> deleteChatDirectLink() async {
-    await _myUserService.deleteChatDirectLink();
+  /// Deletes the provided [DirectLinkSlug] from the authenticated [MyUser].
+  Future<void> unlinkLink(DirectLinkSlug slug) async {
+    await _linkService.updateLink(slug, null);
   }
 
   /// Updates [MyUser.name] field for the authenticated [MyUser].
@@ -798,10 +815,6 @@ class MyProfileController extends GetxController {
 
   /// Deletes the cache used by the application.
   Future<void> clearCache() => CacheWorker.instance.clear();
-
-  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
-  Future<void> setWorkWithUsTabEnabled(bool enabled) =>
-      _settingsRepository.setWorkWithUsTabEnabled(enabled);
 
   /// Highlights the provided [tab].
   Future<void> highlight(ProfileTab? tab) async {
@@ -918,28 +931,28 @@ class MyProfileController extends GetxController {
   }
 }
 
-/// Extension adding text and [Color] representations of a [Presence] value.
-extension PresenceL10n on Presence {
+/// Extension adding text and [Color] representations of a [UserPresence] value.
+extension PresenceL10n on UserPresence {
   /// Returns text representation of a current value.
   String? localizedString() {
     switch (this) {
-      case Presence.present:
+      case UserPresence.present:
         return 'label_presence_present'.l10n;
-      case Presence.away:
+      case UserPresence.away:
         return 'label_presence_away'.l10n;
-      case Presence.artemisUnknown:
+      case UserPresence.artemisUnknown:
         return null;
     }
   }
 
-  /// Returns a [Color] representing this [Presence].
+  /// Returns a [Color] representing this [UserPresence].
   Color? getColor() {
     final Style style = Theme.of(router.context!).style;
 
     return switch (this) {
-      Presence.present => style.colors.acceptAuxiliary,
-      Presence.away => style.colors.warning,
-      Presence.artemisUnknown => null,
+      UserPresence.present => style.colors.acceptAuxiliary,
+      UserPresence.away => style.colors.warning,
+      UserPresence.artemisUnknown => null,
     };
   }
 }

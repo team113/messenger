@@ -1,1 +1,4 @@
-- Se corrigieron errores y se mejoraron el rendimiento.
+- Permite crear varios enlaces directos que conduzcan a tu chat.
+- Diseño actualizado de la página de soporte.
+- La búsqueda de usuarios ahora muestra su biografía.
+- Corrección de errores y mejoras de rendimiento.

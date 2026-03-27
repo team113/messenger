@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,15 +18,15 @@
 {{flutter_js}}
 {{flutter_build_config}}
 
-// Add `?v=` tag to `main.dart.js` file with service worker version to ensure
-// the file is re-fetched from the network on the changes.
-_flutter.buildConfig.builds[0].mainJsPath +=
-    "?v=" + '{{flutter_service_worker_version}}';
+// Add `?v=` tag to `main.dart.js` and `main.dart.wasm` files with
+// `--web-define`d `build_ver` variable to ensure the files are re-fetched from
+// the network on the changes.
+for (const build of _flutter.buildConfig.builds) {
+    build.mainJsPath += "?v={{build_ver}}";
+    build.mainWasmPath += "?v={{build_ver}}";
+}
 
 _flutter.loader.load({
-    serviceWorker: {
-        serviceWorkerVersion: '{{flutter_service_worker_version}}'
-    },
     onEntrypointLoaded: async function (engineInitializer) {
         try {
             await window.jasonLoaded;

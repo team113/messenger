@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -129,12 +129,13 @@ class AccountsSwitcherController extends GetxController {
     super.onClose();
   }
 
-  /// Toggles [MyUser.presence] between [Presence.present] and [Presence.away].
+  /// Toggles [MyUser.presence] between [UserPresence.present] and
+  /// [UserPresence.away].
   Future<void> togglePresence() async {
-    final Presence presence = switch (myUser.value?.presence) {
-      Presence.present => Presence.away,
-      Presence.away => Presence.present,
-      (_) => Presence.present,
+    final UserPresence presence = switch (myUser.value?.presence) {
+      UserPresence.present => UserPresence.away,
+      UserPresence.away => UserPresence.present,
+      (_) => UserPresence.present,
     };
 
     await _myUserService.updateUserPresence(presence);

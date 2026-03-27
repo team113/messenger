@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -59,38 +59,26 @@ class ConfirmLogoutView extends StatelessWidget {
               );
 
               children = [
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const Key('PasswordField'),
                   state: c.password,
                   label: 'label_password'.l10n,
-                  obscure: c.obscurePassword.value,
+                  hint: 'label_enter_password'.l10n,
+                  obscured: c.obscurePassword,
                   style: style.fonts.normal.regular.onBackground,
-                  onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: Center(
-                    child: SvgIcon(
-                      c.obscurePassword.value
-                          ? SvgIcons.visibleOff
-                          : SvgIcons.visibleOn,
-                    ),
-                  ),
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 12),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const Key('RepeatPasswordField'),
                   state: c.repeat,
-                  label: 'label_repeat_password'.l10n,
-                  obscure: c.obscureRepeat.value,
+                  label: 'label_confirm_password'.l10n,
+                  hint: 'label_repeat_password'.l10n,
+                  obscured: c.obscureRepeat,
                   style: style.fonts.normal.regular.onBackground,
-                  onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
-                  trailing: Center(
-                    child: SvgIcon(
-                      c.obscureRepeat.value
-                          ? SvgIcons.visibleOff
-                          : SvgIcons.visibleOn,
-                    ),
-                  ),
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 25),
                 Obx(() {

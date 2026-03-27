@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -40,7 +40,7 @@ import 'auth.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [Chat]s related functionality.
-class ChatService extends DisposableService {
+class ChatService extends Dependency {
   ChatService(this._chatRepository, this._authService);
 
   /// Repository to fetch [Chat]s from.
@@ -74,6 +74,10 @@ class ChatService extends DisposableService {
   /// [MyUser], if any.
   ChatId get monolog => _chatRepository.monolog;
 
+  /// Returns [ChatId] of the [Chat]-support of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get support => _chatRepository.support;
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
@@ -83,11 +87,8 @@ class ChatService extends DisposableService {
   }
 
   /// Ensures the [chats] are initialized.
-  Future<void> ensureInitialized() async {
-    await _chatRepository.init(
-      onMemberRemoved: _onMemberRemoved,
-      pagination: true,
-    );
+  void ensureInitialized() {
+    _chatRepository.init(onMemberRemoved: _onMemberRemoved, pagination: true);
   }
 
   /// Creates a group [Chat] with the provided members and the authenticated
@@ -268,16 +269,14 @@ class ChatService extends DisposableService {
     ChatMessageTextInput? text,
     ChatMessageAttachmentsInput? attachments,
     ChatMessageRepliesInput? repliesTo,
-  }) async {
+  }) {
     Log.debug('editChatMessage($item, $text)', '$runtimeType');
 
     if (text?.changed?.val.trim() == item.text?.val.trim()) {
       text = null;
     } else if (text != null) {
       text = ChatMessageTextInput(
-        text.changed?.val.trim().isEmpty != false
-            ? null
-            : ChatMessageText(text.changed!.val.trim()),
+        text.changed == null ? null : ChatMessageText(text.changed!.val.trim()),
       );
     }
 
@@ -307,6 +306,8 @@ class ChatService extends DisposableService {
         repliesTo: repliesTo,
       );
     }
+
+    return Future.value();
   }
 
   /// Deletes the specified [ChatItem] posted by the authenticated [MyUser].
@@ -329,7 +330,7 @@ class ChatService extends DisposableService {
 
         if (me != null && chat?.isRead(item, me!) == true) {
           throw const DeleteChatMessageException(
-            DeleteChatMessageErrorCode.read,
+            DeleteChatMessageErrorCode.uneditable,
           );
         }
       }
@@ -345,7 +346,7 @@ class ChatService extends DisposableService {
 
         if (me != null && chat?.isRead(item, me!) == true) {
           throw const DeleteChatForwardException(
-            DeleteChatForwardErrorCode.read,
+            DeleteChatForwardErrorCode.uneditable,
           );
         }
       }
@@ -363,26 +364,9 @@ class ChatService extends DisposableService {
   /// Creates a new [Attachment] from the provided [LocalAttachment] linked to
   /// the authenticated [MyUser] for a later use in the [sendChatMessage]
   /// method.
-  Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
+  Future<Attachment?> uploadAttachment(LocalAttachment attachment) async {
     Log.debug('uploadAttachment($attachment)', '$runtimeType');
     return await _chatRepository.uploadAttachment(attachment);
-  }
-
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the given [Chat]-group (if
-  /// any).
-  Future<void> createChatDirectLink(
-    ChatId chatId,
-    ChatDirectLinkSlug slug,
-  ) async {
-    Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
-    await _chatRepository.createChatDirectLink(chatId, slug);
-  }
-
-  /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
-  Future<void> deleteChatDirectLink(ChatId chatId) async {
-    Log.debug('deleteChatDirectLink($chatId)', '$runtimeType');
-    await _chatRepository.deleteChatDirectLink(chatId);
   }
 
   /// Notifies [ChatMember]s about the authenticated [MyUser] typing in the

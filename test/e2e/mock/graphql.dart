@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/session.dart';
@@ -26,6 +26,7 @@ import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/base.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/util/log.dart';
 import 'package:mutex/mutex.dart';
 
 /// Mocked [GraphQlProvider] containing the [MockGraphQlClient].
@@ -82,7 +83,7 @@ class MockGraphQlProvider extends GraphQlProvider {
               '__typename': 'MyUserEventsVersioned',
               'events': [
                 {
-                  '__typename': 'EventUserEmailAdded',
+                  '__typename': 'UserEmailAddedEvent',
                   'userId': 'id',
                   'email': '$email',
                   'confirmed': true,
@@ -211,6 +212,11 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      Log.debug(
+        'query() -> throwing `ConnectionException` for $options',
+        '$runtimeType',
+      );
+
       connected.value = false;
       throw const ConnectionException('Mocked');
     }
@@ -228,11 +234,6 @@ class MockGraphQlClient extends GraphQlClient {
       await Future.delayed(delay!);
     }
 
-    if (throwException) {
-      connected.value = false;
-      throw const ConnectionException('Mocked');
-    }
-
     return super.mutate(options, raw: raw, onException: onException);
   }
 
@@ -244,6 +245,7 @@ class MockGraphQlClient extends GraphQlClient {
     Exception Function(Map<String, dynamic>)? onException,
     void Function(int, int)? onSendProgress,
     RawClientOptions? raw,
+    dio.CancelToken? cancelToken,
   }) async {
     if (delay != null) {
       await Future.delayed(delay!);
@@ -260,6 +262,7 @@ class MockGraphQlClient extends GraphQlClient {
       onException: onException,
       onSendProgress: onSendProgress,
       raw: raw,
+      cancelToken: cancelToken,
     );
   }
 }

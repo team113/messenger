@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -42,6 +42,7 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/skipped_version.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -90,8 +91,9 @@ void main() async {
   );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
-  final monologProvider = Get.put(MonologDriftProvider(common));
+  final monologProvider = Get.put(MonologDriftProvider(common, scoped));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
   final skippedProvider = Get.put(SkippedVersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
@@ -131,6 +133,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
 
@@ -267,6 +270,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
         'isCurrent': true,
         'lastActivatedAt': DateTime.now().toString(),
         'ver': '031592915314290362597742826064324903711',
+        'siteDomain': 'example.com',
       },
       'accessToken': {
         '__typename': 'AccessToken',
@@ -339,8 +343,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Stream<QueryResult> chatEvents(
     ChatId id,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = 0,
+  }) {
     Future.delayed(
       Duration.zero,
       () => chatEventsStream.add(

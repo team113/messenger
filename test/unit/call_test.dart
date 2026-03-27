@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_call.dart';
@@ -46,6 +46,7 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -88,10 +89,11 @@ void main() async {
       ChatCredentialsDriftProvider(common, scoped),
     );
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
-    final monologProvider = Get.put(MonologDriftProvider(common));
+    final monologProvider = Get.put(MonologDriftProvider(common, scoped));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final sessionProvider = Get.put(VersionDriftProvider(common));
     final locksProvider = Get.put(LockDriftProvider(common));
+    final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
     await accountProvider.upsert(const UserId('me'));
     await credentialsProvider.upsert(
@@ -109,6 +111,7 @@ void main() async {
           ip: IpAddress('localhost'),
           userAgent: UserAgent(''),
           lastActivatedAt: PreciseDateTime.now(),
+          siteDomain: SiteDomain(''),
         ),
         const UserId('me'),
       ),
@@ -151,6 +154,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
     router = RouterState(authService);
@@ -211,7 +215,7 @@ void main() async {
             'ver': '1',
             'events': [
               {
-                '__typename': 'EventChatCallFinished',
+                '__typename': 'ChatCallFinishedEvent',
                 'chatId': 'chatId',
                 'callId': 'first',
                 'call': {
@@ -249,7 +253,7 @@ void main() async {
       ),
     );
 
-    await Future.delayed(1.seconds);
+    await Future.delayed(4.seconds);
     expect(callService.calls.length, 0);
 
     graphQlProvider.ongoingCallStream.add(
@@ -257,7 +261,7 @@ void main() async {
         source: QueryResultSource.network,
         data: {
           'incomingChatCallsTopEvents': {
-            '__typename': 'EventIncomingChatCallsTopChatCallAdded',
+            '__typename': 'IncomingChatCallsTopChatCallAddedEvent',
             'call': {
               'id': 'second',
               'chatId': 'chatId',
@@ -310,10 +314,11 @@ void main() async {
       ChatCredentialsDriftProvider(common, scoped),
     );
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
-    final monologProvider = Get.put(MonologDriftProvider(common));
+    final monologProvider = Get.put(MonologDriftProvider(common, scoped));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final sessionProvider = Get.put(VersionDriftProvider(common));
     final locksProvider = Get.put(LockDriftProvider(common));
+    final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -327,6 +332,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
     router = RouterState(authService);
@@ -424,10 +430,11 @@ void main() async {
       ChatCredentialsDriftProvider(common, scoped),
     );
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
-    final monologProvider = Get.put(MonologDriftProvider(common));
+    final monologProvider = Get.put(MonologDriftProvider(common, scoped));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final sessionProvider = Get.put(VersionDriftProvider(common));
     final locksProvider = Get.put(LockDriftProvider(common));
+    final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
     final graphQlProvider = _FakeGraphQlProvider();
 
@@ -440,6 +447,7 @@ void main() async {
         credentialsProvider,
         accountProvider,
         locksProvider,
+        secretsProvider,
       ),
     );
     router = RouterState(authService);
@@ -495,7 +503,7 @@ void main() async {
         source: QueryResultSource.network,
         data: {
           'incomingChatCallsTopEvents': {
-            '__typename': 'EventIncomingChatCallsTopChatCallAdded',
+            '__typename': 'IncomingChatCallsTopChatCallAddedEvent',
             'call': {
               'id': 'id',
               'chatId': 'incoming',
@@ -540,7 +548,7 @@ void main() async {
         source: QueryResultSource.network,
         data: {
           'incomingChatCallsTopEvents': {
-            '__typename': 'EventIncomingChatCallsTopChatCallAdded',
+            '__typename': 'IncomingChatCallsTopChatCallAddedEvent',
             'call': {
               'id': 'id1',
               'chatId': 'incoming',
@@ -624,8 +632,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   Stream<QueryResult> chatEvents(
     ChatId id,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = 0,
+  }) {
     Future.delayed(
       Duration.zero,
       () => chatEventsStream.add(
@@ -703,7 +712,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
         source: QueryResultSource.network,
         data: {
           'incomingChatCallsTopEvents': {
-            '__typename': 'EventIncomingChatCallsTopChatCallAdded',
+            '__typename': 'IncomingChatCallsTopChatCallAddedEvent',
             'call': {
               'id': 'id',
               'chatId': chatId.val,
@@ -740,7 +749,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
               '__typename': 'ChatEventsVersioned',
               'events': [
                 {
-                  '__typename': 'EventChatCallStarted',
+                  '__typename': 'ChatCallStartedEvent',
                   'callId': 'id',
                   'chatId': chatId.val,
                   'call': {
@@ -811,7 +820,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
             'ver': '1',
             'events': [
               {
-                '__typename': 'EventChatCallFinished',
+                '__typename': 'ChatCallFinishedEvent',
                 'chatId': chatId.val,
                 'callId': 'id',
                 'call': {
@@ -865,7 +874,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                 '__typename': 'ChatEventsVersioned',
                 'events': [
                   {
-                    '__typename': 'EventChatCallMemberJoined',
+                    '__typename': 'ChatCallMemberJoinedEvent',
                     'callId': 'id',
                     'chatId': chatId.val,
                     'call': {
@@ -929,6 +938,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   @override
   Future<GetMessage$Query> chatItem(ChatItemId id) async {
     return GetMessage$Query.fromJson({'chatItem': null});
+  }
+
+  @override
+  Future<ChatMixin?> getDialog(UserId id) async {
+    return GetDialog$Query.fromJson({'user': null}).user?.dialog;
   }
 }
 

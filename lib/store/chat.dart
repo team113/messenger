@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,14 +29,15 @@ import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
+import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart' as model;
+import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat_message_input.dart' as model;
+import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/ongoing_call.dart';
@@ -46,9 +47,9 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
-import '/provider/drift/chat.dart';
 import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
+import '/provider/drift/chat.dart';
 import '/provider/drift/draft.dart';
 import '/provider/drift/monolog.dart';
 import '/provider/drift/version.dart';
@@ -57,7 +58,6 @@ import '/provider/gql/exceptions.dart'
         AddChatMemberException,
         ClearChatException,
         ConnectionException,
-        DeleteChatDirectLinkException,
         DeleteChatForwardException,
         DeleteChatMessageException,
         EditChatMessageException,
@@ -73,7 +73,6 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException,
         UpdateChatAvatarException,
         UploadAttachmentException,
-        CreateChatDirectLinkException,
         CreateDialogException;
 import '/provider/gql/graphql.dart';
 import '/store/event/recent_chat.dart';
@@ -90,12 +89,12 @@ import '/util/web/web_utils.dart';
 import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
-import 'model/chat.dart';
 import 'model/chat_member.dart';
+import 'model/chat.dart';
 import 'paginated.dart';
 import 'pagination.dart';
-import 'pagination/drift.dart';
 import 'pagination/drift_graphql.dart';
+import 'pagination/drift.dart';
 
 typedef ArchivedPaginated =
     RxPaginatedImpl<ChatId, RxChatImpl, DtoChat, RecentChatsCursor>;
@@ -199,6 +198,9 @@ class ChatRepository extends DisposableInterface
   @override
   late ChatId monolog = ChatId.local(me);
 
+  @override
+  late ChatId support = ChatId.local(_supportId);
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -277,11 +279,17 @@ class ChatRepository extends DisposableInterface
   /// [Mutex] guarding synchronized access to the [GraphQlProvider.getMonolog].
   final Mutex _monologGuard = Mutex();
 
+  /// [Lock] guarding synchronized access to the [_initSupport].
+  final Mutex _supportGuard = Mutex();
+
   /// [ChatFavoritePosition] of the local [Chat]-monolog.
   ///
   /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
   /// adding a local [Chat]-monolog to favorites.
   ChatFavoritePosition? _localMonologFavoritePosition;
+
+  /// [UserId] of the [support] chat.
+  static final UserId _supportId = UserId(Config.supportId);
 
   @override
   RxBool get hasNext =>
@@ -310,6 +318,36 @@ class ChatRepository extends DisposableInterface
     Log.debug('init(onMemberRemoved) for $me', '$runtimeType');
 
     this.onMemberRemoved = onMemberRemoved ?? this.onMemberRemoved;
+
+    // Set the initial values to local ones, however those will be redefined
+    // during `_ensurePagination()` method, which invokes `_initSupport()` and
+    // `_initMonolog()`.
+    monolog = ChatId.local(me);
+    support = ChatId.local(_supportId);
+
+    _monologGuard.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
+      final monologMixin = await _graphQlProvider.getMonolog();
+      if (isClosed) {
+        return;
+      }
+
+      Log.debug('getMonolog() -> $monologMixin', '$runtimeType');
+      monolog = monologMixin?.id ?? monolog;
+
+      final supportMixin = await _graphQlProvider.getDialog(
+        UserId(Config.supportId),
+      );
+      if (isClosed) {
+        return;
+      }
+
+      Log.debug('getDialog(supportId) -> $supportMixin', '$runtimeType');
+      support = supportMixin?.id ?? support;
+    });
 
     // Popup shouldn't listen to recent chats remote updates, as it's happening
     // inside single [Chat].
@@ -373,8 +411,6 @@ class ChatRepository extends DisposableInterface
 
       archived.around();
     }
-
-    _monologLocal.read(me).then((v) => monolog = v ?? monolog);
   }
 
   @override
@@ -411,6 +447,7 @@ class ChatRepository extends DisposableInterface
     }
 
     _initMonolog();
+    _initSupport();
   }
 
   @override
@@ -511,13 +548,33 @@ class ChatRepository extends DisposableInterface
 
     if (chatId.isLocal) {
       if (chatId.isLocalWith(me)) {
+        if (!monolog.isLocal) {
+          return chats[monolog] ?? await ensureRemoteMonolog();
+        }
+
         return await ensureRemoteMonolog();
+      }
+
+      final UserId userId = chatId.userId;
+      final RxUser? user = _userRepo.users[userId];
+      if (user != null) {
+        final ChatId dialogId = user.user.value.dialog;
+        if (!dialogId.isLocal) {
+          final RxChatImpl? existing = chats[dialogId];
+          if (existing != null) {
+            return existing;
+          }
+        }
       }
 
       try {
         final ChatData chat = _chat(
           await _graphQlProvider.createDialogChat(chatId.userId),
         );
+
+        if (chat.chat.value.isSupport) {
+          _monologLocal.upsert(MonologKind.support, support = chat.chat.id);
+        }
 
         return _putEntry(chat);
       } on CreateDialogException catch (e) {
@@ -558,7 +615,7 @@ class ChatRepository extends DisposableInterface
     final RxChatImpl chat = await _putEntry(chatData);
 
     if (!isClosed) {
-      await _monologLocal.upsert(me, monolog = chat.id);
+      await _monologLocal.upsert(MonologKind.notes, monolog = chat.id);
     }
 
     return chat;
@@ -673,7 +730,7 @@ class ChatRepository extends DisposableInterface
       await rxChat?.postChatMessage(
         existingId: item.id,
         existingDateTime: item.at,
-        text: item.text,
+        text: item.text?.nullIfEmpty,
         attachments: item.attachments,
         repliesTo: item.repliesTo.map((e) => e.original).nonNulls.toList(),
       );
@@ -854,7 +911,7 @@ class ChatRepository extends DisposableInterface
         await remove(id);
 
         id = monologData.chat.value.id;
-        await _monologLocal.upsert(me, monolog = id);
+        await _monologLocal.upsert(MonologKind.notes, monolog = id);
       }
 
       if (chat == null || chat.chat.value.favoritePosition != null) {
@@ -912,7 +969,7 @@ class ChatRepository extends DisposableInterface
         await remove(id);
 
         id = monologData.chat.value.id;
-        await _monologLocal.upsert(me, monolog = id);
+        await _monologLocal.upsert(MonologKind.notes, monolog = id);
       }
 
       if (archive && chat?.chat.value.favoritePosition != null) {
@@ -996,7 +1053,10 @@ class ChatRepository extends DisposableInterface
     model.ChatMessageAttachmentsInput? attachments,
     model.ChatMessageRepliesInput? repliesTo,
   }) async {
-    Log.debug('editChatMessage($message, $text)', '$runtimeType');
+    Log.debug(
+      'editChatMessage($message, text: ${text?.changed}, attachments: ${attachments?.changed}, repliesTo: ${repliesTo?.changed})',
+      '$runtimeType',
+    );
 
     final Rx<ChatItem>? item = chats[message.chatId]?.messages.firstWhereOrNull(
       (e) => e.value.id == message.id,
@@ -1005,13 +1065,16 @@ class ChatRepository extends DisposableInterface
     ChatMessageText? previousText;
     List<Attachment>? previousAttachments;
     List<ChatItemQuote>? previousReplies;
+
     if (item?.value is ChatMessage) {
       previousText = (item?.value as ChatMessage).text;
       previousAttachments = (item?.value as ChatMessage).attachments;
       previousReplies = (item?.value as ChatMessage).repliesTo;
 
       item?.update((c) {
-        (c as ChatMessage).text = text != null ? text.changed : previousText;
+        c as ChatMessage;
+
+        c.text = text != null ? text.changed : previousText;
         c.attachments = attachments?.changed ?? previousAttachments!;
         c.repliesTo =
             repliesTo?.changed
@@ -1032,12 +1095,20 @@ class ChatRepository extends DisposableInterface
     }
 
     final List<Future>? uploads = attachments?.changed
-        .mapIndexed((i, e) {
+        .map((e) {
           if (e is LocalAttachment) {
             return e.upload.value?.future.then(
               (a) {
-                attachments.changed[i] = a;
-                (item?.value as ChatMessage).attachments[i] = a;
+                final index = attachments.changed.indexOf(e);
+
+                // If `Attachment` returned is `null`, then it was canceled.
+                if (a == null) {
+                  attachments.changed.removeAt(index);
+                } else {
+                  attachments.changed[index] = a;
+                }
+
+                item?.update((_) {});
               },
               onError: (_) {
                 // No-op, as failed upload attempts are handled below.
@@ -1058,13 +1129,25 @@ class ChatRepository extends DisposableInterface
         );
       }
 
+      final bool hasText =
+          (text?.changed ?? message.text)?.val.isNotEmpty == true;
+      final bool hasAttachments =
+          (attachments?.changed ?? message.attachments).isNotEmpty;
+      final bool hasReplies =
+          (repliesTo?.changed ?? message.repliesTo).isNotEmpty;
+
+      // If after editing the message contains no content, then delete it.
+      if (!hasText && !hasAttachments && !hasReplies) {
+        return await deleteChatMessage(message);
+      }
+
       await Backoff.run(
         () async {
           await _graphQlProvider.editChatMessage(
             message.id,
             text: text == null
                 ? null
-                : ChatMessageTextInput(kw$new: text.changed),
+                : ChatMessageTextInput(kw$new: text.changed?.nullIfEmpty),
             attachments: attachments == null
                 ? null
                 : ChatMessageAttachmentsInput(
@@ -1094,7 +1177,7 @@ class ChatRepository extends DisposableInterface
           break;
 
         case EditChatMessageErrorCode.notAuthor:
-        case EditChatMessageErrorCode.noTextAndNoAttachment:
+        case EditChatMessageErrorCode.noContent:
           // No-op.
           break;
       }
@@ -1142,7 +1225,7 @@ class ChatRepository extends DisposableInterface
           switch (e.code) {
             case DeleteChatMessageErrorCode.notAuthor:
             case DeleteChatMessageErrorCode.quoted:
-            case DeleteChatMessageErrorCode.read:
+            case DeleteChatMessageErrorCode.uneditable:
               rethrow;
 
             case DeleteChatMessageErrorCode.unknownChatItem:
@@ -1203,7 +1286,7 @@ class ChatRepository extends DisposableInterface
             case DeleteChatForwardErrorCode.artemisUnknown:
             case DeleteChatForwardErrorCode.notAuthor:
             case DeleteChatForwardErrorCode.quoted:
-            case DeleteChatForwardErrorCode.read:
+            case DeleteChatForwardErrorCode.uneditable:
               rethrow;
 
             case DeleteChatForwardErrorCode.unknownChatItem:
@@ -1281,59 +1364,43 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<Attachment> uploadAttachment(LocalAttachment attachment) async {
+  Future<Attachment?> uploadAttachment(LocalAttachment attachment) async {
     Log.debug('uploadAttachment($attachment)', '$runtimeType');
 
     if (attachment.upload.value?.isCompleted != false) {
       attachment.upload.value = Completer();
+      attachment.upload.value?.future.catchError((e) {
+        Log.debug(
+          'uploadAttachment($attachment) -> upload -> catchError($e)',
+          '$runtimeType',
+        );
+        return null;
+      });
     }
 
     if (attachment.read.value?.isCompleted != false) {
       attachment.read.value = Completer();
+      attachment.read.value?.future.catchError((e) {
+        Log.debug(
+          'uploadAttachment($attachment) -> read -> catchError($e)',
+          '$runtimeType',
+        );
+        return null;
+      });
     }
 
     attachment.status.value = SendingStatus.sending;
     await attachment.file.ensureCorrectMediaType();
 
     try {
-      dio.MultipartFile upload;
-
       await attachment.file.readFile();
       attachment.read.value?.complete(null);
       attachment.status.refresh();
 
-      String filename = attachment.file.name;
-
-      if (filename.replaceAll(' ', '').isEmpty) {
-        final mime = attachment.file.mime;
-        if (mime != null) {
-          filename = '${DateTime.now().microsecondsSinceEpoch}.${mime.subtype}';
-        } else {
-          filename = '${DateTime.now().microsecondsSinceEpoch}';
-        }
-      }
-
-      if (attachment.file.bytes.value != null) {
-        upload = dio.MultipartFile.fromBytes(
-          attachment.file.bytes.value!,
-          filename: filename,
-          contentType: attachment.file.mime,
-        );
-      } else if (attachment.file.path != null) {
-        upload = await dio.MultipartFile.fromFile(
-          attachment.file.path!,
-          filename: filename,
-          contentType: attachment.file.mime,
-        );
-      } else {
-        throw ArgumentError(
-          'At least stream, bytes or path should be specified.',
-        );
-      }
-
       var response = await _graphQlProvider.uploadAttachment(
-        upload,
+        await attachment.file.toMultipartFile(),
         onSendProgress: (now, max) => attachment.progress.value = now / max,
+        cancelToken: attachment.cancelToken,
       );
 
       var model = response.attachment.toModel();
@@ -1344,6 +1411,13 @@ class ChatRepository extends DisposableInterface
       attachment.status.value = SendingStatus.sent;
       attachment.progress.value = 1;
       return model;
+    } on dio.DioException {
+      if (attachment.isCanceled) {
+        attachment.upload.value?.complete(null);
+        return null;
+      }
+
+      rethrow;
     } catch (e) {
       if (attachment.read.value?.isCompleted == false) {
         attachment.read.value?.complete(null);
@@ -1351,86 +1425,6 @@ class ChatRepository extends DisposableInterface
       attachment.upload.value?.completeError(e);
       attachment.status.value = SendingStatus.error;
       attachment.progress.value = 0;
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> createChatDirectLink(
-    ChatId chatId,
-    ChatDirectLinkSlug slug,
-  ) async {
-    Log.debug('createChatDirectLink($chatId, $slug)', '$runtimeType');
-
-    try {
-      // Don't do optimism, as [slug] might be occupied, thus shouldn't set the
-      // link right away.
-      await Backoff.run(
-        () async {
-          await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
-        },
-        retryIf: (e) => e.isNetworkRelated,
-        retries: 10,
-      );
-    } on CreateChatDirectLinkException catch (e) {
-      switch (e.code) {
-        case CreateChatDirectLinkErrorCode.artemisUnknown:
-        case CreateChatDirectLinkErrorCode.occupied:
-          rethrow;
-
-        case CreateChatDirectLinkErrorCode.notGroup:
-          // No-op.
-          return;
-
-        case CreateChatDirectLinkErrorCode.unknownChat:
-          await remove(chatId);
-          return;
-      }
-    }
-
-    final RxChatImpl? chat = chats[chatId];
-    chat?.chat.update(
-      (c) => c?.directLink = ChatDirectLink(
-        slug: slug,
-        createdAt: PreciseDateTime.now(),
-      ),
-    );
-  }
-
-  @override
-  Future<void> deleteChatDirectLink(ChatId groupId) async {
-    Log.debug('deleteChatDirectLink($groupId)', '$runtimeType');
-
-    final RxChatImpl? chat = chats[groupId];
-    final ChatDirectLink? link = chat?.chat.value.directLink;
-
-    chat?.chat.update((c) => c?.directLink = null);
-
-    try {
-      try {
-        await Backoff.run(
-          () async {
-            await _graphQlProvider.deleteChatDirectLink(groupId: groupId);
-          },
-          retryIf: (e) => e.isNetworkRelated,
-          retries: 10,
-        );
-      } on DeleteChatDirectLinkException catch (e) {
-        switch (e.code) {
-          case DeleteChatDirectLinkErrorCode.artemisUnknown:
-            rethrow;
-
-          case DeleteChatDirectLinkErrorCode.notGroup:
-            // No-op.
-            break;
-
-          case DeleteChatDirectLinkErrorCode.unknownChat:
-            await remove(groupId);
-            break;
-        }
-      }
-    } catch (_) {
-      chat?.chat.update((c) => c?.directLink = link);
       rethrow;
     }
   }
@@ -1474,7 +1468,10 @@ class ChatRepository extends DisposableInterface
     } on ForwardChatItemsException catch (e) {
       switch (e.code) {
         case ForwardChatItemsErrorCode.blocked:
-        case ForwardChatItemsErrorCode.noTextAndNoAttachment:
+        case ForwardChatItemsErrorCode.noQuotedContent:
+        case ForwardChatItemsErrorCode.unknownForwardedDonation:
+        case ForwardChatItemsErrorCode.notEnoughFunds:
+        case ForwardChatItemsErrorCode.unallowedDonation:
         case ForwardChatItemsErrorCode.unknownUser:
         case ForwardChatItemsErrorCode.unknownForwardedAttachment:
         case ForwardChatItemsErrorCode.wrongItemsCount:
@@ -1482,6 +1479,9 @@ class ChatRepository extends DisposableInterface
         case ForwardChatItemsErrorCode.unknownForwardedItem:
         case ForwardChatItemsErrorCode.unknownAttachment:
         case ForwardChatItemsErrorCode.artemisUnknown:
+        case ForwardChatItemsErrorCode.disabledDonation:
+        case ForwardChatItemsErrorCode.tooSmallDonation:
+        case ForwardChatItemsErrorCode.disabled:
           rethrow;
 
         case ForwardChatItemsErrorCode.unknownChat:
@@ -1509,30 +1509,7 @@ class ChatRepository extends DisposableInterface
     if (file != null) {
       await file.ensureCorrectMediaType();
 
-      if (file.stream != null) {
-        upload = dio.MultipartFile.fromStream(
-          () => file.stream!,
-          file.size,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else if (file.bytes.value != null) {
-        upload = dio.MultipartFile.fromBytes(
-          file.bytes.value!,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else if (file.path != null) {
-        upload = await dio.MultipartFile.fromFile(
-          file.path!,
-          filename: file.name,
-          contentType: file.mime,
-        );
-      } else {
-        throw ArgumentError(
-          'At least stream, bytes or path should be specified.',
-        );
-      }
+      upload = await file.toMultipartFile();
     }
 
     final RxChatImpl? chat = chats[id];
@@ -1725,9 +1702,9 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Adds the provided [ChatCall] to the [AbstractCallRepository].
-  void addCall(ChatCall call, {bool dontAddIfAccounted = false}) {
+  Future<void> addCall(ChatCall call, {bool dontAddIfAccounted = false}) async {
     Log.debug('addCall($call, $dontAddIfAccounted)', '$runtimeType');
-    _callRepo.add(call, dontAddIfAccounted: dontAddIfAccounted);
+    await _callRepo.add(call, dontAddIfAccounted: dontAddIfAccounted);
   }
 
   /// Ends an [OngoingCall] happening in the [Chat] identified by the provided
@@ -1741,31 +1718,37 @@ class ChatRepository extends DisposableInterface
   Stream<ChatEvents> chatEvents(
     ChatId chatId,
     ChatVersion? ver,
-    FutureOr<ChatVersion?> Function() onVer,
-  ) {
-    Log.debug('chatEvents($chatId, $ver, onVer)', '$runtimeType');
+    FutureOr<ChatVersion?> Function() onVer, {
+    int priority = -10,
+  }) {
+    Log.debug('chatEvents($chatId)', '$runtimeType');
 
-    return _graphQlProvider.chatEvents(chatId, ver, onVer).asyncExpand((
-      event,
-    ) async* {
-      Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
+    return _graphQlProvider
+        .chatEvents(chatId, ver, onVer, priority: priority)
+        .asyncExpand((event) async* {
+          Log.trace('chatEvents($chatId): ${event.data}', '$runtimeType');
 
-      var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
-        yield const ChatEventsInitialized();
-      } else if (events.$$typename == 'Chat') {
-        final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
-        final data = _chat(chat);
-        yield ChatEventsChat(data.chat);
-      } else if (events.$$typename == 'ChatEventsVersioned') {
-        var mixin =
-            events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
-        yield ChatEventsEvent(
-          ChatEventsVersioned(mixin.events.map(chatEvent).toList(), mixin.ver),
-        );
-      }
-    });
+          var events = ChatEvents$Subscription.fromJson(event.data!).chatEvents;
+          if (events.$$typename == 'SubscriptionInitialized') {
+            events
+                as ChatEvents$Subscription$ChatEvents$SubscriptionInitialized;
+            yield const ChatEventsInitialized();
+          } else if (events.$$typename == 'Chat') {
+            final chat = events as ChatEvents$Subscription$ChatEvents$Chat;
+            final data = _chat(chat);
+            yield ChatEventsChat(data.chat);
+          } else if (events.$$typename == 'ChatEventsVersioned') {
+            var mixin =
+                events
+                    as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+            yield ChatEventsEvent(
+              ChatEventsVersioned(
+                mixin.events.map(chatEvent).toList(),
+                mixin.ver,
+              ),
+            );
+          }
+        });
   }
 
   @override
@@ -1834,7 +1817,7 @@ class ChatRepository extends DisposableInterface
         id = monolog.chat.value.id;
 
         await Future.wait([
-          _monologLocal.upsert(me, this.monolog = id),
+          _monologLocal.upsert(MonologKind.notes, this.monolog = id),
           _putEntry(monolog, ignoreVersion: true),
         ]);
       } else if (id.isLocal) {
@@ -1978,78 +1961,74 @@ class ChatRepository extends DisposableInterface
   ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {
     Log.trace('chatEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventChatCleared') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCleared;
-      return EventChatCleared(e.chatId, node.at);
-    } else if (e.$$typename == 'EventChatUnreadItemsCountUpdated') {
+    if (e.$$typename == 'ChatClearedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatClearedEvent;
+      return ChatClearedEvent(e.chatId, node.at);
+    } else if (e.$$typename == 'ChatUnreadItemsCountUpdatedEvent') {
       var node =
-          e as ChatEventsVersionedMixin$Events$EventChatUnreadItemsCountUpdated;
-      return EventChatUnreadItemsCountUpdated(e.chatId, node.count);
-    } else if (e.$$typename == 'EventChatItemPosted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemPosted;
-      return EventChatItemPosted(e.chatId, node.item.toDto());
-    } else if (e.$$typename == 'EventChatLastItemUpdated') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatLastItemUpdated;
-      return EventChatLastItemUpdated(e.chatId, node.lastItem?.toDto());
-    } else if (e.$$typename == 'EventChatItemHidden') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemHidden;
-      return EventChatItemHidden(e.chatId, node.itemId);
-    } else if (e.$$typename == 'EventChatMuted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatMuted;
-      return EventChatMuted(e.chatId, node.duration.toModel());
-    } else if (e.$$typename == 'EventChatTypingStarted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStarted;
+          e as ChatEventsVersionedMixin$Events$ChatUnreadItemsCountUpdatedEvent;
+      return ChatUnreadItemsCountUpdatedEvent(e.chatId, node.count);
+    } else if (e.$$typename == 'ChatItemPostedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatItemPostedEvent;
+      return ChatItemPostedEvent(e.chatId, node.item.toDto());
+    } else if (e.$$typename == 'ChatLastItemUpdatedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatLastItemUpdatedEvent;
+      return ChatLastItemUpdatedEvent(e.chatId, node.lastItem?.toDto());
+    } else if (e.$$typename == 'ChatItemHiddenEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatItemHiddenEvent;
+      return ChatItemHiddenEvent(e.chatId, node.itemId);
+    } else if (e.$$typename == 'ChatMutedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatMutedEvent;
+      return ChatMutedEvent(e.chatId, node.duration.toModel());
+    } else if (e.$$typename == 'ChatTypingStartedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatTypingStartedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatTypingStarted(e.chatId, node.user.toModel());
+      return ChatTypingStartedEvent(e.chatId, node.user.toModel());
     } else if (e.$$typename == 'EventChatUnmuted') {
       return EventChatUnmuted(e.chatId);
-    } else if (e.$$typename == 'EventChatTypingStopped') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatTypingStopped;
+    } else if (e.$$typename == 'ChatTypingStoppedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatTypingStoppedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatTypingStopped(e.chatId, node.user.toModel());
-    } else if (e.$$typename == 'EventChatHidden') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatHidden;
-      return EventChatHidden(e.chatId, node.at);
-    } else if (e.$$typename == 'EventChatItemDeleted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemDeleted;
-      return EventChatItemDeleted(e.chatId, node.itemId);
-    } else if (e.$$typename == 'EventChatItemEdited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatItemEdited;
-      return EventChatItemEdited(
+      return ChatTypingStoppedEvent(e.chatId, node.user.toModel());
+    } else if (e.$$typename == 'ChatHiddenEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatHiddenEvent;
+      return ChatHiddenEvent(e.chatId, node.at);
+    } else if (e.$$typename == 'ChatItemDeletedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatItemDeletedEvent;
+      return ChatItemDeletedEvent(e.chatId, node.itemId);
+    } else if (e.$$typename == 'ChatItemEditedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatItemEditedEvent;
+      return ChatItemEditedEvent(
         e.chatId,
         node.itemId,
         node.text == null ? null : EditedMessageText(node.text!.changed),
         node.attachments?.changed.map((e) => e.toModel()).toList(),
         node.repliesTo?.changed.map((e) => e.toDto()).toList(),
       );
-    } else if (e.$$typename == 'EventChatCallStarted') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
-      return EventChatCallStarted(e.chatId, node.call.toModel());
-    } else if (e.$$typename == 'EventChatDirectLinkUsageCountUpdated') {
-      var node =
-          e as ChatEventsVersionedMixin$Events$EventChatDirectLinkUsageCountUpdated;
-      return EventChatDirectLinkUsageCountUpdated(e.chatId, node.usageCount);
-    } else if (e.$$typename == 'EventChatCallFinished') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
-      return EventChatCallFinished(e.chatId, node.call.toModel(), node.reason);
-    } else if (e.$$typename == 'EventChatCallMemberLeft') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberLeft;
+    } else if (e.$$typename == 'ChatCallStartedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallStartedEvent;
+      return ChatCallStartedEvent(e.chatId, node.call.toModel());
+    } else if (e.$$typename == 'ChatCallFinishedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallFinishedEvent;
+      return ChatCallFinishedEvent(e.chatId, node.call.toModel(), node.reason);
+    } else if (e.$$typename == 'ChatCallMemberLeftEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallMemberLeftEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatCallMemberLeft(e.chatId, node.user.toModel(), node.at);
-    } else if (e.$$typename == 'EventChatCallMemberJoined') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+      return ChatCallMemberLeftEvent(e.chatId, node.user.toModel(), node.at);
+    } else if (e.$$typename == 'ChatCallMemberJoinedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallMemberJoinedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatCallMemberJoined(
+      return ChatCallMemberJoinedEvent(
         e.chatId,
         node.call.toModel(),
         node.user.toModel(),
         node.at,
       );
-    } else if (e.$$typename == 'EventChatCallMemberRedialed') {
+    } else if (e.$$typename == 'ChatCallMemberRedialedEvent') {
       var node =
-          e as ChatEventsVersionedMixin$Events$EventChatCallMemberRedialed;
+          e as ChatEventsVersionedMixin$Events$ChatCallMemberRedialedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatCallMemberRedialed(
+      return ChatCallMemberRedialedEvent(
         e.chatId,
         node.at,
         node.callId,
@@ -2057,44 +2036,31 @@ class ChatRepository extends DisposableInterface
         node.user.toModel(),
         node.byUser.toModel(),
       );
-    } else if (e.$$typename == 'EventChatDelivered') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatDelivered;
-      return EventChatDelivered(e.chatId, node.until);
-    } else if (e.$$typename == 'EventChatRead') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatRead;
+    } else if (e.$$typename == 'ChatDeliveredEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatDeliveredEvent;
+      return ChatDeliveredEvent(e.chatId, node.until);
+    } else if (e.$$typename == 'ChatReadEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatReadEvent;
       _userRepo.put(node.byUser.toDto());
-      return EventChatRead(e.chatId, node.byUser.toModel(), node.at);
-    } else if (e.$$typename == 'EventChatCallDeclined') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+      return ChatReadEvent(e.chatId, node.byUser.toModel(), node.at);
+    } else if (e.$$typename == 'ChatCallDeclinedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallDeclinedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatCallDeclined(
+      return ChatCallDeclinedEvent(
         e.chatId,
         node.callId,
         node.call.toModel(),
         node.user.toModel(),
         node.at,
       );
-    } else if (e.$$typename == 'EventChatTotalItemsCountUpdated') {
+    } else if (e.$$typename == 'ChatTotalItemsCountUpdatedEvent') {
       var node =
-          e as ChatEventsVersionedMixin$Events$EventChatTotalItemsCountUpdated;
-      return EventChatTotalItemsCountUpdated(e.chatId, node.count);
-    } else if (e.$$typename == 'EventChatDirectLinkDeleted') {
-      return EventChatDirectLinkDeleted(e.chatId);
-    } else if (e.$$typename == 'EventChatDirectLinkUpdated') {
-      var node =
-          e as ChatEventsVersionedMixin$Events$EventChatDirectLinkUpdated;
-      return EventChatDirectLinkUpdated(
-        e.chatId,
-        ChatDirectLink(
-          slug: node.directLink.slug,
-          usageCount: node.directLink.usageCount,
-          createdAt: node.directLink.createdAt,
-        ),
-      );
-    } else if (e.$$typename == 'EventChatCallMoved') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatCallMoved;
+          e as ChatEventsVersionedMixin$Events$ChatTotalItemsCountUpdatedEvent;
+      return ChatTotalItemsCountUpdatedEvent(e.chatId, node.count);
+    } else if (e.$$typename == 'ChatCallMovedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatCallMovedEvent;
       _userRepo.put(node.user.toDto());
-      return EventChatCallMoved(
+      return ChatCallMovedEvent(
         e.chatId,
         node.callId,
         node.call.toModel(),
@@ -2105,31 +2071,31 @@ class ChatRepository extends DisposableInterface
         node.user.toModel(),
         node.at,
       );
-    } else if (e.$$typename == 'EventChatArchived') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatArchived;
-      return EventChatArchived(e.chatId, node.at);
-    } else if (e.$$typename == 'EventChatUnarchived') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatUnarchived;
-      return EventChatUnarchived(e.chatId, node.at);
-    } else if (e.$$typename == 'EventChatFavorited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatFavorited;
-      return EventChatFavorited(e.chatId, node.at, node.position);
-    } else if (e.$$typename == 'EventChatUnfavorited') {
-      var node = e as ChatEventsVersionedMixin$Events$EventChatUnfavorited;
-      return EventChatUnfavorited(e.chatId, node.at);
-    } else if (e.$$typename == 'EventChatCallConversationStarted') {
+    } else if (e.$$typename == 'ChatArchivedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatArchivedEvent;
+      return ChatArchivedEvent(e.chatId, node.at);
+    } else if (e.$$typename == 'ChatUnarchivedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatUnarchivedEvent;
+      return ChatUnarchivedEvent(e.chatId, node.at);
+    } else if (e.$$typename == 'ChatFavoritedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatFavoritedEvent;
+      return ChatFavoritedEvent(e.chatId, node.at, node.position);
+    } else if (e.$$typename == 'ChatUnfavoritedEvent') {
+      var node = e as ChatEventsVersionedMixin$Events$ChatUnfavoritedEvent;
+      return ChatUnfavoritedEvent(e.chatId, node.at);
+    } else if (e.$$typename == 'ChatCallConversationStartedEvent') {
       var node =
-          e as ChatEventsVersionedMixin$Events$EventChatCallConversationStarted;
-      return EventChatCallConversationStarted(
+          e as ChatEventsVersionedMixin$Events$ChatCallConversationStartedEvent;
+      return ChatCallConversationStartedEvent(
         e.chatId,
         node.callId,
         node.at,
         node.call.toModel(),
       );
-    } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+    } else if (e.$$typename == 'ChatCallAnswerTimeoutPassedEvent') {
       var node =
-          e as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
-      return EventChatCallAnswerTimeoutPassed(e.chatId, node.callId);
+          e as ChatEventsVersionedMixin$Events$ChatCallAnswerTimeoutPassedEvent;
+      return ChatCallAnswerTimeoutPassedEvent(e.chatId, node.callId);
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }
@@ -2308,6 +2274,10 @@ class ChatRepository extends DisposableInterface
     _remoteArchiveSubscription?.close(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteArchiveSubscription = StreamQueue(_archiveChatsRemoteEvents());
       await _remoteArchiveSubscription!.execute(
         _archiveChatsRemoteEvent,
@@ -2350,21 +2320,34 @@ class ChatRepository extends DisposableInterface
       case RecentChatsEventKind.updated:
         event as EventRecentChatsUpdated;
 
+        final bool isSubscribed =
+            chats[event.chat.chat.value.id]?.subscribed == true;
+
         Log.debug(
-          '_recentChatsRemoteEvent(${event.kind}) -> ${event.chat.chat}',
+          '_recentChatsRemoteEvent(${event.kind}) -> ${event.chat.chat} -> isSubscribed($isSubscribed)',
           '$runtimeType',
         );
 
         // Update the chat only if its state is not maintained by itself via
         // [chatEvents].
-        if (chats[event.chat.chat.value.id]?.subscribed != true) {
+        if (!isSubscribed) {
           final ChatData data = event.chat;
           final Chat chat = data.chat.value;
 
           if (chat.isMonolog) {
             if (monolog.isLocal) {
               // Keep track of the [monolog]'s [isLocal] status.
-              await _monologLocal.upsert(me, monolog = chat.id);
+              await _monologLocal.upsert(MonologKind.notes, monolog = chat.id);
+            }
+          }
+
+          if (chat.isSupport) {
+            if (support.isLocal) {
+              // Keep track of the [support]'s [isLocal] status.
+              await _monologLocal.upsert(
+                MonologKind.support,
+                support = chat.id,
+              );
             }
           }
 
@@ -2421,7 +2404,17 @@ class ChatRepository extends DisposableInterface
           if (chat.isMonolog) {
             if (monolog.isLocal) {
               // Keep track of the [monolog]'s [isLocal] status.
-              await _monologLocal.upsert(me, monolog = chat.id);
+              await _monologLocal.upsert(MonologKind.notes, monolog = chat.id);
+            }
+          }
+
+          if (chat.isSupport) {
+            if (support.isLocal) {
+              // Keep track of the [support]'s [isLocal] status.
+              await _monologLocal.upsert(
+                MonologKind.support,
+                support = chat.id,
+              );
             }
           }
 
@@ -2734,7 +2727,45 @@ class ChatRepository extends DisposableInterface
       ),
     );
 
-    await _initMonolog();
+    try {
+      Log.debug(
+        '_initRemotePagination() -> await _initMonolog()...',
+        '$runtimeType',
+      );
+
+      await _initMonolog();
+
+      Log.debug(
+        '_initRemotePagination() -> await _initMonolog()... done!',
+        '$runtimeType',
+      );
+    } catch (e) {
+      // Still proceed with initialization.
+      Log.debug(
+        '_initRemotePagination() -> await _initMonolog()... failed with: $e',
+        '$runtimeType',
+      );
+    }
+
+    try {
+      Log.debug(
+        '_initRemotePagination() -> await _initSupport()...',
+        '$runtimeType',
+      );
+
+      await _initSupport();
+
+      Log.debug(
+        '_initRemotePagination() -> await _initSupport()... done!',
+        '$runtimeType',
+      );
+    } catch (e) {
+      // Still proceed with initialization.
+      Log.debug(
+        '_initRemotePagination() -> await _initSupport()... failed with: $e',
+        '$runtimeType',
+      );
+    }
 
     status.value = RxStatus.success();
   }
@@ -2760,17 +2791,17 @@ class ChatRepository extends DisposableInterface
         yield RecentChatsTop(
           list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
         );
-      } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
+      } else if (events.$$typename == 'RecentChatsTopChatUpdatedEvent') {
         var mixin =
             events
-                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
+                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTopChatUpdatedEvent;
         yield EventRecentChatsUpdated(
           _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
         );
-      } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
+      } else if (events.$$typename == 'RecentChatsTopChatRemovedEvent') {
         var mixin =
             events
-                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
+                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTopChatRemovedEvent;
         yield EventRecentChatsDeleted(mixin.chatId);
       }
     });
@@ -2803,17 +2834,17 @@ class ChatRepository extends DisposableInterface
     //     yield RecentChatsTop(
     //       list.map((e) => _chat(e.node)..chat.recentCursor = e.cursor).toList(),
     //     );
-    //   } else if (events.$$typename == 'EventRecentChatsTopChatUpdated') {
+    //   } else if (events.$$typename == 'RecentChatsTopChatUpdatedEvent') {
     //     var mixin =
     //         events
-    //             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatUpdated;
+    //             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTopChatUpdatedEvent;
     //     yield EventRecentChatsUpdated(
     //       _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
     //     );
-    //   } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
+    //   } else if (events.$$typename == 'RecentChatsTopChatRemovedEvent') {
     //     var mixin =
     //         events
-    //             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
+    //             as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$RecentChatsTopChatRemovedEvent;
     //     yield EventRecentChatsDeleted(mixin.chatId);
     //   }
     // });
@@ -2917,6 +2948,13 @@ class ChatRepository extends DisposableInterface
     // If the [data] is already in [chats], then don't invoke [_putEntry] again.
     final RxChatImpl? saved = chats[chatId];
     if (saved != null) {
+      if (!updateVersion) {
+        Log.debug(
+          '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> doing `put()`, because saved is `${chats[chatId]}`',
+          '$runtimeType',
+        );
+      }
+
       return put(
         data.chat,
         pagination: pagination,
@@ -2934,6 +2972,13 @@ class ChatRepository extends DisposableInterface
       RxChatImpl? entry = chats[chatId];
 
       if (entry == null) {
+        if (!updateVersion) {
+          Log.debug(
+            '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> await mutex.protect() succeeded, and `entry` is `null` -> data.chat.value.isGroup(${data.chat.value.isGroup}), chatId.isLocal(${chatId.isLocal})',
+            '$runtimeType',
+          );
+        }
+
         // If [data] is a remote [Chat]-dialog, then try to replace the existing
         // local [Chat], if any is associated with this [data].
         if (!data.chat.value.isGroup && !chatId.isLocal) {
@@ -2975,6 +3020,14 @@ class ChatRepository extends DisposableInterface
       }
 
       _putEntryGuards.remove(chatId);
+
+      if (!updateVersion) {
+        Log.debug(
+          '_putEntry($data, pagination: $pagination, updateVersion: $updateVersion, ignoreVersion: $ignoreVersion) -> `await put()` is done, thus entry is fulfilled: `$entry`',
+          '$runtimeType',
+        );
+      }
+
       return entry;
     });
   }
@@ -3013,6 +3066,10 @@ class ChatRepository extends DisposableInterface
     _favoriteChatsSubscription?.cancel();
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _favoriteChatsSubscription = StreamQueue(
         _favoriteChatsEvents(
           () => _sessionLocal.data[me]?.favoriteChatsListVersion,
@@ -3070,7 +3127,7 @@ class ChatRepository extends DisposableInterface
                 // [paginated], then fetch it and store appropriately with its
                 // favorite position.
                 if (paginated[event.chatId] == null || !isRemote) {
-                  event as EventChatFavorited;
+                  event as ChatFavoritedEvent;
 
                   final DtoChat? dto = await _chatLocal.read(event.chatId);
                   if (dto != null) {
@@ -3139,12 +3196,12 @@ class ChatRepository extends DisposableInterface
   ) {
     Log.trace('_favoriteChatsVersionedEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventChatFavorited') {
+    if (e.$$typename == 'ChatFavoritedEvent') {
       var node =
-          e as FavoriteChatsEventsVersionedMixin$Events$EventChatFavorited;
-      return EventChatFavorited(e.chatId, e.at, node.position);
-    } else if (e.$$typename == 'EventChatUnfavorited') {
-      return EventChatUnfavorited(e.chatId, e.at);
+          e as FavoriteChatsEventsVersionedMixin$Events$ChatFavoritedEvent;
+      return ChatFavoritedEvent(e.chatId, e.at, node.position);
+    } else if (e.$$typename == 'ChatUnfavoritedEvent') {
+      return ChatUnfavoritedEvent(e.chatId, e.at);
     } else {
       throw UnimplementedError('Unknown FavoriteChatsEvent: ${e.$$typename}');
     }
@@ -3172,8 +3229,8 @@ class ChatRepository extends DisposableInterface
           members: users.nonNulls
               .map((e) => ChatMember(e.user.value, PreciseDateTime.now()))
               .toList(),
-          kindIndex: ChatKind.values.indexOf(
-            responderId == me ? ChatKind.monolog : ChatKind.dialog,
+          kindIndex: Kind.values.indexOf(
+            responderId == me ? Kind.monolog : Kind.dialog,
           ),
           updatedAt: PreciseDateTime.fromMicrosecondsSinceEpoch(0),
         ),
@@ -3194,44 +3251,179 @@ class ChatRepository extends DisposableInterface
   Future<void> _initMonolog() async {
     Log.debug('_initMonolog()', '$runtimeType');
 
-    await _monologGuard.protect(() async {
-      final bool isLocal = monolog.isLocal;
-      final bool isPaginated = paginated[monolog] != null;
-      final bool canFetchMore = _pagination?.hasNext.value ?? true;
+    if (me.isSupport) {
+      return;
+    }
 
-      // If a non-local [monolog] isn't stored and it won't appear from the
-      // [Pagination], then initialize local monolog or get a remote one.
-      if (isLocal && !isPaginated && !canFetchMore) {
-        // Whether [ChatId] of [MyUser]'s monolog is known for the given device.
-        final bool isStored = await _monologLocal.read(me) != null;
+    try {
+      Log.debug('_initMonolog() -> _monologGuard.protect()...', '$runtimeType');
 
-        if (isStored) {
-          // Initialize local monolog, if its ID was saved. If `isStored`, local
-          // monolog will appear for a moment since it's stored in local
-          // storage, but then disappear, because it's not in the remote
-          // [Pagination]. This line makes [monolog] be present despite it is
-          // not remote.
-          await _createLocalDialog(me);
+      await _monologGuard.protect(() async {
+        Log.debug(
+          '_initMonolog() -> _monologGuard.protect()... done!',
+          '$runtimeType',
+        );
+
+        if (isClosed) {
+          return;
         }
 
-        // Check if there's a remote update (monolog could've been hidden)
-        // before creating a local chat.
-        final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
+        final bool isLocal = monolog.isLocal;
+        final bool isPaginated = paginated[monolog] != null;
+        final bool canFetchMore = _pagination?.hasNext.value ?? true;
 
-        if (maybeMonolog != null) {
-          // If the [monolog] was fetched, then update [_monologLocal].
-          final ChatData monologChatData = _chat(maybeMonolog);
-          final RxChatImpl monolog = await _putEntry(monologChatData);
+        Log.debug(
+          '_initMonolog() -> isLocal($isLocal), isPaginated($isPaginated), canFetchMore($canFetchMore)',
+          '$runtimeType',
+        );
 
-          await _monologLocal.upsert(me, this.monolog = monolog.id);
-        } else if (!isStored) {
-          // If remote monolog doesn't exist and local one is not stored, then
-          // create it.
-          await _createLocalDialog(me);
-          await _monologLocal.upsert(me, monolog);
+        // If a non-local [monolog] isn't stored and it won't appear from the
+        // [Pagination], then initialize local monolog or get a remote one.
+        if (isLocal && !isPaginated && !canFetchMore) {
+          Log.debug(
+            '_initMonolog() -> await _monologLocal.read()...',
+            '$runtimeType',
+          );
+
+          // Whether [ChatId] of [MyUser]'s monolog is known for the given device.
+          final ChatId? stored = await _monologLocal.read(MonologKind.notes);
+
+          Log.debug('_initMonolog() -> stored($stored)', '$runtimeType');
+
+          if (stored == null) {
+            // If remote chat doesn't exist and local one is not stored, then
+            // create it.
+            await _monologLocal.upsert(
+              MonologKind.notes,
+              monolog = (await _createLocalDialog(me)).id,
+            );
+          } else {
+            // Check if there's a remote update (monolog could've been hidden)
+            // before creating a local chat.
+            final ChatMixin? maybeMonolog = await _graphQlProvider.getMonolog();
+
+            Log.debug(
+              '_initMonolog() -> maybeMonolog($maybeMonolog)',
+              '$runtimeType',
+            );
+
+            if (maybeMonolog != null) {
+              await _monologLocal.upsert(
+                MonologKind.notes,
+                monolog = maybeMonolog.id,
+              );
+            } else {
+              monolog = stored;
+            }
+
+            if (monolog.isLocal) {
+              // If remote monolog doesn't exist and local one is not stored, then
+              // create it.
+              monolog = (await _createLocalDialog(me)).id;
+            }
+          }
         }
-      }
-    });
+
+        Log.debug('_initMonolog()... done!', '$runtimeType');
+      });
+    } catch (e) {
+      Log.error('Unable to `_initMonolog()` due to: $e');
+      rethrow;
+    }
+  }
+
+  /// Initializes the local [support] chat, if none is known.
+  Future<void> _initSupport() async {
+    Log.debug('_initSupport()', '$runtimeType');
+
+    if (_supportId.val.isEmpty) {
+      return;
+    }
+
+    if (me.isSupport) {
+      return;
+    }
+
+    try {
+      Log.debug('_initSupport() -> _supportGuard.protect()...', '$runtimeType');
+
+      await _supportGuard.protect(() async {
+        Log.debug(
+          '_initSupport() -> _supportGuard.protect()... done!',
+          '$runtimeType',
+        );
+
+        final bool isLocal = support.isLocal;
+        final bool isPaginated = paginated[support] != null;
+        final bool canFetchMore = _pagination?.hasNext.value ?? true;
+
+        Log.debug(
+          '_initSupport() -> isLocal($isLocal), isPaginated($isPaginated), canFetchMore($canFetchMore)',
+          '$runtimeType',
+        );
+
+        // If a non-local [support] isn't stored and it won't appear from the
+        // [Pagination], then initialize local monolog or get a remote one.
+        if (isLocal && !isPaginated && !canFetchMore) {
+          // Whether [ChatId] of [MyUser]'s support is known for the given device.
+          final ChatId? stored = await _monologLocal.read(MonologKind.support);
+
+          if (stored == null) {
+            Log.debug(
+              '_initSupport() -> `stored` is `null`, thus creating new dialog...',
+              '$runtimeType',
+            );
+
+            // If remote chat doesn't exist and local one is not stored, then
+            // create it.
+            //
+            // Doing `await` here might for some reason hang the E2E tests?
+            _monologLocal.upsert(
+              MonologKind.support,
+              support = (await _createLocalDialog(_supportId)).id,
+            );
+
+            Log.debug(
+              '_initSupport() -> `stored` is `null`, thus creating new dialog... done with `$support` ID',
+              '$runtimeType',
+            );
+          } else {
+            // Check if there's a remote update (support could've been hidden)
+            // before creating a local chat.
+            final ChatMixin? maybeSupport = await _graphQlProvider.getDialog(
+              UserId(Config.supportId),
+            );
+
+            Log.debug(
+              '_initSupport() -> `stored` is `$stored`, thus `maybeSupport` queried is: `${maybeSupport?.id}`',
+              '$runtimeType',
+            );
+
+            if (maybeSupport != null) {
+              // Doing `await` here might for some reason hang the E2E tests?
+              _monologLocal.upsert(
+                MonologKind.support,
+                support = maybeSupport.id,
+              );
+            } else {
+              support = stored;
+            }
+
+            if (support.isLocal) {
+              Log.debug(
+                '_initSupport() -> `support` is still local, thus creating new dialog from `$support`',
+                '$runtimeType',
+              );
+
+              await _createLocalDialog(support.userId);
+            }
+          }
+        }
+      });
+    } catch (e) {
+      Log.error('Unable to `_initSupport()` due to: $e');
+      rethrow;
+    }
   }
 }
 
@@ -3251,4 +3443,17 @@ class ChatData {
   @override
   String toString() =>
       '$runtimeType(chat: $chat, lastItem: $lastItem, lastReadItem: $lastReadItem)';
+}
+
+/// Extension adding `null`ify methods to empty `ChatMessageText`s.
+extension on ChatMessageText {
+  /// Returns `null`, if this [ChatMessageText] is empty, or returns itself
+  /// otherwise.
+  ChatMessageText? get nullIfEmpty {
+    if (val.isEmpty) {
+      return null;
+    }
+
+    return this;
+  }
 }

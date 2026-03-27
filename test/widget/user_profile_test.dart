@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
@@ -47,6 +47,7 @@ import 'package:messenger/provider/drift/geolocation.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
@@ -85,6 +86,7 @@ void main() async {
   final accountProvider = Get.put(AccountDriftProvider(common));
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   await accountProvider.upsert(const UserId('me'));
 
@@ -113,6 +115,7 @@ void main() async {
     credentialsProvider,
     accountProvider,
     locksProvider,
+    secretsProvider,
   );
 
   router = RouterState(authService);
@@ -135,7 +138,7 @@ void main() async {
   );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
-  final monologProvider = Get.put(MonologDriftProvider(common));
+  final monologProvider = Get.put(MonologDriftProvider(common, scoped));
   final versionProvider = Get.put(VersionDriftProvider(common));
   final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
   final geoProvider = Get.put(GeoLocationDriftProvider(common));
@@ -260,14 +263,14 @@ void main() async {
       //   ],
       // )).thenAnswer((_) {
       //   var event1 = {
-      //     '__typename': 'EventChatContactCreated',
+      //     '__typename': 'ChatContactCreatedEvent',
       //     'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
       //     'at': DateTime.now().toString(),
       //     'name': '1009422423626377'
       //   };
 
       //   var event2 = {
-      //     '__typename': 'EventChatContactUserAdded',
+      //     '__typename': 'ChatContactUserAddedEvent',
       //     'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
       //     'at': DateTime.now().toString(),
       //     'user': {
@@ -379,6 +382,7 @@ void main() async {
           credentialsProvider,
           accountProvider,
           locksProvider,
+          secretsProvider,
         ),
       );
       authService.init();
@@ -485,7 +489,13 @@ void main() async {
       );
       await tester.pumpAndSettle(const Duration(seconds: 2));
       expect(find.byKey(const Key('Present')), findsOneWidget);
-      expect(find.text('5769hyphen2360hyphen9862hyphen1822'), findsOneWidget);
+      expect(
+        find.text(
+          'label_num_semicolon5769hyphen2360hyphen9862hyphen1822',
+          findRichText: true,
+        ),
+        findsOneWidget,
+      );
 
       // TODO: Uncomment, when contacts are implemented.
       // await tester.tap(find.byKey(const Key('MoreButton')));
@@ -565,7 +575,7 @@ final newUserData = {
   'mutualContactsCount': 0,
   'contacts': [],
   'online': {
-    '__typename': 'UserOffline',
+    '__typename': 'UserOnline',
     'lastSeenAt': '2022-03-14T12:55:28.415454+00:00',
   },
   'presence': 'PRESENT',

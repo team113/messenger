@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,12 +20,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/media_settings.dart';
+import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/util/media_utils.dart';
 import 'controller.dart';
+import 'widget/gradient_button.dart';
 
 /// View for updating the [MediaSettings.audioDevice].
 ///
@@ -85,18 +87,29 @@ class MicrophoneSwitchView extends StatelessWidget {
                       );
                     }),
                     Obx(() {
+                      final List<DeviceDetails> inputs = c.devices
+                          .audio()
+                          .toList();
+
                       return ListView.separated(
                         shrinkWrap: true,
                         padding: ModalPopup.padding(context),
                         separatorBuilder: (_, _) => const SizedBox(height: 8),
-                        itemCount: c.devices.length,
+                        itemCount: inputs.length,
                         itemBuilder: (_, i) {
                           return Obx(() {
-                            final DeviceDetails e = c.devices[i];
+                            final DeviceDetails e = inputs[i];
 
                             final bool selected =
                                 (c.selected.value == null && i == 0) ||
                                 c.selected.value?.id() == e.id();
+
+                            if (selected) {
+                              return GradientButton(
+                                progress: c.level.value / 100,
+                                label: e.label(),
+                              );
+                            }
 
                             return RectangleButton(
                               selected: selected,

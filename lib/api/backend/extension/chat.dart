@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,7 +24,6 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/mute_duration.dart';
-import '/domain/model/user.dart';
 import '/store/chat.dart';
 import '/store/model/chat_call.dart';
 import '/store/model/chat_item.dart';
@@ -53,13 +52,6 @@ extension ChatConversion on ChatMixin {
               : MuteDuration.until(
                   (muted! as ChatMixin$Muted$MuteUntilDuration).until,
                 )
-        : null,
-    directLink: directLink != null
-        ? ChatDirectLink(
-            slug: directLink!.slug,
-            usageCount: directLink!.usageCount,
-            createdAt: createdAt,
-          )
         : null,
     createdAt: createdAt,
     updatedAt: updatedAt,
@@ -323,29 +315,29 @@ extension ChatMessageMixinRepliesToConversion on ChatMessageMixin$RepliesTo {
 }
 
 /// Extension adding models construction from
-/// [ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed].
-extension EventChatItemEditedRepliesToConversion
-    on ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed {
+/// [ChatEventsVersionedMixin$Events$ChatItemEditedEvent$RepliesTo$Changed].
+extension ChatItemEditedEventRepliesToConversion
+    on ChatEventsVersionedMixin$Events$ChatItemEditedEvent$RepliesTo$Changed {
   /// Constructs the new [DtoChatItemQuote]s from this
-  /// [ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed].
+  /// [ChatEventsVersionedMixin$Events$ChatItemEditedEvent$RepliesTo$Changed].
   DtoChatItemQuote toDto() => _chatItemQuote(this);
 }
 
 /// Extension adding models construction from
-/// [ChatEventsVersionedMixin$Events$EventChatItemPosted$Item].
-extension EventChatItemPostedConversion
-    on ChatEventsVersionedMixin$Events$EventChatItemPosted$Item {
+/// [ChatEventsVersionedMixin$Events$ChatItemPostedEvent$Item].
+extension ChatItemPostedEventConversion
+    on ChatEventsVersionedMixin$Events$ChatItemPostedEvent$Item {
   /// Constructs the new [DtoChatItem]s from this
-  /// [ChatEventsVersionedMixin$Events$EventChatItemPosted$Item].
+  /// [ChatEventsVersionedMixin$Events$ChatItemPostedEvent$Item].
   DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from
-/// [ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem].
-extension EventChatLastItemUpdatedConversion
-    on ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem {
+/// [ChatEventsVersionedMixin$Events$ChatLastItemUpdatedEvent$LastItem].
+extension ChatLastItemUpdatedEventConversion
+    on ChatEventsVersionedMixin$Events$ChatLastItemUpdatedEvent$LastItem {
   /// Constructs the new [DtoChatItem]s from this
-  /// [ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem].
+  /// [ChatEventsVersionedMixin$Events$ChatLastItemUpdatedEvent$LastItem].
   DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
@@ -492,22 +484,22 @@ extension WelcomeMessageAttachmentsConversion
 }
 
 /// Extension adding models construction from
-/// [MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+/// [MyUserEventsVersionedMixin$Events$UserWelcomeMessageUpdatedEvent$Attachments$Changed].
 extension EventMyUserWelcomeMessageUpdatedAttachmentsConversion
     on
-        MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed {
+        MyUserEventsVersionedMixin$Events$UserWelcomeMessageUpdatedEvent$Attachments$Changed {
   /// Constructs a new [Attachment] from this
-  /// [MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+  /// [MyUserEventsVersionedMixin$Events$UserWelcomeMessageUpdatedEvent$Attachments$Changed].
   Attachment toModel() => _attachment(this);
 }
 
 /// Extension adding models construction from
-/// [UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
-extension EventUserWelcomeMessageUpdatedAttachmentsConversion
+/// [UserEventsVersionedMixin$Events$UserWelcomeMessageUpdatedEvent$Attachments$Changed].
+extension UserWelcomeMessageUpdatedEventAttachmentsConversion
     on
-        UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed {
+        UserEventsVersionedMixin$Events$UserWelcomeMessageUpdatedEvent$Attachments$Changed {
   /// Constructs a new [Attachment] from this
-  /// [UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+  /// [UserEventsVersionedMixin$Events$UserWelcomeMessageUpdatedEvent$Attachments$Changed].
   Attachment toModel() => _attachment(this);
 }
 
@@ -614,11 +606,11 @@ extension ChatMessageQuoteMixinAttachmentsConversion
 }
 
 /// Extension adding models construction from
-/// [ChatEventsVersionedMixin$Events$EventChatItemEdited$Attachments$Changed].
-extension EventChatItemEditedAttachmentsConversion
-    on ChatEventsVersionedMixin$Events$EventChatItemEdited$Attachments$Changed {
+/// [ChatEventsVersionedMixin$Events$ChatItemEditedEvent$Attachments$Changed].
+extension ChatItemEditedEventAttachmentsConversion
+    on ChatEventsVersionedMixin$Events$ChatItemEditedEvent$Attachments$Changed {
   /// Constructs a new [Attachment] from this
-  /// [ChatEventsVersionedMixin$Events$EventChatItemEdited$Attachments$Changed].
+  /// [ChatEventsVersionedMixin$Events$ChatItemEditedEvent$Attachments$Changed].
   Attachment toModel() => _attachment(this);
 }
 
@@ -635,11 +627,11 @@ extension MutingToMuteDurationConversion on Muting {
 }
 
 /// Extension adding models construction from
-/// [ChatEventsVersionedMixin$Events$EventChatMuted$Duration].
-extension EventChatMuted$DurationConversion
-    on ChatEventsVersionedMixin$Events$EventChatMuted$Duration {
+/// [ChatEventsVersionedMixin$Events$ChatMutedEvent$Duration].
+extension ChatMutedEvent$DurationConversion
+    on ChatEventsVersionedMixin$Events$ChatMutedEvent$Duration {
   /// Constructs a new [MuteDuration] from this
-  /// [ChatEventsVersionedMixin$Events$EventChatMuted$Duration].
+  /// [ChatEventsVersionedMixin$Events$ChatMutedEvent$Duration].
   MuteDuration toModel() {
     if ($$typename == 'MuteForeverDuration') {
       return MuteDuration.forever();
@@ -647,7 +639,7 @@ extension EventChatMuted$DurationConversion
 
     return MuteDuration.until(
       (this
-              as ChatEventsVersionedMixin$Events$EventChatMuted$Duration$MuteUntilDuration)
+              as ChatEventsVersionedMixin$Events$ChatMutedEvent$Duration$MuteUntilDuration)
           .until,
     );
   }

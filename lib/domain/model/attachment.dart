@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -67,6 +68,38 @@ abstract class Attachment {
   /// Returns [DownloadStatus] of this [Attachment].
   DownloadStatus get downloadStatus =>
       downloading?.status.value ?? DownloadStatus.notStarted;
+
+  /// Indicates whether this [Attachment] represents an image or a video.
+  bool get isMedia {
+    if (this is ImageAttachment) {
+      return true;
+    }
+
+    if (this is FileAttachment) {
+      return (this as FileAttachment).isVideo;
+    }
+
+    if (this is LocalAttachment) {
+      final local = this as LocalAttachment;
+      return local.file.isImage || local.file.isVideo;
+    }
+
+    return false;
+  }
+
+  /// Indicates whether this [Attachment] represents a file.
+  bool get isFile {
+    if (this is FileAttachment) {
+      return !(this as FileAttachment).isVideo;
+    }
+
+    if (this is LocalAttachment) {
+      final local = this as LocalAttachment;
+      return !local.file.isImage && !local.file.isVideo;
+    }
+
+    return false;
+  }
 
   /// Returns a [Map] representing this [Attachment].
   Map<String, dynamic> toJson() => switch (runtimeType) {
@@ -180,7 +213,7 @@ class FileAttachment extends Attachment {
 
   @override
   String toString() =>
-      'FileAttachment(id: $id, size: ${original.size}, filename: $filename)';
+      'FileAttachment(id: $id, size: ${original.size}, filename: $filename, downloading: $downloading)';
 }
 
 /// Unique ID of an [Attachment].
@@ -224,14 +257,24 @@ class LocalAttachment extends Attachment {
   @JsonKey(toJson: SendingStatusJson.toJson)
   final Rx<SendingStatus> status;
 
+  /// [CancelToken] used to cancel the uploading of this [LocalAttachment].
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  final CancelToken cancelToken = CancelToken();
+
   /// Upload progress of this [LocalAttachment].
   final Rx<double> progress = Rx(0);
 
   /// [Completer] resolving once this [LocalAttachment]'s uploading is finished.
-  final Rx<Completer<Attachment>?> upload = Rx<Completer<Attachment>?>(null);
+  final Rx<Completer<Attachment?>?> upload = Rx<Completer<Attachment?>?>(null);
 
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
+
+  /// Indicator whether the [upload] was canceled.
+  bool get isCanceled => cancelToken.isCancelled;
+
+  /// Cancels the uploading of this [LocalAttachment].
+  void cancelUpload() => cancelToken.cancel();
 
   /// Returns a [Map] representing this [LocalAttachment].
   @override

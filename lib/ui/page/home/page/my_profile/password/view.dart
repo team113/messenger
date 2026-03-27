@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -90,57 +90,32 @@ class ChangePasswordView extends StatelessWidget {
                     if (c.hasPassword)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
-                        child: ReactiveTextField(
+                        child: ReactiveTextField.password(
                           state: c.oldPassword,
                           label: 'label_current_password'.l10n,
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
                           hint: 'label_your_password'.l10n,
-                          obscure: c.obscurePassword.value,
-                          onSuffixPressed: () => c.obscurePassword.toggle(),
+                          obscured: c.obscurePassword,
                           treatErrorAsStatus: false,
-                          trailing: Center(
-                            child: SvgIcon(
-                              c.obscurePassword.value
-                                  ? SvgIcons.visibleOff
-                                  : SvgIcons.visibleOn,
-                            ),
-                          ),
                         ),
                       ),
-                    ReactiveTextField(
+                    ReactiveTextField.password(
                       key: const Key('NewPasswordField'),
                       state: c.newPassword,
                       label: 'label_new_password'.l10n,
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      hint: 'label_your_password'.l10n,
-                      obscure: c.obscureNewPassword.value,
-                      onSuffixPressed: () => c.obscureNewPassword.toggle(),
+                      hint: 'label_enter_password'.l10n,
+                      obscured: c.obscureNewPassword,
                       treatErrorAsStatus: false,
-                      trailing: Center(
-                        child: SvgIcon(
-                          c.obscureNewPassword.value
-                              ? SvgIcons.visibleOff
-                              : SvgIcons.visibleOn,
-                        ),
-                      ),
+                      autocomplete: AutocompleteKind.newPassword,
                     ),
                     const SizedBox(height: 16),
-                    ReactiveTextField(
+                    ReactiveTextField.password(
                       key: const Key('RepeatPasswordField'),
                       state: c.repeatPassword,
-                      label: 'label_repeat_password'.l10n,
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      hint: 'label_your_password'.l10n,
-                      obscure: c.obscureRepeatPassword.value,
-                      onSuffixPressed: () => c.obscureRepeatPassword.toggle(),
+                      label: 'label_confirm_password'.l10n,
+                      hint: 'label_repeat_password'.l10n,
+                      obscured: c.obscureRepeatPassword,
                       treatErrorAsStatus: false,
-                      trailing: Center(
-                        child: SvgIcon(
-                          c.obscureRepeatPassword.value
-                              ? SvgIcons.visibleOff
-                              : SvgIcons.visibleOn,
-                        ),
-                      ),
+                      autocomplete: AutocompleteKind.newPassword,
                     ),
                     const SizedBox(height: 25),
                     Obx(() {

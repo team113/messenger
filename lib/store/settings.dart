@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -77,7 +77,7 @@ class SettingsRepository extends DisposableInterface
 
   @override
   Future<void> init() async {
-    Log.debug('onInit()', '$runtimeType');
+    Log.debug('onInit()...', '$runtimeType');
 
     await _guard.protect(() async {
       final DtoSettings? settings = await _settingsLocal.read(userId);
@@ -87,6 +87,11 @@ class SettingsRepository extends DisposableInterface
 
       final DtoBackground? bytes = await _backgroundLocal.read(userId);
       background.value = bytes?.bytes;
+
+      Log.debug(
+        'onInit()... done! applicationSettings -> ${applicationSettings.value} mediaSettings -> ${mediaSettings.value}',
+        '$runtimeType',
+      );
     });
 
     _initSettingsSubscription();
@@ -221,12 +226,6 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setWorkWithUsTabEnabled(bool enabled) async {
-    Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
-    await _set(settings: (e) => e..workWithUsTabEnabled = enabled);
-  }
-
-  @override
   Future<void> setMuteKeys(List<String>? keys) async {
     Log.debug('setMuteKeys($keys)', '$runtimeType');
     await _set(settings: (e) => e..muteKeys = keys?.toList());
@@ -236,6 +235,12 @@ class SettingsRepository extends DisposableInterface
   Future<void> setVideoVolume(double volume) async {
     Log.debug('setVideoVolume($volume)', '$runtimeType');
     await _set(settings: (e) => e..videoVolume = volume);
+  }
+
+  @override
+  Future<void> setLogLevel(int level) async {
+    Log.debug('setLogLevel($level)', '$runtimeType');
+    await _set(settings: (e) => e..logLevel = level);
   }
 
   /// Stores the provided [ApplicationSettings] and [MediaSettings] to the local

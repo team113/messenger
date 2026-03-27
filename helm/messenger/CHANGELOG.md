@@ -6,6 +6,42 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.2.2] · 2026-03-26
+[0.2.2]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.2.2/helm/messenger
+
+### Fixed
+
+- `/geo-ip` [Nginx] proxy not forwarding requests. ([#1661])
+
+[#1661]: https://github.com/team113/messenger/pull/1661
+
+
+
+
+## [0.2.1] · 2026-03-10
+[0.2.1]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.2.1/helm/messenger
+
+### Added
+
+- `/geo-ip` [Nginx] proxy forwarding to `ip-api.com` geo IP fetching service. ([#1620])
+
+[#1620]: https://github.com/team113/messenger/pull/1620
+
+
+
+
+## [0.2.0] · 2025-12-05
+[0.2.0]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.2.0/helm/messenger
+
+### BC Breaks
+
+- Made `ingress.tls.secretName` not mandatory, falling back to default naming. ([5fee031e])
+
+[5fee031e]: https://github.com/team113/messenger/commits/5fee031e50efbe1f722aff749edc778d8363e4a4
+
+
+
+
 ## [0.1.4] · 2025-09-09
 [0.1.4]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.4/helm/messenger
 

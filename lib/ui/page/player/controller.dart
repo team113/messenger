@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -146,6 +146,10 @@ class PlayerController extends GetxController {
 
   /// [List] of the currently active [PlayerNotification]s.
   final RxList<PlayerNotification> notifications = RxList();
+
+  /// Indicator whether a closing animation is being fired and soon the
+  /// [isClosed] will become `true`.
+  bool isClosing = false;
 
   /// [AbstractSettingsRepository] for storing the
   /// [ApplicationSettings.videoVolume].
@@ -482,7 +486,7 @@ class PlayerController extends GetxController {
     Log.debug('downloadAs($item)', '$runtimeType');
 
     try {
-      final String? to = await FilePicker.platform.saveFile(
+      final String? to = await FilePicker.saveFile(
         fileName: item.attachment.original.name,
         type: item.attachment is ImageAttachment
             ? FileType.image
@@ -766,7 +770,8 @@ class PlayerController extends GetxController {
         case LogicalKeyboardKey.escape:
           if (_isFullscreen) {
             toggleFullscreen();
-          } else {
+          } else if (!isClosing) {
+            isClosing = true;
             shouldClose?.call();
           }
 

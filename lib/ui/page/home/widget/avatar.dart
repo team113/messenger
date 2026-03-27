@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,7 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
@@ -61,10 +61,13 @@ enum AvatarRadius {
       AvatarRadius.big => 20,
       AvatarRadius.large => 30,
       AvatarRadius.larger => 32,
-      AvatarRadius.largest => 200,
+      AvatarRadius.largest => 300,
     };
   }
 }
+
+/// Shape of an [AvatarWidget].
+enum AvatarShape { tombstone, rectangle, circle }
 
 /// Widget to build an [Avatar].
 ///
@@ -82,7 +85,7 @@ class AvatarWidget extends StatelessWidget {
     this.isAway = false,
     this.label,
     this.onForbidden,
-    this.shape = BoxShape.circle,
+    this.shape = AvatarShape.circle,
     this.constraints,
     this.child,
   });
@@ -132,7 +135,8 @@ class AvatarWidget extends StatelessWidget {
             contact.contact.value.users.length == 1 &&
             contact.user.value?.user.value.online == true,
         isAway:
-            badge && contact.user.value?.user.value.presence == Presence.away,
+            badge &&
+            contact.user.value?.user.value.presence == UserPresence.away,
         avatar: contact.user.value?.user.value.avatar,
         title: contact.contact.value.name.val,
         color: contact.user.value == null
@@ -152,11 +156,11 @@ class AvatarWidget extends StatelessWidget {
     double opacity = 1,
     bool badge = true,
     FutureOr<void> Function()? onForbidden,
-    BoxShape shape = BoxShape.circle,
+    AvatarShape shape = AvatarShape.circle,
   }) => AvatarWidget(
     key: key,
     isOnline: badge && myUser?.online == true,
-    isAway: badge && myUser?.presence == Presence.away,
+    isAway: badge && myUser?.presence == UserPresence.away,
     avatar: myUser?.avatar,
     title: myUser?.name?.val ?? myUser?.num.toString(),
     color: myUser?.num.val.sum(),
@@ -172,22 +176,35 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
-    BoxShape shape = BoxShape.circle,
+    AvatarShape shape = AvatarShape.circle,
     bool isOnline = false,
     bool isAway = false,
     BoxConstraints? constraints,
-  }) => AvatarWidget(
-    key: key,
-    avatar: user?.avatar,
-    title: user?.title(withDeletedLabel: false),
-    color: user?.num.val.sum(),
-    radius: radius,
-    opacity: opacity,
-    shape: shape,
-    isOnline: isOnline,
-    isAway: isAway,
-    constraints: constraints,
-  );
+  }) {
+    if (user?.id.isSupport == true) {
+      return AvatarWidget.support(
+        isOnline: isOnline,
+        isAway: isAway,
+        radius: radius,
+        opacity: opacity,
+        shape: shape,
+        constraints: constraints,
+      );
+    }
+
+    return AvatarWidget(
+      key: key,
+      avatar: user?.avatar,
+      title: user?.title(withDeletedLabel: false),
+      color: user?.num.val.sum(),
+      radius: radius,
+      opacity: opacity,
+      shape: shape,
+      isOnline: isOnline,
+      isAway: isAway,
+      constraints: constraints,
+    );
+  }
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
   static Widget fromRxUser(
@@ -196,7 +213,7 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     bool badge = true,
-    BoxShape shape = BoxShape.circle,
+    AvatarShape shape = AvatarShape.circle,
     BoxConstraints? constraints,
   }) {
     if (user == null) {
@@ -210,11 +227,26 @@ class AvatarWidget extends StatelessWidget {
       );
     }
 
-    return Obx(
-      () => AvatarWidget(
+    return Obx(() {
+      final bool isOnline = badge && user.user.value.online == true;
+      final bool isAway =
+          badge && user.user.value.presence == UserPresence.away;
+
+      if (user.id.isSupport == true) {
+        return AvatarWidget.support(
+          isOnline: isOnline,
+          isAway: isAway,
+          radius: radius,
+          opacity: opacity,
+          shape: shape,
+          constraints: constraints,
+        );
+      }
+
+      return AvatarWidget(
         key: key,
-        isOnline: badge && user.user.value.online == true,
-        isAway: badge && user.user.value.presence == Presence.away,
+        isOnline: isOnline,
+        isAway: isAway,
         avatar: user.user.value.avatar,
         title: user.title(withDeletedLabel: false),
         color: user.user.value.num.val.sum(),
@@ -222,8 +254,8 @@ class AvatarWidget extends StatelessWidget {
         opacity: opacity,
         shape: shape,
         constraints: constraints,
-      ),
-    );
+      );
+    });
   }
 
   /// Creates an [AvatarWidget] from the specified [chat]-monolog.
@@ -233,7 +265,7 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
-    BoxShape shape = BoxShape.circle,
+    AvatarShape shape = AvatarShape.circle,
   }) => AvatarWidget(
     key: key,
     label: LayoutBuilder(
@@ -277,7 +309,7 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     FutureOr<void> Function()? onForbidden,
-    BoxShape shape = BoxShape.circle,
+    AvatarShape shape = AvatarShape.circle,
   }) {
     if (chat == null) {
       return AvatarWidget(key: key, radius: radius, opacity: opacity);
@@ -294,15 +326,29 @@ class AvatarWidget extends StatelessWidget {
         );
       }
 
+      final bool isDialog = chat.chat.value.isDialog;
       final RxUser? user = chat.members.values
           .firstWhereOrNull((e) => e.user.id != chat.me)
           ?.user;
+
+      final bool isOnline = isDialog && user?.user.value.online == true;
+      final bool isAway =
+          isDialog && user?.user.value.presence == UserPresence.away;
+
+      if (isDialog && user?.id.isSupport == true) {
+        return AvatarWidget.support(
+          isOnline: isOnline,
+          isAway: isAway,
+          radius: radius,
+          opacity: opacity,
+          shape: shape,
+        );
+      }
+
       return AvatarWidget(
         key: key,
-        isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
-        isAway:
-            chat.chat.value.isDialog &&
-            user?.user.value.presence == Presence.away,
+        isOnline: isOnline,
+        isAway: isAway,
         avatar: chat.avatar.value,
         title: chat.title(withDeletedLabel: false),
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),
@@ -312,6 +358,38 @@ class AvatarWidget extends StatelessWidget {
         shape: shape,
       );
     });
+  }
+
+  /// Builds an [AvatarWidget] for a [User]-support.
+  factory AvatarWidget.support({
+    UserId? me,
+    Key? key,
+    AvatarRadius? radius,
+    double opacity = 1,
+    AvatarShape shape = AvatarShape.circle,
+    bool isOnline = false,
+    bool isAway = false,
+    BoxConstraints? constraints,
+  }) {
+    return AvatarWidget(
+      color: 0,
+      label: LayoutBuilder(
+        builder: (context, constraints) {
+          return SvgImage.asset(
+            'assets/images/support.svg',
+            width: constraints.maxHeight * 0.8,
+            height: constraints.maxHeight * 0.8,
+          );
+        },
+      ),
+      isOnline: isOnline,
+      isAway: isAway,
+      key: key,
+      radius: radius,
+      opacity: opacity,
+      shape: shape,
+      constraints: constraints,
+    );
   }
 
   /// [Avatar] to display.
@@ -347,8 +425,8 @@ class AvatarWidget extends StatelessWidget {
   /// Callback, called when [avatar] fetching fails with `Forbidden` error.
   final FutureOr<void> Function()? onForbidden;
 
-  /// [BoxShape] of this [AvatarWidget].
-  final BoxShape shape;
+  /// [AvatarShape] of this [AvatarWidget].
+  final AvatarShape shape;
 
   /// [BoxConstraints] of the layout this [AvatarWidget] is within.
   ///
@@ -437,10 +515,20 @@ class AvatarWidget extends StatelessWidget {
           colors: [gradient.lighten(), gradient],
         ),
         borderRadius: switch (shape) {
-          BoxShape.circle => null,
-          BoxShape.rectangle => BorderRadius.circular(0.035 * _minDiameter),
+          AvatarShape.circle => null,
+          AvatarShape.rectangle => BorderRadius.circular(0.035 * _minDiameter),
+          AvatarShape.tombstone => BorderRadius.only(
+            topLeft: Radius.circular(0.035 * _minDiameter),
+            topRight: Radius.circular(0.035 * _minDiameter),
+            bottomLeft: Radius.zero,
+            bottomRight: Radius.zero,
+          ),
         },
-        shape: shape,
+        shape: switch (shape) {
+          AvatarShape.circle => BoxShape.circle,
+          AvatarShape.rectangle => BoxShape.rectangle,
+          AvatarShape.tombstone => BoxShape.rectangle,
+        },
       ),
       child: Center(
         child:
@@ -502,9 +590,18 @@ class AvatarWidget extends StatelessWidget {
   /// Returns a [ClipRRect] or [ClipOval] widget based on the [shape].
   Widget _clip({required Widget child}) {
     return switch (shape) {
-      BoxShape.circle => ClipOval(child: child),
-      BoxShape.rectangle => ClipRRect(
+      AvatarShape.circle => ClipOval(child: child),
+      AvatarShape.rectangle => ClipRRect(
         borderRadius: BorderRadius.circular(0.035 * _minDiameter),
+        child: child,
+      ),
+      AvatarShape.tombstone => ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(0.035 * _minDiameter),
+          topRight: Radius.circular(0.035 * _minDiameter),
+          bottomLeft: Radius.zero,
+          bottomRight: Radius.zero,
+        ),
         child: child,
       ),
     };

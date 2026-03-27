@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -414,7 +414,12 @@ Widget desktopCall(CallController c, BuildContext context) {
                   onExit: enabled ? (d) => c.keepUi() : null,
                   onAccept: (CallButton data) {
                     if (!c.draggedFromDock) {
-                      c.buttons.remove(data);
+                      Future.delayed(Duration.zero, () {
+                        if (c.buttons.contains(data)) {
+                          c.buttons.remove(data);
+                        }
+                      });
+
                       c.draggedButton.value = null;
                     }
                   },
@@ -748,7 +753,7 @@ Widget desktopCall(CallController c, BuildContext context) {
       ];
 
       // Combines all the stackable content into [Scaffold].
-      Widget scaffold = Scaffold(
+      final Widget scaffold = Scaffold(
         backgroundColor: style.colors.onBackground,
         body: Column(
           mainAxisSize: MainAxisSize.min,

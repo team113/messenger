@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -134,6 +134,9 @@ class RxUserImpl extends RxUser {
   /// [Worker] reacting on [User] changes.
   Worker? _worker;
 
+  /// Indicator whether this [RxUserImpl] has invoked [dispose] or not.
+  bool _disposed = false;
+
   @override
   Rx<RxChat?> get dialog {
     final ChatId dialogId = user.value.dialog;
@@ -160,10 +163,14 @@ class RxUserImpl extends RxUser {
   void dispose() {
     Log.debug('dispose()', '$runtimeType($id)');
 
+    _disposed = true;
     _lastSeenTimer?.cancel();
     _worker?.dispose();
     _localSubscription?.cancel();
   }
+
+  @override
+  String toString() => 'RxUserImpl(${user.toJson()})';
 
   /// Initializes [UserRepository.userEvents] subscription.
   Future<void> _initRemoteSubscription() async {
@@ -172,6 +179,10 @@ class RxUserImpl extends RxUser {
     _remoteSubscription?.close(immediate: true);
 
     await WebUtils.protect(() async {
+      if (_disposed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(
         await _userRepository.userEvents(
           id,
@@ -204,7 +215,7 @@ class RxUserImpl extends RxUser {
         final versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver < userEntity.ver) {
           Log.debug(
-            '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)}',
+            '_userEvent(${events.kind}): ignored ${versioned.events.map((e) => e.kind)} cuz ${versioned.ver} is lower than ${userEntity?.ver}',
             '$runtimeType($id)',
           );
           return;
@@ -223,7 +234,7 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.avatarUpdated:
-              event as EventUserAvatarUpdated;
+              event as UserAvatarUpdatedEvent;
               userEntity.value.avatar = event.avatar;
               break;
 
@@ -232,12 +243,12 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.bioUpdated:
-              event as EventUserBioUpdated;
+              event as UserBioUpdatedEvent;
               userEntity.value.bio = event.bio;
               break;
 
             case UserEventKind.cameOffline:
-              event as EventUserCameOffline;
+              event as UserCameOfflineEvent;
               userEntity.value.online = false;
               userEntity.value.lastSeenAt = event.at;
               break;
@@ -251,7 +262,7 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.callCoverUpdated:
-              event as EventUserCallCoverUpdated;
+              event as UserCallCoverUpdatedEvent;
               userEntity.value.callCover = event.callCover;
               break;
 
@@ -260,12 +271,12 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.nameUpdated:
-              event as EventUserNameUpdated;
+              event as UserNameUpdatedEvent;
               userEntity.value.name = event.name;
               break;
 
             case UserEventKind.presenceUpdated:
-              event as EventUserPresenceUpdated;
+              event as UserPresenceUpdatedEvent;
               userEntity.value.presence = event.presence;
               break;
 
@@ -274,7 +285,7 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.statusUpdated:
-              event as EventUserStatusUpdated;
+              event as UserStatusUpdatedEvent;
               userEntity.value.status = event.status;
               break;
 
@@ -287,7 +298,7 @@ class RxUserImpl extends RxUser {
               break;
 
             case UserEventKind.welcomeMessageUpdated:
-              event as EventUserWelcomeMessageUpdated;
+              event as UserWelcomeMessageUpdatedEvent;
               userEntity.value.welcomeMessage = WelcomeMessage(
                 text: event.text == null
                     ? userEntity.value.welcomeMessage?.text

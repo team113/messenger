@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -45,7 +45,7 @@ class CameraSwitchController extends GetxController {
   final RxList<DeviceDetails> devices = RxList<DeviceDetails>([]);
 
   /// ID of the initially selected video device.
-  RxnString camera;
+  final RxnString camera;
 
   /// [RtcVideoRenderer] rendering the currently selected [camera] device.
   final Rx<RtcVideoRenderer?> renderer = Rx<RtcVideoRenderer?>(null);

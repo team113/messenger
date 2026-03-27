@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,19 +20,21 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
+import 'package:messenger/domain/repository/link.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
+import 'package:messenger/domain/service/link.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/session.dart';
 import 'package:messenger/domain/service/user.dart';
@@ -52,6 +54,7 @@ import 'package:messenger/provider/drift/geolocation.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
@@ -63,6 +66,7 @@ import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
+import 'package:messenger/store/link.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/session.dart';
 import 'package:messenger/store/settings.dart';
@@ -103,11 +107,12 @@ void main() async {
   );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
-  final monologProvider = Get.put(MonologDriftProvider(common));
+  final monologProvider = Get.put(MonologDriftProvider(common, scoped));
   final versionProvider = Get.put(VersionDriftProvider(common));
   final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
   final geoProvider = Get.put(GeoLocationDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.connected).thenReturn(RxBool(true));
@@ -167,6 +172,7 @@ void main() async {
       credentialsProvider,
       accountProvider,
       locksProvider,
+      secretsProvider,
     ),
   );
 
@@ -225,7 +231,7 @@ void main() async {
         '__typename': 'ChatEventsVersioned',
         'events': [
           {
-            '__typename': 'EventChatHidden',
+            '__typename': 'ChatHiddenEvent',
             'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
             'at': DateTime.now().toString(),
           },
@@ -320,6 +326,28 @@ void main() async {
       ),
     );
 
+    when(
+      graphQlProvider.directLinks(
+        chatId: anyNamed('chatId'),
+        by: anyNamed('by'),
+        pagination: anyNamed('pagination'),
+      ),
+    ).thenAnswer(
+      (_) => Future.value(
+        DirectLinks$Query$DirectLinks.fromJson({
+          'edges': [],
+          'totalCount': 0,
+          'ver': '0',
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
+          },
+        }),
+      ),
+    );
+
     SessionRepository sessionRepository = Get.put(
       SessionRepository(
         graphQlProvider,
@@ -407,6 +435,16 @@ void main() async {
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
     Get.put(CallService(authService, chatService, callRepository));
+
+    final AbstractLinkRepository linkRepository =
+        Get.put<AbstractLinkRepository>(
+          LinkRepository(
+            graphQlProvider,
+            versionProvider,
+            me: const UserId('me'),
+          ),
+        );
+    Get.put(LinkService(linkRepository));
 
     for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));

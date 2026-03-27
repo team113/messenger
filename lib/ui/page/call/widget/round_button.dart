@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 
 /// [FloatingActionButton] of some [icon] with an optional
@@ -35,6 +36,8 @@ class RoundFloatingButton extends StatelessWidget {
     this.hint,
     this.minified = false,
     this.border,
+    this.builder = _defaultBuilder,
+    this.shadows = false,
   });
 
   /// Callback, called when the button is tapped or activated other way.
@@ -67,15 +70,24 @@ class RoundFloatingButton extends StatelessWidget {
   /// Optional [BoxBorder] of this [RoundFloatingButton].
   final BoxBorder? border;
 
+  /// Builder building the [icon] and the rounded button around it.
+  final Widget Function(BuildContext context, Widget child) builder;
+
+  /// Indicator whether the [text] should be displayed with shadows or not.
+  final bool shadows;
+
   @override
   Widget build(BuildContext context) {
-    final button = _IconButton(
-      icon: icon,
-      color: color,
-      onPressed: onPressed,
-      offset: offset,
-      border: border,
-      hint: hint,
+    final button = builder(
+      context,
+      _IconButton(
+        icon: icon,
+        color: color,
+        onPressed: onPressed,
+        offset: offset,
+        border: border,
+        hint: hint,
+      ),
     );
 
     if (text == null) {
@@ -86,9 +98,13 @@ class RoundFloatingButton extends StatelessWidget {
       showText: showText,
       text: text!,
       minified: minified,
+      shadows: shadows,
       child: button,
     );
   }
+
+  /// Returns the [child].
+  static Widget _defaultBuilder(BuildContext context, Widget child) => child;
 }
 
 /// [FloatingActionButton] of some [icon].
@@ -119,13 +135,10 @@ class _ButtonCircle extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 60, maxHeight: 60),
 
-      child: Material(
-        elevation: 0,
-        color: color,
-        type: MaterialType.circle,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(300),
-          onTap: onPressed,
+      child: WidgetButton(
+        onPressed: onPressed,
+        child: Container(
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           child: LayoutBuilder(
             builder: (context, constraints) {
               return Center(
@@ -237,6 +250,7 @@ class _TooltipButtonState extends State<_TooltipButton> {
       child: MouseRegion(
         onEnter: (_) => _show(),
         onExit: (_) => _hide(),
+        cursor: SystemMouseCursors.click,
         child: widget.child,
       ),
     );
@@ -288,6 +302,7 @@ class _LabeledButton extends StatelessWidget {
   const _LabeledButton({
     this.showText = false,
     this.minified = false,
+    this.shadows = false,
     required this.text,
     required this.child,
   });
@@ -302,12 +317,19 @@ class _LabeledButton extends StatelessWidget {
   /// otherwise.
   final bool minified;
 
+  /// Indicator whether [text] should have shadows or not.
+  final bool shadows;
+
   /// Circle [Icon] part of [RoundFloatingButton].
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
+    final TextStyle textStyle = minified
+        ? style.fonts.smaller.regular.onPrimary
+        : style.fonts.small.regular.onPrimary;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -321,9 +343,14 @@ class _LabeledButton extends StatelessWidget {
             child: Text(
               text,
               textAlign: TextAlign.center,
-              style: minified
-                  ? style.fonts.smaller.regular.onPrimary
-                  : style.fonts.small.regular.onPrimary,
+              style: textStyle.copyWith(
+                shadows: shadows
+                    ? [
+                        Shadow(blurRadius: 6, color: style.colors.onBackground),
+                        Shadow(blurRadius: 6, color: style.colors.onBackground),
+                      ]
+                    : null,
+              ),
               maxLines: 2,
             ),
           ),

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -41,7 +41,6 @@ class Settings extends Table {
   RealColumn get sideBarWidth => real().nullable()();
   TextColumn get callButtons => text().withDefault(const Constant('[]'))();
   TextColumn get pinnedActions => text().withDefault(const Constant('[]'))();
-  BoolColumn get workWithUsTabEnabled => boolean().nullable()();
   TextColumn get videoDevice => text().nullable()();
   TextColumn get audioDevice => text().nullable()();
   TextColumn get outputDevice => text().nullable()();
@@ -53,6 +52,7 @@ class Settings extends Table {
   BoolColumn get highPassFilter => boolean().nullable()();
   TextColumn get muteKeys => text().nullable()();
   RealColumn get videoVolume => real().nullable()();
+  IntColumn get logLevel => integer().withDefault(const Constant(0))();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [DtoSettings].
@@ -168,12 +168,12 @@ extension _SettingsDb on DtoSettings {
         pinnedActions: (jsonDecode(e.pinnedActions) as List)
             .cast<String>()
             .toList(),
-        workWithUsTabEnabled: e.workWithUsTabEnabled ?? true,
         muteKeys: (e.muteKeys ?? '[]')
             .replaceFirst('[', '')
             .replaceFirst(']', '')
             .split(', '),
         videoVolume: e.videoVolume ?? 1,
+        logLevel: e.logLevel,
       ),
       media: MediaSettings(
         audioDevice: e.audioDevice,
@@ -201,7 +201,6 @@ extension _SettingsDb on DtoSettings {
       sideBarWidth: application.sideBarWidth,
       callButtons: jsonEncode(application.callButtons.toList()),
       pinnedActions: jsonEncode(application.pinnedActions.toList()),
-      workWithUsTabEnabled: application.workWithUsTabEnabled,
       audioDevice: media.audioDevice,
       videoDevice: media.videoDevice,
       screenDevice: media.screenDevice,
@@ -213,6 +212,7 @@ extension _SettingsDb on DtoSettings {
       highPassFilter: media.highPassFilter,
       muteKeys: application.muteKeys?.toString(),
       videoVolume: application.videoVolume,
+      logLevel: application.logLevel,
     );
   }
 }

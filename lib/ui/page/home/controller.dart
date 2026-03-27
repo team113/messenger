@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,17 +22,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/application_settings.dart';
+import '/domain/model/link.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
-import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
 import '/ui/worker/upgrade.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import 'introduction/controller.dart';
 
@@ -80,8 +81,8 @@ class HomeController extends GetxController {
   /// Used to position a status changing [Selector] properly.
   final GlobalKey panelKey = GlobalKey();
 
-  /// [ChatDirectLinkSlug] to display [IntroductionView] with.
-  final ChatDirectLinkSlug? link;
+  /// [DirectLinkSlug] to display [IntroductionView] with.
+  final DirectLinkSlug? link;
 
   /// [BuildContext] of the [HomeView].
   final BuildContext? context;
@@ -133,6 +134,9 @@ class HomeController extends GetxController {
   /// Returns the [ReleaseDownload] being active, if any.
   Rx<ReleaseDownload?> get activeDownload => _upgradeWorker.activeDownload;
 
+  /// Indicates whether currently authenticated [MyUser] is a support.
+  bool get isSupport => _auth.userId?.isSupport == true;
+
   @override
   void onInit() {
     super.onInit();
@@ -156,6 +160,11 @@ class HomeController extends GetxController {
     super.onReady();
     pages.jumpToPage(router.tab.index);
     refresh();
+
+    Log.debug(
+      'onReady() -> showIntroduction(${_settings.applicationSettings.value?.showIntroduction})',
+      '$runtimeType',
+    );
 
     if (_settings.applicationSettings.value?.showIntroduction ?? true) {
       if (_myUserService.myUser.value != null) {
@@ -196,7 +205,7 @@ class HomeController extends GetxController {
       _settings.setSideBarWidth(sideBarWidth.value);
 
   /// Sets the [MyUser.presence] to the provided value.
-  Future<void> setPresence(Presence presence) =>
+  Future<void> setPresence(UserPresence presence) =>
       _myUserService.updateUserPresence(presence);
 
   /// Toggles the [MyUser.muted] status.
@@ -213,10 +222,6 @@ class HomeController extends GetxController {
   Future<void> updateAvatar() async {
     await _myUserService.refresh();
   }
-
-  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
-  Future<void> setWorkWithUsTabEnabled(bool enabled) =>
-      _settings.setWorkWithUsTabEnabled(enabled);
 
   /// Refreshes the controller on [router] change.
   ///
@@ -243,6 +248,8 @@ class HomeController extends GetxController {
         myUser.phones.confirmed.isEmpty) {
       stage = IntroductionViewStage.oneTime;
     }
+
+    Log.debug('showIntroduction() -> stage is ${stage?.name}', '$runtimeType');
 
     if (stage != null) {
       IntroductionView.show(

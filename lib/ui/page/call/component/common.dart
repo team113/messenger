@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controller.dart';
+import '../widget/animated_rotation_button.dart';
 import '../widget/call_button.dart';
 import '../widget/call_title.dart';
 import '../widget/dock.dart';
@@ -353,10 +354,17 @@ class RemoteAudioButton extends CallButton {
 
 /// [CallButton] accepting a call without video.
 class AcceptAudioButton extends CallButton {
-  const AcceptAudioButton(super.c, {this.highlight = false});
+  const AcceptAudioButton(
+    super.c, {
+    this.highlight = false,
+    this.shadows = false,
+  });
 
   /// Indicator whether this [AcceptAudioButton] should be highlighted.
   final bool highlight;
+
+  /// Indicator whether the [hint] should have shadows or not.
+  final bool shadows;
 
   @override
   String get hint => 'btn_call_answer_with_audio'.l10n;
@@ -378,6 +386,7 @@ class AcceptAudioButton extends CallButton {
       border: highlight
           ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
           : null,
+      shadows: shadows,
       onPressed: () => c.join(withVideo: false),
     );
   }
@@ -385,10 +394,17 @@ class AcceptAudioButton extends CallButton {
 
 /// [CallButton] accepting a call with video.
 class AcceptVideoButton extends CallButton {
-  const AcceptVideoButton(super.c, {this.highlight = false});
+  const AcceptVideoButton(
+    super.c, {
+    this.highlight = false,
+    this.shadows = false,
+  });
 
   /// Indicator whether this [AcceptVideoButton] should be highlighted.
   final bool highlight;
+
+  /// Indicator whether the [hint] should have shadows or not.
+  final bool shadows;
 
   @override
   String get hint => 'btn_call_answer_with_video'.l10n;
@@ -408,6 +424,7 @@ class AcceptVideoButton extends CallButton {
       border: highlight
           ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
           : null,
+      shadows: shadows,
       onPressed: () => c.join(withVideo: true),
     );
   }
@@ -415,10 +432,13 @@ class AcceptVideoButton extends CallButton {
 
 /// [CallButton] declining a call.
 class DeclineButton extends CallButton {
-  const DeclineButton(super.c);
+  const DeclineButton(super.c, {this.shadows = false});
 
   @override
   String get hint => 'btn_call_decline'.l10n;
+
+  /// Indicator whether the [hint] should have shadows or not.
+  final bool shadows;
 
   @override
   Widget build({bool hinted = true, bool expanded = false, bool big = false}) {
@@ -432,6 +452,7 @@ class DeclineButton extends CallButton {
       expanded: expanded,
       big: big,
       constrained: c.isMobile,
+      shadows: shadows,
       onPressed: c.decline,
     );
   }
@@ -547,6 +568,30 @@ class SwitchButton extends CallButton {
         onPressed: c.switchCamera,
       );
     });
+  }
+}
+
+/// [CallButton] invoking the [MediaUtilsImpl.ensureReconnected].
+class ReconnectButton extends CallButton {
+  const ReconnectButton(super.c);
+
+  @override
+  String get hint => 'btn_reconnect_call'.l10n;
+
+  @override
+  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
+    return CallButtonWidget(
+      hint: hint,
+      asset: SvgIcons.callReconnect,
+      hinted: hinted,
+      expanded: expanded,
+      big: big,
+      constrained: c.isMobile,
+      onPressed: () => MediaUtils.ensureReconnected(),
+      builder: (_, child) {
+        return AnimatedRotatedButton(child: child);
+      },
+    );
   }
 }
 

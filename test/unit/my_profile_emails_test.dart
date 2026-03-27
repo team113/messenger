@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,7 +17,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -31,6 +31,7 @@ import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/secret.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -63,6 +64,7 @@ void main() async {
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
   final versionProvider = Get.put(VersionDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final secretsProvider = Get.put(RefreshSecretDriftProvider(common));
 
   setUp(() async {
     await myUserProvider.clear();
@@ -96,7 +98,7 @@ void main() async {
                     '__typename': 'MyUserEventsVersioned',
                     'events': [
                       {
-                        '__typename': 'EventUserEmailAdded',
+                        '__typename': 'UserEmailAddedEvent',
                         'userId': 'id',
                         'email': 'test@dummy.com',
                         'confirmed': false,
@@ -122,7 +124,7 @@ void main() async {
                     '__typename': 'MyUserEventsVersioned',
                     'events': [
                       {
-                        '__typename': 'EventUserEmailAdded',
+                        '__typename': 'UserEmailAddedEvent',
                         'userId': 'id',
                         'email': 'test@dummy.com',
                         'confirmed': true,
@@ -156,7 +158,7 @@ void main() async {
                     '__typename': 'MyUserEventsVersioned',
                     'events': [
                       {
-                        '__typename': 'EventUserEmailRemoved',
+                        '__typename': 'UserEmailRemovedEvent',
                         'userId': 'id',
                         'email': 'test@dummy.com',
                         'at': DateTime.now().toString(),
@@ -188,6 +190,7 @@ void main() async {
           credentialsProvider,
           accountProvider,
           locksProvider,
+          secretsProvider,
         ),
       );
       UserRepository userRepository = Get.put(
@@ -274,6 +277,7 @@ void main() async {
           credentialsProvider,
           accountProvider,
           locksProvider,
+          secretsProvider,
         ),
       );
       UserRepository userRepository = Get.put(

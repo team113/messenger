@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,11 +25,16 @@ class AudioUtilsMock extends AudioUtilsImpl {
   void ensureInitialized() {}
 
   @override
-  Future<void> once(AudioSource sound, {double? volume}) async {}
+  Future<void> once(
+    AudioSource sound, {
+    double? volume,
+    AudioMode? mode = AudioMode.sound,
+  }) async {}
 
   @override
   StreamSubscription<void> play(
     AudioSource music, {
     Duration fade = Duration.zero,
+    AudioMode mode = AudioMode.music,
   }) => StreamController().stream.listen((_) {});
 }

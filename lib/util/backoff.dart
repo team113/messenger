@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -47,7 +47,12 @@ class Backoff {
   }) async {
     int index = 0;
 
-    final CancelableOperation operation = CancelableOperation.fromFuture(
+    final StackTrace invokedFrom = StackTrace.current;
+
+    CancelableOperation? operation;
+    Object? exception;
+
+    operation = CancelableOperation.fromFuture(
       Future(() async {
         Duration backoff = Duration.zero;
 
@@ -61,12 +66,14 @@ class Backoff {
             return await callback();
           } catch (e, _) {
             if (!retryIf(e)) {
-              rethrow;
+              exception = e;
+              return operation?.cancel();
             }
 
             ++index;
             if (retries > 0 && index >= retries) {
-              rethrow;
+              exception = e;
+              return operation?.cancel();
             }
 
             if (backoff.inMilliseconds == 0) {
@@ -75,17 +82,19 @@ class Backoff {
               backoff *= 2;
             }
 
-            Log.debug(e.toString(), 'Backoff');
+            Log.debug('$e\n$invokedFrom', 'Backoff');
           }
         }
       }),
     );
 
-    cancel?.whenCancel.then((_) => operation.cancel());
+    operation.then((_) {}, onError: (e, _) {});
+
+    cancel?.whenCancel.then((_) => operation?.cancel());
 
     final result = await operation.valueOrCancellation();
     if (operation.isCanceled) {
-      throw OperationCanceledException();
+      throw exception ?? OperationCanceledException();
     }
 
     return result;
@@ -110,13 +119,19 @@ class UnreachableException implements Exception {
 extension ObjectIsNetworkRelatedException on Object {
   /// Indicates whether this [Object] is a network related [Exception].
   bool get isNetworkRelated {
+    if (this is DioException) {
+      final int? code = (this as DioException).response?.statusCode;
+      if (code != null) {
+        return code < 400 || code >= 500;
+      }
+    }
+
     return this is ConnectionException ||
         this is SocketException ||
         this is WebSocketException ||
         this is WebSocketChannelException ||
         this is HttpException ||
         this is ClientException ||
-        this is DioException ||
         this is TimeoutException ||
         this is ResubscriptionRequiredException ||
         this is ConnectionException;

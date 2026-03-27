@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -14,8 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License v3.0
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
-
-import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
 import 'package:get/get.dart';
@@ -134,12 +132,12 @@ class User {
   /// Sets the provided [ChatId] as a [dialog] of this [User].
   set dialog(ChatId dialog) => _dialog = dialog;
 
-  /// Returns the [Presence] of this [User].
-  Presence? get presence =>
-      presenceIndex == null ? null : Presence.values[presenceIndex!];
+  /// Returns the [UserPresence] of this [User].
+  UserPresence? get presence =>
+      presenceIndex == null ? null : UserPresence.values[presenceIndex!];
 
-  /// Sets the [Presence] of this [User] to be the provided [pres].
-  set presence(Presence? pres) {
+  /// Sets the [UserPresence] of this [User] to be the provided [pres].
+  set presence(UserPresence? pres) {
     presenceIndex = pres?.index;
   }
 
@@ -158,6 +156,9 @@ class UserId extends NewType<String> implements Comparable<UserId> {
 
   /// Constructs a [UserId] from the provided [val].
   factory UserId.fromJson(String val) = UserId;
+
+  /// Indicates whether this [UserId] is considered a support ID.
+  bool get isSupport => Config.isSupport(this);
 
   /// Returns a [String] representing this [UserId].
   String toJson() => val;
@@ -280,7 +281,7 @@ class UserName extends NewType<String> {
   factory UserName.fromJson(String val) = UserName.unchecked;
 
   /// Regular expression for basic [UserName] validation.
-  static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
+  static final RegExp _regExp = RegExp(r'^.{0,99}[^\s]$');
 
   /// Parses the provided [val] as a [UserName], if [val] meets the validation,
   /// or returns `null` otherwise.
@@ -443,112 +444,12 @@ class UserPhone extends NewType<String> {
   String toJson() => val;
 }
 
-/// Direct link to a `Chat`.
-@JsonSerializable()
-class ChatDirectLink {
-  ChatDirectLink({
-    required this.slug,
-    this.usageCount = 0,
-    required this.createdAt,
-  });
-
-  /// Constructs a [ChatDirectLink] from the provided [json].
-  factory ChatDirectLink.fromJson(Map<String, dynamic> json) =>
-      _$ChatDirectLinkFromJson(json);
-
-  /// Unique slug associated with this [ChatDirectLink].
-  ChatDirectLinkSlug slug;
-
-  /// Number of times this [ChatDirectLink] has been used.
-  int usageCount;
-
-  /// [PreciseDateTime] when this [ChatDirectLink] was created.
-  PreciseDateTime createdAt;
-
-  @override
-  bool operator ==(Object other) =>
-      other is ChatDirectLink &&
-      slug == other.slug &&
-      usageCount == other.usageCount &&
-      createdAt == other.createdAt;
-
-  @override
-  int get hashCode => Object.hash(slug, usageCount);
-
-  /// Returns a [Map] representing this [ChatDirectLink].
-  Map<String, dynamic> toJson() => _$ChatDirectLinkToJson(this);
-}
-
-/// Slug of a [ChatDirectLink].
-class ChatDirectLinkSlug extends NewType<String> {
-  const ChatDirectLinkSlug._(super.val);
-
-  ChatDirectLinkSlug(String value) : super(value.trim()) {
-    if (val.length > 100) {
-      throw const FormatException('Must contain no more than 100 characters');
-    } else if (val.isEmpty) {
-      throw const FormatException('Must not be empty');
-    } else if (!_regExp.hasMatch(val)) {
-      throw FormatException('Does not match validation RegExp: `$val`');
-    }
-  }
-
-  /// Creates an object without any validation.
-  const factory ChatDirectLinkSlug.unchecked(String val) = ChatDirectLinkSlug._;
-
-  /// Constructs a [ChatDirectLinkSlug] from the provided [val].
-  factory ChatDirectLinkSlug.fromJson(String val) =
-      ChatDirectLinkSlug.unchecked;
-
-  /// Creates a random [ChatDirectLinkSlug] of the provided [length].
-  factory ChatDirectLinkSlug.generate([int length = 10]) {
-    final Random r = Random();
-    const String chars =
-        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890_-';
-
-    return ChatDirectLinkSlug(
-      List.generate(length, (i) {
-        // `-` and `_` being the last or first might not be parsed as a link by
-        // some applications.
-        if (i == 0 || i == length - 1) {
-          final str = chars.replaceFirst('-', '').replaceFirst('_', '');
-          return str[r.nextInt(str.length)];
-        }
-
-        return chars[r.nextInt(chars.length)];
-      }).join(),
-    );
-  }
-
-  /// Regular expression for basic [ChatDirectLinkSlug] validation.
-  static final RegExp _regExp = RegExp(r'^[A-Za-z0-9_-]{1,100}$');
-
-  /// Parses the provided [val] as a [ChatDirectLinkSlug], if [val] meets the
-  /// validation, or returns `null` otherwise.
-  ///
-  /// If [val] starts with [Config.link], then that part is omitted.
-  static ChatDirectLinkSlug? tryParse(String val) {
-    if (val.startsWith('${Config.link}/')) {
-      val = val.substring(Config.link.length + 1);
-    }
-
-    try {
-      return ChatDirectLinkSlug(val);
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Returns a [String] representing this [ChatDirectLinkSlug].
-  String toJson() => val;
-}
-
 /// Status of an [User].
 class UserTextStatus extends NewType<String> {
   const UserTextStatus._(super.val);
 
   UserTextStatus(String val) : super(val) {
-    if (val.length > 25) {
+    if (val.length > 33) {
       throw const FormatException('Must contain no more than 25 characters');
     } else if (val.isEmpty) {
       throw const FormatException('Must not be empty');

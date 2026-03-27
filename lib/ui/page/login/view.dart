@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -100,7 +100,10 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('RecoveryField'),
                   state: c.recovery,
-                  label: 'label_sign_in_input'.l10n,
+                  label: 'label_identifier'.l10n,
+                  hint: 'label_sign_in_input'.l10n,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  spellCheck: false,
                 ),
                 const SizedBox(height: 25),
                 PrimaryButton(
@@ -154,32 +157,24 @@ class LoginView extends StatelessWidget {
                   style: style.fonts.normal.regular.secondary,
                 ),
                 const SizedBox(height: 25),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const Key('PasswordField'),
                   state: c.newPassword,
                   label: 'label_new_password'.l10n,
-                  obscure: c.obscureNewPassword.value,
-                  onSuffixPressed: c.obscureNewPassword.toggle,
+                  hint: 'label_enter_password'.l10n,
+                  obscured: c.obscureNewPassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscureNewPassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 16),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const Key('RepeatPasswordField'),
                   state: c.repeatPassword,
-                  label: 'label_repeat_password'.l10n,
-                  obscure: c.obscureRepeatPassword.value,
-                  onSuffixPressed: c.obscureRepeatPassword.toggle,
+                  label: 'label_confirm_password'.l10n,
+                  hint: 'label_repeat_password'.l10n,
+                  obscured: c.obscureRepeatPassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscureRepeatPassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
@@ -210,38 +205,28 @@ class LoginView extends StatelessWidget {
                   label: 'label_login'.l10n,
                   hint: 'alphanumeric-login_123',
                   floatingLabelBehavior: FloatingLabelBehavior.always,
+                  spellCheck: false,
+                  autocomplete: AutocompleteKind.username,
                 ),
                 const SizedBox(height: 16),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const ValueKey('PasswordField'),
                   state: c.password,
                   label: 'label_password'.l10n,
-                  obscure: c.obscurePassword.value,
-                  onSuffixPressed: c.obscurePassword.toggle,
+                  hint: 'label_enter_password'.l10n,
+                  obscured: c.obscurePassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscurePassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
-                  hint: '***',
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 16),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const ValueKey('RepeatPasswordField'),
                   state: c.repeatPassword,
-                  label: 'label_password'.l10n,
-                  obscure: c.obscureRepeatPassword.value,
-                  onSuffixPressed: c.obscureRepeatPassword.toggle,
+                  label: 'label_confirm_password'.l10n,
+                  hint: 'label_repeat_password'.l10n,
+                  obscured: c.obscureRepeatPassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscureRepeatPassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
-                  hint: '***',
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  autocomplete: AutocompleteKind.newPassword,
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
@@ -277,6 +262,7 @@ class LoginView extends StatelessWidget {
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
+                  spellCheck: false,
                 ),
                 const SizedBox(height: 25),
                 Center(
@@ -400,21 +386,20 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('UsernameField'),
                   state: c.login,
-                  label: 'label_sign_in_input'.l10n,
+                  label: 'label_identifier'.l10n,
+                  hint: 'label_sign_in_input'.l10n,
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  spellCheck: false,
+                  autocomplete: AutocompleteKind.username,
                 ),
                 const SizedBox(height: 16),
-                ReactiveTextField(
+                ReactiveTextField.password(
                   key: const ValueKey('PasswordField'),
                   state: c.password,
                   label: 'label_password'.l10n,
-                  obscure: c.obscurePassword.value,
-                  onSuffixPressed: c.obscurePassword.toggle,
+                  hint: 'label_your_password'.l10n,
+                  obscured: c.obscurePassword,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscurePassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
-                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(21, 8, 8, 8),
@@ -473,6 +458,7 @@ class LoginView extends StatelessWidget {
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   style: style.fonts.normal.regular.onBackground,
                   treatErrorAsStatus: false,
+                  spellCheck: false,
                 ),
                 const SizedBox(height: 25),
                 Center(

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,7 +28,6 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
 import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
 import 'common.dart';
@@ -48,7 +47,6 @@ class Chats extends Table {
   BoolColumn get isHidden => boolean().withDefault(const Constant(false))();
   BoolColumn get isArchived => boolean().withDefault(const Constant(false))();
   TextColumn get muted => text().nullable()();
-  TextColumn get directLink => text().nullable()();
   IntColumn get createdAt => integer()
       .map(const PreciseDateTimeConverter())
       .clientDefault(
@@ -392,9 +390,6 @@ extension _ChatDb on DtoChat {
         muted: e.muted == null
             ? null
             : MuteDuration.fromJson(jsonDecode(e.muted!)),
-        directLink: e.directLink == null
-            ? null
-            : ChatDirectLink.fromJson(jsonDecode(e.directLink!)),
         createdAt: e.createdAt,
         updatedAt: e.updatedAt,
         lastReads: (jsonDecode(e.lastReads) as List)
@@ -444,9 +439,6 @@ extension _ChatDb on DtoChat {
       isHidden: value.isHidden,
       isArchived: value.isArchived,
       muted: value.muted == null ? null : jsonEncode(value.muted?.toJson()),
-      directLink: value.directLink == null
-          ? null
-          : jsonEncode(value.directLink?.toJson()),
       createdAt: value.createdAt,
       updatedAt: value.updatedAt,
       lastReads: jsonEncode(value.lastReads.map((e) => e.toJson()).toList()),

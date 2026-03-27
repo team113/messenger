@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -60,4 +60,8 @@ class MediaSettings {
 
   /// Indicator whether high pass filter should be enabled for local tracks.
   bool? highPassFilter;
+
+  @override
+  String toString() =>
+      'MediaSettings(videoDevice: $videoDevice, audioDevice: $audioDevice, outputDevice: $outputDevice, screenDevice: $screenDevice, noiseSuppression: $noiseSuppression, noiseSuppressionLevel: $noiseSuppressionLevel, echoCancellation: $echoCancellation, autoGainControl: $autoGainControl, highPassFilter: $highPassFilter)';
 }

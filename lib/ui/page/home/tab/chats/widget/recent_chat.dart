@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -759,11 +759,19 @@ class RecentChatTile extends StatelessWidget {
 
           subtitle = [Flexible(child: content)];
         } else {
-          subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
+          if (chat.isMonolog) {
+            subtitle = [Flexible(child: Text('label_no_notes'.l10n))];
+          } else if (chat.isSupport) {
+            subtitle = [Flexible(child: Text('label_support_service'.l10n))];
+          } else {
+            subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
+          }
         }
       } else {
         if (chat.isMonolog) {
           subtitle = [Flexible(child: Text('label_no_notes'.l10n))];
+        } else if (chat.isSupport) {
+          subtitle = [Flexible(child: Text('label_support_service'.l10n))];
         } else {
           subtitle = [Flexible(child: Text('label_no_messages'.l10n))];
         }
@@ -813,13 +821,21 @@ class RecentChatTile extends StatelessWidget {
                 e.file.bytes.value!,
                 key: key,
                 height: 300,
+                interface: false,
+                autoplay: true,
               ),
             );
           }
         } else {
           content = FittedBox(
             fit: BoxFit.cover,
-            child: VideoThumbnail.file(e.file.path!, key: key, height: 300),
+            child: VideoThumbnail.file(
+              e.file.path!,
+              key: key,
+              height: 300,
+              interface: false,
+              autoplay: true,
+            ),
           );
         }
       } else {
@@ -857,6 +873,8 @@ class RecentChatTile extends StatelessWidget {
             key: key,
             height: 300,
             onError: onError,
+            interface: false,
+            autoplay: true,
           ),
         );
       } else {

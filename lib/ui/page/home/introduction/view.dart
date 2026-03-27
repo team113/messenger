@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -77,7 +77,7 @@ class IntroductionView extends StatelessWidget {
 
     return GetBuilder(
       key: const Key('IntroductionView'),
-      init: IntroductionController(Get.find(), initial: initial),
+      init: IntroductionController(Get.find(), Get.find(), initial: initial),
       builder: (IntroductionController c) {
         return Obx(() {
           final Widget header;
@@ -310,11 +310,11 @@ class IntroductionView extends StatelessWidget {
     return ReactiveTextField(
       state: c.link,
       onSuffixPressed: copy,
-      selectable: c.myUser.value?.chatDirectLink != null,
       trailing: PlatformUtils.isMobile
           ? const SvgIcon(SvgIcons.share)
           : const SvgIcon(SvgIcons.copy),
       label: 'label_your_direct_link'.l10n,
+      spellCheck: false,
     );
   }
 

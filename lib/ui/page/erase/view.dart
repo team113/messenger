@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -122,23 +122,20 @@ class EraseView extends StatelessWidget {
           ReactiveTextField(
             key: const Key('UsernameField'),
             state: c.login,
-            label: 'label_sign_in_input'.l10n,
+            label: 'label_identifier'.l10n,
+            hint: 'label_sign_in_input'.l10n,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            spellCheck: false,
+            autocomplete: AutocompleteKind.username,
           ),
           const SizedBox(height: 16),
-          ReactiveTextField(
-            key: const ValueKey('PasswordField'),
+          ReactiveTextField.password(
+            key: const Key('PasswordField'),
             state: c.password,
             label: 'label_password'.l10n,
-            obscure: c.obscurePassword.value,
-            onSuffixPressed: c.obscurePassword.toggle,
+            hint: 'label_your_password'.l10n,
+            obscured: c.obscurePassword,
             treatErrorAsStatus: false,
-            trailing: Center(
-              child: SvgIcon(
-                c.obscurePassword.value
-                    ? SvgIcons.visibleOff
-                    : SvgIcons.visibleOn,
-              ),
-            ),
           ),
           const SizedBox(height: 25),
           Obx(() {
@@ -161,7 +158,7 @@ class EraseView extends StatelessWidget {
             PrimaryButton(
               key: const Key('ConfirmDelete'),
               title: 'btn_delete_account'.l10n,
-              onPressed: () => _deleteAccount(context, c),
+              onPressed: c.isSupport ? null : () => _deleteAccount(context, c),
               danger: true,
             ),
           ),

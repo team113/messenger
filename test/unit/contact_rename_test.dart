@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,7 +17,7 @@
 
 // import 'package:flutter_test/flutter_test.dart';
 // import 'package:get/get.dart';
-// import 'package:graphql_flutter/graphql_flutter.dart';
+// import 'package:graphql/client.dart';
 // import 'package:messenger/api/backend/schema.dart';
 // import 'package:messenger/domain/model/contact.dart';
 // import 'package:messenger/domain/model/user.dart';
@@ -104,7 +104,7 @@ void main() async {
   //     '__typename': 'ChatContactEventsVersioned',
   //     'events': [
   //       {
-  //         '__typename': 'EventChatContactNameUpdated',
+  //         '__typename': 'ChatContactNameUpdatedEvent',
   //         'contactId': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
   //         'name': 'newname',
   //         'at': DateTime.now().toString(),

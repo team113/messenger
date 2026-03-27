@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -38,14 +38,15 @@ import '/api/backend/schema.dart'
         ChatMessageTextInput,
         ChatMessageAttachmentsInput,
         ChatMessageRepliesInput;
+import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat_message_input.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -60,7 +61,9 @@ import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
+import '/domain/service/session.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -108,10 +111,17 @@ class ChatController extends GetxController {
     this._userService,
     this._settingsRepository,
     this._contactService,
-    this._notificationService, {
+    this._notificationService,
+    this._myUserService,
+    this._sessionService, {
     this.itemId,
     this.onContext,
-  });
+    bool search = false,
+  }) {
+    if (search) {
+      toggleSearch(true);
+    }
+  }
 
   /// ID of this [Chat].
   ChatId id;
@@ -323,6 +333,12 @@ class ChatController extends GetxController {
   /// [ContactService] maintaining [ChatContact]s of this [me].
   final ContactService _contactService;
 
+  /// [MyUserService] to pass to a [MessageFieldController].
+  final MyUserService _myUserService;
+
+  /// [SessionService] to pass to a [MessageFieldController].
+  final SessionService _sessionService;
+
   /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
 
@@ -404,8 +420,14 @@ class ChatController extends GetxController {
   /// Indicates whether a next page of the [elements] is loading.
   RxBool get nextLoading => _fragment?.nextLoading ?? chat!.nextLoading;
 
-  /// Indicates whether the [chat] this [ChatController] is about is a dialog.
+  /// Indicates whether the [chat] this [ChatController] is a dialog.
   bool get isDialog => chat?.chat.value.isDialog == true;
+
+  /// Indicates whether the [chat] this [ChatController] is a monolog.
+  bool get isMonolog => chat?.chat.value.isMonolog == true;
+
+  /// Indicates whether the [chat] this [ChatController] is a support-[Chat].
+  bool get isSupport => chat?.chat.value.isSupport == true;
 
   /// Returns [RxUser] being recipient of this [chat].
   ///
@@ -437,6 +459,8 @@ class ChatController extends GetxController {
 
   @override
   void onInit() {
+    Log.debug('onInit($id)', '$runtimeType');
+
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
     }
@@ -445,7 +469,11 @@ class ChatController extends GetxController {
       _chatService,
       _userService,
       _settingsRepository,
-      onChanged: updateDraft,
+      _authService,
+      _myUserService,
+      _sessionService,
+      _notificationService,
+      onChanged: _updateDraft,
       onCall: call,
       onKeyUp: (key) {
         if (send.field.controller.text.isNotEmpty) {
@@ -492,6 +520,11 @@ class ChatController extends GetxController {
                 ),
               )
               .onError<PostChatMessageException>(
+                (_, _) {},
+                test: (e) =>
+                    e.code == PostChatMessageErrorCode.unknownAttachment,
+              )
+              .onError<PostChatMessageException>(
                 (_, _) => _showBlockedPopup(),
                 test: (e) => e.code == PostChatMessageErrorCode.blocked,
               )
@@ -501,11 +534,12 @@ class ChatController extends GetxController {
               .onError<ConnectionException>((e, _) {});
 
           send.clear(unfocus: false);
-
           chat?.setDraft();
         }
       },
     );
+
+    send.onInit();
 
     PlatformUtils.isActive.then((value) => active.value = value);
     _onActivityChanged = PlatformUtils.onActivityChanged.listen((v) {
@@ -583,12 +617,16 @@ class ChatController extends GetxController {
 
   @override
   void onReady() {
+    Log.debug('onReady($id)', '$runtimeType');
+
     listController.addListener(_listControllerListener);
     listController.sliverController.stickyIndex.addListener(_updateSticky);
     AudioUtils.ensureInitialized();
     _fetchChat();
 
-    if (!PlatformUtils.isMobile) {
+    send.onReady();
+
+    if (!PlatformUtils.isMobile && router.obscuring.isEmpty) {
       send.field.focus.requestFocus();
     }
 
@@ -597,6 +635,8 @@ class ChatController extends GetxController {
 
   @override
   void onClose() {
+    Log.debug('onClose($id)', '$runtimeType');
+
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _selectingWorker?.dispose();
@@ -690,7 +730,7 @@ class ChatController extends GetxController {
 
         case DeleteChatMessageErrorCode.notAuthor:
         case DeleteChatMessageErrorCode.quoted:
-        case DeleteChatMessageErrorCode.read:
+        case DeleteChatMessageErrorCode.uneditable:
           MessagePopup.error(e.toMessage());
           break;
 
@@ -706,7 +746,7 @@ class ChatController extends GetxController {
 
         case DeleteChatForwardErrorCode.notAuthor:
         case DeleteChatForwardErrorCode.quoted:
-        case DeleteChatForwardErrorCode.read:
+        case DeleteChatForwardErrorCode.uneditable:
           MessagePopup.error(e.toMessage());
           break;
 
@@ -739,16 +779,25 @@ class ChatController extends GetxController {
 
   /// Starts the editing of the specified [item], if allowed.
   void editMessage(ChatItem item) {
+    Log.debug('editMessage($item)', '$runtimeType');
+
     if (!item.isEditable(chat!.chat.value, me!)) {
+      Log.warning('editMessage($item) -> not editable', '$runtimeType');
       MessagePopup.error('err_uneditable_message'.l10n);
       return;
     }
 
     if (item is ChatMessage) {
+      final bool wasNull = edit.value == null;
+
       edit.value ??= MessageFieldController(
         _chatService,
         _userService,
         _settingsRepository,
+        _authService,
+        _myUserService,
+        _sessionService,
+        _notificationService,
         text: item.text?.val,
         onKeyUp: (key) {
           if (key == LogicalKeyboardKey.escape) {
@@ -783,30 +832,42 @@ class ChatController extends GetxController {
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
+          Log.debug(
+            'editMessage() -> onSubmit() -> text(${edit.value!.field.text.trim()}) vs send(${send.field.text}), attachments(${edit.value!.attachments}), replies(${edit.value!.replied})',
+            '$runtimeType',
+          );
+
           _stopTyping();
 
-          final bool hasText = edit.value!.field.text.trim().isNotEmpty;
+          final bool hasText = edit.value!.field.text.trim() != item.text?.val;
 
           if (hasText ||
               edit.value!.attachments.isNotEmpty ||
               edit.value!.replied.isNotEmpty) {
             try {
-              await _chatService.editChatMessage(
-                item,
-                text: ChatMessageTextInput(
-                  ChatMessageText(edit.value!.field.text),
-                ),
-                attachments: ChatMessageAttachmentsInput(
-                  edit.value!.attachments.map((e) => e.value).toList(),
-                ),
-                repliesTo: ChatMessageRepliesInput(
-                  edit.value!.replied.map((e) => e.value.id).toList(),
-                ),
+              final ChatMessageTextInput text = ChatMessageTextInput(
+                ChatMessageText(edit.value!.field.text),
+              );
+
+              final ChatMessageAttachmentsInput attachments =
+                  ChatMessageAttachmentsInput(
+                    edit.value!.attachments.map((e) => e.value).toList(),
+                  );
+
+              final ChatMessageRepliesInput repliesTo = ChatMessageRepliesInput(
+                edit.value!.replied.map((e) => e.value.id).toList(),
               );
 
               closeEditing();
 
               send.field.focus.requestFocus();
+
+              await _chatService.editChatMessage(
+                item,
+                text: text,
+                attachments: attachments,
+                repliesTo: repliesTo,
+              );
 
               // If the message is not sent yet, resend it.
               if (item.status.value == SendingStatus.error) {
@@ -833,6 +894,12 @@ class ChatController extends GetxController {
         },
       );
 
+      if (wasNull) {
+        edit.value?.onInit();
+        edit.value?.onReady();
+      }
+
+      edit.value?.toggleLogs(isMonolog || isSupport);
       edit.value?.edited.value = item;
       edit.value?.field.focus.requestFocus();
 
@@ -855,7 +922,9 @@ class ChatController extends GetxController {
   }
 
   /// Updates [RxChat.draft] with the current values of the [send] field.
-  void updateDraft() {
+  void _updateDraft() {
+    Log.debug('_updateDraft()', '$runtimeType');
+
     // [Attachment]s to persist in a [RxChat.draft].
     final Iterable<MapEntry<GlobalKey, Attachment>> persisted;
 
@@ -877,10 +946,17 @@ class ChatController extends GetxController {
 
   /// Fetches the local [chat] value from [_chatService] by the provided [id].
   Future<void> _fetchChat() async {
+    Log.debug('_fetchChat($id)', '$runtimeType');
+
     ISentrySpan span = _ready.startChild('fetch');
 
     try {
       _ignorePositionChanges = true;
+
+      if (isClosed) {
+        Log.debug('_fetchChat($id) -> isClosed', '$runtimeType');
+        return;
+      }
 
       status.value = RxStatus.loading();
 
@@ -891,24 +967,49 @@ class ChatController extends GetxController {
             ? userOrFuture
             : await userOrFuture;
 
+        if (isClosed) {
+          Log.debug('_fetchChat($id) -> isClosed', '$runtimeType');
+          return;
+        }
+
+        Log.debug(
+          '_fetchChat($id) -> replacing id($id) with user -> `$user`',
+          '$runtimeType',
+        );
+
         id = user?.user.value.dialog ?? id;
-        if (user != null && user.id == me) {
-          id = _chatService.monolog;
+
+        if (user != null) {
+          if (user.id == me) {
+            id = _chatService.monolog;
+          } else if (user.id.val == Config.supportId) {
+            id = _chatService.support;
+          }
         }
       }
 
       final FutureOr<RxChat?> fetched = _chatService.get(id);
       chat = fetched is RxChat? ? fetched : await fetched;
 
+      if (isClosed) {
+        Log.debug('_fetchChat($id) -> isClosed', '$runtimeType');
+        return;
+      }
+
       span.finish();
       span = _ready.startChild('fetch');
+
+      Log.debug('_fetchChat($id) -> chat is $chat', '$runtimeType');
 
       if (chat == null) {
         status.value = RxStatus.empty();
       } else {
+        _chatSubscription?.cancel();
         _chatSubscription = chat!.updates.listen((_) {});
 
         unreadMessages = chat!.chat.value.unreadCount;
+
+        send.toggleLogs(isMonolog || isSupport);
 
         await chat!.ensureDraft();
         final ChatMessage? draft = chat!.draft.value;
@@ -968,6 +1069,7 @@ class ChatController extends GetxController {
         };
 
         if (isDialog) {
+          _userSubscription?.cancel();
           _userSubscription = chat?.members.values
               .lastWhereOrNull((u) => u.user.id != me)
               ?.user
@@ -1000,6 +1102,7 @@ class ChatController extends GetxController {
         // [_messageInitializedWorker] to determine the initial messages list
         // index and offset.
         if (!chat!.status.value.isSuccess) {
+          _messageInitializedWorker?.dispose();
           _messageInitializedWorker = ever(chat!.status, (
             RxStatus status,
           ) async {
@@ -1023,6 +1126,11 @@ class ChatController extends GetxController {
               }
             }
           });
+        }
+
+        if (isClosed) {
+          Log.debug('_fetchChat($id) -> isClosed', '$runtimeType');
+          return;
         }
 
         span.finish();
@@ -1072,6 +1180,7 @@ class ChatController extends GetxController {
         if (_bottomLoader != null) {
           showLoaders.value = false;
 
+          _bottomLoaderEndTimer?.cancel();
           _bottomLoaderEndTimer = Timer(const Duration(milliseconds: 300), () {
             if (_bottomLoader != null) {
               elements.remove(_bottomLoader!.id);
@@ -1692,8 +1801,8 @@ class ChatController extends GetxController {
   Future<void> downloadMediaAs(List<Attachment> attachments) async {
     try {
       String? to = attachments.length > 1
-          ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
-          : await FilePicker.platform.saveFile(
+          ? await FilePicker.getDirectoryPath(lockParentWindow: true)
+          : await FilePicker.saveFile(
               fileName: attachments.first.filename,
               type: attachments.first is ImageAttachment
                   ? FileType.image
@@ -1712,6 +1821,8 @@ class ChatController extends GetxController {
 
   /// Enables or disabled [search]ing of the [ChatItem]s of this [Chat].
   void toggleSearch([bool? value]) {
+    Log.debug('toggleSearch($value)', '$runtimeType($hashCode)');
+
     if (value ?? searching.value) {
       searching.value = false;
       search.clear();
@@ -2396,7 +2507,7 @@ class ChatController extends GetxController {
   /// during operations with this [Chat].
   void _showBlockedPopup() {
     switch (chat?.chat.value.kind) {
-      case ChatKind.dialog:
+      case Kind.dialog:
         if (user != null) {
           MessagePopup.error(
             'err_blocked_by'.l10nfmt({
@@ -2406,12 +2517,12 @@ class ChatController extends GetxController {
         }
         break;
 
-      case ChatKind.group:
+      case Kind.group:
         MessagePopup.error('err_blocked'.l10n);
         break;
 
-      case ChatKind.monolog:
-      case ChatKind.artemisUnknown:
+      case Kind.monolog:
+      case Kind.artemisUnknown:
       case null:
         // No-op.
         break;
@@ -2519,6 +2630,9 @@ class ChatMessageElement extends ListElement {
 
   /// [ChatItem] of this [ChatMessageElement].
   final Rx<ChatItem> item;
+
+  @override
+  String toString() => 'ChatMessageElement($id, ${item.value})';
 }
 
 /// [ListElement] representing a [ChatCall].
@@ -2528,6 +2642,9 @@ class ChatCallElement extends ListElement {
 
   /// [ChatItem] of this [ChatCallElement].
   final Rx<ChatItem> item;
+
+  @override
+  String toString() => 'ChatCallElement($id, ${item.value})';
 }
 
 /// [ListElement] representing a [ChatInfo].
@@ -2537,6 +2654,9 @@ class ChatInfoElement extends ListElement {
 
   /// [ChatItem] of this [ChatInfoElement].
   final Rx<ChatItem> item;
+
+  @override
+  String toString() => 'ChatInfoElement($id, ${item.value})';
 }
 
 /// [ListElement] representing a [ChatForward].
@@ -2558,18 +2678,28 @@ class ChatForwardElement extends ListElement {
 
   /// [UserId] being an author of the [forwards].
   final UserId authorId;
+
+  @override
+  String toString() =>
+      'ChatForwardElement($id, note(${note.value?.value}) -> ${forwards.map((e) => e.value)})';
 }
 
 /// [ListElement] representing a [DateTime] label.
 class DateTimeElement extends ListElement {
   DateTimeElement(PreciseDateTime at)
     : super(ListElementId(at, const ChatItemId('0')));
+
+  @override
+  String toString() => 'DateTimeElement($id)';
 }
 
 /// [ListElement] indicating unread [ChatItem]s below.
 class UnreadMessagesElement extends ListElement {
   UnreadMessagesElement(PreciseDateTime at)
     : super(ListElementId(at, const ChatItemId('1')));
+
+  @override
+  String toString() => 'UnreadMessagesElement($id)';
 }
 
 /// [ListElement] representing a [CustomProgressIndicator].
@@ -2589,6 +2719,9 @@ class LoaderElement extends ListElement {
           const ChatItemId('0'),
         ),
       );
+
+  @override
+  String toString() => 'LoaderElement($id)';
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
@@ -2599,14 +2732,14 @@ extension ChatViewExt on Chat {
   /// presence of the provided [partner], if any.
   String? getSubtitle({RxUser? partner}) {
     switch (kind) {
-      case ChatKind.dialog:
+      case Kind.dialog:
         return partner?.user.value.getStatus(partner.lastSeen.value);
 
-      case ChatKind.group:
+      case Kind.group:
         return 'label_subtitle_participants'.l10nfmt({'count': membersCount});
 
-      case ChatKind.monolog:
-      case ChatKind.artemisUnknown:
+      case Kind.monolog:
+      case Kind.artemisUnknown:
         return null;
     }
   }
@@ -2614,14 +2747,14 @@ extension ChatViewExt on Chat {
   /// Returns a string that is based on [members] or [id] of this [Chat].
   String colorDiscriminant(UserId? me) {
     switch (kind) {
-      case ChatKind.monolog:
+      case Kind.monolog:
         return (members.firstOrNull?.user.num ?? id).val;
-      case ChatKind.dialog:
+      case Kind.dialog:
         return (members.firstWhereOrNull((e) => e.user.id != me)?.user.num ??
                 id)
             .val;
-      case ChatKind.group:
-      case ChatKind.artemisUnknown:
+      case Kind.group:
+      case Kind.artemisUnknown:
         return id.val;
     }
   }
@@ -2637,11 +2770,11 @@ extension ChatRxExt on RxChat {
     String title = 'dot'.l10n * 3;
 
     switch (chat.value.kind) {
-      case ChatKind.monolog:
+      case Kind.monolog:
         title = chat.value.name?.val ?? 'label_chat_monolog'.l10n;
         break;
 
-      case ChatKind.dialog:
+      case Kind.dialog:
         final String? name =
             members.values
                 .firstWhereOrNull((u) => u.user.id != me)
@@ -2655,7 +2788,7 @@ extension ChatRxExt on RxChat {
         title = name ?? title;
         break;
 
-      case ChatKind.group:
+      case Kind.group:
         if (chat.value.name != null) {
           title = chat.value.name!.val;
         } else {
@@ -2683,7 +2816,7 @@ extension ChatRxExt on RxChat {
         }
         break;
 
-      case ChatKind.artemisUnknown:
+      case Kind.artemisUnknown:
         // No-op.
         break;
     }

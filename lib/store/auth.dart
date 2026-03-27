@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,6 +26,7 @@ import '/api/backend/extension/credentials.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/link.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
@@ -285,13 +286,11 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug) async {
-    Log.debug('useChatDirectLink($slug)', '$runtimeType');
+  Future<Chat> useDirectLink(DirectLinkSlug slug) async {
+    Log.debug('useDirectLink($slug)', '$runtimeType');
 
     final response = await Backoff.run(
-      () async {
-        return await _graphQlProvider.useChatDirectLink(slug);
-      },
+      () async => await _graphQlProvider.useDirectLink(slug),
       retryIf: (e) => e.isNetworkRelated,
       retries: 10,
     );

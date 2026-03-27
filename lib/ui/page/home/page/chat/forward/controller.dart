@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -106,6 +106,10 @@ class ChatForwardController extends GetxController {
       _chatService,
       _userService,
       _settingsRepository,
+      null,
+      null,
+      null,
+      null,
       text: text,
       attachments: attachments,
       canPin: false,

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -210,6 +210,10 @@ class BlocklistRepository extends DisposableInterface
     _remoteSubscription?.close(immediate: true);
 
     await WebUtils.protect(() async {
+      if (isClosed) {
+        return;
+      }
+
       _remoteSubscription = StreamQueue(
         await _blocklistRemoteEvents(
           () => _sessionLocal.data[me]?.blocklistVersion,
@@ -290,12 +294,12 @@ class BlocklistRepository extends DisposableInterface
   BlocklistEvent _blocklistEvent(BlocklistEventsVersionedMixin$Events e) {
     Log.trace('_blocklistEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventBlocklistRecordAdded') {
+    if (e.$$typename == 'BlocklistRecordAddedEvent') {
       final node =
-          e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
-      return EventBlocklistRecordAdded(node.user.toDto(), node.at, node.reason);
-    } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
-      return EventBlocklistRecordRemoved(e.user.toDto(), e.at);
+          e as BlocklistEventsVersionedMixin$Events$BlocklistRecordAddedEvent;
+      return BlocklistRecordAddedEvent(node.user.toDto(), node.at, node.reason);
+    } else if (e.$$typename == 'BlocklistRecordRemovedEvent') {
+      return BlocklistRecordRemovedEvent(e.user.toDto(), e.at);
     } else {
       throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
     }
@@ -309,7 +313,6 @@ class BlocklistRepository extends DisposableInterface
         count.value = blocklist.totalCount;
         await _sessionLocal.upsert(
           me,
-
           blocklistCount: NewType(blocklist.totalCount),
           blocklistVersion: NewType(blocklist.ver),
         );
@@ -333,7 +336,7 @@ class BlocklistRepository extends DisposableInterface
           for (final BlocklistEvent event in versioned.events) {
             switch (event.kind) {
               case BlocklistEventKind.recordAdded:
-                event as EventBlocklistRecordAdded;
+                event as BlocklistRecordAddedEvent;
                 ++count.value;
                 put(
                   DtoBlocklistRecord(
@@ -348,7 +351,7 @@ class BlocklistRepository extends DisposableInterface
                 break;
 
               case BlocklistEventKind.recordRemoved:
-                event as EventBlocklistRecordRemoved;
+                event as BlocklistRecordRemovedEvent;
                 --count.value;
                 remove(event.user.id);
                 break;
@@ -357,7 +360,6 @@ class BlocklistRepository extends DisposableInterface
 
           await _sessionLocal.upsert(
             me,
-
             blocklistCount: NewType(count.value),
             blocklistVersion: NewType(versioned.ver),
           );

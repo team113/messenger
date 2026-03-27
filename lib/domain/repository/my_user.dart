@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,7 +19,7 @@ import 'package:get/get.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 
-import '/api/backend/schema.dart' show Presence, CropAreaInput;
+import '/api/backend/schema.dart' show UserPresence, CropAreaInput;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -65,7 +65,7 @@ abstract class AbstractMyUserRepository {
   Future<void> updateUserLogin(UserLogin? login);
 
   /// Updates [MyUser.presence] to the provided value.
-  Future<void> updateUserPresence(Presence presence);
+  Future<void> updateUserPresence(UserPresence presence);
 
   /// Updates the [WelcomeMessage] of the authenticated [MyUser].
   Future<void> updateWelcomeMessage({
@@ -128,14 +128,6 @@ abstract class AbstractMyUserRepository {
     ConfirmationCode? confirmation,
     String? locale,
   });
-
-  /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
-  /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]
-  /// (if any).
-  Future<void> createChatDirectLink(ChatDirectLinkSlug slug);
-
-  /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
-  Future<void> deleteChatDirectLink();
 
   /// Updates or resets the [MyUser.avatar] field with the provided image
   /// [file].

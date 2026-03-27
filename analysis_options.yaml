@@ -5,6 +5,7 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   errors:
+    experimental_member_use: ignore
     invalid_use_of_visible_for_testing_member: error
   exclude:
     - '**/*.g.dart'

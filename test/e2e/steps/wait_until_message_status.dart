@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
+import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../parameters/sending_status.dart';
@@ -43,93 +44,141 @@ final StepDefinitionGeneric
 waitUntilMessageStatus = then2<String, MessageSentStatus, CustomWorld>(
   'I wait until status of {string} message is {sending}',
   (text, status, context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(
+      () async {
+        final RxChat? chat = Get.find<ChatService>().chats.values
+            .firstWhereOrNull(
+              (e) => e.chat.value.isRoute(router.route, context.world.me),
+            );
 
-      final RxChat? chat = Get.find<ChatService>().chats.values
-          .firstWhereOrNull(
-            (e) => e.chat.value.isRoute(router.route, context.world.me),
+        Log.debug(
+          'waitUntilMessageStatus($text, ${status.name}) -> chat is $chat',
+          'E2E',
+        );
+
+        final ChatItem? message = chat?.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .firstWhereOrNull((e) => e.text?.val == text);
+
+        Log.debug(
+          'waitUntilMessageStatus($text, ${status.name}) -> message is $message',
+          'E2E',
+        );
+
+        ChatItemId? id;
+
+        if (message == null) {
+          final forward = chat?.messages
+              .map((e) => e.value)
+              .whereType<ChatForward>()
+              .firstWhereOrNull((e) {
+                if (e.quote is ChatMessageQuote) {
+                  return (e.quote as ChatMessageQuote).text?.val == text;
+                }
+
+                return false;
+              });
+
+          Log.debug(
+            'waitUntilMessageStatus($text, ${status.name}) -> seems like `message` is `null`, thus looking for `forward`: $forward',
+            'E2E',
           );
 
-      final ChatItem? message = chat?.messages
-          .map((e) => e.value)
-          .whereType<ChatMessage>()
-          .firstWhereOrNull((e) => e.text?.val == text);
+          if (forward != null) {
+            final ChatController controller = Get.find<ChatController>(
+              tag: chat?.id.val,
+            );
 
-      ChatItemId? id;
+            final ListElement?
+            element = controller.elements.values.firstWhereOrNull((e) {
+              bool result = false;
 
-      if (message == null) {
-        final forward = chat?.messages
-            .map((e) => e.value)
-            .whereType<ChatForward>()
-            .firstWhereOrNull((e) {
-              if (e.quote is ChatMessageQuote) {
-                return (e.quote as ChatMessageQuote).text?.val == text;
+              if (e is ChatForwardElement) {
+                if (e.note.value?.value is ChatMessage) {
+                  result =
+                      (e.note.value?.value as ChatMessage).text?.val == text;
+                }
+
+                if (!result) {
+                  result = e.forwards.any((e) {
+                    if (e.value is ChatForward) {
+                      if ((e.value as ChatForward).quote is ChatMessageQuote) {
+                        return ((e.value as ChatForward).quote
+                                    as ChatMessageQuote)
+                                .text
+                                ?.val ==
+                            text;
+                      }
+                    }
+                    return false;
+                  });
+                }
               }
 
-              return false;
+              return result;
             });
 
-        if (forward != null) {
-          final ChatController controller = Get.find<ChatController>(
-            tag: chat?.id.val,
-          );
+            Log.debug(
+              'waitUntilMessageStatus($text, ${status.name}) -> ok, forward is here, `element` is: $element',
+              'E2E',
+            );
 
-          final ListElement?
-          element = controller.elements.values.firstWhereOrNull((e) {
-            bool result = false;
-
-            if (e is ChatForwardElement) {
-              if (e.note.value?.value is ChatMessage) {
-                result = (e.note.value?.value as ChatMessage).text?.val == text;
-              }
-
-              if (!result) {
-                result = e.forwards.any((e) {
-                  if (e.value is ChatForward) {
-                    if ((e.value as ChatForward).quote is ChatMessageQuote) {
-                      return ((e.value as ChatForward).quote
-                                  as ChatMessageQuote)
-                              .text
-                              ?.val ==
-                          text;
-                    }
-                  }
-                  return false;
-                });
-              }
+            if (element != null) {
+              final e = (element as ChatForwardElement);
+              id = e.note.value?.value.id ?? e.forwards.first.value.id;
             }
-
-            return result;
-          });
-
-          if (element != null) {
-            final e = (element as ChatForwardElement);
-            id = e.note.value?.value.id ?? e.forwards.first.value.id;
           }
         }
-      }
 
-      final Finder finder = context.world.appDriver.findByKeySkipOffstage(
-        'MessageStatus_${message?.id ?? id}',
-      );
+        if (message == null) {
+          Log.debug(
+            'waitUntilMessageStatus($text, ${status.name}) -> `message` is still `null`, thus the whole list: ${chat?.messages.map((e) => e.value).whereType<ChatMessage>()}',
+            'E2E',
+          );
+        }
 
-      if (await context.world.appDriver.isPresent(finder)) {
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findByDescendant(
-            finder,
-            context.world.appDriver.findByKeySkipOffstage(switch (status) {
-              MessageSentStatus.sending => 'Sending',
-              MessageSentStatus.error => 'Error',
-              MessageSentStatus.sent => 'Sent',
-              MessageSentStatus.read => 'Read',
-              MessageSentStatus.halfRead => 'HalfRead',
-            }),
-          ),
+        final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+          'MessageStatus_${message?.id ?? id}',
         );
-      }
 
-      return false;
-    }, timeout: context.configuration.timeout ?? const Duration(seconds: 30));
+        Log.debug(
+          'waitUntilMessageStatus($text, ${status.name}) -> looking for `MessageStatus_${message?.id ?? id}` -> $finder',
+          'E2E',
+        );
+
+        if (await context.world.appDriver.isPresent(finder)) {
+          final String key = switch (status) {
+            MessageSentStatus.sending => 'Sending',
+            MessageSentStatus.error => 'Error',
+            MessageSentStatus.sent => 'Sent',
+            MessageSentStatus.read => 'Read',
+            MessageSentStatus.halfRead => 'HalfRead',
+          };
+
+          for (int i = 0; i < finder.found.length; ++i) {
+            final descendant = context.world.appDriver.findByDescendant(
+              finder.at(i),
+              context.world.appDriver.findByKeySkipOffstage(key),
+            );
+
+            Log.debug(
+              'waitUntilMessageStatus($text, ${status.name}) -> looking for `$key` within ${finder.at(i)} -> $descendant',
+              'E2E',
+            );
+
+            if (await context.world.appDriver.isPresent(descendant)) {
+              return true;
+            }
+          }
+
+          return false;
+        }
+
+        return false;
+      },
+      timeout: const Duration(seconds: 60),
+      pollInterval: const Duration(seconds: 4),
+    );
   },
 );

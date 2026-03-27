@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphql/client.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/user.dart';
@@ -614,13 +614,18 @@ class PostChatMessageException
       case PostChatMessageErrorCode.blocked:
         return 'err_blocked'.l10n;
 
-      case PostChatMessageErrorCode.noTextAndNoAttachment:
+      case PostChatMessageErrorCode.noContent:
+      case PostChatMessageErrorCode.notEnoughFunds:
+      case PostChatMessageErrorCode.unallowedDonation:
       case PostChatMessageErrorCode.unknownAttachment:
       case PostChatMessageErrorCode.wrongAttachmentsCount:
       case PostChatMessageErrorCode.unknownReplyingChatItem:
       case PostChatMessageErrorCode.wrongReplyingChatItemsCount:
       case PostChatMessageErrorCode.unknownChat:
       case PostChatMessageErrorCode.unknownUser:
+      case PostChatMessageErrorCode.disabledDonation:
+      case PostChatMessageErrorCode.tooSmallDonation:
+      case PostChatMessageErrorCode.disabled:
         return toString();
 
       case PostChatMessageErrorCode.artemisUnknown:
@@ -822,7 +827,7 @@ class DeleteChatMessageException
 
       case DeleteChatMessageErrorCode.notAuthor:
       case DeleteChatMessageErrorCode.quoted:
-      case DeleteChatMessageErrorCode.read:
+      case DeleteChatMessageErrorCode.uneditable:
         return 'err_message_was_read'.l10n;
 
       case DeleteChatMessageErrorCode.unknownChatItem:
@@ -851,7 +856,7 @@ class DeleteChatForwardException
 
       case DeleteChatForwardErrorCode.notAuthor:
       case DeleteChatForwardErrorCode.quoted:
-      case DeleteChatForwardErrorCode.read:
+      case DeleteChatForwardErrorCode.uneditable:
         return 'err_message_was_read'.l10n;
 
       case DeleteChatForwardErrorCode.unknownChatItem:
@@ -915,79 +920,87 @@ class RedialChatCallMemberException
   }
 }
 
-/// Exception of `Mutation.createChatDirectLink` described in the [code].
-class CreateChatDirectLinkException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const CreateChatDirectLinkException(this.code);
+/// Exception of `Mutation.useDirectLink` described in the [code].
+class UseDirectLinkException with LocalizedExceptionMixin implements Exception {
+  const UseDirectLinkException(this.code);
 
   /// Reason of why the mutation has failed.
-  final CreateChatDirectLinkErrorCode code;
+  final UseDirectLinkErrorCode code;
 
   @override
-  String toString() => 'CreateChatDirectLinkException($code)';
+  String toString() => 'UseDirectLinkException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case CreateChatDirectLinkErrorCode.artemisUnknown:
+      case UseDirectLinkErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-      case CreateChatDirectLinkErrorCode.occupied:
+      case UseDirectLinkErrorCode.blocked:
+        return 'err_you_are_blocked'.l10n;
+      case UseDirectLinkErrorCode.unknownDirectLink:
+        return 'label_unknown_chat_direct_link'.l10n;
+      case UseDirectLinkErrorCode.sameUser:
+        return toString();
+    }
+  }
+}
+
+/// Exception of `Mutation.updateDirectLink` described in the [code].
+class UpdateDirectLinkException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UpdateDirectLinkException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UpdateDirectLinkErrorCode code;
+
+  @override
+  String toString() => 'UpdateDirectLinkException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UpdateDirectLinkErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+
+      case UpdateDirectLinkErrorCode.unknownDirectLink:
+        return 'label_unknown_chat_direct_link'.l10n;
+
+      case UpdateDirectLinkErrorCode.occupied:
         return 'err_chat_direct_link_occupied'.l10n;
 
-      case CreateChatDirectLinkErrorCode.notGroup:
-      case CreateChatDirectLinkErrorCode.unknownChat:
+      case UpdateDirectLinkErrorCode.unknownUser:
         return toString();
     }
   }
 }
 
-/// Exception of `Mutation.deleteChatDirectLink` described in the [code].
-class DeleteChatDirectLinkException
+/// Exception of `Mutation.updateGroupDirectLink` described in the [code].
+class UpdateGroupDirectLinkException
     with LocalizedExceptionMixin
     implements Exception {
-  const DeleteChatDirectLinkException(this.code);
+  const UpdateGroupDirectLinkException(this.code);
 
   /// Reason of why the mutation has failed.
-  final DeleteChatDirectLinkErrorCode code;
+  final UpdateGroupDirectLinkErrorCode code;
 
   @override
-  String toString() => 'DeleteChatDirectLinkException($code)';
+  String toString() => 'UpdateGroupDirectLinkException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case DeleteChatDirectLinkErrorCode.artemisUnknown:
+      case UpdateGroupDirectLinkErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
 
-      case DeleteChatDirectLinkErrorCode.notGroup:
-      case DeleteChatDirectLinkErrorCode.unknownChat:
+      case UpdateGroupDirectLinkErrorCode.occupied:
+        return 'err_chat_direct_link_occupied'.l10n;
+
+      case UpdateGroupDirectLinkErrorCode.notGroup:
         return toString();
-    }
-  }
-}
 
-/// Exception of `Mutation.useChatDirectLink` described in the [code].
-class UseChatDirectLinkException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const UseChatDirectLinkException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final UseChatDirectLinkErrorCode code;
-
-  @override
-  String toString() => 'UseChatDirectLinkException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case UseChatDirectLinkErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
-      case UseChatDirectLinkErrorCode.blocked:
-        return 'err_you_are_blocked'.l10n;
-      case UseChatDirectLinkErrorCode.unknownDirectLink:
-        return 'label_unknown_chat_direct_link'.l10n;
+      case UpdateGroupDirectLinkErrorCode.unknownChat:
+        return toString();
     }
   }
 }
@@ -1019,7 +1032,7 @@ class EditChatMessageException
       case EditChatMessageErrorCode.wrongAttachmentsCount:
       case EditChatMessageErrorCode.unknownAttachment:
       case EditChatMessageErrorCode.notAuthor:
-      case EditChatMessageErrorCode.noTextAndNoAttachment:
+      case EditChatMessageErrorCode.noContent:
         return toString();
 
       case EditChatMessageErrorCode.artemisUnknown:
@@ -1173,11 +1186,17 @@ class ForwardChatItemsException
       case ForwardChatItemsErrorCode.unknownChat:
       case ForwardChatItemsErrorCode.unknownUser:
       case ForwardChatItemsErrorCode.unknownForwardedAttachment:
-      case ForwardChatItemsErrorCode.noTextAndNoAttachment:
+      case ForwardChatItemsErrorCode.noQuotedContent:
+      case ForwardChatItemsErrorCode.notEnoughFunds:
+      case ForwardChatItemsErrorCode.unallowedDonation:
+      case ForwardChatItemsErrorCode.unknownForwardedDonation:
       case ForwardChatItemsErrorCode.wrongItemsCount:
       case ForwardChatItemsErrorCode.unsupportedForwardedItem:
       case ForwardChatItemsErrorCode.unknownAttachment:
       case ForwardChatItemsErrorCode.unknownForwardedItem:
+      case ForwardChatItemsErrorCode.disabledDonation:
+      case ForwardChatItemsErrorCode.tooSmallDonation:
+      case ForwardChatItemsErrorCode.disabled:
         return toString();
 
       case ForwardChatItemsErrorCode.artemisUnknown:
@@ -1630,7 +1649,7 @@ class UpdateWelcomeMessageException
     switch (code) {
       case UpdateWelcomeMessageErrorCode.wrongAttachmentsCount:
       case UpdateWelcomeMessageErrorCode.unknownAttachment:
-      case UpdateWelcomeMessageErrorCode.noTextAndNoAttachment:
+      case UpdateWelcomeMessageErrorCode.noContent:
         return toString();
 
       case UpdateWelcomeMessageErrorCode.artemisUnknown:

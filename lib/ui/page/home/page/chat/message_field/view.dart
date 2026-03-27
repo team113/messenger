@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,7 +31,14 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
+import '/domain/repository/settings.dart';
 import '/domain/repository/user.dart';
+import '/domain/service/auth.dart';
+import '/domain/service/chat.dart';
+import '/domain/service/my_user.dart';
+import '/domain/service/notification.dart';
+import '/domain/service/session.dart';
+import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/controller.dart';
@@ -50,6 +57,7 @@ import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
+import '/util/get.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/chat_button.dart';
@@ -145,43 +153,55 @@ class MessageFieldView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    if (controller != null) {
+      return _builder(context, controller!);
+    }
 
     return GetBuilder(
-      init:
-          controller ??
-          MessageFieldController(Get.find(), Get.find(), Get.find()),
+      init: MessageFieldController(
+        Get.findOrNull<ChatService>(),
+        Get.findOrNull<UserService>(),
+        Get.findOrNull<AbstractSettingsRepository>(),
+        Get.findOrNull<AuthService>(),
+        Get.findOrNull<MyUserService>(),
+        Get.findOrNull<SessionService>(),
+        Get.findOrNull<NotificationService>(),
+      ),
       global: false,
-      builder: (MessageFieldController c) {
-        return CallbackShortcuts(
-          bindings: {
-            if (!PlatformUtils.isWeb)
-              SingleActivator(LogicalKeyboardKey.keyV, control: true):
-                  c.handlePaste,
-            if (!PlatformUtils.isWeb)
-              SingleActivator(LogicalKeyboardKey.keyV, meta: true):
-                  c.handlePaste,
-          },
-          child: Theme(
-            data: theme(context),
-            child: Container(
-              key: const Key('SendField'),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [_buildHeader(c, context), _buildField(c, context)],
-              ),
-            ),
-          ),
-        );
+      builder: (MessageFieldController c) => _builder(context, c),
+    );
+  }
+
+  /// Builds the message field body.
+  Widget _builder(BuildContext context, MessageFieldController c) {
+    final style = Theme.of(context).style;
+
+    return CallbackShortcuts(
+      bindings: {
+        if (!PlatformUtils.isWeb)
+          SingleActivator(LogicalKeyboardKey.keyV, control: true):
+              c.handlePaste,
+        if (!PlatformUtils.isWeb)
+          SingleActivator(LogicalKeyboardKey.keyV, meta: true): c.handlePaste,
       },
+      child: Theme(
+        data: theme(context),
+        child: Container(
+          key: const Key('SendField'),
+          decoration: BoxDecoration(
+            boxShadow: [
+              CustomBoxShadow(
+                blurRadius: 8,
+                color: style.colors.onBackgroundOpacity13,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [_buildHeader(c, context), _buildField(c, context)],
+          ),
+        ),
+      ),
     );
   }
 
@@ -583,6 +603,7 @@ class MessageFieldView extends StatelessWidget {
           width: size,
           height: size,
           fit: BoxFit.cover,
+          autoplay: true,
         );
 
         final List<Attachment> attachments = c.attachments
@@ -615,12 +636,12 @@ class MessageFieldView extends StatelessWidget {
                   }
                 },
           child: isVideo
-              ? IgnorePointer(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      child,
-                      Container(
+              ? Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    child,
+                    IgnorePointer(
+                      child: Container(
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
@@ -633,8 +654,8 @@ class MessageFieldView extends StatelessWidget {
                           size: 48,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 )
               : child,
         );
@@ -745,8 +766,13 @@ class MessageFieldView extends StatelessWidget {
                             : 0,
                         child: CloseButton(
                           key: const Key('RemovePickedFile'),
-                          onPressed: () =>
-                              c.attachments.removeWhere((a) => a.value == e),
+                          onPressed: () {
+                            if (e is LocalAttachment) {
+                              e.cancelUpload();
+                            }
+
+                            c.attachments.removeWhere((a) => a.value == e);
+                          },
                         ),
                       );
                     }),
@@ -1052,7 +1078,7 @@ class _FieldContainer extends StatelessWidget {
       duration: const Duration(milliseconds: 400),
       constraints: const BoxConstraints(minHeight: 56),
       decoration: BoxDecoration(
-        color: style.cardColor,
+        color: style.colors.onPrimary,
         borderRadius: BorderRadius.vertical(
           bottom: borderRadius,
           top: previewOpen ? Radius.zero : borderRadius,

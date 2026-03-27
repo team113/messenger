@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -48,7 +48,7 @@ import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for notifications management.
-class NotificationService extends DisposableService {
+class NotificationService extends Dependency {
   NotificationService(this._graphQlProvider);
 
   /// GraphQL API provider for registering and un-registering current device for
@@ -295,10 +295,10 @@ class NotificationService extends DisposableService {
       // TODO: `flutter_local_notifications` should support Windows:
       //       https://github.com/MaikuB/flutter_local_notifications/issues/746
       await _plugin?.show(
-        tag?.asHash ?? Random().nextInt(1 << 31),
-        title,
-        body,
-        NotificationDetails(
+        id: tag?.asHash ?? Random().nextInt(1 << 31),
+        title: title,
+        body: body,
+        notificationDetails: NotificationDetails(
           android: AndroidNotificationDetails(
             'default',
             'Default',
@@ -386,7 +386,7 @@ class NotificationService extends DisposableService {
         final int? id = notification.id;
 
         if (id != null) {
-          await plugin.cancel(id, tag: notification.tag);
+          await plugin.cancel(id: id, tag: notification.tag);
         }
       }
     }
@@ -441,7 +441,7 @@ class NotificationService extends DisposableService {
 
         try {
           await _plugin!.initialize(
-            const InitializationSettings(
+            settings: const InitializationSettings(
               android: AndroidInitializationSettings('@mipmap/ic_launcher'),
               iOS: DarwinInitializationSettings(),
               macOS: DarwinInitializationSettings(),
@@ -512,7 +512,9 @@ class NotificationService extends DisposableService {
       final String? thread = message.data['thread'];
 
       if (tag != null) {
-        await AndroidUtils.cancelNotificationById(tag, tag.asHash);
+        if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
+          await AndroidUtils.cancelNotificationById(tag, tag.asHash);
+        }
       }
 
       // If message contains no notification (it's a background notification),
@@ -581,6 +583,12 @@ class NotificationService extends DisposableService {
         (PlatformUtils.isAndroid &&
             settings.authorizationStatus != AuthorizationStatus.authorized)) {
       settings = await FirebaseMessaging.instance.requestPermission();
+    }
+
+    if (settings.authorizationStatus != AuthorizationStatus.authorized) {
+      Log.warning(
+        'Unable to proceed with `_initPushNotifications()` due to `authorizationStatus` being `${settings.authorizationStatus.name}`',
+      );
     }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
@@ -738,7 +746,7 @@ extension TagToHash on String {
     for (var e in codeUnits) {
       result ^= e;
       result *= 0x01000193;
-      result &= 0xFFFFFFFF;
+      result &= 0x7FFFFFFF;
     }
 
     return result;

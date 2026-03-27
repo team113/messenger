@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -133,6 +133,9 @@ class PlatformUtilsImpl {
 
   /// Indicates whether device's OS is Windows.
   bool get isWindows => GetPlatform.isWindows;
+
+  /// Indicates whether device's OS is Windows 10.
+  Future<bool> get isWindows10 async => isWindows && await WebUtils.isWindows10;
 
   /// Indicates whether device's OS is Linux.
   bool get isLinux => GetPlatform.isLinux;
@@ -333,15 +336,17 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a path to the temporary directory.
-  Future<Directory> get temporaryDirectory async {
+  FutureOr<Directory> get temporaryDirectory {
     if (_temporaryDirectory != null) {
       return _temporaryDirectory!;
     }
 
-    _temporaryDirectory = Directory(
-      '${(await getTemporaryDirectory()).path}${Config.downloads}',
-    );
-    return _temporaryDirectory!;
+    return Future(() async {
+      _temporaryDirectory = Directory(
+        '${(await getTemporaryDirectory()).path}${Config.downloads}',
+      );
+      return _temporaryDirectory!;
+    });
   }
 
   /// Returns a path to the library directory.
@@ -464,7 +469,7 @@ class PlatformUtilsImpl {
     String? to;
 
     if (!isWeb) {
-      to = await FilePicker.platform.saveFile(
+      to = await FilePicker.saveFile(
         fileName: url.split('/').lastOrNull ?? 'file',
         lockParentWindow: true,
       );
@@ -760,7 +765,7 @@ class PlatformUtilsImpl {
         }
       }
 
-      return await FilePicker.platform.pickFiles(
+      return await FilePicker.pickFiles(
         type: accounted,
         compressionQuality: compressionQuality,
         allowMultiple: allowMultiple,
@@ -816,7 +821,7 @@ class PlatformUtilsImpl {
     if (PlatformUtils.isWeb) {
       try {
         final response = await (await (PlatformUtils.dio)).get(
-          '${Config.origin}/assets/$asset?${Pubspec.ref}',
+          '${Config.origin}/assets/$asset?v=${Pubspec.ref}',
           options: Options(responseType: ResponseType.plain),
         );
 
@@ -842,7 +847,7 @@ class PlatformUtilsImpl {
     if (PlatformUtils.isWeb) {
       try {
         final response = await (await (PlatformUtils.dio)).get(
-          '${Config.origin}/assets/$asset?${Pubspec.ref}',
+          '${Config.origin}/assets/$asset?v=${Pubspec.ref}',
           options: Options(responseType: ResponseType.bytes),
         );
 
@@ -869,10 +874,7 @@ class PlatformUtilsImpl {
     String? to;
 
     if (PlatformUtils.isDesktop) {
-      to = await FilePicker.platform.saveFile(
-        fileName: name,
-        lockParentWindow: true,
-      );
+      to = await FilePicker.saveFile(fileName: name, lockParentWindow: true);
     } else {
       to = '${(await temporaryDirectory).path}/$name';
     }
@@ -1059,8 +1061,8 @@ class CustomMouseCursors {
   static Future<void> _initCursor(
     String path,
     String name, {
-    double width = 30,
-    double height = 30,
+    double width = 32,
+    double height = 32,
   }) async {
     try {
       final ByteData bytes = await rootBundle.load(path);

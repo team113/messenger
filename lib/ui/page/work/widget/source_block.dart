@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -69,7 +69,7 @@ class SourceCodeBlock extends StatelessWidget {
         button(
           label: '- GraphQL API',
           onPressed: () => launchUrlString(
-            'https://messenger.soc.stg.t11913.org/api/graphql/playground',
+            'https://messenger.soc.stg.t11913.org/api/graphql/v1/graphiql',
           ),
         ),
       ],

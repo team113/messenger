@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,6 +29,7 @@ class SwitchField extends StatelessWidget {
     this.onChanged,
     this.background,
     this.label,
+    this.subtitle,
   });
 
   /// Text of the [ReactiveTextField].
@@ -46,11 +47,14 @@ class SwitchField extends StatelessWidget {
   /// Label to display.
   final String? label;
 
+  /// Subtitle to display under the button.
+  final String? subtitle;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Stack(
+    final Widget button = Stack(
       alignment: Alignment.centerRight,
       children: [
         IgnorePointer(
@@ -83,6 +87,21 @@ class SwitchField extends StatelessWidget {
               ),
             ),
           ),
+        ),
+      ],
+    );
+
+    if (subtitle == null) {
+      return button;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        button,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+          child: Text('$subtitle', style: style.fonts.small.regular.secondary),
         ),
       ],
     );

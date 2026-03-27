@@ -12,6 +12,9 @@ allprojects {
                         namespace project.group
                     }
 
+                    // TODO: Remove when `super_native_extensions` upgrade.
+                    compileSdk = 36
+
                     compileOptions {
                         sourceCompatibility JavaVersion.VERSION_21
                         targetCompatibility JavaVersion.VERSION_21

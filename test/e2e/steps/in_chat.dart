@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/util/log.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -30,14 +31,21 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   'I am in chat with {user}',
   (TestUser user, context) async {
-    await context.world.appDriver.waitUntil(() async {
-      final CustomUser customUser = context.world.sessions[user.name]!.first;
-      router.chat(customUser.dialog ?? ChatId.local(customUser.userId));
+    await context.world.appDriver.waitUntil(
+      () async {
+        final CustomUser customUser = context.world.sessions[user.name]!.first;
+        router.chat(customUser.dialog ?? ChatId.local(customUser.userId));
 
-      return context.world.appDriver.isPresent(
-        context.world.appDriver.findBy('ChatView', FindType.key),
-      );
-    });
+        return context.world.appDriver
+            .findBy('ChatView', FindType.key)
+            .evaluate()
+            .isNotEmpty;
+      },
+      timeout: const Duration(seconds: 30),
+      pollInterval: const Duration(seconds: 2),
+    );
+
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 3));
   },
 );
 
@@ -50,11 +58,21 @@ final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
   (String chatName, context) async {
     router.chat(context.world.groups[chatName]!);
 
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-      return context.world.appDriver.isPresent(
-        context.world.appDriver.findBy('ChatView', FindType.key),
-      );
-    }, timeout: const Duration(seconds: 30));
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.nativeDriver.pump(
+          const Duration(seconds: 2),
+        );
+
+        final finder = context.world.appDriver.findBy('ChatView', FindType.key);
+        Log.debug('iAmInChatNamed -> `ChatView` is $finder', 'E2E');
+
+        return finder.evaluate().isNotEmpty;
+      },
+      timeout: const Duration(seconds: 30),
+      pollInterval: const Duration(seconds: 2),
+    );
+
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 3));
   },
 );

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,6 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/schema.graphql.dart'
+    show DirectLinkLocationInput;
+import 'package:messenger/domain/model/link.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 
@@ -92,8 +95,11 @@ Future<void> _setCredentialTo(
       break;
 
     case TestCredential.directLink:
-      user.slug ??= ChatDirectLinkSlug.generate();
-      await provider.createUserDirectLink(user.slug!);
+      user.slug ??= DirectLinkSlug.generate();
+      await provider.updateDirectLink(
+        user.slug!,
+        DirectLinkLocationInput(userId: user.userId),
+      );
       break;
 
     case TestCredential.num:

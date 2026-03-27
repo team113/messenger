@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -41,7 +41,6 @@ class MyUser {
     this.hasPassword = false,
     required this.emails,
     required this.phones,
-    this.chatDirectLink,
     this.unreadChatsCount = 0,
     this.status,
     this.avatar,
@@ -109,9 +108,6 @@ class MyUser {
   /// Count of the unread Chats of this [MyUser].
   int unreadChatsCount;
 
-  /// [ChatDirectLink] to the `Chat` with this [MyUser].
-  ChatDirectLink? chatDirectLink;
-
   /// Custom text status of this [MyUser].
   UserTextStatus? status;
 
@@ -124,8 +120,8 @@ class MyUser {
   /// Presence of this [MyUser].
   int presenceIndex;
 
-  Presence get presence => Presence.values[presenceIndex];
-  set presence(Presence pres) {
+  UserPresence get presence => UserPresence.values[presenceIndex];
+  set presence(UserPresence pres) {
     presenceIndex = pres.index;
   }
 
@@ -158,7 +154,6 @@ class MyUser {
     hasPassword: hasPassword,
     emails: emails.copyWith(),
     phones: phones.copyWith(),
-    chatDirectLink: chatDirectLink,
     unreadChatsCount: unreadChatsCount,
     status: status,
     callCover: callCover,

@@ -1,4 +1,4 @@
-# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -20,16 +20,16 @@ fragment SessionEventsVersioned on SessionEventsVersioned {
         __typename
         id
         at
-        ... on EventSessionCreated {
+        ... on SessionCreatedEvent {
             userAgent
             remembered
             ip
         }
-        ... on EventSessionRefreshed {
+        ... on SessionRefreshedEvent {
             userAgent
             ip
         }
-        # ... on EventSessionDeleted { }
+        # ... on SessionDeletedEvent { }
     }
     ver
     listVer

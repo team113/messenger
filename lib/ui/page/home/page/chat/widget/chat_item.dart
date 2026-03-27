@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,12 +29,13 @@ import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/config.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
-import '/domain/model/chat_item.dart';
-import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/file.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -44,7 +45,6 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/page/chat/forward/view.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -244,7 +244,7 @@ class ChatItemWidget extends StatefulWidget {
         width: (cover && isVideo) || filled ? double.infinity : null,
         height: filled ? double.infinity : null,
         onError: () async => await onError?.call(null),
-        autoplay: !filled,
+        autoplay: true,
       ),
     );
 
@@ -348,7 +348,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Opens the [User.dialog] chat.
   static void _defaultOnUserPressed(User user) =>
-      router.chat(ChatId.local(user.id), push: true);
+      router.chat(ChatId.local(user.id), mode: RouteAs.push);
 }
 
 /// State of a [ChatItemWidget] maintaining the [GlobalKey]s for gallery and
@@ -763,16 +763,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final ChatMessage msg = widget.item.value as ChatMessage;
 
-    final List<Attachment> media = msg.attachments.where((e) {
-      return ((e is ImageAttachment) ||
-          (e is FileAttachment && e.isVideo) ||
-          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
-    }).toList();
+    final List<Attachment> media = msg.attachments
+        .where((e) => e.isMedia)
+        .toList();
 
-    final List<Attachment> files = msg.attachments.where((e) {
-      return ((e is FileAttachment && !e.isVideo) ||
-          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
-    }).toList();
+    final List<Attachment> files = msg.attachments
+        .where((e) => e.isFile)
+        .toList();
 
     final Color color = _fromMe
         ? style.colors.primary
@@ -850,55 +847,72 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           const SizedBox(height: 6),
         ],
         if (media.isNotEmpty) ...[
-          // TODO: Replace `ClipRRect` with rounded `DecoratedBox`s when
-          //       `ImageAttachment` sizes are known.
-          ClipRRect(
-            borderRadius: BorderRadius.only(
-              topLeft:
-                  msg.repliesTo.isNotEmpty ||
-                      (!_fromMe &&
-                          widget.chat.value?.isGroup == true &&
-                          widget.withAvatar)
-                  ? Radius.zero
-                  : const Radius.circular(15),
-              topRight:
-                  msg.repliesTo.isNotEmpty ||
-                      (!_fromMe &&
-                          widget.chat.value?.isGroup == true &&
-                          widget.withAvatar)
-                  ? Radius.zero
-                  : const Radius.circular(15),
-              bottomLeft: _text != null
-                  ? Radius.zero
-                  : const Radius.circular(15),
-              bottomRight: _text != null
-                  ? Radius.zero
-                  : const Radius.circular(15),
-            ),
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 500),
-              opacity: _isRead || !_fromMe ? 1 : 0.55,
-              child: media.length == 1
-                  ? _buildAttachment(
-                      media.first,
-                      filled: false,
-                      menu: menu,
-                      cover: _text != null,
-                    )
-                  : SizedBox(
-                      width: media.length * 120,
-                      height: max(media.length * 60, 300),
-                      child: FitView(
-                        dividerColor: style.colors.transparent,
-                        children: media
-                            .mapIndexed(
-                              (i, e) => _buildAttachment(e, menu: menu, i: i),
-                            )
-                            .toList(),
-                      ),
-                    ),
-            ),
-          ),
+          ...media.mapIndexed((i, e) {
+            int width = 350;
+            int height = 350;
+            double aspect = 1;
+
+            final StorageFile file = e.original;
+            if (file is ImageFile) {
+              width = file.width ?? width;
+              height = file.height ?? height;
+              aspect = width / height;
+            }
+
+            final Widget content = SizedBox(
+              width: 350,
+              height: 350 / height * height.toDouble() / aspect,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: _isRead || !_fromMe ? 1 : 0.55,
+                child: _buildAttachment(e, i: i, menu: menu, cover: true),
+              ),
+            );
+
+            Radius topLeft = Radius.zero;
+            Radius topRight = Radius.zero;
+            Radius bottomLeft = Radius.zero;
+            Radius bottomRight = Radius.zero;
+
+            if (i == 0) {
+              final bool hasTitle =
+                  !_fromMe &&
+                  widget.chat.value?.isGroup == true &&
+                  widget.withAvatar;
+
+              if (msg.repliesTo.isEmpty && !hasTitle) {
+                topLeft = const Radius.circular(15);
+                topRight = const Radius.circular(15);
+              }
+            }
+
+            if (i == media.length - 1) {
+              if (_text == null) {
+                bottomLeft = const Radius.circular(15);
+                bottomRight = const Radius.circular(15);
+              }
+            }
+
+            if (topLeft != Radius.zero ||
+                topRight != Radius.zero ||
+                bottomLeft != Radius.zero ||
+                bottomRight != Radius.zero) {
+              return ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: topLeft,
+                  topRight: topRight,
+                  bottomLeft: bottomLeft,
+                  bottomRight: bottomRight,
+                ),
+                child: content,
+              );
+            }
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [content, const SizedBox(height: 1)],
+            );
+          }),
           SizedBox(height: files.isNotEmpty || _text != null ? 6 : 0),
         ],
         if (files.isNotEmpty) ...[
@@ -937,7 +951,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     child: SelectionText.rich(
                       TextSpan(
                         children: [
-                          if (_text != null) _text!,
+                          ?_text,
                           if (!timeInBubble) ...[
                             const WidgetSpan(child: SizedBox(width: 4)),
                             WidgetSpan(
@@ -966,8 +980,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ],
       ];
 
-      return Container(
-        padding: const EdgeInsets.fromLTRB(5, 0, 2, 0),
+      return ConstrainedBox(
+        constraints: media.isNotEmpty
+            ? const BoxConstraints(maxWidth: 350)
+            : const BoxConstraints(),
         child: Stack(
           children: [
             IntrinsicWidth(
@@ -1394,6 +1410,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
+    final BoxConstraints itemConstraints = BoxConstraints(maxWidth: 550);
+
     final row = Row(
       crossAxisAlignment: _fromMe
           ? CrossAxisAlignment.end
@@ -1408,10 +1426,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             return Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.center,
-              children: <Widget>[
-                ...previousChildren,
-                if (currentChild != null) currentChild,
-              ],
+              children: <Widget>[...previousChildren, ?currentChild],
             );
           },
           transitionBuilder: (child, animation) {
@@ -1453,157 +1468,148 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               : const SizedBox(key: Key('4')),
         ),
         Flexible(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final BoxConstraints itemConstraints = BoxConstraints(
-                maxWidth: 550,
-              );
-              return ConstrainedBox(
-                constraints: itemConstraints,
-                child: Material(
-                  key: Key('Message_${item.id}'),
-                  type: MaterialType.transparency,
-                  child: Obx(() {
-                    return ContextMenuRegion(
-                      preventContextMenu: false,
-                      alignment: _fromMe
-                          ? Alignment.bottomRight
-                          : Alignment.bottomLeft,
-                      actions: [
-                        InformationContextMenuButton(
-                          onPressed: () =>
-                              MessageInfo.show(context, widget.item.value.id),
+          child: ConstrainedBox(
+            constraints: itemConstraints,
+            child: Material(
+              key: Key('Message_${item.id}'),
+              type: MaterialType.transparency,
+              child: Obx(() {
+                return ContextMenuRegion(
+                  preventContextMenu: false,
+                  alignment: _fromMe
+                      ? Alignment.bottomRight
+                      : Alignment.bottomLeft,
+                  actions: [
+                    InformationContextMenuButton(
+                      onPressed: () =>
+                          MessageInfo.show(context, widget.item.value.id),
+                    ),
+                    if (copyable != null)
+                      CopyContextMenuButton(
+                        onPressed: () => widget.onCopy?.call(
+                          _selection?.plainText ?? copyable!,
                         ),
-                        if (copyable != null)
-                          CopyContextMenuButton(
-                            onPressed: () => widget.onCopy?.call(
-                              _selection?.plainText ?? copyable!,
-                            ),
+                      ),
+                    if (item.status.value == SendingStatus.sent) ...[
+                      ReplyContextMenuButton(
+                        onPressed: () =>
+                            widget.onReply?.call(widget.item.value),
+                      ),
+                      if (item is ChatMessage)
+                        ForwardContextMenuButton(
+                          onPressed: () async {
+                            await ChatForwardView.show(
+                              context,
+                              widget.chat.value!.id,
+                              [ChatItemQuoteInput(item: item)],
+                            );
+                          },
+                        ),
+                      if (item is ChatMessage &&
+                          _fromMe &&
+                          (item.at
+                                  .add(ChatController.editMessageTimeout)
+                                  .isAfter(PreciseDateTime.now()) ||
+                              !widget.chat.value!.isRead(
+                                widget.item.value,
+                                widget.me,
+                              )))
+                        EditContextMenuButton(onPressed: widget.onEdit),
+                      if (media.isNotEmpty) ...[
+                        if (PlatformUtils.isDesktop)
+                          DownloadContextMenuButton(
+                            single: media.length == 1,
+                            onPressed: () => widget.onDownload?.call(media),
                           ),
-                        if (item.status.value == SendingStatus.sent) ...[
-                          ReplyContextMenuButton(
-                            onPressed: () =>
-                                widget.onReply?.call(widget.item.value),
+                        if (PlatformUtils.isDesktop && !PlatformUtils.isWeb)
+                          DownloadAsContextMenuButton(
+                            single: media.length == 1,
+                            onPressed: () => widget.onDownloadAs?.call(media),
                           ),
-                          if (item is ChatMessage)
-                            ForwardContextMenuButton(
-                              onPressed: () async {
-                                await ChatForwardView.show(
-                                  context,
-                                  widget.chat.value!.id,
-                                  [ChatItemQuoteInput(item: item)],
-                                );
-                              },
-                            ),
-                          if (item is ChatMessage &&
-                              _fromMe &&
-                              (item.at
-                                      .add(ChatController.editMessageTimeout)
-                                      .isAfter(PreciseDateTime.now()) ||
-                                  !widget.chat.value!.isRead(
-                                    widget.item.value,
-                                    widget.me,
-                                  )))
-                            EditContextMenuButton(onPressed: widget.onEdit),
-                          if (media.isNotEmpty) ...[
-                            if (PlatformUtils.isDesktop)
-                              DownloadContextMenuButton(
-                                single: media.length == 1,
-                                onPressed: () => widget.onDownload?.call(media),
-                              ),
-                            if (PlatformUtils.isDesktop && !PlatformUtils.isWeb)
-                              DownloadAsContextMenuButton(
-                                single: media.length == 1,
-                                onPressed: () =>
-                                    widget.onDownloadAs?.call(media),
-                              ),
-                            if (PlatformUtils.isMobile && !PlatformUtils.isWeb)
-                              SaveContextMenuButton(
-                                single: media.length == 1,
-                                onPressed: () => widget.onSave?.call(media),
-                              ),
-                          ],
-                          DeleteContextMenuButton(
-                            onPressed: () async {
-                              bool isMonolog = widget.chat.value!.isMonolog;
-                              bool deletable =
-                                  _fromMe &&
-                                  !widget.chat.value!.isRead(
-                                    widget.item.value,
-                                    widget.me,
-                                  ) &&
-                                  widget.item.value is ChatMessage;
-
-                              bool deleteForAll = false;
-
-                              final bool? pressed = await MessagePopup.alert(
-                                'label_delete_message'.l10n,
-                                description: [
-                                  if (!deletable && !isMonolog)
-                                    TextSpan(
-                                      text: 'label_message_will_deleted_for_you'
-                                          .l10n,
-                                    ),
-                                ],
-                                additional: [
-                                  if (deletable && !isMonolog)
-                                    StatefulBuilder(
-                                      builder: (context, setState) {
-                                        return RowCheckboxButton(
-                                          key: const Key('DeleteForAll'),
-                                          label:
-                                              'label_also_delete_for_everyone'
-                                                  .l10n,
-                                          value: deleteForAll,
-                                          onPressed: (e) =>
-                                              setState(() => deleteForAll = e),
-                                        );
-                                      },
-                                    ),
-                                ],
-                                button: MessagePopup.deleteButton,
-                              );
-
-                              if (pressed ?? false) {
-                                if (deletable && (isMonolog || deleteForAll)) {
-                                  widget.onDelete?.call();
-                                } else if (!isMonolog) {
-                                  widget.onHide?.call();
-                                }
-                              }
-                            },
+                        if (PlatformUtils.isMobile && !PlatformUtils.isWeb)
+                          SaveContextMenuButton(
+                            single: media.length == 1,
+                            onPressed: () => widget.onSave?.call(media),
                           ),
-                        ],
-                        if (item.status.value == SendingStatus.error) ...[
-                          EditContextMenuButton(onPressed: widget.onEdit),
-                          ResendContextMenuButton(onPressed: widget.onResend),
-                          DeleteContextMenuButton(
-                            onPressed: () async {
-                              final bool? pressed = await MessagePopup.alert(
-                                'label_delete_message'.l10n,
-                                button: MessagePopup.deleteButton,
-                              );
-
-                              if (pressed ?? false) {
-                                widget.onDelete?.call();
-                              }
-                            },
-                          ),
-                        ],
-                        SearchContextMenuButton(onPressed: widget.onSearch),
-                        SelectContextMenuButton(onPressed: widget.onSelect),
                       ],
-                      builder: PlatformUtils.isMobile
-                          ? (menu) => child(menu, itemConstraints)
-                          : null,
-                      child: PlatformUtils.isMobile
-                          ? null
-                          : child(false, itemConstraints),
-                    );
-                  }),
-                ),
-              );
-            },
+                      DeleteContextMenuButton(
+                        onPressed: () async {
+                          bool isMonolog = widget.chat.value!.isMonolog;
+                          bool deletable =
+                              _fromMe &&
+                              !widget.chat.value!.isRead(
+                                widget.item.value,
+                                widget.me,
+                              ) &&
+                              widget.item.value is ChatMessage;
+
+                          bool deleteForAll = false;
+
+                          final bool? pressed = await MessagePopup.alert(
+                            'label_delete_message'.l10n,
+                            description: [
+                              if (!deletable && !isMonolog)
+                                TextSpan(
+                                  text:
+                                      'label_message_will_deleted_for_you'.l10n,
+                                ),
+                            ],
+                            additional: [
+                              if (deletable && !isMonolog)
+                                StatefulBuilder(
+                                  builder: (context, setState) {
+                                    return RowCheckboxButton(
+                                      key: const Key('DeleteForAll'),
+                                      label:
+                                          'label_also_delete_for_everyone'.l10n,
+                                      value: deleteForAll,
+                                      onPressed: (e) =>
+                                          setState(() => deleteForAll = e),
+                                    );
+                                  },
+                                ),
+                            ],
+                            button: MessagePopup.deleteButton,
+                          );
+
+                          if (pressed ?? false) {
+                            if (deletable && (isMonolog || deleteForAll)) {
+                              widget.onDelete?.call();
+                            } else if (!isMonolog) {
+                              widget.onHide?.call();
+                            }
+                          }
+                        },
+                      ),
+                    ],
+                    if (item.status.value == SendingStatus.error) ...[
+                      EditContextMenuButton(onPressed: widget.onEdit),
+                      ResendContextMenuButton(onPressed: widget.onResend),
+                      DeleteContextMenuButton(
+                        onPressed: () async {
+                          final bool? pressed = await MessagePopup.alert(
+                            'label_delete_message'.l10n,
+                            button: MessagePopup.deleteButton,
+                          );
+
+                          if (pressed ?? false) {
+                            widget.onDelete?.call();
+                          }
+                        },
+                      ),
+                    ],
+                    SearchContextMenuButton(onPressed: widget.onSearch),
+                    SelectContextMenuButton(onPressed: widget.onSelect),
+                  ],
+                  builder: PlatformUtils.isMobile
+                      ? (menu) => child(menu, itemConstraints)
+                      : null,
+                  child: PlatformUtils.isMobile
+                      ? null
+                      : child(false, itemConstraints),
+                );
+              }),
+            ),
           ),
         ),
         if (_fromMe ||
@@ -2084,8 +2090,16 @@ extension LinkParsingExtension on String {
 
                 for (var e in origins) {
                   if (url.startsWith(e)) {
-                    router.push(url.replaceFirst(e, ''));
-                    return;
+                    if (e.endsWith(Routes.directLink)) {
+                      return router.push(
+                        url.replaceFirst(
+                          e.substring(0, e.length - Routes.directLink.length),
+                          '',
+                        ),
+                      );
+                    }
+
+                    return router.push(url.replaceFirst(e, ''));
                   }
                 }
               }

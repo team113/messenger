@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,13 +17,12 @@
 
 import 'dart:async';
 
+import 'package:audio_session/audio_session.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
 import 'package:mutex/mutex.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '/domain/model/media_settings.dart';
 import '/domain/model/my_user.dart';
@@ -161,6 +160,11 @@ class OngoingCall {
        _echoCancellation = RxnBool(mediaSettings?.echoCancellation),
        _autoGainControl = RxnBool(mediaSettings?.autoGainControl),
        _highPassFilter = RxnBool(mediaSettings?.highPassFilter) {
+    Log.debug(
+      'OngoingCall($chatId) -> _me($_me), _preferredAudioDevice($_preferredAudioDevice), _preferredOutputDevice($_preferredOutputDevice), _preferredVideoDevice($_preferredVideoDevice), _preferredScreenDevice($_preferredScreenDevice), _noiseSuppression($_noiseSuppression), _noiseSuppressionLevel($_noiseSuppressionLevel), _echoCancellation($_echoCancellation), _autoGainControl($_autoGainControl), _highPassFilter($_highPassFilter)',
+      '$runtimeType',
+    );
+
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
@@ -229,6 +233,9 @@ class OngoingCall {
 
   /// [MediaDisplayDetails] currently used as a screen share device.
   final Rx<MediaDisplayDetails?> screenDevice = Rx(null);
+
+  /// Indicator whether system capture audio is being used.
+  final RxBool screenAudio = RxBool(false);
 
   /// Indicator whether the inbound audio in this [OngoingCall] is enabled or
   /// not.
@@ -366,6 +373,12 @@ class OngoingCall {
   /// removed.
   void Function()? _onRemove;
 
+  /// [Mutex] guarding access to [setRemoteVideoEnabled].
+  final Mutex _videoGuard = Mutex();
+
+  /// Currently applied [MediaStreamSettings].
+  MediaStreamSettings? _settings;
+
   /// Count of attempts of [_joinRoom].
   int _joinRoomAttempts = 0;
 
@@ -401,14 +414,17 @@ class OngoingCall {
       isActive && members.values.where((e) => e.isConnected.isTrue).length > 1;
 
   /// Indicates whether this [OngoingCall] has an active microphone track.
-  bool get hasAudio =>
-      members[_me]?.tracks
-          .where(
-            (t) =>
-                t.kind == MediaKind.audio && t.source == MediaSourceKind.device,
-          )
-          .isNotEmpty ??
-      false;
+  bool get hasAudio => _hasTracks(MediaKind.audio, MediaSourceKind.device);
+
+  /// Indicates whether this [OngoingCall] has an active camera track.
+  bool get hasCamera => _hasTracks(MediaKind.video, MediaSourceKind.device);
+
+  /// Indicates whether this [OngoingCall] has an active screen track.
+  bool get hasScreen => _hasTracks(MediaKind.video, MediaSourceKind.display);
+
+  /// Indicates whether this [OngoingCall] has an active screen audio track.
+  bool get hasScreenAudio =>
+      _hasTracks(MediaKind.audio, MediaSourceKind.display);
 
   /// Indicates whether the current authorized [MyUser] is the caller.
   bool get outgoing => _me.userId == caller?.id || caller == null;
@@ -447,8 +463,12 @@ class OngoingCall {
     if (_background) {
       _background = false;
 
+      _devicesSubscription?.cancel();
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
-        Log.debug('onDeviceChange(${e.map((e) => e.label())})', '$runtimeType');
+        Log.debug(
+          'onDeviceChange(${e.map((e) => e.label()).join(', ')})',
+          '$runtimeType',
+        );
 
         await _devicesGuard.protect(() async {
           if (devices.isEmpty) {
@@ -496,10 +516,43 @@ class OngoingCall {
           if (videoChanged) {
             _pickVideoDevice(previous, removed);
           }
+
+          if (!outputChanged) {
+            if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+              if (outputDevice.value?.speaker == AudioSpeakerKind.headphones) {
+                final AVAudioSessionRouteDescription route =
+                    await AVAudioSession().currentRoute;
+
+                Log.debug(
+                  'onDeviceChange() -> route is ${route.outputs.map((e) => '{id: ${e.uid}, name: ${e.portName}, type: ${e.portType.name}}').join(', ')}',
+                  '$runtimeType',
+                );
+
+                if (route.outputs.none(
+                  (e) => outputDevice.value?.label() == e.portName,
+                )) {
+                  Log.debug(
+                    'onDeviceChange() -> no device with `${outputDevice.value?.label()}` is within `route.outputs`',
+                    '$runtimeType',
+                  );
+
+                  await _pickOutputDevice(
+                    without: [?outputDevice.value?.label()],
+                  );
+                }
+              }
+            }
+          }
         });
       });
 
+      _displaysSubscription?.cancel();
       _displaysSubscription = MediaUtils.onDisplayChange.listen((e) async {
+        Log.debug(
+          'onDisplayChange(${e.map((e) => e.title() ?? e.deviceId())})',
+          '$runtimeType',
+        );
+
         final List<MediaDisplayDetails> previous = List.from(
           displays,
           growable: false,
@@ -729,7 +782,7 @@ class OngoingCall {
                 for (final ChatCallEvent event in versioned.events) {
                   switch (event.kind) {
                     case ChatCallEventKind.roomReady:
-                      final node = event as EventChatCallRoomReady;
+                      final node = event as ChatCallRoomReadyEvent;
 
                       if (!_background) {
                         await _joinRoom(
@@ -745,7 +798,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.finished:
-                      final node = event as EventChatCallFinished;
+                      final node = event as ChatCallFinishedEvent;
                       if (node.chatId == chatId.value) {
                         calls.removeCredentials(node.call.chatId, node.call.id);
                         calls.remove(chatId.value);
@@ -753,7 +806,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.memberLeft:
-                      final node = event as EventChatCallMemberLeft;
+                      final node = event as ChatCallMemberLeftEvent;
                       if (me.id.userId == node.user.id &&
                           me.id.deviceId == node.deviceId) {
                         calls.remove(chatId.value);
@@ -776,7 +829,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.memberJoined:
-                      final node = event as EventChatCallMemberJoined;
+                      final node = event as ChatCallMemberJoinedEvent;
 
                       final CallMemberId redialedId = CallMemberId(
                         node.user.id,
@@ -817,7 +870,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.handLowered:
-                      final node = event as EventChatCallHandLowered;
+                      final node = event as ChatCallHandLoweredEvent;
 
                       // Ignore the event, if it's our hand and is already lowered.
                       if (node.user.id == _me.userId &&
@@ -841,7 +894,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.handRaised:
-                      final node = event as EventChatCallHandRaised;
+                      final node = event as ChatCallHandRaisedEvent;
 
                       // Ignore the event, if it's our hand and is already raised.
                       if (node.user.id == _me.userId &&
@@ -865,7 +918,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.declined:
-                      final node = event as EventChatCallDeclined;
+                      final node = event as ChatCallDeclinedEvent;
                       final CallMemberId id = CallMemberId(node.user.id, null);
                       if (members[id]?.isConnected.value == false) {
                         members.remove(id)?.dispose();
@@ -873,7 +926,7 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.callMoved:
-                      final node = event as EventChatCallMoved;
+                      final node = event as ChatCallMovedEvent;
                       chatId.value = node.newChatId;
                       call.value = node.newCall;
 
@@ -889,12 +942,12 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.redialed:
-                      final node = event as EventChatCallMemberRedialed;
+                      final node = event as ChatCallMemberRedialedEvent;
                       _addDialing(node.user.id);
                       break;
 
                     case ChatCallEventKind.answerTimeoutPassed:
-                      final node = event as EventChatCallAnswerTimeoutPassed;
+                      final node = event as ChatCallAnswerTimeoutPassedEvent;
 
                       if (node.user?.id != null) {
                         final CallMemberId id = CallMemberId(
@@ -919,11 +972,11 @@ class OngoingCall {
                       break;
 
                     case ChatCallEventKind.conversationStarted:
-                      // TODO: Implement [EventChatCallConversationStarted].
+                      // TODO: Implement [ChatCallConversationStartedEvent].
                       break;
 
                     case ChatCallEventKind.undialed:
-                      final node = event as EventChatCallMemberUndialed;
+                      final node = event as ChatCallMemberUndialedEvent;
 
                       final CallMemberId id = CallMemberId(node.user.id, null);
                       if (members[id]?.isConnected.value == false) {
@@ -1000,9 +1053,10 @@ class OngoingCall {
   Future<void> setScreenShareEnabled(
     bool enabled, {
     MediaDisplayDetails? device,
+    bool withAudio = false,
   }) async {
     Log.debug(
-      'setScreenShareEnabled($enabled, ${device?.deviceId()})',
+      'setScreenShareEnabled($enabled, ${device?.deviceId()}, withAudio: $withAudio)',
       '$runtimeType',
     );
 
@@ -1011,27 +1065,64 @@ class OngoingCall {
       case LocalTrackState.disabling:
         if (enabled) {
           screenShareState.value = LocalTrackState.enabling;
-          try {
-            await _updateSettings(screenDevice: device ?? displays.firstOrNull);
-            await _room?.enableVideo(MediaSourceKind.display);
-            screenShareState.value = LocalTrackState.enabled;
 
-            final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-              screen: ScreenPreferences(device: screenDevice.value?.deviceId()),
+          try {
+            await _updateSettings(
+              screen: true,
+              screenDevice: device ?? displays.firstOrNull,
+              screenAudio: withAudio,
             );
-            tracks.forEach(_addLocalTrack);
+
+            await _room?.enableVideo(MediaSourceKind.display);
+            if (hasScreenAudio) {
+              await _room?.enableAudio(MediaSourceKind.display);
+            }
+
+            Log.debug(
+              'setScreenShareEnabled($enabled, ${device?.deviceId()}, withAudio: $withAudio) -> $hasScreen || $hasScreenAudio -> ${members[_me]?.tracks.map((e) => '${e.kind}, ${e.source}')}',
+              '$runtimeType',
+            );
+
+            screenShareState.value = hasScreen || hasScreenAudio
+                ? LocalTrackState.enabled
+                : LocalTrackState.disabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
           } on LocalMediaInitException catch (e) {
             screenShareState.value = LocalTrackState.disabled;
+
+            _room?.disableVideo(MediaSourceKind.display);
+            _removeLocalTracks(MediaKind.video, MediaSourceKind.display);
+            if (hasScreenAudio) {
+              _room?.disableAudio(MediaSourceKind.display);
+              _removeLocalTracks(MediaKind.audio, MediaSourceKind.display);
+            }
+
             if (!e.message().contains('Permission denied') &&
                 !e.message().contains('NotAllowedError')) {
-              addError('enableScreenShare() call failed with $e');
+              _notifications.add(ScreenDeviceFailedNotification());
+              Log.warning(
+                'enableScreenShare() call failed with $e',
+                '$runtimeType',
+              );
               rethrow;
             }
           } catch (e) {
             screenShareState.value = LocalTrackState.disabled;
-            addError('enableScreenShare() call failed with $e');
+
+            _notifications.add(ScreenDeviceFailedNotification());
+            Log.warning(
+              'enableScreenShare() call failed with $e',
+              '$runtimeType',
+            );
+
+            _room?.disableVideo(MediaSourceKind.display);
+            _removeLocalTracks(MediaKind.video, MediaSourceKind.display);
+            if (hasScreenAudio) {
+              _room?.disableAudio(MediaSourceKind.display);
+              _removeLocalTracks(MediaKind.audio, MediaSourceKind.display);
+            }
+
             rethrow;
           }
         }
@@ -1041,10 +1132,18 @@ class OngoingCall {
       case LocalTrackState.enabling:
         if (!enabled) {
           screenShareState.value = LocalTrackState.disabling;
+          screenAudio.value = false;
+
           try {
             await _room?.disableVideo(MediaSourceKind.display);
             _removeLocalTracks(MediaKind.video, MediaSourceKind.display);
-            screenShareState.value = LocalTrackState.disabled;
+            await _room?.disableAudio(MediaSourceKind.display);
+            _removeLocalTracks(MediaKind.audio, MediaSourceKind.display);
+
+            screenShareState.value = hasScreen || hasScreenAudio
+                ? LocalTrackState.enabled
+                : LocalTrackState.disabled;
+
             screenDevice.value = null;
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -1069,21 +1168,14 @@ class OngoingCall {
           audioState.value = LocalTrackState.enabling;
           try {
             if (!hasAudio) {
-              await _room?.enableAudio();
-
-              final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-                audio: AudioPreferences(
-                  device: audioDevice.value?.deviceId(),
-                  noiseSuppression: _noiseSuppression.value,
-                  noiseSuppressionLevel: _noiseSuppressionLevel.value,
-                  echoCancellation: _echoCancellation.value,
-                  autoGainControl: _autoGainControl.value,
-                  highPassFilter: _highPassFilter.value,
-                ),
+              await _room?.enableAudio(MediaSourceKind.device);
+              await _updateSettings(
+                audio: true,
+                audioDevice: audioDevice.value,
               );
-              tracks.forEach(_addLocalTrack);
             }
-            await _room?.unmuteAudio();
+
+            await _room?.unmuteAudio(MediaSourceKind.device);
             audioState.value = LocalTrackState.enabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -1093,12 +1185,14 @@ class OngoingCall {
                 e.message().contains('NotAllowedError')) {
               _notifications.add(MicrophonePermissionDeniedNotification());
             } else {
-              addError('unmuteAudio() call failed due to ${e.message()}');
+              _notifications.add(MicrophoneDeviceFailedNotification());
+              Log.warning('unmuteAudio() call failed with $e', '$runtimeType');
               rethrow;
             }
           } catch (e) {
             audioState.value = LocalTrackState.disabled;
-            addError('unmuteAudio() call failed with $e');
+            _notifications.add(MicrophoneDeviceFailedNotification());
+            Log.warning('unmuteAudio() call failed with $e', '$runtimeType');
             rethrow;
           }
         }
@@ -1109,7 +1203,7 @@ class OngoingCall {
         if (!enabled) {
           audioState.value = LocalTrackState.disabling;
           try {
-            await _room?.muteAudio();
+            await _room?.muteAudio(MediaSourceKind.device);
             audioState.value = LocalTrackState.disabled;
           } on MediaStateTransitionException catch (_) {
             // No-op.
@@ -1133,8 +1227,10 @@ class OngoingCall {
         if (enabled) {
           videoState.value = LocalTrackState.enabling;
           try {
-            await _room?.enableVideo(MediaSourceKind.device);
             videoState.value = LocalTrackState.enabled;
+
+            await _ensureMediaSettings();
+            await _room?.enableVideo(MediaSourceKind.device);
 
             final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
               video: VideoPreferences(
@@ -1151,11 +1247,13 @@ class OngoingCall {
                 e.message().contains('NotAllowedError')) {
               _notifications.add(CameraPermissionDeniedNotification());
             } else {
-              addError('enableVideo() call failed with $e');
+              _notifications.add(CameraDeviceFailedNotification());
+              Log.warning('enableVideo() call failed with $e', '$runtimeType');
               rethrow;
             }
           } catch (e) {
-            addError('enableVideo() call failed with $e');
+            _notifications.add(CameraDeviceFailedNotification());
+            Log.warning('enableVideo() call failed with $e', '$runtimeType');
             videoState.value = LocalTrackState.disabled;
             rethrow;
           }
@@ -1247,11 +1345,11 @@ class OngoingCall {
   /// Sets the provided [device] as a currently used [outputDevice].
   ///
   /// Does nothing if [device] is already the [outputDevice].
-  Future<void> setOutputDevice(DeviceDetails device) {
+  Future<void> setOutputDevice(DeviceDetails device, {bool force = false}) {
     Log.debug('setOutputDevice($device)', '$runtimeType');
 
     _preferredOutputDevice = device.id();
-    return _setOutputDevice(device);
+    return _setOutputDevice(device, force: force);
   }
 
   /// Sets inbound audio in this [OngoingCall] as [enabled] or not.
@@ -1261,25 +1359,13 @@ class OngoingCall {
     Log.debug('setRemoteAudioEnabled($enabled)', '$runtimeType');
 
     try {
-      final List<Future> futures = [];
-
-      if (enabled && isRemoteAudioEnabled.isFalse) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          futures.add(m.setAudioEnabled(true));
-        }
-
-        isRemoteAudioEnabled.toggle();
-      } else if (!enabled && isRemoteAudioEnabled.isTrue) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          if (m.tracks.any((e) => e.kind == MediaKind.audio)) {
-            futures.add(m.setAudioEnabled(false));
-          }
-        }
-
-        isRemoteAudioEnabled.toggle();
+      if (enabled) {
+        await _room?.enableRemoteAudio();
+      } else {
+        await _room?.disableRemoteAudio();
       }
 
-      await Future.wait(futures);
+      isRemoteAudioEnabled.toggle();
     } on MediaStateTransitionException catch (_) {
       // No-op.
     }
@@ -1291,32 +1377,50 @@ class OngoingCall {
   Future<void> setRemoteVideoEnabled(bool enabled) async {
     Log.debug('setRemoteVideoEnabled($enabled)', '$runtimeType');
 
-    try {
-      final List<Future> futures = [];
-
-      if (enabled && isRemoteVideoEnabled.isFalse) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          futures.addAll([
-            m.setVideoEnabled(true, source: MediaSourceKind.device),
-            m.setVideoEnabled(true, source: MediaSourceKind.display),
-          ]);
-        }
-
-        isRemoteVideoEnabled.toggle();
-      } else if (!enabled && isRemoteVideoEnabled.isTrue) {
-        for (CallMember m in members.values.where((e) => e.id != _me)) {
-          m.tracks.where((e) => e.kind == MediaKind.video).forEach((e) {
-            futures.add(m.setVideoEnabled(false, source: e.source));
-          });
-        }
-
-        isRemoteVideoEnabled.toggle();
-      }
-
-      await Future.wait(futures);
-    } on MediaStateTransitionException catch (_) {
-      // No-op.
+    if (_videoGuard.isLocked) {
+      return;
     }
+
+    await _videoGuard.protect(() async {
+      final Map<CallMemberId, bool> devices = Map.fromEntries(
+        members.values
+            .where((e) => e.id != _me)
+            .map((e) => MapEntry(e.id, e.hasDeviceVideo.value)),
+      );
+
+      final Map<CallMemberId, bool> displays = Map.fromEntries(
+        members.values
+            .where((e) => e.id != _me)
+            .map((e) => MapEntry(e.id, e.hasDisplayVideo.value)),
+      );
+
+      try {
+        for (var e in members.values.where((e) => e.id != _me)) {
+          e.hasDisplayVideo.value = enabled;
+          e.hasDeviceVideo.value = enabled;
+        }
+
+        if (enabled) {
+          await _room?.enableRemoteVideo();
+        } else {
+          await _room?.disableRemoteVideo();
+        }
+
+        isRemoteVideoEnabled.value = enabled;
+      } on MediaStateTransitionException catch (_) {
+        // No-op.
+      } catch (e) {
+        for (var e in devices.entries) {
+          members[e.key]?.hasDeviceVideo.value = e.value;
+        }
+
+        for (var e in displays.entries) {
+          members[e.key]?.hasDisplayVideo.value = e.value;
+        }
+
+        rethrow;
+      }
+    });
   }
 
   /// Toggles inbound audio in this [OngoingCall] on and off.
@@ -1329,6 +1433,12 @@ class OngoingCall {
   Future<void> toggleRemoteVideo() async {
     Log.debug('toggleRemoteVideo()', '$runtimeType');
     await setRemoteVideoEnabled(!isRemoteVideoEnabled.value);
+  }
+
+  /// Notifies this [OngoingCall] about the provided [CallNotification].
+  void notify(CallNotification notification) {
+    Log.debug('notify($notification)', '$runtimeType');
+    _notifications.add(notification);
   }
 
   /// Adds the provided [message] to the [notifications] stream as
@@ -1378,7 +1488,7 @@ class OngoingCall {
       _autoGainControl.value = autoGainControl ?? _autoGainControl.value;
       _highPassFilter.value = highPassFilter ?? _highPassFilter.value;
 
-      await _room?.disableAudio();
+      await _room?.disableAudio(MediaSourceKind.device);
 
       members[_me]?.tracks.removeWhere((t) {
         if (t.kind == MediaKind.audio && t.source == MediaSourceKind.device) {
@@ -1389,13 +1499,9 @@ class OngoingCall {
         return false;
       });
 
-      await _updateTracks(
-        audio: audioState.value.isEnabled,
-        video: videoState.value.isEnabled,
-        screen: screenShareState.value.isEnabled,
-      );
+      await _updateTracks(audio: audioState.value.isEnabled);
 
-      await _room?.enableAudio();
+      await _room?.enableAudio(MediaSourceKind.device);
       return;
     }
 
@@ -1492,16 +1598,18 @@ class OngoingCall {
     DeviceDetails? videoDevice,
     MediaDisplayDetails? screenDevice,
     FacingMode? facingMode,
+    bool screenAudio = false,
   }) {
     Log.debug(
-      '_mediaStreamSettings($audio, $video, $screen, $audioDevice, $videoDevice, $screenDevice, $facingMode)',
+      '_mediaStreamSettings($audio, $video, $screen, audioDevice: $audioDevice, videoDevice: $videoDevice, screenDevice: $screenDevice, facingMode: $facingMode, screenAudio: $screenAudio)',
       '$runtimeType',
     );
 
     final MediaStreamSettings settings = MediaStreamSettings();
 
     if (audio) {
-      AudioTrackConstraints constraints = AudioTrackConstraints();
+      final DeviceAudioTrackConstraints constraints =
+          DeviceAudioTrackConstraints();
 
       if (audioDevice != null) {
         constraints.deviceId(audioDevice.deviceId());
@@ -1528,25 +1636,37 @@ class OngoingCall {
         constraints.idealHighPassFilter(_highPassFilter.value!);
       }
 
-      settings.audio(constraints);
+      settings.deviceAudio(constraints);
     }
 
     if (video) {
-      DeviceVideoTrackConstraints constraints = DeviceVideoTrackConstraints();
+      final DeviceVideoTrackConstraints constraints =
+          DeviceVideoTrackConstraints();
+
       if (videoDevice != null) constraints.deviceId(videoDevice.deviceId());
       if (facingMode != null) constraints.idealFacingMode(facingMode);
+      constraints.idealWidth(960);
+      constraints.idealHeight(720);
       settings.deviceVideo(constraints);
     }
 
     if (screen) {
-      DisplayVideoTrackConstraints constraints = DisplayVideoTrackConstraints();
+      final DisplayVideoTrackConstraints constraints =
+          DisplayVideoTrackConstraints();
+
       if (screenDevice != null) {
         constraints.deviceId(screenDevice.deviceId());
       }
       constraints.idealWidth(1920);
-      constraints.idealHeight(1200);
+      constraints.idealHeight(1080);
       constraints.idealFrameRate(30);
       settings.displayVideo(constraints);
+
+      if (screenAudio) {
+        final DisplayAudioTrackConstraints constraints =
+            DisplayAudioTrackConstraints();
+        settings.displayAudio(constraints);
+      }
     }
 
     return settings;
@@ -1562,55 +1682,7 @@ class OngoingCall {
       Log.debug('onFailedLocalMedia($e)', '$runtimeType');
 
       if (e is LocalMediaInitException) {
-        try {
-          switch (e.kind()) {
-            case LocalMediaInitExceptionKind.getUserMediaAudioFailed:
-              addError('Failed to acquire local audio: ${e.message()}');
-              await _room?.disableAudio();
-              _removeLocalTracks(MediaKind.audio, MediaSourceKind.device);
-              audioState.value = LocalTrackState.disabled;
-              break;
-
-            case LocalMediaInitExceptionKind.getUserMediaVideoFailed:
-              addError('Failed to acquire local video: ${e.message()}');
-              await setVideoEnabled(false);
-              break;
-
-            case LocalMediaInitExceptionKind.getDisplayMediaFailed:
-              if (e.message().contains('Permission denied') ||
-                  e.message().contains('NotAllowedError')) {
-                break;
-              }
-
-              addError('Failed to initiate screen capture: $e');
-              await setScreenShareEnabled(false);
-              break;
-
-            default:
-              if (e.message().contains('Permission denied') ||
-                  e.message().contains('NotAllowedError')) {
-                break;
-              }
-
-              addError('Failed to get media: $e');
-
-              await _room?.disableAudio();
-              _removeLocalTracks(MediaKind.audio, MediaSourceKind.device);
-              audioState.value = LocalTrackState.disabled;
-              audioDevice.value = null;
-
-              await setVideoEnabled(false);
-              videoState.value = LocalTrackState.disabled;
-              videoDevice.value = null;
-
-              await setScreenShareEnabled(false);
-              screenShareState.value = LocalTrackState.disabled;
-              screenDevice.value = null;
-              return;
-          }
-        } catch (e) {
-          addError('$e');
-        }
+        await _handleFailedLocalMedia(e);
       }
     });
 
@@ -1629,7 +1701,10 @@ class OngoingCall {
     });
 
     _room!.onNewConnection((conn) {
-      Log.debug('onNewConnection', '$runtimeType');
+      Log.debug(
+        'onNewConnection -> getState(${conn.getState()})',
+        '$runtimeType',
+      );
 
       final CallMemberId id = CallMemberId.fromString(conn.getRemoteMemberId());
       final CallMemberId redialedId = CallMemberId(id.userId, null);
@@ -1643,7 +1718,7 @@ class OngoingCall {
       if (member != null) {
         member.id = id;
         member._connection = conn;
-        member.isConnected.value = true;
+        member.isConnected.value = conn.getState() != null;
         member.isDialing.value = false;
       } else {
         members[id] = CallMember(
@@ -1654,9 +1729,17 @@ class OngoingCall {
                   .firstWhereOrNull((e) => e.user.id == id.userId)
                   ?.handRaised ??
               false,
-          isConnected: true,
+          isConnected: conn.getState() != null,
         );
       }
+
+      conn.onStateChange((s) {
+        Log.debug('onStateChange($s)', '$runtimeType');
+
+        if (s is MemberConnectionStateP2P) {
+          member?.isConnected.value = true;
+        }
+      });
 
       conn.onClose(() {
         Log.debug('onClose', '$runtimeType');
@@ -1672,7 +1755,7 @@ class OngoingCall {
           '$runtimeType',
         );
 
-        final Track t = Track(track);
+        final Track t = Track(track, debugLabel: '$id');
 
         final CallMember? redialed = members[redialedId];
         if (redialed?.isDialing.value == true) {
@@ -1715,6 +1798,16 @@ class OngoingCall {
                   break;
 
                 case MediaKind.video:
+                  switch (track.mediaSourceKind()) {
+                    case MediaSourceKind.device:
+                      members[id]?.hasDeviceVideo.value = true;
+                      break;
+
+                    case MediaSourceKind.display:
+                      members[id]?.hasDisplayVideo.value = true;
+                      break;
+                  }
+
                   await t.createRenderer();
                   break;
               }
@@ -1750,12 +1843,18 @@ class OngoingCall {
             break;
 
           case MediaKind.video:
-            if (isRemoteVideoEnabled.isTrue) {
-              if (track.mediaDirection().isEmitting) {
-                await t.createRenderer();
+            if (track.mediaDirection().isEmitting) {
+              switch (track.mediaSourceKind()) {
+                case MediaSourceKind.device:
+                  members[id]?.hasDeviceVideo.value = true;
+                  break;
+
+                case MediaSourceKind.display:
+                  members[id]?.hasDisplayVideo.value = true;
+                  break;
               }
-            } else {
-              await members[id]?.setVideoEnabled(false, source: t.source);
+
+              await t.createRenderer();
             }
             break;
         }
@@ -1779,19 +1878,36 @@ class OngoingCall {
         '$runtimeType',
       );
 
-      // Awaiting 5 seconds for another `EventChatCallRoomReady` to come in case
-      // there's a new room being opened instead of the closed one.
-      await Future.delayed(Duration(seconds: 5));
+      switch (r.reason()) {
+        case RoomCloseKind.finished:
+          // No-op.
+          break;
 
-      if (!_joined) {
-        // TODO: Can we somehow reconnect to a new room in such scenarios?
-        dispose();
+        case RoomCloseKind.rejected:
+        // TODO: Try to do `Mutation.joinCall()` again.
 
-        if (r.isErr()) {
-          throw Exception(
-            'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
-          );
-        }
+        case RoomCloseKind.internalClientError:
+        case RoomCloseKind.internalServerError:
+        case RoomCloseKind.idle:
+        case RoomCloseKind.evicted:
+          await Future.delayed(Duration(seconds: 1));
+
+          // In case a new link will be sent shortly.
+          connectionLost.value = true;
+
+          // Awaiting 5 seconds for another `ChatCallRoomReadyEvent` to come in
+          // case there's a new room being opened instead of the closed one.
+          await Future.delayed(Duration(seconds: 4));
+
+          if (!_joined) {
+            // TODO: Can we somehow reconnect to a new room in such scenarios?
+            dispose();
+
+            throw Exception(
+              'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
+            );
+          }
+          break;
       }
     });
   }
@@ -1870,25 +1986,16 @@ class OngoingCall {
       );
     }
 
-    try {
-      if (hasAudio || audioState.value.isEnabled) {
-        await Permission.microphone.request();
-      }
-
-      if (videoState.value.isEnabled) {
-        await Permission.camera.request();
-      }
-    } on MissingPluginException {
-      // No-op.
-    }
-
     await _mediaSettingsGuard.protect(() async {
       await _devicesGuard.protect(() async {
         // Populate [devices] with a list of available media input devices.
         try {
           await enumerateDevices();
-        } catch (_) {
-          // No-op.
+        } catch (e) {
+          Log.warning(
+            '_initLocalMedia() -> enumerateDevices() failed with $e',
+            '$runtimeType',
+          );
         }
 
         // On mobile platforms, output device is picked in the following priority:
@@ -1896,31 +2003,18 @@ class OngoingCall {
         // - earpiece (if [videoState] is disabled);
         // - speaker (if [videoState] is enabled).
         if (PlatformUtils.isMobile) {
-          _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
-            outputDevice.value =
-                devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
-                outputDevice.value;
-          });
+          _outputWorker = ever(
+            AudioUtils.outputDevice,
+            (device) => outputDevice.value = device,
+          );
 
           if (outputDevice.value == null) {
-            final Iterable<DeviceDetails> output = devices.output();
-            outputDevice.value = output.firstWhereOrNull(
-              (e) => e.speaker == AudioSpeakerKind.headphones,
-            );
-
-            if (outputDevice.value == null) {
-              final bool speaker = PlatformUtils.isWeb
-                  ? true
-                  : videoState.value.isEnabled;
-
-              if (speaker) {
-                outputDevice.value = output.firstWhereOrNull(
-                  (e) => e.speaker == AudioSpeakerKind.speaker,
-                );
-              }
-
-              outputDevice.value ??= output.firstWhereOrNull(
-                (e) => e.speaker == AudioSpeakerKind.earpiece,
+            try {
+              await _pickOutputDevice();
+            } catch (e) {
+              Log.warning(
+                '_initLocalMedia() -> _pickOutputDevice() failed with $e',
+                '$runtimeType',
               );
             }
           }
@@ -1930,13 +2024,26 @@ class OngoingCall {
               devices.output().firstWhereOrNull(
                 (e) => e.id() == _preferredOutputDevice,
               ) ??
+              devices.output().firstWhereOrNull((e) => e.id() == 'default') ??
               devices.output().firstOrNull;
+
+          if (outputDevice.value != null) {
+            try {
+              await AudioUtils.setOutputDevice(outputDevice.value!);
+            } catch (e) {
+              Log.warning(
+                '_initLocalMedia() -> AudioUtils.setOutputDevice(${outputDevice.value}) failed with $e',
+                '$runtimeType',
+              );
+            }
+          }
         }
 
         audioDevice.value ??=
             devices.audio().firstWhereOrNull(
               (e) => e.id() == _preferredAudioDevice,
             ) ??
+            devices.audio().firstWhereOrNull((e) => e.id() == 'default') ??
             devices.audio().firstOrNull;
 
         videoDevice.value ??= devices.video().firstWhereOrNull(
@@ -1946,23 +2053,30 @@ class OngoingCall {
         screenDevice.value ??= displays.firstWhereOrNull(
           (e) => e.deviceId() == _preferredScreenDevice,
         );
-
-        if (outputDevice.value != null) {
-          MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
-        }
       });
 
       // First, try to init the local tracks with [_mediaStreamSettings].
       List<LocalMediaTrack> tracks = [];
 
+      // Tries of [initLocalTracks].
+      int tries = 0;
+
       // Initializes the local tracks recursively.
       Future<void> initLocalTracks() async {
+        if (tries++ >= 5) {
+          return;
+        }
+
         try {
           tracks = await MediaUtils.getTracks(
             audio: hasAudio || audioState.value.isEnabled
                 ? AudioPreferences(
                     device:
                         audioDevice.value?.deviceId() ??
+                        devices
+                            .audio()
+                            .firstWhereOrNull((e) => e.id() == 'default')
+                            ?.deviceId() ??
                         devices.audio().firstOrNull?.deviceId(),
                     noiseSuppression: _noiseSuppression.value,
                     noiseSuppressionLevel: _noiseSuppressionLevel.value,
@@ -2017,7 +2131,7 @@ class OngoingCall {
 
       if (audioState.value != LocalTrackState.enabled &&
           audioState.value != LocalTrackState.enabling) {
-        await _room?.muteAudio();
+        await _room?.muteAudio(MediaSourceKind.device);
       }
       if (videoState.value != LocalTrackState.enabled &&
           videoState.value != LocalTrackState.enabling) {
@@ -2026,6 +2140,7 @@ class OngoingCall {
       if (screenShareState.value != LocalTrackState.enabled &&
           screenShareState.value != LocalTrackState.enabling) {
         await _room?.disableVideo(MediaSourceKind.display);
+        await _room?.disableAudio(MediaSourceKind.display);
       }
 
       try {
@@ -2039,14 +2154,19 @@ class OngoingCall {
             e.message().contains('NotAllowedError')) {
           _notifications.add(MicrophonePermissionDeniedNotification());
         } else {
-          addError('initLocalTracks() call failed due to: ${e.message()}');
+          Log.error(
+            'initLocalTracks() call failed due to: ${e.message()}',
+            '$runtimeType',
+          );
+          _notifications.add(MediaFailedNotification(e));
           rethrow;
         }
       } catch (e) {
         audioState.value = LocalTrackState.disabled;
         videoState.value = LocalTrackState.disabled;
         screenShareState.value = LocalTrackState.disabled;
-        addError('initLocalTracks() call failed with $e');
+        _notifications.add(MediaFailedNotification(null));
+        Log.error('initLocalTracks() call failed with $e', '$runtimeType');
       }
 
       // Add the local tracks asynchronously.
@@ -2069,10 +2189,11 @@ class OngoingCall {
         // Second, set all constraints to `true` (disabled tracks will not be
         // sent).
         await _room?.setLocalMediaSettings(
-          _mediaStreamSettings(
+          _settings = _mediaStreamSettings(
             audioDevice: audioDevice.value,
             videoDevice: videoDevice.value,
             screenDevice: screenDevice.value,
+            screenAudio: screenAudio.value,
           ),
           false,
           true,
@@ -2112,10 +2233,11 @@ class OngoingCall {
       // Set all the constraints to ensure no disabled track is sent while
       // initializing the local media.
       await _room?.setLocalMediaSettings(
-        _mediaStreamSettings(
+        _settings = _mediaStreamSettings(
           audio: hasAudio || audioState.value.isEnabled,
           video: videoState.value.isEnabled,
           screen: screenShareState.value.isEnabled,
+          screenAudio: screenAudio.value,
         ),
         false,
         true,
@@ -2145,6 +2267,9 @@ class OngoingCall {
 
     Log.info('Joining the room...', '$runtimeType');
     _joined = true;
+
+    // In case `RoomHandle.onClose` was fired.
+    connectionLost.value = false;
 
     if (_joinLink != null && _joinLink != link) {
       _joinLink = link;
@@ -2251,52 +2376,73 @@ class OngoingCall {
   /// Updates the local media settings with [audioDevice], [videoDevice] or
   /// [screenDevice].
   Future<void> _updateSettings({
+    bool? audio,
     DeviceDetails? audioDevice,
+    bool? video,
     DeviceDetails? videoDevice,
+    bool? screen,
     MediaDisplayDetails? screenDevice,
+    bool? screenAudio,
   }) async {
     Log.debug(
-      '_updateSettings($audioDevice, $videoDevice, $screenDevice)',
+      '_updateSettings(audio: $audio, audioDevice: $audioDevice, video: $video, videoDevice: $videoDevice, screen: $screen, screenDevice: $screenDevice, screenAudio: $screenAudio)',
       '$runtimeType',
     );
 
-    if (audioDevice != null || videoDevice != null || screenDevice != null) {
+    if (audio != null ||
+        audioDevice != null ||
+        video != null ||
+        videoDevice != null ||
+        screen != null ||
+        screenDevice != null ||
+        screenAudio != null) {
       try {
         await _mediaSettingsGuard.acquire();
-        _removeLocalTracks(
-          audioDevice == null ? MediaKind.video : MediaKind.audio,
-          screenDevice == null
-              ? MediaSourceKind.device
-              : MediaSourceKind.display,
-        );
 
         try {
           // On Web settings do not change if provided the same IDs, so we
           // should reset settings first.
           if (PlatformUtils.isWeb && audioDevice != this.audioDevice.value) {
             await _room?.setLocalMediaSettings(
-              _mediaStreamSettings(),
+              _settings = _mediaStreamSettings(),
               true,
-              true,
+              false,
             );
           }
 
-          final MediaStreamSettings settings = _mediaStreamSettings(
+          Log.debug(
+            '_updateSettings() -> `_mediaStreamSettings()` contains audio($audio ?? ($hasAudio || ${audioState.value.isEnabled})), video($video ?? ${videoState.value.isEnabled}), screen($screen ?? ${screenShareState.value.isEnabled})',
+            '$runtimeType',
+          );
+
+          _settings = _mediaStreamSettings(
+            audio: audio ?? (hasAudio || audioState.value.isEnabled),
+            video: video ?? videoState.value.isEnabled,
+            screen: screen ?? screenShareState.value.isEnabled,
             audioDevice: audioDevice ?? this.audioDevice.value,
             videoDevice: videoDevice ?? this.videoDevice.value,
             screenDevice: screenDevice ?? this.screenDevice.value,
+            screenAudio: screenAudio ?? this.screenAudio.value,
           );
 
-          await _room?.setLocalMediaSettings(settings, true, true);
+          await _room?.setLocalMediaSettings(_settings!, true, false);
           this.audioDevice.value = audioDevice ?? this.audioDevice.value;
           this.videoDevice.value = videoDevice ?? this.videoDevice.value;
           this.screenDevice.value = screenDevice ?? this.screenDevice.value;
+          this.screenAudio.value = screenAudio ?? this.screenAudio.value;
 
           await _updateTracks(
-            audio: audioDevice != null,
-            video: videoDevice != null,
-            screen: screenDevice != null,
+            audio: audio == true || audioDevice != null,
+            video: video == true || videoDevice != null,
+            screen: screen == true || screenDevice != null,
           );
+        } on MediaSettingsUpdateException catch (e) {
+          Log.warning(
+            '_updateSettings(audioDevice: $audioDevice, videoDevice: $videoDevice, screenDevice: $screenDevice) failed: $e',
+            '$runtimeType',
+          );
+        } on LocalMediaInitException catch (e) {
+          await _handleFailedLocalMedia(e);
         } catch (e) {
           Log.error(
             '_updateSettings(audioDevice: $audioDevice, videoDevice: $videoDevice, screenDevice: $screenDevice) failed: $e',
@@ -2309,6 +2455,21 @@ class OngoingCall {
         _mediaSettingsGuard.release();
       }
     }
+  }
+
+  /// Ensures the [MediaStreamSettings] reflect the current states.
+  Future<void> _ensureMediaSettings() async {
+    _settings = _mediaStreamSettings(
+      audio: hasAudio || audioState.value.isEnabled,
+      video: hasCamera || videoState.value.isEnabled,
+      screen: hasScreen || screenShareState.value.isEnabled,
+      audioDevice: audioDevice.value,
+      videoDevice: videoDevice.value,
+      screenDevice: screenDevice.value,
+      screenAudio: screenAudio.value,
+    );
+
+    await _room?.setLocalMediaSettings(_settings!, true, false);
   }
 
   /// Updates the local tracks corresponding to the current media
@@ -2338,7 +2499,10 @@ class OngoingCall {
             )
           : null,
       screen: screenShareState.value.isEnabled && screen
-          ? ScreenPreferences(device: screenDevice.value?.deviceId())
+          ? ScreenPreferences(
+              device: screenDevice.value?.deviceId(),
+              audio: screenAudio.value,
+            )
           : null,
     );
 
@@ -2350,20 +2514,29 @@ class OngoingCall {
   /// Adds the provided [track] to the local tracks and initializes video
   /// renderer if required.
   Future<void> _addLocalTrack(LocalMediaTrack track) async {
-    Log.debug('_addLocalTrack($track)', '$runtimeType');
-
     final MediaKind kind = track.kind();
     final MediaSourceKind source = track.mediaSourceKind();
+
+    Log.debug('_addLocalTrack($track) -> $kind, $source}', '$runtimeType');
 
     track.onEnded(() {
       Log.debug('track.onEnded($track)', '$runtimeType');
 
       switch (kind) {
         case MediaKind.audio:
-          // Currently used [MediaKind.audio] track has ended, try picking a new
-          // one.
-          audioDevice.value = null;
-          _pickAudioDevice();
+          switch (source) {
+            case MediaSourceKind.device:
+              // Currently used [MediaKind.audio] track has ended, try picking a
+              // new one.
+              audioDevice.value = null;
+              _preferredAudioDevice = null;
+              _pickAudioDevice([track.getTrack().deviceId()]);
+              break;
+
+            case MediaSourceKind.display:
+              // No-op?
+              break;
+          }
           break;
 
         case MediaKind.video:
@@ -2380,59 +2553,65 @@ class OngoingCall {
       }
     });
 
-    if (kind == MediaKind.video) {
-      LocalTrackState state;
-      switch (source) {
-        case MediaSourceKind.device:
-          state = videoState.value;
-          break;
-
-        case MediaSourceKind.display:
-          state = screenShareState.value;
-          break;
-      }
-
-      if (state == LocalTrackState.disabling ||
-          state == LocalTrackState.disabled) {
-        track.free();
-      } else {
-        _removeLocalTracks(kind, source);
-
-        Track t = Track(track);
-        members[_me]?.tracks.add(t);
-
+    switch (kind) {
+      case MediaKind.video:
+        LocalTrackState state;
         switch (source) {
           case MediaSourceKind.device:
-            videoDevice.value =
-                videoDevice.value ??
-                devices.firstWhereOrNull(
-                  (e) => e.deviceId() == track.getTrack().deviceId(),
-                );
+            state = videoState.value;
             break;
 
           case MediaSourceKind.display:
-            screenDevice.value =
-                screenDevice.value ??
-                displays.firstWhereOrNull(
-                  (e) => e.deviceId() == track.getTrack().deviceId(),
-                );
+            state = screenShareState.value;
             break;
         }
 
-        await t.createRenderer();
-      }
-    } else {
-      _removeLocalTracks(kind, source);
+        if (state == LocalTrackState.disabling ||
+            state == LocalTrackState.disabled) {
+          track.free();
+        } else {
+          _removeLocalTracks(kind, source);
 
-      members[_me]?.tracks.add(Track(track));
+          final Track t = Track(track, debugLabel: 'me');
+          members[_me]?.tracks.add(t);
 
-      if (source == MediaSourceKind.device) {
-        audioDevice.value =
-            audioDevice.value ??
-            devices.firstWhereOrNull(
-              (e) => e.deviceId() == track.getTrack().deviceId(),
-            );
-      }
+          switch (source) {
+            case MediaSourceKind.device:
+              videoDevice.value =
+                  videoDevice.value ??
+                  devices.firstWhereOrNull(
+                    (e) => e.deviceId() == track.getTrack().deviceId(),
+                  );
+              members[_me]?.hasDeviceVideo.value = true;
+              break;
+
+            case MediaSourceKind.display:
+              screenDevice.value =
+                  screenDevice.value ??
+                  displays.firstWhereOrNull(
+                    (e) => e.deviceId() == track.getTrack().deviceId(),
+                  );
+              members[_me]?.hasDisplayVideo.value = true;
+              break;
+          }
+
+          await t.createRenderer();
+        }
+        break;
+
+      case MediaKind.audio:
+        _removeLocalTracks(kind, source);
+
+        members[_me]?.tracks.add(Track(track, debugLabel: 'me'));
+
+        if (source == MediaSourceKind.device) {
+          audioDevice.value =
+              audioDevice.value ??
+              devices.firstWhereOrNull(
+                (e) => e.deviceId() == track.getTrack().deviceId(),
+              );
+        }
+        break;
     }
   }
 
@@ -2451,32 +2630,136 @@ class OngoingCall {
   }
 
   /// Picks the [outputDevice] based on the [devices] list.
-  void _pickOutputDevice() {
-    Log.debug('_pickOutputDevice()', '$runtimeType');
+  Future<void> _pickOutputDevice({List<String> without = const []}) async {
+    Log.debug('_pickOutputDevice(without: $without)', '$runtimeType');
 
     // TODO: For Android and iOS, default device is __NOT__ the first one.
-    final Iterable<DeviceDetails> output = devices.output();
-    final DeviceDetails? device =
-        output.firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-        output.firstOrNull;
+    final Iterable<DeviceDetails> output = devices.output().whereNot(
+      (e) => without.contains(e.label()),
+    );
 
-    if (device != null && outputDevice.value != device) {
+    DeviceDetails? device = output.firstWhereOrNull(
+      (e) => e.id() == _preferredOutputDevice,
+    );
+
+    Log.debug(
+      '_pickOutputDevice() -> preferred device is `$_preferredOutputDevice`, found -> $device',
+      '$runtimeType',
+    );
+
+    if (PlatformUtils.isMobile) {
+      final Iterable<DeviceDetails> headphones = output.where(
+        (e) => e.speaker == AudioSpeakerKind.headphones,
+      );
+
+      final Iterable<DeviceDetails> speakerphones = output.where(
+        (e) => e.speaker == AudioSpeakerKind.speaker,
+      );
+
+      final Iterable<DeviceDetails> earpieces = output.where(
+        (e) => e.speaker == AudioSpeakerKind.earpiece,
+      );
+
+      device = null;
+      device ??= headphones.firstOrNull;
+
+      final bool anyVideo = members.values.any(
+        (e) => e.tracks.any(
+          (a) => a.kind == MediaKind.video && a.direction.value.isEnabled,
+        ),
+      );
+
+      Log.debug(
+        '_pickOutputDevice() -> videoState(${videoState.value.isEnabled}), anyVideo($anyVideo), withVideo($withVideo)',
+        '$runtimeType',
+      );
+
+      if (videoState.value.isEnabled || anyVideo || withVideo == true) {
+        device ??= speakerphones.firstOrNull;
+      }
+
+      device ??= earpieces.firstOrNull;
+
+      Log.debug(
+        '_pickOutputDevice() -> ignoring preferred(`$_preferredOutputDevice`), found headphones($headphones), found speakerphones($speakerphones), found earpieces($earpieces) -> result is $device',
+        '$runtimeType',
+      );
+    }
+
+    // Best effort if none was found.
+    device ??= output.firstWhereOrNull((e) => e.id() == 'default');
+    device ??= output.firstOrNull;
+
+    Log.debug(
+      '_pickOutputDevice() -> ${device?.id()} (${device?.label()}), current device is `${outputDevice.value}`',
+      '$runtimeType',
+    );
+
+    if (device != null &&
+        (outputDevice.value != device ||
+            device.speaker == AudioSpeakerKind.headphones)) {
       _notifications.add(DeviceChangedNotification(device: device));
-      _setOutputDevice(device);
+
+      await _setOutputDevice(device);
+
+      // On iOS, headphones may still be displayed as "connected" in
+      // `availableInputs` list despite being disconnected. In order to fix
+      // that, we should try to do `setPreferredInput()` with that device, and
+      // if it fails, then we shouldn't consider the device active.
+      if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+        switch (device.speaker) {
+          case AudioSpeakerKind.headphones:
+            try {
+              final Set<AVAudioSessionPortDescription> routes =
+                  await AVAudioSession().availableInputs;
+
+              final AVAudioSessionPortDescription? input = routes
+                  .firstWhereOrNull((e) => device?.label() == e.portName);
+
+              Log.debug('', '$runtimeType');
+              if (input != null) {
+                await AVAudioSession().setPreferredInput(input);
+              }
+            } catch (e) {
+              Log.error(
+                '_pickOutputDevice() -> `_setAudioDevice(${device.label()})` failed with $e',
+                '$runtimeType',
+              );
+            }
+            break;
+
+          case AudioSpeakerKind.earpiece:
+          case AudioSpeakerKind.speaker:
+            // No-op.
+            break;
+        }
+      }
     }
   }
 
   /// Picks the [audioDevice] based on the [devices] list.
-  void _pickAudioDevice() async {
-    Log.debug('_pickAudioDevice()', '$runtimeType');
+  Future<void> _pickAudioDevice([List<String> without = const []]) async {
+    Log.debug('_pickAudioDevice(without: $without)', '$runtimeType');
 
     // TODO: For Android and iOS, default device is __NOT__ the first one.
-    final Iterable<DeviceDetails> audio = devices.audio();
+    final Iterable<DeviceDetails> audio = devices.audio().whereNot(
+      (e) => without.contains(e.id()),
+    );
+
     final DeviceDetails? device =
         audio.firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
+        audio.firstWhereOrNull((e) => e.id() == 'default') ??
         audio.firstOrNull;
 
     if (device != null && audioDevice.value != device) {
+      if (device.id() == 'default' && without.contains(device.deviceId())) {
+        Log.debug(
+          '_pickAudioDevice(without: $without) -> picked the `default` device, yet it is aiming the `without` device, thus IGNORING the call! Default is: $device',
+          '$runtimeType',
+        );
+        return;
+      }
+
       _notifications.add(DeviceChangedNotification(device: device));
       await _setAudioDevice(device);
     }
@@ -2521,34 +2804,224 @@ class OngoingCall {
     Log.debug('_setAudioDevice($device)', '$runtimeType');
 
     if (device != audioDevice.value) {
-      await _updateSettings(audioDevice: device);
+      await _updateSettings(audio: true, audioDevice: device);
     }
+
+    // Check whether the currently picked output device will work with the
+    // current microphone, as it's known on Windows 10 to have some issues.
+    await _ensureValidOutputDevice();
   }
 
   /// Sets the provided [device] as a currently used [outputDevice].
   ///
   /// Does nothing if [device] is already the [outputDevice].
-  Future<void> _setOutputDevice(DeviceDetails device) async {
-    Log.debug('_setOutputDevice($device)', '$runtimeType');
+  Future<void> _setOutputDevice(
+    DeviceDetails device, {
+    bool force = false,
+  }) async {
+    Log.debug(
+      '_setOutputDevice($device) -> ${device.audioDeviceKind()?.name}',
+      '$runtimeType',
+    );
 
-    if (device != outputDevice.value) {
+    if (device != outputDevice.value || force) {
       final DeviceDetails? previous = outputDevice.value;
 
       outputDevice.value = device;
 
       try {
-        // [MediaUtils.setOutputDevice] seems to switch the speaker in
-        // [AudioUtils] as well, when [hasRemote] is `true`.
-        await Future.wait([
-          if (!hasRemote) AudioUtils.setSpeaker(device.speaker),
-          MediaUtils.setOutputDevice(device.deviceId()),
-        ]);
+        await AudioUtils.setOutputDevice(device);
       } catch (e) {
         addError(e.toString());
         outputDevice.value = previous;
         rethrow;
       }
     }
+
+    // Check whether the currently picked output device will work with the
+    // current microphone, as it's known on Windows 10 to have some issues.
+    await _ensureValidOutputDevice();
+  }
+
+  /// Handles the [LocalMediaInitException] by enabling/disabling certain
+  /// devices and tracks.
+  Future<void> _handleFailedLocalMedia(LocalMediaInitException e) async {
+    try {
+      switch (e.kind()) {
+        case LocalMediaInitExceptionKind.getUserMediaAudioFailed:
+          _notifications.add(MicrophoneDeviceFailedNotification());
+          await enumerateDevices();
+          await _pickAudioDevice();
+          break;
+
+        case LocalMediaInitExceptionKind.getUserMediaVideoFailed:
+          _notifications.add(CameraDeviceFailedNotification());
+          await setVideoEnabled(false);
+          break;
+
+        case LocalMediaInitExceptionKind.getDisplayMediaFailed:
+          if (e.message().contains('Permission denied') ||
+              e.message().contains('NotAllowedError')) {
+            break;
+          }
+
+          _notifications.add(ScreenDeviceFailedNotification());
+          await setScreenShareEnabled(false);
+          break;
+
+        case LocalMediaInitExceptionKind.getUserMediaFailed:
+        case LocalMediaInitExceptionKind.localTrackIsEnded:
+          if (e.message().contains('Permission denied') ||
+              e.message().contains('NotAllowedError')) {
+            break;
+          }
+
+          await enumerateDevices();
+
+          bool noCamera =
+              videoDevice.value != null &&
+              devices.none(
+                (e) => e.deviceId() == videoDevice.value?.deviceId(),
+              );
+
+          bool noMicrophone =
+              audioDevice.value != null &&
+              devices.none(
+                (e) => e.deviceId() == audioDevice.value?.deviceId(),
+              );
+
+          bool noOutput =
+              outputDevice.value != null &&
+              devices.none(
+                (e) => e.deviceId() == outputDevice.value?.deviceId(),
+              );
+
+          bool noScreen =
+              screenDevice.value != null &&
+              displays.none(
+                (e) => e.deviceId() == screenDevice.value?.deviceId(),
+              );
+
+          Log.debug(
+            'onFailedLocalMedia($e) -> noScreen($noScreen), noOutput($noOutput), noMicrophone($noMicrophone), noCamera($noCamera)',
+            '$runtimeType',
+          );
+
+          // If every device is present, then do nothing?
+          if (!noScreen && !noOutput && !noMicrophone && !noCamera) {
+            _notifications.add(MediaFailedNotification(e));
+            break;
+          }
+
+          // Disable the screen sharing, if screen has failed.
+          if (noScreen) {
+            await setScreenShareEnabled(false);
+            screenShareState.value = LocalTrackState.disabled;
+            screenDevice.value = null;
+          }
+
+          // Disable the camera, if video device has failed.
+          if (noCamera) {
+            await setVideoEnabled(false);
+            videoState.value = LocalTrackState.disabled;
+            videoDevice.value = null;
+          }
+
+          // Pick another microphone, if audio device has failed.
+          if (noMicrophone) {
+            await _pickAudioDevice();
+          }
+
+          // Pick another output, if output device has failed.
+          if (noOutput) {
+            await _pickOutputDevice();
+          }
+          return;
+      }
+    } catch (e) {
+      Log.warning('Unable to handle `$e`', '$runtimeType');
+      addError('$e');
+    }
+  }
+
+  /// Indicates whether [_me] member has the [Track]s of the provided [kind] and
+  /// [source].
+  bool _hasTracks(MediaKind kind, MediaSourceKind source) {
+    return members[_me]?.tracks
+            .where((t) => t.kind == kind && t.source == source)
+            .isNotEmpty ??
+        false;
+  }
+
+  Future<bool> _ensureValidOutputDevice({
+    DeviceDetails? device,
+    Iterable<DeviceDetails>? outputs,
+  }) async {
+    Log.debug(
+      '_ensureValidOutputDevice(device: $device, outputs: $outputs)',
+      '$runtimeType',
+    );
+
+    outputs ??= devices.output();
+
+    device ??= outputDevice.value;
+    device ??= devices.output().firstOrNull;
+
+    // Ensure we aren't using unavailable device.
+    //
+    // For Windows 10 such device is an output bluetooth device in a
+    // non-communication device mode, which is known to cause issues.
+    if (PlatformUtils.isWindows && await PlatformUtils.isWindows10) {
+      final DeviceDetails? microphone = audioDevice.value;
+
+      Log.debug(
+        '_ensureValidOutputDevice() -> device is $device, comparing against $microphone -> groups are equal? ${microphone?.groupId() == device?.groupId()}',
+        '$runtimeType',
+      );
+
+      // Look for any logical output devices that are the same physical devices.
+      if (device != null && microphone != null) {
+        // If group is the same, then it's the same physical device.
+        if (microphone.groupId() == device.groupId()) {
+          // Check whether this device is in communication mode or not.
+          bool hasCommunicationDevice = false;
+
+          for (var compared in outputs) {
+            if (compared.groupId() == device.groupId()) {
+              if (!hasCommunicationDevice) {
+                final int? ourRate = device.numChannels();
+                final int? theirRate = compared.numChannels();
+
+                Log.debug(
+                  '_ensureValidOutputDevice() -> groups of $device and $compared are equal, thus comparing the channels: $ourRate vs $theirRate',
+                  '$runtimeType',
+                );
+
+                if (ourRate != null && theirRate != null) {
+                  // This is a communication device, if its channel number is
+                  // lower than the same physical device with higher channel
+                  // number.
+                  hasCommunicationDevice = ourRate > theirRate;
+                }
+              }
+            }
+          }
+
+          Log.debug(
+            '_ensureValidOutputDevice() -> compared the whole list of devices, so hasCommunicationDevice($hasCommunicationDevice)',
+            '$runtimeType',
+          );
+
+          // If it's not a communication device, then don't use it.
+          if (hasCommunicationDevice) {
+            await _pickOutputDevice(without: [device.deviceId(), device.id()]);
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 }
 
@@ -2557,10 +3030,13 @@ enum MediaOwnerKind { local, remote }
 
 /// Convenience wrapper around a [webrtc.MediaStreamTrack].
 abstract class RtcRenderer {
-  const RtcRenderer(this.track);
+  const RtcRenderer(this.track, {this.debugLabel});
 
   /// Native media track of this [RtcRenderer].
   final webrtc.MediaStreamTrack track;
+
+  // Debug label that is used for diagnostic output.
+  final String? debugLabel;
 
   /// Disposes this [RtcRenderer] and its [track].
   Future<void> dispose();
@@ -2568,10 +3044,12 @@ abstract class RtcRenderer {
 
 /// Convenience wrapper around a [webrtc.VideoRenderer].
 class RtcVideoRenderer extends RtcRenderer {
-  RtcVideoRenderer(MediaTrack track) : super(track.getTrack()) {
+  RtcVideoRenderer(MediaTrack track, {super.debugLabel})
+    : _mediaSourceKind = track.mediaSourceKind(),
+      super(track.getTrack()) {
     Log.debug(
       'RtcVideoRenderer() -> ${_delegate.videoWidth}x${_delegate.videoHeight}',
-      '$runtimeType',
+      '$runtimeType($debugLabel).${_mediaSourceKind.name}',
     );
 
     if (track is LocalMediaTrack) {
@@ -2580,25 +3058,29 @@ class RtcVideoRenderer extends RtcRenderer {
       if (PlatformUtils.isMobile) {
         mirror = track.getTrack().facingMode() == webrtc.FacingMode.user;
       } else {
-        mirror = track.mediaSourceKind() == MediaSourceKind.device;
+        mirror = _mediaSourceKind == MediaSourceKind.device;
       }
     }
 
     // Listen for video to start having frames to be displayed.
     _delegate.onCanPlay = () {
       Log.debug(
-        '[${track.kind()} ${track.mediaSourceKind()}] canPlay',
-        '$runtimeType',
+        'onCanPlay',
+        '$runtimeType($debugLabel).${_mediaSourceKind.name}',
       );
 
       canPlay.value = true;
+
+      // TODO: Remove when `medea_flutter_webrtc` does that under the hood.
+      // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+      inner.notifyListeners();
     };
 
     // Listen for resizes to update [width] and [height].
     _delegate.onResize = () {
       Log.debug(
-        '[${track.kind()} ${track.mediaSourceKind()}] resized to ${_delegate.videoWidth}x${_delegate.videoHeight}',
-        '$runtimeType',
+        'onResize -> resized to ${_delegate.videoWidth}x${_delegate.videoHeight}',
+        '$runtimeType($debugLabel).${_mediaSourceKind.name}',
       );
 
       width.value = _delegate.videoWidth == 0
@@ -2609,6 +3091,10 @@ class RtcVideoRenderer extends RtcRenderer {
           : _delegate.videoHeight;
 
       canPlay.value = canPlay.value || _delegate.videoHeight != 0;
+
+      // TODO: Remove when `medea_flutter_webrtc` does that under the hood.
+      // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+      inner.notifyListeners();
     };
   }
 
@@ -2617,9 +3103,6 @@ class RtcVideoRenderer extends RtcRenderer {
 
   /// Indicator whether this [RtcVideoRenderer] should be auto rotated.
   bool autoRotate = true;
-
-  /// Actual [webrtc.VideoRenderer].
-  final webrtc.VideoRenderer _delegate = webrtc.createVideoRenderer();
 
   /// Reactive width of this [RtcVideoRenderer].
   late final RxInt width = RxInt(_delegate.videoWidth);
@@ -2630,6 +3113,12 @@ class RtcVideoRenderer extends RtcRenderer {
   /// Indicator whether this [RtcVideoRenderer] has visible frames, meaning it
   /// may be rendered.
   final RxBool canPlay = RxBool(false);
+
+  /// Actual [webrtc.VideoRenderer].
+  final webrtc.VideoRenderer _delegate = webrtc.createVideoRenderer();
+
+  /// [MediaSourceKind] of this [RtcVideoRenderer].
+  final MediaSourceKind _mediaSourceKind;
 
   /// Returns inner [webrtc.VideoRenderer].
   ///
@@ -2642,33 +3131,53 @@ class RtcVideoRenderer extends RtcRenderer {
 
   /// Initializes inner [webrtc.VideoRenderer].
   Future<void> initialize() async {
-    Log.debug('initialize()', '$runtimeType');
+    Log.debug(
+      'initialize()',
+      '$runtimeType($debugLabel).${_mediaSourceKind.name}',
+    );
     await _delegate.initialize();
   }
 
   @override
   Future<void> dispose() async {
-    Log.debug('dispose()', '$runtimeType');
+    Log.debug(
+      'dispose()',
+      '$runtimeType($debugLabel).${_mediaSourceKind.name}',
+    );
     await _delegate.dispose();
   }
+
+  @override
+  String toString() => 'RtcVideoRenderer($debugLabel).${_mediaSourceKind.name}';
 }
 
 /// Convenience wrapper around an [webrtc.AudioRenderer].
 class RtcAudioRenderer extends RtcRenderer {
-  RtcAudioRenderer(MediaTrack track) : super(track.getTrack()) {
-    Log.debug('RtcAudioRenderer()', '$runtimeType');
+  RtcAudioRenderer(MediaTrack track, {super.debugLabel})
+    : _mediaSourceKind = track.mediaSourceKind(),
+      super(track.getTrack()) {
+    Log.debug(
+      'RtcAudioRenderer()',
+      '$runtimeType($debugLabel).${_mediaSourceKind.name}',
+    );
     srcObject = track.getTrack();
   }
 
   /// Actual [webrtc.AudioRenderer].
   final webrtc.AudioRenderer _delegate = webrtc.createAudioRenderer();
 
+  /// [MediaSourceKind] of this [RtcVideoRenderer].
+  final MediaSourceKind _mediaSourceKind;
+
   /// Sets [webrtc.AudioRenderer.srcObject] property.
   set srcObject(webrtc.MediaStreamTrack? track) => _delegate.srcObject = track;
 
   @override
   Future<void> dispose() async {
-    Log.debug('dispose()', '$runtimeType');
+    Log.debug(
+      'dispose()',
+      '$runtimeType($debugLabel).${_mediaSourceKind.name}',
+    );
     await _delegate.dispose();
   }
 }
@@ -2760,8 +3269,19 @@ class CallMember {
   /// [DateTime] when this [CallMember] has joined.
   final Rx<PreciseDateTime?> joinedAt;
 
+  /// Indicator whether [MediaSourceKind.device] video [tracks] of this
+  /// [CallMember] should be ignored or not.
+  final RxBool hasDeviceVideo = RxBool(true);
+
+  /// Indicator whether [MediaSourceKind.display] video [tracks] of this
+  /// [CallMember] should be ignored or not.
+  final RxBool hasDisplayVideo = RxBool(true);
+
   /// [ConnectionHandle] of this [CallMember].
   ConnectionHandle? _connection;
+
+  /// [Mutex] guarding access to [setVideoEnabled].
+  final Mutex _videoGuard = Mutex();
 
   /// Disposes the [tracks] of this [CallMember].
   void dispose() {
@@ -2779,11 +3299,33 @@ class CallMember {
   }) async {
     Log.debug('setVideoEnabled($enabled, $source)', '$runtimeType');
 
-    if (enabled) {
-      await _connection?.enableRemoteVideo(source);
-    } else {
-      await _connection?.disableRemoteVideo(source);
+    if (_videoGuard.isLocked) {
+      return;
     }
+
+    await _videoGuard.protect(() async {
+      final bool previous = switch (source) {
+        MediaSourceKind.device => hasDeviceVideo.value,
+        MediaSourceKind.display => hasDisplayVideo.value,
+      };
+
+      final RxBool reactive = switch (source) {
+        MediaSourceKind.device => hasDeviceVideo,
+        MediaSourceKind.display => hasDisplayVideo,
+      };
+
+      try {
+        reactive.value = enabled;
+
+        if (enabled) {
+          await _connection?.enableRemoteVideo(source);
+        } else {
+          await _connection?.disableRemoteVideo(source);
+        }
+      } catch (e) {
+        reactive.value = previous;
+      }
+    });
   }
 
   /// Sets the inbound audio of this [CallMember] as [enabled].
@@ -2800,7 +3342,9 @@ class CallMember {
 
 /// Convenience wrapper around a [MediaTrack].
 class Track {
-  Track(this.track) : kind = track.kind(), source = track.mediaSourceKind() {
+  Track(this.track, {this.debugLabel})
+    : kind = track.kind(),
+      source = track.mediaSourceKind() {
     Log.debug('Track($kind, $source)', '$runtimeType');
 
     if (track is RemoteMediaTrack) {
@@ -2828,6 +3372,9 @@ class Track {
   /// [MediaKind] of this [Track].
   final MediaKind kind;
 
+  // Debug label that is used for diagnostic output.
+  final String? debugLabel;
+
   /// Indicator whether this [Track] is already disposed or not.
   ///
   /// Used to prohibit multiple [dispose] invoking.
@@ -2840,7 +3387,10 @@ class Track {
 
   /// Creates the [renderer] for this [Track].
   Future<void> createRenderer() async {
-    Log.debug('createRenderer() for $kind-$source', '$runtimeType');
+    Log.debug(
+      'createRenderer() for $kind-$source',
+      '$runtimeType($debugLabel)',
+    );
 
     await _rendererGuard.protect(() async {
       if (renderer.value != null) {
@@ -2849,11 +3399,11 @@ class Track {
 
       switch (track.kind()) {
         case MediaKind.audio:
-          renderer.value = RtcAudioRenderer(track);
+          renderer.value = RtcAudioRenderer(track, debugLabel: debugLabel);
           break;
 
         case MediaKind.video:
-          renderer.value = RtcVideoRenderer(track);
+          renderer.value = RtcVideoRenderer(track, debugLabel: debugLabel);
           await (renderer.value as RtcVideoRenderer?)?.initialize();
           (renderer.value as RtcVideoRenderer?)?.srcObject = track.getTrack();
           break;
@@ -2863,7 +3413,10 @@ class Track {
 
   /// Disposes the [renderer] of this [Track].
   Future<void> removeRenderer() async {
-    Log.debug('removeRenderer() for $kind-$source', '$runtimeType');
+    Log.debug(
+      'removeRenderer() for $kind-$source',
+      '$runtimeType($debugLabel)',
+    );
 
     await _rendererGuard.protect(() async {
       renderer.value?.dispose();
@@ -2875,7 +3428,7 @@ class Track {
   ///
   /// No-op, if this [Track] was already disposed.
   Future<void> dispose() async {
-    Log.debug('dispose()', '$runtimeType');
+    Log.debug('dispose()', '$runtimeType($debugLabel)');
 
     if (!_disposed) {
       _disposed = true;
@@ -2885,8 +3438,7 @@ class Track {
 
   /// Stops the [webrtc.MediaStreamTrack] of this [Track].
   Future<void> stop() async {
-    Log.debug('stop()', '$runtimeType');
-
+    Log.debug('stop()', '$runtimeType($debugLabel)');
     await Future.wait([track.getTrack().stop(), removeRenderer()]);
   }
 }
@@ -2915,12 +3467,16 @@ extension DevicesList on List<DeviceDetails> {
 
 /// Possible [CallNotification] kind.
 enum CallNotificationKind {
+  cameraDeviceFailed,
   cameraPermissionDenied,
-  microphonePermissionDenied,
   connectionLost,
   connectionRestored,
   deviceChanged,
   error,
+  mediaFailed,
+  microphoneDeviceFailed,
+  microphonePermissionDenied,
+  screenDeviceFailed,
 }
 
 /// Notification of an event happened in [OngoingCall].
@@ -2975,4 +3531,33 @@ class MicrophonePermissionDeniedNotification extends CallNotification {
   @override
   CallNotificationKind get kind =>
       CallNotificationKind.microphonePermissionDenied;
+}
+
+/// [CallNotification] of a microphone device being failed to acquire event.
+class MicrophoneDeviceFailedNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.microphoneDeviceFailed;
+}
+
+/// [CallNotification] of a camera device being failed to acquire event.
+class CameraDeviceFailedNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.cameraDeviceFailed;
+}
+
+/// [CallNotification] of a screen device being failed to acquire event.
+class ScreenDeviceFailedNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.screenDeviceFailed;
+}
+
+/// [CallNotification] of all the devices request has failed.
+class MediaFailedNotification extends CallNotification {
+  MediaFailedNotification(this.exception);
+
+  @override
+  CallNotificationKind get kind => CallNotificationKind.mediaFailed;
+
+  /// [LocalMediaInitException] blocked the request.
+  final LocalMediaInitException? exception;
 }

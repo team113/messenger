@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,10 +20,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medea_jason/medea_jason.dart';
 
-import '../../controller.dart';
 import '/domain/model/ongoing_call.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/call/controller.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/domain/model/link.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
@@ -35,7 +36,7 @@ abstract class AbstractUserRepository {
     UserNum? num,
     UserName? name,
     UserLogin? login,
-    ChatDirectLinkSlug? link,
+    DirectLinkSlug? link,
   });
 
   /// Returns an [User] by the provided [id].

@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,34 +15,85 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import '/config.dart';
 import '/domain/service/disposable_service.dart';
+import '/provider/file/log.dart';
 import '/routes.dart';
 import '/ui/page/support/log/view.dart';
 import '/ui/widget/text_field.dart';
+import '/util/log.dart';
+import '/util/obs/obs.dart';
+import '/util/web/web_utils.dart';
 
 /// Worker opening [LogView] modal.
-class LogWorker extends DisposableService {
-  LogWorker();
+class LogWorker extends Dependency {
+  LogWorker(this._logProvider);
+
+  /// Optional [LogFileProvider] to write [Log]s to a [File].
+  final LogFileProvider? _logProvider;
+
+  /// Subscription to the [LogImpl.logs] changes to write the [LogEntry] to
+  /// [_logProvider].
+  StreamSubscription? _logsSubscription;
+
+  /// [StreamSubscription] to [WebUtils.onBroadcastMessage] forwarding the
+  /// received message to a [Log] console.
+  StreamSubscription? _channelSubscription;
 
   @override
   void onInit() {
     HardwareKeyboard.instance.addHandler(_consoleListener);
+
+    if (WebUtils.isPopup) {
+      return;
+    }
+
+    if (Config.logWrite) {
+      _logsSubscription = Log.logs.changes.listen((e) {
+        switch (e.op) {
+          case OperationKind.added:
+            _logProvider?.write(e.element);
+            break;
+
+          case OperationKind.updated:
+          case OperationKind.removed:
+            // No-op.
+            break;
+        }
+      });
+    }
+
+    _channelSubscription = WebUtils.onBroadcastMessage(name: 'log').listen((e) {
+      if (e is List) {
+        Log.debug(e.skip(1).toString(), e.first);
+      } else {
+        Log.debug(e.toString(), 'POPUP');
+      }
+    });
+
     super.onInit();
   }
 
   @override
   void onClose() {
     HardwareKeyboard.instance.removeHandler(_consoleListener);
+
+    _logsSubscription?.cancel();
+    _channelSubscription?.cancel();
+
     super.onClose();
   }
 
   /// Opens the [LogView] modal on tilde key presses.
   bool _consoleListener(KeyEvent event) {
     if (event is KeyDownEvent) {
-      if (event.logicalKey == LogicalKeyboardKey.tilde) {
+      if (event.logicalKey == LogicalKeyboardKey.tilde ||
+          event.physicalKey == PhysicalKeyboardKey.backquote) {
         if (TextFieldState.focuses.isEmpty) {
           if (router.obscuring.any((e) => e.settings.name == 'LogView')) {
             Navigator.of(router.context!).pop();

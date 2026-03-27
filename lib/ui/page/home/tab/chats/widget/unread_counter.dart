@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,7 +27,17 @@ class UnreadCounter extends StatelessWidget {
     super.key,
     this.dimmed = false,
     this.inverted = false,
-  });
+  }) : text = null;
+
+  const UnreadCounter.text(
+    String this.text, {
+    super.key,
+    this.dimmed = false,
+    this.inverted = false,
+  }) : count = 0;
+
+  /// Text to display instead of [count].
+  final String? text;
 
   /// Count to display in this [UnreadCounter].
   final int count;
@@ -44,11 +54,18 @@ class UnreadCounter extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final String counter = (count > 999
+        ? 'label_amount_k'.l10nfmt({
+            'amount': (count / 1000).floor().clamp(1, 999),
+          })
+        : '$count');
+
     return Container(
-      width: 23,
       height: 23,
+      constraints: BoxConstraints(minWidth: 23),
+      padding: EdgeInsets.symmetric(horizontal: count > 99 ? 6 : 8),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(40),
         color: dimmed
             ? inverted
                   ? style.colors.onPrimary
@@ -57,7 +74,7 @@ class UnreadCounter extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Text(
-        count > 99 ? '99${'plus'.l10n}' : '$count',
+        text ?? counter,
         style: dimmed && inverted
             ? style.fonts.smaller.bold.secondary
             : style.fonts.smaller.bold.onPrimary,

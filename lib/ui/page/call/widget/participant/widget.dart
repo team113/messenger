@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,14 +17,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medea_jason/medea_jason.dart';
 
-import '../../controller.dart';
 import '../call_cover.dart';
 import '../raised_hand.dart';
 import '../video_view.dart';
 import '/config.dart';
 import '/domain/model/ongoing_call.dart';
 import '/themes.dart';
+import '/ui/page/call/controller.dart';
 import '/ui/page/call/widget/double_bounce_indicator.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -75,7 +76,23 @@ class ParticipantWidget extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      bool hasVideo = participant.video.value?.renderer.value != null;
+      final Track? track = participant.video.value;
+
+      bool hasVideo = track != null && track.renderer.value != null;
+
+      switch (track?.source) {
+        case MediaSourceKind.device:
+          hasVideo = hasVideo && participant.member.hasDeviceVideo.value;
+          break;
+
+        case MediaSourceKind.display:
+          hasVideo = hasVideo && participant.member.hasDisplayVideo.value;
+          break;
+
+        case null:
+          // No-op.
+          break;
+      }
 
       // [Widget]s to display in background when no video is available.
       List<Widget> background() {
@@ -159,7 +176,12 @@ class ParticipantWidget extends StatelessWidget {
                   child: child,
                 );
               }),
-              RaisedHand(participant.member.isHandRaised.value),
+              ?switch (participant.source) {
+                MediaSourceKind.device => RaisedHand(
+                  participant.member.isHandRaised.value,
+                ),
+                MediaSourceKind.display => null,
+              },
             ],
           ),
         ),

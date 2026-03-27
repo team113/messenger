@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -46,7 +46,7 @@ final StepDefinitionGeneric contact = given1<TestUser, CustomWorld>(
     );
 
     context.world.contacts[user.name] = contact.events
-        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .firstWhere((e) => e.$$typename == 'ChatContactCreatedEvent')
         .contactId;
 
     provider.disconnect();
@@ -76,7 +76,7 @@ final twoContacts = given2<TestUser, TestUser, CustomWorld>(
     );
 
     context.world.contacts[user1.name] = contact1.events
-        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .firstWhere((e) => e.$$typename == 'ChatContactCreatedEvent')
         .contactId;
 
     final contact2 = await provider.createChatContact(
@@ -88,7 +88,7 @@ final twoContacts = given2<TestUser, TestUser, CustomWorld>(
     );
 
     context.world.contacts[user2.name] = contact2.events
-        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .firstWhere((e) => e.$$typename == 'ChatContactCreatedEvent')
         .contactId;
 
     provider.disconnect();

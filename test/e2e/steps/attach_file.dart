@@ -1,4 +1,4 @@
-// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2026 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@ import 'package:gherkin/gherkin.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
 import 'package:messenger/ui/page/home/page/chat/forward/controller.dart';
+import 'package:messenger/util/log.dart';
 
 import '../parameters/attachment.dart';
 import '../world/custom_world.dart';
@@ -38,7 +39,7 @@ final StepDefinitionGeneric
 attachFile = then2<String, AttachmentType, CustomWorld>(
   'I attach {string} {attachment}',
   (name, attachmentType, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 4));
 
     switch (attachmentType) {
       case AttachmentType.file:
@@ -50,12 +51,28 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
 
         if (Get.isRegistered<ChatForwardController>()) {
           final controller = Get.find<ChatForwardController>();
-          controller.send.addPlatformAttachment(file);
+
+          Log.debug(
+            'attachFile -> `ChatForwardController` is `$controller`',
+            'E2E',
+          );
+
+          controller.send
+              .addPlatformAttachment(file)
+              .catchError((e) => Log.debug('attachFile -> `$e`', 'E2E'));
         } else {
           final controller = Get.find<ChatController>(
             tag: router.route.split('/').last,
           );
-          controller.send.addPlatformAttachment(file);
+
+          Log.debug(
+            'attachFile -> `ChatController` is `$controller` for route `${router.route.split('/').last}` -> edit(${controller.edit.value}), send(${controller.send})',
+            'E2E',
+          );
+
+          (controller.edit.value ?? controller.send)
+              .addPlatformAttachment(file)
+              .catchError((e) => Log.debug('attachFile -> `$e`', 'E2E'));
         }
         break;
 
@@ -70,12 +87,18 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
 
         if (Get.isRegistered<ChatForwardController>()) {
           final controller = Get.find<ChatForwardController>();
-          controller.send.addPlatformAttachment(image);
+
+          controller.send
+              .addPlatformAttachment(image)
+              .catchError((e) => Log.debug('attachFile -> `$e`', 'E2E'));
         } else {
           final controller = Get.find<ChatController>(
             tag: router.route.split('/').last,
           );
-          controller.send.addPlatformAttachment(image);
+
+          (controller.edit.value ?? controller.send)
+              .addPlatformAttachment(image)
+              .catchError((e) => Log.debug('attachFile -> `$e`', 'E2E'));
         }
         break;
     }
