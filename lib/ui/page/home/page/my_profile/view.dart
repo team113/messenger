@@ -698,7 +698,6 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             onPressed: unconfirmed == null && emails.length >= 2
                 ? null
                 : () => AddEmailView.show(context, email: unconfirmed),
-
             maxLines: 2,
             trailing: unconfirmed == null && emails.length >= 2
                 ? const SvgIcon(SvgIcons.emailGrey)
@@ -727,9 +726,7 @@ Widget _password(BuildContext context, MyProfileController c) {
               : 'btn_set_password'.l10n,
           onPressed: () => ChangePasswordView.show(context),
           warning: true,
-          trailing: c.myUser.value?.hasPassword == true
-              ? const SvgIcon(SvgIcons.password)
-              : const SvgIcon(SvgIcons.passwordWhite),
+          trailing: const SvgIcon(SvgIcons.passwordWhite),
         );
       }),
       const SizedBox(height: 10),

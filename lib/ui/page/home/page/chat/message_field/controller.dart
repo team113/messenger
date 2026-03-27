@@ -88,10 +88,7 @@ class MessageFieldController extends GetxController {
       text: text,
       onFocus: (s) => onChanged?.call(),
       submitted: false,
-      onSubmitted: (s) {
-        field.unsubmit();
-        onSubmit?.call();
-      },
+      onSubmitted: (s) => submit(),
       focus: FocusNode(onKeyEvent: (_, KeyEvent e) => handleNewLines(e, field)),
     );
 
@@ -232,7 +229,11 @@ class MessageFieldController extends GetxController {
   bool? get _pushNotifications => _notificationService?.pushNotifications;
 
   /// Handles the new lines for the provided [KeyEvent] in the [field].
-  static KeyEventResult handleNewLines(KeyEvent e, TextFieldState field) {
+  static KeyEventResult handleNewLines(
+    KeyEvent e,
+    TextFieldState field, {
+    bool hasModifier = false,
+  }) {
     if (e is! KeyDownEvent) {
       return KeyEventResult.ignored;
     }
@@ -272,7 +273,8 @@ class MessageFieldController extends GetxController {
       }
 
       if (!handled) {
-        if (isAltPressed ||
+        if (hasModifier ||
+            isAltPressed ||
             isControlPressed ||
             isMetaPressed ||
             isShiftPressed) {
@@ -532,6 +534,33 @@ class MessageFieldController extends GetxController {
     } else {
       panel.removeWhere((e) => e is LogsButton);
     }
+  }
+
+  /// Invokes the [onSubmit] or [handleNewLines] depending on whether the
+  /// platform is Web iOS or not.
+  ///
+  /// If [explicit], then the [handleNewLines] part will be skipped.
+  void submit({bool explicit = false}) {
+    // If this action wasn't explicit, then do the [handleNewLines].
+    if (!explicit && PlatformUtils.isIOS && PlatformUtils.isWeb) {
+      // This is required due to a bug with "enter" keyboard button in the
+      // browsers for some reason submits the field instead of appending a new
+      // line.
+      handleNewLines(
+        KeyDownEvent(
+          physicalKey: PhysicalKeyboardKey.enter,
+          logicalKey: LogicalKeyboardKey.enter,
+          timeStamp: Duration.zero,
+        ),
+        hasModifier: true,
+        field,
+      );
+
+      return;
+    }
+
+    field.unsubmit();
+    onSubmit?.call();
   }
 
   /// Reads the [event] and pastes any content contained in it.
