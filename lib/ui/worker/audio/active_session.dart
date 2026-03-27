@@ -17,50 +17,54 @@
 
 import 'dart:async';
 
+import 'package:get/get.dart';
+
 import '/util/audio_utils.dart';
 import 'playback.dart';
 
-/// Represents the currently active audio session with metadata and controls.
-class ActiveAudioSession {
-  ActiveAudioSession(this._playback, {required this.item}) {
+/// Represents an audio playback with metadata and controls.
+class AudioPlayback {
+  AudioPlayback(this._delegate, this.item) {
     _setupListeners();
   }
 
-  /// Metadata of the audio.
+  /// [AudioItem] this [AudioPlayback] represents.
   final AudioItem item;
 
-  /// Delegate responsible for actual playback operations.
-  final AudioPlayback _playback;
+  /// [AudioDelegate] responsible for actual playback operations.
+  final AudioDelegate _delegate;
 
   /// [StreamSubscription] for handling playback completion.
   StreamSubscription? _completedSubscription;
 
-  /// Whether playback was active before a seek interaction.
+  /// Indicator whether playback was active before a seek interaction.
   bool _wasPlaying = false;
 
   /// Indicates the audio is currently playing.
-  bool get isPlaying => _playback.isPlaying.value;
+  RxBool get isPlaying => _delegate.isPlaying;
 
   /// Indicates the audio is currently loading.
-  bool get isLoading => _playback.isLoading.value;
+  RxBool get isLoading => _delegate.isLoading;
 
-  /// Returns total duration of the audio.
-  Duration get duration => _playback.duration.value;
+  /// Returns total [Duration] of the audio.
+  Rx<Duration> get duration => _delegate.duration;
 
   /// Current playback position.
-  Duration get position => _playback.position.value;
-  set position(Duration v) => _playback.position.value = v;
+  Rx<Duration> get position => _delegate.position;
+
+  /// Sets the playback position to be [value].
+  set position(Duration value) => _delegate.position.value = value;
 
   /// Starts a seek interaction, pausing playback if it was active.
   Future<void> beginSeek() async {
-    _wasPlaying = _playback.isPlaying.value;
-    if (_wasPlaying) await _playback.pause();
+    _wasPlaying = _delegate.isPlaying.value;
+    if (_wasPlaying) await _delegate.pause();
   }
 
-  /// Ends a seek interaction, seeking to [position] and resuming if needed.
+  /// Ends a seek interaction, seeking to [position] and resuming, if needed.
   Future<void> endSeek(Duration position) async {
-    await _playback.seek(position);
-    if (_wasPlaying) await _playback.play();
+    await _delegate.seek(position);
+    if (_wasPlaying) await _delegate.play();
     _wasPlaying = false;
   }
 
@@ -69,10 +73,10 @@ class ActiveAudioSession {
 
   /// Wires up completion handling.
   void _setupListeners() {
-    _completedSubscription = _playback.isCompleted.listen((completed) async {
+    _completedSubscription = _delegate.isCompleted.listen((completed) async {
       if (completed) {
-        await _playback.pause();
-        await _playback.seek(Duration.zero);
+        await _delegate.pause();
+        await _delegate.seek(Duration.zero);
       }
     });
   }

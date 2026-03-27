@@ -648,13 +648,13 @@ class AudioId extends NewType<String> {
 class AudioItem {
   const AudioItem({required this.id, required this.source, this.title});
 
-  /// Unique [id] of the audio.
+  /// Unique [AudioId] of the audio.
   final AudioId id;
 
-  /// Source of the audio.
+  /// [AudioSource] of the audio.
   final AudioSource source;
 
-  /// Human-readable name of the audio, if known.
+  /// Human-readable name of the audio, if any.
   final String? title;
 }
 
@@ -680,8 +680,7 @@ class _IntentId extends NewType<String> {
   _IntentId.generate() : super(const Uuid().v4());
 }
 
-/// Extension adding conversion from an [AudioSource] to a [Media] or
-/// [ja.AudioSource].
+/// Extension adding conversion from an [AudioSource] to a [ja.AudioSource].
 extension AudioSourceExtension on AudioSource {
   /// Returns a [ja.AudioSource] corresponding to this [AudioSource].
   ja.AudioSource get source => switch (kind) {

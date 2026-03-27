@@ -143,8 +143,8 @@ class HomeController extends GetxController {
   /// Indicates whether currently authenticated [MyUser] is a support.
   bool get isSupport => _auth.userId?.isSupport == true;
 
-  /// Returns the [ActiveAudioSession] for interacting with the audio.
-  ActiveAudioSession? get audioSession => _audioWorker.activeSession.value;
+  /// Returns the [AudioPlayback] being played from [AudioWorker], if any.
+  Rx<AudioPlayback?> get playback => _audioWorker.playback;
 
   @override
   void onInit() {

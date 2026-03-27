@@ -36,7 +36,6 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
 import '/ui/worker/audio/active_session.dart';
-import '/ui/worker/audio/playback.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -449,13 +448,13 @@ class _HomeViewState extends State<HomeView> {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final ActiveAudioSession? session = c.audioSession;
+      final AudioPlayback? playback = c.playback.value;
 
-      if (session == null) {
+      if (playback == null) {
         return const SizedBox();
       }
 
-      final bool isPlaying = session.isPlaying;
+      final bool isPlaying = playback.isPlaying.value;
 
       return Container(
         width: double.infinity,
@@ -480,7 +479,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 Expanded(
                   child: Text(
-                    session.item.title ?? '',
+                    playback.item.title ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: style.fonts.small.regular.onBackground,
@@ -491,18 +490,18 @@ class _HomeViewState extends State<HomeView> {
             ),
 
             SeekSlider(
-              position: session.position,
-              duration: session.duration,
-              onDragStart: (_) => session.beginSeek(),
+              position: playback.position.value,
+              duration: playback.duration.value,
+              onDragStart: (_) => playback.beginSeek(),
               onDragged: (v) =>
-                  session.position = Duration(milliseconds: v.toInt()),
+                  playback.position = Duration(milliseconds: v.toInt()),
               onDragEnd: (v) =>
-                  session.endSeek(Duration(milliseconds: v.toInt())),
+                  playback.endSeek(Duration(milliseconds: v.toInt())),
             ),
             Text(
               'label_a_slash_b'.l10nfmt({
-                'a': session.position.hhMmSs(),
-                'b': session.duration.hhMmSs(),
+                'a': playback.position.value.hhMmSs(),
+                'b': playback.duration.value.hhMmSs(),
               }),
               style: style.fonts.smallest.regular.secondary,
             ),

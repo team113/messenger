@@ -50,32 +50,46 @@ class AudioPlayerController extends GetxController {
   final AudioWorker _audioWorker;
 
   /// Returns active session if it belongs to this controller, otherwise `null`.
-  ActiveAudioSession? get _session {
-    final active = _audioWorker.activeSession.value;
-    return active?.item.id == item.id ? active : null;
-  }
+  Rx<AudioPlayback?> get _playback => _audioWorker.playback;
 
-  /// Indicates whether this controller's [item] is active.
-  bool get isActive => _session != null;
+  /// Indicates whether [AudioPlayback] being played is the [item] this
+  /// [AudioPlayerController] represents.
+  bool get isActive => _playback.value?.item == item;
 
   /// Indicates whether the current [item] is playing.
-  bool get isPlaying => _session?.isPlaying ?? false;
+  bool get isPlaying => isActive && _playback.value?.isPlaying.value == true;
 
   /// Indicates whether the current [item] is loading.
-  bool get isLoading => _session?.isLoading ?? false;
+  bool get isLoading => isActive && _playback.value?.isLoading.value == true;
 
   /// Returns the current playback position.
   ///
   /// Returns [Duration.zero], if not active.
-  Duration get position => _session?.position ?? Duration.zero;
+  Duration get position {
+    if (isActive) {
+      return _playback.value?.position.value ?? Duration.zero;
+    }
+
+    return Duration.zero;
+  }
 
   /// Returns total [Duration] of audio.
   ///
   /// Returns [extractedDuration], if not active.
-  Duration get duration => _session?.duration ?? extractedDuration.value;
+  Duration get duration {
+    if (isActive) {
+      return _playback.value?.duration.value ?? extractedDuration.value;
+    }
+
+    return extractedDuration.value;
+  }
 
   /// Sets playback position.
-  set position(Duration v) => _session?.position = v;
+  set position(Duration v) {
+    if (isActive) {
+      _playback.value?.position = v;
+    }
+  }
 
   @override
   void onInit() async {
@@ -103,10 +117,18 @@ class AudioPlayerController extends GetxController {
   }
 
   /// Notifies that seek has started.
-  Future<void> onSliderChangeStart() async => await _session?.beginSeek();
+  Future<void> onSliderChangeStart() async {
+    if (isActive) {
+      await _playback.value?.beginSeek();
+    }
+  }
 
   /// Notifies that seek has ended.
-  Future<void> onSliderChangeEnd() async => await _session?.endSeek(position);
+  Future<void> onSliderChangeEnd() async {
+    if (isActive) {
+      await _playback.value?.endSeek(position);
+    }
+  }
 
   /// Stops playback and clears audio data.
   Future<void> stop() async => await _audioWorker.stop();

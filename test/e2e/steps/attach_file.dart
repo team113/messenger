@@ -50,6 +50,7 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
             'SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZTUuMC4xMDAA//uQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
           ),
         );
+
         if (Get.isRegistered<ChatForwardController>()) {
           final controller = Get.find<ChatForwardController>();
 

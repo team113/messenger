@@ -22,9 +22,9 @@ import 'package:just_audio/just_audio.dart' as ja;
 import '../playback.dart';
 import '/util/audio_utils.dart';
 
-/// [AudioPlayback] implemented by using a [ja.AudioPlayer].
-class JustAudioPlayback extends AudioPlayback {
-  JustAudioPlayback() {
+/// [AudioDelegate] implemented by using a [ja.AudioPlayer].
+class JustAudioDelegate extends AudioDelegate {
+  JustAudioDelegate() {
     _subscriptions.addAll([
       _player.playerStateStream.listen((state) {
         isPlaying.value = state.playing;

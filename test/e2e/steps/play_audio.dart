@@ -97,8 +97,8 @@ final StepDefinitionGeneric audioIsPlayingOrPaused =
             return false;
           }
 
-          final bool isOursActive = worker.activeSession.value?.item.id == id;
-          final bool isPlaying = worker.activeSession.value?.isPlaying == true;
+          final bool isOursActive = worker.playback.value?.item.id == id;
+          final bool isPlaying = worker.playback.value?.isPlaying.value == true;
 
           return switch (status) {
             PlaybackStatus.playing => isOursActive && isPlaying,
@@ -168,7 +168,7 @@ final StepDefinitionGeneric audioPositionIs = then2<String, int, CustomWorld>(
     final worker = Get.find<AudioWorker>();
 
     expect(
-      worker.activeSession.value!.position,
+      worker.playback.value!.position.value,
       Duration(seconds: expectedSeconds),
       reason: 'Worker progress is not 0',
     );

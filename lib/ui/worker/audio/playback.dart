@@ -19,41 +19,41 @@ import 'package:get/get.dart';
 
 import '/util/audio_utils.dart';
 
-/// Audio playback helper playing the [AudioSource] provided.
-abstract class AudioPlayback {
-  /// Whether playback is currently active.
+/// Audio playback delegate playing the [AudioSource] provided.
+abstract class AudioDelegate {
+  /// Indicator whether playback is currently active.
   final RxBool isPlaying = RxBool(false);
 
-  /// Whether playback is currently loading or buffering.
+  /// Indicator whether playback is currently loading or buffering.
   final RxBool isLoading = RxBool(false);
+
+  /// Indicator whether playback reached the end of the source.
+  final RxBool isCompleted = RxBool(false);
 
   /// Current playback position.
   final Rx<Duration> position = Rx(Duration.zero);
 
-  /// Total duration of the active source.
+  /// Total [Duration] of the active source.
   final Rx<Duration> duration = Rx(Duration.zero);
 
-  /// Whether playback reached the end of the source.
-  final RxBool isCompleted = RxBool(false);
-
-  /// Prepares the [source] to play.
+  /// Prepares the provided [source] to be played.
   Future<void> prepare(AudioSource source);
 
-  /// Disposes this [AudioPlayback].
+  /// Disposes this [AudioDelegate].
   Future<void> dispose();
 
   /// Starts or resumes playback.
   Future<void> play();
 
-  /// Pauses playback.
+  /// Pauses playback, if any is being played.
   Future<void> pause();
 
   /// Stops playback and releases source-specific resources.
   Future<void> stop();
 
-  /// Seeks to the specified position.
+  /// Seeks to the specified [position].
   Future<void> seek(Duration position);
 
-  /// Extracts duration from the [source] not starting a playback.
+  /// Extracts [Duration] from the [source] not starting a playback.
   Future<Duration> extract(AudioSource source);
 }

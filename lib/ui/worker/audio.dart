@@ -36,14 +36,14 @@ import 'audio/playback/video_player.dart';
 class AudioWorker extends Dependency {
   AudioWorker();
 
-  /// Currently active session.
-  final Rx<ActiveAudioSession?> activeSession = Rx(null);
+  /// Currently active [AudioPlayback] being set.
+  final Rx<AudioPlayback?> playback = Rx(null);
 
-  /// [AudioPlayback] to play [AudioSource]s.
-  final AudioPlayback _playback =
+  /// [AudioDelegate] to play [AudioSource]s.
+  final AudioDelegate _delegate =
       (PlatformUtils.isMacOS || PlatformUtils.isIOS) && !PlatformUtils.isWeb
-      ? VideoPlayerPlayback()
-      : JustAudioPlayback();
+      ? VideoPlayerDelegate()
+      : JustAudioDelegate();
 
   /// [StreamSubscription] to the audio intent in [AudioMode.music].
   StreamSubscription? _intentSubscription;
@@ -83,10 +83,10 @@ class AudioWorker extends Dependency {
     super.onClose();
   }
 
-  /// Resumes the current playback.
+  /// Resumes the current playback, if any.
   Future<void> resume() async {
-    if (activeSession.value != null) {
-      await _playback.play();
+    if (playback.value != null) {
+      await _delegate.play();
     }
   }
 
@@ -106,18 +106,21 @@ class AudioWorker extends Dependency {
         speaker: AudioSpeakerKind.speaker,
       ).listen((_) {});
 
-      if (activeSession.value?.item.id == item.id) {
-        return _playback.play();
+      if (playback.value?.item.id == item.id) {
+        return _delegate.play();
       }
 
       _clean();
-      await _playback.stop();
-      if (_isStale(playId)) return;
+      await _delegate.stop();
 
-      _playback.isLoading.value = true;
+      if (_isStale(playId)) {
+        return;
+      }
+
+      _delegate.isLoading.value = true;
 
       AudioSource target = item.source;
-      activeSession.value = ActiveAudioSession(_playback, item: item);
+      playback.value = AudioPlayback(_delegate, item);
 
       if (item.source is UrlAudioSource) {
         _headerToken?.cancel();
@@ -130,21 +133,25 @@ class AudioWorker extends Dependency {
         );
       }
 
-      await _playback.prepare(target);
-      if (_isStale(playId)) return;
-      await _playback.play();
+      await _delegate.prepare(target);
+
+      if (_isStale(playId)) {
+        return;
+      }
+
+      await _delegate.play();
     } on OperationCanceledException {
       // No-op.
     } catch (e) {
       Log.error('play(${item.id}) failed with: $e', '$runtimeType');
       if (_playRequestId == playId) await stop();
     } finally {
-      if (_playRequestId == playId) _playback.isLoading.value = false;
+      if (_playRequestId == playId) _delegate.isLoading.value = false;
     }
   }
 
   /// Pauses the current playback.
-  Future<void> pause() async => await _playback.pause();
+  Future<void> pause() async => await _delegate.pause();
 
   /// Stops the current playback, clears resources, cancels
   /// [_intentSubscription].
@@ -152,7 +159,7 @@ class AudioWorker extends Dependency {
     Log.debug('stop()', '$runtimeType');
     _playRequestId++;
     _clean();
-    await _playback.stop();
+    await _delegate.stop();
 
     await _intentSubscription?.cancel();
     _intentSubscription = null;
@@ -170,7 +177,7 @@ class AudioWorker extends Dependency {
         target = await _ensureReachable(source, onForbidden: onForbidden);
       }
 
-      return await _playback.extract(target);
+      return await _delegate.extract(target);
     } on OperationCanceledException {
       return Duration.zero;
     } catch (e) {
@@ -185,8 +192,8 @@ class AudioWorker extends Dependency {
     _headerToken?.cancel();
     _cancelToken = null;
     _headerToken = null;
-    activeSession.value?.dispose();
-    activeSession.value = null;
+    playback.value?.dispose();
+    playback.value = null;
   }
 
   /// Returns `true` if the given [requestId] no longer matches the current

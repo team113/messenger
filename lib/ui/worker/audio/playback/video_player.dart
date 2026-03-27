@@ -23,8 +23,8 @@ import '../playback.dart';
 import '/ui/page/player/controller.dart';
 import '/util/audio_utils.dart';
 
-/// [AudioPlayback] implemented by using a [VideoPlayerController].
-class VideoPlayerPlayback extends AudioPlayback {
+/// [AudioDelegate] implemented by using a [VideoPlayerController].
+class VideoPlayerDelegate extends AudioDelegate {
   /// [VideoPlayerController] driving playback for the current source.
   VideoPlayerController? _controller;
 
@@ -46,7 +46,7 @@ class VideoPlayerPlayback extends AudioPlayback {
       ),
     );
 
-    // Guard against dispose() nulling [_controller] during initialization.
+    // Guard against [dispose] `null`-ing [_controller] during initialization.
     final VideoPlayerController controller = _controller!;
 
     _reactiveController = ReactivePlayerController(controller);
