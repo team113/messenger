@@ -787,10 +787,14 @@ class OngoingCall {
                       if (!_background) {
                         await _joinRoom(
                           node.joinLink,
-                          onAuthorizationFailed: () async {
-                            await calls.join(chatId.value);
-                            await _joinRoom(node.joinLink);
-                          },
+
+                          // TODO: Uncomment and fix issues happening with call
+                          //       being removed due to `leaveChatCall` being
+                          //       fired.
+                          // onAuthorizationFailed: () async {
+                          //   await calls.join(chatId.value);
+                          //   await _joinRoom(node.joinLink);
+                          // },
                         );
                       }
 
@@ -2327,7 +2331,7 @@ class OngoingCall {
             rethrow;
           }
 
-          // Request new credentials.
+          // Try to request new credentials.
           await onAuthorizationFailed();
           break;
 
