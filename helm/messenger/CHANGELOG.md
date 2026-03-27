@@ -6,6 +6,18 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.2.2] · 2026-03-26
+[0.2.2]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.2.2/helm/messenger
+
+### Fixed
+
+- `/geo-ip` [Nginx] proxy not forwarding requests. ([#1661])
+
+[#1661]: https://github.com/team113/messenger/pull/1661
+
+
+
+
 ## [0.2.1] · 2026-03-10
 [0.2.1]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.2.1/helm/messenger
 

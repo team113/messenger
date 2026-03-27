@@ -1,6 +1,4 @@
-- Added help and sign out blocks to profile page.
-- Added avatar for support chat.
-- Updated links block design on chat profile page.
-- Updated links, cache and media devices blocks on profile page.
-- Updated media attachments layout to be column instead of grid in chat.
+- Allow creating multiple direct links leading to your chat.
+- Updated support page design.
+- Updated users searching to display users' biography.
 - Bug fixes and performance improvements.

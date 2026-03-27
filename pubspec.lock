@@ -1366,10 +1366,10 @@ packages:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: c748a298d27f595a91f90ef7463d2b247b5734861048def0f7bcbc0ac04dbf5a
+      sha256: b4e3beb7bd86dc3c660cc94297de87155c7bb9cab96269927d85195e0ef5a2a3
       url: "https://pub.dev"
     source: hosted
-    version: "0.14.0"
+    version: "0.14.1"
   media_kit:
     dependency: "direct overridden"
     description:
