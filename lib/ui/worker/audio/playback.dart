@@ -37,7 +37,7 @@ abstract class AudioDelegate {
   final Rx<Duration> duration = Rx(Duration.zero);
 
   /// Prepares the provided [source] to be played.
-  Future<void> prepare(AudioSource source);
+  Future<void> prepare(AudioSource source, {Duration knownDuration});
 
   /// Disposes this [AudioDelegate].
   Future<void> dispose();

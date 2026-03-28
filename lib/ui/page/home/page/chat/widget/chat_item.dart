@@ -57,7 +57,7 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/audio_utils.dart' show AudioId;
+import '/ui/worker/audio.dart' show AudioId;
 import '/util/fixed_timer.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';

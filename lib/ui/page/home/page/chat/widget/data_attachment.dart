@@ -29,8 +29,9 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/audio_player/view.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
+import '/ui/worker/audio.dart' show AudioId, AudioItem;
 import '/ui/worker/cache.dart';
-import '/util/audio_utils.dart' show AudioSource, AudioId, AudioItem;
+import '/util/audio_utils.dart' show AudioSource;
 
 /// Visual representation of a file [Attachment].
 class DataAttachment extends StatefulWidget {

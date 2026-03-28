@@ -23,8 +23,6 @@ import 'package:just_audio/just_audio.dart' as ja;
 import 'package:mutex/mutex.dart';
 import 'package:uuid/uuid.dart';
 
-import '/domain/model/attachment.dart';
-import '/domain/model/chat_item.dart';
 import '/pubspec.g.dart';
 import '/util/media_utils.dart';
 import 'log.dart';
@@ -633,29 +631,6 @@ enum AudioMode {
     AudioMode.video => false,
     AudioMode.call => true,
   };
-}
-
-/// Unique identifier of an audio.
-class AudioId extends NewType<String> {
-  AudioId(super.value);
-
-  /// Constructs an [AudioId] from the provided [itemId] and [attachmentId].
-  AudioId.fromMessage(ChatItemId itemId, AttachmentId attachmentId)
-    : super('${itemId}_$attachmentId');
-}
-
-/// Metadata describing an audio.
-class AudioItem {
-  const AudioItem({required this.id, required this.source, this.title});
-
-  /// Unique [AudioId] of the audio.
-  final AudioId id;
-
-  /// [AudioSource] of the audio.
-  final AudioSource source;
-
-  /// Human-readable name of the audio, if any.
-  final String? title;
 }
 
 /// Intent for the [AudioUtils] to operate in the provided [AudioMode].

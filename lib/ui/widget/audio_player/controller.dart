@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/ui/worker/audio/active_session.dart';
+import '/ui/worker/audio/active_playback.dart';
 import '/ui/worker/audio.dart';
 import '/util/audio_utils.dart';
 
@@ -54,7 +54,7 @@ class AudioPlayerController extends GetxController {
 
   /// Indicates whether [AudioPlayback] being played is the [item] this
   /// [AudioPlayerController] represents.
-  bool get isActive => _playback.value?.item == item;
+  bool get isActive => _playback.value?.item.id == item.id;
 
   /// Indicates whether the current [item] is playing.
   bool get isPlaying => isActive && _playback.value?.isPlaying.value == true;
@@ -73,15 +73,16 @@ class AudioPlayerController extends GetxController {
     return Duration.zero;
   }
 
-  /// Returns total [Duration] of audio.
+  /// Returns the total audio duration.
   ///
-  /// Returns [extractedDuration], if not active.
+  /// When active, prefers live playback data, otherwise falls back to
+  /// [extractedDuration].
   Duration get duration {
     if (isActive) {
       return _playback.value?.duration.value ?? extractedDuration.value;
+    } else {
+      return extractedDuration.value;
     }
-
-    return extractedDuration.value;
   }
 
   /// Sets playback position.
@@ -112,7 +113,15 @@ class AudioPlayerController extends GetxController {
     if (isPlaying) {
       await _audioWorker.pause();
     } else {
-      await _audioWorker.play(item, onForbidden: onForbidden);
+      await _audioWorker.play(
+        AudioItem(
+          id: item.id,
+          source: item.source,
+          title: item.title,
+          duration: extractedDuration.value,
+        ),
+        onForbidden: onForbidden,
+      );
     }
   }
 

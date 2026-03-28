@@ -33,7 +33,7 @@ import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
 import '/ui/worker/audio.dart';
-import '/ui/worker/audio/active_session.dart';
+import '/ui/worker/audio/active_playback.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';

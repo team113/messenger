@@ -21,29 +21,30 @@ import 'package:audio_session/audio_session.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/service/disposable_service.dart';
 import '/util/audio_utils.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/media_utils.dart' show AudioSpeakerKind;
+import '/util/new_type.dart';
 import '/util/platform_utils.dart';
-import 'audio/active_session.dart';
+import 'audio/active_playback.dart';
 import 'audio/playback.dart';
 import 'audio/playback/just_audio.dart';
 import 'audio/playback/video_player.dart';
 
 /// Worker responsible for audio playback.
 class AudioWorker extends Dependency {
-  AudioWorker();
+  AudioWorker({AudioDelegate? delegate})
+    : _delegate = delegate ?? _createDefaultDelegate();
 
   /// Currently active [AudioPlayback] being set.
   final Rx<AudioPlayback?> playback = Rx(null);
 
   /// [AudioDelegate] to play [AudioSource]s.
-  final AudioDelegate _delegate =
-      (PlatformUtils.isMacOS || PlatformUtils.isIOS) && !PlatformUtils.isWeb
-      ? VideoPlayerDelegate()
-      : JustAudioDelegate();
+  final AudioDelegate _delegate;
 
   /// [StreamSubscription] to the audio intent in [AudioMode.music].
   StreamSubscription? _intentSubscription;
@@ -120,6 +121,9 @@ class AudioWorker extends Dependency {
       _delegate.isLoading.value = true;
 
       AudioSource target = item.source;
+      if (item.duration != Duration.zero) {
+        _delegate.duration.value = item.duration;
+      }
       playback.value = AudioPlayback(_delegate, item);
 
       if (item.source is UrlAudioSource) {
@@ -133,7 +137,7 @@ class AudioWorker extends Dependency {
         );
       }
 
-      await _delegate.prepare(target);
+      await _delegate.prepare(target, knownDuration: item.duration);
 
       if (_isStale(playId)) {
         return;
@@ -186,8 +190,16 @@ class AudioWorker extends Dependency {
     }
   }
 
-  /// Cancels pending tokens, disposes the active session.
-  Future<void> _clean() async {
+  /// Returns a platform-specific [AudioDelegate] implementation.
+  static AudioDelegate _createDefaultDelegate() {
+    return (PlatformUtils.isMacOS || PlatformUtils.isIOS) &&
+            !PlatformUtils.isWeb
+        ? VideoPlayerDelegate()
+        : JustAudioDelegate();
+  }
+
+  /// Cancels pending tokens, disposes the active [playback].
+  void _clean() {
     _cancelToken?.cancel();
     _headerToken?.cancel();
     _cancelToken = null;
@@ -275,4 +287,35 @@ class AudioWorker extends Dependency {
 
     return result;
   }
+}
+
+/// Unique identifier of an audio.
+class AudioId extends NewType<String> {
+  AudioId(super.value);
+
+  /// Constructs an [AudioId] from the provided [itemId] and [attachmentId].
+  AudioId.fromMessage(ChatItemId itemId, AttachmentId attachmentId)
+    : super('${itemId}_$attachmentId');
+}
+
+/// Metadata describing an audio.
+class AudioItem {
+  const AudioItem({
+    required this.id,
+    required this.source,
+    this.title,
+    this.duration = Duration.zero,
+  });
+
+  /// Unique [AudioId] of the audio.
+  final AudioId id;
+
+  /// [AudioSource] of the audio.
+  final AudioSource source;
+
+  /// Human-readable name of the audio, if any.
+  final String? title;
+
+  /// Duration of the audio.
+  final Duration duration;
 }

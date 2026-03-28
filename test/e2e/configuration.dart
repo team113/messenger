@@ -179,11 +179,10 @@ FlutterTestConfiguration gherkinTestConfiguration() {
   final FlutterTestConfiguration configuration = FlutterTestConfiguration();
 
   configuration.stepDefinitions = [
-    audioIsPlayingOrPaused,
-    audioPositionIs,
-    audioSliderPositionChangesWhilePlaying,
     appcastIsAvailable,
     attachFile,
+    audioIsPlayingOrPaused,
+    audioSliderPositionChangesWhilePlaying,
     blockedCountUsers,
     cancelFileDownload,
     cancelFileUpload,

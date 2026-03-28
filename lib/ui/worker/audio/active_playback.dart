@@ -19,16 +19,16 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/util/audio_utils.dart';
+import '../audio.dart';
 import 'playback.dart';
 
-/// Represents an audio playback with metadata and controls.
+/// Manages playback state for a single active [AudioItem].
 class AudioPlayback {
   AudioPlayback(this._delegate, this.item) {
     _setupListeners();
   }
 
-  /// [AudioItem] this [AudioPlayback] represents.
+  /// [AudioItem] for this [AudioPlayback] session.
   final AudioItem item;
 
   /// [AudioDelegate] responsible for actual playback operations.
@@ -49,7 +49,7 @@ class AudioPlayback {
   /// Returns total [Duration] of the audio.
   Rx<Duration> get duration => _delegate.duration;
 
-  /// Current playback position.
+  /// Returns current playback position.
   Rx<Duration> get position => _delegate.position;
 
   /// Sets the playback position to be [value].

@@ -37,9 +37,11 @@ class JustAudioDelegate extends AudioDelegate {
       _player.positionStream.distinct().listen(
         (value) => position.value = value,
       ),
-      _player.durationStream.listen(
-        (value) => duration.value = value ?? Duration.zero,
-      ),
+      _player.durationStream.listen((value) {
+        if (value != null) {
+          duration.value = value;
+        }
+      }),
     ]);
   }
 
@@ -50,9 +52,16 @@ class JustAudioDelegate extends AudioDelegate {
   final List<StreamSubscription> _subscriptions = [];
 
   @override
-  Future<void> prepare(AudioSource source) async {
+  Future<void> prepare(
+    AudioSource source, {
+    Duration knownDuration = Duration.zero,
+  }) async {
     _resetState();
     await _player.stop();
+
+    if (knownDuration != Duration.zero) {
+      duration.value = knownDuration;
+    }
     await _player.setAudioSource(source.source);
   }
 

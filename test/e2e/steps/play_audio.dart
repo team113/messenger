@@ -27,7 +27,6 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/widget/audio_player/slider.dart';
 import 'package:messenger/ui/worker/audio.dart';
-import 'package:messenger/util/audio_utils.dart';
 import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
@@ -153,25 +152,6 @@ audioSliderPositionChangesWhilePlaying = then1<String, CustomWorld>(
 
       return sliderValue() > initial;
     }, timeout: const Duration(seconds: 30));
-  },
-);
-
-/// Verifies that audio position is at [expectedSeconds].
-///
-/// Examples:
-/// - Then I see "test.mp3" audio position is 0
-final StepDefinitionGeneric audioPositionIs = then2<String, int, CustomWorld>(
-  'I see {string} audio position is {int}',
-  (name, expectedSeconds, context) async {
-    await context.world.appDriver.waitForAppToSettle();
-
-    final worker = Get.find<AudioWorker>();
-
-    expect(
-      worker.playback.value!.position.value,
-      Duration(seconds: expectedSeconds),
-      reason: 'Worker progress is not 0',
-    );
   },
 );
 

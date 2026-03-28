@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:video_player/video_player.dart';
 
@@ -35,9 +36,14 @@ class VideoPlayerDelegate extends AudioDelegate {
   final List<StreamSubscription> _subscriptions = [];
 
   @override
-  Future<void> prepare(AudioSource source) async {
+  Future<void> prepare(
+    AudioSource source, {
+    Duration knownDuration = Duration.zero,
+  }) async {
     await dispose();
-
+    if (knownDuration != Duration.zero) {
+      duration.value = knownDuration;
+    }
     _controller = _buildController(
       source,
       options: VideoPlayerOptions(
@@ -137,8 +143,8 @@ class VideoPlayerDelegate extends AudioDelegate {
         'assets/${(source as AssetAudioSource).asset}',
         videoPlayerOptions: options,
       ),
-      AudioSourceKind.file => VideoPlayerController.networkUrl(
-        Uri.file((source as FileAudioSource).file),
+      AudioSourceKind.file => VideoPlayerController.file(
+        File((source as FileAudioSource).file),
         videoPlayerOptions: options,
       ),
     };

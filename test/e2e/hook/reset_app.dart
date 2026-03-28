@@ -63,7 +63,6 @@ class ResetAppHook extends Hook {
     await drift?.reset();
 
     await Get.deleteAll();
-    Get.put<AudioWorker>(MockAudioWorker());
 
     PlatformUtils.client?.interceptors.removeWhere(
       (e) => e is DelayedInterceptor,

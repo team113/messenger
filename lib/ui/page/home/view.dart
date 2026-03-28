@@ -35,7 +35,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
-import '/ui/worker/audio/active_session.dart';
+import '/ui/worker/audio/active_playback.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
