@@ -172,7 +172,7 @@ class AudioPlayer extends StatelessWidget {
         position: c.position,
         duration: c.duration,
         onDragStart: (_) => c.onSliderChangeStart(),
-        onDragged: (v) => c.position = Duration(milliseconds: v.toInt()),
+        onDragged: (v) => c.onSliderChange(v),
         onDragEnd: (_) => c.onSliderChangeEnd(),
       );
     });

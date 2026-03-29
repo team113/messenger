@@ -62,15 +62,15 @@ class AudioPlayerController extends GetxController {
   /// Indicates whether the current [item] is loading.
   bool get isLoading => isActive && _playback.value?.isLoading.value == true;
 
-  /// Returns the current playback position.
+  /// Returns the current playback [visualPosition].
   ///
   /// Returns [Duration.zero], if not active.
   Duration get position {
     if (isActive) {
-      return _playback.value?.position.value ?? Duration.zero;
+      return _playback.value?.visualPosition ?? Duration.zero;
+    } else {
+      return Duration.zero;
     }
-
-    return Duration.zero;
   }
 
   /// Returns the total audio duration.
@@ -97,7 +97,6 @@ class AudioPlayerController extends GetxController {
     super.onInit();
 
     isDurationLoading.value = true;
-
     try {
       extractedDuration.value = await _audioWorker.extract(
         item.source,
@@ -128,14 +127,21 @@ class AudioPlayerController extends GetxController {
   /// Notifies that seek has started.
   Future<void> onSliderChangeStart() async {
     if (isActive) {
-      await _playback.value?.beginSeek();
+      _playback.value?.beginSeek();
+    }
+  }
+
+  /// Notifies that slider value is changing at the moment.
+  void onSliderChange(double value) {
+    if (isActive) {
+      _playback.value?.updateDragPosition(value);
     }
   }
 
   /// Notifies that seek has ended.
   Future<void> onSliderChangeEnd() async {
     if (isActive) {
-      await _playback.value?.endSeek(position);
+      await _playback.value?.endSeek();
     }
   }
 

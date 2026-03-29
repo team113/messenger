@@ -455,6 +455,7 @@ class _HomeViewState extends State<HomeView> {
       }
 
       final bool isPlaying = playback.isPlaying.value;
+      final Duration visualPosition = playback.visualPosition;
 
       return Container(
         width: double.infinity,
@@ -490,17 +491,15 @@ class _HomeViewState extends State<HomeView> {
             ),
 
             SeekSlider(
-              position: playback.position.value,
+              position: visualPosition,
               duration: playback.duration.value,
               onDragStart: (_) => playback.beginSeek(),
-              onDragged: (v) =>
-                  playback.position = Duration(milliseconds: v.toInt()),
-              onDragEnd: (v) =>
-                  playback.endSeek(Duration(milliseconds: v.toInt())),
+              onDragged: (v) => playback.updateDragPosition(v),
+              onDragEnd: (_) => playback.endSeek(),
             ),
             Text(
               'label_a_slash_b'.l10nfmt({
-                'a': playback.position.value.hhMmSs(),
+                'a': visualPosition.hhMmSs(),
                 'b': playback.duration.value.hhMmSs(),
               }),
               style: style.fonts.smallest.regular.secondary,

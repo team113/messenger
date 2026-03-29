@@ -31,14 +31,17 @@ class AudioPlayback {
   /// [AudioItem] for this [AudioPlayback] session.
   final AudioItem item;
 
+  /// Whether the current playback position is being dragged.
+  final RxBool isDragging = RxBool(false);
+
+  /// Temporary playback position while dragging.
+  final Rx<Duration> dragPosition = Rx(Duration.zero);
+
   /// [AudioDelegate] responsible for actual playback operations.
   final AudioDelegate _delegate;
 
   /// [StreamSubscription] for handling playback completion.
   StreamSubscription? _completedSubscription;
-
-  /// Indicator whether playback was active before a seek interaction.
-  bool _wasPlaying = false;
 
   /// Indicates the audio is currently playing.
   RxBool get isPlaying => _delegate.isPlaying;
@@ -52,20 +55,34 @@ class AudioPlayback {
   /// Returns current playback position.
   Rx<Duration> get position => _delegate.position;
 
+  /// Returns current playback visual position.
+  Duration get visualPosition {
+    if (isDragging.value) {
+      return dragPosition.value;
+    }
+    return position.value;
+  }
+
   /// Sets the playback position to be [value].
   set position(Duration value) => _delegate.position.value = value;
 
-  /// Starts a seek interaction, pausing playback if it was active.
-  Future<void> beginSeek() async {
-    _wasPlaying = _delegate.isPlaying.value;
-    if (_wasPlaying) await _delegate.pause();
+  /// Starts a seek interaction.
+  void beginSeek() {
+    isDragging.value = true;
+    dragPosition.value = position.value;
   }
 
-  /// Ends a seek interaction, seeking to [position] and resuming, if needed.
-  Future<void> endSeek(Duration position) async {
-    await _delegate.seek(position);
-    if (_wasPlaying) await _delegate.play();
-    _wasPlaying = false;
+  /// Updates temporary [dragPosition] while active seek interaction.
+  void updateDragPosition(double v) {
+    if (isDragging.value) {
+      dragPosition.value = Duration(milliseconds: v.toInt());
+    }
+  }
+
+  /// Ends a seek interaction, seeking to [dragPosition].
+  Future<void> endSeek() async {
+    await _delegate.seek(dragPosition.value);
+    isDragging.value = false;
   }
 
   /// Cancels the completion listener.
