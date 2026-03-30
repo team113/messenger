@@ -75,11 +75,11 @@ class AudioWorker extends Dependency {
   }
 
   @override
-  void onClose() {
+  void onClose() async {
     Log.debug('onClose()', '$runtimeType');
 
     _routeSubscription?.cancel();
-    stop();
+    await stop();
 
     super.onClose();
   }

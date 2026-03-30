@@ -23,12 +23,10 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/drift/connection/connection.dart';
 import 'package:messenger/provider/drift/drift.dart';
-import 'package:messenger/ui/worker/audio.dart';
 import 'package:messenger/util/get.dart';
 import 'package:messenger/util/log.dart';
 import 'package:messenger/util/platform_utils.dart';
 
-import '../mock/audio.dart';
 import '../steps/internet.dart';
 
 /// [Hook] resetting the [Get] states after a test.
@@ -96,7 +94,6 @@ class ResetAppHook extends Hook {
     await drift?.reset();
 
     await Get.deleteAll();
-    Get.put<AudioWorker>(MockAudioWorker());
 
     PlatformUtils.client?.interceptors.removeWhere(
       (e) => e is DelayedInterceptor,
