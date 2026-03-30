@@ -1442,7 +1442,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: azure/setup-kubectl@v4
+      - uses: azure/setup-kubectl@v5
       - name: Login to Kubernetes cluster
         run: |
           set -ex
