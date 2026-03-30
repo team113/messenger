@@ -63,9 +63,6 @@ class AudioPlayback {
     return position.value;
   }
 
-  /// Sets the playback position to be [value].
-  set position(Duration value) => _delegate.position.value = value;
-
   /// Starts a seek interaction.
   void beginSeek() {
     isDragging.value = true;
@@ -86,7 +83,7 @@ class AudioPlayback {
   }
 
   /// Cancels the completion listener.
-  void dispose() => _completedSubscription?.cancel();
+  Future<void> dispose() async => await _completedSubscription?.cancel();
 
   /// Wires up completion handling.
   void _setupListeners() {

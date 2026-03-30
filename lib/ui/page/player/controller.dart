@@ -1169,11 +1169,11 @@ class ReactivePlayerController {
         : true;
     isLooping.value = controller.value.isLooping;
     isPlaying.value = controller.value.isPlaying;
+    isCompleted.value = controller.value.isCompleted;
     size.value = controller.value.size;
     position.value = controller.value.position;
     duration.value = controller.value.duration;
     volume.value = controller.value.volume;
-    isCompleted.value = controller.value.isCompleted;
   }
 }
 

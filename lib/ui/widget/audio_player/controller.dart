@@ -38,10 +38,10 @@ class AudioPlayerController extends GetxController {
   final RxBool hovered = RxBool(false);
 
   /// Callback, called when [item.source] fetch fails with `403` status code.
-  final FutureOr<AudioSource?> Function()? onForbidden;
+  final Future<AudioSource?> Function()? onForbidden;
 
   /// Calculated duration of audio.
-  final Rx<Duration> extractedDuration = Rx<Duration>(Duration.zero);
+  final Rx<Duration> extractedDuration = Rx(Duration.zero);
 
   /// Whether [extractedDuration] is being fetched.
   final RxBool isDurationLoading = RxBool(true);
@@ -49,17 +49,14 @@ class AudioPlayerController extends GetxController {
   /// [AudioWorker] handling actual playback and synchronization.
   final AudioWorker _audioWorker;
 
-  /// Returns active session if it belongs to this controller, otherwise `null`.
-  Rx<AudioPlayback?> get _playback => _audioWorker.playback;
-
   /// Indicates whether [AudioPlayback] being played is the [item] this
   /// [AudioPlayerController] represents.
   bool get isActive => _playback.value?.item.id == item.id;
 
-  /// Indicates whether the current [item] is playing.
+  /// Indicates whether this controller's [item] is currently playing.
   bool get isPlaying => isActive && _playback.value?.isPlaying.value == true;
 
-  /// Indicates whether the current [item] is loading.
+  /// Indicates whether this controller's [item] is currently loading.
   bool get isLoading => isActive && _playback.value?.isLoading.value == true;
 
   /// Returns the current playback [visualPosition].
@@ -85,12 +82,8 @@ class AudioPlayerController extends GetxController {
     }
   }
 
-  /// Sets playback position.
-  set position(Duration v) {
-    if (isActive) {
-      _playback.value?.position = v;
-    }
-  }
+  /// Returns currently active [AudioPlayback].
+  Rx<AudioPlayback?> get _playback => _audioWorker.playback;
 
   @override
   void onInit() async {
@@ -145,6 +138,6 @@ class AudioPlayerController extends GetxController {
     }
   }
 
-  /// Stops playback and clears audio data.
+  /// Stops playback for this controller's [item].
   Future<void> stop() async => await _audioWorker.stop();
 }

@@ -547,7 +547,7 @@ class AudioUtilsImpl {
 enum AudioSourceKind { asset, file, url }
 
 /// Source to play an audio stream from.
-sealed class AudioSource {
+abstract class AudioSource {
   const AudioSource();
 
   /// Constructs an [AudioSource] from the provided [asset].

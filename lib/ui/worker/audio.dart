@@ -91,12 +91,12 @@ class AudioWorker extends Dependency {
     }
   }
 
-  /// Plays the provided [item], creating a new [ActiveAudioSession].
+  /// Plays the provided [item], creating a new [AudioPlayback].
   ///
   /// If [item] is already active, resumes playback instead.
   Future<void> play(
     AudioItem item, {
-    FutureOr<AudioSource?> Function()? onForbidden,
+    Future<AudioSource?> Function()? onForbidden,
   }) async {
     Log.debug('play(id: ${item.id}, source: ${item.source})', '$runtimeType');
 
@@ -108,10 +108,10 @@ class AudioWorker extends Dependency {
       ).listen((_) {});
 
       if (playback.value?.item.id == item.id) {
-        return _delegate.play();
+        return resume();
       }
 
-      _clean();
+      await _clean();
       await _delegate.stop();
 
       if (_isStale(playId)) {
@@ -162,7 +162,7 @@ class AudioWorker extends Dependency {
   Future<void> stop() async {
     Log.debug('stop()', '$runtimeType');
     _playRequestId++;
-    _clean();
+    await _clean();
     await _delegate.stop();
 
     await _intentSubscription?.cancel();
@@ -172,7 +172,7 @@ class AudioWorker extends Dependency {
   /// Returns a [Duration] of the provided [source].
   Future<Duration> extract(
     AudioSource source, {
-    FutureOr<AudioSource?> Function()? onForbidden,
+    Future<AudioSource?> Function()? onForbidden,
   }) async {
     try {
       AudioSource target = source;
@@ -199,12 +199,12 @@ class AudioWorker extends Dependency {
   }
 
   /// Cancels pending tokens, disposes the active [playback].
-  void _clean() {
+  Future<void> _clean() async {
     _cancelToken?.cancel();
     _headerToken?.cancel();
     _cancelToken = null;
     _headerToken = null;
-    playback.value?.dispose();
+    await playback.value?.dispose();
     playback.value = null;
   }
 
@@ -249,7 +249,7 @@ class AudioWorker extends Dependency {
   /// [UrlAudioSource] and returns it.
   Future<UrlAudioSource> _ensureReachable(
     UrlAudioSource source, {
-    FutureOr<AudioSource?> Function()? onForbidden,
+    Future<AudioSource?> Function()? onForbidden,
     CancelToken? cancelToken,
   }) async {
     final token = cancelToken ?? CancelToken();
@@ -293,7 +293,7 @@ class AudioWorker extends Dependency {
 class AudioId extends NewType<String> {
   AudioId(super.value);
 
-  /// Constructs an [AudioId] from the provided [itemId] and [attachmentId].
+  /// Constructs an [AudioId] from the provided [ChatItemId] and [AttachmentId].
   AudioId.fromMessage(ChatItemId itemId, AttachmentId attachmentId)
     : super('${itemId}_$attachmentId');
 }

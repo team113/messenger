@@ -45,7 +45,7 @@ class AudioPlayer extends StatelessWidget {
   final Widget? progress;
 
   /// Callback, called when [source] fetch fails with `403` status code.
-  final FutureOr<AudioSource?> Function()? onForbidden;
+  final Future<AudioSource?> Function()? onForbidden;
 
   @override
   Widget build(BuildContext context) {

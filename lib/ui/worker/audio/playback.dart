@@ -36,7 +36,7 @@ abstract class AudioDelegate {
   /// Total [Duration] of the active source.
   final Rx<Duration> duration = Rx(Duration.zero);
 
-  /// Prepares the provided [source] to be played.
+  /// Resets state and prepares the provided [source] to be played.
   Future<void> prepare(AudioSource source, {Duration knownDuration});
 
   /// Disposes this [AudioDelegate].
@@ -54,6 +54,15 @@ abstract class AudioDelegate {
   /// Seeks to the specified [position].
   Future<void> seek(Duration position);
 
-  /// Extracts [Duration] from the [source] not starting a playback.
+  /// Extracts [Duration] from the [source] without starting a playback.
   Future<Duration> extract(AudioSource source);
+
+  /// Resets playback state.
+  void resetState() {
+    isPlaying.value = false;
+    isLoading.value = true;
+    isCompleted.value = false;
+    position.value = Duration.zero;
+    duration.value = Duration.zero;
+  }
 }

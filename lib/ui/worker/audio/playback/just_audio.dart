@@ -56,7 +56,7 @@ class JustAudioDelegate extends AudioDelegate {
     AudioSource source, {
     Duration knownDuration = Duration.zero,
   }) async {
-    _resetState();
+    resetState();
     await _player.stop();
 
     if (knownDuration != Duration.zero) {
@@ -87,7 +87,7 @@ class JustAudioDelegate extends AudioDelegate {
   @override
   Future<void> stop() async {
     await _player.stop();
-    _resetState();
+    resetState();
   }
 
   @override
@@ -105,14 +105,5 @@ class JustAudioDelegate extends AudioDelegate {
     } finally {
       await player.dispose();
     }
-  }
-
-  /// Resets state.
-  void _resetState() {
-    isPlaying.value = false;
-    isLoading.value = true;
-    isCompleted.value = false;
-    position.value = Duration.zero;
-    duration.value = Duration.zero;
   }
 }

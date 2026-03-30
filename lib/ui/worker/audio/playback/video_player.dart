@@ -77,7 +77,7 @@ class VideoPlayerDelegate extends AudioDelegate {
 
   @override
   Future<void> dispose() async {
-    _resetState();
+    resetState();
 
     for (final s in _subscriptions) {
       await s.cancel();
@@ -118,15 +118,6 @@ class VideoPlayerDelegate extends AudioDelegate {
     } finally {
       await controller.dispose();
     }
-  }
-
-  /// Resets state.
-  void _resetState() {
-    isPlaying.value = false;
-    isLoading.value = true;
-    isCompleted.value = false;
-    position.value = Duration.zero;
-    duration.value = Duration.zero;
   }
 
   /// Builds a [VideoPlayerController] for the provided [AudioSource].
