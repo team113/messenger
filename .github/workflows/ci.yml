@@ -96,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@v5
 
       - run: make helm.lint chart=${{ matrix.chart }}
 
@@ -1050,7 +1050,7 @@ jobs:
 
       - uses: actions/checkout@v6
         if: ${{ steps.skip.outputs.no == 'true' }}
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@v5
         if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Parse semver versions from Git tag
