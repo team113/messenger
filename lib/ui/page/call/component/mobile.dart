@@ -29,9 +29,7 @@ import '../widget/call_cover.dart';
 import '../widget/floating_fit/view.dart';
 import '../widget/minimizable_view.dart';
 import '../widget/notification.dart';
-import '../widget/participant/decorator.dart';
 import '../widget/participant/overlay.dart';
-import '../widget/participant/widget.dart';
 import '../widget/swappable_fit.dart';
 import '../widget/video_view.dart';
 import '/config.dart';
@@ -89,19 +87,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                 fit: !c.minimized.isFalse,
                 intersection: c.dockRect,
                 onManipulated: (bool m) => c.secondaryManipulated.value = m,
-                itemBuilder: (e) {
-                  return Stack(
-                    children: [
-                      const ParticipantDecoratorWidget(),
-                      IgnorePointer(
-                        child: ParticipantWidget(
-                          e,
-                          offstageUntilDetermined: true,
-                        ),
-                      ),
-                    ],
-                  );
-                },
+                itemBuilder: (e) => _buildParticipant(e, c),
                 overlayBuilder: (e) {
                   return Obx(() {
                     final bool audioEnabled = c.audioState.value.isEnabled;
@@ -130,100 +116,7 @@ Widget mobileCall(CallController c, BuildContext context) {
               items: [...c.primary, ...c.secondary],
               center: center,
               fit: c.minimized.value,
-              itemBuilder: (e) {
-                return Obx(() {
-                  final bool audioEnabled = c.audioState.value.isEnabled;
-
-                  final bool? muted = e.member.owner == MediaOwnerKind.local
-                      ? !audioEnabled
-                      : null;
-
-                  return ContextMenuRegion(
-                    actions: [
-                      if (c.primary.length + c.secondary.length > 1) ...[
-                        if (center == e)
-                          ContextMenuButton(
-                            label: 'btn_call_uncenter'.l10n,
-                            onPressed: c.focusAll,
-                            trailing: const SvgIcon(SvgIcons.uncenterVideo),
-                          )
-                        else
-                          ContextMenuButton(
-                            label: 'btn_call_center'.l10n,
-                            onPressed: () => c.center(e),
-                            trailing: const SvgIcon(SvgIcons.centerVideo),
-                          ),
-                      ],
-                      if (e.member.id != c.me.id) ...[
-                        if (e.video.value?.direction.value.isEmitting ?? false)
-                          ContextMenuButton(
-                            label: e.video.value?.renderer.value != null
-                                ? 'btn_call_disable_video'.l10n
-                                : 'btn_call_enable_video'.l10n,
-                            onPressed: () => c.toggleVideoEnabled(e),
-                            trailing: SvgIcon(
-                              e.video.value?.renderer.value != null
-                                  ? SvgIcons.incomingVideoOn
-                                  : SvgIcons.incomingVideoOff,
-                            ),
-                          ),
-                        if (e.audio.value?.direction.value.isEmitting ?? false)
-                          ContextMenuButton(
-                            label:
-                                (e.audio.value?.direction.value.isEnabled ==
-                                    true)
-                                ? 'btn_call_disable_audio'.l10n
-                                : 'btn_call_enable_audio'.l10n,
-                            onPressed: () => c.toggleAudioEnabled(e),
-                            trailing: SvgIcon(
-                              e.audio.value?.renderer.value != null
-                                  ? SvgIcons.incomingAudioOn
-                                  : SvgIcons.incomingAudioOff,
-                            ),
-                          ),
-                        if (e.member.isDialing.isFalse)
-                          ContextMenuButton(
-                            label: 'btn_call_remove_participant'.l10n,
-                            trailing: const SvgIcon(SvgIcons.removeFromCall),
-                            onPressed: () =>
-                                c.removeChatCallMember(e.member.id.userId),
-                          ),
-                      ] else ...[
-                        ContextMenuButton(
-                          label: c.videoState.value.isEnabled
-                              ? 'btn_call_video_off'.l10n
-                              : 'btn_call_video_on'.l10n,
-                          onPressed: c.toggleVideo,
-                          trailing: SvgIcon(
-                            c.videoState.value.isEnabled
-                                ? SvgIcons.cameraOn
-                                : SvgIcons.cameraOff,
-                          ),
-                        ),
-                        ContextMenuButton(
-                          label: c.audioState.value.isEnabled
-                              ? 'btn_call_audio_off'.l10n
-                              : 'btn_call_audio_on'.l10n,
-                          onPressed: c.toggleAudio,
-                          trailing: SvgIcon(
-                            c.audioState.value.isEnabled
-                                ? SvgIcons.micOn
-                                : SvgIcons.micOff,
-                          ),
-                        ),
-                      ],
-                    ],
-                    unconstrained: true,
-                    builder: (animated) {
-                      return AnimatedParticipant(
-                        e,
-                        muted: muted,
-                        rounded: animated,
-                      );
-                    },
-                  );
-                });
-              },
+              itemBuilder: (e) => _buildParticipant(e, c),
             );
           }),
         ]);
@@ -714,4 +607,95 @@ Widget mobileCall(CallController c, BuildContext context) {
       });
     },
   );
+}
+
+/// Returns an [AnimatedParticipant] displaying the provided [Participant].
+Widget _buildParticipant(Participant e, CallController c) {
+  return Obx(() {
+    final Participant? center = c.secondary.isNotEmpty
+        ? c.primary.firstOrNull
+        : null;
+
+    final bool audioEnabled = c.audioState.value.isEnabled;
+
+    final bool? muted = e.member.owner == MediaOwnerKind.local
+        ? !audioEnabled
+        : null;
+
+    return ContextMenuRegion(
+      actions: [
+        if (!c.isDialog && c.primary.length + c.secondary.length > 1) ...[
+          if (center == e)
+            ContextMenuButton(
+              label: 'btn_call_uncenter'.l10n,
+              onPressed: c.focusAll,
+              trailing: const SvgIcon(SvgIcons.uncenterVideo),
+            )
+          else
+            ContextMenuButton(
+              label: 'btn_call_center'.l10n,
+              onPressed: () => c.center(e),
+              trailing: const SvgIcon(SvgIcons.centerVideo),
+            ),
+        ],
+        if (e.member.id != c.me.id) ...[
+          if (e.video.value?.direction.value.isEmitting ?? false)
+            ContextMenuButton(
+              label: e.video.value?.renderer.value != null
+                  ? 'btn_call_disable_video'.l10n
+                  : 'btn_call_enable_video'.l10n,
+              onPressed: () => c.toggleVideoEnabled(e),
+              trailing: SvgIcon(
+                e.video.value?.renderer.value != null
+                    ? SvgIcons.incomingVideoOn
+                    : SvgIcons.incomingVideoOff,
+              ),
+            ),
+          if (e.audio.value?.direction.value.isEmitting ?? false)
+            ContextMenuButton(
+              label: (e.audio.value?.direction.value.isEnabled == true)
+                  ? 'btn_call_disable_audio'.l10n
+                  : 'btn_call_enable_audio'.l10n,
+              onPressed: () => c.toggleAudioEnabled(e),
+              trailing: SvgIcon(
+                e.audio.value?.renderer.value != null
+                    ? SvgIcons.incomingAudioOn
+                    : SvgIcons.incomingAudioOff,
+              ),
+            ),
+          if (!c.isDialog && e.member.isDialing.isFalse)
+            ContextMenuButton(
+              label: 'btn_call_remove_participant'.l10n,
+              trailing: const SvgIcon(SvgIcons.removeFromCall),
+              onPressed: () => c.removeChatCallMember(e.member.id.userId),
+            ),
+        ] else ...[
+          ContextMenuButton(
+            label: c.videoState.value.isEnabled
+                ? 'btn_call_video_off'.l10n
+                : 'btn_call_video_on'.l10n,
+            onPressed: c.toggleVideo,
+            trailing: SvgIcon(
+              c.videoState.value.isEnabled
+                  ? SvgIcons.cameraOn
+                  : SvgIcons.cameraOff,
+            ),
+          ),
+          ContextMenuButton(
+            label: c.audioState.value.isEnabled
+                ? 'btn_call_audio_off'.l10n
+                : 'btn_call_audio_on'.l10n,
+            onPressed: c.toggleAudio,
+            trailing: SvgIcon(
+              c.audioState.value.isEnabled ? SvgIcons.micOn : SvgIcons.micOff,
+            ),
+          ),
+        ],
+      ],
+      unconstrained: true,
+      builder: (animated) {
+        return AnimatedParticipant(e, muted: muted, rounded: animated);
+      },
+    );
+  });
 }

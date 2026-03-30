@@ -980,45 +980,50 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ],
       ];
 
-      return ConstrainedBox(
-        constraints: media.isNotEmpty
-            ? const BoxConstraints(maxWidth: 350)
-            : const BoxConstraints(),
-        child: Stack(
-          children: [
-            IntrinsicWidth(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                decoration: BoxDecoration(
-                  color: _fromMe
-                      ? _isRead
-                            ? style.readMessageColor
-                            : style.unreadMessageColor
-                      : style.messageColor,
-                  borderRadius: BorderRadius.circular(15),
-                  border: _fromMe ? style.secondaryBorder : style.primaryBorder,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: children,
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+        child: ConstrainedBox(
+          constraints: media.isNotEmpty
+              ? const BoxConstraints(maxWidth: 350)
+              : const BoxConstraints(),
+          child: Stack(
+            children: [
+              IntrinsicWidth(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  decoration: BoxDecoration(
+                    color: _fromMe
+                        ? _isRead
+                              ? style.readMessageColor
+                              : style.unreadMessageColor
+                        : style.messageColor,
+                    borderRadius: BorderRadius.circular(15),
+                    border: _fromMe
+                        ? style.secondaryBorder
+                        : style.primaryBorder,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: children,
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              right: timeInBubble ? 6 : 8,
-              bottom: 4,
-              child: timeInBubble
-                  ? Container(
-                      padding: const EdgeInsets.only(left: 4, right: 4),
-                      decoration: BoxDecoration(
-                        color: style.colors.onBackgroundOpacity50,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: _timestamp(msg, true),
-                    )
-                  : _timestamp(msg),
-            ),
-          ],
+              Positioned(
+                right: timeInBubble ? 6 : 8,
+                bottom: 4,
+                child: timeInBubble
+                    ? Container(
+                        padding: const EdgeInsets.only(left: 4, right: 4),
+                        decoration: BoxDecoration(
+                          color: style.colors.onBackgroundOpacity50,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: _timestamp(msg, true),
+                      )
+                    : _timestamp(msg),
+              ),
+            ],
+          ),
         ),
       );
     });

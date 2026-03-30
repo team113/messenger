@@ -552,7 +552,7 @@ class MessageFieldView extends StatelessWidget {
                     ChatButtonWidget.send(
                       key: sendKey ?? Key('Send'),
                       onPressed: c.field.submittable.isTrue
-                          ? c.field.submit
+                          ? () => c.submit(explicit: true)
                           : null,
                     ),
                   ];
