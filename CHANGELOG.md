@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chats tab:
-        - Display welcome message when searching users. ([#1669])
+        - Display welcome message when searching users. ([#1671])
 
 ### Fixed
 
@@ -28,7 +28,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1666]: /../../pull/1666
 [#1668]: /../../pull/1668
-[#1669]: /../../pull/1669
+[#1671]: /../../pull/1671
 
 
 
