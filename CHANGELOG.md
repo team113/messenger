@@ -18,8 +18,10 @@ All user visible changes to this project will be documented in this file. This p
         - Context menu missing from dialog calls on mobiles. ([#1666])
     - Chat page:
         - Gaps between selected messages. ([#1666])
+        - Notes being present two times in forwarding modal. ([#1668])
 
 [#1666]: /../../pull/1666
+[#1668]: /../../pull/1668
 
 
 
