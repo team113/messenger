@@ -291,6 +291,9 @@ class ChatRepository extends DisposableInterface
   /// [UserId] of the [support] chat.
   static final UserId _supportId = UserId(Config.supportId);
 
+  /// Indicator whether [init] has been invoked.
+  bool _initialized = false;
+
   @override
   RxBool get hasNext =>
       _pagination?.hasNext ?? _localPagination?.hasNext ?? RxBool(false);
@@ -319,35 +322,37 @@ class ChatRepository extends DisposableInterface
 
     this.onMemberRemoved = onMemberRemoved ?? this.onMemberRemoved;
 
-    // Set the initial values to local ones, however those will be redefined
-    // during `_ensurePagination()` method, which invokes `_initSupport()` and
-    // `_initMonolog()`.
-    monolog = ChatId.local(me);
-    support = ChatId.local(_supportId);
+    if (!_initialized) {
+      // Set the initial values to local ones, however those will be redefined
+      // during `_ensurePagination()` method, which invokes `_initSupport()` and
+      // `_initMonolog()`.
+      monolog = ChatId.local(me);
+      support = ChatId.local(_supportId);
 
-    _monologGuard.protect(() async {
-      if (isClosed) {
-        return;
-      }
+      _monologGuard.protect(() async {
+        if (isClosed) {
+          return;
+        }
 
-      final monologMixin = await _graphQlProvider.getMonolog();
-      if (isClosed) {
-        return;
-      }
+        final monologMixin = await _graphQlProvider.getMonolog();
+        if (isClosed) {
+          return;
+        }
 
-      Log.debug('getMonolog() -> $monologMixin', '$runtimeType');
-      monolog = monologMixin?.id ?? monolog;
+        Log.debug('getMonolog() -> $monologMixin', '$runtimeType');
+        monolog = monologMixin?.id ?? monolog;
 
-      final supportMixin = await _graphQlProvider.getDialog(
-        UserId(Config.supportId),
-      );
-      if (isClosed) {
-        return;
-      }
+        final supportMixin = await _graphQlProvider.getDialog(
+          UserId(Config.supportId),
+        );
+        if (isClosed) {
+          return;
+        }
 
-      Log.debug('getDialog(supportId) -> $supportMixin', '$runtimeType');
-      support = supportMixin?.id ?? support;
-    });
+        Log.debug('getDialog(supportId) -> $supportMixin', '$runtimeType');
+        support = supportMixin?.id ?? support;
+      });
+    }
 
     // Popup shouldn't listen to recent chats remote updates, as it's happening
     // inside single [Chat].
@@ -411,6 +416,8 @@ class ChatRepository extends DisposableInterface
 
       archived.around();
     }
+
+    _initialized = true;
   }
 
   @override
@@ -612,6 +619,7 @@ class ChatRepository extends DisposableInterface
         retries: 10,
       ),
     );
+
     final RxChatImpl chat = await _putEntry(chatData);
 
     if (!isClosed) {
@@ -3324,7 +3332,7 @@ class ChatRepository extends DisposableInterface
           }
         }
 
-        Log.debug('_initMonolog()... done!', '$runtimeType');
+        Log.debug('_initMonolog()... done! ID is $monolog', '$runtimeType');
       });
     } catch (e) {
       Log.error('Unable to `_initMonolog()` due to: $e');
