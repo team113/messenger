@@ -3012,7 +3012,16 @@ class RtcVideoRenderer extends RtcRenderer {
       autoRotate = false;
 
       if (PlatformUtils.isMobile) {
-        mirror = track.getTrack().facingMode() == webrtc.FacingMode.user;
+        try {
+          mirror = track.getTrack().facingMode() == webrtc.FacingMode.user;
+        } catch (e) {
+          Log.warning(
+            'Unable to get `facingMode()` due to: $e',
+            '$runtimeType',
+          );
+
+          mirror = true;
+        }
       } else {
         mirror = _mediaSourceKind == MediaSourceKind.device;
       }

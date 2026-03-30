@@ -6,9 +6,20 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## main
+## [0.11.0] · 2026-??-??
+[0.11.0]: /../../tree/v0.11.0
 
-[Diff](/../../compare/v0.10.0...main) | [Milestone](/../../milestone/73)
+[Diff](/../../compare/v0.10.0...v0.11.0) | [Milestone](/../../milestone/73)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Context menu missing from dialog calls on mobiles. ([#1666])
+    - Chat page:
+        - Gaps between selected messages. ([#1666])
+
+[#1666]: /../../pull/1666
 
 
 

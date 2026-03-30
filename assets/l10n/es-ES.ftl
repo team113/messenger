@@ -143,7 +143,6 @@ btn_copy = Copiar
 btn_copy_text = Copiar el texto
 btn_create = Crear
 btn_create_group = Crear grupo
-btn_decline = Rechazar
 btn_delete = Eliminar
 btn_delete_account = Eliminar la cuenta
 btn_delete_chat = Eliminar el chat
@@ -277,7 +276,6 @@ err_media_popup_was_blocked =
     Permite que las ventanas emergentes muestren los medios en ventanas separadas.
 err_message_was_read = Mensaje leído
 err_microphone_permission_denied = Acceso al micrófono denegado. Asegúrese de que la aplicación tenga permiso para usar el micrófono.
-err_network = Error al conectar con el servidor
 err_no_filename = El archivo debe tener nombre
 err_password_incorrect = La contraseña es demasiado larga y/o comienza/termina con un espacio
 err_passwords_mismatch = Las contraseñas no coinciden
@@ -594,12 +592,6 @@ label_connection_restored = Conexión restablecida
 label_contact_us_via_provided_email = Contáctenos por e-mail {$email}.
 label_copied = Copiado
 label_copy = Copiar
-label_count_gb = {$count} GB
-label_count_seconds =
-    {$count} { $count ->
-        [1] segundo
-        *[other] segundos
-    }
 label_critical_update_is_available = La versión actual ya no es compatible
 label_create_group = Creación de grupo
 label_current_account = Cuenta corriente

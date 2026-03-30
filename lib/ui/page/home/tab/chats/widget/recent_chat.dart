@@ -208,7 +208,7 @@ class RecentChatTile extends StatelessWidget {
           children: [
             FadingSlidableAction(
               onPressed: _hideChat,
-              icon: SvgIcon(SvgIcons.deleteAction, height: 18),
+              icon: SvgIcon(SvgIcons.deleteAction),
               danger: true,
               text: 'btn_delete'.l10n,
             ),
@@ -216,13 +216,13 @@ class RecentChatTile extends StatelessWidget {
             if (chat.isArchived)
               FadingSlidableAction(
                 onPressed: _archiveChat,
-                icon: SvgIcon(SvgIcons.unhideAction, height: 18),
+                icon: SvgIcon(SvgIcons.unhideAction),
                 text: 'btn_unhide'.l10n,
               )
             else
               FadingSlidableAction(
                 onPressed: _archiveChat,
-                icon: SvgIcon(SvgIcons.hideAction, height: 18),
+                icon: SvgIcon(SvgIcons.hideAction),
                 text: 'btn_hide'.l10n,
               ),
           ],
@@ -231,7 +231,7 @@ class RecentChatTile extends StatelessWidget {
           onPerformDrop: onPerformDrop,
           builder: (dragging) => ChatTile(
             chat: rxChat,
-            dimmed: blocked || dragging,
+            dimmed: dragging,
             status: [
               const SizedBox(height: 28),
               if (trailing == null) ...[

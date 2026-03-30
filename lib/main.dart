@@ -451,7 +451,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
           handle: chatId.val,
           type: 0,
           textAccept: 'btn_accept'.l10n,
-          textDecline: 'btn_decline'.l10n,
+          textDecline: 'btn_call_decline'.l10n,
           duration: 30000,
           extra: {'chatId': chatId.val},
           headers: {'platform': 'flutter'},
