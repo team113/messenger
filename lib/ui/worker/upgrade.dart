@@ -194,10 +194,18 @@ class UpgradeWorker extends Dependency {
         final Iterable<XmlElement> items = channel.findElements('item');
 
         if (items.isNotEmpty) {
-          final Release release = Release.fromXml(
-            items.first,
-            language: L10n.chosen.value,
-          );
+          final List<Release> releases = items
+              .map((e) => Release.fromXml(e, language: L10n.chosen.value))
+              .toList();
+
+          final Release release = releases.reduce((a, b) {
+            final int compared = a.publishedAt.compareTo(b.publishedAt);
+            if (compared > 0) {
+              return a;
+            }
+
+            return b;
+          });
 
           // If the latest fetched [Release] is the same as this one, then don't
           // even try to compare it.
