@@ -406,6 +406,20 @@ class AudioUtilsImpl {
 
         _previousConfiguration = configuration;
 
+        if (!PlatformUtils.isWeb && PlatformUtils.isIOS) {
+          final AVAudioSessionCategory resolved =
+              await AVAudioSession().category;
+
+          if (resolved == configuration.avAudioSessionCategory) {
+            Log.debug(
+              'reconfigure() -> ignoring ${_intents.values.map((e) => e.mode.name).join(', ')}, cuz current is `$resolved` already',
+              '$runtimeType',
+            );
+
+            return;
+          }
+        }
+
         final AudioSession session = await AudioSession.instance;
 
         try {
