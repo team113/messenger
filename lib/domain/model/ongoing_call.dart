@@ -2304,7 +2304,7 @@ class OngoingCall {
 
     try {
       ++_joinRoomAttempts;
-      await _room?.join('$link?token=${creds}ggg');
+      await _room?.join('$link?token=$creds');
       _joinRoomAttempts = 0;
 
       // Set the [CallMember.joinedAt] of our [CallMember] to the moment when
