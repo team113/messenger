@@ -24,10 +24,12 @@ import 'package:graphql/client.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
+import 'package:messenger/domain/repository/link.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
+import 'package:messenger/domain/service/link.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/session.dart';
 import 'package:messenger/domain/service/user.dart';
@@ -59,6 +61,7 @@ import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
+import 'package:messenger/store/link.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/session.dart';
 import 'package:messenger/store/settings.dart';
@@ -253,6 +256,28 @@ void main() async {
       when(
         graphQlProvider.myUserEvents(any),
       ).thenAnswer((_) async => myUserEvents.stream);
+
+      when(
+        graphQlProvider.directLinks(
+          chatId: anyNamed('chatId'),
+          by: anyNamed('by'),
+          pagination: anyNamed('pagination'),
+        ),
+      ).thenAnswer(
+        (_) => Future.value(
+          DirectLinks$Query$DirectLinks.fromJson({
+            'edges': [],
+            'totalCount': 0,
+            'ver': '0',
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
+            },
+          }),
+        ),
+      );
 
       // when(graphQlProvider.createChatContact(
       //   name: UserName('user name'),
@@ -470,6 +495,16 @@ void main() async {
       final chatService = Get.put(ChatService(chatRepository, authService));
 
       Get.put(CallService(authService, chatService, callRepository));
+
+      final AbstractLinkRepository linkRepository =
+          Get.put<AbstractLinkRepository>(
+            LinkRepository(
+              graphQlProvider,
+              versionProvider,
+              me: const UserId('me'),
+            ),
+          );
+      Get.put(LinkService(linkRepository));
 
       await tester.pumpWidget(
         createWidgetForTesting(
