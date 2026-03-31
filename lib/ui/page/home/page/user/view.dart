@@ -36,6 +36,7 @@ import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/scroll_keyboard_handler.dart';
 import '/ui/widget/animated_button.dart';
@@ -60,7 +61,14 @@ class UserView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: UserController(id, Get.find(), Get.find(), Get.find(), Get.find()),
+      init: UserController(
+        id,
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       tag: id.val,
       global: !Get.isRegistered<UserController>(tag: id.val),
       builder: (UserController c) {
@@ -90,6 +98,7 @@ class UserView extends StatelessWidget {
               ),
             _avatar(c, context),
             _name(c, context, index: c.isBlocked != null ? 2 : 1),
+            if (!c.isSupport) ...[_links(c, context)],
             SelectionContainer.disabled(
               child: Block(children: [_actions(c, context)]),
             ),
@@ -367,6 +376,42 @@ class UserView extends StatelessWidget {
           child: const SvgIcon(SvgIcons.search),
         ),
         const SizedBox(width: 20),
+      ],
+    );
+  }
+
+  /// Returns the [Block] displaying a [DirectLinkField].
+  Widget _links(UserController c, BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Block(
+      title: 'label_share_your_links_to_user'.l10nfmt({
+        'user': c.user?.title(),
+      }),
+      padding: Block.defaultPadding.copyWith(right: 0, left: 0),
+      children: [
+        Obx(() {
+          return IgnorePointer(
+            ignoring: c.isSupport,
+            child: DirectLinkField(
+              c.links.values,
+              onAdded: c.linkLink,
+              onRemoved: c.unlinkLink,
+              onMore: c.links.hasNext.value && !c.links.nextLoading.value
+                  ? c.links.next
+                  : null,
+            ),
+          );
+        }),
+        Padding(
+          padding: Block.defaultPadding
+              .copyWith(top: 0, bottom: 0)
+              .add(const EdgeInsets.fromLTRB(8, 8, 8, 0)),
+          child: Text(
+            'label_share_your_links_to_user_description'.l10n,
+            style: style.fonts.small.regular.secondary,
+          ),
+        ),
       ],
     );
   }
