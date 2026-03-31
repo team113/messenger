@@ -401,10 +401,11 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
   final bool isCall =
       tag?.endsWith('_call') == true || tag?.endsWith('-call') == true;
+  final bool hasTtl = message.ttl != 0;
 
   // Since tags are only working under Android, thus this code is related to
   // Android platform only - iOS doesn't execute that.
-  if (isCall) {
+  if (isCall && !hasTtl) {
     final ChatId chatId = ChatId(message.data['chatId']);
 
     SharedPreferences? prefs;
