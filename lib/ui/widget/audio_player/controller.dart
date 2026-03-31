@@ -59,7 +59,7 @@ class AudioPlayerController extends GetxController {
   /// Indicates whether this controller's [item] is currently loading.
   bool get isLoading => isActive && _playback.value?.isLoading.value == true;
 
-  /// Returns the current playback [visualPosition].
+  /// Returns the current playback visual position.
   ///
   /// Returns [Duration.zero], if not active.
   Duration get position {

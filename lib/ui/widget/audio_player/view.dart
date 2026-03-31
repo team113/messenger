@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../animated_switcher.dart';
 import '../widget_button.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -144,8 +143,7 @@ class AudioPlayer extends StatelessWidget {
             ? Key('PauseAudio_${item.id.val}')
             : Key('PlayAudio_${item.id.val}'),
         onPressed: c.isLoading ? c.stop : c.playOrPause,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+        child: Container(
           height: 48,
           width: 48,
           decoration: BoxDecoration(
@@ -155,10 +153,7 @@ class AudioPlayer extends StatelessWidget {
                 : null,
             border: Border.all(width: 2, color: style.colors.primary),
           ),
-          child: SafeAnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            child: button,
-          ),
+          child: button,
         ),
       );
     });

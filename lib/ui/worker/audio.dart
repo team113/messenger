@@ -31,9 +31,9 @@ import '/util/media_utils.dart' show AudioSpeakerKind;
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
 import 'audio/active_playback.dart';
-import 'audio/playback.dart';
-import 'audio/playback/just_audio.dart';
-import 'audio/playback/video_player.dart';
+import 'audio/delegate.dart';
+import 'audio/delegate/just_audio.dart';
+import 'audio/delegate/video_player.dart';
 
 /// Worker responsible for audio playback.
 class AudioWorker extends Dependency {

@@ -20,7 +20,7 @@ import 'dart:io';
 
 import 'package:video_player/video_player.dart';
 
-import '../playback.dart';
+import '../delegate.dart';
 import '/ui/page/player/controller.dart';
 import '/util/audio_utils.dart';
 
@@ -69,7 +69,7 @@ class VideoPlayerDelegate extends AudioDelegate {
 
     await controller.initialize();
 
-    // If dispose() was called while initializing, quit.
+    // If `dispose()` was called while initializing, quit.
     if (_controller == null) return;
 
     await controller.setLooping(false);

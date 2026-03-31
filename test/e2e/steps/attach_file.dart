@@ -42,41 +42,6 @@ attachFile = then2<String, AttachmentType, CustomWorld>(
     await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 4));
 
     switch (attachmentType) {
-      case AttachmentType.audio:
-        final PlatformFile audio = PlatformFile(
-          name: name,
-          size: 2,
-          bytes: base64Decode(
-            'SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZTUuMC4xMDAA//uQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
-          ),
-        );
-
-        if (Get.isRegistered<ChatForwardController>()) {
-          final controller = Get.find<ChatForwardController>();
-
-          Log.debug(
-            'attachFile -> `ChatForwardController` is `$controller` for type `$attachmentType`',
-            'E2E',
-          );
-
-          controller.send
-              .addPlatformAttachment(audio)
-              .catchError((e) => Log.debug('attachFile -> `$e`', 'E2E'));
-        } else {
-          final String chatId = router.route.split('/').last;
-          final controller = Get.find<ChatController>(tag: chatId);
-
-          Log.debug(
-            'attachFile -> `ChatController` is `$controller` for route `$chatId` (type: $attachmentType)',
-            'E2E',
-          );
-
-          (controller.edit.value ?? controller.send)
-              .addPlatformAttachment(audio)
-              .catchError((e) => Log.debug('attachFile -> `$e`', 'E2E'));
-        }
-        break;
-
       case AttachmentType.file:
         final PlatformFile file = PlatformFile(
           name: name,

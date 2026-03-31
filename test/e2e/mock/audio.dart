@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:messenger/ui/worker/audio.dart';
 import 'package:messenger/ui/worker/audio/active_playback.dart';
-import 'package:messenger/ui/worker/audio/playback.dart';
+import 'package:messenger/ui/worker/audio/delegate.dart';
 import 'package:messenger/util/audio_utils.dart';
 
 /// Mocked [AudioWorker] to use in the tests.

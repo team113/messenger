@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '../audio.dart';
-import 'playback.dart';
+import 'delegate.dart';
 
 /// Manages playback state for a single active [AudioItem].
 class AudioPlayback {
@@ -35,7 +35,7 @@ class AudioPlayback {
   final RxBool isDragging = RxBool(false);
 
   /// Temporary playback position while dragging.
-  final Rx<Duration> dragPosition = Rx(Duration.zero);
+  final Rx<Duration> _dragPosition = Rx(Duration.zero);
 
   /// [AudioDelegate] responsible for actual playback operations.
   final AudioDelegate _delegate;
@@ -58,7 +58,7 @@ class AudioPlayback {
   /// Returns current playback visual position.
   Duration get visualPosition {
     if (isDragging.value) {
-      return dragPosition.value;
+      return _dragPosition.value;
     }
     return position.value;
   }
@@ -66,19 +66,19 @@ class AudioPlayback {
   /// Starts a seek interaction.
   void beginSeek() {
     isDragging.value = true;
-    dragPosition.value = position.value;
+    _dragPosition.value = position.value;
   }
 
-  /// Updates temporary [dragPosition] while active seek interaction.
+  /// Updates temporary [_dragPosition] while active seek interaction.
   void updateDragPosition(double v) {
     if (isDragging.value) {
-      dragPosition.value = Duration(milliseconds: v.toInt());
+      _dragPosition.value = Duration(milliseconds: v.toInt());
     }
   }
 
-  /// Ends a seek interaction, seeking to [dragPosition].
+  /// Ends a seek interaction, seeking to [_dragPosition].
   Future<void> endSeek() async {
-    await _delegate.seek(dragPosition.value);
+    await _delegate.seek(_dragPosition.value);
     isDragging.value = false;
   }
 

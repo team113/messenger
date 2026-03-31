@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:just_audio/just_audio.dart' as ja;
 
-import '../playback.dart';
+import '../delegate.dart';
 import '/util/audio_utils.dart';
 
 /// [AudioDelegate] implemented by using a [ja.AudioPlayer].
