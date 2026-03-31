@@ -69,7 +69,7 @@ class VideoPlayerDelegate extends AudioDelegate {
 
     await controller.initialize();
 
-    // If `dispose()` was called while initializing, quit.
+    // If [dispose] was called while initializing, quit.
     if (_controller == null) return;
 
     await controller.setLooping(false);
