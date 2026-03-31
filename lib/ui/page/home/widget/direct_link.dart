@@ -176,6 +176,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
               trailing: SvgIcon(SvgIcons.addLink),
               child: Text('btn_add_link'.l10n),
             ),
+            const SizedBox(height: 8),
           ],
         ],
       );

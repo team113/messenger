@@ -561,7 +561,10 @@ class GraphQlClient {
 
           _kaTimer?.cancel();
           _kaTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-            _wsChannel?.sink.add('{"type":"ping"}');
+            if (_wsChannel?.closeCode == null &&
+                _wsChannel?.closeReason == null) {
+              _wsChannel?.sink.add('{"type":"ping"}');
+            }
           });
 
           return _wsChannel!;
