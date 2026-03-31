@@ -142,11 +142,17 @@ class DeleteSessionController extends GetxController {
       },
     );
 
-    if (myUser.value?.emails.confirmed.isNotEmpty == true) {
-      sendConfirmationCode();
-    }
-
     super.onInit();
+  }
+
+  /// Sets the [stage] to [DeleteSessionStage.confirm] and invokes a
+  /// [sendConfirmationCode].
+  Future<void> confirmAndSend() async {
+    stage.value = DeleteSessionStage.confirm;
+
+    if (myUser.value?.emails.confirmed.isNotEmpty == true) {
+      await sendConfirmationCode();
+    }
   }
 
   /// Sends a [ConfirmationCode] to confirm the [AuthService.deleteSession].
@@ -154,7 +160,7 @@ class DeleteSessionController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.createConfirmationCode();
+      await _authService.createConfirmationCode(num: myUser.value?.num);
     } catch (e) {
       password.resubmitOnError.value = true;
       password.error.value = 'err_data_transfer'.l10n;
