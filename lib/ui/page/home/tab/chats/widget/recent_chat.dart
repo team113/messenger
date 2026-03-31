@@ -26,7 +26,6 @@ import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
 import '/api/backend/schema.dart';
 import '/config.dart';
-import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
@@ -43,11 +42,9 @@ import '/ui/page/call/widget/animated_dots.dart';
 import '/ui/page/home/page/chat/controller.dart';
 import '/ui/page/home/page/user/controller.dart';
 import '/ui/page/home/page/chat/widget/custom_drop_target.dart';
-import '/ui/page/home/page/chat/widget/video_thumbnail/video_thumbnail.dart';
 import '/ui/page/home/widget/animated_typing.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/chat_tile.dart';
-import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/future_or_builder.dart';
@@ -55,6 +52,7 @@ import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'periodic_builder.dart';
+import 'rectangle_attachment.dart';
 import 'slidable_action.dart';
 import 'unread_counter.dart';
 
@@ -458,7 +456,7 @@ class RecentChatTile extends StatelessWidget {
               draft.attachments.map((e) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 2),
-                  child: _attachment(e, inverted: inverted),
+                  child: RectangleAttachment(e, inverted: inverted),
                 );
               }),
             );
@@ -467,7 +465,10 @@ class RecentChatTile extends StatelessWidget {
             images.add(
               Padding(
                 padding: const EdgeInsets.only(right: 4),
-                child: _attachment(draft.attachments.first, inverted: inverted),
+                child: RectangleAttachment(
+                  draft.attachments.first,
+                  inverted: inverted,
+                ),
               ),
             );
           }
@@ -555,7 +556,7 @@ class RecentChatTile extends StatelessWidget {
                 item.attachments.map((e) {
                   return Padding(
                     padding: const EdgeInsets.only(right: 2),
-                    child: _attachment(
+                    child: RectangleAttachment(
                       e,
                       inverted: inverted,
                       onError: () => rxChat.updateAttachments(item),
@@ -567,7 +568,7 @@ class RecentChatTile extends StatelessWidget {
               images.add(
                 Padding(
                   padding: const EdgeInsets.only(right: 4),
-                  child: _attachment(
+                  child: RectangleAttachment(
                     item.attachments.first,
                     inverted: inverted,
                     onError: () => rxChat.updateAttachments(item),
@@ -786,117 +787,6 @@ class RecentChatTile extends StatelessWidget {
         child: Row(children: subtitle),
       );
     });
-  }
-
-  /// Builds an [Attachment] visual representation.
-  Widget _attachment(
-    Attachment e, {
-    bool inverted = false,
-    Future<void> Function()? onError,
-  }) {
-    Widget? content;
-
-    final style = Theme.of(router.context!).style;
-
-    if (e is LocalAttachment) {
-      if (e.file.isImage && e.file.bytes.value != null) {
-        content = Image.memory(e.file.bytes.value!, fit: BoxFit.cover);
-      } else if (e.file.isVideo) {
-        if (e.file.path == null) {
-          if (e.file.bytes.value == null) {
-            content = Container(
-              color: inverted ? style.colors.onPrimary : style.colors.secondary,
-              child: Icon(
-                Icons.video_file,
-                size: 18,
-                color: inverted
-                    ? style.colors.secondary
-                    : style.colors.onPrimary,
-              ),
-            );
-          } else {
-            content = FittedBox(
-              fit: BoxFit.cover,
-              child: VideoThumbnail.bytes(
-                e.file.bytes.value!,
-                key: key,
-                height: 300,
-                interface: false,
-                autoplay: true,
-              ),
-            );
-          }
-        } else {
-          content = FittedBox(
-            fit: BoxFit.cover,
-            child: VideoThumbnail.file(
-              e.file.path!,
-              key: key,
-              height: 300,
-              interface: false,
-              autoplay: true,
-            ),
-          );
-        }
-      } else {
-        content = Container(
-          color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          child: Center(
-            child: SvgIcon(
-              inverted ? SvgIcons.fileSmall : SvgIcons.fileSmallWhite,
-            ),
-          ),
-        );
-      }
-    }
-
-    if (e is ImageAttachment) {
-      content = RetryImage(
-        e.small.url,
-        checksum: e.small.checksum,
-        thumbhash: e.small.thumbhash,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        onForbidden: onError,
-        displayProgress: false,
-      );
-    }
-
-    if (e is FileAttachment) {
-      if (e.isVideo) {
-        content = FittedBox(
-          fit: BoxFit.cover,
-          child: VideoThumbnail.url(
-            e.original.url,
-            checksum: e.original.checksum,
-            key: key,
-            height: 300,
-            onError: onError,
-            interface: false,
-            autoplay: true,
-          ),
-        );
-      } else {
-        content = Container(
-          color: inverted ? style.colors.onPrimary : style.colors.secondary,
-          child: Center(
-            child: SvgIcon(
-              inverted ? SvgIcons.fileSmall : SvgIcons.fileSmallWhite,
-            ),
-          ),
-        );
-      }
-    }
-
-    if (content != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(5),
-        child: SizedBox(width: 30, height: 30, child: content),
-      );
-    }
-
-    return const SizedBox();
   }
 
   /// Builds a [ChatItem.status] visual representation.
