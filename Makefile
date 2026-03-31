@@ -399,7 +399,7 @@ appcast.xml:
 	@echo '<?xml version="1.0" encoding="utf-8"?><rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"><channel>' >> $(appcast-xml-out)
 ifeq ($(items),)
 	$(foreach f,$(shell printf "%s\\n" $(wildcard $(or $(from),appcast)/*.xml) \
-						| sort -Vr),\
+	                    | sort -Vr),\
 		$(call appcast.xml.write.file,$(f)))
 else
 	@echo '$(items)' >> $(appcast-xml-out)
