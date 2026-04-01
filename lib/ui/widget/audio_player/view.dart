@@ -61,7 +61,7 @@ class AudioPlayer extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: 48, minWidth: 260),
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 260),
             child: Row(
               children: [
                 MouseRegion(
@@ -172,45 +172,45 @@ class AudioPlayer extends StatelessWidget {
       );
     });
   }
-}
 
-/// Builds a timeline.
-Widget _timeline(BuildContext context, AudioPlayerController c) {
-  final style = Theme.of(context).style;
+  /// Builds a timeline.
+  Widget _timeline(BuildContext context, AudioPlayerController c) {
+    final style = Theme.of(context).style;
 
-  return Obx(() {
-    final Widget loader;
+    return Obx(() {
+      final Widget loader;
 
-    if (c.isDurationLoading.value) {
-      loader = Container(
-        key: const Key('Loader'),
-        width: 27,
-        height: 10,
-        decoration: BoxDecoration(
-          color: style.colors.onSecondaryOpacity20,
-          borderRadius: BorderRadius.circular(4),
-        ),
-      );
-    } else {
-      loader = Text(
-        key: const Key('Duration'),
-        c.duration.hhMmSs(),
-        style: style.fonts.smaller.regular.secondary,
-      );
-    }
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          'label_a_slash_space'.l10nfmt({'a': c.position.hhMmSs()}),
+      if (c.isDurationLoading.value) {
+        loader = Container(
+          key: const Key('Loader'),
+          width: 27,
+          height: 10,
+          decoration: BoxDecoration(
+            color: style.colors.onSecondaryOpacity20,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      } else {
+        loader = Text(
+          key: const Key('Duration'),
+          c.duration.hhMmSs(),
           style: style.fonts.smaller.regular.secondary,
-        ),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: loader,
-        ),
-      ],
-    );
-  });
+        );
+      }
+
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'label_a_slash_space'.l10nfmt({'a': c.position.hhMmSs()}),
+            style: style.fonts.smaller.regular.secondary,
+          ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: loader,
+          ),
+        ],
+      );
+    });
+  }
 }
