@@ -139,7 +139,7 @@ class UserView extends StatelessWidget {
   /// Returns the [User.avatar] visual representation.
   Widget _avatar(UserController c, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       child: Center(
         child: ConstrainedBox(
           constraints: context.isNarrow
