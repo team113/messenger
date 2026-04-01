@@ -1371,8 +1371,11 @@ extension KeyboardKeyToStringExtension on PhysicalKeyboardKey {
       };
 }
 
+/// [AudioSource]s available to be played in [CallWorker].
 enum _AudioAsset { incoming, outgoing, ending }
 
+/// [AudioUtilsImpl] playback source along with its [_AudioAsset] and [DateTime]
+/// of played at.
 class _AudioPlayback {
   _AudioPlayback(
     AudioSource source,
@@ -1386,9 +1389,15 @@ class _AudioPlayback {
        ),
        at = DateTime.now();
 
+  /// [_AudioAsset] this [_AudioPlayback] plays.
   final _AudioAsset asset;
+
+  /// [StreamSubscription] to a [AudioUtilsImpl.play].
   final StreamSubscription subscription;
+
+  /// [DateTime] this [_AudioPlayback] has started playing at.
   final DateTime at;
 
+  /// Cancels the playback.
   Future<void> cancel() => subscription.cancel();
 }
