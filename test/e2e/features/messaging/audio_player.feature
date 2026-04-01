@@ -35,6 +35,7 @@ Feature: Audio Player functionality
 
     When I pause "test.mp3" audio
     Then I see "test.mp3" audio is paused
+    And I return to previous page
 
   @messaging
   Scenario: Only one audio plays in a chat at the same time
@@ -49,6 +50,7 @@ Feature: Audio Player functionality
     When I play "second.mp3" audio
     Then I see "second.mp3" audio is playing
     And I see "first.mp3" audio is paused
+    And I return to previous page
 
   @messaging
   Scenario: Audio continues playing after navigating out and back
@@ -61,3 +63,4 @@ Feature: Audio Player functionality
 
     Then I see "test.mp3" audio is playing
     And I see "test.mp3" audio slider position changes while playing
+    And I return to previous page
