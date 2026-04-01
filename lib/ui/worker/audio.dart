@@ -117,7 +117,7 @@ class AudioWorker extends Dependency {
         return resume();
       }
 
-      await _clean();
+      _clean();
       await _delegate.stop();
 
       if (_isStale(playId)) {
@@ -175,7 +175,7 @@ class AudioWorker extends Dependency {
   Future<void> stop() async {
     Log.debug('stop()', '$runtimeType');
     _playRequestId++;
-    await _clean();
+    _clean();
     await _delegate.stop();
 
     await _completedSubscription?.cancel();
@@ -224,7 +224,7 @@ class AudioWorker extends Dependency {
   }
 
   /// Cancels pending tokens, clears [playback].
-  Future<void> _clean() async {
+  void _clean() {
     _cancelToken?.cancel();
     _headerToken?.cancel();
     _cancelToken = null;
