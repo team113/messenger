@@ -417,7 +417,7 @@ Future<void> appInitializationFn(World world) {
   PlatformUtils = PlatformUtilsMock();
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
-  Get.put<AudioWorker>(MockAudioWorker(), permanent: true);
+  Get.put<AudioWorker>(MockAudioWorker());
 
   final Function(FlutterErrorDetails)? original = FlutterError.onError;
   FlutterError.onError = (details) {

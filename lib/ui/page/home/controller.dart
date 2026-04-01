@@ -143,8 +143,25 @@ class HomeController extends GetxController {
   /// Indicates whether currently authenticated [MyUser] is a support.
   bool get isSupport => _auth.userId?.isSupport == true;
 
+  /// Indicates whether there is an active playback.
+  bool get hasPlayback => _playback.value != null;
+
+  /// Indicates whether the active playback is playing.
+  bool get isPlaybackPlaying => _playback.value?.isPlaying.value == true;
+
+  /// Returns the active playback title.
+  String get playbackTitle => _playback.value?.item.title ?? '';
+
+  /// Returns the active playback visual position.
+  Duration get playbackPosition =>
+      _playback.value?.visualPosition ?? Duration.zero;
+
+  /// Returns the active playback duration.
+  Duration get playbackDuration =>
+      _playback.value?.duration.value ?? Duration.zero;
+
   /// Returns the [AudioPlayback] being played from [AudioWorker], if any.
-  Rx<AudioPlayback?> get playback => _audioWorker.playback;
+  Rx<AudioPlayback?> get _playback => _audioWorker.playback;
 
   @override
   void onInit() {
@@ -217,6 +234,15 @@ class HomeController extends GetxController {
 
   /// Stops audio playback.
   Future<void> stop() => _audioWorker.stop();
+
+  /// Notifies that seek has started for the active playback.
+  void beginSeek() => _playback.value?.beginSeek();
+
+  /// Notifies that playback position is being updated.
+  void updatePosition(double value) => _playback.value?.updatePosition(value);
+
+  /// Notifies that seek has ended for the active playback.
+  Future<void> endSeek() async => await _playback.value?.endSeek();
 
   /// Sets the current [sideBarWidth] as the [sideBarAllowedWidth].
   Future<void> setSideBarWidth() =>

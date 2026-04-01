@@ -63,8 +63,8 @@ class AudioPlayerController extends GetxController {
   ///
   /// Returns [Duration.zero], if not active.
   Duration get position {
-    if (isActive) {
-      return _playback.value?.visualPosition ?? Duration.zero;
+    if (isActive && _playback.value != null) {
+      return _playback.value!.visualPosition;
     } else {
       return Duration.zero;
     }
@@ -75,14 +75,14 @@ class AudioPlayerController extends GetxController {
   /// When active, prefers live playback data, otherwise falls back to
   /// [extractedDuration].
   Duration get duration {
-    if (isActive) {
-      return _playback.value?.duration.value ?? extractedDuration.value;
+    if (isActive && _playback.value != null) {
+      return _playback.value!.duration.value;
     } else {
       return extractedDuration.value;
     }
   }
 
-  /// Returns currently active [AudioPlayback].
+  /// Returns currently active [AudioPlayback], if any.
   Rx<AudioPlayback?> get _playback => _audioWorker.playback;
 
   @override
@@ -92,7 +92,7 @@ class AudioPlayerController extends GetxController {
     isDurationLoading.value = true;
     try {
       extractedDuration.value = await _audioWorker.extract(
-        item.source,
+        item,
         onForbidden: onForbidden,
       );
     } finally {
@@ -106,12 +106,7 @@ class AudioPlayerController extends GetxController {
       await _audioWorker.pause();
     } else {
       await _audioWorker.play(
-        AudioItem(
-          id: item.id,
-          source: item.source,
-          title: item.title,
-          duration: extractedDuration.value,
-        ),
+        AudioItem(id: item.id, source: item.source, title: item.title),
         onForbidden: onForbidden,
       );
     }
@@ -124,10 +119,10 @@ class AudioPlayerController extends GetxController {
     }
   }
 
-  /// Notifies that slider value is changing at the moment.
+  /// Notifies that playback position is being updated.
   void onSliderChange(double value) {
     if (isActive) {
-      _playback.value?.updateDragPosition(value);
+      _playback.value?.updatePosition(value);
     }
   }
 

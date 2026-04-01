@@ -24,24 +24,19 @@ import 'delegate.dart';
 
 /// Manages playback state for a single active [AudioItem].
 class AudioPlayback {
-  AudioPlayback(this._delegate, this.item) {
-    _setupListeners();
-  }
+  AudioPlayback(this._delegate, this.item);
 
   /// [AudioItem] for this [AudioPlayback] session.
   final AudioItem item;
 
   /// Whether the current playback position is being dragged.
-  final RxBool isDragging = RxBool(false);
+  final RxBool _isDragging = RxBool(false);
 
   /// Temporary playback position while dragging.
   final Rx<Duration> _dragPosition = Rx(Duration.zero);
 
   /// [AudioDelegate] responsible for actual playback operations.
   final AudioDelegate _delegate;
-
-  /// [StreamSubscription] for handling playback completion.
-  StreamSubscription? _completedSubscription;
 
   /// Indicates the audio is currently playing.
   RxBool get isPlaying => _delegate.isPlaying;
@@ -57,7 +52,7 @@ class AudioPlayback {
 
   /// Returns current playback visual position.
   Duration get visualPosition {
-    if (isDragging.value) {
+    if (_isDragging.value) {
       return _dragPosition.value;
     }
     return position.value;
@@ -65,13 +60,13 @@ class AudioPlayback {
 
   /// Starts a seek interaction.
   void beginSeek() {
-    isDragging.value = true;
+    _isDragging.value = true;
     _dragPosition.value = position.value;
   }
 
   /// Updates temporary [_dragPosition] while active seek interaction.
-  void updateDragPosition(double v) {
-    if (isDragging.value) {
+  void updatePosition(double v) {
+    if (_isDragging.value) {
       _dragPosition.value = Duration(milliseconds: v.toInt());
     }
   }
@@ -79,19 +74,6 @@ class AudioPlayback {
   /// Ends a seek interaction, seeking to [_dragPosition].
   Future<void> endSeek() async {
     await _delegate.seek(_dragPosition.value);
-    isDragging.value = false;
-  }
-
-  /// Cancels the completion listener.
-  Future<void> dispose() async => await _completedSubscription?.cancel();
-
-  /// Wires up completion handling.
-  void _setupListeners() {
-    _completedSubscription = _delegate.isCompleted.listen((completed) async {
-      if (completed) {
-        await _delegate.pause();
-        await _delegate.seek(Duration.zero);
-      }
-    });
+    _isDragging.value = false;
   }
 }

@@ -52,6 +52,9 @@ class AudioWorker extends Dependency {
   /// [StreamSubscription] to [AudioUtilsImpl.routeChangeStream].
   StreamSubscription? _routeSubscription;
 
+  /// [StreamSubscription] for handling playback completion.
+  StreamSubscription? _completedSubscription;
+
   /// [CancelToken] for cancelling the audio download.
   CancelToken? _cancelToken;
 
@@ -62,6 +65,9 @@ class AudioWorker extends Dependency {
   ///
   /// Used to implement a cancellation mechanism for concurrent [play] calls.
   int _playRequestId = 0;
+
+  /// Cache of pre-extracted audio durations by [AudioId].
+  final Map<AudioId, Duration> _durationCache = {};
 
   @override
   void onInit() {
@@ -121,9 +127,12 @@ class AudioWorker extends Dependency {
       _delegate.isLoading.value = true;
 
       AudioSource target = item.source;
-      if (item.duration != Duration.zero) {
-        _delegate.duration.value = item.duration;
+
+      final cachedDuration = _durationCache[item.id];
+      if (cachedDuration != null && cachedDuration != Duration.zero) {
+        _delegate.duration.value = cachedDuration;
       }
+
       playback.value = AudioPlayback(_delegate, item);
 
       if (item.source is UrlAudioSource) {
@@ -137,11 +146,15 @@ class AudioWorker extends Dependency {
         );
       }
 
-      await _delegate.prepare(target, knownDuration: item.duration);
+      await _delegate.prepare(
+        target,
+        knownDuration: cachedDuration ?? Duration.zero,
+      );
 
       if (_isStale(playId)) {
         return;
       }
+      _setupCompletionHandler();
 
       await _delegate.play();
     } on OperationCanceledException {
@@ -165,15 +178,23 @@ class AudioWorker extends Dependency {
     await _clean();
     await _delegate.stop();
 
+    await _completedSubscription?.cancel();
     await _intentSubscription?.cancel();
     _intentSubscription = null;
   }
 
   /// Returns a [Duration] of the provided [source].
   Future<Duration> extract(
-    AudioSource source, {
+    AudioItem item, {
     Future<AudioSource?> Function()? onForbidden,
   }) async {
+    final AudioId audioId = item.id;
+    final AudioSource source = item.source;
+
+    if (_durationCache.containsKey(audioId)) {
+      return _durationCache[audioId]!;
+    }
+
     try {
       AudioSource target = source;
 
@@ -181,7 +202,10 @@ class AudioWorker extends Dependency {
         target = await _ensureReachable(source, onForbidden: onForbidden);
       }
 
-      return await _delegate.extract(target);
+      Duration duration = await _delegate.extract(target);
+      _durationCache[audioId] = duration;
+
+      return duration;
     } on OperationCanceledException {
       return Duration.zero;
     } catch (e) {
@@ -204,7 +228,6 @@ class AudioWorker extends Dependency {
     _headerToken?.cancel();
     _cancelToken = null;
     _headerToken = null;
-    await playback.value?.dispose();
     playback.value = null;
   }
 
@@ -239,6 +262,16 @@ class AudioWorker extends Dependency {
         case AVAudioSessionRouteChangeReason.unknown:
           // No-op.
           break;
+      }
+    });
+  }
+
+  /// Wires up completion handling for the audio delegate.
+  void _setupCompletionHandler() {
+    _completedSubscription = _delegate.isCompleted.listen((completed) async {
+      if (completed) {
+        await _delegate.pause();
+        await _delegate.seek(Duration.zero);
       }
     });
   }
@@ -300,12 +333,7 @@ class AudioId extends NewType<String> {
 
 /// Metadata describing an audio.
 class AudioItem {
-  const AudioItem({
-    required this.id,
-    required this.source,
-    this.title,
-    this.duration = Duration.zero,
-  });
+  const AudioItem({required this.id, required this.source, this.title});
 
   /// Unique [AudioId] of the audio.
   final AudioId id;
@@ -315,7 +343,4 @@ class AudioItem {
 
   /// Human-readable name of the audio, if any.
   final String? title;
-
-  /// Duration of the audio.
-  final Duration duration;
 }

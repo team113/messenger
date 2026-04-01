@@ -35,7 +35,6 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/upgrade_available_button.dart';
-import '/ui/worker/audio/active_playback.dart';
 import '/ui/worker/upgrade.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -448,13 +447,9 @@ class _HomeViewState extends State<HomeView> {
     final style = Theme.of(context).style;
 
     return Obx(() {
-      final AudioPlayback? playback = c.playback.value;
-
-      if (playback == null) {
+      if (!c.hasPlayback) {
         return const SizedBox();
       }
-
-      final bool isPlaying = playback.isPlaying.value;
 
       return Container(
         width: double.infinity,
@@ -474,12 +469,14 @@ class _HomeViewState extends State<HomeView> {
             Row(
               children: [
                 IconButton(
-                  icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                  onPressed: isPlaying ? c.pause : c.resume,
+                  icon: Icon(
+                    c.isPlaybackPlaying ? Icons.pause : Icons.play_arrow,
+                  ),
+                  onPressed: c.isPlaybackPlaying ? c.pause : c.resume,
                 ),
                 Expanded(
                   child: Text(
-                    playback.item.title ?? '',
+                    c.playbackTitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: style.fonts.small.regular.onBackground,
@@ -490,16 +487,16 @@ class _HomeViewState extends State<HomeView> {
             ),
 
             SeekSlider(
-              position: playback.visualPosition,
-              duration: playback.duration.value,
-              onDragStart: (_) => playback.beginSeek(),
-              onDragged: (v) => playback.updateDragPosition(v),
-              onDragEnd: (_) => playback.endSeek(),
+              position: c.playbackPosition,
+              duration: c.playbackDuration,
+              onDragStart: (_) => c.beginSeek(),
+              onDragged: (v) => c.updatePosition(v),
+              onDragEnd: (_) => c.endSeek(),
             ),
             Text(
               'label_a_slash_b'.l10nfmt({
-                'a': playback.visualPosition.hhMmSs(),
-                'b': playback.duration.value.hhMmSs(),
+                'a': c.playbackPosition.hhMmSs(),
+                'b': c.playbackDuration.hhMmSs(),
               }),
               style: style.fonts.smallest.regular.secondary,
             ),
