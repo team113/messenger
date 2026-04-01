@@ -171,7 +171,7 @@ class AudioWorker extends Dependency {
   Future<void> pause() async => await _delegate.pause();
 
   /// Stops the current playback, clears resources, cancels
-  /// [_intentSubscription].
+  /// [_intentSubscription], [_completedSubscription].
   Future<void> stop() async {
     Log.debug('stop()', '$runtimeType');
     _playRequestId++;
@@ -179,11 +179,12 @@ class AudioWorker extends Dependency {
     await _delegate.stop();
 
     await _completedSubscription?.cancel();
+    _completedSubscription = null;
     await _intentSubscription?.cancel();
     _intentSubscription = null;
   }
 
-  /// Returns a [Duration] of the provided [source].
+  /// Returns a [Duration] of the provided [item].
   Future<Duration> extract(
     AudioItem item, {
     Future<AudioSource?> Function()? onForbidden,
@@ -222,7 +223,7 @@ class AudioWorker extends Dependency {
         : JustAudioDelegate();
   }
 
-  /// Cancels pending tokens, disposes the active [playback].
+  /// Cancels pending tokens, clears [playback].
   Future<void> _clean() async {
     _cancelToken?.cancel();
     _headerToken?.cancel();
@@ -266,7 +267,7 @@ class AudioWorker extends Dependency {
     });
   }
 
-  /// Wires up completion handling for the audio delegate.
+  /// Wires up playback completion handling.
   void _setupCompletionHandler() {
     _completedSubscription = _delegate.isCompleted.listen((completed) async {
       if (completed) {
