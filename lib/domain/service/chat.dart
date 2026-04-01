@@ -481,22 +481,23 @@ class ChatService extends Dependency {
 extension ChatIsRoute on Chat {
   /// Indicates whether the provided [route] represents this [Chat].
   bool isRoute(String route, UserId? me) {
-    final UserId? member = members
-        .firstWhereOrNull((e) => e.user.id != me)
-        ?.user
-        .id;
+    final User? member = members.firstWhereOrNull((e) => e.user.id != me)?.user;
 
     final bool byId = route.startsWith('${Routes.chats}/$id');
     final bool byUser =
         isDialog &&
         member != null &&
-        route.startsWith('${Routes.chats}/${ChatId.local(member)}');
+        route.startsWith('${Routes.chats}/${ChatId.local(member.id)}');
+    final bool byNum =
+        isDialog &&
+        member != null &&
+        route.startsWith('${Routes.chats}/${ChatId(member.num.toString())}');
     final bool byMonolog =
         isMonolog &&
         me != null &&
         route.startsWith('${Routes.chats}/${ChatId.local(me)}');
 
-    return byId || byUser || byMonolog;
+    return byId || byUser || byMonolog || byNum;
   }
 }
 
