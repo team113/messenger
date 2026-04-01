@@ -24,6 +24,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Context menu missing from dialog calls on mobiles. ([#1666])
+        - Outgoing ringtone sometimes being played for less than 2 seconds. ([#1676])
     - Chat page:
         - Gaps between selected messages. ([#1666])
         - Notes being present two times in forwarding modal. ([#1668])
@@ -35,6 +36,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1671]: /../../pull/1671
 [#1674]: /../../pull/1674
 [#1675]: /../../pull/1675
+[#1676]: /../../pull/1676
 
 
 
