@@ -105,10 +105,7 @@ class AudioPlayerController extends GetxController {
     if (isPlaying) {
       await _audioWorker.pause();
     } else {
-      await _audioWorker.play(
-        AudioItem(id: item.id, source: item.source, title: item.title),
-        onForbidden: onForbidden,
-      );
+      await _audioWorker.play(item, onForbidden: onForbidden);
     }
   }
 
@@ -133,6 +130,6 @@ class AudioPlayerController extends GetxController {
     }
   }
 
-  /// Stops playback for this controller's [item].
+  /// Stops playback.
   Future<void> stop() async => await _audioWorker.stop();
 }
