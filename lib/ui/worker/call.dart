@@ -854,11 +854,6 @@ class CallWorker extends Dependency {
         }
       }
 
-      // if (_outgoingTimers[id]?.isActive != true) {
-      //   _outgoingTimers.remove(id)?.cancel();
-      //   _outgoings.remove(id)?.cancel();
-      // }
-
       _outgoings.remove(id)?.cancel();
       _incomings.remove(id)?.cancel();
     }
