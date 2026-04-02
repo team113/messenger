@@ -1627,7 +1627,7 @@ class SvgIcons {
   );
 
   static const SvgData supportSmall = SvgData(
-    'assets/images/support_small.svg',
+    'assets/icons/support_small.svg',
     width: 18,
     height: 18,
   );
