@@ -83,7 +83,6 @@ import 'microphone_switch/view.dart';
 import 'muted_chats/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
-import 'presence_switch/view.dart';
 import 'session/controller.dart';
 import 'welcome_field/view.dart';
 import 'widget/background_preview.dart';
@@ -531,7 +530,7 @@ Widget _profile(BuildContext context, MyProfileController c) {
         return FieldButton(
           key: Key('StatusButton'),
           headline: Text('label_your_status'.l10n),
-          onPressed: () async => await PresenceSwitchView.show(context),
+          onPressed: c.togglePresence,
           child: Row(
             children: [
               Container(

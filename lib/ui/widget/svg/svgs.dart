@@ -1616,14 +1616,26 @@ class SvgIcons {
 
   static const SvgData notesSmall = SvgData(
     'assets/icons/notes_small.svg',
-    width: 19,
-    height: 19,
+    width: 18,
+    height: 18,
   );
 
   static const SvgData notesSmallWhite = SvgData(
     'assets/icons/notes_small_white.svg',
-    width: 19,
-    height: 19,
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData supportSmall = SvgData(
+    'assets/icons/support_small.svg',
+    width: 18,
+    height: 18,
+  );
+
+  static const SvgData supportSmallWhite = SvgData(
+    'assets/icons/support_small_white.svg',
+    width: 18,
+    height: 18,
   );
 
   static const SvgData emailWhite = SvgData(

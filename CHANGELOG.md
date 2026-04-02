@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chats tab:
         - Display welcome message when searching users. ([#1671])
+        - Support service in chats context menu. ([#1677])
     - User page:
         - Allow creating multiple direct links to chat. ([#1674])
 
@@ -37,6 +38,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1674]: /../../pull/1674
 [#1675]: /../../pull/1675
 [#1676]: /../../pull/1676
+[#1677]: /../../pull/1677
 
 
 

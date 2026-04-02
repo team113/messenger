@@ -335,6 +335,13 @@ class ChatsTabView extends StatelessWidget {
           if (!c.isSupport) ...[
             ContextMenuDivider(),
             ContextMenuButton(
+              key: const Key('SupportChatButton'),
+              label: 'label_support_service'.l10n,
+              onPressed: () => router.support(),
+              trailing: const SvgIcon(SvgIcons.supportSmall),
+              inverted: const SvgIcon(SvgIcons.supportSmallWhite),
+            ),
+            ContextMenuButton(
               key: const Key('MonologChatButton'),
               label: 'label_chat_monolog'.l10n,
               onPressed: () => router.chat(c.monolog),
