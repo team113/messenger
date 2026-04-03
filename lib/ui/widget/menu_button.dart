@@ -147,7 +147,7 @@ class MenuButton extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                  const SizedBox(width: 6.5),
+                  if (leading == null) const SizedBox(width: 6.5),
                   ?leading,
                   if (icon != null)
                     Icon(
