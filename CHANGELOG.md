@@ -31,6 +31,7 @@ All user visible changes to this project will be documented in this file. This p
         - Notes being present two times in forwarding modal. ([#1668])
     - Profile page:
         - Session termination opening with an error. ([#1675])
+        - Grey rectangle displayed in cache block on native platforms. ([#1678])
 
 [#1666]: /../../pull/1666
 [#1668]: /../../pull/1668
@@ -39,6 +40,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1675]: /../../pull/1675
 [#1676]: /../../pull/1676
 [#1677]: /../../pull/1677
+[#1678]: /../../pull/1678
 
 
 

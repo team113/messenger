@@ -1566,7 +1566,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
             textAlign: TextAlign.center,
             switch (value) {
               64 => 'label_no_limit'.l10n,
-              (_) => 'label_gb'.l10nfmt({'count': value}),
+              (_) => 'label_gb'.l10nfmt({'amount': value}),
             },
             style: style.fonts.smaller.regular.secondary,
           );
