@@ -137,11 +137,16 @@ class CallWorker extends Dependency {
   /// [Worker] reacting on the [RouterState.lifecycle] changes.
   Worker? _lifecycleWorker;
 
-  /// [StreamSubscription] for canceling the [_outgoing] sound playing.
-  StreamSubscription? _outgoingAudio;
+  /// [_AudioPlayback]s for canceling the [_AudioAsset.outgoing] audio
+  /// playing.
+  final Map<ChatId, _AudioPlayback> _outgoings = {};
 
-  /// [StreamSubscription] for canceling the [_incoming] sound playing.
-  StreamSubscription? _incomingAudio;
+  /// [_AudioPlayback]s for canceling the [_AudioAsset.incoming] audio
+  /// playing.
+  final Map<ChatId, _AudioPlayback> _incomings = {};
+
+  /// [Timer]s stopping [_AudioAsset.outgoing] after a period of time.
+  final Map<ChatId, Timer> _outgoingTimers = {};
 
   /// Subscription to the [PlatformUtilsImpl.onFocusChanged] updating the
   /// [_focused].
@@ -187,16 +192,6 @@ class CallWorker extends Dependency {
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get _myUser => _myUserService.myUser;
-
-  /// Returns the name of an incoming call sound asset.
-  String get _incoming =>
-      PlatformUtils.isWeb ? 'incoming_call_web.mp3' : 'incoming_call.mp3';
-
-  /// Returns the name of an outgoing call sound asset.
-  String get _outgoing => 'outgoing_call.mp3';
-
-  /// Returns the name of an end call sound asset.
-  String get _endCall => 'end_call.wav';
 
   /// Indicator whether this device's [Locale] contains a China country code.
   bool get _isChina => Platform.localeName.contains('CN');
@@ -291,7 +286,7 @@ class CallWorker extends Dependency {
           case OngoingCallState.active:
             _workers.remove(key)?.dispose();
             if (_workers.isEmpty) {
-              stop();
+              _stop(key);
             }
 
             if (_isCallKit && callId != null) {
@@ -307,7 +302,7 @@ class CallWorker extends Dependency {
           case OngoingCallState.ended:
             _workers.remove(key)?.dispose();
             if (_workers.isEmpty) {
-              stop();
+              _stop(key);
             }
 
             if (_isCallKit && callId != null) {
@@ -342,10 +337,10 @@ class CallWorker extends Dependency {
           _callService.join(c.chatId.value, withVideo: false);
           _answeredCalls.remove(c.chatId.value);
         } else if (outgoing) {
-          play(_outgoing);
+          _play(key, _AudioAsset.outgoing);
         } else if (_workers.isNotEmpty &&
             (!PlatformUtils.isMobile || isInForeground)) {
-          play(_incoming, fade: true);
+          _play(key, _AudioAsset.incoming, fade: true);
 
           // Show a notification of an incoming call.
           if (!outgoing && !PlatformUtils.isMobile && !_focused) {
@@ -485,7 +480,7 @@ class CallWorker extends Dependency {
             _workers.remove(event.key)?.dispose();
             _eventsSubscriptions.remove(event.key)?.cancel();
             if (_workers.isEmpty) {
-              stop();
+              _stop(null);
             }
 
             // Play an [_endCall] sound, when an [OngoingCall] with [myUser] ends.
@@ -497,7 +492,7 @@ class CallWorker extends Dependency {
               final bool withMe = call.members.containsKey(call.me.id);
 
               if (withMe && isActiveOrEnded && call.participated) {
-                play(_endCall);
+                _play(call.chatId.value, _AudioAsset.ending);
               }
 
               if (_isCallKit) {
@@ -722,8 +717,21 @@ class CallWorker extends Dependency {
   void onClose() {
     Log.debug('onClose', '$runtimeType');
 
-    _outgoingAudio?.cancel();
-    _incomingAudio?.cancel();
+    for (var e in _outgoings.values) {
+      e.cancel();
+    }
+    _outgoings.clear();
+
+    for (var e in _incomings.values) {
+      e.cancel();
+    }
+    _incomings.clear();
+
+    for (var e in _outgoingTimers.values) {
+      e.cancel();
+    }
+    _outgoingTimers.clear();
+
     _callKitSubscription?.cancel();
 
     _subscription.cancel();
@@ -750,48 +758,112 @@ class CallWorker extends Dependency {
   }
 
   /// Plays the given [asset].
-  Future<void> play(String asset, {bool fade = false}) async {
-    if (asset == _incoming) {
-      if (_myUser.value?.muted == null) {
-        final previous = _incomingAudio;
-        _incomingAudio = AudioUtils.play(
-          AudioSource.asset('audio/$asset'),
-          fade: fade ? 1.seconds : Duration.zero,
-          mode: AudioMode.ringtone,
+  Future<void> _play(ChatId id, _AudioAsset asset, {bool fade = false}) async {
+    Log.debug('_play($id, ${asset.name})', '$runtimeType');
+
+    _outgoings.remove(id)?.cancel();
+    _incomings.remove(id)?.cancel();
+
+    final source = AudioSource.asset(
+      'audio/${switch (asset) {
+        _AudioAsset.incoming => PlatformUtils.isWeb ? 'incoming_call_web.mp3' : 'incoming_call.mp3',
+        _AudioAsset.outgoing => 'outgoing_call.mp3',
+        _AudioAsset.ending => 'end_call.wav',
+      }}',
+    );
+
+    switch (asset) {
+      case _AudioAsset.incoming:
+        if (_myUser.value?.muted == null) {
+          _incomings[id] = _AudioPlayback(
+            source,
+            asset,
+            fade: fade,
+            mode: AudioMode.ringtone,
+          );
+          _startVibrating();
+        }
+        break;
+
+      case _AudioAsset.outgoing:
+        _outgoings[id] = _AudioPlayback(
+          source,
+          asset,
+          fade: fade,
+          mode: AudioMode.call,
         );
-        previous?.cancel();
-        _startVibrating();
-      }
-    } else if (asset == _outgoing) {
-      final previous = _outgoingAudio;
-      _outgoingAudio = AudioUtils.play(
-        AudioSource.asset('audio/$asset'),
-        fade: fade ? 1.seconds : Duration.zero,
-        mode: AudioMode.call,
-      );
-      previous?.cancel();
-    } else if (asset == _endCall) {
-      AudioUtils.once(AudioSource.asset('audio/$_endCall'));
+        break;
+
+      case _AudioAsset.ending:
+        AudioUtils.once(source);
+        break;
     }
   }
 
   /// Stops the audio that is currently playing.
-  Future<void> stop() async {
+  Future<void> _stop(ChatId? id) async {
+    Log.debug('_stop($id)', '$runtimeType');
+
     if (_vibrationTimer != null) {
       _stopVibrating();
       _vibrationTimer?.cancel();
       Vibration.cancel();
     }
 
-    _incomingAudio?.cancel();
-    _outgoingAudio?.cancel();
+    if (id == null) {
+      for (var e in _outgoings.values) {
+        e.cancel();
+      }
+      _outgoings.clear();
+
+      for (var e in _outgoingTimers.values) {
+        e.cancel();
+      }
+      _outgoingTimers.clear();
+
+      for (var e in _incomings.values) {
+        e.cancel();
+      }
+      _incomings.clear();
+    } else {
+      final _AudioPlayback? playback = _outgoings[id];
+
+      if (playback != null) {
+        switch (playback.asset) {
+          case _AudioAsset.incoming:
+          case _AudioAsset.ending:
+            // No-op.
+            break;
+
+          case _AudioAsset.outgoing:
+            final Duration diff = DateTime.now().difference(playback.at);
+
+            Log.debug('_stop($id) -> diff is $diff', '$runtimeType');
+
+            if (diff.inMilliseconds < 2000) {
+              _outgoingTimers[id] = Timer(Duration(seconds: 2) - diff, () {
+                Log.debug('_stop($id) -> timer has ended', '$runtimeType');
+
+                _outgoingTimers.remove(id)?.cancel();
+                _stop(id);
+              });
+
+              return;
+            }
+            break;
+        }
+      }
+
+      _outgoings.remove(id)?.cancel();
+      _incomings.remove(id)?.cancel();
+    }
   }
 
   /// Initializes [WebUtils] related functionality.
   void _initWebUtils() {
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
       if (e.key == null) {
-        stop();
+        _stop(null);
       } else if (e.key?.startsWith('call_') == true) {
         final chatId = ChatId(e.key!.replaceAll('call_', ''));
         if (e.newValue == null) {
@@ -799,7 +871,7 @@ class CallWorker extends Dependency {
           _audioWorkers.remove(chatId)?.dispose();
           _workers.remove(chatId)?.dispose();
           if (_workers.isEmpty) {
-            stop();
+            _stop(chatId);
           }
 
           // Play a sound when a call with [myUser] ends in a popup.
@@ -814,7 +886,7 @@ class CallWorker extends Dependency {
                 false;
 
             if (isActiveOrEnded && withMe) {
-              play(_endCall);
+              _play(chatId, _AudioAsset.ending);
             }
           }
         } else {
@@ -823,7 +895,7 @@ class CallWorker extends Dependency {
               call.state != OngoingCallState.pending) {
             _workers.remove(chatId)?.dispose();
             if (_workers.isEmpty) {
-              stop();
+              _stop(chatId);
             }
           }
         }
@@ -1292,4 +1364,35 @@ extension KeyboardKeyToStringExtension on PhysicalKeyboardKey {
         PhysicalKeyboardKey.metaRight: PlatformUtils.isMacOS ? '⌘' : '⊞',
         PhysicalKeyboardKey.fn: 'fn',
       };
+}
+
+/// [AudioSource]s available to be played in [CallWorker].
+enum _AudioAsset { incoming, outgoing, ending }
+
+/// [AudioUtilsImpl] playback source along with its [_AudioAsset] and [DateTime]
+/// of played at.
+class _AudioPlayback {
+  _AudioPlayback(
+    AudioSource source,
+    this.asset, {
+    bool fade = false,
+    AudioMode mode = AudioMode.ringtone,
+  }) : subscription = AudioUtils.play(
+         source,
+         fade: fade ? 1.seconds : Duration.zero,
+         mode: mode,
+       ),
+       at = DateTime.now();
+
+  /// [_AudioAsset] this [_AudioPlayback] plays.
+  final _AudioAsset asset;
+
+  /// [StreamSubscription] to a [AudioUtilsImpl.play].
+  final StreamSubscription subscription;
+
+  /// [DateTime] this [_AudioPlayback] has started playing at.
+  final DateTime at;
+
+  /// Cancels the playback.
+  Future<void> cancel() => subscription.cancel();
 }

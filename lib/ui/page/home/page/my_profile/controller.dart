@@ -863,6 +863,18 @@ class MyProfileController extends GetxController {
     }
   }
 
+  /// Updates the [UserPresence] to be a next one.
+  Future<void> togglePresence() async {
+    final int current = myUser.value?.presence.index ?? 0;
+
+    UserPresence? next = UserPresence.values.elementAtOrNull(current + 1);
+    if (next == UserPresence.artemisUnknown) {
+      next = null;
+    }
+
+    await _myUserService.updateUserPresence(next ?? UserPresence.values.first);
+  }
+
   /// Records the provided [event] to the [_keysRecorded], if it's not a
   /// modifier.
   bool _hotKeyListener(KeyEvent event) {

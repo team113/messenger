@@ -1,4 +1,4 @@
-- Permite crear varios enlaces directos que conduzcan a tu chat.
-- Diseño actualizado de la página de soporte.
-- La búsqueda de usuarios ahora muestra su biografía.
+- Se agregó el servicio de soporte a las opciones del menú contextual en la pestaña de chats.
+- Se agregó la posibilidad de crear múltiples enlaces directos a cualquier usuario.
+- Se actualizó la búsqueda de usuarios para mostrar el mensaje de bienvenida.
 - Corrección de errores y mejoras de rendimiento.

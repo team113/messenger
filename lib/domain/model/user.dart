@@ -179,6 +179,7 @@ class UserNum extends NewType<String> {
   /// Constructs a [UserNum] from the provided [val].
   factory UserNum.fromJson(String val) = UserNum.unchecked;
 
+  /// Parses a [UserNum] from the provided [val].
   factory UserNum(String val) {
     val = val.replaceAll(_nonDigitsRegExp, '');
 
@@ -190,6 +191,11 @@ class UserNum extends NewType<String> {
 
     return UserNum._(val);
   }
+
+  /// [RegExp] matching original [toString] representation of [UserNum].
+  static final RegExp sourceExp = RegExp(
+    r'[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}',
+  );
 
   /// [RegExp] matching any amount of non-numeric symbols.
   static final RegExp _nonDigitsRegExp = RegExp(r'[^0-9]+');

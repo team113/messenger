@@ -584,6 +584,13 @@ class SearchController extends GetxController {
           : await monologOrFuture;
 
       if (monolog != null) {
+        chats.removeWhere((id, e) {
+          return e.id == monologId ||
+              id == monologId ||
+              e.id == monolog.id ||
+              id == monolog.id;
+        });
+
         if (trimmed.isEmpty) {
           // Display [monolog] as the first item in [chats] by default.
           chats.value = {monologId: monolog, ...chats};
@@ -632,14 +639,14 @@ class SearchController extends GetxController {
             ? c.members.values.firstWhereOrNull((u) => u.user.id != me)?.user
             : null,
       );
-      bool localDialog(RxChat c) => c.id.isLocal && !c.id.isLocalWith(me);
+      bool isLocal(RxChat c) => c.id.isLocal;
       bool excludeSupports(RxChat c) =>
           !this.excludeSupports || !c.chat.value.isSupport;
 
       final List<RxChat> filtered = allChats
           .whereNot(hidden)
           .where(matchesQuery)
-          .whereNot(localDialog)
+          .whereNot(isLocal)
           .where(excludeSupports)
           .sorted();
 
@@ -784,7 +791,8 @@ class SearchController extends GetxController {
         // filter by [DirectLink] and [UserLogin].
         chats.value = {
           _chatService.monolog: ?monolog,
-          for (final c in sorted) c.chat.value.id: c,
+          for (final c in sorted.whereNot((e) => e.id == _chatService.monolog))
+            c.chat.value.id: c,
         };
       }
 

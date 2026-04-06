@@ -6,6 +6,45 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.10.1] · 2026-04-06
+[0.10.1]: /../../tree/v0.10.1
+
+[Diff](/../../compare/v0.10.0...v0.10.1) | [Milestone](/../../milestone/73)
+
+### Changed
+
+- UI:
+    - Chats tab:
+        - Display welcome message when searching users. ([#1671])
+        - Support service in chats context menu. ([#1677])
+    - User page:
+        - Allow creating multiple direct links to chat. ([#1674])
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Context menu missing from dialog calls on mobiles. ([#1666])
+        - Outgoing ringtone sometimes being played for less than 2 seconds. ([#1676])
+    - Chat page:
+        - Gaps between selected messages. ([#1666])
+        - Notes being present two times in forwarding modal. ([#1668])
+    - Profile page:
+        - Session termination opening with an error. ([#1675])
+        - Grey rectangle displayed in cache block on native platforms. ([#1678])
+
+[#1666]: /../../pull/1666
+[#1668]: /../../pull/1668
+[#1671]: /../../pull/1671
+[#1674]: /../../pull/1674
+[#1675]: /../../pull/1675
+[#1676]: /../../pull/1676
+[#1677]: /../../pull/1677
+[#1678]: /../../pull/1678
+
+
+
+
 ## [0.10.0] · 2026-03-26
 [0.10.0]: /../../tree/v0.10.0
 

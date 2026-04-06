@@ -28,15 +28,18 @@ import '/api/backend/schema.dart' show UserPresence;
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
+import '/domain/model/link.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
+import '/domain/service/link.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
@@ -64,6 +67,7 @@ class UserController extends GetxController {
     this._contactService,
     this._chatService,
     this._callService,
+    this._linkService,
   );
 
   /// ID of the [User] this [UserController] represents.
@@ -132,6 +136,9 @@ class UserController extends GetxController {
   /// Indicator whether the app bar should display the [User.name].
   final RxBool preferName = RxBool(false);
 
+  /// [Paginated] containing the [DirectLink] leading to this [MyUser].
+  late final Paginated<DirectLinkSlug, DirectLink> links;
+
   /// [UserService] fetching the [user].
   final UserService _userService;
 
@@ -143,6 +150,9 @@ class UserController extends GetxController {
 
   /// [CallService] starting a new [OngoingCall] with this [user].
   final CallService _callService;
+
+  /// [LinkService] managing the [DirectLink]s.
+  final LinkService _linkService;
 
   /// [Worker] reacting on the [RxUser.contact] changes updating the [_worker].
   Worker? _contactWorker;
@@ -195,6 +205,8 @@ class UserController extends GetxController {
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);
+
+    links = _linkService.links(userId: id);
 
     _fetchUser().whenComplete(() {
       if (isClosed) {
@@ -492,6 +504,16 @@ class UserController extends GetxController {
     });
   }
 
+  /// Creates a new [DirectLink] with the specified [DirectLinkSlug].
+  Future<void> linkLink(DirectLinkSlug slug) async {
+    await _linkService.updateLink(slug, id);
+  }
+
+  /// Unlinks the provided [DirectLinkSlug].
+  Future<void> unlinkLink(DirectLinkSlug slug) async {
+    await _linkService.updateLink(slug, null);
+  }
+
   /// Fetches the [user] value from the [_userService].
   Future<void> _fetchUser() async {
     try {
@@ -499,6 +521,7 @@ class UserController extends GetxController {
       user = fetched is RxUser? ? fetched : await fetched;
 
       _userSubscription = user?.updates.listen((_) {});
+      links.ensureInitialized();
       status.value = user == null ? RxStatus.empty() : RxStatus.success();
 
       SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());

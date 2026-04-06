@@ -401,10 +401,11 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
   final bool isCall =
       tag?.endsWith('_call') == true || tag?.endsWith('-call') == true;
+  final bool hasTtl = message.ttl != 0;
 
   // Since tags are only working under Android, thus this code is related to
   // Android platform only - iOS doesn't execute that.
-  if (isCall) {
+  if (isCall && !hasTtl) {
     final ChatId chatId = ChatId(message.data['chatId']);
 
     SharedPreferences? prefs;
@@ -451,7 +452,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
           handle: chatId.val,
           type: 0,
           textAccept: 'btn_accept'.l10n,
-          textDecline: 'btn_decline'.l10n,
+          textDecline: 'btn_call_decline'.l10n,
           duration: 30000,
           extra: {'chatId': chatId.val},
           headers: {'platform': 'flutter'},

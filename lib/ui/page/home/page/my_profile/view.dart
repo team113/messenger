@@ -83,7 +83,6 @@ import 'microphone_switch/view.dart';
 import 'muted_chats/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
-import 'presence_switch/view.dart';
 import 'session/controller.dart';
 import 'welcome_field/view.dart';
 import 'widget/background_preview.dart';
@@ -531,7 +530,7 @@ Widget _profile(BuildContext context, MyProfileController c) {
         return FieldButton(
           key: Key('StatusButton'),
           headline: Text('label_your_status'.l10n),
-          onPressed: () async => await PresenceSwitchView.show(context),
+          onPressed: c.togglePresence,
           child: Row(
             children: [
               Container(
@@ -698,7 +697,6 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             onPressed: unconfirmed == null && emails.length >= 2
                 ? null
                 : () => AddEmailView.show(context, email: unconfirmed),
-
             maxLines: 2,
             trailing: unconfirmed == null && emails.length >= 2
                 ? const SvgIcon(SvgIcons.emailGrey)
@@ -727,9 +725,7 @@ Widget _password(BuildContext context, MyProfileController c) {
               : 'btn_set_password'.l10n,
           onPressed: () => ChangePasswordView.show(context),
           warning: true,
-          trailing: c.myUser.value?.hasPassword == true
-              ? const SvgIcon(SvgIcons.password)
-              : const SvgIcon(SvgIcons.passwordWhite),
+          trailing: const SvgIcon(SvgIcons.passwordWhite),
         );
       }),
       const SizedBox(height: 10),
@@ -1570,7 +1566,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
             textAlign: TextAlign.center,
             switch (value) {
               64 => 'label_no_limit'.l10n,
-              (_) => 'label_count_gb'.l10nfmt({'count': value}),
+              (_) => 'label_gb'.l10nfmt({'amount': value}),
             },
             style: style.fonts.smaller.regular.secondary,
           );

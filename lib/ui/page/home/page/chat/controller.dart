@@ -986,6 +986,28 @@ class ChatController extends GetxController {
             id = _chatService.support;
           }
         }
+      } else if (UserNum.sourceExp.hasMatch(id.val)) {
+        final UserNum? num = UserNum.tryParse(id.val);
+        if (num != null) {
+          final search = _userService.search(num: num);
+          await search.around();
+
+          final RxUser? user = search.values.firstOrNull;
+          if (user != null) {
+            if (isClosed) {
+              Log.debug('_fetchChat($id) -> isClosed', '$runtimeType');
+              return;
+            }
+
+            id = user.user.value.dialog;
+
+            if (user.id == me) {
+              id = _chatService.monolog;
+            } else if (user.id.val == Config.supportId) {
+              id = _chatService.support;
+            }
+          }
+        }
       }
 
       final FutureOr<RxChat?> fetched = _chatService.get(id);

@@ -138,7 +138,7 @@ PODS:
   - medea_flutter_webrtc (0.18.1):
     - Flutter
     - instrumentisto-libwebrtc-bin (= 146.0.7680.80)
-  - medea_jason (0.14.0):
+  - medea_jason (0.14.1):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
     - Flutter
@@ -360,7 +360,7 @@ SPEC CHECKSUMS:
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   mdk: 59bbe9e2ac2a052455ab1b076c245680d66cf6c0
   medea_flutter_webrtc: 89ab46ecef3644cb8dec7de5ca4c40d5c837e2cc
-  medea_jason: e4db0b384c0ae57f9c4e95848ac54e07003d2ae6
+  medea_jason: 6bd8364756250fbc2bf241885d4b3b7da2e8124d
   media_kit_libs_ios_video: 5a18affdb97d1f5d466dc79988b13eff6c5e2854
   media_kit_video: 1746e198cb697d1ffb734b1d05ec429d1fcd1474
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275

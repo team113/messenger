@@ -98,8 +98,7 @@ class DeleteSessionView extends StatelessWidget {
                       SizedBox(height: 21),
                       PrimaryButton(
                         key: const Key('ProceedButton'),
-                        onPressed: () =>
-                            c.stage.value = DeleteSessionStage.confirm,
+                        onPressed: c.confirmAndSend,
                         title: 'btn_proceed'.l10n,
                       ),
                     ],

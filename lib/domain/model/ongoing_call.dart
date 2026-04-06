@@ -379,6 +379,9 @@ class OngoingCall {
   /// Currently applied [MediaStreamSettings].
   MediaStreamSettings? _settings;
 
+  /// Count of attempts of [_joinRoom].
+  int _joinRoomAttempts = 0;
+
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -782,7 +785,17 @@ class OngoingCall {
                       final node = event as ChatCallRoomReadyEvent;
 
                       if (!_background) {
-                        await _joinRoom(node.joinLink);
+                        await _joinRoom(
+                          node.joinLink,
+
+                          // TODO: Uncomment and fix issues happening with call
+                          //       being removed due to `leaveChatCall` being
+                          //       fired.
+                          // onAuthorizationFailed: () async {
+                          //   await calls.join(chatId.value);
+                          //   await _joinRoom(node.joinLink);
+                          // },
+                        );
                       }
 
                       state.value = OngoingCallState.active;
@@ -2250,7 +2263,10 @@ class OngoingCall {
   ///
   /// Re-initializes the [_room], if this [link] is different from the currently
   /// used [_joinLink].
-  Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
+  Future<void> _joinRoom(
+    ChatCallRoomJoinLink link, {
+    Future<void> Function()? onAuthorizationFailed,
+  }) async {
     Log.debug('_joinRoom($link)', '$runtimeType');
 
     Log.info('Joining the room...', '$runtimeType');
@@ -2287,23 +2303,48 @@ class OngoingCall {
     _joinLink = link;
 
     try {
+      ++_joinRoomAttempts;
       await _room?.join('$link?token=$creds');
+      _joinRoomAttempts = 0;
+
+      // Set the [CallMember.joinedAt] of our [CallMember] to the moment when
+      // [RoomHandle.join] has been executed.
+      members[_me]?.joinedAt.value ??= PreciseDateTime.now();
+
+      Log.info('Room joined!', '$runtimeType');
     } on RpcClientException catch (e) {
       Log.error(
         'Joining the room failed due to: ${e.message()}',
         '$runtimeType',
       );
 
+      switch (e.kind()) {
+        case RpcClientExceptionKind.authorizationFailed:
+          if (_joinRoomAttempts >= 5 || onAuthorizationFailed == null) {
+            rethrow;
+          }
+
+          // Try to request new credentials.
+          await onAuthorizationFailed();
+          break;
+
+        case RpcClientExceptionKind.connectionLost:
+          if (_joinRoomAttempts >= 5) {
+            rethrow;
+          }
+
+          // Try again after 2 seconds delay.
+          await Future.delayed(Duration(seconds: 2));
+          return await _joinRoom(link);
+
+        case RpcClientExceptionKind.sessionFinished:
+          break;
+      }
+
       _joined = false;
 
       rethrow;
     }
-
-    // Set the [CallMember.joinedAt] of our [CallMember] to the moment when
-    // [RoomHandle.join] has been executed.
-    members[_me]?.joinedAt.value ??= PreciseDateTime.now();
-
-    Log.info('Room joined!', '$runtimeType');
   }
 
   /// Closes the [_room] and releases the associated resources.
@@ -3012,7 +3053,16 @@ class RtcVideoRenderer extends RtcRenderer {
       autoRotate = false;
 
       if (PlatformUtils.isMobile) {
-        mirror = track.getTrack().facingMode() == webrtc.FacingMode.user;
+        try {
+          mirror = track.getTrack().facingMode() == webrtc.FacingMode.user;
+        } catch (e) {
+          Log.warning(
+            'Unable to get `facingMode()` due to: $e',
+            '$runtimeType',
+          );
+
+          mirror = true;
+        }
       } else {
         mirror = _mediaSourceKind == MediaSourceKind.device;
       }

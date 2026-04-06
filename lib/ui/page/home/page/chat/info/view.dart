@@ -146,7 +146,7 @@ class ChatInfoView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
       child: Center(
         child: ConstrainedBox(
           constraints: context.isNarrow

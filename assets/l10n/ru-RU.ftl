@@ -143,7 +143,6 @@ btn_copy = Копировать
 btn_copy_text = Копировать текст
 btn_create = Создать
 btn_create_group = Создать группу
-btn_decline = Отклонить
 btn_delete = Удалить
 btn_delete_account = Удалить аккаунт
 btn_delete_chat = Удалить чат
@@ -277,7 +276,6 @@ err_media_popup_was_blocked =
     Разрешите всплывающие окна, чтобы отображать медиа в отдельном окне.
 err_message_was_read = Сообщение прочитано
 err_microphone_permission_denied = Доступ к микрофону отсутствует. Убедитесь, что приложению разрешено использовать микрофон.
-err_network = Ошибка подключения к серверу
 err_no_filename = Файл должен иметь имя
 err_password_incorrect = Пароль слишком длинный и/или заканчивается/начинается пробелом
 err_passwords_mismatch = Пароли не совпадают
@@ -607,12 +605,6 @@ label_connection_restored = Связь восстановлена
 label_contact_us_via_provided_email = Свяжитесь с нами по e-mail {$email}.
 label_copied = Скопировано
 label_copy = Копировать
-label_count_gb = {$count} GB
-label_count_seconds = {$count} { $count ->
-        [one] секунда
-        [few] секунды
-        *[other] секунд
-    }
 label_critical_update_is_available = Текущая версия не поддерживается
 label_create_group = Создание группы
 label_current_account = Текущий аккаунт
@@ -894,6 +886,8 @@ label_sessions_remain_active_for_one_year = Сессии остаются акт
 label_sessions_terminated = Сессия(и) завершена(ы)
 label_set_cache_limits = Установить лимиты кэша
 label_set_password = Установить пароль
+label_share_your_links_to_user = Поделитесь Вашими ссылками на пользователя {$user}
+label_share_your_links_to_user_description = Вы можете переместить ссылку на другого пользователя. Чтобы это сделать, просто скопируйте и вставьте ссылку в поле "Добавить ссылку" в профиле пользователя.
 label_show_call_window = Показывать окно звонка
 label_show_chats = Показать чат(ы)
 label_show_chats_modal_description = Чаты будут перенесены из списка "скрытые чаты".

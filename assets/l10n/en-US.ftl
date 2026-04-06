@@ -143,7 +143,6 @@ btn_copy = Copy
 btn_copy_text = Copy text
 btn_create = Create
 btn_create_group = Create group
-btn_decline = Decline
 btn_delete = Delete
 btn_delete_account = Delete account
 btn_delete_chat = Delete chat
@@ -277,7 +276,6 @@ err_media_popup_was_blocked =
     Allow pop-up to display media in a separate window.
 err_message_was_read = Message has been read
 err_microphone_permission_denied = Access to microphone is denied. Make sure application has permission to use microphone.
-err_network = Server connection error
 err_no_filename = File must have a name
 err_password_incorrect = Password is too long and/or starts/ends with a space
 err_passwords_mismatch = Passwords do not match
@@ -591,11 +589,6 @@ label_connection_restored = Connection restored
 label_contact_us_via_provided_email = Contact us by e-mail {$email}.
 label_copied = Copied
 label_copy = Copy
-label_count_gb = {$count} GB
-label_count_seconds = {$count} { $count ->
-       [1] second
-       *[other] seconds
-   }
 label_create_group = Group creation
 label_critical_update_is_available = Current version is no longer supported
 label_current_account = Current account
@@ -876,6 +869,8 @@ label_sessions_remain_active_for_one_year = Sessions remain active for one year 
 label_sessions_terminated = Session(s) terminated
 label_set_cache_limits = Set cache limits
 label_set_password = Set password
+label_share_your_links_to_user = Share your links to the user {$user}
+label_share_your_links_to_user_description = You can move a link to another user. To do this, simply copy and paste the link into the "Add link" field in the user's profile.
 label_show_call_window = Show call window
 label_show_chats = Unhide chat(s)
 label_show_chats_modal_description = The chats will be removed from the "Hidden chats" list.
