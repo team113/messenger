@@ -2521,6 +2521,11 @@ class ChatRepository extends DisposableInterface
     await Future.delayed(1.milliseconds);
 
     if (paginated.isNotEmpty && !status.value.isSuccess) {
+      Log.debug(
+        '_initLocalPagination() -> status is `loadingMore`',
+        '$runtimeType',
+      );
+
       status.value = RxStatus.loadingMore();
     }
   }
@@ -2775,7 +2780,9 @@ class ChatRepository extends DisposableInterface
       );
     }
 
+    Log.debug('_initRemotePagination() -> status is `success`', '$runtimeType');
     status.value = RxStatus.success();
+    status.refresh();
   }
 
   /// Subscribes to the remote updates of the [chats].

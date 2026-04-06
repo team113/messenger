@@ -87,8 +87,11 @@ class ChatService extends Dependency {
   }
 
   /// Ensures the [chats] are initialized.
-  void ensureInitialized() {
-    _chatRepository.init(onMemberRemoved: _onMemberRemoved, pagination: true);
+  Future<void> ensureInitialized() async {
+    await _chatRepository.init(
+      onMemberRemoved: _onMemberRemoved,
+      pagination: true,
+    );
   }
 
   /// Creates a group [Chat] with the provided members and the authenticated
