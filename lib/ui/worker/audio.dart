@@ -107,6 +107,7 @@ class AudioWorker extends Dependency {
     Log.debug('play(id: ${item.id}, source: ${item.source})', '$runtimeType');
 
     final int playId = ++_playRequestId;
+
     try {
       _intentSubscription ??= AudioUtils.acquire(
         AudioMode.music,
@@ -118,6 +119,7 @@ class AudioWorker extends Dependency {
       }
 
       _clean();
+
       await _delegate.stop();
 
       if (_isStale(playId)) {
@@ -128,9 +130,9 @@ class AudioWorker extends Dependency {
 
       AudioSource target = item.source;
 
-      final cachedDuration = _durationCache[item.id];
-      if (cachedDuration != null && cachedDuration != Duration.zero) {
-        _delegate.duration.value = cachedDuration;
+      final Duration? cached = _durationCache[item.id];
+      if ((cached ?? Duration.zero) != Duration.zero) {
+        _delegate.duration.value = cached ?? Duration.zero;
       }
 
       playback.value = AudioPlayback(_delegate, item);
@@ -146,14 +148,12 @@ class AudioWorker extends Dependency {
         );
       }
 
-      await _delegate.prepare(
-        target,
-        knownDuration: cachedDuration ?? Duration.zero,
-      );
+      await _delegate.prepare(target, knownDuration: cached ?? Duration.zero);
 
       if (_isStale(playId)) {
         return;
       }
+
       _setupCompletionHandler();
 
       await _delegate.play();

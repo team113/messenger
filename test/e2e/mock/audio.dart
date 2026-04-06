@@ -27,7 +27,7 @@ class MockAudioWorker extends AudioWorker {
   MockAudioWorker() : super(delegate: DummyDelegate());
 }
 
-/// Mocked dummy [AudioDelegate].
+/// Mocked [AudioDelegate] simulating the real audio playback routines.
 class DummyDelegate extends AudioDelegate {
   @override
   Future<void> dispose() async {
