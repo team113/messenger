@@ -1,4 +1,4 @@
-- Allow creating multiple direct links leading to your chat.
-- Updated support page design.
-- Updated users searching to display users' biography.
+- Added support service to context menu options on chats tab.
+- Added ability to create multiple direct links to any user.
+- Updated users searching to display users' welcome message.
 - Bug fixes and performance improvements.
