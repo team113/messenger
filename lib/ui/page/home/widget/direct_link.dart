@@ -92,6 +92,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
   void initState() {
     _state = TextFieldState(
       onFocus: (s) {
+        s.error.value = null;
+
         if (s.text.trim().isNotEmpty) {
           try {
             DirectLinkSlug(s.text);
@@ -144,21 +146,29 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             spellCheck: false,
           ),
           const SizedBox(height: 8),
-          PrimaryButton(
-            key: const Key('CreateLinkButton'),
-            title: 'btn_save_and_copy'.l10n,
-            onPressed: () async {
-              if (_state.text.isEmpty) {
-                _state.text = _generated;
-              }
+          Obx(() {
+            return PrimaryButton(
+              key: const Key('CreateLinkButton'),
+              title: 'btn_save_and_copy'.l10n,
+              onPressed: _state.error.value == null
+                  ? () async {
+                      if (_state.text.isEmpty) {
+                        _state.text = _generated;
+                      }
 
-              PlatformUtils.copy(text: '${Config.link}${_state.text}');
-              MessagePopup.success('label_copied'.l10n);
+                      await _submitLink();
 
-              await _submitLink();
-            },
-            leading: SvgIcon(SvgIcons.copy19White),
-          ),
+                      if (_state.error.value == null) {
+                        PlatformUtils.copy(
+                          text: '${Config.link}${_state.text}',
+                        );
+                        MessagePopup.success('label_copied'.l10n);
+                      }
+                    }
+                  : null,
+              leading: SvgIcon(SvgIcons.copy19White),
+            );
+          }),
           const SizedBox(height: 12),
         ],
       );
