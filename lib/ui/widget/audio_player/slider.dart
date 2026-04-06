@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
-/// Slider for audio rewind.
+/// [Slider] styled to expose callbacks.
 class SeekSlider extends StatelessWidget {
   const SeekSlider({
     super.key,

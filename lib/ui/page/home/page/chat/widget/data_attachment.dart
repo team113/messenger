@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
 import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
@@ -38,7 +39,7 @@ class DataAttachment extends StatefulWidget {
   const DataAttachment(
     this.attachment, {
     super.key,
-    this.audioId,
+    this.itemId,
     this.onPressed,
     this.onForbidden,
   });
@@ -46,8 +47,10 @@ class DataAttachment extends StatefulWidget {
   /// [Attachment] to display.
   final Attachment attachment;
 
-  /// [AudioId] this [DataAttachment] represents, if any.
-  final AudioId? audioId;
+  /// [ChatItemId] this [DataAttachment] belongs to, if any.
+  ///
+  /// Intended to be used in order to construct unique [AudioId].
+  final ChatItemId? itemId;
 
   /// Callback, called when this [DataAttachment] is pressed.
   final void Function()? onPressed;
@@ -61,10 +64,37 @@ class DataAttachment extends StatefulWidget {
 
 /// State of a [DataAttachment] for initializing the attachment.
 class _DataAttachmentState extends State<DataAttachment> {
+  /// [AudioItem] representing the [Attachment] this [DataAttachment] holds, if
+  /// any.
+  AudioItem? _audio;
+
   @override
   void initState() {
     if (widget.attachment is FileAttachment) {
       (widget.attachment as FileAttachment).init();
+    }
+
+    final Attachment e = widget.attachment;
+
+    if (e.isAudio) {
+      final ChatItemId? id = widget.itemId;
+      final AudioId audioId = id == null
+          ? AudioId('${e.id}')
+          : AudioId.fromMessage(id, e.id);
+
+      if (e is LocalAttachment && e.file.path != null) {
+        _audio = AudioItem(
+          id: audioId,
+          source: AudioSource.file(e.file.path!),
+          title: e.filename,
+        );
+      } else if (e is FileAttachment) {
+        _audio = AudioItem(
+          id: audioId,
+          source: AudioSource.url(e.original.url),
+          title: e.filename,
+        );
+      }
     }
 
     super.initState();
@@ -72,13 +102,11 @@ class _DataAttachmentState extends State<DataAttachment> {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     final Attachment e = widget.attachment;
 
-    final bool isAudio = e.isAudio;
-
     return Obx(() {
-      final style = Theme.of(context).style;
-
       Widget leading = Container();
 
       if (e is FileAttachment) {
@@ -121,37 +149,23 @@ class _DataAttachmentState extends State<DataAttachment> {
         };
       }
 
-      if (isAudio) {
-        AudioItem? item;
+      if (_audio != null) {
         Widget? progress;
 
         if (e is LocalAttachment && e.file.path != null) {
-          item = AudioItem(
-            id: widget.audioId ?? AudioId('${e.id}'),
-            source: AudioSource.file(e.file.path!),
-            title: e.filename,
-          );
           progress = WidgetButton(onPressed: e.cancelUpload, child: leading);
-        } else if (e is FileAttachment) {
-          item = AudioItem(
-            id: widget.audioId ?? AudioId('${e.id}'),
-            source: AudioSource.url(e.original.url),
-            title: e.filename,
-          );
         }
 
-        if (item != null) {
-          return AudioPlayer(
-            item: item,
-            progress: progress,
-            onForbidden: e is FileAttachment
-                ? () async {
-                    await widget.onForbidden?.call();
-                    return AudioSource.url(e.original.url);
-                  }
-                : null,
-          );
-        }
+        return AudioPlayer(
+          item: _audio!,
+          leading: progress,
+          onForbidden: e is FileAttachment
+              ? () async {
+                  await widget.onForbidden?.call();
+                  return AudioSource.url(e.original.url);
+                }
+              : null,
+        );
       }
 
       return Container(

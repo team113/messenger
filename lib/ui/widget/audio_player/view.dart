@@ -20,28 +20,28 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../widget_button.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/widget/widget_button.dart';
 import '/ui/worker/audio.dart' show AudioItem;
 import '/util/audio_utils.dart';
 import 'controller.dart';
 import 'slider.dart';
 
-/// Audio player with controls.
+/// [AudioItem] player with play/pause buttons and progress controls.
 class AudioPlayer extends StatelessWidget {
   const AudioPlayer({
     super.key,
     required this.item,
-    this.progress,
+    this.leading,
     this.onForbidden,
   });
 
-  /// Metadata of the audio.
+  /// [AudioItem] to play.
   final AudioItem item;
 
-  /// Indicates uploading progress.
-  final Widget? progress;
+  /// [Widget] to display as a leading instead of a play/pause button.
+  final Widget? leading;
 
   /// Callback, called when [source] fetch fails with `403` status code.
   final Future<AudioSource?> Function()? onForbidden;
@@ -67,7 +67,7 @@ class AudioPlayer extends StatelessWidget {
                 MouseRegion(
                   onEnter: (_) => c.hovered.value = true,
                   onExit: (_) => c.hovered.value = false,
-                  child: progress ?? _play(context, c),
+                  child: leading ?? _play(context, c),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -159,7 +159,7 @@ class AudioPlayer extends StatelessWidget {
     });
   }
 
-  /// Builds a slider.
+  /// Builds a [SeekSlider] controlling seeking of audio.
   Widget _slider(BuildContext context, AudioPlayerController c) {
     return Obx(() {
       return SeekSlider(
@@ -173,14 +173,14 @@ class AudioPlayer extends StatelessWidget {
     });
   }
 
-  /// Builds a timeline.
+  /// Builds a timeline displaying the position and duration of an audio.
   Widget _timeline(BuildContext context, AudioPlayerController c) {
     final style = Theme.of(context).style;
 
     return Obx(() {
       final Widget loader;
 
-      if (c.isDurationLoading.value) {
+      if (c.extractedLoading.value) {
         loader = Container(
           key: const Key('Loader'),
           width: 27,

@@ -31,7 +31,7 @@ class AudioPlayerController extends GetxController {
     this.onForbidden,
   });
 
-  /// Metadata of the audio.
+  /// [AudioItem] itself to play.
   final AudioItem item;
 
   /// Whether the view is being hovered.
@@ -40,11 +40,11 @@ class AudioPlayerController extends GetxController {
   /// Callback, called when [item.source] fetch fails with `403` status code.
   final Future<AudioSource?> Function()? onForbidden;
 
-  /// Calculated duration of audio.
-  final Rx<Duration> extractedDuration = Rx(Duration.zero);
+  /// Calculated [Duration] of audio.
+  final Rx<Duration> extracted = Rx(Duration.zero);
 
-  /// Whether [extractedDuration] is being fetched.
-  final RxBool isDurationLoading = RxBool(true);
+  /// Whether [extracted] is being fetched.
+  final RxBool extractedLoading = RxBool(true);
 
   /// [AudioWorker] handling actual playback and synchronization.
   final AudioWorker _audioWorker;
@@ -73,12 +73,12 @@ class AudioPlayerController extends GetxController {
   /// Returns the total audio duration.
   ///
   /// When active, prefers live playback data, otherwise falls back to
-  /// [extractedDuration].
+  /// [extracted].
   Duration get duration {
     if (isActive && _playback.value != null) {
       return _playback.value!.duration.value;
     } else {
-      return extractedDuration.value;
+      return extracted.value;
     }
   }
 
@@ -89,14 +89,14 @@ class AudioPlayerController extends GetxController {
   void onInit() async {
     super.onInit();
 
-    isDurationLoading.value = true;
+    extractedLoading.value = true;
     try {
-      extractedDuration.value = await _audioWorker.extract(
+      extracted.value = await _audioWorker.extract(
         item,
         onForbidden: onForbidden,
       );
     } finally {
-      isDurationLoading.value = false;
+      extractedLoading.value = false;
     }
   }
 

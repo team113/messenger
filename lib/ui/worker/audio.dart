@@ -38,7 +38,7 @@ import 'audio/delegate/video_player.dart';
 /// Worker responsible for audio playback.
 class AudioWorker extends Dependency {
   AudioWorker({AudioDelegate? delegate})
-    : _delegate = delegate ?? _createDefaultDelegate();
+    : _delegate = delegate ?? _createDelegate();
 
   /// Currently active [AudioPlayback] being set.
   final Rx<AudioPlayback?> playback = Rx(null);
@@ -161,9 +161,14 @@ class AudioWorker extends Dependency {
       // No-op.
     } catch (e) {
       Log.error('play(${item.id}) failed with: $e', '$runtimeType');
-      if (_playRequestId == playId) await stop();
+
+      if (_playRequestId == playId) {
+        await stop();
+      }
     } finally {
-      if (_playRequestId == playId) _delegate.isLoading.value = false;
+      if (_playRequestId == playId) {
+        _delegate.isLoading.value = false;
+      }
     }
   }
 
@@ -174,12 +179,15 @@ class AudioWorker extends Dependency {
   /// [_intentSubscription], [_completedSubscription].
   Future<void> stop() async {
     Log.debug('stop()', '$runtimeType');
+
     _playRequestId++;
     _clean();
+
     await _delegate.stop();
 
     await _completedSubscription?.cancel();
     _completedSubscription = null;
+
     await _intentSubscription?.cancel();
     _intentSubscription = null;
   }
@@ -216,11 +224,16 @@ class AudioWorker extends Dependency {
   }
 
   /// Returns a platform-specific [AudioDelegate] implementation.
-  static AudioDelegate _createDefaultDelegate() {
-    return (PlatformUtils.isMacOS || PlatformUtils.isIOS) &&
-            !PlatformUtils.isWeb
-        ? VideoPlayerDelegate()
-        : JustAudioDelegate();
+  static AudioDelegate _createDelegate() {
+    // Return a [VideoPlayerDelegate] for iOS and macOS native platforms,
+    // because it doesn't use the default `AVAudioPlayer`, which requires URL
+    // sources to have a file extension, which the URL might not have.
+    if ((PlatformUtils.isMacOS || PlatformUtils.isIOS) &&
+        !PlatformUtils.isWeb) {
+      return VideoPlayerDelegate();
+    }
+
+    return JustAudioDelegate();
   }
 
   /// Cancels pending tokens, clears [playback].
