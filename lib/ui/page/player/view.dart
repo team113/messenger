@@ -406,7 +406,7 @@ class PlayerView extends StatelessWidget {
 
           if (!PlatformUtils.isWeb && PlatformUtils.isMobile) ...[
             ContextMenuButton(
-              label: 'btn_save_to_gallery'.l10n,
+              label: 'btn_download'.l10n,
               trailing: const SvgIcon(SvgIcons.download19),
               inverted: const SvgIcon(SvgIcons.download19White),
               onPressed: () async => await c.saveToGallery(item),
@@ -761,7 +761,7 @@ class PlayerView extends StatelessWidget {
                 ),
                 if (c.interface.value)
                   ContextMenuButton(
-                    label: 'btn_hide_interface'.l10n,
+                    label: 'btn_hide_controls'.l10n,
                     trailing: const SvgIcon(SvgIcons.hideControls),
                     inverted: const SvgIcon(SvgIcons.hideControlsWhite),
                     onPressed: c.interface.toggle,

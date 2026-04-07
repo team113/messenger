@@ -48,7 +48,7 @@ class AddLinkController extends GetxController {
           if (s.text.length > 100) {
             s.error.value = 'err_incorrect_link_too_long'.l10n;
           } else {
-            s.error.value = 'err_invalid_symbols_in_link'.l10n;
+            s.error.value = 'err_incorrect_link_input'.l10n;
           }
         }
       }
@@ -66,7 +66,7 @@ class AddLinkController extends GetxController {
       try {
         slug = DirectLinkSlug(state.text);
       } on FormatException {
-        state.error.value = 'err_invalid_symbols_in_link'.l10n;
+        state.error.value = 'err_incorrect_link_input'.l10n;
       }
     }
 

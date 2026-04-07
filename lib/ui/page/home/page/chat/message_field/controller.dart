@@ -145,7 +145,10 @@ class MessageFieldController extends GetxController {
       TakePhotoButton(pickImageFromCamera),
       if (PlatformUtils.isAndroid) TakeVideoButton(pickVideoFromCamera),
       GalleryButton(pickMedia),
-      FileButton(pickFile),
+      if (PlatformUtils.isAndroid)
+        FileButton(pickFile)
+      else
+        AttachmentButton(pickFile),
     ] else ...[
       GalleryButton(pickPhotoOrVideo),
       AttachmentButton(pickFile),

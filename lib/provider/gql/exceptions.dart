@@ -177,14 +177,11 @@ class ConnectionException with LocalizedExceptionMixin implements Exception {
 /// Exception of an authentication absence or invalidity.
 ///
 /// Thrown on header parsing errors or on 401 response status.
-class AuthorizationException with LocalizedExceptionMixin implements Exception {
+class AuthorizationException implements Exception {
   const AuthorizationException();
 
   @override
   String toString() => 'AuthorizationException()';
-
-  @override
-  String toMessage() => 'err_unauthorized'.l10n;
 }
 
 /// Specific [GraphQlException] thrown on `NOT_CHAT_MEMBER` extension code.

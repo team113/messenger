@@ -81,7 +81,7 @@ class SharableTextField extends StatelessWidget {
             enabled: (share ?? state.text).isNotEmpty,
             actions: [
               ContextMenuButton(
-                label: 'label_copy'.l10n,
+                label: 'btn_copy'.l10n,
                 onPressed: () => _copy(context),
               ),
             ],

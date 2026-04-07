@@ -55,10 +55,6 @@ class ConfirmLogoutController extends GetxController {
   /// Indicator whether the currently authenticated [MyUser] has a password.
   late final RxBool hasPassword;
 
-  /// Indicator whether the current [MyUser] profile should be kept in the
-  /// [AuthService.profiles] or completely erased otherwise.
-  final RxBool keep = RxBool(true);
-
   /// [MyUserService] setting the password.
   final MyUserService _myUserService;
 
@@ -177,10 +173,7 @@ class ConfirmLogoutController extends GetxController {
 
   /// Logs out the current session and go to the [Routes.auth] page.
   void logout() {
-    // Don't allow user to keep his profile, when no recovery methods are
-    // available or any password set, as they won't be able to sign in.
-    _authService.logout(canRecover || hasPassword.value ? keep.value : false);
-
+    _authService.logout(false);
     router.auth();
     router.tab = HomeTab.chats;
   }

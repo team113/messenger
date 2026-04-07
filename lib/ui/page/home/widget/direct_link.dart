@@ -101,7 +101,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
             if (s.text.length > 100) {
               s.error.value = 'err_incorrect_link_too_long'.l10n;
             } else {
-              s.error.value = 'err_invalid_symbols_in_link'.l10n;
+              s.error.value = 'err_incorrect_link_input'.l10n;
             }
           }
         }
@@ -390,7 +390,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
       try {
         slug = DirectLinkSlug(_state.text);
       } on FormatException {
-        _state.error.value = 'err_invalid_symbols_in_link'.l10n;
+        _state.error.value = 'err_incorrect_link_input'.l10n;
       }
     }
 

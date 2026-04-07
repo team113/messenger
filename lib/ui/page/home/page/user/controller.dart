@@ -313,13 +313,6 @@ class UserController extends GetxController {
     }
   }
 
-  // TODO: Replace with GraphQL mutation when implemented.
-  /// Reports the [user].
-  Future<void> report() async {
-    // TODO: Open with `ChatMessage` set up.
-    router.support(push: true);
-  }
-
   /// Removes the [user] from the blocklist of the authenticated [MyUser].
   Future<void> unblock() async {
     blocklistStatus.value = RxStatus.loading();

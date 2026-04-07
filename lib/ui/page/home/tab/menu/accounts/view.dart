@@ -470,7 +470,7 @@ class AccountsView extends StatelessWidget {
                         const SizedBox(height: 5),
                         if (active)
                           Text(
-                            'label_active_account'.l10n,
+                            'label_online'.l10n,
                             style: style.fonts.small.regular.onPrimary,
                           )
                         else if (expired)

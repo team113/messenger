@@ -19,10 +19,8 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/domain/model/mute_duration.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
-import '/themes.dart';
 import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/svg/svg.dart';
@@ -42,8 +40,6 @@ class MutedChatsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
     return GetBuilder(
       init: MutedChatsController(Get.find()),
       builder: (MutedChatsController c) {
@@ -74,21 +70,9 @@ class MutedChatsView extends StatelessWidget {
                         itemBuilder: (_, i) {
                           return Obx(() {
                             final RxChat e = c.chats.values.elementAt(i);
-                            final MuteDuration? muted = e.chat.value.muted;
 
                             return ChatTile(
                               chat: e,
-                              subtitle: [
-                                SizedBox(height: 3),
-                                Text(
-                                  muted?.forever == true
-                                      ? 'label_muted_until_i_turn_on'.l10n
-                                      : 'label_muted_until_period'.l10nfmt({
-                                          'period': muted?.until?.val.yMdHm,
-                                        }),
-                                  style: style.fonts.small.regular.secondary,
-                                ),
-                              ],
                               trailing: [
                                 WidgetButton(
                                   onPressed: () => c.unmute(e.id),

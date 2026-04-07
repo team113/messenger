@@ -370,12 +370,6 @@ class ChatInfoController extends GetxController {
     }
   }
 
-  /// Reports the [chat].
-  Future<void> reportChat() async {
-    // TODO: Open with `ChatMessage` set up.
-    router.support(push: true);
-  }
-
   /// Clears all the [ChatItem]s of the [chat].
   Future<void> clearChat() async {
     try {

@@ -192,6 +192,7 @@ class SupportView extends StatelessWidget {
         'label_contact_us_via_provided_email'.l10nfmt({
           'email': Config.support,
         }),
+        title: 'label_information'.l10n,
       );
     }
   }

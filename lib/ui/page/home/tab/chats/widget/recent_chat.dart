@@ -365,17 +365,6 @@ class RecentChatTile extends StatelessWidget {
   Widget _subtitle(BuildContext context, bool selected, bool inverted) {
     final style = Theme.of(context).style;
 
-    if (blocked) {
-      return Text(
-        'label_blocked'.l10n,
-        style: inverted
-            ? style.fonts.normal.regular.onPrimary
-            : style.fonts.normal.regular.secondary,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
-    }
-
     return Obx(() {
       final List<Widget> subtitle;
 
@@ -675,10 +664,8 @@ class RecentChatTile extends StatelessWidget {
 
                   return Text('label_group_created_by'.l10nfmt(args));
                 });
-              } else if (chat.isMonolog) {
-                content = Text('label_monolog_created'.l10n);
               } else {
-                content = Text('label_dialog_created'.l10n);
+                content = Text('label_chat_created'.l10n);
               }
               break;
 
@@ -936,7 +923,9 @@ class RecentChatTile extends StatelessWidget {
     final bool isArchived = rxChat.chat.value.isArchived;
 
     final bool? result = await MessagePopup.alert(
-      isArchived ? 'label_show_chats'.l10n : 'label_hide_chats'.l10n,
+      isArchived
+          ? 'label_show_chats'.l10nfmt({'amount': 1})
+          : 'label_hide_chats'.l10nfmt({'amount': 1}),
       description: [
         TextSpan(
           text: isArchived
@@ -959,7 +948,7 @@ class RecentChatTile extends StatelessWidget {
   /// Hides the [rxChat].
   Future<void> _hideChat(BuildContext context) async {
     final bool? result = await MessagePopup.alert(
-      'label_delete_chat'.l10n,
+      'label_delete_chats'.l10nfmt({'amount': 1}),
       description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
       button: (context) => MessagePopup.deleteButton(
         context,
