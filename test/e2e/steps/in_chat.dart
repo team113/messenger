@@ -16,8 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/util/log.dart';
 
@@ -68,6 +70,69 @@ final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
         Log.debug('iAmInChatNamed -> `ChatView` is $finder', 'E2E');
 
         return finder.evaluate().isNotEmpty;
+      },
+      timeout: const Duration(seconds: 30),
+      pollInterval: const Duration(seconds: 2),
+    );
+
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 3));
+  },
+);
+
+/// Routes the [router] to a [Chat]-support.
+///
+/// Examples:
+/// - Given I am in support chat
+final StepDefinitionGeneric iAmInSupportChat = given<CustomWorld>(
+  r'I am in support chat$',
+  (context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        final ChatService chatService = Get.find<ChatService>();
+
+        Log.debug(
+          'iAmInSupportChat -> support is ${chatService.support}',
+          'E2E',
+        );
+        Log.debug('iAmInSupportChat -> me is ${chatService.me}', 'E2E');
+        Log.debug('iAmInSupportChat -> hash is ${chatService.hashCode}', 'E2E');
+
+        router.chat(chatService.support);
+
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('ChatView', FindType.key),
+        );
+      },
+      timeout: const Duration(seconds: 30),
+      pollInterval: const Duration(seconds: 2),
+    );
+
+    await context.world.appDriver.nativeDriver.pump(const Duration(seconds: 3));
+  },
+);
+
+/// Checks whether we are in a [Chat]-support.
+///
+/// Examples:
+/// - Then I am being in support chat
+final StepDefinitionGeneric iAmBeingInSupportChat = given<CustomWorld>(
+  'I am in support chat',
+  (context) async {
+    await context.world.appDriver.waitUntil(
+      () async {
+        final ChatService chatService = Get.find<ChatService>();
+
+        Log.debug(
+          'iAmInSupportChat -> support is ${chatService.support}',
+          'E2E',
+        );
+        Log.debug('iAmInSupportChat -> me is ${chatService.me}', 'E2E');
+        Log.debug('iAmInSupportChat -> hash is ${chatService.hashCode}', 'E2E');
+
+        return router.route == '${Routes.chats}/${chatService.support}' &&
+            await context.world.appDriver.isPresent(
+              context.world.appDriver.findBy('ChatView', FindType.key),
+            );
       },
       timeout: const Duration(seconds: 30),
       pollInterval: const Duration(seconds: 2),
