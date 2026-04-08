@@ -82,27 +82,100 @@ Future<void> main(List<String> argv) async {
   }
 
   final String fileOrDirectory = args['target'] as String;
+  final bool shouldExit = args['exit'] as bool;
 
   // Collect `.ftl` files.
-  final List<File> files = await _gatherFtlFiles(fileOrDirectory);
+  final List<File> files = await _readFiles(fileOrDirectory);
   if (files.isEmpty) {
     stderr.writeln('No .ftl files found under $fileOrDirectory.');
     exit(66); // EX_NOINPUT.
   }
 
   for (var file in files) {
-    //
+    String? currentKey;
+
+    final List<String> lines = await file.readAsLines();
+
+    // Read and keep the header of the file.
+    final List<String> headers = [];
+    for (var e in lines) {
+      if (!e.startsWith('#')) {
+        break;
+      }
+
+      headers.add(e);
+    }
+
+    final List<MapEntry<String, String>> entries = [];
+    final StringBuffer buffer = StringBuffer();
+    final RegExp keyRegex = RegExp(r'^([a-zA-Z0-9_-]+)\s*=');
+
+    // Flashes the [currentKey] to the [entries] list.
+    void flush() {
+      if (currentKey != null) {
+        entries.add(MapEntry(currentKey, buffer.toString().trimRight()));
+      }
+    }
+
+    for (final line in lines) {
+      final match = keyRegex.firstMatch(line);
+
+      if (match != null) {
+        // Flush, as new entry begins.
+        flush();
+
+        currentKey = match.group(1);
+        buffer.clear();
+        buffer.writeln(line);
+      } else {
+        // Continuation of the current entry (multiline).
+        if (currentKey != null) {
+          buffer.writeln(line);
+        }
+      }
+    }
+
+    // Account the last key.
+    flush();
+
+    // Sort entries by key.
+    final List<MapEntry<String, String>> sorted = entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
+
+    if (shouldExit) {
+      for (int i = 0; i < sorted.length; ++i) {
+        final MapEntry<String, String>? source = entries.elementAtOrNull(i);
+        final MapEntry<String, String>? target = sorted.elementAtOrNull(i);
+
+        if (source?.key != target?.key) {
+          stdout.writeln(
+            '\n⛔️ `${source?.key}` in `${file.path.split('/').last}` seems to be not sorted.',
+          );
+          exit(1);
+        }
+      }
+
+      stdout.writeln('\n✅ All files are sorted.');
+      exit(0);
+    }
+
+    final StringBuffer result = StringBuffer();
+    if (headers.isNotEmpty) {
+      result.write('${headers.join('\n')}\n\n');
+    }
+    result.write('${sorted.map((e) => e.value).join('\n')}\n');
+
+    await file.writeAsString(result.toString());
   }
 
   stdout.writeln('\n✅ Sorted.');
-
   exit(0);
 }
 
 /// Parses [path] and returns a list of all the found `.ftl` files by this path.
 ///
 /// Takes either [path] to file or to folder.
-Future<List<File>> _gatherFtlFiles(String path) async {
+Future<List<File>> _readFiles(String path) async {
   if (await FileSystemEntity.isDirectory(path)) {
     return Directory(path)
         .list(recursive: true)
@@ -110,6 +183,7 @@ Future<List<File>> _gatherFtlFiles(String path) async {
         .cast<File>()
         .toList();
   }
+
   final f = File(path);
   return await f.exists() ? [f] : <File>[];
 }

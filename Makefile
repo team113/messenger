@@ -123,22 +123,6 @@ else
 endif
 
 
-# Analyze unused l10n phrases in Fluent files.
-#
-# Usage:
-#   make flutter.analyze.fluent [dockerized=(no|yes)]
-
-flutter.analyze.fluent:
-ifeq ($(dockerized),yes)
-	docker run --rm --network=host -v "$(PWD)":/app -w /app \
-	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
-		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make flutter.analyze.fluent dockerized=no
-else
-	dart run script/fluent/analyze.dart
-endif
-
-
 # Analyze unused SVG icons.
 #
 # Usage:
@@ -990,6 +974,44 @@ sentry.upload:
 
 
 
+###################
+# Fluent commands #
+###################
+
+# Analyze unused l10n phrases in Fluent files.
+#
+# Usage:
+#   make fluent.analyze [dockerized=(no|yes)]
+
+fluent.analyze:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make fluent.analyze dockerized=no
+else
+	dart run script/fluent/analyze.dart
+endif
+
+
+# Sort l10n phrases in Fluent files.
+#
+# Usage:
+#   make fluent.sort [check=(no|yes)] [dockerized=(no|yes)]
+
+fluent.sort:
+ifeq ($(dockerized),yes)
+	docker run --rm --network=host -v "$(PWD)":/app -w /app \
+	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
+		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
+			make fluent.sort check=$(check) dockerized=no
+else
+	dart run script/fluent/sort.dart $(if $(call eq,$(check),yes),--exit,)
+endif
+
+
+
+
 ##################
 # .PHONY section #
 ##################
@@ -1001,8 +1023,9 @@ sentry.upload:
         docker.down docker.image docker.push docker.tags docker.tar \
         docker.untar docker.up \
         docs.dart \
+        fluent.analyze fluent.sort \
         fcm.conf \
-        flutter.analyze flutter.analyze.fluent flutter.analyze.svg \
+        flutter.analyze flutter.analyze.svg \
         flutter.build flutter.bundle.rename \
         flutter.clean flutter.fmt flutter.gen flutter.pub flutter.run \
         git.release \

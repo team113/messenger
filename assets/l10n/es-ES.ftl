@@ -118,12 +118,12 @@ btn_call_video_off_desc =
     Desactivar
     el video
 btn_call_video_on = Activar el video
-btn_camera = Cámara
-btn_cancel = Cancelar
-btn_cancel_selection = Cancelar selección
 btn_call_video_on_desc =
     Activar
     el video
+btn_camera = Cámara
+btn_cancel = Cancelar
+btn_cancel_selection = Cancelar selección
 btn_change = Cambiar
 btn_change_password = Cambiar la contraseña
 btn_change_status = Cambiar estado
@@ -426,16 +426,16 @@ label_a_of_b = {$a} de {$b}
 label_a_slash_b = {$a} / {$b}
 label_about_you = Sobre Usted
 label_about_you_description = Hasta 4096 caracteres
+label_account_created = La cuenta ha sido creada
 label_account_has_been_signed_out_due_to_reasons1 = La sesión de la cuenta{" "}
 label_account_has_been_signed_out_due_to_reasons2 =
     {" "}se ha cerrado debido a un problema técnico (cookie / caché eliminado; sistema operativo / navegador / aplicación actualizados; certificado cambiado; etc...).
 
     No se ha configurado la contraseña ni el e-mail para esta cuenta. No es posible ingresar.
-label_accounts = Sus cuentas
-label_actions = Acciones
-label_account_created = La cuenta ha sido creada
 label_account_may_be_lost = La cuenta puede perderse
 label_account_settings = Configuración de la cuenta
+label_accounts = Sus cuentas
+label_actions = Acciones
 label_active_devices = Sesiones activas
 label_active_sessions = Verificar los inicios de sesión de la cuenta
 label_add_account = Agregar una cuenta
@@ -509,6 +509,7 @@ label_avatar_updated = {$author} cambió el avatar
 label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}cambió el avatar
 label_away = away
+label_b = {$amount} B
 label_background = Fondo
 label_besides_freelance_is_an_option_too1 = Además, ofrecemos una oportunidad de colaborar como desarrollador freelance. La lista de tareas y condiciones de cooperación se pueden encontrar en el{" "}
 label_besides_freelance_is_an_option_too2 = Freelance.
@@ -579,8 +580,8 @@ label_connection_lost = Conexión perdida
 label_connection_restored = Conexión restablecida
 label_contact_us_via_provided_email = Contáctenos por e-mail {$email}.
 label_copied = Copiado
-label_critical_update_is_available = La versión actual ya no es compatible
 label_create_group = Creación de grupo
+label_critical_update_is_available = La versión actual ya no es compatible
 label_current_account = Cuenta corriente
 label_current_media = Medios actuales
 label_current_password = Contrseña actual
@@ -637,6 +638,7 @@ label_forwarded_messages =
         [1] Mensaje reeinviado
        *[other] Mensajes reenviados
     }
+label_gb = {$amount} GB
 label_generating = Generando...
 label_group_created = Grupo creado
 label_group_created_by = {$author} creó el grupo
@@ -677,12 +679,7 @@ label_introduction_description_email = E-mail no agregado. El acceso a su cuenta
 label_introduction_for_one_time = Para guardar el acceso a su cuenta, establezca una contraseña, un nombre de usuario o un correo electrónico en la configuración de su perfil.
 label_invite_to_chat_with_you = Invitar a chatear contigo
 label_ios_android_windows_macos_linux = Para móviles y computadoras
-label_b = {$amount} B
 label_kb = {$amount} KB
-label_mb = {$amount} MB
-label_gb = {$amount} GB
-label_tb = {$amount} TB
-label_pb = {$amount} PB
 label_key_plus_key_by_default = {$modifier} + {$key} (por defecto)
 label_language = Idioma
 label_language_and_background = Idioma, fondo, ...
@@ -695,6 +692,7 @@ label_login = Usuario
 label_login_example = nombre_de_usuario_unico
 label_login_options = Opciones para ingresar
 label_login_section_hint = Usuario, contraseña y e-mail
+label_mb = {$amount} MB
 label_media_devices = Dispositivos multimedia
 label_media_microphone = Micrófono
 label_media_no_device_available = No hay dispositivos disponibles
@@ -707,9 +705,9 @@ label_message_status_read = Leído
 label_message_status_sent = Enviado
 label_message_will_deleted_for_you = El mensaje será eliminado solo para Usted
 label_messages_will_deleted_for_you = Los mensajes serán eliminados solo para Usted
-label_messenger_full = Messenger de Gapopa
 label_messenger1 = Messenger
 label_messenger2 = de Gapopa
+label_messenger_full = Messenger de Gapopa
 label_microphone_changed = El micrófono ha cambiado a {$microphone}
 label_mobile_apps = Aplicación móvil
 label_money = Dinero
@@ -762,6 +760,7 @@ label_password_not_set1 = La contraseña no esta configurada.{" "}
 label_password_not_set2 = Podría perder el acceso a la cuenta.
 label_password_or_one_time_code = Contraseña o código desechable
 label_password_set = Contraseña configurada
+label_pb = {$amount} PB
 label_personal_data_deletion = Eliminar la cuenta
 label_personal_data_deletion_description1 = Este proceso es{" "}
 label_personal_data_deletion_description2 = IRREVERSIBLE
@@ -887,6 +886,7 @@ label_synchronization = Sincronización...
 label_tab_chats = Chats
 label_tab_settings = Ajustes
 label_tasks = Tareas
+label_tb = {$amount} TB
 label_tech_stack = Tech Stack
 label_tech_stack_backend_developer =
     - Rust - lenguaje;
@@ -929,12 +929,12 @@ label_unknown_chat_direct_link = Este enlace directo no es válido
 label_unknown_page = Página desconocida
 label_unlink_link = Desvincular enlace
 label_unlink_link_confirm_description1 = Los enlaces no vinculados aún le pertenecen.
+label_unmuted = Sonido activado
 label_unread_messages =
     {$quantity ->
         [1] {$quantity} mensaje no leído
         *[other] {$quantity} mensajes no leídos
     }
-label_unmuted = Sonido activado
 label_update_available = Actualización disponible
 label_user_added_user = {$author} agregó {$user}
 label_user_added_user1 = {$author}{" "}

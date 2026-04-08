@@ -425,12 +425,12 @@ label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about_you = About you
 label_about_you_description = 4096 characters max
+label_account_created = Account is created
 label_account_has_been_signed_out_due_to_reasons1 = Account{" "}
 label_account_has_been_signed_out_due_to_reasons2 =
     {" "}session has been terminated due to technical issue (cookie / cash deleted; OS / browser / application updated; certificate changed; etc...).
 
     Password or e-mail has not been set for this account. Sign in is impossible.
-label_account_created = Account is created
 label_account_may_be_lost = Account may be lost
 label_account_settings = Account settings
 label_accounts = Your accounts
@@ -505,6 +505,7 @@ label_avatar_updated = {$author} updated avatar
 label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}updated avatar
 label_away = away
+label_b = {$amount} B
 label_background = Background
 label_besides_freelance_is_an_option_too1 = Besides, we offer an opportunity to collaborate as a freelance developer. The list of tasks and terms of cooperation can be found on the{" "}
 label_besides_freelance_is_an_option_too2 = Freelance.
@@ -632,6 +633,7 @@ label_forwarded_messages = {$count ->
     [1] Forwarded message
   *[other] Forwarded messages
 }
+label_gb = {$amount} GB
 label_generating = Generating...
 label_group_created = Group created
 label_group_created_by = {$author} created the group
@@ -672,12 +674,7 @@ label_introduction_description_email = No e-mail is added. Access to your accoun
 label_introduction_for_one_time = To save access to your account, set a password, login or e-mail in your profile settings.
 label_invite_to_chat_with_you = Invite to chat with you
 label_ios_android_windows_macos_linux = For mobile & desktop
-label_b = {$amount} B
 label_kb = {$amount} KB
-label_mb = {$amount} MB
-label_gb = {$amount} GB
-label_tb = {$amount} TB
-label_pb = {$amount} PB
 label_key_plus_key_by_default = {$modifier} + {$key} (by default)
 label_language = Language
 label_language_and_background = Language, background, ...
@@ -690,6 +687,7 @@ label_login = Login
 label_login_example = your_unique_login
 label_login_options = Sign in options
 label_login_section_hint = Login, password and e-mail
+label_mb = {$amount} MB
 label_media_devices = Media devices
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
@@ -702,9 +700,9 @@ label_message_status_read = Read
 label_message_status_sent = Sent
 label_message_will_deleted_for_you = The message will be deleted only for you
 label_messages_will_deleted_for_you = The messages will be deleted only for you
-label_messenger_full = Messenger by Gapopa
 label_messenger1 = Messenger
 label_messenger2 = by Gapopa
+label_messenger_full = Messenger by Gapopa
 label_microphone_changed = Microphone has been changed to {$microphone}
 label_mobile_apps = Mobile apps
 label_money = Money
@@ -757,6 +755,7 @@ label_password_not_set1 = The password is not set.{" "}
 label_password_not_set2 = Access to the account may be lost.
 label_password_or_one_time_code = Password or one-time code
 label_password_set = Password has been set
+label_pb = {$amount} PB
 label_personal_data_deletion = Delete account
 label_personal_data_deletion_description1 = This process is{" "}
 label_personal_data_deletion_description2 = IRREVERSIBLE
@@ -883,6 +882,7 @@ label_synchronization = Synchronization...
 label_tab_chats = Chats
 label_tab_settings = Settings
 label_tasks = Tasks
+label_tb = {$amount} TB
 label_tech_stack = Tech Stack
 label_tech_stack_backend_developer =
     - Rust - langauge;
@@ -925,11 +925,11 @@ label_unknown_chat_direct_link = This direct link is invalid
 label_unknown_page = Unknown page
 label_unlink_link = Unlink link
 label_unlink_link_confirm_description1 = Unlinked links still belong to you.
+label_unmuted = Sound on
 label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
-label_unmuted = Sound on
 label_update_available = Update available
 label_user_added_user = {$author} added {$user}
 label_user_added_user1 = {$author}{" "}
