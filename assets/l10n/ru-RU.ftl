@@ -41,7 +41,6 @@ btn_add_participant_desc =
 btn_add_participants = Добавить участников
 btn_add_to_favorites = Добавить в избранные
 btn_audio_call = Аудиозвонок
-btn_back = Назад
 btn_block = Заблокировать
 btn_block_user = Заблокировать пользователя
 btn_call_answer_with_audio =

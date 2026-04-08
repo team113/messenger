@@ -199,7 +199,7 @@ class AuthView extends StatelessWidget {
                               e.phones.confirmed.isNotEmpty;
 
                           final result = await MessagePopup.alert(
-                            'btn_remove_account'.l10n,
+                            'label_remove_account'.l10n,
                             additional: [
                               Center(
                                 child: Text(

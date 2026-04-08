@@ -388,7 +388,7 @@ class AccountsView extends StatelessWidget {
                                 myUser.phones.confirmed.isNotEmpty;
 
                             final bool? result = await MessagePopup.alert(
-                              'btn_remove_account'.l10n,
+                              'label_remove_account'.l10n,
                               additional: [
                                 Center(
                                   child: Text(

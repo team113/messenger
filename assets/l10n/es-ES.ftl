@@ -41,7 +41,6 @@ btn_add_participant_desc =
 btn_add_participants = Añadir miembros
 btn_add_to_favorites = Añadir a favoritos
 btn_audio_call = Llamada de audio
-btn_back = Atrás
 btn_block = Bloquear
 btn_block_user = Bloquear usuario
 btn_call_answer_with_audio =
