@@ -118,12 +118,12 @@ btn_call_video_off_desc =
     Выключить
     камеру
 btn_call_video_on = Включить камеру
-btn_camera = Камера
-btn_cancel = Отменить
-btn_cancel_selection = Отменить выбор
 btn_call_video_on_desc =
     Включить
     камеру
+btn_camera = Камера
+btn_cancel = Отменить
+btn_cancel_selection = Отменить выбор
 btn_change = Изменить
 btn_change_password = Изменить пароль
 btn_change_status = Изменить статус
@@ -429,16 +429,16 @@ label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about_you = О Вас
 label_about_you_description = Максимум 4096 символов
+label_account_created = Аккаунт создан
 label_account_has_been_signed_out_due_to_reasons1 = Сессия аккаунта{" "}
 label_account_has_been_signed_out_due_to_reasons2 =
     {" "}была завершена по технической причине (куки / кэш удалены; ОС / браузер / приложение обновлены; сертификат изменён, и т.д...).
 
     Пароль или e-mail не были установлены для этого аккаунта. Вход невозможен.
-label_accounts = Ваши аккаунты
-label_actions = Действия
-label_account_created = Аккаунт создан
 label_account_may_be_lost = Аккаунт может быть утерян
 label_account_settings = Настройки аккаунта
+label_accounts = Ваши аккаунты
+label_actions = Действия
 label_active_devices = Активные сессии
 label_active_sessions = Проверьте входы в аккаунт
 label_add_account = Добавить аккаунт
@@ -521,6 +521,7 @@ label_avatar_updated = {$author} обновил(а) аватар
 label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}обновил(а) аватар
 label_away = отошёл
+label_b = {$amount} Б
 label_background = Фон
 label_besides_freelance_is_an_option_too1 = Кроме того, предусмотрена возможность сотрудничества в качестве фриланс разработчика. Со списком задач и условиями сотрудничества можно ознакомится на странице{" "}
 label_besides_freelance_is_an_option_too2 = Freelance.
@@ -591,8 +592,8 @@ label_connection_lost = Связь потеряна
 label_connection_restored = Связь восстановлена
 label_contact_us_via_provided_email = Свяжитесь с нами по e-mail {$email}.
 label_copied = Скопировано
-label_critical_update_is_available = Текущая версия не поддерживается
 label_create_group = Создание группы
+label_critical_update_is_available = Текущая версия не поддерживается
 label_current_account = Текущий аккаунт
 label_current_media = Текущее медиа
 label_current_password = Текущий пароль
@@ -604,8 +605,8 @@ label_delete_chats = {$amount ->
 }
 label_delete_email = Удалить E-mail
 label_delete_message = Удалить сообщение?
-label_deleted_account = Удалённый Aккаунт
 label_delete_messages = Удалить сообщения?
+label_deleted_account = Удалённый Aккаунт
 label_desktop_apps = Приложения для компьютера
 label_device_by_default = По умолчанию - {$device}
 label_device_settings = Device settings
@@ -624,10 +625,10 @@ label_echo_cancellation = Эхоподавление
 label_echo_cancellation_subtitle = Удаляет эхо из исходящего аудио сигнала
 label_editing = Редактирование
 label_email = E-mail
-label_email_or_phone_not_set1 = E-mail не добавлен.{" "}
-label_email_or_phone_not_set2 = Доступ к аккаунту не может быть восстановлен.
 label_email_deleted = E-mail удалён
 label_email_example = example@domain.com
+label_email_or_phone_not_set1 = E-mail не добавлен.{" "}
+label_email_or_phone_not_set2 = Доступ к аккаунту не может быть восстановлен.
 label_enter_code = Введите код
 label_enter_one_time_code = Введите Ваш одноразовый код. Одноразовый код был отправлен на Ваши e-mail'ы. Если Вы не получили e-mail, проверьте введённые данные или папку "Спам".
 label_enter_password = Введите пароль
@@ -648,6 +649,7 @@ label_forwarded_messages = {$count ->
     [1] Пересланное сообщение
     *[other] Пересланные сообщения
 }
+label_gb = {$amount} ГБ
 label_generating = Генерация...
 label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
@@ -688,12 +690,7 @@ label_introduction_description_email = E-mail не добавлен. Если в
 label_introduction_for_one_time = Чтобы не потерять доступ к аккаунту, задайте пароль, логин или e-mail в настройках Вашего профиля.
 label_invite_to_chat_with_you = Пригласите в чат с Вами
 label_ios_android_windows_macos_linux = На телефоны и десктоп
-label_b = {$amount} Б
 label_kb = {$amount} КБ
-label_mb = {$amount} МБ
-label_gb = {$amount} ГБ
-label_tb = {$amount} ТБ
-label_pb = {$amount} ПБ
 label_key_plus_key_by_default = {$modifier} + {$key} (по умолчанию)
 label_language = Язык
 label_language_and_background = Язык, фон, ...
@@ -706,6 +703,7 @@ label_login = Логин
 label_login_example = your_unique_login
 label_login_options = Способы входа
 label_login_section_hint = Логин, пароль и e-mail
+label_mb = {$amount} МБ
 label_media_devices = Медиа устройства
 label_media_microphone = Микрофон
 label_media_no_device_available = Нет доступных устройств
@@ -718,9 +716,9 @@ label_message_status_read = Прочитано
 label_message_status_sent = Отправлено
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас
 label_messages_will_deleted_for_you = Сообщения будут удалены только для Вас
-label_messenger_full = Мессенджер от Gapopa
 label_messenger1 = Мессенджер
 label_messenger2 = от Gapopa
+label_messenger_full = Мессенджер от Gapopa
 label_microphone_changed = Микрофон был изменён на {$microphone}
 label_mobile_apps = Мобильные приложения
 label_money = Деньги
@@ -773,6 +771,7 @@ label_password_not_set1 = Пароль не задан.{" "}
 label_password_not_set2 = Доступ к аккаунту может быть потерян.
 label_password_or_one_time_code = Пароль или одноразовый код
 label_password_set = Пароль задан
+label_pb = {$amount} ПБ
 label_personal_data_deletion = Удалить аккаунт
 label_personal_data_deletion_description1 = Данный процесс{" "}
 label_personal_data_deletion_description2 = НЕОБРАТИМ
@@ -901,6 +900,7 @@ label_synchronization = Синхронизация...
 label_tab_chats = Чаты
 label_tab_settings = Настройки
 label_tasks = Задачи
+label_tb = {$amount} ТБ
 label_tech_stack = Стек технологий
 label_tech_stack_backend_developer =
     - Rust - язык;
@@ -943,12 +943,12 @@ label_unknown_chat_direct_link = Данная прямая ссылка неде
 label_unknown_page = Страница не найдена
 label_unlink_link = Отлинковать ссылку
 label_unlink_link_confirm_description1 = Отлинкованные ссылки продолжают принадлежать Вам.
+label_unmuted = Звук включен
 label_unread_messages = {$quantity ->
     [one] {$quantity} непрочитанное сообщение
     [few] {$quantity} непрочитанных сообщения
     *[other] {$quantity} непрочитанных сообщений
 }
-label_unmuted = Звук включен
 label_update_available = Доступно обновление
 label_user_added_user = {$author} добавил(а) {$user}
 label_user_added_user1 = {$author}{" "}
