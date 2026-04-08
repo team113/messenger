@@ -116,7 +116,7 @@ final StepDefinitionGeneric iAmInSupportChat = given<CustomWorld>(
 /// Examples:
 /// - Then I am being in support chat
 final StepDefinitionGeneric iAmBeingInSupportChat = given<CustomWorld>(
-  'I am in support chat',
+  'I am being in support chat',
   (context) async {
     await context.world.appDriver.waitUntil(
       () async {
