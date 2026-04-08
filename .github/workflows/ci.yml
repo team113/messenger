@@ -69,8 +69,8 @@ jobs:
       - run: make flutter.pub
 
       - run: make flutter.analyze
-      - run: make flutter.fluent.analyze
-      - run: make flutter.fluent.sort check=yes
+      - run: make fluent.analyze
+      - run: make fluent.sort check=yes
       - run: make flutter.analyze.svg
 
   dartfmt:
