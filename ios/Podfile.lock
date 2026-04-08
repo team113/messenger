@@ -126,7 +126,7 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - instrumentisto-libwebrtc-bin (146.0.7680.80)
+  - instrumentisto-libwebrtc-bin (146.0.7680.164)
   - integration_test (0.0.1):
     - Flutter
   - irondash_engine_context (0.0.1):
@@ -135,10 +135,10 @@ PODS:
     - Flutter
     - FlutterMacOS
   - mdk (0.35.1)
-  - medea_flutter_webrtc (0.18.1):
+  - medea_flutter_webrtc (0.19.0):
     - Flutter
-    - instrumentisto-libwebrtc-bin (= 146.0.7680.80)
-  - medea_jason (0.14.1):
+    - instrumentisto-libwebrtc-bin (= 146.0.7680.164)
+  - medea_jason (0.14.2):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
     - Flutter
@@ -162,7 +162,7 @@ PODS:
     - SDWebImage/Core (= 5.21.7)
   - SDWebImage/Core (5.21.7)
   - Sentry/HybridSDK (8.58.0)
-  - sentry_flutter (9.15.0):
+  - sentry_flutter (9.16.1):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.58.0)
@@ -354,13 +354,13 @@ SPEC CHECKSUMS:
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   image_gallery_saver: 14711d79da40581063e8842a11acf1969d781ed7
   image_picker_ios: 7fe1ff8e34c1790d6fff70a32484959f563a928a
-  instrumentisto-libwebrtc-bin: 368494f4a56bb21e519dd7d7184b5f40b19c9957
+  instrumentisto-libwebrtc-bin: 9bbfd92b764b0ab28476df2a32e98e9111bc66b6
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   irondash_engine_context: 8e58ca8e0212ee9d1c7dc6a42121849986c88486
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   mdk: 59bbe9e2ac2a052455ab1b076c245680d66cf6c0
-  medea_flutter_webrtc: 89ab46ecef3644cb8dec7de5ca4c40d5c837e2cc
-  medea_jason: 6bd8364756250fbc2bf241885d4b3b7da2e8124d
+  medea_flutter_webrtc: f182bb0e5c5dce72d31a833f29def36200dc1430
+  medea_jason: 657d0065185d07d163a6b8f00d51ccee5dc9d411
   media_kit_libs_ios_video: 5a18affdb97d1f5d466dc79988b13eff6c5e2854
   media_kit_video: 1746e198cb697d1ffb734b1d05ec429d1fcd1474
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
@@ -371,7 +371,7 @@ SPEC CHECKSUMS:
   screen_brightness_ios: 9953fd7da5bd480f1a93990daeec2eb42d4f3b52
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   Sentry: d587a8fe91ca13503ecd69a1905f3e8a0fcf61be
-  sentry_flutter: 8939e491bc1511868118c96cae47d945e6f69798
+  sentry_flutter: 1fbec4ff50a6b08d7b22030bb8ec798e75afd71c
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
   SQLite.swift: c914f905e13b6318cdc07fd66661db14c6cdd330
