@@ -117,7 +117,7 @@ class FileButton extends ChatButton {
   const FileButton([super.onPressed]);
 
   @override
-  String get hint => 'btn_file'.l10n;
+  String get hint => 'btn_select_file'.l10n;
 
   @override
   SvgData get asset => SvgIcons.fileOutlinedButton;

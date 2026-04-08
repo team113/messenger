@@ -45,7 +45,7 @@ class UserNumCopyable extends StatelessWidget {
     if (share) {
       return SharableTextField(
         text: num?.toString(),
-        label: label ?? 'label_num'.l10n,
+        label: label ?? 'label_generating'.l10n,
         share: 'Gapopa ID: $num',
         style: style.fonts.big.regular.onBackground,
       );
@@ -53,7 +53,7 @@ class UserNumCopyable extends StatelessWidget {
 
     return CopyableTextField(
       state: TextFieldState(text: num?.toString(), editable: false),
-      label: label ?? 'label_num'.l10n,
+      label: label ?? 'label_generating'.l10n,
     );
   }
 }

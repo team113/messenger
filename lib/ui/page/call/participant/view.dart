@@ -114,6 +114,7 @@ class ParticipantView extends StatelessWidget {
                         onSubmit: c.addMembers,
                         enabled: c.status.value.isEmpty,
                         chat: c.chat.value,
+                        excludeSupports: true,
                       ),
                     ),
                   ],

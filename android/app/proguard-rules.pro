@@ -43,6 +43,7 @@
 -dontwarn androidx.compose.ui.semantics.SemanticsProperties
 -dontwarn androidx.compose.ui.semantics.SemanticsPropertyKey
 -dontwarn androidx.compose.ui.semantics.SemanticsPropertyReceiver
+-dontwarn androidx.compose.ui.text.MultiParagraph
 -dontwarn androidx.compose.ui.text.TextLayoutInput
 -dontwarn androidx.compose.ui.text.TextLayoutResult
 -dontwarn androidx.compose.ui.text.TextStyle

@@ -1673,9 +1673,11 @@ Widget _bar(MyProfileController c, BuildContext context) {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
             child: Center(
-              child: Text(
-                router.profileSection.value?.l10n ?? 'label_profile'.l10n,
-              ),
+              child: Obx(() {
+                return Text(
+                  router.profileSection.value?.l10n ?? 'label_profile'.l10n,
+                );
+              }),
             ),
           ),
         ),

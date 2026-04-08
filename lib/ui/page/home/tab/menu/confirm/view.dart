@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/widget/checkbox_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -157,20 +156,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   const SizedBox(height: 16),
                 ],
 
-                if (c.canRecover || c.hasPassword.value)
-                  Obx(() {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: RowCheckboxButton(
-                        key: const Key('KeepCredentialsSwitch'),
-                        label: 'btn_save_my_credentials_for_one_click'.l10n,
-                        value: c.keep.value,
-                        onPressed: (e) => c.keep.value = e,
-                      ),
-                    );
-                  })
-                else
-                  SizedBox(height: 8),
+                const SizedBox(height: 8),
 
                 if (!c.hasPassword.value) ...[
                   PrimaryButton(

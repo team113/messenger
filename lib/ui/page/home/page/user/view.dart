@@ -455,7 +455,7 @@ class UserView extends StatelessWidget {
           ),
           ActionButton(
             key: const Key('ClearHistoryButton'),
-            text: 'btn_clear_history'.l10n,
+            text: 'btn_clear_chat'.l10n,
             onPressed: () => _clearChat(c, context),
             trailing: SvgIcon(SvgIcons.cleanHistory19),
           ),
@@ -471,7 +471,7 @@ class UserView extends StatelessWidget {
           ActionButton(
             text: 'btn_report'.l10n,
             trailing: const SvgIcon(SvgIcons.report19),
-            onPressed: () => _reportUser(c, context),
+            onPressed: _reportUser,
           ),
           Obx(() {
             if (c.isBlocked != null) {
@@ -546,46 +546,8 @@ class UserView extends StatelessWidget {
   }
 
   /// Opens a confirmation popup reporting the [User].
-  Future<void> _reportUser(UserController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_report'.l10n,
-      description: [
-        TextSpan(text: 'alert_user_will_be_reported1'.l10n),
-        TextSpan(
-          text: c.user?.title(),
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_user_will_be_reported2'.l10n),
-      ],
-      additional: [
-        const SizedBox(height: 25),
-        ReactiveTextField(
-          state: c.reporting,
-          label: 'label_reason'.l10n,
-          hint: 'label_reason_hint'.l10n,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-        ),
-      ],
-      button: (context) {
-        return Obx(() {
-          final bool enabled = !c.reporting.isEmpty.value;
-
-          return PrimaryButton(
-            title: 'btn_report'.l10n,
-            onPressed: enabled ? () => Navigator.of(context).pop(true) : null,
-            leading: SvgIcon(
-              enabled ? SvgIcons.reportWhite : SvgIcons.reportGrey,
-            ),
-          );
-        });
-      },
-    );
-
-    if (result == true) {
-      await c.report();
-    }
+  void _reportUser() {
+    router.support(push: true);
   }
 
   /// Opens a confirmation popup clearing this [Chat].
@@ -607,7 +569,7 @@ class UserView extends StatelessWidget {
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(UserController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
-      'label_delete_chat'.l10n,
+      'label_delete_chats'.l10nfmt({'amount': 1}),
       description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
       button: (context) => MessagePopup.deleteButton(
         context,

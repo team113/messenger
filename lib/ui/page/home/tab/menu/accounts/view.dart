@@ -388,7 +388,7 @@ class AccountsView extends StatelessWidget {
                                 myUser.phones.confirmed.isNotEmpty;
 
                             final bool? result = await MessagePopup.alert(
-                              'btn_remove_account'.l10n,
+                              'label_remove_account'.l10n,
                               additional: [
                                 Center(
                                   child: Text(
@@ -470,7 +470,7 @@ class AccountsView extends StatelessWidget {
                         const SizedBox(height: 5),
                         if (active)
                           Text(
-                            'label_active_account'.l10n,
+                            'label_online'.l10n,
                             style: style.fonts.small.regular.onPrimary,
                           )
                         else if (expired)

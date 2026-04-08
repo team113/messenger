@@ -278,7 +278,7 @@ class SearchView extends StatelessWidget {
                           ? () => onSubmit?.call(c.selected())
                           : null,
                       child: Text(
-                        submit ?? 'btn_submit'.l10n,
+                        submit ?? 'btn_add'.l10n,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: enabled

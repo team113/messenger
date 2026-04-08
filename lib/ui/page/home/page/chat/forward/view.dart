@@ -124,10 +124,7 @@ class ChatForwardView extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    ModalPopupHeader(
-                      text: 'label_forward_message'.l10n,
-                      subtitle: 'label_forward_subtitle'.l10n,
-                    ),
+                    ModalPopupHeader(text: 'label_forward_message'.l10n),
                     Expanded(
                       child: SearchView(
                         key: const Key('SearchView'),

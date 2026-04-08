@@ -148,13 +148,7 @@ class SaveContextMenuButton extends ContextMenuButton {
   SaveContextMenuButton({super.onPressed, bool single = true})
     : super(
         key: const Key('SaveButton'),
-        label: single
-            ? PlatformUtils.isMobile
-                  ? 'btn_save'.l10n
-                  : 'btn_save_to_gallery'.l10n
-            : PlatformUtils.isMobile
-            ? 'btn_save_all'.l10n
-            : 'btn_save_to_gallery_all'.l10n,
+        label: single ? 'btn_download'.l10n : 'btn_download_all'.l10n,
         trailing: const SvgIcon(SvgIcons.download19),
         inverted: const SvgIcon(SvgIcons.download19White),
       );

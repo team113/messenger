@@ -31,5 +31,5 @@ Feature: Report chat
     When I wait until `ChatInfoScrollable` is present
     And I scroll `ChatInfoScrollable` until `ReportChatButton` is present
     And I tap `ReportChatButton` button
-    And I fill `ReportField` field with "very bad group"
-    Then I wait until `SendReportButton` is present
+    And I am being in support chat
+    Then I wait until `Send` is present

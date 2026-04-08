@@ -1043,7 +1043,9 @@ class ChatsTabView extends StatelessWidget {
     ChatsTabController c,
   ) async {
     final bool? result = await MessagePopup.alert(
-      c.archivedOnly.value ? 'label_show_chats'.l10n : 'label_hide_chats'.l10n,
+      c.archivedOnly.value
+          ? 'label_show_chats'.l10nfmt({'amount': c.selectedChats.length})
+          : 'label_hide_chats'.l10nfmt({'amount': c.selectedChats.length}),
       description: [
         TextSpan(
           text: c.archivedOnly.value
@@ -1071,7 +1073,7 @@ class ChatsTabView extends StatelessWidget {
     ChatsTabController c,
   ) async {
     final bool? result = await MessagePopup.alert(
-      'label_delete_chats'.l10n,
+      'label_delete_chats'.l10nfmt({'amount': c.selectedChats.length}),
       description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
       button: MessagePopup.deleteButton,
     );

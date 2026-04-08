@@ -568,8 +568,8 @@ class PlayerController extends GetxController {
 
       MessagePopup.success(
         item.attachment is ImageAttachment
-            ? 'label_image_saved_to_gallery'.l10n
-            : 'label_video_saved_to_gallery'.l10n,
+            ? 'label_image_downloaded'.l10n
+            : 'label_video_downloaded'.l10n,
       );
     }
 

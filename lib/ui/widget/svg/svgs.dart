@@ -1518,18 +1518,6 @@ class SvgIcons {
     height: 20,
   );
 
-  static const SvgData reportWhite = SvgData(
-    'assets/icons/report_white.svg',
-    width: 18,
-    height: 18,
-  );
-
-  static const SvgData reportGrey = SvgData(
-    'assets/icons/report_grey.svg',
-    width: 18,
-    height: 18,
-  );
-
   static const SvgData delete19 = SvgData(
     'assets/icons/delete19.svg',
     width: 20,

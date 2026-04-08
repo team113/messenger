@@ -538,18 +538,18 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           });
         } else if (widget.chat.value?.isMonolog == true) {
           content = Text(
-            'label_monolog_created'.l10n,
+            'label_chat_created'.l10n,
             style: style.systemMessageStyle,
           );
         } else {
           if (action.directLinkSlug == null) {
             content = Text(
-              'label_dialog_created'.l10n,
+              'label_chat_created'.l10n,
               style: style.systemMessageStyle,
             );
           } else {
             content = Text(
-              'label_dialog_created_by_link'.l10n,
+              'label_chat_created_by_link'.l10n,
               style: style.systemMessageStyle,
             );
           }

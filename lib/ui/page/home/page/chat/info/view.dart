@@ -445,7 +445,7 @@ class ChatInfoView extends StatelessWidget {
         if (!monolog) ...[
           ActionButton(
             key: const Key('ReportChatButton'),
-            onPressed: () => _reportChat(c, context),
+            onPressed: _reportChat,
             text: 'btn_report'.l10n,
             trailing: const SvgIcon(SvgIcons.report19),
           ),
@@ -538,7 +538,7 @@ class ChatInfoView extends StatelessWidget {
   /// Opens a confirmation popup hiding this [Chat].
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
-      'label_delete_chat'.l10n,
+      'label_delete_chats'.l10nfmt({'amount': 1}),
       description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
       button: (context) => MessagePopup.deleteButton(
         context,
@@ -570,47 +570,7 @@ class ChatInfoView extends StatelessWidget {
   }
 
   /// Opens a confirmation popup reporting this [Chat].
-  Future<void> _reportChat(ChatInfoController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_report'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_reported1'.l10n),
-        TextSpan(
-          text: c.chat?.title(),
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_reported2'.l10n),
-      ],
-      additional: [
-        const SizedBox(height: 25),
-        ReactiveTextField(
-          key: const Key('ReportField'),
-          state: c.reporting,
-          label: 'label_reason'.l10n,
-          hint: 'label_reason_hint'.l10n,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-        ),
-      ],
-      button: (context) {
-        return Obx(() {
-          final bool enabled = !c.reporting.isEmpty.value;
-
-          return PrimaryButton(
-            key: enabled ? const Key('SendReportButton') : null,
-            title: 'btn_proceed'.l10n,
-            onPressed: enabled ? () => Navigator.of(context).pop(true) : null,
-            leading: SvgIcon(
-              enabled ? SvgIcons.reportWhite : SvgIcons.reportGrey,
-            ),
-          );
-        });
-      },
-    );
-
-    if (result == true) {
-      await c.reportChat();
-    }
+  void _reportChat() {
+    router.support(push: true);
   }
 }

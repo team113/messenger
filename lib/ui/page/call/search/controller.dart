@@ -262,10 +262,19 @@ class SearchController extends GetxController {
     _chatService.ensureInitialized();
     if (!_chatService.status.value.isSuccess) {
       _chatStatusWorker = ever(_chatService.status, (status) {
-        if (status.isSuccess) {
+        Log.debug(
+          '_chatStatusWorker -> isEmpty(${status.isEmpty}), isLoading(${status.isLoading}), isLoadingMore(${status.isLoadingMore}}), isSuccess(${status.isSuccess}})',
+          '$runtimeType',
+        );
+
+        if (!status.isLoadingMore && status.isSuccess) {
           if (prePopulate || query.value.isNotEmpty) {
             _ensureScrollable();
             populate();
+          }
+
+          if (searchStatus.value.isLoadingMore) {
+            searchStatus.value = RxStatus.success();
           }
 
           _chatStatusWorker?.dispose();
@@ -673,6 +682,8 @@ class SearchController extends GetxController {
       bool matchesQuery(RxUser user) => _matchesQuery(user: user);
       bool excludeSupports(RxChat c) =>
           !this.excludeSupports || !c.chat.value.isSupport;
+
+      Log.debug('_populateRecent() -> allChats are: $allChats', '$runtimeType');
 
       Iterable<RxUser> filtered = allChats
           .where(remoteDialog)
