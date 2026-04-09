@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import '/api/backend/schema.dart' show UserPresence;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/util/obs/rxmap.dart';
@@ -31,7 +32,7 @@ export 'view.dart';
 
 /// Controller of the [HomeTab.menu] tab.
 class MenuTabController extends GetxController {
-  MenuTabController(this._myUserService);
+  MenuTabController(this._myUserService, this._authService);
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -41,6 +42,9 @@ class MenuTabController extends GetxController {
 
   /// Service managing [MyUser].
   final MyUserService _myUserService;
+
+  /// [AuthService] to do logout.
+  final AuthService _authService;
 
   /// Returns the current [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -57,4 +61,11 @@ class MenuTabController extends GetxController {
   /// Sets the [MyUser.presence] to the provided value.
   Future<void> setPresence(UserPresence presence) =>
       _myUserService.updateUserPresence(presence);
+
+  /// Logs out the current session and go to the [Routes.auth] page.
+  void logout() {
+    _authService.logout();
+    router.auth();
+    router.tab = HomeTab.chats;
+  }
 }

@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.10.1...v0.11.0) | [Milestone](/../../milestone/74)
 
+### Changed
+
+- UI:
+    - Menu tab:
+        - Don't display logout confirmation when e-mail is set. ([#1684])
+
 ### Fixed
 
 - UI:
@@ -21,6 +27,7 @@ All user visible changes to this project will be documented in this file. This p
 
 [#1680]: /../../pull/1680
 [#1683]: /../../pull/1683
+[#1684]: /../../pull/1684
 
 
 
