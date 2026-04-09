@@ -666,7 +666,10 @@ label_hide_chats = {$amount ->
     [1] Скрыть чат
     *[other] Скрыть чаты
 }
-label_hide_chats_modal_description = Чат будет перенесён в список "скрытые чаты"
+label_hide_chats_modal_description = {$amount ->
+    [1] Чат будет перенесён
+    *[other] Чаты будут перенесены
+} в список "скрытые чаты"
 label_high_pass_filter = Фильтр высоких частот
 label_high_pass_filter_subtitle = Отрезает низкие частоты для снижения уровня шума
 label_hotkey = Горячая клавиша
@@ -877,7 +880,10 @@ label_show_chats = {$amount ->
     [1] Показать чат
     *[other] Показать чаты
 }
-label_show_chats_modal_description = Чаты будут перенесены из списка "скрытые чаты".
+label_show_chats_modal_description = {$amount ->
+    [1] Чат будет перенесён
+    *[other] Чаты будут перенесены
+} из списка "скрытые чаты".
 label_sign_in = Вход
 label_sign_in_input = Gapopa ID, логин или e-mail
 label_sign_in_required = Требуется вход
@@ -936,7 +942,10 @@ label_text_status_description = Максимум 33 символа
 label_text_status_hint = Текстовый статус. Макс. 33 символа.
 label_this_device = Эта сессия
 label_to_contact_support_sign_in = Чтобы связаться со Службой Поддержки, авторизуйтесь и отправьте сообщение пользователю Gapopa
-label_to_restore_chats_use_search = Чтобы восстановить чаты, воспользуйтесь поиском.
+label_to_restore_chats_use_search = Чтобы восстановить {$amount ->
+    [1] чат
+    *[other] чаты
+}, воспользуйтесь поиском
 label_typing = Печатает
 label_unknown = Неизвестно
 label_unknown_chat_direct_link = Данная прямая ссылка недействительна

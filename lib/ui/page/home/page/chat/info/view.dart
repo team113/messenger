@@ -539,7 +539,11 @@ class ChatInfoView extends StatelessWidget {
   Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
     final bool? result = await MessagePopup.alert(
       'label_delete_chats'.l10nfmt({'amount': 1}),
-      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
+      description: [
+        TextSpan(
+          text: 'label_to_restore_chats_use_search'.l10nfmt({'amount': 1}),
+        ),
+      ],
       button: (context) => MessagePopup.deleteButton(
         context,
         icon: SvgIcons.delete19White,

@@ -113,6 +113,8 @@ class UpgradeWorker extends Dependency {
 
   /// Initiates the downloading of the provided [release].
   Future<void> download(ReleaseArtifact release) async {
+    Log.debug('download($release)', '$runtimeType()');
+
     final releaseDownload = ReleaseDownload(release.url);
     activeDownload.value?.cancel();
     activeDownload.value = releaseDownload;
@@ -121,6 +123,8 @@ class UpgradeWorker extends Dependency {
       await activeDownload.value?.start();
       activeDownload.value = releaseDownload;
     } on DioException catch (e) {
+      Log.debug('download($release) -> failed with $e', '$runtimeType()');
+
       switch (e.type) {
         case DioExceptionType.cancel:
           activeDownload.value?.cancel();
@@ -144,6 +148,7 @@ class UpgradeWorker extends Dependency {
           }
       }
     } catch (e) {
+      Log.warning('download($release) -> failed with $e', '$runtimeType()');
       activeDownload.value?.cancel();
       activeDownload.value = null;
       MessagePopup.error(e);
@@ -326,19 +331,14 @@ class UpgradeWorker extends Dependency {
     Log.debug('_schedulePopup($release)', '$runtimeType');
 
     Future<void> displayPopup() async {
-      // Only restrain from displaying the popup if app has authorization.
-      if (!critical) {
-        if (_scheduled) {
-          return;
-        }
-
-        _scheduled = true;
-        scheduled.value = release;
-
+      if (_scheduled) {
         return;
       }
 
-      if (router.context != null) {
+      _scheduled = true;
+      scheduled.value = release;
+
+      if (critical && router.context != null) {
         await UpgradePopupView.show(
           router.context!,
           release: release,
@@ -496,6 +496,8 @@ class ReleaseDownload {
 
     progress.value = 0;
 
+    Log.debug('start()...', '$runtimeType($url)');
+
     try {
       file.value = await PlatformUtils.download(
         url,
@@ -511,15 +513,20 @@ class ReleaseDownload {
 
       if (file.value != null) {
         progress.value = 1;
+        Log.debug('start()... done!', '$runtimeType($url)');
         MessagePopup.success('label_file_downloaded'.l10n);
       }
-    } finally {
+    } catch (e) {
+      Log.debug('start()... failed with: $e', '$runtimeType($url)');
       progress.value = 0;
+      rethrow;
     }
   }
 
   /// Cancels the download.
   void cancel() {
+    Log.debug('cancel()', '$runtimeType($url)');
+
     _cancelToken?.cancel();
     _cancelToken = null;
   }

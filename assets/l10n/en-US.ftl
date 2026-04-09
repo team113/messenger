@@ -650,7 +650,10 @@ label_hide_chats = {$amount ->
     [1] Hide chat
     *[other] Hide chats
 }
-label_hide_chats_modal_description = The chats will be moved to the "Hidden chats" list
+label_hide_chats_modal_description = The {$amount ->
+    [1] chat
+    *[other] chats
+} will be moved to the "Hidden chats" list
 label_high_pass_filter = High-pass filter
 label_high_pass_filter_subtitle = Cuts off low-frequencies to reduce noise level
 label_hotkey = Hotkey
@@ -860,7 +863,10 @@ label_show_chats = {$amount ->
     [1] Unhide chat
     *[other] Unhide chats
 }
-label_show_chats_modal_description = The chats will be removed from the "Hidden chats" list.
+label_show_chats_modal_description = The {$amount ->
+    [1] chat
+    *[other] chats
+} will be removed from the "Hidden chats" list.
 label_sign_in = Sign in
 label_sign_in_input = Gapopa ID, login or e-mail
 label_sign_in_required = Sign in required
@@ -918,7 +924,10 @@ label_text_status_description = 33 characters max
 label_text_status_hint = Text status. 33 symb. max
 label_this_device = This session
 label_to_contact_support_sign_in = To contact Support Service, sign in and send a message to the user Gapopa
-label_to_restore_chats_use_search = To restore the chats, use the search
+label_to_restore_chats_use_search = To restore the {$amount ->
+    [1] chat
+    *[other] chats
+}, use the search
 label_typing = Typing
 label_unknown = Unknown
 label_unknown_chat_direct_link = This direct link is invalid
