@@ -463,6 +463,11 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         children: [
           FieldButton(
             onPressed: () async {
+              // Don't show a confirmation when e-mail is set.
+              if (c.myUser.value?.emails.confirmed.isNotEmpty == true) {
+                return c.logout();
+              }
+
               await ConfirmLogoutView.show(router.context!);
             },
             child: Text('btn_logout'.l10n),

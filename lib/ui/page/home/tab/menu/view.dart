@@ -48,7 +48,7 @@ class MenuTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MenuTab'),
-      init: MenuTabController(Get.find()),
+      init: MenuTabController(Get.find(), Get.find()),
       builder: (MenuTabController c) {
         final style = Theme.of(context).style;
 
@@ -257,6 +257,11 @@ class MenuTabView extends StatelessWidget {
             ProfileTab.danger => () => router.erase(push: true),
             ProfileTab.support => router.support,
             ProfileTab.logout => () async {
+              // Don't show a confirmation when e-mail is set.
+              if (c.myUser.value?.emails.confirmed.isNotEmpty == true) {
+                return c.logout();
+              }
+
               await ConfirmLogoutView.show(router.context!);
             },
             (_) => () {

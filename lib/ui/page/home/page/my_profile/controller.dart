@@ -875,6 +875,13 @@ class MyProfileController extends GetxController {
     await _myUserService.updateUserPresence(next ?? UserPresence.values.first);
   }
 
+  /// Logs out the current session and go to the [Routes.auth] page.
+  void logout() {
+    _authService.logout();
+    router.auth();
+    router.tab = HomeTab.chats;
+  }
+
   /// Records the provided [event] to the [_keysRecorded], if it's not a
   /// modifier.
   bool _hotKeyListener(KeyEvent event) {
