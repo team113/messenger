@@ -343,7 +343,7 @@ fcm_message =
            }:{" "}
     }{ $donation ->
         [x] {""}
-        *[other] [G{$donation}]{" "}
+        *[other] [τ{$donation}]{" "}
     }{ $attachmentsCount ->
           [0] {""}
           *[other] [{$attachmentsType ->

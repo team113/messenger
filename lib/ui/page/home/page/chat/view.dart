@@ -766,182 +766,48 @@ class ChatView extends StatelessWidget {
         throw Exception('Unreachable');
       }
 
-      return HighlightedContainer(
-        highlight:
-            c.highlighted.value == element.id || c.selected.contains(element),
-        padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
-            bottom: isLast ? ChatController.lastItemBottomOffset : 0,
-          ),
-          child: FutureOrBuilder<RxUser?>(
-            key: element.key,
-            futureOr: () => c.getUser(e.value.author.id),
-            builder: (_, user) => Obx(() {
-              return _selectable(
-                context,
-                c,
-                item: element,
-                child: ChatItemWidget(
-                  chat: c.chat!.chat,
-                  item: e,
-                  me: c.me!,
-                  withAvatar: !c.selecting.value && !previousSame,
-                  withName: !previousSame,
-                  appendAvatarPadding: !c.selecting.value,
-                  selectable: !c.selecting.value,
-                  reads: c.chat!.chat.value.membersCount > 10
-                      ? []
-                      : c.chat!.reads.where(
-                          (m) =>
-                              m.at == e.value.at &&
-                              m.memberId != c.me &&
-                              m.memberId != e.value.author.id,
-                        ),
-                  user: user,
-                  getUser: c.getUser,
-                  getItem: c.getItem,
-                  onHide: () => c.hideChatItem(e.value),
-                  onDelete: () => c.deleteMessage(e.value),
-                  onReply: (item) {
-                    final field = c.edit.value ?? c.send;
+      return Obx(() {
+        return HighlightedContainer(
+          highlight:
+              c.highlighted.value == element.id || c.selected.contains(element),
+          padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
+              bottom: isLast ? ChatController.lastItemBottomOffset : 0,
+            ),
+            child: FutureOrBuilder<RxUser?>(
+              key: element.key,
+              futureOr: () => c.getUser(e.value.author.id),
+              builder: (_, user) => Obx(() {
+                return _selectable(
+                  context,
+                  c,
+                  item: element,
+                  child: ChatItemWidget(
+                    chat: c.chat!.chat,
+                    item: e,
+                    me: c.me!,
+                    withAvatar: !c.selecting.value && !previousSame,
+                    withName: !previousSame,
+                    appendAvatarPadding: !c.selecting.value,
+                    selectable: !c.selecting.value,
+                    reads: c.chat!.chat.value.membersCount > 10
+                        ? []
+                        : c.chat!.reads.where(
+                            (m) =>
+                                m.at == e.value.at &&
+                                m.memberId != c.me &&
+                                m.memberId != e.value.author.id,
+                          ),
+                    user: user,
+                    getUser: c.getUser,
+                    getItem: c.getItem,
+                    onHide: () => c.hideChatItem(e.value),
+                    onDelete: () => c.deleteMessage(e.value),
+                    onReply: (item) {
+                      final field = c.edit.value ?? c.send;
 
-                    if (field.replied.any((i) => i.value.id == item.id)) {
-                      field.replied.removeWhere((i) => i.value.id == item.id);
-                    } else {
-                      final ListElement? element =
-                          c.elements[ListElementId(item.at, item.id)];
-
-                      if (element is ChatMessageElement) {
-                        field.replied.add(element.item);
-                      } else if (element is ChatInfoElement) {
-                        field.replied.add(element.item);
-                      } else if (element is ChatCallElement) {
-                        field.replied.add(element.item);
-                      } else if (element is ChatForwardElement) {
-                        field.replied.add(
-                          element.note.value ?? element.forwards.first,
-                        );
-                      }
-                    }
-                  },
-                  onCopy: (text) {
-                    if (c.selection.value?.plainText.isNotEmpty == true) {
-                      c.copyText(c.selection.value!.plainText);
-                    } else {
-                      c.copyText(text);
-                    }
-                  },
-                  onAnimateTo: (item) async {
-                    await c.animateTo(item.id, item: item);
-                  },
-                  onRepliedTap: (q) async {
-                    if (q.original != null) {
-                      await c.animateTo(e.value.id, item: e.value, reply: q);
-                    }
-                  },
-                  onGallery: () => c.calculateGallery(e.value),
-                  onResend: () => c.resendItem(e.value),
-                  onEdit: () => c.editMessage(e.value),
-                  onFileTap: (a) => c.downloadFile(e.value, a),
-                  onAttachmentError: (item) async {
-                    await c.chat?.updateAttachments(item ?? e.value);
-                    await Future.delayed(Duration.zero);
-                  },
-                  onDownload: c.downloadMedia,
-                  onDownloadAs: c.downloadMediaAs,
-                  onSave: (a) => c.saveToGallery(a, e.value),
-                  onSelect: () {
-                    c.selecting.toggle();
-                    c.selected.add(element);
-                  },
-                  onSearch: c.toggleSearch,
-                  onUserPressed: (user) {
-                    ChatId chatId = ChatId.local(user.id);
-                    if (user.dialog.isLocalWith(c.me)) {
-                      chatId = c.monolog;
-                    }
-
-                    router.chat(chatId, mode: RouteAs.push);
-                  },
-                  onDragging: (e) => c.isDraggingItem.value = e,
-                ),
-              );
-            }),
-          ),
-        ),
-      );
-    } else if (element is ChatForwardElement) {
-      return Padding(
-        padding: EdgeInsets.only(
-          top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
-          bottom: isLast ? ChatController.lastItemBottomOffset : 0,
-        ),
-        child: FutureOrBuilder<RxUser?>(
-          key: element.key,
-          futureOr: () => c.getUser(element.authorId),
-          builder: (_, user) => Obx(() {
-            return HighlightedContainer(
-              highlight:
-                  c.highlighted.value == element.id ||
-                  c.selected.contains(element),
-              padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
-              child: _selectable(
-                context,
-                c,
-                item: element,
-                child: ChatForwardWidget(
-                  key: Key('ChatForwardWidget_${element.id}'),
-                  chat: c.chat!.chat,
-                  forwards: element.forwards,
-                  note: element.note,
-                  authorId: element.authorId,
-                  me: c.me!,
-                  withAvatar: !c.selecting.value && !previousSame,
-                  withName: !previousSame,
-                  appendAvatarPadding: !c.selecting.value,
-                  selectable: !c.selecting.value,
-                  reads: c.chat!.chat.value.membersCount > 10
-                      ? []
-                      : c.chat!.reads.where(
-                          (m) =>
-                              m.at == element.forwards.last.value.at &&
-                              m.memberId != c.me &&
-                              m.memberId != element.authorId,
-                        ),
-                  user: user,
-                  getUser: c.getUser,
-                  onHide: () async {
-                    final List<Future> futures = [];
-
-                    for (Rx<ChatItem> f in element.forwards) {
-                      futures.add(c.hideChatItem(f.value));
-                    }
-
-                    if (element.note.value != null) {
-                      futures.add(c.hideChatItem(element.note.value!.value));
-                    }
-
-                    await Future.wait(futures);
-                  },
-                  onDelete: () async {
-                    final List<Future> futures = [];
-
-                    for (Rx<ChatItem> f in element.forwards) {
-                      futures.add(c.deleteMessage(f.value));
-                    }
-
-                    if (element.note.value != null) {
-                      futures.add(c.deleteMessage(element.note.value!.value));
-                    }
-
-                    await Future.wait(futures);
-                  },
-                  onReply: (item) {
-                    final MessageFieldController field = c.edit.value ?? c.send;
-
-                    if (item != null) {
                       if (field.replied.any((i) => i.value.id == item.id)) {
                         field.replied.removeWhere((i) => i.value.id == item.id);
                       } else {
@@ -960,91 +826,231 @@ class ChatView extends StatelessWidget {
                           );
                         }
                       }
-                      return;
-                    }
-
-                    if (element.forwards.any(
-                          (e) => field.replied.any(
-                            (i) => i.value.id == e.value.id,
-                          ),
-                        ) ||
-                        field.replied.any(
-                          (i) => i.value.id == element.note.value?.value.id,
-                        )) {
-                      for (Rx<ChatItem> e in element.forwards) {
-                        field.replied.removeWhere(
-                          (i) => i.value.id == e.value.id,
-                        );
-                      }
-
-                      if (element.note.value != null) {
-                        field.replied.removeWhere(
-                          (i) => i.value.id == element.note.value!.value.id,
-                        );
-                      }
-                    } else {
-                      if (element.note.value != null) {
-                        field.replied.add(element.note.value!);
-                      }
-
-                      for (Rx<ChatItem> e in element.forwards) {
-                        field.replied.add(e);
-                      }
-                    }
-                  },
-                  onCopy: (text) {
-                    if (c.selection.value?.plainText.isNotEmpty == true) {
-                      c.copyText(c.selection.value!.plainText);
-                    } else {
-                      c.copyText(text);
-                    }
-                  },
-                  onGallery: (m) => c.calculateGallery(m),
-                  onEdit: () => c.editMessage(element.note.value!.value),
-                  onForwardedTap: (item) {
-                    if (item.quote.original != null) {
-                      if (item.quote.original!.chatId == c.id) {
-                        c.animateTo(item.id, item: item, forward: item.quote);
+                    },
+                    onCopy: (text) {
+                      if (c.selection.value?.plainText.isNotEmpty == true) {
+                        c.copyText(c.selection.value!.plainText);
                       } else {
-                        router.chat(
-                          item.quote.original!.chatId,
-                          itemId: item.quote.original!.id,
-                          mode: RouteAs.push,
-                        );
+                        c.copyText(text);
                       }
-                    }
-                  },
-                  onFileTap: c.downloadFile,
-                  onAttachmentError: (item) async {
-                    if (item != null) {
-                      await c.chat?.updateAttachments(item);
+                    },
+                    onAnimateTo: (item) async {
+                      await c.animateTo(item.id, item: item);
+                    },
+                    onRepliedTap: (q) async {
+                      if (q.original != null) {
+                        await c.animateTo(e.value.id, item: e.value, reply: q);
+                      }
+                    },
+                    onGallery: () => c.calculateGallery(e.value),
+                    onResend: () => c.resendItem(e.value),
+                    onEdit: () => c.editMessage(e.value),
+                    onFileTap: (a) => c.downloadFile(e.value, a),
+                    onAttachmentError: (item) async {
+                      await c.chat?.updateAttachments(item ?? e.value);
                       await Future.delayed(Duration.zero);
-                      return;
-                    }
+                    },
+                    onDownload: c.downloadMedia,
+                    onDownloadAs: c.downloadMediaAs,
+                    onSave: (a) => c.saveToGallery(a, e.value),
+                    onSelect: () {
+                      c.selecting.toggle();
+                      c.selected.add(element);
+                    },
+                    onSearch: c.toggleSearch,
+                    onUserPressed: (user) {
+                      ChatId chatId = ChatId.local(user.id);
+                      if (user.dialog.isLocalWith(c.me)) {
+                        chatId = c.monolog;
+                      }
 
-                    for (ChatItem item in [
-                      element.note.value?.value,
-                      ...element.forwards.map((e) => e.value),
-                    ].nonNulls) {
-                      await c.chat?.updateAttachments(item);
-                    }
+                      router.chat(chatId, mode: RouteAs.push);
+                    },
+                    onDragging: (e) => c.isDraggingItem.value = e,
+                  ),
+                );
+              }),
+            ),
+          ),
+        );
+      });
+    } else if (element is ChatForwardElement) {
+      return Obx(() {
+        return HighlightedContainer(
+          highlight:
+              c.highlighted.value == element.id || c.selected.contains(element),
+          padding: const EdgeInsets.fromLTRB(8, 1.5, 8, 1.5),
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
+              bottom: isLast ? ChatController.lastItemBottomOffset : 0,
+            ),
+            child: FutureOrBuilder<RxUser?>(
+              key: element.key,
+              futureOr: () => c.getUser(element.authorId),
+              builder: (_, user) => Obx(() {
+                return _selectable(
+                  context,
+                  c,
+                  item: element,
+                  child: ChatForwardWidget(
+                    key: Key('ChatForwardWidget_${element.id}'),
+                    chat: c.chat!.chat,
+                    forwards: element.forwards,
+                    note: element.note,
+                    authorId: element.authorId,
+                    me: c.me!,
+                    withAvatar: !c.selecting.value && !previousSame,
+                    withName: !previousSame,
+                    appendAvatarPadding: !c.selecting.value,
+                    selectable: !c.selecting.value,
+                    reads: c.chat!.chat.value.membersCount > 10
+                        ? []
+                        : c.chat!.reads.where(
+                            (m) =>
+                                m.at == element.forwards.last.value.at &&
+                                m.memberId != c.me &&
+                                m.memberId != element.authorId,
+                          ),
+                    user: user,
+                    getUser: c.getUser,
+                    onHide: () async {
+                      final List<Future> futures = [];
 
-                    await Future.delayed(Duration.zero);
-                  },
-                  onSelect: () {
-                    c.selecting.toggle();
-                    c.selected.add(element);
-                  },
-                  onDragging: (e) => c.isDraggingItem.value = e,
-                  onAnimateTo: (item) async {
-                    await c.animateTo(item.id, item: item);
-                  },
-                ),
-              ),
-            );
-          }),
-        ),
-      );
+                      for (Rx<ChatItem> f in element.forwards) {
+                        futures.add(c.hideChatItem(f.value));
+                      }
+
+                      if (element.note.value != null) {
+                        futures.add(c.hideChatItem(element.note.value!.value));
+                      }
+
+                      await Future.wait(futures);
+                    },
+                    onDelete: () async {
+                      final List<Future> futures = [];
+
+                      for (Rx<ChatItem> f in element.forwards) {
+                        futures.add(c.deleteMessage(f.value));
+                      }
+
+                      if (element.note.value != null) {
+                        futures.add(c.deleteMessage(element.note.value!.value));
+                      }
+
+                      await Future.wait(futures);
+                    },
+                    onReply: (item) {
+                      final MessageFieldController field =
+                          c.edit.value ?? c.send;
+
+                      if (item != null) {
+                        if (field.replied.any((i) => i.value.id == item.id)) {
+                          field.replied.removeWhere(
+                            (i) => i.value.id == item.id,
+                          );
+                        } else {
+                          final ListElement? element =
+                              c.elements[ListElementId(item.at, item.id)];
+
+                          if (element is ChatMessageElement) {
+                            field.replied.add(element.item);
+                          } else if (element is ChatInfoElement) {
+                            field.replied.add(element.item);
+                          } else if (element is ChatCallElement) {
+                            field.replied.add(element.item);
+                          } else if (element is ChatForwardElement) {
+                            field.replied.add(
+                              element.note.value ?? element.forwards.first,
+                            );
+                          }
+                        }
+                        return;
+                      }
+
+                      if (element.forwards.any(
+                            (e) => field.replied.any(
+                              (i) => i.value.id == e.value.id,
+                            ),
+                          ) ||
+                          field.replied.any(
+                            (i) => i.value.id == element.note.value?.value.id,
+                          )) {
+                        for (Rx<ChatItem> e in element.forwards) {
+                          field.replied.removeWhere(
+                            (i) => i.value.id == e.value.id,
+                          );
+                        }
+
+                        if (element.note.value != null) {
+                          field.replied.removeWhere(
+                            (i) => i.value.id == element.note.value!.value.id,
+                          );
+                        }
+                      } else {
+                        if (element.note.value != null) {
+                          field.replied.add(element.note.value!);
+                        }
+
+                        for (Rx<ChatItem> e in element.forwards) {
+                          field.replied.add(e);
+                        }
+                      }
+                    },
+                    onCopy: (text) {
+                      if (c.selection.value?.plainText.isNotEmpty == true) {
+                        c.copyText(c.selection.value!.plainText);
+                      } else {
+                        c.copyText(text);
+                      }
+                    },
+                    onGallery: (m) => c.calculateGallery(m),
+                    onEdit: () => c.editMessage(element.note.value!.value),
+                    onForwardedTap: (item) {
+                      if (item.quote.original != null) {
+                        if (item.quote.original!.chatId == c.id) {
+                          c.animateTo(item.id, item: item, forward: item.quote);
+                        } else {
+                          router.chat(
+                            item.quote.original!.chatId,
+                            itemId: item.quote.original!.id,
+                            mode: RouteAs.push,
+                          );
+                        }
+                      }
+                    },
+                    onFileTap: c.downloadFile,
+                    onAttachmentError: (item) async {
+                      if (item != null) {
+                        await c.chat?.updateAttachments(item);
+                        await Future.delayed(Duration.zero);
+                        return;
+                      }
+
+                      for (ChatItem item in [
+                        element.note.value?.value,
+                        ...element.forwards.map((e) => e.value),
+                      ].nonNulls) {
+                        await c.chat?.updateAttachments(item);
+                      }
+
+                      await Future.delayed(Duration.zero);
+                    },
+                    onSelect: () {
+                      c.selecting.toggle();
+                      c.selected.add(element);
+                    },
+                    onDragging: (e) => c.isDraggingItem.value = e,
+                    onAnimateTo: (item) async {
+                      await c.animateTo(item.id, item: item);
+                    },
+                  ),
+                );
+              }),
+            ),
+          ),
+        );
+      });
     } else if (element is DateTimeElement) {
       return SelectionContainer.disabled(
         child: Obx(() {
