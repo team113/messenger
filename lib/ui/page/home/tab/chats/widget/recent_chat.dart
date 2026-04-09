@@ -929,8 +929,8 @@ class RecentChatTile extends StatelessWidget {
       description: [
         TextSpan(
           text: isArchived
-              ? 'label_show_chats_modal_description'.l10n
-              : 'label_hide_chats_modal_description'.l10n,
+              ? 'label_show_chats_modal_description'.l10nfmt({'amount': 1})
+              : 'label_hide_chats_modal_description'.l10nfmt({'amount': 1}),
         ),
       ],
       button: (context) => MessagePopup.primaryButton(
@@ -949,7 +949,11 @@ class RecentChatTile extends StatelessWidget {
   Future<void> _hideChat(BuildContext context) async {
     final bool? result = await MessagePopup.alert(
       'label_delete_chats'.l10nfmt({'amount': 1}),
-      description: [TextSpan(text: 'label_to_restore_chats_use_search'.l10n)],
+      description: [
+        TextSpan(
+          text: 'label_to_restore_chats_use_search'.l10nfmt({'amount': 1}),
+        ),
+      ],
       button: (context) => MessagePopup.deleteButton(
         context,
         icon: SvgIcons.delete19White,

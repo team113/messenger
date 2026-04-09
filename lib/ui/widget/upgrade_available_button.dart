@@ -19,6 +19,7 @@ import 'dart:io';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '/l10n/l10n.dart';
@@ -52,9 +53,37 @@ class UpgradeAvailableButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
+    if (download != null) {
+      return Obx(() {
+        final File? file = download?.file.value;
 
-    final File? file = download?.file.value;
+        return _button(
+          context,
+          leading: file == null
+              ? Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: CustomProgressIndicator.bold(
+                    value: download?.progress.value,
+                  ),
+                )
+              : SvgIcon(SvgIcons.downloadFolder, key: Key('downloadFolder')),
+          text: file == null ? 'label_downloading'.l10n : 'btn_open'.l10n,
+          onPressed: file != null
+              ? () async {
+                  try {
+                    final launched = await launchUrl(file.uri);
+
+                    if (!launched && context.mounted) {
+                      await UpgradePopupView.show(context, release: scheduled);
+                    }
+                  } catch (e) {
+                    MessagePopup.error(e);
+                  }
+                }
+              : null,
+        );
+      });
+    }
 
     final Widget leading;
     final String text;
@@ -62,47 +91,37 @@ class UpgradeAvailableButton extends StatelessWidget {
     if (PlatformUtils.isWeb) {
       text = 'label_update_available'.l10n;
       leading = SvgIcon(SvgIcons.downloadRefresh, key: Key('downloadRefresh'));
-    } else if (download == null) {
+    } else {
       text = 'label_update_available'.l10n;
       leading = SvgIcon(SvgIcons.downloadArrow, key: Key('downloadArrow'));
-    } else if (file != null) {
-      text = 'btn_open'.l10n;
-      leading = SvgIcon(SvgIcons.downloadFolder, key: Key('downloadFolder'));
-    } else {
-      text = 'label_downloading'.l10n;
-      leading = Padding(
-        padding: const EdgeInsets.all(3),
-        child: CustomProgressIndicator.bold(value: download?.progress.value),
-      );
     }
 
-    final Widget title = Center(
-      key: Key(text),
-      child: Text(text, style: style.fonts.normal.regular.onPrimary),
+    return _button(
+      context,
+      leading: leading,
+      text: text,
+      onPressed: () async {
+        if (PlatformUtils.isWeb) {
+          return await WebUtils.refresh();
+        }
+
+        await UpgradePopupView.show(context, release: scheduled);
+      },
     );
+  }
+
+  /// Builds a styled [WidgetButton] displaying the provided [leading] and
+  /// [text].
+  Widget _button(
+    BuildContext context, {
+    Widget? leading,
+    String? text,
+    void Function()? onPressed,
+  }) {
+    final style = Theme.of(context).style;
 
     return WidgetButton(
-      onPressed: file != null
-          ? () async {
-              try {
-                final launched = await launchUrl(file.uri);
-
-                if (!launched && context.mounted) {
-                  await UpgradePopupView.show(context, release: scheduled);
-                }
-              } catch (e) {
-                MessagePopup.error(e);
-              }
-            }
-          : download == null
-          ? () async {
-              if (PlatformUtils.isWeb) {
-                return await WebUtils.refresh();
-              }
-
-              await UpgradePopupView.show(context, release: scheduled);
-            }
-          : null,
+      onPressed: onPressed,
       child: Container(
         height: 48,
         decoration: BoxDecoration(
@@ -118,18 +137,26 @@ class UpgradeAvailableButton extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
         child: Row(
           children: [
-            AnimatedSizeAndFade(
-              fadeDuration: Duration(milliseconds: 250),
-              sizeDuration: Duration(milliseconds: 250),
-              child: leading,
-            ),
-            Expanded(
-              child: AnimatedSizeAndFade(
+            if (leading != null)
+              AnimatedSizeAndFade(
                 fadeDuration: Duration(milliseconds: 250),
                 sizeDuration: Duration(milliseconds: 250),
-                child: title,
+                child: leading,
               ),
-            ),
+            if (text != null)
+              Expanded(
+                child: AnimatedSizeAndFade(
+                  fadeDuration: Duration(milliseconds: 250),
+                  sizeDuration: Duration(milliseconds: 250),
+                  child: Center(
+                    key: Key(text),
+                    child: Text(
+                      text,
+                      style: style.fonts.normal.regular.onPrimary,
+                    ),
+                  ),
+                ),
+              ),
             WidgetButton(
               onPressed: download?.cancel ?? onClose,
               child: Padding(

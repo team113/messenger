@@ -16,8 +16,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Profile page:
         - Invalid keyboard symbols being displayed in hot keys. ([#1680])
+    - Chats tab:
+        - Download update button not being refreshed after successful download. ([#1683])
 
 [#1680]: /../../pull/1680
+[#1683]: /../../pull/1683
 
 
 

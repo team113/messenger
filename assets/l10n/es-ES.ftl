@@ -655,7 +655,10 @@ label_hide_chats = {$amount ->
     [1] Ocultar chat
     *[other] Ocultar chats
 }
-label_hide_chats_modal_description = El chat será movido a la lista de "Chats ocultos"
+label_hide_chats_modal_description = {$amount ->
+    [1] El chat
+    *[other] Los chats
+} será movido a la lista de "Chats ocultos"
 label_high_pass_filter = Filtro paso alto
 label_high_pass_filter_subtitle = Corta las frecuencias bajas para reducir el nivel de ruido
 label_hotkey = Tecla de acceso rápido
@@ -863,7 +866,10 @@ label_show_chats = {$amount ->
     [1] Mostrar chat
     *[other] Mostrar chats
 }
-label_show_chats_modal_description = Los chats se eliminarán de la lista "Chats ocultos".
+label_show_chats_modal_description = {$amount ->
+    [1] El chat
+    *[other] Los chats
+} se eliminarán de la lista "Chats ocultos".
 label_sign_in = Ingresar
 label_sign_in_input = Gapopa ID, usuario o e-mail
 label_sign_in_required = Es necesario ingresar
@@ -922,7 +928,10 @@ label_text_status_description = Hasta 33 caracteres
 label_text_status_hint = Estatus del texto. Máximo 33 símbolos.
 label_this_device = Esta sesión
 label_to_contact_support_sign_in = Para contactar con el Servicio de Soporte, inicie sesión y envíe un mensaje al usuario Gapopa
-label_to_restore_chats_use_search = Para recuperar los chats, utiliza la búsqueda
+label_to_restore_chats_use_search = Para recuperar {$amount ->
+    [1] el chat
+    *[other] lost chats
+}, utiliza la búsqueda
 label_typing = Escribiendo
 label_unknown = Desconocido
 label_unknown_chat_direct_link = Este enlace directo no es válido
