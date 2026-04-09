@@ -123,8 +123,8 @@
 # tokens, etc).
 #
 # Default:
-#   obfuscated = true (if `kDebugMode`  is `true`)
-#   obfuscated = false" (if `kProfileMode` or `kReleaseMode` is `true`)
+#   obfuscated = false (if `kDebugMode`  is `true`)
+#   obfuscated = true (if `kProfileMode` or `kReleaseMode` is `true`)
 
 # Indicator whether logs should be also written to a `File` in temporary dir.
 #
