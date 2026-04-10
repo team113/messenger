@@ -31,6 +31,7 @@ class RectangleAttachment extends StatelessWidget {
     super.key,
     this.inverted = false,
     this.onError,
+    this.asStack = false,
   });
 
   /// [Attachment] to display.
@@ -42,6 +43,10 @@ class RectangleAttachment extends StatelessWidget {
   /// Callback, called when 403 error happens with the provided [attachment]
   /// fetching.
   final Future<void> Function()? onError;
+
+  /// Indicator whether the [attachment] should look like a stack of
+  /// attachments.
+  final bool asStack;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +62,15 @@ class RectangleAttachment extends StatelessWidget {
         if (e.file.path == null) {
           if (e.file.bytes.value == null) {
             content = Container(
-              color: inverted ? style.colors.onPrimary : style.colors.secondary,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: style.colors.onBackgroundOpacity13,
+                  width: 0.5,
+                ),
+                color: inverted
+                    ? style.colors.onPrimary
+                    : style.colors.secondary,
+              ),
               child: Icon(
                 Icons.video_file,
                 size: 18,
@@ -142,9 +155,60 @@ class RectangleAttachment extends StatelessWidget {
     }
 
     if (content != null) {
-      return ClipRRect(
+      final clipped = ClipRRect(
         borderRadius: BorderRadius.circular(5),
         child: SizedBox(width: 30, height: 30, child: content),
+      );
+
+      if (!asStack) {
+        return clipped;
+      }
+
+      return Stack(
+        alignment: Alignment.centerLeft,
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: inverted ? style.colors.onPrimary : style.colors.secondary,
+              border: Border.all(
+                color: style.colors.onBackgroundOpacity13,
+                width: 0.5,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border(
+                  left: BorderSide(
+                    color: inverted
+                        ? style.colors.primary
+                        : style.colors.onPrimary,
+                    width: 3,
+                  ),
+                  top: BorderSide(
+                    color: inverted
+                        ? style.colors.primary
+                        : style.colors.onPrimary,
+                    width: 1,
+                  ),
+                  bottom: BorderSide(
+                    color: inverted
+                        ? style.colors.primary
+                        : style.colors.onPrimary,
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: clipped,
+            ),
+          ),
+        ],
       );
     }
 

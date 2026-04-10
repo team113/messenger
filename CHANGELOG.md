@@ -20,6 +20,7 @@ All user visible changes to this project will be documented in this file. This p
         - Low connection icons. ([#1686])
         - Add member in participants list. ([#1687])
     - Chats tab:
+        - Display stack when there's multiple attachments in last message. ([#1688])
         - Service chats context menu submenu option. ([#1689])
 
 ### Fixed
@@ -29,12 +30,14 @@ All user visible changes to this project will be documented in this file. This p
         - Invalid keyboard symbols being displayed in hot keys. ([#1680])
     - Chats tab:
         - Download update button not being refreshed after successful download. ([#1683])
+        - Empty message preview when reply has no text in last message. ([#1688])
 
 [#1680]: /../../pull/1680
 [#1683]: /../../pull/1683
 [#1684]: /../../pull/1684
 [#1686]: /../../pull/1686
 [#1687]: /../../pull/1687
+[#1688]: /../../pull/1688
 [#1689]: /../../pull/1689
 
 
