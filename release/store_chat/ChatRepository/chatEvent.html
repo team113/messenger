@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the chatEvent method from the ChatRepository class, for the Dart programming language.">
+  <title>chatEvent method - ChatRepository class - chat library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../store_chat/">store&#47;chat.dart</a></li>
+    <li><a href="../../store_chat/ChatRepository-class.html">ChatRepository</a></li>
+    <li class="self-crumb">chatEvent method</li>
+  </ol>
+  <div class="self-name">chatEvent</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="store_chat&#47;ChatRepository-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">chatEvent</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../store_event_chat/ChatEvent-class.html">ChatEvent</a></span>
+<span class="name ">chatEvent</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="chatEvent-param-e"><span class="type-annotation"><a href="../../api_backend_schema.graphql/ChatEventsVersionedMixin$Events-class.html">ChatEventsVersionedMixin$Events</a></span> <span class="parameter-name">e</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Constructs a <a href="../../store_event_chat/ChatEvent-class.html">ChatEvent</a> from the <a href="../../api_backend_schema.graphql/ChatEventsVersionedMixin$Events-class.html">ChatEventsVersionedMixin$Events</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {
+  Log.trace(&#39;chatEvent($e)&#39;, &#39;$runtimeType&#39;);
+
+  if (e.$$typename == &#39;ChatClearedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatClearedEvent;
+    return ChatClearedEvent(e.chatId, node.at);
+  } else if (e.$$typename == &#39;ChatUnreadItemsCountUpdatedEvent&#39;) {
+    var node =
+        e as ChatEventsVersionedMixin$Events$ChatUnreadItemsCountUpdatedEvent;
+    return ChatUnreadItemsCountUpdatedEvent(e.chatId, node.count);
+  } else if (e.$$typename == &#39;ChatItemPostedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatItemPostedEvent;
+    return ChatItemPostedEvent(e.chatId, node.item.toDto());
+  } else if (e.$$typename == &#39;ChatLastItemUpdatedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatLastItemUpdatedEvent;
+    return ChatLastItemUpdatedEvent(e.chatId, node.lastItem?.toDto());
+  } else if (e.$$typename == &#39;ChatItemHiddenEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatItemHiddenEvent;
+    return ChatItemHiddenEvent(e.chatId, node.itemId);
+  } else if (e.$$typename == &#39;ChatMutedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatMutedEvent;
+    return ChatMutedEvent(e.chatId, node.duration.toModel());
+  } else if (e.$$typename == &#39;ChatTypingStartedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatTypingStartedEvent;
+    _userRepo.put(node.user.toDto());
+    return ChatTypingStartedEvent(e.chatId, node.user.toModel());
+  } else if (e.$$typename == &#39;EventChatUnmuted&#39;) {
+    return EventChatUnmuted(e.chatId);
+  } else if (e.$$typename == &#39;ChatTypingStoppedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatTypingStoppedEvent;
+    _userRepo.put(node.user.toDto());
+    return ChatTypingStoppedEvent(e.chatId, node.user.toModel());
+  } else if (e.$$typename == &#39;ChatHiddenEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatHiddenEvent;
+    return ChatHiddenEvent(e.chatId, node.at);
+  } else if (e.$$typename == &#39;ChatItemDeletedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatItemDeletedEvent;
+    return ChatItemDeletedEvent(e.chatId, node.itemId);
+  } else if (e.$$typename == &#39;ChatItemEditedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatItemEditedEvent;
+    return ChatItemEditedEvent(
+      e.chatId,
+      node.itemId,
+      node.text == null ? null : EditedMessageText(node.text!.changed),
+      node.attachments?.changed.map((e) =&gt; e.toModel()).toList(),
+      node.repliesTo?.changed.map((e) =&gt; e.toDto()).toList(),
+    );
+  } else if (e.$$typename == &#39;ChatCallStartedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatCallStartedEvent;
+    return ChatCallStartedEvent(e.chatId, node.call.toModel());
+  } else if (e.$$typename == &#39;ChatCallFinishedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatCallFinishedEvent;
+    return ChatCallFinishedEvent(e.chatId, node.call.toModel(), node.reason);
+  } else if (e.$$typename == &#39;ChatCallMemberLeftEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatCallMemberLeftEvent;
+    _userRepo.put(node.user.toDto());
+    return ChatCallMemberLeftEvent(e.chatId, node.user.toModel(), node.at);
+  } else if (e.$$typename == &#39;ChatCallMemberJoinedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatCallMemberJoinedEvent;
+    _userRepo.put(node.user.toDto());
+    return ChatCallMemberJoinedEvent(
+      e.chatId,
+      node.call.toModel(),
+      node.user.toModel(),
+      node.at,
+    );
+  } else if (e.$$typename == &#39;ChatCallMemberRedialedEvent&#39;) {
+    var node =
+        e as ChatEventsVersionedMixin$Events$ChatCallMemberRedialedEvent;
+    _userRepo.put(node.user.toDto());
+    return ChatCallMemberRedialedEvent(
+      e.chatId,
+      node.at,
+      node.callId,
+      node.call.toModel(),
+      node.user.toModel(),
+      node.byUser.toModel(),
+    );
+  } else if (e.$$typename == &#39;ChatDeliveredEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatDeliveredEvent;
+    return ChatDeliveredEvent(e.chatId, node.until);
+  } else if (e.$$typename == &#39;ChatReadEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatReadEvent;
+    _userRepo.put(node.byUser.toDto());
+    return ChatReadEvent(e.chatId, node.byUser.toModel(), node.at);
+  } else if (e.$$typename == &#39;ChatCallDeclinedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatCallDeclinedEvent;
+    _userRepo.put(node.user.toDto());
+    return ChatCallDeclinedEvent(
+      e.chatId,
+      node.callId,
+      node.call.toModel(),
+      node.user.toModel(),
+      node.at,
+    );
+  } else if (e.$$typename == &#39;ChatTotalItemsCountUpdatedEvent&#39;) {
+    var node =
+        e as ChatEventsVersionedMixin$Events$ChatTotalItemsCountUpdatedEvent;
+    return ChatTotalItemsCountUpdatedEvent(e.chatId, node.count);
+  } else if (e.$$typename == &#39;ChatCallMovedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatCallMovedEvent;
+    _userRepo.put(node.user.toDto());
+    return ChatCallMovedEvent(
+      e.chatId,
+      node.callId,
+      node.call.toModel(),
+      node.newChatId,
+      node.newChat.toModel(),
+      node.newCallId,
+      node.newCall.toModel(),
+      node.user.toModel(),
+      node.at,
+    );
+  } else if (e.$$typename == &#39;ChatArchivedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatArchivedEvent;
+    return ChatArchivedEvent(e.chatId, node.at);
+  } else if (e.$$typename == &#39;ChatUnarchivedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatUnarchivedEvent;
+    return ChatUnarchivedEvent(e.chatId, node.at);
+  } else if (e.$$typename == &#39;ChatFavoritedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatFavoritedEvent;
+    return ChatFavoritedEvent(e.chatId, node.at, node.position);
+  } else if (e.$$typename == &#39;ChatUnfavoritedEvent&#39;) {
+    var node = e as ChatEventsVersionedMixin$Events$ChatUnfavoritedEvent;
+    return ChatUnfavoritedEvent(e.chatId, node.at);
+  } else if (e.$$typename == &#39;ChatCallConversationStartedEvent&#39;) {
+    var node =
+        e as ChatEventsVersionedMixin$Events$ChatCallConversationStartedEvent;
+    return ChatCallConversationStartedEvent(
+      e.chatId,
+      node.callId,
+      node.at,
+      node.call.toModel(),
+    );
+  } else if (e.$$typename == &#39;ChatCallAnswerTimeoutPassedEvent&#39;) {
+    var node =
+        e as ChatEventsVersionedMixin$Events$ChatCallAnswerTimeoutPassedEvent;
+    return ChatCallAnswerTimeoutPassedEvent(e.chatId, node.callId);
+  } else {
+    throw UnimplementedError(&#39;Unknown ChatEvent: ${e.$$typename}&#39;);
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../store_chat/">chat</a></li>
+    <li><a href="../../store_chat/ChatRepository-class.html">ChatRepository</a></li>
+    <li class="self-crumb">chatEvent method</li>
+</ol>
+
+    <h5>ChatRepository class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.10.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
