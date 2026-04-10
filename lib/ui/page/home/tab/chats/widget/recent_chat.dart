@@ -457,6 +457,7 @@ class RecentChatTile extends StatelessWidget {
                 child: RectangleAttachment(
                   draft.attachments.first,
                   inverted: inverted,
+                  asStack: draft.attachments.length > 1,
                 ),
               ),
             );
@@ -537,6 +538,13 @@ class RecentChatTile extends StatelessWidget {
             desc.write(item.text!.val);
           }
 
+          if (item.repliesTo.isNotEmpty) {
+            if (desc.toString().trim().isNotEmpty) desc.write('space'.l10n);
+            desc.write(
+              'label_replies'.l10nfmt({'count': item.repliesTo.length}),
+            );
+          }
+
           final List<Widget> images = [];
 
           if (item.attachments.isNotEmpty) {
@@ -561,6 +569,7 @@ class RecentChatTile extends StatelessWidget {
                     item.attachments.first,
                     inverted: inverted,
                     onError: () => rxChat.updateAttachments(item),
+                    asStack: item.attachments.length > 1,
                   ),
                 ),
               );
