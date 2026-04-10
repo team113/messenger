@@ -970,16 +970,22 @@ class SvgIcons {
     height: 16,
   );
 
+  static const SvgData midSignalSmall = SvgData(
+    'assets/icons/mid_signal.svg',
+    width: 15,
+    height: 15,
+  );
+
   static const SvgData lowSignalSmall = SvgData(
     'assets/icons/low_signal.svg',
     width: 15,
-    height: 16,
+    height: 15,
   );
 
   static const SvgData noSignalSmall = SvgData(
     'assets/icons/no_signal.svg',
     width: 15,
-    height: 16,
+    height: 15,
   );
 
   static const SvgData screenShareSmall = SvgData(

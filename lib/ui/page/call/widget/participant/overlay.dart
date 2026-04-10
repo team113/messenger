@@ -80,7 +80,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
           if (participant.member.quality.value <= 0)
             SvgIcons.noSignalSmall
           else if (participant.member.quality.value <= 1)
-            SvgIcons.lowSignalSmall,
+            SvgIcons.lowSignalSmall
+          else if (participant.member.quality.value <= 2)
+            SvgIcons.midSignalSmall,
         ],
 
         // Status related icons.

@@ -20,7 +20,9 @@ import 'package:get/get.dart';
 
 import '/domain/model/ongoing_call.dart';
 import '/ui/page/call/controller.dart';
+import '/ui/widget/svg/svg.dart';
 import '/util/log.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of an [OngoingCall]s overlay.
@@ -48,6 +50,13 @@ class CallOverlayView extends StatelessWidget {
 
           return Stack(
             children: [
+              // Keep the icons loaded, because it won't be able to load when no
+              // connection indeed happens.
+              if (PlatformUtils.isWeb) ...[
+                Offstage(child: SvgIcon(SvgIcons.noSignalSmall)),
+                Offstage(child: SvgIcon(SvgIcons.lowSignalSmall)),
+              ],
+
               Visibility(visible: visible, maintainState: true, child: child),
               ...c.calls.map((e) {
                 return Obx(() {
