@@ -166,16 +166,25 @@ class CacheWorker extends Dependency {
                 onReceiveProgress: onReceiveProgress,
               );
             } on DioException catch (e) {
-              if (e.response?.statusCode == 403) {
-                await onForbidden?.call();
-                return null;
+              switch (e.type) {
+                case DioExceptionType.cancel:
+                  throw Exception('CacheWorker.get("$url") request canceled');
+
+                default:
+                  if (e.response?.statusCode == 403) {
+                    await onForbidden?.call();
+                    return null;
+                  }
+                  break;
               }
             }
 
             if (data?.data != null && data!.statusCode == 200) {
               return data.data as Uint8List;
             } else {
-              throw Exception('Data is not loaded');
+              throw Exception(
+                'CacheWorker.get("$url") expected non-`null` fetched data, yet the request failed',
+              );
             }
           }, cancel: cancelToken);
 

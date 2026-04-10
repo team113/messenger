@@ -277,16 +277,23 @@ class ParticipantsButton extends CallButton {
 
   @override
   Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
-    return CallButtonWidget(
-      hint: hint,
-      asset: SvgIcons.callParticipants,
-      offset: const Offset(2, 0),
-      hinted: hinted,
-      expanded: expanded,
-      big: big,
-      constrained: c.isMobile,
-      onPressed: c.isMonolog ? null : () => c.openAddMember(router.context!),
-    );
+    return Obx(() {
+      final OngoingCallState state = c.state.value;
+
+      return CallButtonWidget(
+        hint: hint,
+        asset: SvgIcons.callParticipants,
+        offset: const Offset(2, 0),
+        hinted: hinted,
+        expanded: expanded,
+        big: big,
+        constrained: c.isMobile,
+        onPressed:
+            c.isMonolog || (c.isDialog && state != OngoingCallState.active)
+            ? null
+            : () => c.openAddMember(router.context!),
+      );
+    });
   }
 }
 
