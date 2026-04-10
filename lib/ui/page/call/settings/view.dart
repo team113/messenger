@@ -188,6 +188,7 @@ class CallSettingsView extends StatelessWidget {
                               text: 'label_echo_cancellation'.l10n,
                               value: _call.value.echoCancellation ?? false,
                               onChanged: c.setEchoCancellation,
+                              subtitle: 'label_echo_cancellation_subtitle'.l10n,
                             );
                           }),
                           const SizedBox(height: 16),
@@ -196,6 +197,7 @@ class CallSettingsView extends StatelessWidget {
                               text: 'label_auto_gain_control'.l10n,
                               value: _call.value.autoGainControl ?? false,
                               onChanged: c.setAutoGainControl,
+                              subtitle: 'label_auto_gain_control_subtitle'.l10n,
                             );
                           }),
 
@@ -215,6 +217,8 @@ class CallSettingsView extends StatelessWidget {
                                       ? NoiseSuppressionLevelWithOff.veryHigh
                                       : NoiseSuppressionLevelWithOff.off,
                                 ),
+                                subtitle:
+                                    'label_noise_suppression_subtitle'.l10n,
                               );
                             }),
                             const SizedBox(height: 8),
@@ -225,11 +229,13 @@ class CallSettingsView extends StatelessWidget {
                                 text: 'label_high_pass_filter'.l10n,
                                 value: _call.value.highPassFilter ?? false,
                                 onChanged: c.setHighPassFilter,
+                                subtitle:
+                                    'label_high_pass_filter_subtitle'.l10n,
                               );
                             }),
                             const SizedBox(height: 20),
                             LineDivider('label_noise_suppression'.l10n),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Obx(() {
                               NoiseSuppressionLevelWithOff? level =
                                   _call.value.noiseSuppression != true
@@ -275,7 +281,7 @@ class CallSettingsView extends StatelessWidget {
                             }),
                           ],
                         ],
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
