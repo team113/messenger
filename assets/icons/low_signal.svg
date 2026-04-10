@@ -1,13 +1,22 @@
-<svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_11442_117188)">
-<rect y="9.5" width="3" height="6" rx="0.7" fill="#F44336"/>
-<rect x="4.35" y="6.85" width="2.3" height="8.3" rx="0.35" stroke="white" stroke-width="0.7"/>
-<rect x="8.35" y="3.85" width="2.3" height="11.3" rx="0.35" stroke="white" stroke-width="0.7"/>
-<rect x="12.35" y="0.85" width="2.3" height="14.3" rx="0.35" stroke="white" stroke-width="0.7"/>
+<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_16033_319232)">
+<rect y="9" width="3" height="6" rx="0.7" fill="#F44336"/>
+<mask id="path-2-inside-1_16033_319232" fill="white">
+<rect x="4" y="6" width="3" height="9" rx="0.7"/>
+</mask>
+<rect x="4" y="6" width="3" height="9" rx="0.7" stroke="white" stroke-width="1.7" mask="url(#path-2-inside-1_16033_319232)"/>
+<mask id="path-3-inside-2_16033_319232" fill="white">
+<rect x="8" y="3" width="3" height="12" rx="0.7"/>
+</mask>
+<rect x="8" y="3" width="3" height="12" rx="0.7" stroke="white" stroke-width="1.7" mask="url(#path-3-inside-2_16033_319232)"/>
+<mask id="path-4-inside-3_16033_319232" fill="white">
+<rect x="12" width="3" height="15" rx="0.7"/>
+</mask>
+<rect x="12" width="3" height="15" rx="0.7" stroke="white" stroke-width="1.7" mask="url(#path-4-inside-3_16033_319232)"/>
 </g>
 <defs>
-<clipPath id="clip0_11442_117188">
-<rect width="15" height="15" fill="white" transform="translate(0 0.5)"/>
+<clipPath id="clip0_16033_319232">
+<rect width="15" height="15" fill="white"/>
 </clipPath>
 </defs>
 </svg>

@@ -487,6 +487,7 @@ label_ago_date = {$years ->
 }
 label_all_chats_and_groups = All chats and groups
 label_all_session_except_current_terminated = All sessions except this one will be terminated
+label_allow_popups_for_domain_to_display_calls = Allow pop-up for {$domain} in your browser settings to display calls in a separate window
 label_also_delete_for_everyone = Also delete for everyone
 label_always_muted = Always muted
 label_amount_k = {$amount}k
