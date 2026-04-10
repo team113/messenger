@@ -490,6 +490,7 @@ label_ago_date =
     }
 label_all_chats_and_groups = Todos los chats y grupos
 label_all_session_except_current_terminated = Todas las sesiones, excepto esta, serán terminadas
+label_allow_popups_for_domain_to_display_calls = Permite que las ventanas emergentes para {$domain} en la configuración de tu navegador muestren las llamadas en una ventana separada.
 label_also_delete_for_everyone = También eliminar para todas
 label_always_muted = Siempre silenciados
 label_amount_k = {$amount}k

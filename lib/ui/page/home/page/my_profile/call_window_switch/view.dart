@@ -19,8 +19,10 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
@@ -42,6 +44,8 @@ class CallWindowSwitchView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: CallWindowSwitchController(Get.find()),
       builder: (CallWindowSwitchController c) {
@@ -95,6 +99,13 @@ class CallWindowSwitchView extends StatelessWidget {
                         onPressed: () => c.setPopupsEnabled(false),
                       );
                     }),
+                    const SizedBox(height: 16),
+                    Text(
+                      'label_allow_popups_for_domain_to_display_calls'.l10nfmt({
+                        'domain': Config.origin,
+                      }),
+                      style: style.fonts.small.regular.secondary,
+                    ),
                   ],
                 ),
               ),

@@ -503,6 +503,7 @@ label_ago_date = {$years ->
 }
 label_all_chats_and_groups = Все чаты и группы
 label_all_session_except_current_terminated = Все сессии, кроме текущей, будут завершены
+label_allow_popups_for_domain_to_display_calls = Разрешите всплывающие окна для {$domain} в настройках браузера, чтобы отображать звонки в отдельных окнах
 label_also_delete_for_everyone = Также удалить для всех
 label_always_muted = Всегда беззвучные
 label_amount_k = {$amount}k
