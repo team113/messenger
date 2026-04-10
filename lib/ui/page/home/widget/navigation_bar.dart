@@ -24,8 +24,8 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
+import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
-import '/ui/widget/context_menu/tile.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -206,18 +206,20 @@ class CustomNavigationBarItem extends StatelessWidget {
            preventContextMenu: false,
            actions: [
              if (danger)
-               ContextMenuTile(
+               ContextMenuButton(
                  key: const Key('MuteChatsButton'),
-                 asset: SvgIcons.unmuted22,
+                 trailing: SvgIcon(SvgIcons.contextMute),
+                 inverted: SvgIcon(SvgIcons.contextMuteWhite),
                  label: 'btn_mute_chats'.l10n,
-                 onPressed: (_) => onMute?.call(false),
+                 onPressed: () => onMute?.call(false),
                )
              else
-               ContextMenuTile(
+               ContextMenuButton(
                  key: const Key('UnmuteChatsButton'),
-                 asset: SvgIcons.muted22,
+                 trailing: SvgIcon(SvgIcons.contextUnmute),
+                 inverted: SvgIcon(SvgIcons.contextUnmuteWhite),
                  label: 'btn_unmute_chats'.l10n,
-                 onPressed: (_) => onMute?.call(true),
+                 onPressed: () => onMute?.call(true),
                ),
            ],
            child: SafeAnimatedSwitcher(

@@ -236,7 +236,6 @@ class PlayerView extends StatelessWidget {
             child: _post(context, c, constraints, c.posts.elementAt(i)),
           );
         },
-        // children: [...c.posts.map((e) => _post(context, c, e))],
       );
     });
   }

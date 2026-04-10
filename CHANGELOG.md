@@ -19,6 +19,8 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Low connection icons. ([#1686])
         - Add member in participants list. ([#1687])
+    - Chats tab:
+        - Service chats context menu submenu option. ([#1689])
 
 ### Fixed
 
@@ -33,6 +35,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1684]: /../../pull/1684
 [#1686]: /../../pull/1686
 [#1687]: /../../pull/1687
+[#1689]: /../../pull/1689
 
 
 
