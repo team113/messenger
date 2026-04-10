@@ -2111,4 +2111,10 @@ class SvgIcons {
     width: 20,
     height: 20,
   );
+
+  static const SvgData addMember = SvgData(
+    'assets/icons/add_member.svg',
+    width: 20,
+    height: 20,
+  );
 }

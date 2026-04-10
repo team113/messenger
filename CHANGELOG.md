@@ -18,6 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Don't display logout confirmation when e-mail is set. ([#1684])
     - Media panel:
         - Low connection icons. ([#1686])
+        - Add member in participants list. ([#1687])
 
 ### Fixed
 
@@ -31,6 +32,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1683]: /../../pull/1683
 [#1684]: /../../pull/1684
 [#1686]: /../../pull/1686
+[#1687]: /../../pull/1687
 
 
 
