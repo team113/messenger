@@ -208,6 +208,7 @@ btn_select_messages = Выбрать сообщения
 btn_send_application = Отправить заявку
 btn_send_email = Отправить e-mail
 btn_send_one_time_code = Отправить одноразовый код
+btn_service_chats = Служебные чаты
 btn_set_password = Установить пароль
 btn_share = Поделиться
 btn_share_audio = Транслировать звук

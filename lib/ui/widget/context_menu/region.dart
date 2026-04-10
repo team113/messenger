@@ -123,12 +123,15 @@ class ContextMenuRegion extends StatefulWidget {
   /// Indicator whether the [child] should be unconstrained.
   final bool unconstrained;
 
+  /// List of [ContextMenuRegionState] currently having an [OverlayEntry].
+  static List<ContextMenuRegionState> overlays = [];
+
   @override
-  State<ContextMenuRegion> createState() => _ContextMenuRegionState();
+  State<ContextMenuRegion> createState() => ContextMenuRegionState();
 }
 
 /// State of a [ContextMenuRegion] keeping the [_darkened] indicator.
-class _ContextMenuRegionState extends State<ContextMenuRegion> {
+class ContextMenuRegionState extends State<ContextMenuRegion> {
   /// Indicator whether a [ColoredBox] should be displayed above the provided
   /// child.
   bool _darkened = false;
@@ -159,6 +162,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   @override
   void dispose() {
     _routesSubscription?.cancel();
+    ContextMenuRegion.overlays.remove(this);
     super.dispose();
   }
 
@@ -246,6 +250,18 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
     return child;
   }
 
+  /// Hides and dismisses any [OverlayEntry] this state currently has.
+  void hide() {
+    _displayed = false;
+    if (mounted) {
+      setState(() {});
+    }
+
+    _entry?.remove();
+    _entry = null;
+    ContextMenuRegion.overlays.remove(this);
+  }
+
   /// Shows the [ContextMenu] wrapping the [ContextMenuRegion.actions].
   Future<void> _show(Offset position) async {
     final style = Theme.of(context).style;
@@ -323,9 +339,12 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
       if (widget.indicateOpenedMenu) {
         _darkened = false;
       }
+
       if (mounted) {
         setState(() {});
       }
+
+      ContextMenuRegion.overlays.add(this);
     } else {
       _entry = OverlayEntry(
         builder: (_) {
@@ -333,20 +352,13 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
             position: position,
             actions: widget.actions,
             onClosed: () => _darkened = false,
-            onDismissed: () {
-              _displayed = false;
-              if (mounted) {
-                setState(() {});
-              }
-
-              _entry?.remove();
-              _entry = null;
-            },
+            onDismissed: hide,
           );
         },
       );
 
       Overlay.of(context, rootOverlay: true).insert(_entry!);
+      ContextMenuRegion.overlays.add(this);
     }
   }
 }

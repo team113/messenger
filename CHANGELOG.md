@@ -21,6 +21,7 @@ All user visible changes to this project will be documented in this file. This p
         - Add member in participants list. ([#1687])
     - Chats tab:
         - Display stack when there's multiple attachments in last message. ([#1688])
+        - Service chats context menu submenu option. ([#1689])
 
 ### Fixed
 
@@ -37,6 +38,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1686]: /../../pull/1686
 [#1687]: /../../pull/1687
 [#1688]: /../../pull/1688
+[#1689]: /../../pull/1689
 
 
 

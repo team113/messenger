@@ -208,6 +208,7 @@ btn_select_messages = Seleccionar mensajes
 btn_send_application = Enviar solicitud
 btn_send_email = Enviar correo electrónico
 btn_send_one_time_code = Enviar código desechable
+btn_service_chats = Chats de servicio
 btn_set_password = Configurar contraseña
 btn_share = Compartir
 btn_share_audio = Compartir audio

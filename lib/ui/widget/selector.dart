@@ -82,6 +82,9 @@ class Selector<T> extends StatefulWidget {
   /// Callback, called when [Listener.onPointerUp] is called.
   final void Function(BuildContext)? onPointerUp;
 
+  /// List of [SelectorState]s out there.
+  static List<SelectorState> states = [];
+
   /// Displays a [Selector] wrapped in a modal popup.
   static Future<T?> show<T extends Object>({
     required BuildContext context,
@@ -127,7 +130,7 @@ class Selector<T> extends StatefulWidget {
   }
 
   @override
-  State<Selector<T>> createState() => _SelectorState<T>();
+  State<Selector<T>> createState() => SelectorState<T>();
 
   /// Invokes the [NavigatorState.pop] of [Navigator] from [context].
   static void _popNavigator(BuildContext context) =>
@@ -135,7 +138,7 @@ class Selector<T> extends StatefulWidget {
 }
 
 /// State of a [Selector] maintaining the [_debounce].
-class _SelectorState<T> extends State<Selector<T>> {
+class SelectorState<T> extends State<Selector<T>> {
   /// Currently selected item.
   late Rx<T> _selected;
 
@@ -163,12 +166,15 @@ class _SelectorState<T> extends State<Selector<T>> {
       }
     });
 
+    Selector.states.add(this);
+
     super.initState();
   }
 
   @override
   void dispose() {
     _debounce?.dispose();
+    Selector.states.remove(this);
     super.dispose();
   }
 
