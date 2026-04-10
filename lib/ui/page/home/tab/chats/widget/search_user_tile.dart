@@ -90,7 +90,10 @@ class SearchUserTile extends StatelessWidget {
             images.add(
               Padding(
                 padding: const EdgeInsets.only(right: 4),
-                child: RectangleAttachment(welcome.attachments.first),
+                child: RectangleAttachment(
+                  welcome.attachments.first,
+                  asStack: welcome.attachments.length > 1,
+                ),
               ),
             );
           }
