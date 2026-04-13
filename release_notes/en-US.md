@@ -1,4 +1,6 @@
-- Added support service to context menu options on chats tab.
-- Added ability to create multiple direct links to any user.
-- Updated users searching to display users' welcome message.
+- Added "Service chats" context submenu to chats tab.
+- Updated low connection icons in call.
+- Updated participants list design in call.
+- Updated last message preview in chats list to display stack of attachments when there's multiple attachments in last message.
+- Prevent logout confirmation from displaying when any e-mail is set.
 - Bug fixes and performance improvements.

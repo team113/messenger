@@ -1,4 +1,6 @@
-- Se agregó el servicio de soporte a las opciones del menú contextual en la pestaña de chats.
-- Se agregó la posibilidad de crear múltiples enlaces directos a cualquier usuario.
-- Se actualizó la búsqueda de usuarios para mostrar el mensaje de bienvenida.
+- Se agregó el submenú contextual "Chats de servicio" a la pestaña de chats.
+- Se actualizaron los íconos de conexión baja en las llamadas.
+- Se actualizó el diseño de la lista de participantes en las llamadas.
+- Se actualizó la vista previa del último mensaje en la lista de chats para mostrar una pila de archivos adjuntos cuando hay varios en el último mensaje.
+- Se evitó que se mostrara la confirmación de cierre de sesión cuando se configura un correo electrónico.
 - Corrección de errores y mejoras de rendimiento.
