@@ -7,7 +7,12 @@ Docs: [main](https://team113.github.io/messenger/main/) ([release](https://team1
 
 Open-source front-end part of messenger by team113.
 
-Currently, is under hard development.
+
+
+
+## Status
+
+__PROJECT IS CLOSED. NO MAINTAINING WILL BE CONTINUED.__
 
 
 
