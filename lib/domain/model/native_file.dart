@@ -29,6 +29,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:mime/mime.dart';
 import 'package:mutex/mutex.dart';
 
+import '/util/log.dart';
 import '/util/mime.dart';
 import '/util/platform_utils.dart';
 
@@ -245,6 +246,8 @@ class NativeFile {
   /// Converts the [NativeFile] to a [MultipartFile].
   Future<dio.MultipartFile> toMultipartFile() async {
     final String filename = _resolveFilename();
+
+    Log.debug('toMultipartFile() -> filename is $filename', '$runtimeType');
 
     if (path != null) {
       return await dio.MultipartFile.fromFile(

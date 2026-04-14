@@ -82,7 +82,13 @@ class Backoff {
               backoff *= 2;
             }
 
-            Log.debug('$e\n$invokedFrom', 'Backoff');
+            if (e.toString().contains(
+              'expected non-`null` fetched data, yet the request failed',
+            )) {
+              Log.debug('$e', 'Backoff');
+            } else {
+              Log.debug('$e\n$invokedFrom', 'Backoff');
+            }
           }
         }
       }),

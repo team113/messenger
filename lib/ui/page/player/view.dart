@@ -23,7 +23,6 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/attachment.dart';
@@ -478,20 +477,30 @@ class PlayerView extends StatelessWidget {
           }),
         ),
 
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            0,
-            isMobile ? 0 : 60,
-            8,
-            isMobile ? 0 : 60,
+        if (!context.isMobile)
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(0, 0, 16, 0),
+              child: Obx(() {
+                return AnimatedOpacity(
+                  duration: const Duration(milliseconds: 250),
+                  opacity: c.interface.value ? 1 : 0,
+                  child: _arrows(context, c, constraints),
+                );
+              }),
+            ),
           ),
-          child: Align(
-            alignment: Alignment.bottomRight,
+
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(0, isMobile ? 0 : 60, 16, 0),
             child: Obx(() {
               return AnimatedOpacity(
                 duration: const Duration(milliseconds: 250),
                 opacity: c.interface.value ? 1 : 0,
-                child: _arrows(context, c, constraints),
+                child: _actions(context, c, constraints),
               );
             }),
           ),
@@ -585,7 +594,7 @@ class PlayerView extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
-                  onTapDown: (_) => video.setRate(0.5),
+                  onTapDown: (_) => video.setRate(2),
                   onTapUp: (_) => video.setRate(1),
                   onDoubleTap: () {
                     final int seconds = video.position.value.inSeconds;
@@ -675,7 +684,13 @@ class PlayerView extends StatelessWidget {
         5 + padding.right,
         0,
       ),
-      decoration: BoxDecoration(color: Color(0x4B333333)),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0x4B333333), Color(0x00333333)],
+        ),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -796,26 +811,18 @@ class PlayerView extends StatelessWidget {
           _bar(context, c, constraints),
 
           Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                0,
-                0,
-                16 + padding.right,
-                57 + 16 + padding.bottom,
-              ),
-              child: _position(context, c),
-            ),
-          ),
-
-          Align(
             alignment: Alignment.bottomCenter,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 _dots(context, c),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 57 + 12, right: 42),
+                  padding: EdgeInsets.only(
+                    bottom: !PlatformUtils.isMobile && video == null
+                        ? 12
+                        : 57 + 12,
+                    right: 42,
+                  ),
                   child: _description(context, c, constraints),
                 ),
               ],
@@ -825,8 +832,8 @@ class PlayerView extends StatelessWidget {
           if (video != null)
             Positioned(
               bottom: 44 + padding.bottom,
-              left: 0,
-              right: 0,
+              left: 16,
+              right: 16,
               child: Obx(() {
                 return ProgressBar(
                   handleHeight: 1,
@@ -876,112 +883,87 @@ class PlayerView extends StatelessWidget {
         ),
         child: WidgetButton(
           onPressed: c.expanded.toggle,
-          child: Row(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                child: Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                      child: Row(
-                        children: [
-                          AvatarWidget.fromUser(
-                            user,
-                            radius: AvatarRadius.small,
-                            isOnline:
-                                user.online &&
-                                user.presence == UserPresence.present,
-                            isAway:
-                                user.online &&
-                                user.presence == UserPresence.away,
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              user.title(),
-                              style: style.fonts.medium.bold.onPrimary,
-                            ),
-                          ),
-                          Opacity(opacity: 0, child: _position(context, c)),
-                        ],
+                    AvatarWidget.fromUser(
+                      user,
+                      radius: AvatarRadius.small,
+                      isOnline:
+                          user.online && user.presence == UserPresence.present,
+                      isAway: user.online && user.presence == UserPresence.away,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        user.title(),
+                        style: style.fonts.medium.bold.onPrimary,
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        20,
-                        text != null ? 8 : 0,
-                        20,
-                        4,
-                      ),
-                      child: Obx(() {
-                        return AnimatedSizeAndFade(
-                          fadeDuration: Duration(milliseconds: 250),
-                          sizeDuration: Duration(milliseconds: 250),
-                          fadeInCurve: Curves.ease,
-                          fadeOutCurve: Curves.ease,
-                          alignment: Alignment.centerLeft,
-                          child: c.expanded.value
-                              ? Column(
-                                  key: Key('Expanded'),
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (text != null)
-                                      Text(
-                                        text,
-                                        style: style
-                                            .fonts
-                                            .normal
-                                            .regular
-                                            .onPrimary,
-                                        maxLines: null,
-                                      ),
-                                    SizedBox(height: 8),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          message.at.val.toRelative(),
-                                          style: style
-                                              .fonts
-                                              .normal
-                                              .regular
-                                              .onPrimary
-                                              .copyWith(
-                                                color: style
-                                                    .colors
-                                                    .onPrimaryOpacity50,
-                                              ),
-                                        ),
-                                        Spacer(),
-                                        Opacity(
-                                          opacity: 0,
-                                          child: _position(context, c),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                )
-                              : text == null
-                              ? SizedBox(width: double.infinity)
-                              : Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    key: Key('Short'),
-                                    text,
-                                    style: style.fonts.normal.regular.onPrimary,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                        );
-                      }),
-                    ),
+                    Opacity(opacity: 0, child: _position(context, c)),
                   ],
                 ),
               ),
-              Opacity(opacity: 0, child: _position(context, c)),
+              Padding(
+                padding: EdgeInsets.fromLTRB(20, text != null ? 8 : 0, 20, 4),
+                child: Obx(() {
+                  return AnimatedSizeAndFade(
+                    fadeDuration: Duration(milliseconds: 250),
+                    sizeDuration: Duration(milliseconds: 250),
+                    fadeInCurve: Curves.ease,
+                    fadeOutCurve: Curves.ease,
+                    alignment: Alignment.centerLeft,
+                    child: c.expanded.value
+                        ? Column(
+                            key: Key('Expanded'),
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (text != null)
+                                Text(
+                                  text,
+                                  style: style.fonts.normal.regular.onPrimary,
+                                  maxLines: null,
+                                ),
+                              SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Text(
+                                    message.at.val.toRelative(),
+                                    style: style.fonts.normal.regular.onPrimary
+                                        .copyWith(
+                                          color:
+                                              style.colors.onPrimaryOpacity50,
+                                        ),
+                                  ),
+                                  Spacer(),
+                                  Opacity(
+                                    opacity: 0,
+                                    child: _position(context, c),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
+                        : text == null
+                        ? SizedBox(width: double.infinity)
+                        : Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              key: Key('Short'),
+                              text,
+                              style: style.fonts.normal.regular.onPrimary,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                  );
+                }),
+              ),
             ],
           ),
         ),
@@ -1029,9 +1011,9 @@ class PlayerView extends StatelessWidget {
                   Color.fromRGBO(0, 0, 0, 0.50),
                 ]
               : [
-                  Color.fromRGBO(51, 51, 51, 0.30),
-                  Color.fromRGBO(51, 51, 51, 0.30),
-                  Color.fromRGBO(51, 51, 51, 0.30),
+                  Color.fromRGBO(0, 0, 0, 0.0),
+                  Color.fromRGBO(0, 0, 0, 0.1),
+                  Color.fromRGBO(0, 0, 0, 0.4),
                 ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -1057,7 +1039,7 @@ class PlayerView extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 57 - 12,
+            height: PlatformUtils.isMobile ? 120 : 57 - 12,
             child: isMobile
                 ? _mobileBar(context, c, constraints)
                 : _desktopBar(context, c, constraints),
@@ -1141,9 +1123,6 @@ class PlayerView extends StatelessWidget {
           ],
           const SizedBox(width: 12),
           Spacer(),
-          const SizedBox(width: 12),
-          _buttons(context, c, constraints),
-          const SizedBox(width: 12),
         ],
       );
     });
@@ -1155,148 +1134,7 @@ class PlayerView extends StatelessWidget {
     PlayerController c,
     BoxConstraints constraints,
   ) {
-    return Obx(() {
-      final Post? post = c.post;
-      final ChatItem? item = post?.item;
-      final ReactivePlayerController? video = c.item?.video.value;
-
-      final bool canReact = item != null && onReact != null;
-      final bool canReply = item != null && onReply != null;
-      final bool canShare = item != null && onShare != null;
-
-      return Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Opacity(
-            opacity: video == null ? 0.5 : 1,
-            child: WidgetButton(
-              onPressed: video == null
-                  ? null
-                  : () {
-                      if (video.volume.value == 0) {
-                        video.setVolume(c.latestVolume ?? 0.5);
-                      } else {
-                        c.latestVolume = video.volume.value;
-                        video.setVolume(0.0);
-                      }
-                    },
-              child: SizedBox(
-                width: 24,
-                child: video == null
-                    ? SvgIcon(SvgIcons.volume)
-                    : Obx(() {
-                        return SvgIcon(
-                          video.volume.value == 0
-                              ? SvgIcons.volumeMuted
-                              : SvgIcons.volume,
-                        );
-                      }),
-              ),
-            ),
-          ),
-
-          Opacity(
-            opacity: canReact ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: canReact
-                  ? () {
-                      // TODO: Toggle reactions.
-                    }
-                  : null,
-              child: SvgIcon(SvgIcons.videoReact),
-            ),
-          ),
-
-          Opacity(
-            opacity: canReply ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: canReply
-                  ? () {
-                      onReply?.call(post!);
-                      Navigator.of(context).pop();
-                    }
-                  : null,
-              child: SvgIcon(SvgIcons.videoReply),
-            ),
-          ),
-
-          Opacity(
-            opacity: canShare ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: canShare
-                  ? () {
-                      onShare?.call(post!);
-                    }
-                  : null,
-              child: SvgIcon(SvgIcons.videoShare),
-            ),
-          ),
-        ],
-      );
-    });
-  }
-
-  /// Builds the buttons controlling the previous/next scrolling, etc.
-  Widget _buttons(
-    BuildContext context,
-    PlayerController c,
-    BoxConstraints constraints,
-  ) {
-    final style = Theme.of(context).style;
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Obx(() {
-          final Post? post = c.posts.elementAtOrNull(c.index.value);
-          final ChatItem? item = post?.item;
-          final bool canReply = post != null && item != null && onReply != null;
-
-          return Opacity(
-            opacity: canReply ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: canReply
-                  ? () {
-                      onReply?.call(post);
-                      Navigator.of(context).pop();
-                    }
-                  : null,
-              child: SvgIcon(SvgIcons.videoReply),
-            ),
-          );
-        }),
-
-        const SizedBox(width: 24),
-
-        Obx(() {
-          final Post? post = c.posts.elementAtOrNull(c.index.value);
-          final ChatItem? item = post?.item;
-          final bool canShare = post != null && item != null && onShare != null;
-
-          return Opacity(
-            opacity: canShare ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: canShare ? () => onShare?.call(post) : null,
-              child: SvgIcon(SvgIcons.videoShare),
-            ),
-          );
-        }),
-
-        const SizedBox(width: 24),
-        Container(
-          decoration: BoxDecoration(color: style.colors.onPrimaryOpacity50),
-          width: 0.5,
-          height: 16,
-        ),
-        const SizedBox(width: 24),
-
-        WidgetButton(
-          onPressed: c.toggleFullscreen,
-          child: SvgIcon(SvgIcons.videoExpand),
-        ),
-      ],
-    );
+    return const SizedBox();
   }
 
   /// Builds a side gallery.
@@ -1307,104 +1145,125 @@ class PlayerView extends StatelessWidget {
   ) {
     final style = Theme.of(context).style;
 
-    return Container(
-      height: constraints.maxHeight,
-      width: constraints.maxWidth / 5,
-      decoration: BoxDecoration(color: Color(0x4B333333)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Obx(() {
+      final double width = c.sideFactor.value * constraints.maxWidth;
+      final double size = min(300, width);
+      final int perOne = (width / 300).floor() + 1;
+
+      final Iterable<(Post, PostItem)> folded = c.posts.expand(
+        (e) => e.items.map((i) => (e, i)),
+      );
+
+      return Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Obx(() {
-              final Iterable<Widget> medias = c.posts
-                  .where((e) {
-                    final PostItem? item = e.items.firstOrNull;
-                    if (item == null) {
-                      return false;
-                    }
-
-                    if (item.attachment is ImageAttachment) {
-                      return c.includePhotos.value;
-                    } else {
-                      return c.includeVideos.value;
-                    }
-                  })
-                  .mapIndexed((i, e) {
-                    return WidgetButton(
-                      onPressed: () {
-                        c.vertical.animateToPage(
-                          i,
-                          duration: Duration(milliseconds: 250),
-                          curve: Curves.ease,
-                        );
-                      },
-                      child: Obx(() {
-                        final bool selected = c.index.value == i;
-
-                        final PostItem? item = e.items.firstOrNull;
-                        if (item == null) {
-                          return const SizedBox();
-                        }
-
-                        return Stack(
-                          alignment: Alignment.centerLeft,
-                          children: [
-                            MediaAttachment(
-                              attachment: item.attachment,
-                              fit: BoxFit.cover,
-                              width: constraints.maxWidth / 5,
-                              height: constraints.maxWidth / 5,
-                              onError: () async => await c.reload(e),
-                            ),
-                            if (selected)
-                              Container(
-                                width: constraints.maxWidth / 5,
-                                height: constraints.maxWidth / 5,
-                                decoration: BoxDecoration(
-                                  color: style.colors.onBackgroundOpacity40,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'label_current_media'.l10n,
-                                    style: style.fonts.small.regular.onPrimary,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                          ],
-                        );
-                      }),
-                    );
-                  });
-
-              if (medias.isEmpty) {
-                return Center(
-                  child: Text(
-                    'label_nothing_found'.l10n,
-                    style: style.fonts.small.regular.secondary,
-                  ),
-                );
-              }
-
-              return ScrollablePositionedList.builder(
-                key: c.scrollableKey,
-                scrollController: c.scrollController,
-                itemScrollController: c.itemScrollController,
-                itemPositionsListener: c.itemPositionsListener,
-                itemCount: medias.length,
-                itemBuilder: (_, i) {
-                  if (i == -1) {
-                    return SizedBox();
-                  }
-
-                  return medias.elementAt(i);
-                },
+          GestureDetector(
+            onPanUpdate: (d) {
+              c.sideFactor.value = max(
+                0.1,
+                min(0.5, 1 - d.globalPosition.dx / constraints.maxWidth),
               );
-            }),
+            },
+            child: MouseRegion(
+              cursor: SystemMouseCursors.resizeLeftRight,
+              child: Container(
+                color: style.colors.transparent,
+                width: 5,
+                height: double.infinity,
+              ),
+            ),
+          ),
+          Container(
+            height: constraints.maxHeight,
+            width: width,
+            decoration: BoxDecoration(color: Color(0x4B333333)),
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: perOne,
+              ),
+              itemCount: folded.length,
+              itemBuilder: (context, i) {
+                final element = folded.elementAtOrNull(i);
+                if (element == null) {
+                  return const SizedBox();
+                }
+
+                final Post post = element.$1;
+                final int postIndex = c.posts.indexOf(post);
+
+                final PostItem item = element.$2;
+                final int itemIndex = post.items.indexOf(item);
+
+                return WidgetButton(
+                  onPressed: () async {
+                    if (postIndex != -1) {
+                      await c.vertical.animateToPage(
+                        postIndex,
+                        duration: Duration(milliseconds: 250),
+                        curve: Curves.ease,
+                      );
+
+                      if (itemIndex != -1) {
+                        if (post.horizontal.value.hasClients) {
+                          post.horizontal.value.animateToPage(
+                            itemIndex,
+                            duration: Duration(milliseconds: 250),
+                            curve: Curves.ease,
+                          );
+                        } else {
+                          SchedulerBinding.instance.addPostFrameCallback((_) {
+                            if (post.horizontal.value.hasClients) {
+                              post.horizontal.value.animateToPage(
+                                itemIndex,
+                                duration: Duration(milliseconds: 250),
+                                curve: Curves.ease,
+                              );
+                            }
+                          });
+                        }
+                      }
+                    }
+                  },
+                  child: Obx(() {
+                    final bool selected =
+                        c.index.value == postIndex &&
+                        post.index.value == itemIndex;
+
+                    return Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [
+                        MediaAttachment(
+                          attachment: item.attachment,
+                          fit: BoxFit.cover,
+                          width: size,
+                          height: size,
+                          onError: () async => await c.reload(post),
+                        ),
+                        if (selected)
+                          Container(
+                            width: size,
+                            height: size,
+                            decoration: BoxDecoration(
+                              color: style.colors.onBackgroundOpacity40,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'label_current_media'.l10n,
+                                style: style.fonts.small.regular.onPrimary,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  }),
+                );
+              },
+            ),
           ),
         ],
-      ),
-    );
+      );
+    });
   }
 
   /// Builds a side gallery.
@@ -1415,85 +1274,178 @@ class PlayerView extends StatelessWidget {
   ) {
     final style = Theme.of(context).style;
 
+    final arrowUp = Obx(() {
+      return Opacity(
+        opacity: c.hasPreviousPage.value ? 1 : 0.5,
+        child: WidgetButton(
+          onPressed: c.hasPreviousPage.value ? c.previous : null,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: style.colors.onBackgroundOpacity27,
+            ),
+            child: Center(child: SvgIcon(SvgIcons.videoPrevious)),
+          ),
+        ),
+      );
+    });
+
+    final galleryButton = Opacity(
+      opacity: c.source.length > 1 ? 1 : 0.5,
+      child: WidgetButton(
+        onPressed: c.source.length > 1
+            ? () async {
+                if (context.isMobile) {
+                  final ReactivePlayerController? video = c.item?.video.value;
+                  video?.pause();
+
+                  await GalleryView.show(context, controller: c);
+                } else {
+                  c.side.toggle();
+                }
+              }
+            : null,
+        child: Obx(() {
+          return AnimatedContainer(
+            duration: Duration(milliseconds: 250),
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: c.side.value
+                  ? const Color(0x40CCCCCC)
+                  : const Color(0x40161616),
+            ),
+            child: Center(child: SvgIcon(SvgIcons.mediaGallery)),
+          );
+        }),
+      ),
+    );
+
+    final arrowDown = Obx(() {
+      return Opacity(
+        opacity: c.hasNextPage.value ? 1 : 0.5,
+        child: WidgetButton(
+          onPressed: c.hasNextPage.value ? c.next : null,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: style.colors.onBackgroundOpacity27,
+            ),
+            child: Center(child: SvgIcon(SvgIcons.videoNext)),
+          ),
+        ),
+      );
+    });
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Opacity(
-          opacity: c.source.length > 1 ? 1 : 0.5,
-          child: WidgetButton(
-            onPressed: c.source.length > 1
-                ? () async {
-                    if (context.isMobile) {
-                      final ReactivePlayerController? video =
-                          c.item?.video.value;
-                      video?.pause();
+        arrowUp,
+        const SizedBox(height: 8),
+        galleryButton,
+        const SizedBox(height: 8),
+        arrowDown,
+      ],
+    );
+  }
 
-                      await GalleryView.show(context, controller: c);
-                    } else {
-                      c.side.toggle();
-                    }
-                  }
-                : null,
-            child: Obx(() {
-              return AnimatedContainer(
-                duration: Duration(milliseconds: 250),
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: c.side.value
-                      ? style.colors.onPrimaryOpacity25
-                      : style.colors.onBackgroundOpacity27,
-                ),
-                child: Center(child: SvgIcon(SvgIcons.mediaGallery)),
-              );
-            }),
+  /// Builds the action buttons.
+  Widget _actions(
+    BuildContext context,
+    PlayerController c,
+    BoxConstraints constraints,
+  ) {
+    final style = Theme.of(context).style;
+
+    final replyButton = Obx(() {
+      final Post? post = c.posts.elementAtOrNull(c.index.value);
+      final ChatItem? item = post?.item;
+      final bool canReply = post != null && item != null && onReply != null;
+
+      return Opacity(
+        opacity: canReply ? 1 : 0.5,
+        child: _button(
+          context,
+          onPressed: canReply
+              ? () {
+                  onReply?.call(post);
+                  Navigator.of(context).pop();
+                }
+              : null,
+          icon: SvgIcons.videoReply,
+        ),
+      );
+    });
+
+    final shareButton = Obx(() {
+      final Post? post = c.posts.elementAtOrNull(c.index.value);
+      final ChatItem? item = post?.item;
+      final bool canShare = post != null && item != null && onShare != null;
+
+      return Opacity(
+        opacity: canShare ? 1 : 0.5,
+        child: _button(
+          context,
+          onPressed: canShare ? () => onShare?.call(post) : null,
+          icon: SvgIcons.videoShare,
+        ),
+      );
+    });
+
+    final fullscreenButton = _button(
+      context,
+      onPressed: c.toggleFullscreen,
+      icon: SvgIcons.videoExpand,
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        replyButton,
+        const SizedBox(height: 8),
+        shareButton,
+        const SizedBox(height: 8),
+        Container(
+          width: 20,
+          height: 2,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: style.colors.onPrimaryOpacity7,
           ),
         ),
-
         const SizedBox(height: 8),
-
-        Obx(() {
-          return Opacity(
-            opacity: c.hasPreviousPage.value ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: c.hasPreviousPage.value ? c.previous : null,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: style.colors.onBackgroundOpacity27,
-                ),
-                child: Center(child: SvgIcon(SvgIcons.videoPrevious)),
-              ),
-            ),
-          );
-        }),
-
+        if (context.isMobile) const SizedBox(height: 40) else fullscreenButton,
         const SizedBox(height: 8),
-
-        Obx(() {
-          return Opacity(
-            opacity: c.hasNextPage.value ? 1 : 0.5,
-            child: WidgetButton(
-              onPressed: c.hasNextPage.value ? c.next : null,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: style.colors.onBackgroundOpacity27,
-                ),
-                child: Center(child: SvgIcon(SvgIcons.videoNext)),
-              ),
-            ),
-          );
-        }),
       ],
+    );
+  }
+
+  Widget _button(
+    BuildContext context, {
+    required SvgData icon,
+    void Function()? onPressed,
+  }) {
+    final style = Theme.of(context).style;
+
+    return WidgetButton(
+      onPressed: onPressed,
+      child: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: context.isMobile ? null : style.colors.onBackgroundOpacity27,
+        ),
+        child: Center(child: SvgIcon(icon)),
+      ),
     );
   }
 }

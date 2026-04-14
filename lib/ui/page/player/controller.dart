@@ -151,6 +151,9 @@ class PlayerController extends GetxController {
   /// [isClosed] will become `true`.
   bool isClosing = false;
 
+  /// Factor of the screen's width a [side] gallery should occupy.
+  final RxDouble sideFactor = RxDouble(0.2);
+
   /// [AbstractSettingsRepository] for storing the
   /// [ApplicationSettings.videoVolume].
   final AbstractSettingsRepository _settingsRepository;
