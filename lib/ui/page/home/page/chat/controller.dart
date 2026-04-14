@@ -482,7 +482,9 @@ class ChatController extends GetxController {
 
         if (key == LogicalKeyboardKey.arrowUp) {
           final previous = chat?.messages.lastWhereOrNull((e) {
-            return e.value is ChatMessage && !e.value.id.isLocal;
+            return e.value is ChatMessage &&
+                !e.value.id.isLocal &&
+                e.value.author.id == me;
           });
 
           if (previous != null) {
