@@ -1920,12 +1920,6 @@ class SvgIcons {
     height: 20,
   );
 
-  static const SvgData videoReact = SvgData(
-    'assets/icons/video_react.svg',
-    width: 23,
-    height: 23,
-  );
-
   static const SvgData videoReply = SvgData(
     'assets/icons/video_reply.svg',
     width: 20.32,

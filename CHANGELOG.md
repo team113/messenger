@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.11.0] · 2026-??-??
+[0.11.0]: /../../tree/v0.11.0
+
+[Diff](/../../compare/v0.10.2...v0.11.0) | [Milestone](/../../milestone/75)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Updated desktop and mobile player. ([#1694])
+
+[#1694]: /../../pull/1694
+
+
+
+
 ## [0.10.2] · 2026-04-13
 [0.10.2]: /../../tree/v0.10.2
 

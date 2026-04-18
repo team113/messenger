@@ -1419,11 +1419,18 @@ class ChatRepository extends DisposableInterface
       attachment.status.value = SendingStatus.sent;
       attachment.progress.value = 1;
       return model;
-    } on dio.DioException {
+    } on dio.DioException catch (e) {
       if (attachment.isCanceled) {
         attachment.upload.value?.complete(null);
         return null;
       }
+
+      if (attachment.read.value?.isCompleted == false) {
+        attachment.read.value?.complete(null);
+      }
+      attachment.upload.value?.completeError(e);
+      attachment.status.value = SendingStatus.error;
+      attachment.progress.value = 0;
 
       rethrow;
     } catch (e) {

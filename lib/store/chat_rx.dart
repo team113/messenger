@@ -1199,6 +1199,21 @@ class RxChatImpl extends RxChat {
             );
           },
           onAdded: (e) async {
+            // If this [ChatItem] is stuck at `sending` or `error` status, then
+            // its [Attachment]s uploading probably won't finish, thus mark
+            // their statuses as errored.
+            if (e.value.status.value == SendingStatus.sending ||
+                e.value.status.value == SendingStatus.error) {
+              if (e.value is ChatMessage) {
+                for (var a in (e.value as ChatMessage).attachments) {
+                  if (a is LocalAttachment &&
+                      a.status.value == SendingStatus.sending) {
+                    a.status.value = SendingStatus.error;
+                  }
+                }
+              }
+            }
+
             // If this [ChatItem] is stuck at `sending` status, then it's
             // probably won't finish, thus mark this message as errored.
             if (e.value.status.value == SendingStatus.sending) {
